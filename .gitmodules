@@ -1,0 +1,3 @@
+[submodule "rust-umbral"]
+	path = rust-umbral
+	url = https://github.com/nucypher/rust-umbral

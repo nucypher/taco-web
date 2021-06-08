@@ -1322,9 +1322,9 @@
   integrity sha1-7ihweulOEdK4J7y+UnC86n8+ce4=
 
 "@types/node@*":
-  version "15.12.1"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-15.12.1.tgz#9b60797dee1895383a725f828a869c86c6caa5c2"
-  integrity sha512-zyxJM8I1c9q5sRMtVF+zdd13Jt6RU4r4qfhTd7lQubyThvLfx6yYekWSQjGCGV2Tkecgxnlpl/DNlb6Hg+dmEw==
+  version "15.12.2"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-15.12.2.tgz#1f2b42c4be7156ff4a6f914b2fb03d05fa84e38d"
+  integrity sha512-zjQ69G564OCIWIOHSXyQEEDpdpGl+G348RAKY0XXy9Z5kU9Vzv1GMNnkar/ZJ8dzXB3COzD9Mo9NtRZ4xfgUww==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.0"
@@ -5606,9 +5606,6 @@ mute-stream@0.0.8:
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.8.tgz#1630c42b2251ff81e2a283de96a5497ea92e5e0d"
   integrity sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==
 
-"my-project@file:my-project/pkg":
-  version "0.1.0"
-
 nan@^2.12.1:
   version "2.14.2"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.2.tgz#f5376400695168f4cc694ac9393d0c9585eeea19"
@@ -5910,9 +5907,9 @@ ora@^4.0.3:
     wcwidth "^1.0.1"
 
 ora@^5.4.0:
-  version "5.4.0"
-  resolved "https://registry.yarnpkg.com/ora/-/ora-5.4.0.tgz#42eda4855835b9cd14d33864c97a3c95a3f56bf4"
-  integrity sha512-1StwyXQGoU6gdjYkyVcqOLnVlbKj+6yPNNOxJVgpt9t4eksKjiriiHuxktLYkgllwk+D6MbC4ihH84L1udRXPg==
+  version "5.4.1"
+  resolved "https://registry.yarnpkg.com/ora/-/ora-5.4.1.tgz#1b2678426af4ac4a509008e5e4ac9e9959db9e18"
+  integrity sha512-5b6Y85tPxZZ7QytO+BQzysW31HJku27cRIlkbAXaNx+BdcVi+LlRFmVXzeF6a7JCwJpyw5c4b+YSVImQIrBpuQ==
   dependencies:
     bl "^4.1.0"
     chalk "^4.1.0"
@@ -8028,6 +8025,9 @@ typescript@^4.3.2:
   version "4.3.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.3.2.tgz#399ab18aac45802d6f2498de5054fcbbe716a805"
   integrity sha512-zZ4hShnmnoVnAHpVHWpTcxdv7dWP60S2FsydQLV8V5PbS3FifjWFFRiHSWpDJahly88PRyV5teTSLoq4eG7mKw==
+
+umbral-pre@./rust-umbral/umbral-pre-wasm/pkg:
+  version "0.0.3"
 
 unbox-primitive@^1.0.1:
   version "1.0.1"

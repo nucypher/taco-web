@@ -12,9 +12,11 @@
   },
   "scripts": {
     "start": "tsdx watch",
-    "build": "yarn build:umbral && tsdx build",
-    "build:umbral": "cd rust-umbral/umbral-pre-wasm && wasm-pack build",
-    "build:umbral:nodejs": "yarn build:umbral --target nodejs",
+    "build": "yarn build:umbral:bundler && tsdx build",
+    "build:umbral": "(cd rust-umbral/umbral-pre-wasm && make clean && make",
+    "build:umbral:bundler": "(cd rust-umbral/umbral-pre-wasm && make clean && make TARGET=bundler) && yarn check:umbral",
+    "build:umbral:nodejs": "(cd rust-umbral/umbral-pre-wasm && make clean && make TARGET=nodejs) && yarn check:umbral",
+    "check:umbral": "yarn add --check-files ./rust-umbral/umbral-pre-wasm/pkg",
     "test": "yarn build:umbral:nodejs && tsdx test",
     "lint": "tsdx lint",
     "size": "size-limit",
@@ -54,6 +56,6 @@
     "typescript": "^4.3.2"
   },
   "dependencies": {
-    "my-project": "file:my-project/pkg"
+    "umbral-pre": "./rust-umbral/umbral-pre-wasm/pkg"
   }
 }

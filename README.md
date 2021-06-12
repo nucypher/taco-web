@@ -37,3 +37,11 @@ yarn install
 yarn start
 # outputs a URL to visit in browser
 ```
+
+## Github Actions
+
+CI is disabled. Enable it with:
+
+```bash
+gh workflow disable ci
+```

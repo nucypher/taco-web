@@ -1,7 +1,6 @@
 import * as umbral from 'umbral-pre';
-
 import {
-  KeyFrags,
+  UmbralKFrags,
   UmbralPublicKey,
   UmbralSecretKey,
   UmbralSigner,
@@ -9,16 +8,19 @@ import {
 import { UmbralKeyingMaterial } from './keys';
 
 export class DelegatingPower {
-  generateKFrags(
+  public async generateKFrags(
     bobEncryptingKey: UmbralPublicKey,
     signer: UmbralSigner,
     label: string,
     m: number,
     n: number
-  ): KeyFrags {
-    const delegatingSecretKey = this.getSecretKeyFromLabel(label);
-    const delegatingPublicKey= this.getPublicKeyFromLabel(label);
-    const kFrags = umbral.generate_kfrags(
+  ): Promise<{
+    delegatingPublicKey: UmbralPublicKey;
+    kFrags: UmbralKFrags[];
+  }> {
+    const delegatingSecretKey = await this.getSecretKeyFromLabel(label);
+    const delegatingPublicKey = await this.getPublicKeyFromLabel(label);
+    const kFrags = umbral.generateKFrags(
       delegatingSecretKey,
       bobEncryptingKey,
       signer,
@@ -38,13 +40,13 @@ export class DelegatingPower {
     this.umbralKeyingMetrial = new UmbralKeyingMaterial(keyingMaterial);
   }
 
-  public getSecretKeyFromLabel(label: string): UmbralSecretKey {
+  public async getSecretKeyFromLabel(label: string): Promise<UmbralSecretKey> {
     return this.umbralKeyingMetrial.deriveSecretKeyByLabel(label);
   }
 
-  public getPublicKeyFromLabel(label: string): UmbralPublicKey {
-    const sk = this.getSecretKeyFromLabel(label);
-    return umbral.PublicKey.from_secret_key(sk);
+  public async getPublicKeyFromLabel(label: string): Promise<UmbralPublicKey> {
+    const sk = await this.getSecretKeyFromLabel(label);
+    return umbral.PublicKey.fromSecretKey(sk);
   }
 }
 
@@ -62,6 +64,10 @@ export class SigningPower {
   public toUmbralSigner(): UmbralSigner {
     const sk = this.umbralKeyingMetrial.deriveSecretKey();
     return new umbral.Signer(sk);
+  }
+
+  public getPublicKey(): UmbralPublicKey {
+    return this.umbralKeyingMetrial.derivePublicKey();
   }
 }
 

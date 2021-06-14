@@ -1,6 +1,5 @@
 import { DecryptingPower, SigningPower } from '../crypto/powers';
-import { HexEncodedBytes, UmbralPublicKey } from '../types';
-import * as umbral from "umbral-pre";
+import { UmbralPublicKey } from '../types';
 
 export class Bob {
   private signingPower: SigningPower;
@@ -15,15 +14,21 @@ export class Bob {
     verifyingKey: UmbralPublicKey,
     encryptingKey: UmbralPublicKey
   ): Bob {
-    // TODO: Implement powers after enabling `to_bytes` method on `umbral.PublicKey` and `umbral.SecretKey`
-    // const signingPower = new SigningPower(verifyingKey.to_bytes());
-    // const decryptingPower = new DecryptingPower(encryptingKey.to_bytes());
-    // return new Bob(signingPower, decryptingPowe)r;
-    throw new Error('Method not implemented.');
+    // Remove prefix for public keys
+    const vkBytes = Buffer.from(verifyingKey.toBytes().slice(1));
+    const ekBytes = Buffer.from(encryptingKey.toBytes().slice(1));
+    const signingPower = new SigningPower(vkBytes);
+    const decryptingPower = new DecryptingPower(ekBytes);
+    return new Bob(signingPower, decryptingPower);
   }
 
   public getEncryptingKey(): UmbralPublicKey {
+    // TODO: Is this correct key? Should we use decrypting power here?
     return this.decryptingPower.getPublicKey();
+  }
+
+  public getSignerPublicKey(): UmbralPublicKey {
+    return this.signingPower.getPublicKey();
   }
 
   public retrieve(): void {}

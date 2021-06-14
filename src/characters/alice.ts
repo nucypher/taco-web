@@ -1,14 +1,14 @@
 import { NucypherKeyring } from '../crypto/keyring';
 import { DelegatingPower, SigningPower } from '../crypto/powers';
 import { BlockchainPolicy } from '../policy';
-import { HexEncodedBytes, UmbralPublicKey, KeyFrags } from '../types';
-import { Bob } from './bob';
 import {
-  Porter,
-  RevocationRequestDto,
-  RevocationResultDto,
-  Ursula,
-} from './porter';
+  HexEncodedBytes,
+  UmbralKFrags,
+  UmbralPublicKey,
+  UmbralSigner,
+} from '../types';
+import { Bob } from './bob';
+import { Porter, Ursula } from './porter';
 
 export class Alice {
   private keyring: NucypherKeyring;
@@ -22,14 +22,14 @@ export class Alice {
     this.signingPower = keyring.deriveSigningPower();
   }
 
-  public grant(
+  public async grant(
     bob: Bob,
     label: string,
     m: number,
     n: number,
     expiration: Date,
     handpickedUrsulas?: Ursula[]
-  ): void {
+  ): Promise<void> {
     const quantity = 0; // TODO: Add as a default param?
     const durationPeriods = 0; // TODO Add as a default param?
     const ursulas = Porter.getUrsulas(quantity, durationPeriods);
@@ -37,23 +37,23 @@ export class Alice {
       ? [...new Set([...ursulas, ...handpickedUrsulas])]
       : ursulas;
 
-    const policy = this.createPolicy(bob, label, m, n, expiration);
-    const { enactedPolicy, enactPolicyTx } = policy.enact(selectedUrsulas);
+    const policy = await this.createPolicy(bob, label, m, n, expiration);
+    const enactedPolicy = policy.enact(selectedUrsulas);
 
     Porter.publishTreasureMap(
-      enactedPolicy.treasureMap.toBytes(),
+      enactedPolicy.treasureMap,
       bob.getEncryptingKey()
     );
   }
 
-  private createPolicy(
+  private async createPolicy(
     bob: Bob,
     label: string,
     m: number,
     n: number,
     expiration: Date
-  ): BlockchainPolicy {
-    const { delegatingPublicKey, kFrags } = this.generateKFrags(
+  ): Promise<BlockchainPolicy> {
+    const { delegatingPublicKey, kFrags } = await this.generateKFrags(
       bob,
       label,
       m,
@@ -72,12 +72,15 @@ export class Alice {
     );
   }
 
-  private generateKFrags(
+  private async generateKFrags(
     bob: Bob,
     label: string,
     m: number,
     n: number
-  ): KeyFrags {
+  ): Promise<{
+    delegatingPublicKey: UmbralPublicKey;
+    kFrags: UmbralKFrags[];
+  }> {
     const bobEncryptingKey = bob.getEncryptingKey();
     const signer = this.signingPower.toUmbralSigner();
     return this.delegatingPower.generateKFrags(
@@ -89,19 +92,21 @@ export class Alice {
     );
   }
 
-  public getPolicyEncryptingKeyFromLabel(
+  public async getPolicyEncryptingKeyFromLabel(
     label: HexEncodedBytes
-  ): UmbralPublicKey {
+  ): Promise<UmbralPublicKey> {
     return this.delegatingPower.getPublicKeyFromLabel(label);
   }
 
   public getSignerPublicKey(): UmbralPublicKey {
-    throw new Error('Method not implemented.');
+    return this.signingPower.getPublicKey();
   }
 
-  public static revoke(
-    revocations: RevocationRequestDto[]
-  ): RevocationResultDto {
-    return Porter.revoke(revocations);
+  public getSigner(): UmbralSigner {
+    return this.signingPower.toUmbralSigner();
   }
+
+  // public static revoke(revocations: RevocationRequest[]): RevocationResponse {
+  //   return Porter.revoke(revocations);
+  // }
 }

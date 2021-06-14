@@ -1,4 +1,10 @@
-import { ChecksumAddress, Base64EncodedBytes, HexEncodedBytes, UmbralPublicKey } from '../types';
+import {
+  ChecksumAddress,
+  Base64EncodedBytes,
+  HexEncodedBytes,
+  UmbralPublicKey,
+  TreasureMap,
+} from '../types';
 
 export interface Ursula {
   checksum_address: ChecksumAddress;
@@ -6,19 +12,29 @@ export interface Ursula {
   encrypting_key: HexEncodedBytes;
 }
 
-export interface RevocationRequestDto {
+interface RevocationRequest {
   ursula: ChecksumAddress;
   revocationKit: Base64EncodedBytes;
 }
 
-export interface RevocationFailureDto {
+export interface RevocationFailure {
   ursula: ChecksumAddress;
   failure: string;
 }
 
-export interface RevocationResultDto {
+interface RevocationResponse {
   failedRevocations: number;
-  failures: RevocationFailureDto[];
+  failures: RevocationFailure[];
+}
+
+interface PublishTreasureMapRequest {
+  treasureMap: HexEncodedBytes;
+  bobEncryptingKey: HexEncodedBytes;
+}
+
+interface GetTreasureMapRequest {
+  treasureMapId: HexEncodedBytes;
+  bobEncryptingKey: HexEncodedBytes;
 }
 
 export abstract class Porter {
@@ -36,16 +52,20 @@ export abstract class Porter {
 
   // /publish_treasure_map
   public static publishTreasureMap(
-    treasureMap: Base64EncodedBytes,
+    treasureMap: TreasureMap,
     bobEncryptingKey: UmbralPublicKey
   ) {
+    const request: PublishTreasureMapRequest = {
+      treasureMap: treasureMap.toBytes().toString('base64'),
+      bobEncryptingKey: Buffer.from(bobEncryptingKey.toString()).toString(
+        'hex'
+      ),
+    };
     throw new Error('Method not implemented.');
   }
 
   // /revoke
-  public static revoke(
-    revocations: RevocationRequestDto[]
-  ): RevocationResultDto {
+  public static revoke(revocations: RevocationRequest[]): RevocationResponse {
     throw new Error('Method not implemented.');
   }
 
@@ -53,9 +73,13 @@ export abstract class Porter {
 
   // /get_treasure_map
   public static getTreasureMap(
-    treasureMapId: HexEncodedBytes,
-    bobEncryptingKey: HexEncodedBytes
+    treasureMapId: string,
+    bobEncryptingKey: UmbralPublicKey
   ): Base64EncodedBytes {
+    const request: GetTreasureMapRequest = {
+      treasureMapId: Buffer.from(treasureMapId).toString('hex'),
+      bobEncryptingKey: Buffer.from(bobEncryptingKey.toBytes()).toString('hex'),
+    };
     throw new Error('Method not implemented.');
   }
 

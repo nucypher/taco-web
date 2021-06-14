@@ -10,12 +10,7 @@ export type UmbralKFrags = umbral.VerifiedCapsuleFrag[];
 export interface KFrag {}
 export interface PolicyTx {}
 export class TreasureMap {
-  public toBytes(): Base64EncodedBytes {
+  public toBytes(): Buffer {
     throw new Error('Method not implemented.');
   }
-}
-// TODO: Remove this interface?
-export interface KeyFrags {
-  delegatingPublicKey: UmbralPublicKey;
-  kFrags: UmbralKFrags[];
 }

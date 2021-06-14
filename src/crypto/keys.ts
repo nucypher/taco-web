@@ -1,31 +1,36 @@
 import * as umbral from 'umbral-pre';
-
+import hkdf from '@ctrlpanel/hkdf';
 import { UmbralPublicKey, UmbralSecretKey } from '../types';
 
 export class UmbralKeyingMaterial {
   private keyingMaterial: Buffer;
 
   constructor(keyingMaterial: Buffer) {
-    if (keyingMaterial.length !== 32) {
-      throw Error(
-        `UmbralKeyingMaterial must have size equal to 32 bytes, got ${keyingMaterial.length} instead.`
-      );
-    }
     this.keyingMaterial = keyingMaterial;
   }
 
-  public deriveSecretKeyByLabel(label: string): UmbralSecretKey {
-    // TODO: Implement HKDF
-    // return umbral.SecretKey.from_bytes(Buffer.from(this.keyingMaterial));
-    return umbral.SecretKey.random();
+  public async deriveSecretKeyByLabel(
+    label: string,
+    salt?: Buffer
+  ): Promise<UmbralSecretKey> {
+    // TODO: Use HKDF that supports BLAKE2b(64) hash
+    //       Warning: As of now, this hash is incompatible with `nucypher/nucypher` HKDF
+    const keyBytes = await hkdf(
+      salt ?? Buffer.from('bad-salt'),
+      this.keyingMaterial,
+      Buffer.from(`NuCypher/KeyDerivation/${label}`),
+      32,
+      'SHA-256'
+    );
+    return umbral.SecretKey.fromBytes(Buffer.from(keyBytes));
   }
 
   public deriveSecretKey(): UmbralSecretKey {
-    return umbral.SecretKey.from_bytes(this.keyingMaterial);
+    return umbral.SecretKey.fromBytes(this.keyingMaterial);
   }
 
   public derivePublicKey(): UmbralPublicKey {
     const sk = this.deriveSecretKey();
-    return umbral.PublicKey.from_secret_key(sk);
+    return umbral.PublicKey.fromSecretKey(sk);
   }
 }

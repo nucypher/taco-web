@@ -3,8 +3,16 @@ import { Alice } from '../../src/characters/alice';
 import { Bob } from '../../src/characters/bob';
 import { Porter } from '../../src/characters/porter';
 import { NucypherKeyring } from '../../src/crypto/keyring';
+import { UmbralPublicKey, UmbralSecretKey } from '../../src/types';
 
-const makeBobKeys = () => {
+interface BobKeys {
+  encryptingPrivateKey: UmbralSecretKey;
+  signingPrivateKey: UmbralSecretKey;
+  encryptingPublicKey: UmbralPublicKey;
+  signingPublicKey: UmbralPublicKey;
+}
+
+const makeBobKeys = (): BobKeys => {
   const encryptingPrivateKey = umbral.SecretKey.random();
   const signingPrivateKey = umbral.SecretKey.random();
   return {
@@ -16,6 +24,12 @@ const makeBobKeys = () => {
 };
 
 describe('alice', () => {
+  let bobKeys: BobKeys;
+
+  beforeAll(() => {
+    bobKeys = makeBobKeys();
+  });
+
   it('grants a new policy to bob', async () => {
     jest.spyOn(Porter, 'getUrsulas').mockImplementationOnce(() => {
       return [];
@@ -29,7 +43,7 @@ describe('alice', () => {
     // TODO: Use it after expanding test suite
     // const policyPublicKey = alice.getPolicyEncryptingKeyFromLabel(label);
 
-    const { signingPublicKey, encryptingPublicKey } = makeBobKeys();
+    const { signingPublicKey, encryptingPublicKey } = bobKeys;
     const bob = Bob.fromPublicKeys(signingPublicKey, encryptingPublicKey);
 
     const expiration = new Date();
@@ -38,5 +52,8 @@ describe('alice', () => {
     const policy = await alice.grant(bob, label, m, n, expiration);
 
     expect(policy).toBeTruthy();
+
+    const { aliceSignerPublicKey } = policy;
+    bob.joinPolicy(label, aliceSignerPublicKey);
   });
 });

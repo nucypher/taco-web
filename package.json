@@ -49,6 +49,7 @@
   ],
   "devDependencies": {
     "@size-limit/preset-small-lib": "^4.11.0",
+    "@types/axios": "^0.14.0",
     "husky": "^6.0.0",
     "size-limit": "^4.11.0",
     "tsdx": "^0.14.1",
@@ -56,10 +57,10 @@
     "typescript": "^4.3.2"
   },
   "dependencies": {
-    "@aws-crypto/hkdf-node": "^2.2.0",
     "@ctrlpanel/hkdf": "^1.0.1",
-    "js-crypto-hkdf": "^1.0.2",
+    "axios": "^0.21.1",
     "keccak256": "^1.0.2",
+    "secure-random": "^1.1.2",
     "umbral-pre": "./rust-umbral/umbral-pre-wasm/pkg"
   }
 }

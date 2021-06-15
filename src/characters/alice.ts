@@ -1,6 +1,10 @@
+import * as umbral from 'umbral-pre';
+
+import { encryptAndSign } from '../crypto/api';
 import { NucypherKeyring } from '../crypto/keyring';
+import { PolicyMessageKit } from '../crypto/kits';
 import { DelegatingPower, SigningPower } from '../crypto/powers';
-import { BlockchainPolicy } from '../policy';
+import { BlockchainPolicy, EnactedPolicy } from '../policy';
 import {
   HexEncodedBytes,
   UmbralKFrags,
@@ -8,7 +12,7 @@ import {
   UmbralSigner,
 } from '../types';
 import { Bob } from './bob';
-import { Porter, Ursula } from './porter';
+import { Porter, IUrsula } from './porter';
 
 export class Alice {
   private keyring: NucypherKeyring;
@@ -28,12 +32,12 @@ export class Alice {
     m: number,
     n: number,
     expiration: Date,
-    handpickedUrsulas?: Ursula[]
-  ): Promise<void> {
+    handpickedUrsulas?: IUrsula[]
+  ): Promise<EnactedPolicy> {
     const quantity = 0; // TODO: Add as a default param?
     const durationPeriods = 0; // TODO Add as a default param?
     const ursulas = Porter.getUrsulas(quantity, durationPeriods);
-    const selectedUrsulas: Ursula[] = handpickedUrsulas
+    const selectedUrsulas: IUrsula[] = handpickedUrsulas
       ? [...new Set([...ursulas, ...handpickedUrsulas])]
       : ursulas;
 
@@ -44,6 +48,8 @@ export class Alice {
       enactedPolicy.treasureMap,
       bob.getEncryptingKey()
     );
+
+    return enactedPolicy;
   }
 
   private async createPolicy(
@@ -109,4 +115,12 @@ export class Alice {
   // public static revoke(revocations: RevocationRequest[]): RevocationResponse {
   //   return Porter.revoke(revocations);
   // }
+
+  public encryptFor(ursula: IUrsula, payload: Buffer): PolicyMessageKit {
+    const signer = this.getSigner();
+    const recipientPk = umbral.PublicKey.fromBytes(
+      Buffer.from(ursula.encryptingKey, 'hex')
+    );
+    return encryptAndSign(recipientPk, payload, signer);
+  }
 }

@@ -6,10 +6,10 @@ import {
   TreasureMap,
 } from '../types';
 
-export interface Ursula {
-  checksum_address: ChecksumAddress;
-  ip_address: string;
-  encrypting_key: HexEncodedBytes;
+export interface IUrsula {
+  checksumAddress: ChecksumAddress;
+  ipAddress: string;
+  encryptingKey: HexEncodedBytes;
 }
 
 interface RevocationRequest {
@@ -46,7 +46,7 @@ export abstract class Porter {
     durationPeriods: number,
     excludeUrsulas?: ChecksumAddress[],
     handpickedUrsulas?: ChecksumAddress[]
-  ): Ursula[] {
+  ): IUrsula[] {
     throw new Error('Method not implemented.');
   }
 

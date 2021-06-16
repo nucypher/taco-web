@@ -3,7 +3,7 @@ import { Alice } from '../../src/characters/alice';
 import { Bob } from '../../src/characters/bob';
 import { Porter } from '../../src/characters/porter';
 import { NucypherKeyring } from '../../src/crypto/keyring';
-import { BlockchainPolicy } from '../../src/policies/policy';
+import { BlockchainPolicy, EnactedPolicy } from '../../src/policies/policy';
 import { UmbralPublicKey, UmbralSecretKey } from '../../src/types';
 
 interface BobKeys {
@@ -24,21 +24,27 @@ const makeBobKeys = (): BobKeys => {
   };
 };
 
-describe('alice', () => {
+describe('use story', () => {
   let bobKeys: BobKeys;
+  let label: string;
+  let policy: EnactedPolicy;
 
   beforeAll(() => {
     bobKeys = makeBobKeys();
   });
 
-  it('grants a new policy to bob', async () => {
-    jest.spyOn(Porter, 'getUrsulas').mockImplementationOnce(() => {
-      return [];
-    });
-    jest.spyOn(Porter, 'publishTreasureMap').mockImplementationOnce(() => {
-      return [];
-    });
-    jest
+  it('alcie grants a new policy to bob', async () => {
+    const getUrsulasSpy = jest
+      .spyOn(Porter, 'getUrsulas')
+      .mockImplementationOnce(async () => {
+        return Promise.resolve([]);
+      });
+    const publishTreasureMapSpy = jest
+      .spyOn(Porter, 'publishTreasureMap')
+      .mockImplementationOnce(async () => {
+        return Promise.resolve([]);
+      });
+    const publishToBlockchainSpy = jest
       .spyOn(BlockchainPolicy.prototype, 'publishToBlockchain')
       .mockImplementationOnce(() => {
         return '0xdeadbeef';
@@ -46,9 +52,9 @@ describe('alice', () => {
 
     const aliceKeyringSeed = Buffer.from('fake-keyring-seed-32-bytes-xxxxx');
     const aliceKeyring = new NucypherKeyring(aliceKeyringSeed);
-    const alice = new Alice(aliceKeyring);
+    const alice = Alice.fromKeyring(aliceKeyring);
 
-    const label = 'fake-data-label';
+    label = 'fake-data-label';
     // TODO: Use it after expanding test suite
     // const policyPublicKey = alice.getPolicyEncryptingKeyFromLabel(label);
 
@@ -58,11 +64,19 @@ describe('alice', () => {
     const expiration = new Date();
     const m = 2;
     const n = 3;
-    const policy = await alice.grant(bob, label, m, n, expiration);
+    policy = await alice.grant(bob, label, m, n, expiration);
 
     expect(policy).toBeTruthy();
+    expect(getUrsulasSpy).toHaveBeenCalled();
+    expect(publishTreasureMapSpy).toHaveBeenCalled();
+    expect(publishToBlockchainSpy).toHaveBeenCalled();
+  });
 
-    // const { aliceSignerPublicKey } = policy;
-    // bob.joinPolicy(label, aliceSignerPublicKey);
+  it('bob joins the policy', async () => {
+    const { signingPublicKey, encryptingPublicKey } = bobKeys;
+    const { aliceSignerPublicKey } = policy;
+
+    const bob = Bob.fromPublicKeys(signingPublicKey, encryptingPublicKey);
+    bob.joinPolicy(label, aliceSignerPublicKey);
   });
 });

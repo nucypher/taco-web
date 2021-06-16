@@ -6,6 +6,7 @@ import {
   UmbralSigner,
 } from '../types';
 import { UmbralKeyingMaterial } from './keys';
+import { PolicyMessageKit } from './kits';
 
 export class DelegatingPower {
   public async generateKFrags(
@@ -48,6 +49,10 @@ export class DelegatingPower {
     const sk = await this.getSecretKeyFromLabel(label);
     return umbral.PublicKey.fromSecretKey(sk);
   }
+
+  public static fromPublicKey(pk: UmbralPublicKey): DelegatingPower {
+    return new DelegatingPower(Buffer.from(pk.toBytes()));
+  }
 }
 
 export class SigningPower {
@@ -55,10 +60,6 @@ export class SigningPower {
 
   constructor(keyingMaterial: Buffer) {
     this.umbralKeyingMetrial = new UmbralKeyingMaterial(keyingMaterial);
-  }
-
-  public sign(bytes: Buffer): Buffer {
-    throw new Error('Method not implemented.');
   }
 
   public toUmbralSigner(): UmbralSigner {
@@ -69,6 +70,10 @@ export class SigningPower {
   public getPublicKey(): UmbralPublicKey {
     return this.umbralKeyingMetrial.derivePublicKey();
   }
+
+  public static fromPublicKey(pk: UmbralPublicKey): SigningPower {
+    return new SigningPower(Buffer.from(pk.toBytes()));
+  }
 }
 
 export class DecryptingPower {
@@ -78,8 +83,18 @@ export class DecryptingPower {
     this.umbralKeyingMetrial = new UmbralKeyingMaterial(keyingMaterial);
   }
 
-  public decrypt(bytes: Buffer): Buffer {
-    throw new Error('Method not implemented.');
+  public decrypt(messageKit: PolicyMessageKit): Buffer {
+    return Buffer.from(
+      umbral.decryptOriginal(
+        this.getSecretKey(),
+        messageKit.getCapsule(),
+        messageKit.getCiphertext()
+      )
+    );
+  }
+
+  private getSecretKey(): UmbralSecretKey {
+    return this.umbralKeyingMetrial.deriveSecretKey();
   }
 
   public getPublicKey(): UmbralPublicKey {

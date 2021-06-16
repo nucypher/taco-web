@@ -42,6 +42,14 @@ export class MessageKit {
   public getVerifyingKey(): UmbralPublicKey {
     return this.senderVerifyingKey;
   }
+
+  public getCapsule(): umbral.Capsule {
+    return this.capsule;
+  }
+
+  public getCiphertext(): Buffer {
+    return this.ciphertext;
+  }
 }
 
 export class PolicyMessageKit extends MessageKit {

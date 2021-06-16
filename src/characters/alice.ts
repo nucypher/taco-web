@@ -14,15 +14,13 @@ import { Bob } from './bob';
 import { Porter, IUrsula } from './porter';
 
 export class Alice {
-  private keyring: NucypherKeyring;
   // TODO: Introduce more concise pattern for powers?
   private delegatingPower: DelegatingPower;
   private signingPower: SigningPower;
 
-  constructor(keyring: NucypherKeyring) {
-    this.keyring = keyring;
-    this.delegatingPower = keyring.deriveDelegatingPower();
-    this.signingPower = keyring.deriveSigningPower();
+  constructor(signingPower: SigningPower, delegatingPower: DelegatingPower) {
+    this.signingPower = signingPower;
+    this.delegatingPower = delegatingPower;
   }
 
   public async grant(
@@ -33,9 +31,9 @@ export class Alice {
     expiration: Date,
     handpickedUrsulas?: IUrsula[]
   ): Promise<EnactedPolicy> {
-    const quantity = 0; // TODO: Add as a default param?
-    const durationPeriods = 0; // TODO Add as a default param?
-    const ursulas = Porter.getUrsulas(quantity, durationPeriods);
+    const quantity = 8; // TODO: Add as a default param?
+    const durationPeriods = 30; // TODO Add as a default param?
+    const ursulas = await Porter.getUrsulas(quantity, durationPeriods);
     const selectedUrsulas: IUrsula[] = handpickedUrsulas
       ? [...new Set([...ursulas, ...handpickedUrsulas])]
       : ursulas;
@@ -65,7 +63,6 @@ export class Alice {
       n
     );
     // TODO: Validate policy parameters
-    // TODO: Handle federated policy?
     return new BlockchainPolicy(
       this,
       label,
@@ -121,5 +118,17 @@ export class Alice {
       Buffer.from(ursula.encryptingKey, 'hex')
     );
     return encryptAndSign(recipientPk, payload, signer);
+  }
+
+  public static fromPublicKey(pk: umbral.PublicKey): Alice {
+    const signingPower = SigningPower.fromPublicKey(pk);
+    const delegatingPower = DelegatingPower.fromPublicKey(pk);
+    return new Alice(signingPower, delegatingPower);
+  }
+
+  public static fromKeyring(keyring: NucypherKeyring): Alice {
+    const signingPower = keyring.deriveSigningPower();
+    const delegatingPower = keyring.deriveDelegatingPower();
+    return new Alice(signingPower, delegatingPower);
   }
 }

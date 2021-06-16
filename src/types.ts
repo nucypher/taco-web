@@ -9,8 +9,3 @@ export type UmbralSigner = umbral.Signer;
 export type UmbralKFrag = umbral.VerifiedCapsuleFrag;
 export interface KFrag {}
 export interface PolicyTx {}
-export class TreasureMap {
-  public toBytes(): Buffer {
-    throw new Error('Method not implemented.');
-  }
-}

@@ -1,27 +1,19 @@
-import keccak256 from 'keccak256';
 import randomBuffer from 'secure-random';
-import { Alice } from './characters/alice';
-import { Bob } from './characters/bob';
-import { IUrsula } from './characters/porter';
-import { Ursula } from './characters/ursula';
-import {
-  TreasureMap,
-  UmbralKFrag,
-  UmbralPublicKey,
-  UmbralSigner,
-} from './types';
+import { Alice } from '../characters/alice';
+import { Bob } from '../characters/bob';
+import { IUrsula } from '../characters/porter';
+import { Ursula } from '../characters/ursula';
+import { keccakDigest } from '../crypto/api';
+import { RevocationKit } from '../crypto/kits';
+import { UmbralKFrag, UmbralPublicKey } from '../types';
+import { PreparedTreasureMap, TreasureMap } from './collections';
 
-export class RevocationKit {
-  constructor(treasureMap: TreasureMap, signer: UmbralSigner) {
-    throw new Error('Method not implemented.');
-  }
-}
 export interface EnactedPolicy {
   id: Buffer;
-  //   hrac: Buffer; // TODO: Should it be removed?
+  hrac: Buffer;
   label: string;
   publicKey: UmbralPublicKey;
-  treasureMap: TreasureMap;
+  treasureMap: PreparedTreasureMap;
   revocationKit: RevocationKit;
   aliceSignerPublicKey: UmbralPublicKey;
 }
@@ -30,6 +22,7 @@ interface ArrangementForUrsula {
   ursula: IUrsula;
   arrangement: Arrangement;
 }
+
 export class BlockchainPolicy {
   private alice: Alice;
   private label: string;
@@ -62,7 +55,7 @@ export class BlockchainPolicy {
   private constructPolicyId(): Buffer {
     const label = Buffer.from(this.label);
     const pk = this.bob.getSignerPublicKey().toBytes();
-    return keccak256(Buffer.concat([label, pk]));
+    return keccakDigest(Buffer.concat([label, pk]));
   }
 
   private proposeArrangement(ursula: IUrsula): ArrangementForUrsula | null {
@@ -115,7 +108,7 @@ export class BlockchainPolicy {
     }
   }
 
-  private publishToBlockchain(arrangements: ArrangementForUrsula[]) {
+  public publishToBlockchain(arrangements: ArrangementForUrsula[]): string {
     const addresses = arrangements.map(a => a.ursula.checksumAddress);
     // TOODO: Implement after adding web3 client
     // receipt = self.alice.policy_agent.create_policy(
@@ -129,13 +122,22 @@ export class BlockchainPolicy {
     throw new Error('Method not implemented.');
   }
 
-  private makeTreasureMap(arrangements: ArrangementForUrsula[]): TreasureMap {
-    throw new Error('Method not implemented.');
+  private makeTreasureMap(
+    arrangements: ArrangementForUrsula[]
+  ): PreparedTreasureMap {
+    const treasureMap = new TreasureMap(this.m);
+    arrangements.forEach(({ arrangement, ursula }) => {
+      treasureMap.addArrangement(ursula, arrangement);
+    });
+    return treasureMap.prepareForPublication(
+      this.bob.getEncryptingPublicKey(),
+      this.bob.getSignerPublicKey(),
+      this.alice.getSigner(),
+      this.label
+    );
   }
 
   public enact(ursulas: IUrsula[]): EnactedPolicy {
-    // TODO: Not sure how enacting policies should work
-    //       Do we still have to make arrangements or will it be taken care of by TMapConKfrags?
     const arrangements = this.makeArrangements(ursulas);
     this.enactArrangements(arrangements);
 
@@ -153,6 +155,7 @@ export class BlockchainPolicy {
       treasureMap,
       revocationKit,
       aliceSignerPublicKey: this.alice.getSignerPublicKey(),
+      hrac: treasureMap.hrac,
     };
     return enactedPolicy;
   }

@@ -1,14 +1,14 @@
+import { PreparedTreasureMap, TreasureMap } from '../policies/collections';
 import {
   ChecksumAddress,
   Base64EncodedBytes,
   HexEncodedBytes,
   UmbralPublicKey,
-  TreasureMap,
 } from '../types';
 
 export interface IUrsula {
   checksumAddress: ChecksumAddress;
-  ipAddress: string;
+  uri: string;
   encryptingKey: HexEncodedBytes;
 }
 
@@ -52,11 +52,11 @@ export abstract class Porter {
 
   // /publish_treasure_map
   public static publishTreasureMap(
-    treasureMap: TreasureMap,
+    treasureMap: PreparedTreasureMap,
     bobEncryptingKey: UmbralPublicKey
   ) {
     const request: PublishTreasureMapRequest = {
-      treasureMap: treasureMap.toBytes().toString('base64'),
+      treasureMap: treasureMap.payload.toString('base64'),
       bobEncryptingKey: Buffer.from(bobEncryptingKey.toString()).toString(
         'hex'
       ),

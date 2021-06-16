@@ -1,0 +1,1 @@
+export const HRAC_LENGTH = 16;

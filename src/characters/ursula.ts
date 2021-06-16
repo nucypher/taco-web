@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { PolicyMessageKit } from '../crypto/kits';
-import { Arrangement } from '../policy';
+import { Arrangement } from '../policies/policy';
 import { ChecksumAddress } from '../types';
 import { IUrsula } from './porter';
 
@@ -9,7 +9,7 @@ export abstract class Ursula {
     ursula: IUrsula,
     arrangement: Arrangement
   ): ChecksumAddress | null {
-    const url = `https://${ursula.ipAddress}/consider_arrangement`;
+    const url = `https://${ursula.uri}/consider_arrangement`;
     axios.post(url, arrangement.toBytes()).catch(() => {
       return null;
     });
@@ -22,7 +22,7 @@ export abstract class Ursula {
     messageKit: PolicyMessageKit
   ) {
     const kFragId = arrangementId.toString('hex');
-    const url = `https://${ursula.ipAddress}/kFrag/${kFragId}`;
+    const url = `https://${ursula.uri}/kFrag/${kFragId}`;
     axios.post(url, messageKit.toBytes()).catch(() => {
       return null;
     });

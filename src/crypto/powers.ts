@@ -1,6 +1,6 @@
 import * as umbral from 'umbral-pre';
 import {
-  UmbralKFrags,
+  UmbralKFrag,
   UmbralPublicKey,
   UmbralSecretKey,
   UmbralSigner,
@@ -16,7 +16,7 @@ export class DelegatingPower {
     n: number
   ): Promise<{
     delegatingPublicKey: UmbralPublicKey;
-    kFrags: UmbralKFrags[];
+    kFrags: UmbralKFrag[];
   }> {
     const delegatingSecretKey = await this.getSecretKeyFromLabel(label);
     const delegatingPublicKey = await this.getPublicKeyFromLabel(label);

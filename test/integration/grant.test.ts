@@ -3,6 +3,7 @@ import { Alice } from '../../src/characters/alice';
 import { Bob } from '../../src/characters/bob';
 import { Porter } from '../../src/characters/porter';
 import { NucypherKeyring } from '../../src/crypto/keyring';
+import { BlockchainPolicy } from '../../src/policies/policy';
 import { UmbralPublicKey, UmbralSecretKey } from '../../src/types';
 
 interface BobKeys {
@@ -34,6 +35,14 @@ describe('alice', () => {
     jest.spyOn(Porter, 'getUrsulas').mockImplementationOnce(() => {
       return [];
     });
+    jest.spyOn(Porter, 'publishTreasureMap').mockImplementationOnce(() => {
+      return [];
+    });
+    jest
+      .spyOn(BlockchainPolicy.prototype, 'publishToBlockchain')
+      .mockImplementationOnce(() => {
+        return '0xdeadbeef';
+      });
 
     const aliceKeyringSeed = Buffer.from('fake-keyring-seed-32-bytes-xxxxx');
     const aliceKeyring = new NucypherKeyring(aliceKeyringSeed);
@@ -53,7 +62,7 @@ describe('alice', () => {
 
     expect(policy).toBeTruthy();
 
-    const { aliceSignerPublicKey } = policy;
-    bob.joinPolicy(label, aliceSignerPublicKey);
+    // const { aliceSignerPublicKey } = policy;
+    // bob.joinPolicy(label, aliceSignerPublicKey);
   });
 });

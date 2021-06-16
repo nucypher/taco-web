@@ -1,13 +1,12 @@
 import * as umbral from 'umbral-pre';
-
 import { encryptAndSign } from '../crypto/api';
 import { NucypherKeyring } from '../crypto/keyring';
 import { PolicyMessageKit } from '../crypto/kits';
 import { DelegatingPower, SigningPower } from '../crypto/powers';
-import { BlockchainPolicy, EnactedPolicy } from '../policy';
+import { BlockchainPolicy, EnactedPolicy } from '../policies/policy';
 import {
   HexEncodedBytes,
-  UmbralKFrags,
+  UmbralKFrag,
   UmbralPublicKey,
   UmbralSigner,
 } from '../types';
@@ -46,7 +45,7 @@ export class Alice {
 
     Porter.publishTreasureMap(
       enactedPolicy.treasureMap,
-      bob.getEncryptingKey()
+      bob.getEncryptingPublicKey()
     );
 
     return enactedPolicy;
@@ -85,9 +84,9 @@ export class Alice {
     n: number
   ): Promise<{
     delegatingPublicKey: UmbralPublicKey;
-    kFrags: UmbralKFrags[];
+    kFrags: UmbralKFrag[];
   }> {
-    const bobEncryptingKey = bob.getEncryptingKey();
+    const bobEncryptingKey = bob.getEncryptingPublicKey();
     const signer = this.signingPower.toUmbralSigner();
     return this.delegatingPower.generateKFrags(
       bobEncryptingKey,

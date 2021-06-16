@@ -22,7 +22,7 @@ export class Bob {
     return new Bob(signingPower, decryptingPower);
   }
 
-  public getEncryptingKey(): UmbralPublicKey {
+  public getEncryptingPublicKey(): UmbralPublicKey {
     // TODO: Is this correct key? Should we use decrypting power here?
     return this.decryptingPower.getPublicKey();
   }

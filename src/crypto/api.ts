@@ -1,4 +1,6 @@
 import * as umbral from 'umbral-pre';
+import keccak256 from 'keccak256';
+
 import { UmbralPublicKey, UmbralSigner } from '../types';
 import { PolicyMessageKit } from './kits';
 
@@ -20,3 +22,5 @@ export const encryptAndSign = (
   );
   return messageKit;
 };
+
+export const keccakDigest = (m: Buffer): Buffer => keccak256(m);

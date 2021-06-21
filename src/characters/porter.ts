@@ -2,7 +2,6 @@ import axios, { AxiosResponse } from 'axios';
 import {
   PreparedTreasureMap,
   PublishedTreasureMap,
-  TreasureMap,
 } from '../policies/collections';
 import {
   ChecksumAddress,
@@ -55,19 +54,20 @@ interface GetUrsulasRequest {
   handpicked_ursulas?: ChecksumAddress[];
 }
 
-interface UrsulaDto {
+interface PorterUrsula {
   checksum_address: ChecksumAddress;
   uri: string;
   encrypting_key: HexEncodedBytes;
 }
-interface GetUrsulasResponse {
+export interface GetUrsulasResponse {
   result: {
-    ursulas: UrsulaDto[];
+    ursulas: PorterUrsula[];
   };
+  version: string;
 }
 
 export abstract class Porter {
-  private static PORTER_URL = 'https://example.com/porter/api';
+  public static PORTER_URL = 'https://example.com/porter/api';
 
   // https://github.com/nucypher/nucypher/issues/2703
 
@@ -86,9 +86,9 @@ export abstract class Porter {
     };
     const resp: AxiosResponse<GetUrsulasResponse> = await axios.get(
       `${this.PORTER_URL}/get_ursulas`,
-      {}
+      { data }
     );
-    const ursulas = resp.data.result.ursulas.map((u: UrsulaDto) => ({
+    const ursulas = resp.data.result.ursulas.map((u: PorterUrsula) => ({
       checksumAddress: u.checksum_address,
       uri: u.uri,
       encryptingKey: u.encrypting_key,

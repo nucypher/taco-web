@@ -1,11 +1,11 @@
-import randomBuffer from 'secure-random';
+import secureRandom from 'secure-random';
 import { Alice } from '../characters/alice';
 import { Bob } from '../characters/bob';
 import { IUrsula } from '../characters/porter';
 import { Ursula } from '../characters/ursula';
 import { keccakDigest } from '../crypto/api';
 import { RevocationKit } from '../crypto/kits';
-import { UmbralKFrag, UmbralPublicKey } from '../types';
+import { ChecksumAddress, UmbralKFrag, UmbralPublicKey } from '../types';
 import { PreparedTreasureMap, TreasureMap } from './collections';
 
 export interface EnactedPolicy {
@@ -68,17 +68,22 @@ export class BlockchainPolicy {
   }
 
   private makeArrangements(ursulas: IUrsula[]): ArrangementForUrsula[] {
-    return ursulas
-      .map(this.proposeArrangement)
-      .filter(maybeArrangement => !!maybeArrangement) as ArrangementForUrsula[];
+    const arrangements: ArrangementForUrsula[] = [];
+    ursulas.forEach(ursula => {
+      const arrangement = this.proposeArrangement(ursula);
+      if (arrangement) {
+        arrangements.push(arrangement);
+      }
+    });
+    return arrangements;
   }
 
-  private enactArrangement(
+  public enactArrangement(
     arrangement: Arrangement,
     kFrag: UmbralKFrag,
     ursula: IUrsula,
     publicationTransaction: any
-  ) {
+  ): ChecksumAddress | null {
     const enactmentPayload = Buffer.concat([
       Buffer.from(publicationTransaction),
       Buffer.from(kFrag.toBytes()),
@@ -179,7 +184,7 @@ export class Arrangement {
 
   public static fromAlice(alice: Alice, expiration: Date): Arrangement {
     const aliceKey = alice.getSignerPublicKey();
-    const arrangementId = randomBuffer(this.ID_LENGTH);
+    const arrangementId = Buffer.from(secureRandom(this.ID_LENGTH));
     return new Arrangement(aliceKey, arrangementId, expiration);
   }
 

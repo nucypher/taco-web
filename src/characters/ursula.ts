@@ -20,7 +20,7 @@ export abstract class Ursula {
     ursula: IUrsula,
     arrangementId: Buffer,
     messageKit: PolicyMessageKit
-  ) {
+  ): ChecksumAddress | null {
     const kFragId = arrangementId.toString('hex');
     const url = `https://${ursula.uri}/kFrag/${kFragId}`;
     axios.post(url, messageKit.toBytes()).catch(() => {

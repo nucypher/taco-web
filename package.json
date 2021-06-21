@@ -17,7 +17,7 @@
     "build:umbral:bundler": "(cd rust-umbral/umbral-pre-wasm && make clean && make TARGET=bundler) && yarn check:umbral",
     "build:umbral:nodejs": "(cd rust-umbral/umbral-pre-wasm && make clean && make TARGET=nodejs) && yarn check:umbral",
     "check:umbral": "yarn add --check-files ./rust-umbral/umbral-pre-wasm/pkg",
-    "test": "yarn build:umbral:nodejs && tsdx test",
+    "test": "yarn build:umbral:nodejs && tsdx test --detectOpenHandles",
     "lint": "tsdx lint",
     "size": "size-limit",
     "analyze": "size-limit --why"

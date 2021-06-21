@@ -24,6 +24,21 @@ export const encryptAndSign = (
   return messageKit;
 };
 
+export const encrypt = (
+  recipientEncryptingPk: UmbralPublicKey,
+  plaintext: Buffer,
+): PolicyMessageKit => {
+  // TODO: What is the actual value of `constants.NOT_SIGNED` in `nucypher/nucypher`?
+  const sigHeader = Buffer.from('NOT_SIGNED');
+  const toSign = Buffer.concat([sigHeader, plaintext]);
+  const { ciphertext, capsule } = umbral.encrypt(recipientEncryptingPk, toSign);
+  const messageKit = new PolicyMessageKit(
+    capsule,
+    Buffer.from(ciphertext),
+  );
+  return messageKit;
+};
+
 export const keccakDigest = (m: Buffer): Buffer => keccak256(m);
 
 export const verifySignature = (

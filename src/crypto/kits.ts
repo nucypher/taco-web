@@ -13,16 +13,16 @@ export class RevocationKit {
   }
 }
 
-export class MessageKit {
+export class PolicyMessageKit {
   private capsule: umbral.Capsule;
   private ciphertext: Buffer;
-  private signature: Buffer;
-  private senderVerifyingKey: UmbralPublicKey;
+  private signature?: Buffer;
+  private senderVerifyingKey?: UmbralPublicKey;
   constructor(
     capsule: umbral.Capsule,
     ciphertext: Buffer,
-    signature: Buffer,
-    senderVerifyingKey: UmbralPublicKey
+    signature?: Buffer,
+    senderVerifyingKey?: UmbralPublicKey
   ) {
     this.capsule = capsule;
     this.ciphertext = ciphertext;
@@ -40,6 +40,9 @@ export class MessageKit {
   }
 
   public getVerifyingKey(): UmbralPublicKey {
+    if (!this.senderVerifyingKey) {
+      throw Error('Sender veryfing key is not set');
+    }
     return this.senderVerifyingKey;
   }
 
@@ -49,11 +52,5 @@ export class MessageKit {
 
   public getCiphertext(): Buffer {
     return this.ciphertext;
-  }
-}
-
-export class PolicyMessageKit extends MessageKit {
-  public toBytes(): Buffer {
-    return super.toBytes(true);
   }
 }

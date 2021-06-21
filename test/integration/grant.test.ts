@@ -1,43 +1,36 @@
-import * as umbral from 'umbral-pre';
+import axios from 'axios';
 import { Alice } from '../../src/characters/alice';
 import { Bob } from '../../src/characters/bob';
-import { Porter } from '../../src/characters/porter';
+import { EncryptedMessage, Enrico } from '../../src/characters/enrico';
+import { IUrsula, Porter } from '../../src/characters/porter';
+import { Ursula } from '../../src/characters/ursula';
 import { NucypherKeyring } from '../../src/crypto/keyring';
-import { BlockchainPolicy, EnactedPolicy } from '../../src/policies/policy';
-import { UmbralPublicKey, UmbralSecretKey } from '../../src/types';
-
-interface BobKeys {
-  encryptingPrivateKey: UmbralSecretKey;
-  signingPrivateKey: UmbralSecretKey;
-  encryptingPublicKey: UmbralPublicKey;
-  signingPublicKey: UmbralPublicKey;
-}
-
-const makeBobKeys = (): BobKeys => {
-  const encryptingPrivateKey = umbral.SecretKey.random();
-  const signingPrivateKey = umbral.SecretKey.random();
-  return {
-    encryptingPrivateKey,
-    signingPrivateKey,
-    encryptingPublicKey: umbral.PublicKey.fromSecretKey(encryptingPrivateKey),
-    signingPublicKey: umbral.PublicKey.fromSecretKey(signingPrivateKey),
-  };
-};
+import {
+  Arrangement,
+  BlockchainPolicy,
+  EnactedPolicy,
+} from '../../src/policies/policy';
+import { UmbralKFrag, UmbralPublicKey } from '../../src/types';
+import { BobKeys, mockBobKeys, mockPorterUrsulas } from '../utils';
 
 describe('use story', () => {
   let bobKeys: BobKeys;
   let label: string;
   let policy: EnactedPolicy;
+  let policyPublicKey: UmbralPublicKey;
+  let encryptedMessage: EncryptedMessage;
 
   beforeAll(() => {
-    bobKeys = makeBobKeys();
+    bobKeys = mockBobKeys();
   });
 
-  it('alcie grants a new policy to bob', async () => {
+  it('alice grants a new policy to bob', async () => {
+    const mockUrsulas = mockPorterUrsulas();
+    const numUrsulas = mockUrsulas.result.ursulas.length;
     const getUrsulasSpy = jest
-      .spyOn(Porter, 'getUrsulas')
+      .spyOn(axios, 'get')
       .mockImplementationOnce(async () => {
-        return Promise.resolve([]);
+        return Promise.resolve({ data: mockUrsulas });
       });
     const publishTreasureMapSpy = jest
       .spyOn(Porter, 'publishTreasureMap')
@@ -46,17 +39,31 @@ describe('use story', () => {
       });
     const publishToBlockchainSpy = jest
       .spyOn(BlockchainPolicy.prototype, 'publishToBlockchain')
-      .mockImplementationOnce(() => {
+      .mockImplementation(() => {
         return '0xdeadbeef';
       });
+    const proposeArrangementSpy = jest
+      .spyOn(Ursula, 'proposeArrangement')
+      .mockImplementation((ursula: IUrsula) => ursula.checksumAddress);
+    const enactArrangementSpy = jest
+      .spyOn(BlockchainPolicy.prototype, 'enactArrangement')
+      .mockImplementation(
+        (
+          _arrangement: Arrangement,
+          _kFrag: UmbralKFrag,
+          ursula: IUrsula,
+          _publicationTransaction: any
+        ) => {
+          return ursula.checksumAddress;
+        }
+      );
 
     const aliceKeyringSeed = Buffer.from('fake-keyring-seed-32-bytes-xxxxx');
     const aliceKeyring = new NucypherKeyring(aliceKeyringSeed);
     const alice = Alice.fromKeyring(aliceKeyring);
 
     label = 'fake-data-label';
-    // TODO: Use it after expanding test suite
-    // const policyPublicKey = alice.getPolicyEncryptingKeyFromLabel(label);
+    policyPublicKey = await alice.getPolicyEncryptingKeyFromLabel(label);
 
     const { signingPublicKey, encryptingPublicKey } = bobKeys;
     const bob = Bob.fromPublicKeys(signingPublicKey, encryptingPublicKey);
@@ -70,6 +77,14 @@ describe('use story', () => {
     expect(getUrsulasSpy).toHaveBeenCalled();
     expect(publishTreasureMapSpy).toHaveBeenCalled();
     expect(publishToBlockchainSpy).toHaveBeenCalled();
+    expect(proposeArrangementSpy).toHaveBeenCalledTimes(numUrsulas);
+    expect(enactArrangementSpy).toHaveBeenCalledTimes(numUrsulas);
+  });
+
+  it('enrico encrypts the message', () => {
+    const message = 'secret-message-from-alice';
+    const enrico = new Enrico(policyPublicKey);
+    encryptedMessage = enrico.encryptMessage(Buffer.from(message));
   });
 
   it('bob joins the policy', async () => {

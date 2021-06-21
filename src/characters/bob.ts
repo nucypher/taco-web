@@ -103,6 +103,7 @@ export class Bob {
     // TODO: Use proper value for SIGNATURE_TO_FOLLOW
     if (signatureHeader !== Buffer.from('SIGNATURE_TO_FOLLOW')) {
       // TODO: Handle SIGNATURE_IS_ON_CIPHERTEXT
+      // TODO: Handle NOT_SIGNED
       throw Error(
         `Unrecognized signature header: ${signatureHeader.toString('hex')}`
       );

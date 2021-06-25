@@ -1,28 +1,28 @@
-import { encrypt } from 'umbral-pre';
+import { PolicyMessageKit } from '../crypto/kits';
+import { SigningPower } from '../crypto/powers';
 import { UmbralPublicKey } from '../types';
-
-export interface EncryptedMessage {
-  capsule: Buffer;
-  ciphertext: Buffer;
-}
+import { encryptAndSign } from '../crypto/api';
 
 export class Enrico {
-  private policyEncryptingKey: UmbralPublicKey;
-  private veryfingKey?: UmbralPublicKey;
+  private readonly policyEncryptingKey: UmbralPublicKey;
+  private readonly signingPower: SigningPower;
 
-  constructor(
-    policyEncryptingKey: UmbralPublicKey,
-    veryfingKey?: UmbralPublicKey
-  ) {
+  constructor(policyEncryptingKey: UmbralPublicKey) {
     this.policyEncryptingKey = policyEncryptingKey;
-    this.veryfingKey = veryfingKey;
+    this.signingPower = SigningPower.fromRandom();
   }
 
-  public encryptMessage(plaintext: Buffer): EncryptedMessage {
-    const messageKit = encrypt(this.policyEncryptingKey, plaintext);
-    return {
-      capsule: Buffer.from(messageKit.capsule.toBytes()),
-      ciphertext: Buffer.from(messageKit.ciphertext),
-    };
+  public get verifyingKey(): UmbralPublicKey {
+    return this.signingPower.publicKey;
+  }
+
+  public encrypt(plaintext: Buffer): PolicyMessageKit {
+    const messageKit = encryptAndSign(
+      this.policyEncryptingKey,
+      plaintext,
+      this.signingPower.signer
+    );
+    messageKit.policyPublicKey = this.policyEncryptingKey;
+    return messageKit;
   }
 }

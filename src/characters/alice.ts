@@ -1,26 +1,39 @@
-import * as umbral from 'umbral-pre';
 import { encryptAndSign } from '../crypto/api';
 import { NucypherKeyring } from '../crypto/keyring';
 import { PolicyMessageKit } from '../crypto/kits';
 import { DelegatingPower, SigningPower } from '../crypto/powers';
 import { BlockchainPolicy, EnactedPolicy } from '../policies/policy';
-import {
-  HexEncodedBytes,
-  UmbralKFrag,
-  UmbralPublicKey,
-  UmbralSigner,
-} from '../types';
+import { UmbralKFrag, UmbralPublicKey, UmbralSigner } from '../types';
 import { Bob } from './bob';
-import { Porter, IUrsula } from './porter';
+import { IUrsula, Porter } from './porter';
 
 export class Alice {
-  // TODO: Introduce more concise pattern for powers?
   private delegatingPower: DelegatingPower;
   private signingPower: SigningPower;
 
   constructor(signingPower: SigningPower, delegatingPower: DelegatingPower) {
     this.signingPower = signingPower;
     this.delegatingPower = delegatingPower;
+  }
+
+  public static fromKeyring(keyring: NucypherKeyring): Alice {
+    const signingPower = keyring.deriveSigningPower();
+    const delegatingPower = keyring.deriveDelegatingPower();
+    return new Alice(signingPower, delegatingPower);
+  }
+
+  public get verifyingKey(): UmbralPublicKey {
+    return this.signingPower.publicKey;
+  }
+
+  public get signer(): UmbralSigner {
+    return this.signingPower.signer;
+  }
+
+  public async getPolicyEncryptingKeyFromLabel(
+    label: string
+  ): Promise<UmbralPublicKey> {
+    return this.delegatingPower.getPublicKeyFromLabel(label);
   }
 
   public async grant(
@@ -31,9 +44,7 @@ export class Alice {
     expiration: Date,
     handpickedUrsulas?: IUrsula[]
   ): Promise<EnactedPolicy> {
-    const quantity = 8; // TODO: Add as a default param?
-    const durationPeriods = 30; // TODO Add as a default param?
-    const ursulas = await Porter.getUrsulas(quantity, durationPeriods);
+    const ursulas = await Porter.getUrsulas();
     const selectedUrsulas: IUrsula[] = handpickedUrsulas
       ? [...new Set([...ursulas, ...handpickedUrsulas])]
       : ursulas;
@@ -43,10 +54,23 @@ export class Alice {
 
     Porter.publishTreasureMap(
       enactedPolicy.treasureMap,
-      bob.getEncryptingPublicKey()
+      bob.encryptingPublicKey
     );
 
     return enactedPolicy;
+  }
+
+  public encryptFor(
+    recipientPublicKey: UmbralPublicKey,
+    payload: Buffer,
+    signPlaintext: boolean = true
+  ): PolicyMessageKit {
+    return encryptAndSign(
+      recipientPublicKey,
+      payload,
+      this.signer,
+      signPlaintext
+    );
   }
 
   private async createPolicy(
@@ -74,7 +98,7 @@ export class Alice {
     );
   }
 
-  private async generateKFrags(
+  public async generateKFrags(
     bob: Bob,
     label: string,
     m: number,
@@ -83,52 +107,12 @@ export class Alice {
     delegatingPublicKey: UmbralPublicKey;
     kFrags: UmbralKFrag[];
   }> {
-    const bobEncryptingKey = bob.getEncryptingPublicKey();
-    const signer = this.signingPower.toUmbralSigner();
     return this.delegatingPower.generateKFrags(
-      bobEncryptingKey,
-      signer,
+      bob.encryptingPublicKey,
+      this.signer,
       label,
       m,
       n
     );
-  }
-
-  public async getPolicyEncryptingKeyFromLabel(
-    label: HexEncodedBytes
-  ): Promise<UmbralPublicKey> {
-    return this.delegatingPower.getPublicKeyFromLabel(label);
-  }
-
-  public getSignerPublicKey(): UmbralPublicKey {
-    return this.signingPower.getPublicKey();
-  }
-
-  public getSigner(): UmbralSigner {
-    return this.signingPower.toUmbralSigner();
-  }
-
-  // public static revoke(revocations: RevocationRequest[]): RevocationResponse {
-  //   return Porter.revoke(revocations);
-  // }
-
-  public encryptFor(ursula: IUrsula, payload: Buffer): PolicyMessageKit {
-    const signer = this.getSigner();
-    const recipientPk = umbral.PublicKey.fromBytes(
-      Buffer.from(ursula.encryptingKey, 'hex')
-    );
-    return encryptAndSign(recipientPk, payload, signer);
-  }
-
-  public static fromPublicKey(pk: umbral.PublicKey): Alice {
-    const signingPower = SigningPower.fromPublicKey(pk);
-    const delegatingPower = DelegatingPower.fromPublicKey(pk);
-    return new Alice(signingPower, delegatingPower);
-  }
-
-  public static fromKeyring(keyring: NucypherKeyring): Alice {
-    const signingPower = keyring.deriveSigningPower();
-    const delegatingPower = keyring.deriveDelegatingPower();
-    return new Alice(signingPower, delegatingPower);
   }
 }

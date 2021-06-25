@@ -1,15 +1,11 @@
 {
+  "name": "nucypher-ts",
+  "author": "Piotr Roslaniec",
   "version": "0.1.0",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "src"
-  ],
-  "engines": {
-    "node": ">=10"
-  },
+  "module": "dist/nucypher-ts.esm.js",
   "scripts": {
     "start": "tsdx watch",
     "build": "yarn build:umbral:bundler && tsdx build",
@@ -22,21 +18,29 @@
     "size": "size-limit",
     "analyze": "size-limit --why"
   },
-  "peerDependencies": {},
-  "husky": {
-    "hooks": {
-      "pre-commit": "tsdx lint"
-    }
+  "devDependencies": {
+    "@size-limit/preset-small-lib": "^4.11.0",
+    "@types/axios": "^0.14.0",
+    "@types/jest": "^26.0.23",
+    "husky": "^6.0.0",
+    "size-limit": "^4.11.0",
+    "ts-jest": "^27.0.3",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.2.0",
+    "typescript": "^4.3.2"
   },
-  "prettier": {
-    "printWidth": 80,
-    "semi": true,
-    "singleQuote": true,
-    "trailingComma": "es5"
+  "dependencies": {
+    "@ctrlpanel/hkdf": "^1.0.1",
+    "axios": "^0.21.1",
+    "ethers": "^5.3.1",
+    "keccak256": "^1.0.2",
+    "secure-random": "^1.1.2",
+    "umbral-pre": "./rust-umbral/umbral-pre-wasm/pkg"
   },
-  "name": "nucypher-ts",
-  "author": "Piotr Roslaniec",
-  "module": "dist/nucypher-ts.esm.js",
+  "files": [
+    "dist",
+    "src"
+  ],
   "size-limit": [
     {
       "path": "dist/nucypher-ts.cjs.production.min.js",
@@ -47,21 +51,18 @@
       "limit": "10 KB"
     }
   ],
-  "devDependencies": {
-    "@size-limit/preset-small-lib": "^4.11.0",
-    "@types/axios": "^0.14.0",
-    "husky": "^6.0.0",
-    "size-limit": "^4.11.0",
-    "tsdx": "^0.14.1",
-    "tslib": "^2.2.0",
-    "typescript": "^4.3.2"
+  "engines": {
+    "node": ">=10"
   },
-  "dependencies": {
-    "@ctrlpanel/hkdf": "^1.0.1",
-    "axios": "^0.21.1",
-    "keccak256": "^1.0.2",
-    "secp256k1": "^4.0.2",
-    "secure-random": "^1.1.2",
-    "umbral-pre": "./rust-umbral/umbral-pre-wasm/pkg"
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsdx lint"
+    }
+  },
+  "prettier": {
+    "printWidth": 80,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
   }
 }

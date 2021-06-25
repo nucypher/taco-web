@@ -6,6 +6,7 @@ export type Base64EncodedBytes = string;
 export type UmbralPublicKey = umbral.PublicKey;
 export type UmbralSecretKey = umbral.SecretKey;
 export type UmbralSigner = umbral.Signer;
-export type UmbralKFrag = umbral.VerifiedCapsuleFrag;
-export interface KFrag {}
-export interface PolicyTx {}
+export type UmbralCFrag = umbral.VerifiedCapsuleFrag;
+export type UmbralKFrag = umbral.KeyFrag;
+export type UmbralCapsule = umbral.Capsule;
+export type UmbralCapsuleWithFrags = umbral.CapsuleWithFrags;

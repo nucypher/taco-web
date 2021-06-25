@@ -1,36 +1,58 @@
-import * as umbral from 'umbral-pre';
-import { Revocation, PreparedTreasureMap } from '../policies/collections';
-import { ChecksumAddress, UmbralPublicKey, UmbralSigner } from '../types';
+import { Enrico } from '../';
+import { PrePublishedTreasureMap, Revocation } from '../policies/collections';
+import {
+  ChecksumAddress,
+  UmbralCapsule,
+  UmbralCapsuleWithFrags,
+  UmbralPublicKey,
+  UmbralSigner,
+} from '../types';
 
 export class RevocationKit {
-  private revocations: Record<ChecksumAddress, Revocation>;
+  public revocations: Record<ChecksumAddress, Revocation>;
 
-  constructor(treasureMap: PreparedTreasureMap, signer: UmbralSigner) {
+  constructor(treasureMap: PrePublishedTreasureMap, signer: UmbralSigner) {
     this.revocations = {};
-    Object.entries(treasureMap.nodes).forEach(([nodeId, arrangementId]) => {
-      this.revocations[nodeId] = new Revocation(arrangementId, signer);
-    });
+    Object.entries(treasureMap.destinations).forEach(
+      ([nodeId, arrangementId]) => {
+        this.revocations[nodeId] = new Revocation(arrangementId, signer);
+      }
+    );
   }
 }
 
 export class PolicyMessageKit {
-  private capsule: umbral.Capsule;
-  private ciphertext: Buffer;
-  private signature?: Buffer;
-  private senderVerifyingKey?: UmbralPublicKey;
+  public readonly capsule: UmbralCapsule;
+  public readonly ciphertext: Buffer;
+  // TODO: What is the case when signature is undefined?
+  public readonly signature?: Buffer;
+  // TODO: Simplify to only use sender or senderVerifyingKey
+  public readonly senderVerifyingKey?: UmbralPublicKey;
+  public policyPublicKey?: UmbralPublicKey;
+  public sender?: Enrico;
+
   constructor(
-    capsule: umbral.Capsule,
+    capsule: UmbralCapsule,
     ciphertext: Buffer,
     signature?: Buffer,
-    senderVerifyingKey?: UmbralPublicKey
+    senderVerifyingKey?: UmbralPublicKey,
+    sender?: Enrico
   ) {
     this.capsule = capsule;
     this.ciphertext = ciphertext;
     this.signature = signature;
     this.senderVerifyingKey = senderVerifyingKey;
+    this.sender = sender;
   }
 
-  public toBytes(includeAlicePublicKey = true): Buffer {
+  public get verifyingKey(): UmbralPublicKey {
+    if (!this.senderVerifyingKey && !this.sender?.verifyingKey) {
+      throw Error('PolicyMessageKit has no sender verifying key.');
+    }
+    return this.senderVerifyingKey ?? this.senderVerifyingKey!;
+  }
+
+  public toBytes(includeAlicePublicKey: boolean = true): Buffer {
     const asBytes = [this.capsule.toBytes()];
     if (includeAlicePublicKey && !!this.senderVerifyingKey) {
       asBytes.push(this.senderVerifyingKey.toBytes());
@@ -39,18 +61,30 @@ export class PolicyMessageKit {
     return Buffer.concat(asBytes);
   }
 
-  public getVerifyingKey(): UmbralPublicKey {
-    if (!this.senderVerifyingKey) {
-      throw Error('Sender veryfing key is not set');
+  public ensureCorrectSender(
+    enrico?: Enrico,
+    policyEncryptingKey?: UmbralPublicKey
+  ): void {
+    if (this.sender) {
+      if (enrico && this.sender !== enrico) {
+        throw new Error(`Mismatched sender`);
+      }
+    } else if (enrico) {
+      this.sender = enrico;
+    } else if (this.senderVerifyingKey && policyEncryptingKey) {
+      this.sender = new Enrico(policyEncryptingKey);
+    } else {
+      throw new Error(
+        'No information provided to set the message kit sender. Need eiter `enrico` or `policy_encrypting_key` to be given.'
+      );
     }
-    return this.senderVerifyingKey;
   }
+}
 
-  public getCapsule(): umbral.Capsule {
-    return this.capsule;
-  }
-
-  public getCiphertext(): Buffer {
-    return this.ciphertext;
-  }
+export interface ReencryptedMessageKit {
+  capsule: UmbralCapsuleWithFrags;
+  ciphertext: Buffer;
+  signature?: Buffer;
+  senderVerifyingKey?: UmbralPublicKey;
+  sender?: Enrico;
 }

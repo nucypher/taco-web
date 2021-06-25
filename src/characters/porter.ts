@@ -1,11 +1,12 @@
 import axios, { AxiosResponse } from 'axios';
+
 import {
-  PreparedTreasureMap,
+  PrePublishedTreasureMap,
   PublishedTreasureMap,
 } from '../policies/collections';
 import {
-  ChecksumAddress,
   Base64EncodedBytes,
+  ChecksumAddress,
   HexEncodedBytes,
   UmbralPublicKey,
 } from '../types';
@@ -59,6 +60,7 @@ interface PorterUrsula {
   uri: string;
   encrypting_key: HexEncodedBytes;
 }
+
 export interface GetUrsulasResponse {
   result: {
     ursulas: PorterUrsula[];
@@ -69,12 +71,9 @@ export interface GetUrsulasResponse {
 export abstract class Porter {
   public static PORTER_URL = 'https://example.com/porter/api';
 
-  // https://github.com/nucypher/nucypher/issues/2703
-
-  // /get_ursulas
   public static async getUrsulas(
-    quantity: number,
-    durationPeriods: number,
+    quantity: number = 3, // TODO: Pick reasonable default
+    durationPeriods: number = 7, // TODO: Pick reasonable default
     excludeUrsulas?: ChecksumAddress[],
     handpickedUrsulas?: ChecksumAddress[]
   ): Promise<IUrsula[]> {
@@ -88,17 +87,15 @@ export abstract class Porter {
       `${this.PORTER_URL}/get_ursulas`,
       { data }
     );
-    const ursulas = resp.data.result.ursulas.map((u: PorterUrsula) => ({
+    return resp.data.result.ursulas.map((u: PorterUrsula) => ({
       checksumAddress: u.checksum_address,
       uri: u.uri,
       encryptingKey: u.encrypting_key,
     }));
-    return ursulas;
   }
 
-  // /publish_treasure_map
   public static publishTreasureMap(
-    treasureMap: PreparedTreasureMap,
+    treasureMap: PrePublishedTreasureMap,
     bobEncryptingKey: UmbralPublicKey
   ) {
     const data: PublishTreasureMapRequest = {
@@ -110,14 +107,10 @@ export abstract class Porter {
     axios.post(`${this.PORTER_URL}/publish_treasure_map`, { data });
   }
 
-  // /revoke
   public static revoke(revocations: RevocationRequest[]): RevocationResponse {
     throw new Error('Method not implemented.');
   }
 
-  // https://github.com/nucypher/nucypher/issues/2704
-
-  // /get_treasure_map
   public static async getTreasureMap(
     treasureMapId: string,
     bobEncryptingKey: UmbralPublicKey

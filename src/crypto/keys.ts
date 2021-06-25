@@ -1,15 +1,21 @@
 import * as umbral from 'umbral-pre';
 import hkdf from '@ctrlpanel/hkdf';
+
 import { UmbralPublicKey, UmbralSecretKey } from '../types';
 
 export class UmbralKeyingMaterial {
-  private keyingMaterial: Buffer;
+  private readonly keyingMaterial: Buffer;
 
   constructor(keyingMaterial: Buffer) {
+    if (keyingMaterial.length !== 32) {
+      throw Error(
+        `Expected keyingMaterial to be 32 bytes long, received ${keyingMaterial.length} bytes instead`
+      );
+    }
     this.keyingMaterial = keyingMaterial;
   }
 
-  public async deriveSecretKeyByLabel(
+  public async deriveSecretKeyFromLabel(
     label: string,
     salt?: Buffer
   ): Promise<UmbralSecretKey> {
@@ -23,6 +29,7 @@ export class UmbralKeyingMaterial {
       'SHA-256'
     );
     return umbral.SecretKey.fromBytes(Buffer.from(keyBytes));
+    // return umbral.SecretKey.fromBytes(keccakDigest(Buffer.from(label)));
   }
 
   public deriveSecretKey(): UmbralSecretKey {
@@ -30,7 +37,6 @@ export class UmbralKeyingMaterial {
   }
 
   public derivePublicKey(): UmbralPublicKey {
-    const sk = this.deriveSecretKey();
-    return umbral.PublicKey.fromSecretKey(sk);
+    return this.deriveSecretKey().publicKey();
   }
 }

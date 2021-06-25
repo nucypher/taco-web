@@ -1,19 +1,21 @@
-import { DelegatingPower, SigningPower } from './powers';
+import { DecryptingPower, DelegatingPower, SigningPower } from './powers';
 
 export class NucypherKeyring {
-  private seed: Buffer;
+  private readonly seed: Buffer;
 
-  // TODO: Implement factory methods for different sources of entropy
   constructor(seed: Buffer) {
     this.seed = seed;
   }
 
-  // TODO: Implement a strategy for deriving powers
   public deriveDelegatingPower(): DelegatingPower {
     return new DelegatingPower(this.seed);
   }
 
   public deriveSigningPower(): SigningPower {
-    return new SigningPower(this.seed);
+    return SigningPower.fromKeyingMaterial(this.seed);
+  }
+
+  public deriveDecryptingPower(): DecryptingPower {
+    return DecryptingPower.fromKeyingMaterial(this.seed);
   }
 }

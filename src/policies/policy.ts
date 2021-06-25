@@ -1,37 +1,44 @@
+import * as umbral from 'umbral-pre';
 import secureRandom from 'secure-random';
+
 import { Alice } from '../characters/alice';
 import { Bob } from '../characters/bob';
 import { IUrsula } from '../characters/porter';
 import { Ursula } from '../characters/ursula';
 import { keccakDigest } from '../crypto/api';
 import { RevocationKit } from '../crypto/kits';
-import { ChecksumAddress, UmbralKFrag, UmbralPublicKey } from '../types';
-import { PreparedTreasureMap, TreasureMap } from './collections';
+import {
+  ChecksumAddress,
+  UmbralCFrag,
+  UmbralKFrag,
+  UmbralPublicKey,
+} from '../types';
+import { PrePublishedTreasureMap, TreasureMap } from './collections';
 
 export interface EnactedPolicy {
   id: Buffer;
   hrac: Buffer;
   label: string;
-  publicKey: UmbralPublicKey;
-  treasureMap: PreparedTreasureMap;
+  publicKey: Buffer;
+  treasureMap: PrePublishedTreasureMap;
   revocationKit: RevocationKit;
-  aliceSignerPublicKey: UmbralPublicKey;
+  aliceVerifyingKey: Buffer;
 }
 
-interface ArrangementForUrsula {
+export interface ArrangementForUrsula {
   ursula: IUrsula;
   arrangement: Arrangement;
 }
 
 export class BlockchainPolicy {
-  private alice: Alice;
-  private label: string;
-  private expiration: Date;
+  private readonly alice: Alice;
+  private readonly label: string;
+  private readonly expiration: Date;
   private bob: Bob;
   private kFrags: UmbralKFrag[];
   private publicKey: UmbralPublicKey;
-  private m: number;
-  private id: Buffer;
+  private readonly m: number;
+  private readonly id: Buffer;
 
   constructor(
     alice: Alice,
@@ -52,9 +59,59 @@ export class BlockchainPolicy {
     this.id = this.constructPolicyId();
   }
 
+  public enactArrangement(
+    arrangement: Arrangement,
+    kFrag: UmbralCFrag,
+    ursula: IUrsula,
+    publicationTransaction: any
+  ): ChecksumAddress | null {
+    const enactmentPayload = Buffer.concat([
+      Buffer.from(publicationTransaction),
+      Buffer.from(kFrag.toBytes()),
+    ]);
+    const ursulaPublicKey = umbral.PublicKey.fromBytes(
+      Buffer.from(ursula.encryptingKey, 'hex')
+    );
+    const messageKit = this.alice.encryptFor(ursulaPublicKey, enactmentPayload);
+    return Ursula.enactPolicy(ursula, arrangement.getId(), messageKit);
+  }
+
+  public publishToBlockchain(arrangements: ArrangementForUrsula[]): string {
+    const addresses = arrangements.map(a => a.ursula.checksumAddress);
+    // TOODO: Implement after adding web3 client
+    // receipt = self.alice.policy_agent.create_policy(
+    //     policy_id=self.hrac,  # bytes16 _policyID
+    //     transacting_power=self.alice.transacting_power,
+    //     value=self.value,
+    //     end_timestamp=self.expiration.epoch,  # uint16 _numberOfPeriods
+    //     node_addresses=addresses  # address[] memory _nodes
+    // )
+    // return receipt['transactionHash']
+    throw new Error('Method not implemented.');
+  }
+
+  public enact(ursulas: IUrsula[]): EnactedPolicy {
+    const arrangements = this.makeArrangements(ursulas);
+    this.enactArrangements(arrangements);
+
+    const treasureMap = this.makeTreasureMap(arrangements);
+
+    const revocationKit = new RevocationKit(treasureMap, this.alice.signer);
+
+    return {
+      id: this.id,
+      label: this.label,
+      publicKey: Buffer.from(this.publicKey.toBytes()),
+      treasureMap,
+      revocationKit,
+      aliceVerifyingKey: Buffer.from(this.alice.verifyingKey.toBytes()),
+      hrac: treasureMap.hrac,
+    };
+  }
+
   private constructPolicyId(): Buffer {
     const label = Buffer.from(this.label);
-    const pk = this.bob.getSignerPublicKey().toBytes();
+    const pk = this.bob.verifyingKey.toBytes();
     return keccakDigest(Buffer.concat([label, pk]));
   }
 
@@ -78,20 +135,6 @@ export class BlockchainPolicy {
     return arrangements;
   }
 
-  public enactArrangement(
-    arrangement: Arrangement,
-    kFrag: UmbralKFrag,
-    ursula: IUrsula,
-    publicationTransaction: any
-  ): ChecksumAddress | null {
-    const enactmentPayload = Buffer.concat([
-      Buffer.from(publicationTransaction),
-      Buffer.from(kFrag.toBytes()),
-    ]);
-    const messageKit = this.alice.encryptFor(ursula, enactmentPayload);
-    return Ursula.enactPolicy(ursula, arrangement.getId(), messageKit);
-  }
-
   private enactArrangements(arrangements: ArrangementForUrsula[]): void {
     const publicationTx = this.publishToBlockchain(arrangements);
     const maybeAllEnacted = arrangements
@@ -113,63 +156,26 @@ export class BlockchainPolicy {
     }
   }
 
-  public publishToBlockchain(arrangements: ArrangementForUrsula[]): string {
-    const addresses = arrangements.map(a => a.ursula.checksumAddress);
-    // TOODO: Implement after adding web3 client
-    // receipt = self.alice.policy_agent.create_policy(
-    //     policy_id=self.hrac,  # bytes16 _policyID
-    //     transacting_power=self.alice.transacting_power,
-    //     value=self.value,
-    //     end_timestamp=self.expiration.epoch,  # uint16 _numberOfPeriods
-    //     node_addresses=addresses  # address[] memory _nodes
-    // )
-    // return receipt['transactionHash']
-    throw new Error('Method not implemented.');
-  }
-
   private makeTreasureMap(
     arrangements: ArrangementForUrsula[]
-  ): PreparedTreasureMap {
+  ): PrePublishedTreasureMap {
     const treasureMap = new TreasureMap(this.m);
     arrangements.forEach(({ arrangement, ursula }) => {
       treasureMap.addArrangement(ursula, arrangement);
     });
     return treasureMap.prepareForPublication(
-      this.bob.getEncryptingPublicKey(),
-      this.bob.getSignerPublicKey(),
-      this.alice.getSigner(),
+      this.bob.encryptingPublicKey,
+      this.bob.verifyingKey,
+      this.alice.signer,
       this.label
     );
-  }
-
-  public enact(ursulas: IUrsula[]): EnactedPolicy {
-    const arrangements = this.makeArrangements(ursulas);
-    this.enactArrangements(arrangements);
-
-    const treasureMap = this.makeTreasureMap(arrangements);
-
-    const revocationKit = new RevocationKit(
-      treasureMap,
-      this.alice.getSigner()
-    );
-
-    const enactedPolicy = {
-      id: this.id,
-      label: this.label,
-      publicKey: this.publicKey,
-      treasureMap,
-      revocationKit,
-      aliceSignerPublicKey: this.alice.getSignerPublicKey(),
-      hrac: treasureMap.hrac,
-    };
-    return enactedPolicy;
   }
 }
 
 export class Arrangement {
   private static ID_LENGTH = 32;
   private aliceVerifyingKey: UmbralPublicKey;
-  private arrangementId: Buffer;
+  private readonly arrangementId: Buffer;
   private expiration: Date;
 
   constructor(
@@ -183,9 +189,8 @@ export class Arrangement {
   }
 
   public static fromAlice(alice: Alice, expiration: Date): Arrangement {
-    const aliceKey = alice.getSignerPublicKey();
     const arrangementId = Buffer.from(secureRandom(this.ID_LENGTH));
-    return new Arrangement(aliceKey, arrangementId, expiration);
+    return new Arrangement(alice.verifyingKey, arrangementId, expiration);
   }
 
   public toBytes(): Buffer {

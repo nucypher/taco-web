@@ -1,3 +1,5 @@
+import { VerifiedCapsuleFrag } from 'umbral-pre';
+
 import { keccakDigest, verifySignature } from '../crypto/api';
 import {
   HRAC_LENGTH,
@@ -9,14 +11,14 @@ import { PolicyMessageKit, ReencryptedMessageKit } from '../crypto/kits';
 import { DecryptingPower, SigningPower } from '../crypto/powers';
 import { PublishedTreasureMap, WorkOrder } from '../policies/collections';
 import {
-  ChecksumAddress,
   UmbralCapsule,
+  UmbralCapsuleWithFrags,
   UmbralPublicKey,
   UmbralSigner,
 } from '../types';
-import { Enrico } from './enrico';
-import { IUrsula, Porter } from './porter';
+import { Porter } from './porter';
 import { NucypherKeyring } from '../crypto/keyring';
+import { Enrico } from './enrico';
 
 export class Bob {
   public readonly treasureMaps: Record<string, PublishedTreasureMap>;
@@ -56,111 +58,120 @@ export class Bob {
     return this.signingPower.signer;
   }
 
-  private static reencrypt(workOrder: WorkOrder) {
-    throw new Error('Method not implemented.');
-  }
-
   public async retrieve(
     messageKits: PolicyMessageKit[],
+    aliceVerifyingKey: UmbralPublicKey,
     label: string,
     enrico: Enrico,
-    aliceVerifyingKey: UmbralPublicKey,
     maybeTreasureMap?: PublishedTreasureMap
   ): Promise<Buffer[]> {
-    let treasureMap;
-    if (!maybeTreasureMap) {
+    let treasureMap = maybeTreasureMap;
+    if (!treasureMap) {
       const mapId = this.makeTreasureMapId(aliceVerifyingKey, label);
       treasureMap = this.treasureMaps[mapId];
       if (!treasureMap) {
         throw new Error(`Failed to find a treasure map for map id ${mapId}.`);
       }
     } else {
-      treasureMap = maybeTreasureMap;
+      // TODO: Repeat this check after the one in joinPolicy?
+      this.tryOrient(treasureMap, aliceVerifyingKey);
     }
 
-    messageKits.forEach(mk =>
-      mk.ensureCorrectSender(enrico, aliceVerifyingKey)
-    );
+    // Perform sanity checks
 
-    const capsulesToActivate = new Set(messageKits.map(mk => mk.capsule));
-
-    // TODO: Resolve CFrag confusion by using umbral.CapsuleWithCFrag
-    // We assume to have all cfrags attached
+    // messageKits.forEach(mk =>
+    //   mk.ensureCorrectSender(enrico, aliceVerifyingKey)
+    // );
 
     // Assemble WorkOrders
 
+    // TODO: How to test correctness with umbral-pre-wasm?
+    const correctnessKeys: Record<string, any> = {};
     messageKits.forEach(mk => {
-      // TODO: How to check key correctness with umbral-pre-wasm?
-      // const capsule = mk.getCapsule();
-      // capsule.set_correctness_keys(receiving=self.public_keys(DecryptingPower))
-      // capsule.set_correctness_keys(verifying=alice_verifying_key)
+      const capsuleId = mk.capsule.toString();
+      correctnessKeys[capsuleId] = {
+        receiving: this.decryptingPower.publicKey,
+        verifying: aliceVerifyingKey,
+      };
     });
-    const {
-      incompleteWorkOrders,
-      completeWorkOrders,
-    } = await this.workOrdersForCapsules(
+
+    // TODO: Do we also want to handle incomplete work orders? Is Porter keeping track of them?
+    const capsulesToActivate = messageKits.map(mk => mk.capsule);
+    const workOrders = await this.workOrdersForCapsules(
       capsulesToActivate,
       treasureMap,
       aliceVerifyingKey
     );
 
-    if (completeWorkOrders) {
-      // TODO: Should we support Bob in "KMS" mode?
-      // TODO: Attach cfrags from tasks to capsules here?
-    }
+    const cFrags = await this.executeWorkOrders(workOrders, treasureMap.m);
 
-    const remainingWorkOrders = this.filterWorkOrdersAndCapsules(
-      incompleteWorkOrders,
-      capsulesToActivate,
+    const activatedCapsules = this.activateCapsules(
+      workOrders,
+      cFrags,
       treasureMap.m
     );
 
-    if (!(capsulesToActivate && remainingWorkOrders)) {
-      // TODO: Does Porter ensure "freshness" of Ursulas?
-      throw new Error('Unable to reach m Ursulas');
-    }
-
-    const cleartexts: Buffer[] = [];
-    remainingWorkOrders.forEach(workOrder => {
-      const result = Bob.reencrypt(workOrder); // TODO: Throw here if fails?
-      workOrder.tasks.forEach(task => {
-        const capsule = task.getCapsule();
-        // TODO: Where to get CFrag from?
-        // capsule.withCFrag()
-
-        // TODO: How to check number of CFrags ("length" of capsule)?
-        // if (capsule.length > m) {
-        //   capsulesToActivate.delete(capsule)
-        // }
-      });
-
-      messageKits.forEach(messageKit => {
-        const sender = messageKit.senderVerifyingKey;
-        // TODO: Should PolicyMessageKit.sender be optional?
-        if (!sender) {
-          throw new Error('Missing PolicyMessageKit sender');
-        }
-        const deliveredCleartext = this.verifyFrom(sender, messageKit, true);
-        // TODO: Is there better way to handle this? Split verifyFrom so that it doesn't output optional value
-        cleartexts.push(deliveredCleartext!);
-      });
+    // Decrypt ciphertexts
+    return messageKits.map(messageKit => {
+      const { ciphertext, signature, capsule } = messageKit;
+      const reencryptedMessageKit: ReencryptedMessageKit = {
+        ciphertext,
+        signature,
+        capsule: activatedCapsules[capsule.toString()],
+        senderVerifyingKey: enrico.verifyingKey,
+        recipientPublicKey: enrico.policyEncryptingKey,
+      };
+      return this.verifyFrom(enrico.verifyingKey, reencryptedMessageKit, true);
     });
-
-    // TODO: Should we remove CFrags from message kits after we're done? Is it possible with umbral-pre-wasm?
-    // if not retain_cfrags:
-    // for message in message_kits:
-    //     message.capsule.clear_cfrags()
-    // for work_order in new_work_orders.values():
-    //     work_order.sanitize()
-    return cleartexts;
   }
 
-  public async joinPolicy(label: string, aliceVerifyingKey: UmbralPublicKey) {
-    const treasureMap = await this.getTreasureMap(aliceVerifyingKey, label);
-    // TODO: Is following treasure map required at this point? Do we have to keep
-    //       track of know Ursulas internally, since we rely on Porter on Ursula
-    //       discovery?
-    // this.followTreasureMap(treasureMap);
+  private activateCapsules(
+    workOrders: WorkOrder[],
+    cFrags: VerifiedCapsuleFrag[],
+    m: number
+  ): Record<string, UmbralCapsuleWithFrags> {
+    const capsules = workOrders
+      .flatMap(workOrder => workOrder.tasks)
+      .map(task => task.capsule);
+    return Object.fromEntries(
+      capsules.map(capsule => {
+        let capsuleWithFrags: UmbralCapsuleWithFrags | undefined;
+        for (const cFrag of cFrags.slice(0, m)) {
+          capsuleWithFrags = capsuleWithFrags
+            ? capsuleWithFrags.withCFrag(cFrag)
+            : capsule.withCFrag(cFrag);
+        }
+        return [capsule.toString(), capsuleWithFrags!];
+      })
+    );
+  }
+
+  private async executeWorkOrders(
+    workOrders: WorkOrder[],
+    m: number
+  ): Promise<VerifiedCapsuleFrag[]> {
+    // TODO: Do we need to execute all work orders if we only need m cFrags?
+    const cFrags = await Promise.all(
+      workOrders
+        .map(async workOrder => {
+          const { cFrag } = await Porter.executeWorkOrder(workOrder);
+          // TODO: Verify `reencryptionSignature`, return null or throw if fails
+          return cFrag;
+        })
+        .filter(maybeCFrag => !!maybeCFrag)
+    );
+    if (cFrags.length < m) {
+      throw new Error(
+        `Failed to get enough cFrags: received ${cFrags.length}, expected ${m}`
+      );
+    }
+    // TODO: Can we return exactly m cFrags instead of returning all cFrags?
+    // return cFrags.slice(0, m);
+    return cFrags;
+  }
+
+  public async joinPolicy(aliceVerifyingKey: UmbralPublicKey, label: string) {
+    await this.getTreasureMap(aliceVerifyingKey, label);
   }
 
   public verifyFrom(
@@ -169,19 +180,11 @@ export class Bob {
     decrypt: boolean = false,
     providedSignature?: Buffer
   ): Buffer {
-    // const strangerVkBytes = Buffer.from(strangerPublicKey.toBytes());
-    // const verifyingKey = Buffer.from(
-    //   (
-    //     messageKit.senderVerifyingKey ?? messageKit.sender?.verifyingKey!
-    //   ).toBytes()
-    // );
-    // TODO: This check fails
-    //       The stranger is Enrico who used their private signing key to create signature
-    //       His public key is from a different pair than the keys used to encrypt ciphertext
-    //       in message kit (see enrico.test.ts for details).
-    // if (strangerVkBytes.compare(verifyingKey)) {
-    //   throw new Error("Stranger public key doesn't match message kit sender.");
-    // }
+    const strangerVkBytes = Buffer.from(strangerPublicKey.toBytes());
+    const verifyingKey = Buffer.from(messageKit.senderVerifyingKey.toBytes());
+    if (strangerVkBytes.compare(verifyingKey)) {
+      throw new Error("Stranger public key doesn't match message kit sender.");
+    }
 
     let cleartext;
     let message;
@@ -208,15 +211,16 @@ export class Bob {
           signatureFromKit = providedSignature;
           break;
         case SIGNATURE_HEADER.SIGNATURE_TO_FOLLOW:
+          // TODO: This never runs
           cleartext = cleartextWithSignatureHeader.slice(
             SIGNATURE_HEADER_LENGTH
           );
           signatureFromKit = cleartext.slice(0, SIGNATURE_LENGTH);
           message = cleartext.slice(SIGNATURE_LENGTH);
           break;
-        // TODO: This never runs
-        // case SIGNATURE_HEADER.NOT_SIGNED:
-        // break;
+        case SIGNATURE_HEADER.NOT_SIGNED:
+          message = cleartextWithSignatureHeader.slice(SIGNATURE_HEADER_LENGTH);
+          break;
         default:
           throw Error(`Unrecognized signature header: ${signatureHeader}`);
       }
@@ -226,7 +230,7 @@ export class Bob {
         message = messageKit.toBytes();
       } else {
         // TODO: Remove this workaround after implementing ReencryptedMessageKit::toBytes
-        // TODO: Should we even distinguish between XMessageKits here?
+        // TODO: Should we even distinguish between MessageKits here?
         throw new Error(
           'Expected PolicyMessageKit, received ReencryptedMessageKit instead'
         );
@@ -257,48 +261,14 @@ export class Bob {
       throw Error('Invalid signature on PolicyMessageKit');
     }
 
-    // Not checking "node on the other end" of message, since it's only for federated mode
-
     return message;
   }
 
-  private followTreasureMap(treasureMap: PublishedTreasureMap): Buffer {
-    throw new Error('Method not implemented.');
-  }
-
-  private filterWorkOrdersAndCapsules(
-    workOrders: Record<ChecksumAddress, WorkOrder>,
-    capsulesToActivate: Set<UmbralCapsule>,
-    m: number
-  ): WorkOrder[] {
-    const remainingCapsules = new Set(capsulesToActivate);
-    const remainingWorkOrders = Object.entries(workOrders)
-      .map(([_address, workOrder]) => {
-        workOrder.tasks.forEach(task => {
-          const numberOfCFrags = 0; // TODO: How to get this value from umbral-pre-wasm?
-          if (numberOfCFrags >= m) {
-            remainingCapsules.delete(task.getCapsule());
-          }
-        });
-
-        if (!remainingCapsules) {
-          return null;
-        }
-        return workOrder;
-      })
-      .filter(maybeWorkOrder => !!maybeWorkOrder);
-    return remainingWorkOrders as WorkOrder[];
-  }
-
   private async workOrdersForCapsules(
-    capsules: Set<UmbralCapsule>,
+    capsules: UmbralCapsule[],
     treasureMap: PublishedTreasureMap,
     aliceVerifyingKey: UmbralPublicKey
   ) {
-    const incompleteWorkOrders: Record<ChecksumAddress, WorkOrder> = {};
-    // TODO: Do we also want to handle complete work orders? What would we do with them?
-    const completeWorkOrders: Record<ChecksumAddress, WorkOrder> = {};
-
     const nodes = treasureMap.destinations;
     const nodeIds = Object.keys(nodes);
     const ursulas = await Porter.getUrsulas(
@@ -307,38 +277,18 @@ export class Bob {
       undefined,
       nodeIds
     );
-    // Dict for easier Ursula lookup
-    const ursulaDict: Record<ChecksumAddress, IUrsula> = {};
-    ursulas.forEach(ursula => {
-      ursulaDict[ursula.checksumAddress] = ursula;
+    const ursulasByNodeId = Object.fromEntries(
+      ursulas.map(ursula => [ursula.checksumAddress, ursula])
+    );
+    return Object.entries(nodes).map(([nodeId, arrangementId]) => {
+      return WorkOrder.constructByBob(
+        arrangementId,
+        aliceVerifyingKey,
+        capsules,
+        ursulasByNodeId[nodeId],
+        this
+      );
     });
-
-    Object.entries(nodes).forEach(([nodeId, arrangementId]) => {
-      const capsulesToInclude: UmbralCapsule[] = [];
-      capsules.forEach(capsule => {
-        // TODO: Do we want to keep track of work order history here?
-        // precedent_work_order = self._completed_work_orders.most_recent_replete(capsule)[node_id]
-        // self.log.debug(f"{capsule} already has a saved WorkOrder for this Node:{node_id}.")
-        // complete_work_orders[capsule].append(precedent_work_order)
-        capsulesToInclude.push(capsule);
-      });
-
-      if (capsulesToInclude) {
-        incompleteWorkOrders[nodeId] = WorkOrder.constructByBob(
-          arrangementId,
-          aliceVerifyingKey,
-          capsulesToInclude,
-          ursulaDict[nodeId],
-          this
-        );
-      }
-    });
-
-    if (!incompleteWorkOrders) {
-      throw new Error('Failed to create any new work orders');
-    }
-
-    return { incompleteWorkOrders, completeWorkOrders };
   }
 
   private async getTreasureMap(

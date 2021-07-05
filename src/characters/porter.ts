@@ -3,6 +3,8 @@ import axios, { AxiosResponse } from 'axios';
 import {
   PrePublishedTreasureMap,
   PublishedTreasureMap,
+  WorkOrder,
+  WorkOrderResult,
 } from '../policies/collections';
 import {
   Base64EncodedBytes,
@@ -27,35 +29,35 @@ export interface RevocationFailure {
   failure: string;
 }
 
-interface RevocationResponse {
+export interface RevocationResponse {
   failedRevocations: number;
   failures: RevocationFailure[];
 }
 
-interface PublishTreasureMapRequest {
+export interface PublishTreasureMapRequest {
   treasure_map: HexEncodedBytes;
   bob_encrypting_key: HexEncodedBytes;
 }
 
-interface GetTreasureMapRequest {
+export interface GetTreasureMapRequest {
   treasure_map_id: HexEncodedBytes;
   bob_encrypting_key: HexEncodedBytes;
 }
 
-interface GetTreasureMapResponse {
+export interface GetTreasureMapResponse {
   result: {
     treasureMap: Base64EncodedBytes;
   };
 }
 
-interface GetUrsulasRequest {
+export interface GetUrsulasRequest {
   quantity: number;
   duration_periods: number;
   exclude_ursulas?: ChecksumAddress[];
   handpicked_ursulas?: ChecksumAddress[];
 }
 
-interface PorterUrsula {
+export interface PorterUrsula {
   checksum_address: ChecksumAddress;
   uri: string;
   encrypting_key: HexEncodedBytes;
@@ -66,6 +68,15 @@ export interface GetUrsulasResponse {
     ursulas: PorterUrsula[];
   };
   version: string;
+}
+
+export interface PostExecuteWorkOrderRequest {
+  ursula: ChecksumAddress;
+  work_order: Base64EncodedBytes;
+}
+
+export interface PostExecuteWorkOrderResult {
+  work_order_result: Base64EncodedBytes;
 }
 
 export abstract class Porter {
@@ -94,7 +105,7 @@ export abstract class Porter {
     }));
   }
 
-  public static publishTreasureMap(
+  public static async publishTreasureMap(
     treasureMap: PrePublishedTreasureMap,
     bobEncryptingKey: UmbralPublicKey
   ) {
@@ -104,7 +115,7 @@ export abstract class Porter {
         'hex'
       ),
     };
-    axios.post(`${this.PORTER_URL}/publish_treasure_map`, { data });
+    await axios.post(`${this.PORTER_URL}/publish_treasure_map`, { data });
   }
 
   public static revoke(revocations: RevocationRequest[]): RevocationResponse {
@@ -129,11 +140,18 @@ export abstract class Porter {
     return PublishedTreasureMap.fromBytes(asBytes);
   }
 
-  // /exec_work_order
-  public static executeWorkOrder(
-    ursula: ChecksumAddress,
-    workOrder: Base64EncodedBytes
-  ): Base64EncodedBytes {
-    throw new Error('Method not implemented.');
+  public static async executeWorkOrder(
+    workOrder: WorkOrder
+  ): Promise<WorkOrderResult> {
+    const data: PostExecuteWorkOrderRequest = {
+      ursula: workOrder.ursula.checksumAddress,
+      work_order: workOrder.toBytes().toString('base64'),
+    };
+    const resp: AxiosResponse<PostExecuteWorkOrderResult> = await axios.post(
+      `${this.PORTER_URL}/exec_work_order`,
+      { data }
+    );
+    const asBytes = Buffer.from(resp.data.work_order_result, 'base64');
+    return WorkOrderResult.fromBytes(asBytes);
   }
 }

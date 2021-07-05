@@ -52,7 +52,7 @@ export class Alice {
     const policy = await this.createPolicy(bob, label, m, n, expiration);
     const enactedPolicy = policy.enact(selectedUrsulas);
 
-    Porter.publishTreasureMap(
+    await Porter.publishTreasureMap(
       enactedPolicy.treasureMap,
       bob.encryptingPublicKey
     );
@@ -62,14 +62,13 @@ export class Alice {
 
   public encryptFor(
     recipientPublicKey: UmbralPublicKey,
-    payload: Buffer,
-    signPlaintext: boolean = true
+    payload: Buffer
   ): PolicyMessageKit {
     return encryptAndSign(
       recipientPublicKey,
       payload,
       this.signer,
-      signPlaintext
+      this.signer.verifyingKey()
     );
   }
 

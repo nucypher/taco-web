@@ -1,10 +1,13 @@
 import * as umbral from 'umbral-pre';
 
+import * as cryptoApi from '../src/crypto/api';
 import { GetUrsulasResponse, IUrsula, Porter } from '../src/characters/porter';
-import { PolicyMessageKit, ReencryptedMessageKit } from '../src/crypto/kits';
+import { PolicyMessageKit } from '../src/crypto/kits';
 import {
   PrePublishedTreasureMap,
   PublishedTreasureMap,
+  WorkOrder,
+  WorkOrderResult,
 } from '../src/policies/collections';
 import {
   UmbralCapsule,
@@ -12,31 +15,13 @@ import {
   UmbralCFrag,
   UmbralKFrag,
   UmbralPublicKey,
-  UmbralSecretKey,
 } from '../src/types';
 import { NucypherKeyring } from '../src/crypto/keyring';
 import { Alice, Bob } from '../src';
 import axios from 'axios';
 import { Arrangement, BlockchainPolicy } from '../src/policies/policy';
 import { Ursula } from '../src/characters/ursula';
-
-export interface BobKeys {
-  encryptingPrivateKey: UmbralSecretKey;
-  signingPrivateKey: UmbralSecretKey;
-  encryptingPublicKey: UmbralPublicKey;
-  signingPublicKey: UmbralPublicKey;
-}
-
-export const mockBobKeys = (): BobKeys => {
-  const encryptingPrivateKey = umbral.SecretKey.random();
-  const signingPrivateKey = umbral.SecretKey.random();
-  return {
-    encryptingPrivateKey,
-    signingPrivateKey,
-    encryptingPublicKey: encryptingPrivateKey.publicKey(),
-    signingPublicKey: signingPrivateKey.publicKey(),
-  };
-};
+import { keccakDigest } from '../src/crypto/api';
 
 export const mockBob = (): Bob => {
   const bobKeyringSeed = Buffer.from('fake-keyring-seed-32-bytes-bob-x');
@@ -60,7 +45,7 @@ export const mockUrsulas = (): IUrsula[] => {
     {
       encryptingKey:
         '025a335eca37edce8191d43c156e7bc6b451b21e5258759966bbfe0e6ce44543cb',
-      checksumAddress: '0x5cF1703A1c99A4b42Eb056535840e93118177232',
+      checksumAddress: '0x5cF1703A1c99A4b42Eb056535840e93118177232'.toLowerCase(),
       uri: 'https://example.a.com:9151',
     },
     {
@@ -87,7 +72,13 @@ export const mockUrsulas = (): IUrsula[] => {
       checksumAddress: '0xfBeb3368735B3F0A65d1F1E02bf1d188bb5F5BE6',
       uri: 'https://example.e.com:9151',
     },
-  ];
+  ].map(({ encryptingKey, checksumAddress, uri }) => {
+    return {
+      checksumAddress: checksumAddress.toLowerCase(),
+      encryptingKey: encryptingKey.toLowerCase(),
+      uri,
+    };
+  });
 };
 
 export const mockPorterUrsulas = (
@@ -105,30 +96,17 @@ export const mockPorterUrsulas = (
   };
 };
 
-export const mockReencryptedMessageKit = (
-  policy: PolicyMessageKit,
-  kFrags: UmbralKFrag[]
-): ReencryptedMessageKit => {
-  const capsule = reencryptKFrags(kFrags, policy.capsule);
-  return {
-    ...policy,
-    capsule,
-  };
-};
-
 export const mockPublishedTreasureMap = (
   m: number,
   messageKit: PolicyMessageKit,
-  treasureMap: PrePublishedTreasureMap,
-  kFrags: UmbralKFrag[]
+  treasureMap: PrePublishedTreasureMap
 ): PublishedTreasureMap => {
   const { hrac, publicSignature, payload, destinations } = treasureMap;
-  const mockedMessageKit = mockReencryptedMessageKit(messageKit, kFrags);
   return new PublishedTreasureMap(
     hrac,
     publicSignature,
     payload,
-    mockedMessageKit,
+    messageKit,
     destinations,
     m
   );
@@ -140,7 +118,7 @@ export const mockGetUrsulas = (ursulas: IUrsula[]) => {
   });
 };
 
-export const mockPublishTreasureMap = () => {
+export const mockPublishTreasureMapOnce = () => {
   return jest
     .spyOn(Porter, 'publishTreasureMap')
     .mockImplementationOnce(async () => {
@@ -177,55 +155,75 @@ export const mockEnactArrangement = () => {
     );
 };
 
-export const mockGetTreasureMap = (
+export const mockGetTreasureMapOnce = (
   m: number,
-  mockMessageKit: PolicyMessageKit,
-  treasureMap: PrePublishedTreasureMap,
-  kFrags: UmbralKFrag[]
+  messageKit: PolicyMessageKit,
+  treasureMap: PrePublishedTreasureMap
 ) => {
   return jest
     .spyOn(Porter, 'getTreasureMap')
     .mockImplementationOnce(
       async (_treasureMapId: string, _bobEncryptingKey: UmbralPublicKey) => {
         return Promise.resolve(
-          mockPublishedTreasureMap(m, mockMessageKit, treasureMap, kFrags)
+          mockPublishedTreasureMap(m, messageKit, treasureMap)
         );
       }
     );
 };
 
+export const mockWorkOrderResults = (
+  ursulas: IUrsula[],
+  kFrags: UmbralKFrag[],
+  capsule: UmbralCapsule
+) => {
+  const results: Record<string, WorkOrderResult> = {};
+  for (let i = 0; i < ursulas.length; i += 1) {
+    const kFrag = i < kFrags.length ? kFrags[i] : kFrags[i - kFrags.length];
+    const ursula = ursulas[i];
+    const cFrag = umbral.reencrypt(capsule, kFrag);
+    // TODO; What is the reencryptionSignature anyway?
+    const reencryptionSignature = Buffer.concat([
+      keccakDigest(Buffer.from(cFrag.toBytes())),
+      keccakDigest(Buffer.from(cFrag.toBytes())),
+    ]);
+    results[ursula.checksumAddress] = new WorkOrderResult(
+      cFrag,
+      umbral.Signature.fromBytes(reencryptionSignature)
+    );
+  }
+  return results;
+};
+
+export const mockExecuteWorkOrder = (
+  kFrags: UmbralKFrag[],
+  capsule: UmbralCapsule,
+  ursulas: IUrsula[]
+) => {
+  const results = mockWorkOrderResults(ursulas, kFrags, capsule);
+  return jest
+    .spyOn(Porter, 'executeWorkOrder')
+    .mockImplementation(async (workOrder: WorkOrder) => {
+      return Promise.resolve(results[workOrder.ursula.checksumAddress]);
+    });
+};
+
 export const mockGenerateKFrags = () => {
-  // TODO: Introduce different pattern for testing private methods:
-  // Create class TestAlice that extends Alice and exposes testGenerateKFrags method
   return jest.spyOn(Alice.prototype as any, 'generateKFrags');
+};
+
+export const mockEncryptAndSign = () => {
+  return jest.spyOn(cryptoApi, 'encryptAndSign');
 };
 
 export const reencryptKFrags = (
   kFrags: UmbralKFrag[],
-  capsule: UmbralCapsule,
-  keysToVerify?: {
-    verifyingKey: UmbralPublicKey;
-    delegatingKey: UmbralPublicKey;
-    receivingKey: UmbralPublicKey;
-  }
+  capsule: UmbralCapsule
 ) => {
   if (!kFrags) {
     throw new Error('Pass at least one kFrag.');
   }
   let capsuleWithFrags: UmbralCapsuleWithFrags;
   kFrags.forEach(kFrag => {
-    // TODO: Error: "TypeError: kFrag.verifyWithDelegatingAndReceivingKeys is not a function"
-    // if (keysToVerify) {
-    //   const { verifyingKey, delegatingKey, receivingKey } = keysToVerify;
-    //   const isValid = kFrag.verifyWithDelegatingAndReceivingKeys(
-    //     verifyingKey,
-    //     delegatingKey,
-    //     receivingKey
-    //   );
-    //   if (!isValid) {
-    //     throw new Error('Failed to verify kFrag');
-    //   }
-    // }
     const cFrag = umbral.reencrypt(capsule, kFrag);
     capsuleWithFrags = capsuleWithFrags
       ? capsuleWithFrags.withCFrag(cFrag)

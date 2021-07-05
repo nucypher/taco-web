@@ -2,14 +2,15 @@ import * as umbral from 'umbral-pre';
 import hkdf from '@ctrlpanel/hkdf';
 
 import { UmbralPublicKey, UmbralSecretKey } from '../types';
+import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
 
 export class UmbralKeyingMaterial {
   private readonly keyingMaterial: Buffer;
 
   constructor(keyingMaterial: Buffer) {
-    if (keyingMaterial.length !== 32) {
+    if (keyingMaterial.length !== UMBRAL_KEYING_MATERIAL_BYTES_LENGTH) {
       throw Error(
-        `Expected keyingMaterial to be 32 bytes long, received ${keyingMaterial.length} bytes instead`
+        `Expected keyingMaterial to be ${UMBRAL_KEYING_MATERIAL_BYTES_LENGTH} bytes long, received ${keyingMaterial.length} bytes instead`
       );
     }
     this.keyingMaterial = keyingMaterial;

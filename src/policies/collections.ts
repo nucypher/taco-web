@@ -5,7 +5,9 @@ import { Arrangement } from './policy';
 import {
   ChecksumAddress,
   UmbralCapsule,
+  UmbralCFrag,
   UmbralPublicKey,
+  UmbralSignature,
   UmbralSigner,
 } from '../types';
 import { encryptAndSign, keccakDigest } from '../crypto/api';
@@ -14,7 +16,7 @@ import {
   ETH_HASH_BYTE_LENGTH,
   HRAC_LENGTH,
 } from '../crypto/constants';
-import { PolicyMessageKit, ReencryptedMessageKit } from '../crypto/kits';
+import { PolicyMessageKit } from '../crypto/kits';
 import { Bob } from '../characters/bob';
 import {
   canonicalAddressFromPublicKey,
@@ -37,14 +39,14 @@ export class PublishedTreasureMap {
   private hrac: Buffer;
   private publicSignature: Buffer;
   private payload: Buffer;
-  public readonly messageKit: ReencryptedMessageKit;
+  public readonly messageKit: PolicyMessageKit;
   private _m: number;
 
   constructor(
     hrac: Buffer,
     publicSignature: Buffer,
     payload: Buffer,
-    messageKit: ReencryptedMessageKit,
+    messageKit: PolicyMessageKit,
     destinations: Record<ChecksumAddress, Buffer>,
     m: number
   ) {
@@ -71,8 +73,8 @@ export class PublishedTreasureMap {
       this.messageKit,
       true
     );
-    const m = decryptedMap![0]; // TODO: This is probably wrong
-    const destinations = this.bytesToDestinations(decryptedMap!.slice(1));
+    const m = decryptedMap[0]; // TODO: This is probably wrong
+    const destinations = this.bytesToDestinations(decryptedMap.slice(1));
     const actualM = Object.keys(destinations).length;
     if (actualM < m) {
       throw new Error(`Expected ${m} destinations, found ${actualM} instead.`);
@@ -111,10 +113,6 @@ export class TreasureMap {
     this.destinations[ursula.checksumAddress] = arrangement.getId();
   }
 
-  public getDestinations(): Record<ChecksumAddress, Buffer> {
-    return this.destinations;
-  }
-
   public prepareForPublication(
     bobEncryptingKey: UmbralPublicKey,
     bobVerifyingKey: UmbralPublicKey,
@@ -127,11 +125,9 @@ export class TreasureMap {
       bobEncryptingKey,
       plaintext,
       aliceSigner,
-      true
+      aliceSigner.verifyingKey()
     );
 
-    // TODO: Should this aliceSigner.verifyingKey() be used instead of Alice::verifyingKey etc?
-    // TODO: Is it how treasure maps are supposed to be signed
     const aliceSignerPk = aliceSigner.verifyingKey().toBytes();
     const hrac = this.makeHrac(aliceSignerPk, bobVerifyingKey, label);
     const publicSignature = Buffer.from(
@@ -171,7 +167,7 @@ export class TreasureMap {
   }
 
   private makeId(messageKit: PolicyMessageKit, hrac: Buffer) {
-    const vk = messageKit.verifyingKey.toBytes();
+    const vk = messageKit.senderVerifyingKey.toBytes();
     return keccakDigest(Buffer.concat([vk, hrac]));
   }
 
@@ -202,11 +198,15 @@ export class Revocation {
 }
 
 class PRETask {
-  private capsule: UmbralCapsule;
+  public readonly capsule: UmbralCapsule;
   private signature?: Buffer;
 
   constructor(capsule: UmbralCapsule) {
     this.capsule = capsule;
+  }
+
+  public setSignature(signature: Buffer) {
+    this.signature = signature;
   }
 
   public getSpecification(
@@ -216,7 +216,8 @@ class PRETask {
     ursulaIdentityEvidence: Buffer
   ): Buffer {
     const expectedLengths = [
-      // [ursulaPublicKey, 'ursulaPublicKey', ?] // TODO: What is the expected length of pub key?
+      // TODO: What is the expected length of pub key? 32 or 33 bytes?
+      // [ursulaPublicKey, 'ursulaPublicKey', ?]
       {
         value: aliceAddress,
         name: 'aliceAddress',
@@ -245,14 +246,6 @@ class PRETask {
       blockHash,
     ]);
   }
-
-  public setSignature(signature: Buffer) {
-    this.signature = signature;
-  }
-
-  public getCapsule(): UmbralCapsule {
-    return this.capsule;
-  }
 }
 
 export class WorkOrder {
@@ -262,7 +255,7 @@ export class WorkOrder {
   private arrangementId: Buffer;
   private aliceAddress: Buffer;
   private receiptSignature: Buffer;
-  private ursula: IUrsula;
+  public readonly ursula: IUrsula;
   private blockHash: Buffer;
   private completed: boolean;
 
@@ -288,7 +281,7 @@ export class WorkOrder {
   public static constructByBob(
     arrangementId: Buffer,
     aliceVerifyingKey: UmbralPublicKey,
-    capsules: umbral.Capsule[],
+    capsules: UmbralCapsule[],
     ursula: IUrsula,
     bob: Bob
   ): WorkOrder {
@@ -296,7 +289,7 @@ export class WorkOrder {
 
     // TODO: It was marked as `TODO` in `nucypher/nucypher. Should it be implemneted?
     // TODO: Bob's input to prove freshness for this work order
-    const blockHash = Buffer.from('0x0', 'hex');
+    const blockHash = keccakDigest(Buffer.from('0x0', 'hex'));
 
     // TODO: Implement this?
     // ursula_identity_evidence = b''
@@ -304,7 +297,6 @@ export class WorkOrder {
     //     ursula_identity_evidence = ursula.decentralized_identity_evidence
     // signature = transacting_power.sign_message(message=bytes(self.stamp))
     // self.__decentralized_identity_evidence = signature
-
     const ursulaIdentityEvidence = Buffer.from('0x0', 'hex');
     const ursulaPublicKey = Buffer.from(ursula.encryptingKey, 'hex');
 
@@ -323,18 +315,10 @@ export class WorkOrder {
       task.setSignature(taskSignature);
       tasks.push(task);
     });
-
-    // TODO: It was marked as `TODO` in `nucypher/nucypher. Should it be implemented?
-    // TODO: What's the purpose of the receipt? Should it include only the capsules?
-
-    const capsulesBytes = Buffer.concat(capsules.map(c => c.toBytes()));
-    const receiptBytes = Buffer.concat([
-      this.HEADER,
+    const receiptSignature = this.makeReceiptSignature(
+      capsules,
       ursulaPublicKey,
-      capsulesBytes,
-    ]);
-    const receiptSignature = Buffer.from(
-      bob.signer.sign(receiptBytes).toBytes()
+      bob
     );
 
     return new WorkOrder(
@@ -346,5 +330,44 @@ export class WorkOrder {
       ursula,
       blockHash
     );
+  }
+
+  private static makeReceiptSignature(
+    capsules: UmbralCapsule[],
+    ursulaPublicKey: Buffer,
+    bob: Bob
+  ) {
+    // TODO: It was marked as `TODO` in `nucypher/nucypher. Should it be implemented?
+    // TODO: What's the purpose of the receipt? Should it include only the capsules?
+    const capsulesBytes = Buffer.concat(capsules.map(c => c.toBytes()));
+    const receiptBytes = Buffer.concat([
+      this.HEADER,
+      ursulaPublicKey,
+      capsulesBytes,
+    ]);
+    return Buffer.from(bob.signer.sign(receiptBytes).toBytes());
+  }
+
+  public toBytes(): Buffer {
+    throw new Error('Not implemented.');
+  }
+}
+
+export class WorkOrderResult {
+  private readonly _cFrag: UmbralCFrag;
+  private reencryptionSignature: UmbralSignature;
+
+  constructor(cFrag: UmbralCFrag, reencryptionSignature: UmbralSignature) {
+    this._cFrag = cFrag;
+    this.reencryptionSignature = reencryptionSignature;
+  }
+
+  public get cFrag(): UmbralCFrag {
+    return this._cFrag;
+  }
+
+  public static fromBytes(bytes: Buffer): WorkOrderResult {
+    // TODO: What is the serialization format used here?
+    throw new Error('Not implemented.');
   }
 }

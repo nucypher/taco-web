@@ -1,4 +1,3 @@
-import { Enrico } from '../';
 import { PrePublishedTreasureMap, Revocation } from '../policies/collections';
 import {
   ChecksumAddress,
@@ -24,32 +23,22 @@ export class RevocationKit {
 export class PolicyMessageKit {
   public readonly capsule: UmbralCapsule;
   public readonly ciphertext: Buffer;
-  // TODO: What is the case when signature is undefined?
-  public readonly signature?: Buffer;
-  // TODO: Simplify to only use sender or senderVerifyingKey
-  public readonly senderVerifyingKey?: UmbralPublicKey;
-  public policyPublicKey?: UmbralPublicKey;
-  public sender?: Enrico;
+  public readonly signature: Buffer;
+  public readonly senderVerifyingKey: UmbralPublicKey;
+  public readonly recipientPublicKey: UmbralPublicKey;
 
   constructor(
     capsule: UmbralCapsule,
     ciphertext: Buffer,
-    signature?: Buffer,
-    senderVerifyingKey?: UmbralPublicKey,
-    sender?: Enrico
+    signature: Buffer,
+    senderVerifyingKey: UmbralPublicKey,
+    recipientPublicKey: UmbralPublicKey
   ) {
     this.capsule = capsule;
     this.ciphertext = ciphertext;
     this.signature = signature;
     this.senderVerifyingKey = senderVerifyingKey;
-    this.sender = sender;
-  }
-
-  public get verifyingKey(): UmbralPublicKey {
-    if (!this.senderVerifyingKey && !this.sender?.verifyingKey) {
-      throw Error('PolicyMessageKit has no sender verifying key.');
-    }
-    return this.senderVerifyingKey ?? this.senderVerifyingKey!;
+    this.recipientPublicKey = recipientPublicKey;
   }
 
   public toBytes(includeAlicePublicKey: boolean = true): Buffer {
@@ -60,31 +49,17 @@ export class PolicyMessageKit {
     asBytes.push(this.ciphertext);
     return Buffer.concat(asBytes);
   }
-
-  public ensureCorrectSender(
-    enrico?: Enrico,
-    policyEncryptingKey?: UmbralPublicKey
-  ): void {
-    if (this.sender) {
-      if (enrico && this.sender !== enrico) {
-        throw new Error(`Mismatched sender`);
-      }
-    } else if (enrico) {
-      this.sender = enrico;
-    } else if (this.senderVerifyingKey && policyEncryptingKey) {
-      this.sender = new Enrico(policyEncryptingKey);
-    } else {
-      throw new Error(
-        'No information provided to set the message kit sender. Need eiter `enrico` or `policy_encrypting_key` to be given.'
-      );
-    }
-  }
 }
 
+// Just like a PolicyMessageKit, but with a different `capsule` type
+// TODO: Cant use re-use existing type because of missing `toBytes` implementation
+// export type ReencryptedMessageKit = Omit<PolicyMessageKit, 'capsule'> & {
+//   capsule: UmbralCapsuleWithFrags;
+// };
 export interface ReencryptedMessageKit {
   capsule: UmbralCapsuleWithFrags;
   ciphertext: Buffer;
-  signature?: Buffer;
-  senderVerifyingKey?: UmbralPublicKey;
-  sender?: Enrico;
+  signature: Buffer;
+  senderVerifyingKey: UmbralPublicKey;
+  recipientPublicKey: UmbralPublicKey;
 }

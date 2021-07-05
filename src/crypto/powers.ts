@@ -1,4 +1,5 @@
 import * as umbral from 'umbral-pre';
+import secureRandom from 'secure-random';
 
 import {
   UmbralKFrag,
@@ -8,6 +9,7 @@ import {
 } from '../types';
 import { UmbralKeyingMaterial } from './keys';
 import { PolicyMessageKit, ReencryptedMessageKit } from './kits';
+import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
 
 export class DelegatingPower {
   private umbralKeyingMaterial: UmbralKeyingMaterial;
@@ -34,8 +36,8 @@ export class DelegatingPower {
       signer,
       m,
       n,
-      true,
-      true
+      false,
+      false
     );
     return {
       delegatingPublicKey,
@@ -100,7 +102,7 @@ export class SigningPower extends CryptoPower {
   }
 
   public static fromRandom(): SigningPower {
-    const keyingMaterial = Buffer.from(umbral.SecretKey.random().toBytes());
+    const keyingMaterial = secureRandom(UMBRAL_KEYING_MATERIAL_BYTES_LENGTH);
     return SigningPower.fromKeyingMaterial(keyingMaterial);
   }
 
@@ -120,7 +122,6 @@ export class DecryptingPower extends CryptoPower {
 
   public decrypt(messageKit: PolicyMessageKit | ReencryptedMessageKit): Buffer {
     if (messageKit instanceof PolicyMessageKit) {
-      // TODO: Does it ever run? What is the case where we decrypt the original capsule?
       return Buffer.from(
         umbral.decryptOriginal(
           this.secretKey,
@@ -132,7 +133,7 @@ export class DecryptingPower extends CryptoPower {
       return Buffer.from(
         messageKit.capsule.decryptReencrypted(
           this.secretKey,
-          messageKit.senderVerifyingKey!,
+          messageKit.recipientPublicKey,
           messageKit.ciphertext
         )
       );

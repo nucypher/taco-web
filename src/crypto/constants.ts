@@ -15,3 +15,5 @@ export const SIGNATURE_HEADER_LENGTH = 1;
 export const ETH_ADDRESS_STRING_PREFIX = '0x';
 export const ETH_ADDRESS_BYTE_LENGTH = 20;
 export const ETH_HASH_BYTE_LENGTH = 32;
+
+export const UMBRAL_KEYING_MATERIAL_BYTES_LENGTH = 32;

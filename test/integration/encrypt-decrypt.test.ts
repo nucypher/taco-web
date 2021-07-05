@@ -2,7 +2,7 @@ import { mockAlice, mockBob } from '../utils';
 import { encryptAndSign, verifySignature } from '../../src/crypto/api';
 
 describe('encrypt decrypt', () => {
-  it('alice encrypts and signs plaintext', async () => {
+  it('alice encrypts and signs plaintext', () => {
     const alice = mockAlice();
     const bob = mockBob();
     const plaintext = Buffer.from('fake-message');
@@ -11,7 +11,7 @@ describe('encrypt decrypt', () => {
       bob.encryptingPublicKey,
       plaintext,
       alice.signer,
-      true
+      alice.verifyingKey
     );
 
     expect(
@@ -20,17 +20,13 @@ describe('encrypt decrypt', () => {
     expect((bob as any).decryptingPower.decrypt(messageKit)).toBeTruthy();
   });
 
-  it('alice encrypts for bob and signs plaintext', async () => {
+  it('alice encrypts for bob and signs plaintext', () => {
     const alice = mockAlice();
     const bob = mockBob();
     const message = Buffer.from('fake-message');
 
-    const messageKit = alice.encryptFor(bob.encryptingPublicKey, message, true);
-    const cleartext = await bob.verifyFrom(
-      alice.verifyingKey,
-      messageKit,
-      true
-    );
+    const messageKit = alice.encryptFor(bob.encryptingPublicKey, message);
+    const cleartext = bob.verifyFrom(alice.verifyingKey, messageKit, true);
 
     expect(cleartext).toEqual(message);
   });

@@ -1,7 +1,7 @@
 import * as umbral from 'umbral-pre';
 
-import { Enrico } from '../../../src';
-import { mockAlice, mockBob, reencryptKFrags } from '../../utils';
+import { Enrico } from '../../src';
+import { mockAlice, mockBob, reencryptKFrags } from '../utils';
 
 describe('enrico', () => {
   it('alice decrypts message encrypted by enrico', async () => {
@@ -12,15 +12,6 @@ describe('enrico', () => {
     const policyPublicKey = await alice.getPolicyEncryptingKeyFromLabel(label);
     const enrico = new Enrico(policyPublicKey);
     const { capsule, ciphertext } = enrico.encrypt(Buffer.from(message));
-
-    // TODO: Can't verify signature signed with public key using umbral-pre
-    // expect(
-    //   verifySignature(
-    //     encryptedMessage.signature!,
-    //     Buffer.from(message),
-    //     Buffer.from(aliceSk.toBytes())
-    //   )
-    // ).toBeTruthy();
 
     const alicePower = (alice as any).delegatingPower;
     const aliceSk = await alicePower.getSecretKeyFromLabel(label);
@@ -44,7 +35,7 @@ describe('enrico', () => {
     const encrypted = enrico.encrypt(plaintextBytes);
     const { ciphertext, capsule, signature } = encrypted;
 
-    // Alice should be able to decrypt capsule she created
+    // Alice can decrypt capsule she created
     const aliceSk = await (alice as any).delegatingPower.getSecretKeyFromLabel(
       label
     );
@@ -67,9 +58,9 @@ describe('enrico', () => {
       policyEncryptingKey.toBytes()
     );
 
-    const capsuleWithFrags = reencryptKFrags(kFrags, capsule);
+    const capsuleWithFrags = reencryptKFrags(kFrags.slice(0, m), capsule);
 
-    // Bob should be able to decrypt reencrypted ciphertext
+    // Bob can decrypt re-encrypted ciphertext
     const bobSk = (bob as any).decryptingPower.secretKey;
     const plaintextBob = capsuleWithFrags.decryptReencrypted(
       bobSk,
@@ -84,15 +75,15 @@ describe('enrico', () => {
 
     // Bob can decrypt ciphertext and verify origin of the message
     const isValid = bob.verifyFrom(
-      enrico.verifyingKey,
+      enrico.verifyingKey, // Message was signed off by Enrico
       {
         ciphertext,
         capsule: capsuleWithFrags,
-        senderVerifyingKey: policyEncryptingKey,
+        senderVerifyingKey: enrico.verifyingKey, // Message was signed off by Enrico
+        recipientPublicKey: policyEncryptingKey, // Message was encrypted using key derived by Alice
         signature,
       },
-      true,
-      signature
+      true
     );
     expect(isValid).toBeTruthy();
   });

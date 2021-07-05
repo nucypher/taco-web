@@ -10,3 +10,4 @@ export type UmbralCFrag = umbral.VerifiedCapsuleFrag;
 export type UmbralKFrag = umbral.KeyFrag;
 export type UmbralCapsule = umbral.Capsule;
 export type UmbralCapsuleWithFrags = umbral.CapsuleWithFrags;
+export type UmbralSignature = umbral.Signature;

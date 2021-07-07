@@ -1,3 +1,4 @@
+import { PublicKey } from 'umbral-pre';
 import axios, { AxiosResponse } from 'axios';
 
 import {
@@ -6,12 +7,7 @@ import {
   WorkOrder,
   WorkOrderResult,
 } from '../policies/collections';
-import {
-  Base64EncodedBytes,
-  ChecksumAddress,
-  HexEncodedBytes,
-  UmbralPublicKey,
-} from '../types';
+import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from '../types';
 
 export interface IUrsula {
   checksumAddress: ChecksumAddress;
@@ -107,7 +103,7 @@ export abstract class Porter {
 
   public static async publishTreasureMap(
     treasureMap: PrePublishedTreasureMap,
-    bobEncryptingKey: UmbralPublicKey
+    bobEncryptingKey: PublicKey
   ) {
     const data: PublishTreasureMapRequest = {
       treasure_map: treasureMap.payload.toString('base64'),
@@ -124,7 +120,7 @@ export abstract class Porter {
 
   public static async getTreasureMap(
     treasureMapId: string,
-    bobEncryptingKey: UmbralPublicKey
+    bobEncryptingKey: PublicKey
   ): Promise<PublishedTreasureMap> {
     const data: GetTreasureMapRequest = {
       treasure_map_id: Buffer.from(treasureMapId).toString('hex'),

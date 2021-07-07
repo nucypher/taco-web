@@ -1,4 +1,4 @@
-import * as umbral from 'umbral-pre';
+import { decryptOriginal } from 'umbral-pre';
 
 import { Enrico } from '../../src';
 import { mockAlice, mockBob, reencryptKFrags } from '../utils';
@@ -15,7 +15,7 @@ describe('enrico', () => {
 
     const alicePower = (alice as any).delegatingPower;
     const aliceSk = await alicePower.getSecretKeyFromLabel(label);
-    const alicePlaintext = umbral.decryptOriginal(aliceSk, capsule, ciphertext);
+    const alicePlaintext = decryptOriginal(aliceSk, capsule, ciphertext);
     expect(alicePlaintext).toEqual(alicePlaintext);
   });
 
@@ -39,7 +39,7 @@ describe('enrico', () => {
     const aliceSk = await (alice as any).delegatingPower.getSecretKeyFromLabel(
       label
     );
-    const plaintextAlice = umbral.decryptOriginal(aliceSk, capsule, ciphertext);
+    const plaintextAlice = decryptOriginal(aliceSk, capsule, ciphertext);
     expect(
       Buffer.from(plaintextAlice)
         .toString('utf-8')
@@ -80,7 +80,7 @@ describe('enrico', () => {
         ciphertext,
         capsule: capsuleWithFrags,
         senderVerifyingKey: enrico.verifyingKey, // Message was signed off by Enrico
-        recipientPublicKey: policyEncryptingKey, // Message was encrypted using key derived by Alice
+        recipientEncryptingKey: policyEncryptingKey, // Message was encrypted using key derived by Alice
         signature,
       },
       true

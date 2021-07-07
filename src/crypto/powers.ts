@@ -1,12 +1,6 @@
-import * as umbral from 'umbral-pre';
-import secureRandom from 'secure-random';
+import umbral, { KeyFrag, PublicKey, SecretKey, Signer } from 'umbral-pre';
 
-import {
-  UmbralKFrag,
-  UmbralPublicKey,
-  UmbralSecretKey,
-  UmbralSigner,
-} from '../types';
+import secureRandom from 'secure-random';
 import { UmbralKeyingMaterial } from './keys';
 import { PolicyMessageKit, ReencryptedMessageKit } from './kits';
 import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
@@ -19,18 +13,18 @@ export class DelegatingPower {
   }
 
   public async generateKFrags(
-    bobEncryptingKey: UmbralPublicKey,
-    signer: UmbralSigner,
+    bobEncryptingKey: PublicKey,
+    signer: Signer,
     label: string,
     m: number,
     n: number
   ): Promise<{
-    delegatingPublicKey: UmbralPublicKey;
-    kFrags: UmbralKFrag[];
+    delegatingPublicKey: PublicKey;
+    kFrags: KeyFrag[];
   }> {
     const delegatingSecretKey = await this.getSecretKeyFromLabel(label);
     const delegatingPublicKey = await this.getPublicKeyFromLabel(label);
-    const kFrags: UmbralKFrag[] = umbral.generateKFrags(
+    const kFrags: KeyFrag[] = umbral.generateKFrags(
       delegatingSecretKey,
       bobEncryptingKey,
       signer,
@@ -45,11 +39,11 @@ export class DelegatingPower {
     };
   }
 
-  private async getSecretKeyFromLabel(label: string): Promise<UmbralSecretKey> {
+  private async getSecretKeyFromLabel(label: string): Promise<SecretKey> {
     return this.umbralKeyingMaterial.deriveSecretKeyFromLabel(label);
   }
 
-  public async getPublicKeyFromLabel(label: string): Promise<UmbralPublicKey> {
+  public async getPublicKeyFromLabel(label: string): Promise<PublicKey> {
     const sk = await this.getSecretKeyFromLabel(label);
     return sk.publicKey();
   }
@@ -57,9 +51,9 @@ export class DelegatingPower {
 
 abstract class CryptoPower {
   private readonly umbralKeyingMaterial?: UmbralKeyingMaterial;
-  private readonly _publicKey?: UmbralPublicKey;
+  private readonly _publicKey?: PublicKey;
 
-  protected constructor(keyingMaterial?: Buffer, publicKey?: UmbralPublicKey) {
+  protected constructor(keyingMaterial?: Buffer, publicKey?: PublicKey) {
     if (keyingMaterial && publicKey) {
       throw new Error('Pass either keyMaterial or publicKey - not both.');
     }
@@ -71,7 +65,7 @@ abstract class CryptoPower {
     }
   }
 
-  public get publicKey(): UmbralPublicKey {
+  public get publicKey(): PublicKey {
     if (this.umbralKeyingMaterial) {
       return this.umbralKeyingMaterial.derivePublicKey();
     } else {
@@ -79,7 +73,7 @@ abstract class CryptoPower {
     }
   }
 
-  protected get secretKey(): UmbralSecretKey {
+  protected get secretKey(): SecretKey {
     if (this.umbralKeyingMaterial) {
       return this.umbralKeyingMaterial.deriveSecretKey();
     } else {
@@ -93,7 +87,7 @@ abstract class CryptoPower {
 // TODO: Deduplicate `from*` methods into `CryptoPower`?
 
 export class SigningPower extends CryptoPower {
-  public static fromPublicKey(publicKey: UmbralPublicKey): SigningPower {
+  public static fromPublicKey(publicKey: PublicKey): SigningPower {
     return new SigningPower(undefined, publicKey);
   }
 
@@ -106,13 +100,13 @@ export class SigningPower extends CryptoPower {
     return SigningPower.fromKeyingMaterial(keyingMaterial);
   }
 
-  public get signer(): UmbralSigner {
+  public get signer(): Signer {
     return new umbral.Signer(this.secretKey);
   }
 }
 
 export class DecryptingPower extends CryptoPower {
-  public static fromPublicKey(publicKey: UmbralPublicKey): DecryptingPower {
+  public static fromPublicKey(publicKey: PublicKey): DecryptingPower {
     return new DecryptingPower(undefined, publicKey);
   }
 
@@ -133,7 +127,7 @@ export class DecryptingPower extends CryptoPower {
       return Buffer.from(
         messageKit.capsule.decryptReencrypted(
           this.secretKey,
-          messageKit.recipientPublicKey,
+          messageKit.recipientEncryptingKey,
           messageKit.ciphertext
         )
       );

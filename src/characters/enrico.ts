@@ -1,17 +1,18 @@
+import { PublicKey } from 'umbral-pre';
+
 import { PolicyMessageKit } from '../crypto/kits';
 import { SigningPower } from '../crypto/powers';
-import { UmbralPublicKey } from '../types';
 import { encryptAndSign } from '../crypto/api';
 
 export class Enrico {
-  public readonly policyEncryptingKey: UmbralPublicKey;
+  public readonly recipientEncryptingKey: PublicKey;
   private readonly signingPower: SigningPower;
 
   constructor(
-    policyEncryptingKey: UmbralPublicKey,
-    enricoVerifyingKey?: UmbralPublicKey
+    recipientEncryptingKey: PublicKey,
+    enricoVerifyingKey?: PublicKey
   ) {
-    this.policyEncryptingKey = policyEncryptingKey;
+    this.recipientEncryptingKey = recipientEncryptingKey;
     if (enricoVerifyingKey) {
       this.signingPower = SigningPower.fromPublicKey(enricoVerifyingKey);
     } else {
@@ -19,13 +20,13 @@ export class Enrico {
     }
   }
 
-  public get verifyingKey(): UmbralPublicKey {
+  public get verifyingKey(): PublicKey {
     return this.signingPower.publicKey;
   }
 
   public encrypt(plaintext: Buffer): PolicyMessageKit {
     return encryptAndSign(
-      this.policyEncryptingKey,
+      this.recipientEncryptingKey,
       plaintext,
       this.signingPower.signer,
       this.signingPower.publicKey

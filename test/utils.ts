@@ -1,4 +1,13 @@
-import * as umbral from 'umbral-pre';
+import {
+  Capsule,
+  CapsuleWithFrags,
+  KeyFrag,
+  PublicKey,
+  VerifiedCapsuleFrag,
+  reencrypt,
+  Signature,
+} from 'umbral-pre';
+import axios from 'axios';
 
 import * as cryptoApi from '../src/crypto/api';
 import { GetUrsulasResponse, IUrsula, Porter } from '../src/characters/porter';
@@ -9,16 +18,8 @@ import {
   WorkOrder,
   WorkOrderResult,
 } from '../src/policies/collections';
-import {
-  UmbralCapsule,
-  UmbralCapsuleWithFrags,
-  UmbralCFrag,
-  UmbralKFrag,
-  UmbralPublicKey,
-} from '../src/types';
 import { NucypherKeyring } from '../src/crypto/keyring';
 import { Alice, Bob } from '../src';
-import axios from 'axios';
 import { Arrangement, BlockchainPolicy } from '../src/policies/policy';
 import { Ursula } from '../src/characters/ursula';
 import { keccakDigest } from '../src/crypto/api';
@@ -112,7 +113,7 @@ export const mockPublishedTreasureMap = (
   );
 };
 
-export const mockGetUrsulas = (ursulas: IUrsula[]) => {
+export const mockGetUrsulasOnce = (ursulas: IUrsula[]) => {
   return jest.spyOn(axios, 'get').mockImplementationOnce(async () => {
     return Promise.resolve({ data: mockPorterUrsulas(ursulas) });
   });
@@ -146,7 +147,7 @@ export const mockEnactArrangement = () => {
     .mockImplementation(
       (
         _arrangement: Arrangement,
-        _kFrag: UmbralCFrag,
+        _kFrag: VerifiedCapsuleFrag,
         ursula: IUrsula,
         _publicationTransaction: any
       ) => {
@@ -163,7 +164,7 @@ export const mockGetTreasureMapOnce = (
   return jest
     .spyOn(Porter, 'getTreasureMap')
     .mockImplementationOnce(
-      async (_treasureMapId: string, _bobEncryptingKey: UmbralPublicKey) => {
+      async (_treasureMapId: string, _bobEncryptingKey: PublicKey) => {
         return Promise.resolve(
           mockPublishedTreasureMap(m, messageKit, treasureMap)
         );
@@ -173,37 +174,43 @@ export const mockGetTreasureMapOnce = (
 
 export const mockWorkOrderResults = (
   ursulas: IUrsula[],
-  kFrags: UmbralKFrag[],
-  capsule: UmbralCapsule
-) => {
+  kFrags: KeyFrag[],
+  capsule: Capsule
+): Record<string, WorkOrderResult> => {
+  if (ursulas.length !== kFrags.length) {
+    throw new Error('Number of kFrags must match the number of Ursulas');
+  }
+  const cFrags = kFrags.map(kFrag => reencrypt(capsule, kFrag));
+
   const results: Record<string, WorkOrderResult> = {};
   for (let i = 0; i < ursulas.length; i += 1) {
-    const kFrag = i < kFrags.length ? kFrags[i] : kFrags[i - kFrags.length];
-    const ursula = ursulas[i];
-    const cFrag = umbral.reencrypt(capsule, kFrag);
-    // TODO; What is the reencryptionSignature anyway?
+    const cFrag = cFrags[i];
+    // TODO; How to mock reencryptionSignature?
     const reencryptionSignature = Buffer.concat([
       keccakDigest(Buffer.from(cFrag.toBytes())),
       keccakDigest(Buffer.from(cFrag.toBytes())),
     ]);
-    results[ursula.checksumAddress] = new WorkOrderResult(
+    results[ursulas[i].checksumAddress] = new WorkOrderResult(
       cFrag,
-      umbral.Signature.fromBytes(reencryptionSignature)
+      Signature.fromBytes(reencryptionSignature)
     );
   }
   return results;
 };
 
 export const mockExecuteWorkOrder = (
-  kFrags: UmbralKFrag[],
-  capsule: UmbralCapsule,
-  ursulas: IUrsula[]
+  mockResults: Record<string, WorkOrderResult>
 ) => {
-  const results = mockWorkOrderResults(ursulas, kFrags, capsule);
   return jest
     .spyOn(Porter, 'executeWorkOrder')
     .mockImplementation(async (workOrder: WorkOrder) => {
-      return Promise.resolve(results[workOrder.ursula.checksumAddress]);
+      const result = mockResults[workOrder.ursula.checksumAddress];
+      if (!result) {
+        throw new Error(
+          `Failed to find a mocked result for Ursula ${workOrder.ursula.checksumAddress}`
+        );
+      }
+      return Promise.resolve(result);
     });
 };
 
@@ -215,16 +222,13 @@ export const mockEncryptAndSign = () => {
   return jest.spyOn(cryptoApi, 'encryptAndSign');
 };
 
-export const reencryptKFrags = (
-  kFrags: UmbralKFrag[],
-  capsule: UmbralCapsule
-) => {
+export const reencryptKFrags = (kFrags: KeyFrag[], capsule: Capsule) => {
   if (!kFrags) {
     throw new Error('Pass at least one kFrag.');
   }
-  let capsuleWithFrags: UmbralCapsuleWithFrags;
+  let capsuleWithFrags: CapsuleWithFrags;
   kFrags.forEach(kFrag => {
-    const cFrag = umbral.reencrypt(capsule, kFrag);
+    const cFrag = reencrypt(capsule, kFrag);
     capsuleWithFrags = capsuleWithFrags
       ? capsuleWithFrags.withCFrag(cFrag)
       : capsule.withCFrag(cFrag);

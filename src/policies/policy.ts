@@ -1,4 +1,4 @@
-import * as umbral from 'umbral-pre';
+import { KeyFrag, PublicKey, VerifiedCapsuleFrag } from 'umbral-pre';
 import secureRandom from 'secure-random';
 
 import { Alice } from '../characters/alice';
@@ -7,12 +7,7 @@ import { IUrsula } from '../characters/porter';
 import { Ursula } from '../characters/ursula';
 import { keccakDigest } from '../crypto/api';
 import { RevocationKit } from '../crypto/kits';
-import {
-  ChecksumAddress,
-  UmbralCFrag,
-  UmbralKFrag,
-  UmbralPublicKey,
-} from '../types';
+import { ChecksumAddress } from '../types';
 import { PrePublishedTreasureMap, TreasureMap } from './collections';
 
 export interface EnactedPolicy {
@@ -35,8 +30,8 @@ export class BlockchainPolicy {
   private readonly label: string;
   private readonly expiration: Date;
   private bob: Bob;
-  private kFrags: UmbralKFrag[];
-  private publicKey: UmbralPublicKey;
+  private kFrags: KeyFrag[];
+  private publicKey: PublicKey;
   private readonly m: number;
   private readonly id: Buffer;
 
@@ -45,8 +40,8 @@ export class BlockchainPolicy {
     label: string,
     expiration: Date,
     bob: Bob,
-    kFrags: UmbralKFrag[],
-    publicKey: UmbralPublicKey,
+    kFrags: KeyFrag[],
+    publicKey: PublicKey,
     m: number
   ) {
     this.alice = alice;
@@ -61,7 +56,7 @@ export class BlockchainPolicy {
 
   public enactArrangement(
     arrangement: Arrangement,
-    kFrag: UmbralCFrag,
+    kFrag: VerifiedCapsuleFrag,
     ursula: IUrsula,
     publicationTransaction: any
   ): ChecksumAddress | null {
@@ -69,7 +64,7 @@ export class BlockchainPolicy {
       Buffer.from(publicationTransaction),
       Buffer.from(kFrag.toBytes()),
     ]);
-    const ursulaPublicKey = umbral.PublicKey.fromBytes(
+    const ursulaPublicKey = PublicKey.fromBytes(
       Buffer.from(ursula.encryptingKey, 'hex')
     );
     const messageKit = this.alice.encryptFor(ursulaPublicKey, enactmentPayload);
@@ -78,7 +73,7 @@ export class BlockchainPolicy {
 
   public publishToBlockchain(arrangements: ArrangementForUrsula[]): string {
     const addresses = arrangements.map(a => a.ursula.checksumAddress);
-    // TOODO: Implement after adding web3 client
+    // TODO: Implement after adding web3 client
     // receipt = self.alice.policy_agent.create_policy(
     //     policy_id=self.hrac,  # bytes16 _policyID
     //     transacting_power=self.alice.transacting_power,
@@ -174,12 +169,12 @@ export class BlockchainPolicy {
 
 export class Arrangement {
   private static ID_LENGTH = 32;
-  private aliceVerifyingKey: UmbralPublicKey;
+  private aliceVerifyingKey: PublicKey;
   private readonly arrangementId: Buffer;
   private expiration: Date;
 
   constructor(
-    aliceVerifyingKey: UmbralPublicKey,
+    aliceVerifyingKey: PublicKey,
     arrangementId: Buffer,
     expiration: Date
   ) {

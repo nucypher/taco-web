@@ -1,4 +1,10 @@
-import { VerifiedCapsuleFrag } from 'umbral-pre';
+import {
+  PublicKey,
+  VerifiedCapsuleFrag,
+  Signer,
+  Capsule,
+  CapsuleWithFrags,
+} from 'umbral-pre';
 
 import { keccakDigest, verifySignature } from '../crypto/api';
 import {
@@ -10,12 +16,6 @@ import {
 import { PolicyMessageKit, ReencryptedMessageKit } from '../crypto/kits';
 import { DecryptingPower, SigningPower } from '../crypto/powers';
 import { PublishedTreasureMap, WorkOrder } from '../policies/collections';
-import {
-  UmbralCapsule,
-  UmbralCapsuleWithFrags,
-  UmbralPublicKey,
-  UmbralSigner,
-} from '../types';
 import { Porter } from './porter';
 import { NucypherKeyring } from '../crypto/keyring';
 import { Enrico } from './enrico';
@@ -32,8 +32,8 @@ export class Bob {
   }
 
   static fromPublicKeys(
-    verifyingKey: UmbralPublicKey,
-    encryptingKey: UmbralPublicKey
+    verifyingKey: PublicKey,
+    encryptingKey: PublicKey
   ): Bob {
     const signingPower = SigningPower.fromPublicKey(verifyingKey);
     const decryptingPower = DecryptingPower.fromPublicKey(encryptingKey);
@@ -46,21 +46,21 @@ export class Bob {
     return new Bob(signingPower, decryptingPower);
   }
 
-  public get encryptingPublicKey(): UmbralPublicKey {
+  public get encryptingPublicKey(): PublicKey {
     return this.decryptingPower.publicKey;
   }
 
-  public get verifyingKey(): UmbralPublicKey {
+  public get verifyingKey(): PublicKey {
     return this.signingPower.publicKey;
   }
 
-  public get signer(): UmbralSigner {
+  public get signer(): Signer {
     return this.signingPower.signer;
   }
 
   public async retrieve(
     messageKits: PolicyMessageKit[],
-    aliceVerifyingKey: UmbralPublicKey,
+    aliceVerifyingKey: PublicKey,
     label: string,
     enrico: Enrico,
     maybeTreasureMap?: PublishedTreasureMap
@@ -79,9 +79,9 @@ export class Bob {
 
     // Perform sanity checks
 
-    // messageKits.forEach(mk =>
-    //   mk.ensureCorrectSender(enrico, aliceVerifyingKey)
-    // );
+    messageKits.forEach(mk =>
+      mk.ensureCorrectSender(enrico, aliceVerifyingKey)
+    );
 
     // Assemble WorkOrders
 
@@ -105,11 +105,7 @@ export class Bob {
 
     const cFrags = await this.executeWorkOrders(workOrders, treasureMap.m);
 
-    const activatedCapsules = this.activateCapsules(
-      workOrders,
-      cFrags,
-      treasureMap.m
-    );
+    const activatedCapsules = this.activateCapsules(capsulesToActivate, cFrags);
 
     // Decrypt ciphertexts
     return messageKits.map(messageKit => {
@@ -119,28 +115,24 @@ export class Bob {
         signature,
         capsule: activatedCapsules[capsule.toString()],
         senderVerifyingKey: enrico.verifyingKey,
-        recipientPublicKey: enrico.policyEncryptingKey,
+        recipientEncryptingKey: enrico.recipientEncryptingKey,
       };
       return this.verifyFrom(enrico.verifyingKey, reencryptedMessageKit, true);
     });
   }
 
   private activateCapsules(
-    workOrders: WorkOrder[],
-    cFrags: VerifiedCapsuleFrag[],
-    m: number
-  ): Record<string, UmbralCapsuleWithFrags> {
-    const capsules = workOrders
-      .flatMap(workOrder => workOrder.tasks)
-      .map(task => task.capsule);
+    capsulesToActivate: Capsule[],
+    cFrags: VerifiedCapsuleFrag[]
+  ): Record<string, CapsuleWithFrags> {
     return Object.fromEntries(
-      capsules.map(capsule => {
-        let capsuleWithFrags: UmbralCapsuleWithFrags | undefined;
-        for (const cFrag of cFrags.slice(0, m)) {
+      capsulesToActivate.map(capsule => {
+        let capsuleWithFrags: CapsuleWithFrags;
+        cFrags.forEach(cFrag => {
           capsuleWithFrags = capsuleWithFrags
             ? capsuleWithFrags.withCFrag(cFrag)
             : capsule.withCFrag(cFrag);
-        }
+        });
         return [capsule.toString(), capsuleWithFrags!];
       })
     );
@@ -165,17 +157,17 @@ export class Bob {
         `Failed to get enough cFrags: received ${cFrags.length}, expected ${m}`
       );
     }
-    // TODO: Can we return exactly m cFrags instead of returning all cFrags?
-    // return cFrags.slice(0, m);
     return cFrags;
+    // TODO: Return exactly m cFrags here?
+    // return cFrags.slice(0, m);
   }
 
-  public async joinPolicy(aliceVerifyingKey: UmbralPublicKey, label: string) {
+  public async joinPolicy(aliceVerifyingKey: PublicKey, label: string) {
     await this.getTreasureMap(aliceVerifyingKey, label);
   }
 
   public verifyFrom(
-    strangerPublicKey: UmbralPublicKey,
+    strangerPublicKey: PublicKey,
     messageKit: PolicyMessageKit | ReencryptedMessageKit,
     decrypt: boolean = false,
     providedSignature?: Buffer
@@ -265,12 +257,11 @@ export class Bob {
   }
 
   private async workOrdersForCapsules(
-    capsules: UmbralCapsule[],
+    capsules: Capsule[],
     treasureMap: PublishedTreasureMap,
-    aliceVerifyingKey: UmbralPublicKey
+    aliceVerifyingKey: PublicKey
   ) {
-    const nodes = treasureMap.destinations;
-    const nodeIds = Object.keys(nodes);
+    const nodeIds = Object.keys(treasureMap.destinations);
     const ursulas = await Porter.getUrsulas(
       nodeIds.length,
       undefined,
@@ -280,19 +271,21 @@ export class Bob {
     const ursulasByNodeId = Object.fromEntries(
       ursulas.map(ursula => [ursula.checksumAddress, ursula])
     );
-    return Object.entries(nodes).map(([nodeId, arrangementId]) => {
-      return WorkOrder.constructByBob(
-        arrangementId,
-        aliceVerifyingKey,
-        capsules,
-        ursulasByNodeId[nodeId],
-        this
-      );
-    });
+    return Object.entries(treasureMap.destinations).map(
+      ([nodeId, arrangementId]) => {
+        return WorkOrder.constructByBob(
+          arrangementId,
+          aliceVerifyingKey,
+          capsules,
+          ursulasByNodeId[nodeId],
+          this
+        );
+      }
+    );
   }
 
   private async getTreasureMap(
-    aliceVerifyingKey: UmbralPublicKey,
+    aliceVerifyingKey: PublicKey,
     label: string
   ): Promise<PublishedTreasureMap> {
     const mapId = this.makeTreasureMapId(aliceVerifyingKey, label);
@@ -307,15 +300,12 @@ export class Bob {
 
   private tryOrient(
     treasureMap: PublishedTreasureMap,
-    aliceVerifyingKey: UmbralPublicKey
+    aliceVerifyingKey: PublicKey
   ) {
     treasureMap.orient(aliceVerifyingKey, this);
   }
 
-  private makeTreasureMapId(
-    verifyingKey: UmbralPublicKey,
-    label: string
-  ): string {
+  private makeTreasureMapId(verifyingKey: PublicKey, label: string): string {
     const vkBytes = Buffer.from(verifyingKey.toBytes());
     const hrac = this.makePolicyHrac(vkBytes, label);
     const mapId = keccakDigest(Buffer.concat([vkBytes, hrac]));

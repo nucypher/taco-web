@@ -1,7 +1,8 @@
+import { KeyFrag, PublicKey } from 'umbral-pre';
+
 import { Enrico } from '../../src';
 import { PolicyMessageKit } from '../../src/crypto/kits';
 import { PrePublishedTreasureMap } from '../../src/policies/collections';
-import { UmbralKFrag, UmbralPublicKey } from '../../src/types';
 import {
   mockAlice,
   mockBob,
@@ -10,35 +11,36 @@ import {
   mockExecuteWorkOrder,
   mockGenerateKFrags,
   mockGetTreasureMapOnce,
-  mockGetUrsulas,
+  mockGetUrsulasOnce,
   mockProposeArrangement,
   mockPublishToBlockchain,
   mockPublishTreasureMapOnce,
   mockRemoteBob,
   mockUrsulas,
+  mockWorkOrderResults,
 } from '../utils';
 
 describe('story: alice shares message with bob through policy', () => {
-  const ursulas = mockUrsulas();
-  const messages = ['secret', 'messages', 'from', 'alice'];
+  const message = 'secret-message-from-alice';
   const m = 2;
   const n = 3;
   const expired = new Date();
+  const ursulas = mockUrsulas().slice(0, n);
 
   // Intermediate variables used for mocking
   let treasureMap: PrePublishedTreasureMap;
-  let kFrags: UmbralKFrag[];
+  let kFrags: KeyFrag[];
   let messageKit: PolicyMessageKit;
 
   // Application side-channel
   const label = 'fake-data-label';
-  let encryptedMessages: PolicyMessageKit[];
-  let aliceVerifyingKey: UmbralPublicKey;
-  let policyEncryptingKey: UmbralPublicKey;
-  let enricoVerifyingKey: UmbralPublicKey;
+  let encryptedMessage: PolicyMessageKit;
+  let aliceVerifyingKey: PublicKey;
+  let policyEncryptingKey: PublicKey;
+  let enricoVerifyingKey: PublicKey;
 
   it('alice grants a new policy to bob', async () => {
-    const getUrsulasSpy = mockGetUrsulas(ursulas);
+    const getUrsulasSpy = mockGetUrsulasOnce(ursulas);
     const generateKFragsSpy = mockGenerateKFrags();
     const publishTreasureMapSpy = mockPublishTreasureMapOnce();
     const publishToBlockchainSpy = mockPublishToBlockchain();
@@ -72,8 +74,8 @@ describe('story: alice shares message with bob through policy', () => {
     expect(generateKFragsSpy).toHaveBeenCalled();
     expect(publishTreasureMapSpy).toHaveBeenCalled();
     expect(publishToBlockchainSpy).toHaveBeenCalled();
-    expect(proposeArrangementSpy).toHaveBeenCalledTimes(ursulas.length);
-    expect(enactArrangementSpy).toHaveBeenCalledTimes(ursulas.length);
+    expect(proposeArrangementSpy).toHaveBeenCalledTimes(n);
+    expect(enactArrangementSpy).toHaveBeenCalledTimes(n);
 
     // Persist side-channel
     aliceVerifyingKey = alice.verifyingKey;
@@ -84,12 +86,17 @@ describe('story: alice shares message with bob through policy', () => {
     kFrags = mockResults.kFrags;
     treasureMap = publishTreasureMapSpy.mock.calls[0][0];
     messageKit = encryptAndSignSpy.mock.results[0].value;
+
+    const results = await alice.generateKFrags(remoteBob, label, m, n);
+    kFrags = results.kFrags;
+    expect(results.delegatingPublicKey.toBytes()).toEqual(
+      policyEncryptingKey.toBytes()
+    );
   });
 
   it('enrico encrypts the message', () => {
     const enrico = new Enrico(policyEncryptingKey);
-    encryptedMessages = messages.map(m => enrico.encrypt(Buffer.from(m)));
-    expect(encryptedMessages.length).toEqual(messages.length);
+    encryptedMessage = enrico.encrypt(Buffer.from(message));
     enricoVerifyingKey = enrico.verifyingKey;
   });
 
@@ -113,24 +120,26 @@ describe('story: alice shares message with bob through policy', () => {
     });
 
     it('retrieves the message', async () => {
-      const getUrsulasSpy = mockGetUrsulas(ursulas);
-      const executeWorkOrderSpy = mockExecuteWorkOrder(
+      const getUrsulasSpy = mockGetUrsulasOnce(ursulas);
+      const mockResults = mockWorkOrderResults(
+        ursulas,
         kFrags,
-        messageKit.capsule,
-        ursulas
+        encryptedMessage.capsule
       );
+      const executeWorkOrderSpy = mockExecuteWorkOrder(mockResults);
 
       const enrico = new Enrico(policyEncryptingKey, enricoVerifyingKey);
       const retrievedMessage = await bob.retrieve(
-        encryptedMessages,
+        [encryptedMessage],
         aliceVerifyingKey,
         label,
         enrico
       );
+      const bobPlaintext = retrievedMessage[0].toString();
 
       expect(getUrsulasSpy).toHaveBeenCalled();
       expect(executeWorkOrderSpy).toHaveBeenCalledTimes(ursulas.length);
-      expect(retrievedMessage).toEqual(messages);
+      expect(bobPlaintext).toEqual(message);
     });
   });
 });

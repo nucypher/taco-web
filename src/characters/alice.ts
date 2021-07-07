@@ -1,9 +1,10 @@
+import { KeyFrag, PublicKey, Signer } from 'umbral-pre';
+
 import { encryptAndSign } from '../crypto/api';
 import { NucypherKeyring } from '../crypto/keyring';
 import { PolicyMessageKit } from '../crypto/kits';
 import { DelegatingPower, SigningPower } from '../crypto/powers';
 import { BlockchainPolicy, EnactedPolicy } from '../policies/policy';
-import { UmbralKFrag, UmbralPublicKey, UmbralSigner } from '../types';
 import { Bob } from './bob';
 import { IUrsula, Porter } from './porter';
 
@@ -22,17 +23,17 @@ export class Alice {
     return new Alice(signingPower, delegatingPower);
   }
 
-  public get verifyingKey(): UmbralPublicKey {
+  public get verifyingKey(): PublicKey {
     return this.signingPower.publicKey;
   }
 
-  public get signer(): UmbralSigner {
+  public get signer(): Signer {
     return this.signingPower.signer;
   }
 
   public async getPolicyEncryptingKeyFromLabel(
     label: string
-  ): Promise<UmbralPublicKey> {
+  ): Promise<PublicKey> {
     return this.delegatingPower.getPublicKeyFromLabel(label);
   }
 
@@ -44,7 +45,7 @@ export class Alice {
     expiration: Date,
     handpickedUrsulas?: IUrsula[]
   ): Promise<EnactedPolicy> {
-    const ursulas = await Porter.getUrsulas();
+    const ursulas = await Porter.getUrsulas(n);
     const selectedUrsulas: IUrsula[] = handpickedUrsulas
       ? [...new Set([...ursulas, ...handpickedUrsulas])]
       : ursulas;
@@ -61,7 +62,7 @@ export class Alice {
   }
 
   public encryptFor(
-    recipientPublicKey: UmbralPublicKey,
+    recipientPublicKey: PublicKey,
     payload: Buffer
   ): PolicyMessageKit {
     return encryptAndSign(
@@ -103,8 +104,8 @@ export class Alice {
     m: number,
     n: number
   ): Promise<{
-    delegatingPublicKey: UmbralPublicKey;
-    kFrags: UmbralKFrag[];
+    delegatingPublicKey: PublicKey;
+    kFrags: KeyFrag[];
   }> {
     return this.delegatingPower.generateKFrags(
       bob.encryptingPublicKey,

@@ -1,15 +1,14 @@
-import * as umbral from 'umbral-pre';
+import {
+  Capsule,
+  VerifiedCapsuleFrag,
+  PublicKey,
+  Signature,
+  Signer,
+} from 'umbral-pre';
 
 import { IUrsula } from '../characters/porter';
 import { Arrangement } from './policy';
-import {
-  ChecksumAddress,
-  UmbralCapsule,
-  UmbralCFrag,
-  UmbralPublicKey,
-  UmbralSignature,
-  UmbralSigner,
-} from '../types';
+import { ChecksumAddress } from '../types';
 import { encryptAndSign, keccakDigest } from '../crypto/api';
 import {
   ETH_ADDRESS_BYTE_LENGTH,
@@ -67,7 +66,7 @@ export class PublishedTreasureMap {
     throw new Error('Method not implemented.');
   }
 
-  public orient(aliceVerifyingKey: UmbralPublicKey, bob: Bob) {
+  public orient(aliceVerifyingKey: PublicKey, bob: Bob) {
     const decryptedMap = bob.verifyFrom(
       aliceVerifyingKey,
       this.messageKit,
@@ -114,9 +113,9 @@ export class TreasureMap {
   }
 
   public prepareForPublication(
-    bobEncryptingKey: UmbralPublicKey,
-    bobVerifyingKey: UmbralPublicKey,
-    aliceSigner: UmbralSigner,
+    bobEncryptingKey: PublicKey,
+    bobVerifyingKey: PublicKey,
+    aliceSigner: Signer,
     label: string
   ): PrePublishedTreasureMap {
     const plaintext = this.makePlaintextToSign();
@@ -173,7 +172,7 @@ export class TreasureMap {
 
   private makeHrac(
     aliceSignerPk: Uint8Array,
-    bobVerifyingKey: umbral.PublicKey,
+    bobVerifyingKey: PublicKey,
     label: string
   ) {
     const hracBytes = [
@@ -190,7 +189,7 @@ export class Revocation {
   private arrangementId: Buffer;
   private signature: Buffer;
 
-  constructor(arrangementId: Buffer, signer: UmbralSigner) {
+  constructor(arrangementId: Buffer, signer: Signer) {
     this.arrangementId = arrangementId;
     const message = Buffer.concat([this.PREFIX, arrangementId]);
     this.signature = Buffer.from(signer.sign(message).toBytes());
@@ -198,10 +197,10 @@ export class Revocation {
 }
 
 class PRETask {
-  public readonly capsule: UmbralCapsule;
+  public readonly capsule: Capsule;
   private signature?: Buffer;
 
-  constructor(capsule: UmbralCapsule) {
+  constructor(capsule: Capsule) {
     this.capsule = capsule;
   }
 
@@ -280,8 +279,8 @@ export class WorkOrder {
 
   public static constructByBob(
     arrangementId: Buffer,
-    aliceVerifyingKey: UmbralPublicKey,
-    capsules: UmbralCapsule[],
+    aliceVerifyingKey: PublicKey,
+    capsules: Capsule[],
     ursula: IUrsula,
     bob: Bob
   ): WorkOrder {
@@ -300,8 +299,7 @@ export class WorkOrder {
     const ursulaIdentityEvidence = Buffer.from('0x0', 'hex');
     const ursulaPublicKey = Buffer.from(ursula.encryptingKey, 'hex');
 
-    const tasks: PRETask[] = [];
-    capsules.forEach(capsule => {
+    const tasks = capsules.map(capsule => {
       const task = new PRETask(capsule);
       const specification = task.getSpecification(
         ursulaPublicKey,
@@ -313,7 +311,7 @@ export class WorkOrder {
         bob.signer.sign(specification).toBytes()
       );
       task.setSignature(taskSignature);
-      tasks.push(task);
+      return task;
     });
     const receiptSignature = this.makeReceiptSignature(
       capsules,
@@ -333,7 +331,7 @@ export class WorkOrder {
   }
 
   private static makeReceiptSignature(
-    capsules: UmbralCapsule[],
+    capsules: Capsule[],
     ursulaPublicKey: Buffer,
     bob: Bob
   ) {
@@ -354,15 +352,15 @@ export class WorkOrder {
 }
 
 export class WorkOrderResult {
-  private readonly _cFrag: UmbralCFrag;
-  private reencryptionSignature: UmbralSignature;
+  private readonly _cFrag: VerifiedCapsuleFrag;
+  private reencryptionSignature: Signature;
 
-  constructor(cFrag: UmbralCFrag, reencryptionSignature: UmbralSignature) {
+  constructor(cFrag: VerifiedCapsuleFrag, reencryptionSignature: Signature) {
     this._cFrag = cFrag;
     this.reencryptionSignature = reencryptionSignature;
   }
 
-  public get cFrag(): UmbralCFrag {
+  public get cFrag(): VerifiedCapsuleFrag {
     return this._cFrag;
   }
 

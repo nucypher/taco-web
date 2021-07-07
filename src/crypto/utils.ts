@@ -1,5 +1,7 @@
+import { PublicKey } from 'umbral-pre';
 import { computeAddress } from 'ethers/lib/utils';
-import { ChecksumAddress, UmbralPublicKey } from '../types';
+
+import { ChecksumAddress } from '../types';
 import { ETH_ADDRESS_STRING_PREFIX } from './constants';
 
 export const toCanonicalAddress = (address: string): Buffer => {
@@ -10,7 +12,7 @@ export const toCanonicalAddress = (address: string): Buffer => {
 };
 
 export const canonicalAddressFromPublicKey = (
-  aliceVerifyingKey: UmbralPublicKey
+  aliceVerifyingKey: PublicKey
 ): Buffer => {
   // TODO: Is this key compressed?
   const asPublicKey = Buffer.from(aliceVerifyingKey.toBytes());

@@ -9,14 +9,44 @@ import {
 } from 'umbral-pre';
 
 import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
+import { Wallet } from 'ethers';
 import { UmbralKeyingMaterial } from './keys';
 import { PolicyMessageKit, ReencryptedMessageKit } from './kits';
+import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
+import { ChecksumAddress } from '../types';
+import { Provider } from '@ethersproject/providers';
+
+export abstract class TransactingPower {
+  public abstract get account(): ChecksumAddress;
+
+  public abstract get wallet(): Wallet;
+}
+
+export class DerivedTransactionPower extends TransactingPower {
+  public readonly wallet: Wallet;
+
+  constructor(keyingMaterial: Buffer, provider?: Provider) {
+    super();
+    const secretKey = new UmbralKeyingMaterial(
+      keyingMaterial,
+    ).deriveSecretKey();
+    this.wallet = new Wallet(secretKey.toBytes());
+    // TODO: Make sure that provider is present during `createPolicy` or fail early otherwise
+    if (provider) {
+      this.wallet.connect(provider);
+    }
+  }
+
+  public get account(): ChecksumAddress {
+    return this.wallet.address;
+  }
+}
 
 export class DelegatingPower {
-  private umbralKeyingMaterial: UmbralKeyingMaterial;
+  private keyingMaterial: UmbralKeyingMaterial;
 
   constructor(keyingMaterial: Buffer) {
-    this.umbralKeyingMaterial = new UmbralKeyingMaterial(keyingMaterial);
+    this.keyingMaterial = new UmbralKeyingMaterial(keyingMaterial);
   }
 
   public async generateKFrags(
@@ -24,7 +54,7 @@ export class DelegatingPower {
     signer: Signer,
     label: string,
     m: number,
-    n: number
+    n: number,
   ): Promise<{
     delegatingPublicKey: PublicKey;
     kFrags: KeyFrag[];
@@ -38,7 +68,7 @@ export class DelegatingPower {
       m,
       n,
       false,
-      false
+      false,
     );
     return {
       delegatingPublicKey,
@@ -47,7 +77,7 @@ export class DelegatingPower {
   }
 
   private async getSecretKeyFromLabel(label: string): Promise<SecretKey> {
-    return this.umbralKeyingMaterial.deriveSecretKeyFromLabel(label);
+    return this.keyingMaterial.deriveSecretKeyFromLabel(label);
   }
 
   public async getPublicKeyFromLabel(label: string): Promise<PublicKey> {
@@ -57,7 +87,7 @@ export class DelegatingPower {
 }
 
 abstract class CryptoPower {
-  private readonly umbralKeyingMaterial?: UmbralKeyingMaterial;
+  private readonly _secretKey?: SecretKey;
   private readonly _publicKey?: PublicKey;
 
   protected constructor(keyingMaterial?: Buffer, publicKey?: PublicKey) {
@@ -65,7 +95,10 @@ abstract class CryptoPower {
       throw new Error('Pass either keyMaterial or publicKey - not both.');
     }
     if (keyingMaterial) {
-      this.umbralKeyingMaterial = new UmbralKeyingMaterial(keyingMaterial);
+      this._secretKey = new UmbralKeyingMaterial(
+        keyingMaterial,
+      ).deriveSecretKey();
+      this._publicKey = this.secretKey.publicKey();
     }
     if (publicKey) {
       this._publicKey = publicKey;
@@ -73,19 +106,15 @@ abstract class CryptoPower {
   }
 
   public get publicKey(): PublicKey {
-    if (this.umbralKeyingMaterial) {
-      return this.umbralKeyingMaterial.derivePublicKey();
-    } else {
-      return this._publicKey!;
-    }
+    return this._publicKey!;
   }
 
   protected get secretKey(): SecretKey {
-    if (this.umbralKeyingMaterial) {
-      return this.umbralKeyingMaterial.deriveSecretKey();
+    if (this._secretKey) {
+      return this._secretKey;
     } else {
       throw new Error(
-        'Power initialized with public key, secret key not present.'
+        'Power initialized with public key, secret key not present.',
       );
     }
   }
@@ -127,16 +156,16 @@ export class DecryptingPower extends CryptoPower {
         decryptOriginal(
           this.secretKey,
           messageKit.capsule,
-          messageKit.ciphertext
-        )
+          messageKit.ciphertext,
+        ),
       );
     } else {
       return Buffer.from(
         messageKit.capsule.decryptReencrypted(
           this.secretKey,
           messageKit.recipientEncryptingKey,
-          messageKit.ciphertext
-        )
+          messageKit.ciphertext,
+        ),
       );
     }
   }

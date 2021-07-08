@@ -54,7 +54,7 @@ export const mockUrsulas = (): IUrsula[] => {
     {
       encryptingKey:
         '025a335eca37edce8191d43c156e7bc6b451b21e5258759966bbfe0e6ce44543cb',
-      checksumAddress: '0x5cF1703A1c99A4b42Eb056535840e93118177232'.toLowerCase(),
+      checksumAddress: '0x5cF1703A1c99A4b42Eb056535840e93118177232',
       uri: 'https://example.a.com:9151',
     },
     {
@@ -138,7 +138,7 @@ export const mockPublishTreasureMapOnce = () => {
 export const mockPublishToBlockchain = () => {
   return jest
     .spyOn(BlockchainPolicy.prototype, 'publishToBlockchain')
-    .mockImplementation(() => {
+    .mockImplementation(async () => {
       return '0xfakeTxHash'; // Will fail on parsing
     });
 };

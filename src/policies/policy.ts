@@ -10,6 +10,7 @@ import { RevocationKit } from '../crypto/kits';
 import { ChecksumAddress } from '../types';
 
 import { PrePublishedTreasureMap, TreasureMap } from './collections';
+import { PolicyManagerAgent } from '../agents/policy-manager';
 
 export interface EnactedPolicy {
   id: Buffer;
@@ -35,7 +36,7 @@ export class BlockchainPolicy {
   private kFrags: KeyFrag[];
   private publicKey: PublicKey;
   private readonly m: number;
-  private readonly id: Buffer;
+  private readonly policyId: Buffer;
 
   constructor(
     alice: Alice,
@@ -53,7 +54,7 @@ export class BlockchainPolicy {
     this.kFrags = kFrags;
     this.publicKey = publicKey;
     this.m = m;
-    this.id = this.constructPolicyId();
+    this.policyId = this.constructPolicyId();
   }
 
   public enactArrangement(
@@ -73,18 +74,20 @@ export class BlockchainPolicy {
     return Ursula.enactPolicy(ursula, arrangement.getId(), messageKit);
   }
 
-  public publishToBlockchain(arrangements: ArrangementForUrsula[]): string {
+  public async publishToBlockchain(
+    arrangements: ArrangementForUrsula[]
+  ): Promise<string> {
     const addresses = arrangements.map((a) => a.ursula.checksumAddress);
-    // TODO: Implement after adding web3 client
-    // receipt = self.alice.policy_agent.create_policy(
-    //     policy_id=self.hrac,  # bytes16 _policyID
-    //     transacting_power=self.alice.transacting_power,
-    //     value=self.value,
-    //     end_timestamp=self.expiration.epoch,  # uint16 _numberOfPeriods
-    //     node_addresses=addresses  # address[] memory _nodes
-    // )
-    // return receipt['transactionHash']
-    throw new Error('Method not implemented.');
+    const txReceipt = await PolicyManagerAgent.createPolicy(
+      this.policyId,
+      this.alice.transactingPower,
+      100, // TODO: Calculate and set missing params in `createPolicy`
+      (this.expiration.getTime() / 1000) | 0,
+      addresses
+    );
+    // TODO: We downcast here because since we wait for tx to be mined we
+    //       can be sure that `blockHash` is not undefined
+    return txReceipt.blockHash!;
   }
 
   public async enact(ursulas: IUrsula[]): Promise<EnactedPolicy> {
@@ -96,7 +99,7 @@ export class BlockchainPolicy {
     const revocationKit = new RevocationKit(treasureMap, this.alice.signer);
 
     return {
-      id: this.id,
+      id: this.policyId,
       label: this.label,
       publicKey: Buffer.from(this.publicKey.toBytes()),
       treasureMap,

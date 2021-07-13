@@ -1,5 +1,11 @@
-import umbral, { KeyFrag, PublicKey, SecretKey, Signer } from 'umbral-pre';
-
+import {
+  KeyFrag,
+  PublicKey,
+  SecretKey,
+  Signer,
+  generateKFrags,
+  decryptOriginal,
+} from 'umbral-pre';
 import secureRandom from 'secure-random';
 import { UmbralKeyingMaterial } from './keys';
 import { PolicyMessageKit, ReencryptedMessageKit } from './kits';
@@ -24,7 +30,7 @@ export class DelegatingPower {
   }> {
     const delegatingSecretKey = await this.getSecretKeyFromLabel(label);
     const delegatingPublicKey = await this.getPublicKeyFromLabel(label);
-    const kFrags: KeyFrag[] = umbral.generateKFrags(
+    const kFrags: KeyFrag[] = generateKFrags(
       delegatingSecretKey,
       bobEncryptingKey,
       signer,
@@ -101,7 +107,7 @@ export class SigningPower extends CryptoPower {
   }
 
   public get signer(): Signer {
-    return new umbral.Signer(this.secretKey);
+    return new Signer(this.secretKey);
   }
 }
 
@@ -117,7 +123,7 @@ export class DecryptingPower extends CryptoPower {
   public decrypt(messageKit: PolicyMessageKit | ReencryptedMessageKit): Buffer {
     if (messageKit instanceof PolicyMessageKit) {
       return Buffer.from(
-        umbral.decryptOriginal(
+        decryptOriginal(
           this.secretKey,
           messageKit.capsule,
           messageKit.ciphertext

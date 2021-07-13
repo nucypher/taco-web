@@ -3,13 +3,14 @@ import {
   CapsuleWithFrags,
   KeyFrag,
   PublicKey,
-  VerifiedCapsuleFrag,
   reencrypt,
   Signature,
+  VerifiedCapsuleFrag,
 } from 'umbral-pre';
 import axios from 'axios';
 
 import * as cryptoApi from '../src/crypto/api';
+import { keccakDigest } from '../src/crypto/api';
 import { GetUrsulasResponse, IUrsula, Porter } from '../src/characters/porter';
 import { PolicyMessageKit } from '../src/crypto/kits';
 import {
@@ -18,27 +19,34 @@ import {
   WorkOrder,
   WorkOrderResult,
 } from '../src/policies/collections';
-import { NucypherKeyring } from '../src/crypto/keyring';
-import { Alice, Bob } from '../src';
+import { Alice, Bob, NucypherKeyring } from '../src';
 import { Arrangement, BlockchainPolicy } from '../src/policies/policy';
 import { Ursula } from '../src/characters/ursula';
-import { keccakDigest } from '../src/crypto/api';
+import { Configuration } from '../src/types';
+
+export const mockConfig: Configuration = {
+  porterUri: 'https://_this_will_crash.com/',
+};
 
 export const mockBob = (): Bob => {
   const bobKeyringSeed = Buffer.from('fake-keyring-seed-32-bytes-bob-x');
   const bobKeyring = new NucypherKeyring(bobKeyringSeed);
-  return Bob.fromKeyring(bobKeyring);
+  return Bob.fromKeyring(mockConfig, bobKeyring);
 };
 
 export const mockRemoteBob = (): Bob => {
   const bob = mockBob();
-  return Bob.fromPublicKeys(bob.signer.verifyingKey(), bob.encryptingPublicKey);
+  return Bob.fromPublicKeys(
+    mockConfig,
+    bob.signer.verifyingKey(),
+    bob.encryptingPublicKey
+  );
 };
 
 export const mockAlice = () => {
   const aliceKeyringSeed = Buffer.from('fake-keyring-seed-32-bytes-alice');
   const aliceKeyring = new NucypherKeyring(aliceKeyringSeed);
-  return Alice.fromKeyring(aliceKeyring);
+  return Alice.fromKeyring(mockConfig, aliceKeyring);
 };
 
 export const mockUrsulas = (): IUrsula[] => {
@@ -121,7 +129,7 @@ export const mockGetUrsulasOnce = (ursulas: IUrsula[]) => {
 
 export const mockPublishTreasureMapOnce = () => {
   return jest
-    .spyOn(Porter, 'publishTreasureMap')
+    .spyOn(Porter.prototype, 'publishTreasureMap')
     .mockImplementationOnce(async () => {
       return Promise.resolve();
     });
@@ -162,7 +170,7 @@ export const mockGetTreasureMapOnce = (
   treasureMap: PrePublishedTreasureMap
 ) => {
   return jest
-    .spyOn(Porter, 'getTreasureMap')
+    .spyOn(Porter.prototype, 'getTreasureMap')
     .mockImplementationOnce(
       async (_treasureMapId: string, _bobEncryptingKey: PublicKey) => {
         return Promise.resolve(
@@ -202,7 +210,7 @@ export const mockExecuteWorkOrder = (
   mockResults: Record<string, WorkOrderResult>
 ) => {
   return jest
-    .spyOn(Porter, 'executeWorkOrder')
+    .spyOn(Porter.prototype, 'executeWorkOrder')
     .mockImplementation(async (workOrder: WorkOrder) => {
       const result = mockResults[workOrder.ursula.checksumAddress];
       if (!result) {

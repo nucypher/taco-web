@@ -19,31 +19,44 @@ import { PublishedTreasureMap, WorkOrder } from '../policies/collections';
 import { Porter } from './porter';
 import { NucypherKeyring } from '../crypto/keyring';
 import { Enrico } from './enrico';
+import { Configuration } from '../types';
 
 export class Bob {
+  private readonly config: Configuration;
+  private readonly porter: Porter;
   public readonly treasureMaps: Record<string, PublishedTreasureMap>;
   private readonly signingPower: SigningPower;
   private readonly decryptingPower: DecryptingPower;
 
-  constructor(signingPower: SigningPower, decryptingPower: DecryptingPower) {
+  constructor(
+    config: Configuration,
+    signingPower: SigningPower,
+    decryptingPower: DecryptingPower
+  ) {
+    this.config = config;
+    this.porter = new Porter(config.porterUri);
     this.signingPower = signingPower;
     this.decryptingPower = decryptingPower;
     this.treasureMaps = {};
   }
 
   static fromPublicKeys(
+    config: Configuration,
     verifyingKey: PublicKey,
     encryptingKey: PublicKey
   ): Bob {
     const signingPower = SigningPower.fromPublicKey(verifyingKey);
     const decryptingPower = DecryptingPower.fromPublicKey(encryptingKey);
-    return new Bob(signingPower, decryptingPower);
+    return new Bob(config, signingPower, decryptingPower);
   }
 
-  public static fromKeyring(keyring: NucypherKeyring): Bob {
+  public static fromKeyring(
+    config: Configuration,
+    keyring: NucypherKeyring
+  ): Bob {
     const signingPower = keyring.deriveSigningPower();
     const decryptingPower = keyring.deriveDecryptingPower();
-    return new Bob(signingPower, decryptingPower);
+    return new Bob(config, signingPower, decryptingPower);
   }
 
   public get encryptingPublicKey(): PublicKey {
@@ -146,7 +159,7 @@ export class Bob {
     const cFrags = await Promise.all(
       workOrders
         .map(async workOrder => {
-          const { cFrag } = await Porter.executeWorkOrder(workOrder);
+          const { cFrag } = await this.porter.executeWorkOrder(workOrder);
           // TODO: Verify `reencryptionSignature`, return null or throw if fails
           return cFrag;
         })
@@ -262,7 +275,7 @@ export class Bob {
     aliceVerifyingKey: PublicKey
   ) {
     const nodeIds = Object.keys(treasureMap.destinations);
-    const ursulas = await Porter.getUrsulas(
+    const ursulas = await this.porter.getUrsulas(
       nodeIds.length,
       undefined,
       undefined,
@@ -289,7 +302,7 @@ export class Bob {
     label: string
   ): Promise<PublishedTreasureMap> {
     const mapId = this.makeTreasureMapId(aliceVerifyingKey, label);
-    const treasureMap = await Porter.getTreasureMap(
+    const treasureMap = await this.porter.getTreasureMap(
       mapId,
       this.encryptingPublicKey
     );

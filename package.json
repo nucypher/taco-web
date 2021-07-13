@@ -27,7 +27,7 @@
     "ts-jest": "^27.0.3",
     "tsdx": "^0.14.1",
     "tslib": "^2.2.0",
-    "typescript": "^4.3.2"
+    "typechain": "^5.1.1"
   },
   "dependencies": {
     "@ctrlpanel/hkdf": "^1.0.1",

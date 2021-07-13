@@ -7,20 +7,32 @@ import { DelegatingPower, SigningPower } from '../crypto/powers';
 import { BlockchainPolicy, EnactedPolicy } from '../policies/policy';
 import { Bob } from './bob';
 import { IUrsula, Porter } from './porter';
+import { Configuration } from '../types';
 
 export class Alice {
+  private config: Configuration;
+  private porter: Porter;
   private delegatingPower: DelegatingPower;
   private signingPower: SigningPower;
 
-  constructor(signingPower: SigningPower, delegatingPower: DelegatingPower) {
+  constructor(
+    config: Configuration,
+    signingPower: SigningPower,
+    delegatingPower: DelegatingPower
+  ) {
     this.signingPower = signingPower;
     this.delegatingPower = delegatingPower;
+    this.config = config;
+    this.porter = new Porter(config.porterUri);
   }
 
-  public static fromKeyring(keyring: NucypherKeyring): Alice {
+  public static fromKeyring(
+    config: Configuration,
+    keyring: NucypherKeyring
+  ): Alice {
     const signingPower = keyring.deriveSigningPower();
     const delegatingPower = keyring.deriveDelegatingPower();
-    return new Alice(signingPower, delegatingPower);
+    return new Alice(config, signingPower, delegatingPower);
   }
 
   public get verifyingKey(): PublicKey {
@@ -45,7 +57,7 @@ export class Alice {
     expiration: Date,
     handpickedUrsulas?: IUrsula[]
   ): Promise<EnactedPolicy> {
-    const ursulas = await Porter.getUrsulas(n);
+    const ursulas = await this.porter.getUrsulas(n);
     const selectedUrsulas: IUrsula[] = handpickedUrsulas
       ? [...new Set([...ursulas, ...handpickedUrsulas])]
       : ursulas;
@@ -53,7 +65,7 @@ export class Alice {
     const policy = await this.createPolicy(bob, label, m, n, expiration);
     const enactedPolicy = policy.enact(selectedUrsulas);
 
-    await Porter.publishTreasureMap(
+    await this.porter.publishTreasureMap(
       enactedPolicy.treasureMap,
       bob.encryptingPublicKey
     );

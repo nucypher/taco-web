@@ -75,10 +75,14 @@ export interface PostExecuteWorkOrderResult {
   work_order_result: Base64EncodedBytes;
 }
 
-export abstract class Porter {
-  public static PORTER_URL = 'https://example.com/porter/api';
+export class Porter {
+  private readonly porterUri: string;
 
-  public static async getUrsulas(
+  constructor(porterUri: string) {
+    this.porterUri = porterUri;
+  }
+
+  public async getUrsulas(
     quantity: number = 3, // TODO: Pick reasonable default
     durationPeriods: number = 7, // TODO: Pick reasonable default
     excludeUrsulas?: ChecksumAddress[],
@@ -91,7 +95,7 @@ export abstract class Porter {
       handpicked_ursulas: handpickedUrsulas,
     };
     const resp: AxiosResponse<GetUrsulasResponse> = await axios.get(
-      `${this.PORTER_URL}/get_ursulas`,
+      `${this.porterUri}/get_ursulas`,
       { data }
     );
     return resp.data.result.ursulas.map((u: PorterUrsula) => ({
@@ -101,7 +105,7 @@ export abstract class Porter {
     }));
   }
 
-  public static async publishTreasureMap(
+  public async publishTreasureMap(
     treasureMap: PrePublishedTreasureMap,
     bobEncryptingKey: PublicKey
   ) {
@@ -111,14 +115,14 @@ export abstract class Porter {
         'hex'
       ),
     };
-    await axios.post(`${this.PORTER_URL}/publish_treasure_map`, { data });
+    await axios.post(`${this.porterUri}/publish_treasure_map`, { data });
   }
 
-  public static revoke(revocations: RevocationRequest[]): RevocationResponse {
+  public revoke(revocations: RevocationRequest[]): RevocationResponse {
     throw new Error('Method not implemented.');
   }
 
-  public static async getTreasureMap(
+  public async getTreasureMap(
     treasureMapId: string,
     bobEncryptingKey: PublicKey
   ): Promise<PublishedTreasureMap> {
@@ -129,22 +133,22 @@ export abstract class Porter {
       ),
     };
     const resp: AxiosResponse<GetTreasureMapResponse> = await axios.get(
-      `${this.PORTER_URL}/get_treasure_map`,
+      `${this.porterUri}/get_treasure_map`,
       { data }
     );
     const asBytes = Buffer.from(resp.data.result.treasureMap, 'base64');
     return PublishedTreasureMap.fromBytes(asBytes);
   }
 
-  public static async executeWorkOrder(
+  public async executeWorkOrder(
     workOrder: WorkOrder
   ): Promise<WorkOrderResult> {
     const data: PostExecuteWorkOrderRequest = {
       ursula: workOrder.ursula.checksumAddress,
-      work_order: workOrder.toBytes().toString('base64'),
+      work_order: workOrder.payload().toString('base64'),
     };
     const resp: AxiosResponse<PostExecuteWorkOrderResult> = await axios.post(
-      `${this.PORTER_URL}/exec_work_order`,
+      `${this.porterUri}/exec_work_order`,
       { data }
     );
     const asBytes = Buffer.from(resp.data.work_order_result, 'base64');

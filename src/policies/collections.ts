@@ -346,7 +346,7 @@ export class WorkOrder {
     return Buffer.from(bob.signer.sign(receiptBytes).toBytes());
   }
 
-  public toBytes(): Buffer {
+  public payload(): Buffer {
     throw new Error('Not implemented.');
   }
 }

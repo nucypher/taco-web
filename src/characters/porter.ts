@@ -88,7 +88,7 @@ export class Porter {
     excludeUrsulas?: ChecksumAddress[],
     handpickedUrsulas?: ChecksumAddress[]
   ): Promise<IUrsula[]> {
-    const data: GetUrsulasRequest = {
+    const params: GetUrsulasRequest = {
       quantity,
       duration_periods: durationPeriods,
       exclude_ursulas: excludeUrsulas,
@@ -96,7 +96,7 @@ export class Porter {
     };
     const resp: AxiosResponse<GetUrsulasResponse> = await axios.get(
       `${this.porterUri}/get_ursulas`,
-      { data }
+      { params }
     );
     return resp.data.result.ursulas.map((u: PorterUrsula) => ({
       checksumAddress: u.checksum_address,
@@ -126,7 +126,7 @@ export class Porter {
     treasureMapId: string,
     bobEncryptingKey: PublicKey
   ): Promise<PublishedTreasureMap> {
-    const data: GetTreasureMapRequest = {
+    const params: GetTreasureMapRequest = {
       treasure_map_id: Buffer.from(treasureMapId).toString('hex'),
       bob_encrypting_key: Buffer.from(bobEncryptingKey.toBytes()).toString(
         'hex'
@@ -134,7 +134,7 @@ export class Porter {
     };
     const resp: AxiosResponse<GetTreasureMapResponse> = await axios.get(
       `${this.porterUri}/get_treasure_map`,
-      { data }
+      { params }
     );
     const asBytes = Buffer.from(resp.data.result.treasureMap, 'base64');
     return PublishedTreasureMap.fromBytes(asBytes);

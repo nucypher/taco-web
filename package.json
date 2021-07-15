@@ -30,7 +30,6 @@
     "typechain": "^5.1.1"
   },
   "dependencies": {
-    "@ctrlpanel/hkdf": "^1.0.1",
     "axios": "^0.21.1",
     "ethers": "^5.3.1",
     "keccak256": "^1.0.2",

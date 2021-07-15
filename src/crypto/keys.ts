@@ -1,7 +1,7 @@
 import { PublicKey, SecretKey } from 'umbral-pre';
-import hkdf from '@ctrlpanel/hkdf';
 
 import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
+import { keccakDigest } from './api';
 
 export class UmbralKeyingMaterial {
   private readonly keyingMaterial: Buffer;
@@ -15,19 +15,10 @@ export class UmbralKeyingMaterial {
     this.keyingMaterial = keyingMaterial;
   }
 
-  public async deriveSecretKeyFromLabel(
-    label: string,
-    salt?: Buffer
-  ): Promise<SecretKey> {
+  public async deriveSecretKeyFromLabel(label: string): Promise<SecretKey> {
     // TODO: Use HKDF that supports BLAKE2b(64) hash
     //       Warning: As of now, this hash is incompatible with `nucypher/nucypher` HKDF
-    const keyBytes = await hkdf(
-      salt ?? Buffer.from('bad-salt'),
-      this.keyingMaterial,
-      Buffer.from(`NuCypher/KeyDerivation/${label}`),
-      32,
-      'SHA-256'
-    );
+    const keyBytes = keccakDigest(Buffer.from(label));
     return SecretKey.fromBytes(Buffer.from(keyBytes));
   }
 

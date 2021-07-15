@@ -63,7 +63,7 @@ export class Alice {
       : ursulas;
 
     const policy = await this.createPolicy(bob, label, m, n, expiration);
-    const enactedPolicy = policy.enact(selectedUrsulas);
+    const enactedPolicy = await policy.enact(selectedUrsulas);
 
     await this.porter.publishTreasureMap(
       enactedPolicy.treasureMap,

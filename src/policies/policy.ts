@@ -26,6 +26,7 @@ export interface ArrangementForUrsula {
 }
 
 export class BlockchainPolicy {
+  private ID_LENGTH: number = 16;
   private readonly alice: Alice;
   private readonly label: string;
   private readonly expiration: Date;
@@ -85,9 +86,9 @@ export class BlockchainPolicy {
     throw new Error('Method not implemented.');
   }
 
-  public enact(ursulas: IUrsula[]): EnactedPolicy {
+  public async enact(ursulas: IUrsula[]): Promise<EnactedPolicy> {
     const arrangements = this.makeArrangements(ursulas);
-    this.enactArrangements(arrangements);
+    await this.enactArrangements(arrangements);
 
     const treasureMap = this.makeTreasureMap(arrangements);
 
@@ -107,7 +108,7 @@ export class BlockchainPolicy {
   private constructPolicyId(): Buffer {
     const label = Buffer.from(this.label);
     const pk = this.bob.verifyingKey.toBytes();
-    return keccakDigest(Buffer.concat([label, pk]));
+    return keccakDigest(Buffer.concat([label, pk])).slice(0, this.ID_LENGTH);
   }
 
   private proposeArrangement(ursula: IUrsula): ArrangementForUrsula | null {
@@ -130,8 +131,10 @@ export class BlockchainPolicy {
     return arrangements;
   }
 
-  private enactArrangements(arrangements: ArrangementForUrsula[]): void {
-    const publicationTx = this.publishToBlockchain(arrangements);
+  private async enactArrangements(
+    arrangements: ArrangementForUrsula[]
+  ): Promise<void> {
+    const publicationTx = await this.publishToBlockchain(arrangements);
     const maybeAllEnacted = arrangements
       .map((x, index) => ({
         ursula: x.ursula,

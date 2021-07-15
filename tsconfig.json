@@ -14,7 +14,7 @@
     "importHelpers": true,
     "declaration": true,
     "sourceMap": true,
-    // "rootDir": "./src",
+    "rootDir": "./",
     "strict": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
@@ -28,6 +28,6 @@
     "forceConsistentCasingInFileNames": true,
     // `tsdx build` ignores this option, but it is commonly used when type-checking separately with `tsc`
     "noEmit": true,
-    "downlevelIteration": true
+    "downlevelIteration": true,
   }
 }

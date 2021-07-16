@@ -26,15 +26,16 @@ export class Alice {
   public readonly transactingPower: TransactingPower;
 
   constructor(
-    config: Configuration, signingPower: SigningPower,
+    config: Configuration,
+    signingPower: SigningPower,
     delegatingPower: DelegatingPower,
     transactingPower: TransactingPower,
   ) {
+    this.config = config;
+    this.porter = new Porter(config.porterUri);
     this.signingPower = signingPower;
     this.delegatingPower = delegatingPower;
     this.transactingPower = transactingPower;
-    this.config = config;
-    this.porter = new Porter(config.porterUri);
   }
 
   public static fromKeyring(
@@ -48,7 +49,7 @@ export class Alice {
   }
 
   public connect(provider: Provider) {
-    this.transactingPower.wallet.connect(provider);
+    this.transactingPower.connect(provider);
   }
 
   public get verifyingKey(): PublicKey {

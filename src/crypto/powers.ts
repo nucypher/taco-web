@@ -20,18 +20,18 @@ export abstract class TransactingPower {
   public abstract get account(): ChecksumAddress;
 
   public abstract get wallet(): Wallet;
+  public abstract connect(provider: Provider): void;
 }
 
 export class DerivedTransactionPower extends TransactingPower {
-  public readonly wallet: Wallet;
+  public wallet: Wallet;
 
   constructor(keyingMaterial: Buffer, provider?: Provider) {
     super();
     const secretKey = new UmbralKeyingMaterial(
       keyingMaterial,
     ).deriveSecretKey();
-    this.wallet = new Wallet(secretKey.toBytes());
-    // TODO: Make sure that provider is present during `createPolicy` or fail early otherwise
+    this.wallet = new Wallet(secretKey.toSecretBytes());
     if (provider) {
       this.wallet.connect(provider);
     }
@@ -39,6 +39,10 @@ export class DerivedTransactionPower extends TransactingPower {
 
   public get account(): ChecksumAddress {
     return this.wallet.address;
+  }
+
+  connect(provider: Provider): void {
+    this.wallet = this.wallet.connect(provider);
   }
 }
 

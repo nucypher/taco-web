@@ -1,14 +1,14 @@
 import keccak256 from 'keccak256';
+import { PolicyMessageKit } from '../kits/message';
 import { encrypt, PublicKey, Signature, Signer } from 'umbral-pre';
 
 import { SIGNATURE_HEADER } from './constants';
-import { PolicyMessageKit } from './kits';
 
 export const encryptAndSign = (
   recipientPublicKey: PublicKey,
   plaintext: Buffer,
   signer: Signer,
-  senderVerifyingKey: PublicKey
+  senderVerifyingKey: PublicKey,
 ): PolicyMessageKit => {
   const signature = Buffer.from(signer.sign(plaintext).toBytes());
   const payload = Buffer.concat([
@@ -22,14 +22,14 @@ export const encryptAndSign = (
     Buffer.from(ciphertext),
     signature,
     senderVerifyingKey,
-    recipientPublicKey
+    recipientPublicKey,
   );
 };
 
 export const verifySignature = (
   signature: Buffer,
   message: Buffer,
-  verifyingKey: PublicKey
+  verifyingKey: PublicKey,
 ): boolean => {
   return Signature.fromBytes(signature).verify(verifyingKey, message);
 };

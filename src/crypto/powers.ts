@@ -11,7 +11,7 @@ import {
 import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
 import { Wallet } from 'ethers';
 import { UmbralKeyingMaterial } from './keys';
-import { PolicyMessageKit, ReencryptedMessageKit } from './kits';
+import { PolicyMessageKit, ReencryptedMessageKit } from '../kits/message';
 import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
 import { ChecksumAddress } from '../types';
 import { Provider } from '@ethersproject/providers';

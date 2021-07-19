@@ -1,8 +1,7 @@
 import { KeyFrag, PublicKey, Signer } from 'umbral-pre';
 
-import { encryptAndSign } from '../crypto/api';
 import { NucypherKeyring } from '../crypto/keyring';
-import { PolicyMessageKit } from '../crypto/kits';
+import { PolicyMessageKit } from '../kits/message';
 import {
   DelegatingPower,
   SigningPower,
@@ -15,6 +14,7 @@ import { Bob } from './bob';
 import { IUrsula, Porter } from './porter';
 import { Provider } from '@ethersproject/providers';
 import { Configuration } from '../types';
+import { encryptAndSign } from '../crypto/api';
 
 export class Alice {
   private config: Configuration;

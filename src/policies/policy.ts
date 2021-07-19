@@ -6,11 +6,11 @@ import { Bob } from '../characters/bob';
 import { IUrsula } from '../characters/porter';
 import { Ursula } from '../characters/ursula';
 import { keccakDigest } from '../crypto/api';
-import { RevocationKit } from '../crypto/kits';
 import { ChecksumAddress } from '../types';
 
 import { PrePublishedTreasureMap, TreasureMap } from './collections';
 import { PolicyManagerAgent } from '../agents/policy-manager';
+import { RevocationKit } from '../kits/revocation';
 
 export interface EnactedPolicy {
   id: Buffer;

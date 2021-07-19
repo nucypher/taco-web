@@ -14,7 +14,7 @@ import {
   SIGNATURE_LENGTH,
 } from '../crypto/constants';
 import { NucypherKeyring } from '../crypto/keyring';
-import { PolicyMessageKit, ReencryptedMessageKit } from '../crypto/kits';
+import { PolicyMessageKit, ReencryptedMessageKit } from '../kits/message';
 import { DecryptingPower, SigningPower } from '../crypto/powers';
 import { PublishedTreasureMap, WorkOrder } from '../policies/collections';
 import { Configuration } from '../types';

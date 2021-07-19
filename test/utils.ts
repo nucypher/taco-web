@@ -12,7 +12,6 @@ import axios from 'axios';
 import * as cryptoApi from '../src/crypto/api';
 import { keccakDigest } from '../src/crypto/api';
 import { GetUrsulasResponse, IUrsula, Porter } from '../src/characters/porter';
-import { PolicyMessageKit } from '../src/crypto/kits';
 import {
   PrePublishedTreasureMap,
   PublishedTreasureMap,
@@ -23,6 +22,7 @@ import { Alice, Bob, NucypherKeyring } from '../src';
 import { Arrangement, BlockchainPolicy } from '../src/policies/policy';
 import { Ursula } from '../src/characters/ursula';
 import { Configuration } from '../src/types';
+import { PolicyMessageKit } from '../src/kits/message';
 
 export const mockConfig: Configuration = {
   porterUri: 'https://_this_will_crash.com/',

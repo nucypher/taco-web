@@ -14,7 +14,7 @@ import {
   ETH_HASH_BYTE_LENGTH,
   HRAC_LENGTH,
 } from '../crypto/constants';
-import { PolicyMessageKit } from '../crypto/kits';
+import { PolicyMessageKit } from '../kits/message';
 import {
   canonicalAddressFromPublicKey,
   toCanonicalAddress,

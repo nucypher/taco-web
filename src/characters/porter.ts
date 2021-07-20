@@ -1,5 +1,5 @@
-import { PublicKey } from 'umbral-pre';
 import axios, { AxiosResponse } from 'axios';
+import { PublicKey } from 'umbral-pre';
 
 import {
   PrePublishedTreasureMap,
@@ -83,8 +83,8 @@ export class Porter {
   }
 
   public async getUrsulas(
-    quantity: number = 3, // TODO: Pick reasonable default
-    durationPeriods: number = 7, // TODO: Pick reasonable default
+    quantity = 3, // TODO: Pick reasonable default
+    durationPeriods = 7, // TODO: Pick reasonable default
     excludeUrsulas?: ChecksumAddress[],
     handpickedUrsulas?: ChecksumAddress[]
   ): Promise<IUrsula[]> {

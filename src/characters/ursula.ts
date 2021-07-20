@@ -3,6 +3,7 @@ import axios from 'axios';
 import { PolicyMessageKit } from '../crypto/kits';
 import { Arrangement } from '../policies/policy';
 import { ChecksumAddress } from '../types';
+
 import { IUrsula } from './porter';
 
 export abstract class Ursula {

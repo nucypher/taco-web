@@ -1,61 +1,91 @@
 {
   "name": "nucypher-ts",
-  "author": "Piotr Roslaniec",
+  "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
   "version": "0.1.0",
   "license": "MIT",
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
-  "module": "dist/nucypher-ts.esm.js",
+  "main": "build/main/src/index.js",
+  "typings": "build/main/src/index.d.ts",
+  "module": "build/module/src/index.js",
+  "engines": {
+    "node": ">=10"
+  },
   "scripts": {
-    "start": "tsdx watch",
-    "build": "yarn build:umbral:bundler && tsdx build",
-    "build:umbral": "(cd rust-umbral/umbral-pre-wasm && make clean && make",
+    "build": "yarn build:umbral:bundler && run-p build:*",
+    "build:main": "tsc -p tsconfig.json",
+    "build:module": "tsc -p tsconfig.module.json",
     "build:umbral:bundler": "(cd rust-umbral/umbral-pre-wasm && make clean && make TARGET=bundler) && yarn check:umbral",
     "build:umbral:nodejs": "(cd rust-umbral/umbral-pre-wasm && make clean && make TARGET=nodejs) && yarn check:umbral",
     "check:umbral": "yarn add --check-files ./rust-umbral/umbral-pre-wasm/pkg",
-    "test": "yarn build:umbral:nodejs && tsdx test --detectOpenHandles",
-    "lint": "tsdx lint",
-    "size": "size-limit",
-    "analyze": "size-limit --why"
-  },
-  "devDependencies": {
-    "@size-limit/preset-small-lib": "^4.11.0",
-    "@types/axios": "^0.14.0",
-    "@types/jest": "^26.0.23",
-    "husky": "^6.0.0",
-    "size-limit": "^4.11.0",
-    "ts-jest": "^27.0.3",
-    "tsdx": "^0.14.1",
-    "tslib": "^2.2.0",
-    "typechain": "^5.1.1"
+    "fix": "run-s fix:*",
+    "fix:prettier": "prettier \"src/**/*.ts\" --write",
+    "fix:lint": "eslint src --ext .ts --fix",
+    "test": "run-s build test:*",
+    "test:lint": "eslint src --ext .ts",
+    "test:prettier": "prettier \"src/**/*.ts\" --list-different",
+    "test:unit": "jest",
+    "check-cli": "run-s test diff-integration-tests check-integration-tests",
+    "watch:build": "tsc -p tsconfig.json -w",
+    "watch:test": "jest --watch",
+    "cov": "run-s build test:unit && open-cli coverage/index.html",
+    "doc": "run-s doc:html && open-cli build/docs/index.html",
+    "doc:html": "typedoc src/ --exclude **/*.spec.ts --target ES6 --mode file --out build/docs",
+    "doc:json": "typedoc src/ --exclude **/*.spec.ts --target ES6 --mode file --json build/docs/typedoc.json",
+    "doc:publish": "gh-pages -m \"[ci skip] Updates\" -d build/docs",
+    "version": "standard-version",
+    "reset-hard": "git clean -dfx && git reset --hard && yarn",
+    "prepare-release": "run-s reset-hard test cov:check doc:html version doc:publish"
   },
   "dependencies": {
     "axios": "^0.21.1",
     "ethers": "^5.3.1",
     "keccak256": "^1.0.2",
     "secure-random": "^1.1.2",
-    "umbral-pre": "./rust-umbral/umbral-pre-wasm/pkg"
+    "umbral-pre": "file:./rust-umbral/umbral-pre-wasm/pkg"
+  },
+  "devDependencies": {
+    "@size-limit/preset-small-lib": "^4.11.0",
+    "@types/axios": "^0.14.0",
+    "@types/jest": "^26.0.24",
+    "@typescript-eslint/eslint-plugin": "^4.0.1",
+    "@typescript-eslint/parser": "^4.0.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^7.8.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-eslint-comments": "^3.2.0",
+    "eslint-plugin-functional": "^3.0.2",
+    "eslint-plugin-import": "^2.22.0",
+    "gh-pages": "^3.1.0",
+    "husky": "^6.0.0",
+    "jest": "^27.0.6",
+    "npm-run-all": "^4.1.5",
+    "open-cli": "^6.0.1",
+    "prettier": "^2.1.1",
+    "standard-version": "^9.0.0",
+    "ts-jest": "^27.0.3",
+    "ts-node": "^9.0.0",
+    "tsconfig-paths": "^3.9.0",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.2.0",
+    "typedoc": "^0.19.0",
+    "typescript": "^4.0.2"
   },
   "files": [
-    "dist",
-    "src"
+    "build/main",
+    "build/module",
+    "!**/*.spec.*",
+    "!**/*.json",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
   ],
-  "size-limit": [
-    {
-      "path": "dist/nucypher-ts.cjs.production.min.js",
-      "limit": "10 KB"
-    },
-    {
-      "path": "dist/nucypher-ts.esm.js",
-      "limit": "10 KB"
-    }
-  ],
-  "engines": {
-    "node": ">=10"
-  },
   "husky": {
     "hooks": {
-      "pre-commit": "tsdx lint"
+      "pre-commit": "yarn test"
+    }
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
     }
   },
   "prettier": {
@@ -63,5 +93,21 @@
     "semi": true,
     "singleQuote": true,
     "trailingComma": "es5"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "coverageReporters": [
+      "json",
+      "text",
+      "html",
+      "lcov",
+      "clover"
+    ],
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "src/**/*.ts"
+    ]
   }
 }

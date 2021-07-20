@@ -1,15 +1,16 @@
+import secureRandom from 'secure-random';
 import {
+  decryptOriginal,
+  generateKFrags,
   KeyFrag,
   PublicKey,
   SecretKey,
   Signer,
-  generateKFrags,
-  decryptOriginal,
 } from 'umbral-pre';
-import secureRandom from 'secure-random';
+
+import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
 import { UmbralKeyingMaterial } from './keys';
 import { PolicyMessageKit, ReencryptedMessageKit } from './kits';
-import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
 
 export class DelegatingPower {
   private umbralKeyingMaterial: UmbralKeyingMaterial;

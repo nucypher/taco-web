@@ -5,9 +5,10 @@ import { NucypherKeyring } from '../crypto/keyring';
 import { PolicyMessageKit } from '../crypto/kits';
 import { DelegatingPower, SigningPower } from '../crypto/powers';
 import { BlockchainPolicy, EnactedPolicy } from '../policies/policy';
+import { Configuration } from '../types';
+
 import { Bob } from './bob';
 import { IUrsula, Porter } from './porter';
-import { Configuration } from '../types';
 
 export class Alice {
   private config: Configuration;

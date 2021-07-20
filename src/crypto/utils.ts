@@ -1,7 +1,8 @@
-import { PublicKey } from 'umbral-pre';
 import { computeAddress } from 'ethers/lib/utils';
+import { PublicKey } from 'umbral-pre';
 
 import { ChecksumAddress } from '../types';
+
 import { ETH_ADDRESS_STRING_PREFIX } from './constants';
 
 export const toCanonicalAddress = (address: string): Buffer => {

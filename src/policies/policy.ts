@@ -1,5 +1,5 @@
-import { KeyFrag, PublicKey, VerifiedCapsuleFrag } from 'umbral-pre';
 import secureRandom from 'secure-random';
+import { KeyFrag, PublicKey, VerifiedCapsuleFrag } from 'umbral-pre';
 
 import { Alice } from '../characters/alice';
 import { Bob } from '../characters/bob';
@@ -8,6 +8,7 @@ import { Ursula } from '../characters/ursula';
 import { keccakDigest } from '../crypto/api';
 import { RevocationKit } from '../crypto/kits';
 import { ChecksumAddress } from '../types';
+
 import { PrePublishedTreasureMap, TreasureMap } from './collections';
 
 export interface EnactedPolicy {
@@ -26,7 +27,7 @@ export interface ArrangementForUrsula {
 }
 
 export class BlockchainPolicy {
-  private ID_LENGTH: number = 16;
+  private ID_LENGTH = 16;
   private readonly alice: Alice;
   private readonly label: string;
   private readonly expiration: Date;
@@ -73,7 +74,7 @@ export class BlockchainPolicy {
   }
 
   public publishToBlockchain(arrangements: ArrangementForUrsula[]): string {
-    const addresses = arrangements.map(a => a.ursula.checksumAddress);
+    const addresses = arrangements.map((a) => a.ursula.checksumAddress);
     // TODO: Implement after adding web3 client
     // receipt = self.alice.policy_agent.create_policy(
     //     policy_id=self.hrac,  # bytes16 _policyID
@@ -122,7 +123,7 @@ export class BlockchainPolicy {
 
   private makeArrangements(ursulas: IUrsula[]): ArrangementForUrsula[] {
     const arrangements: ArrangementForUrsula[] = [];
-    ursulas.forEach(ursula => {
+    ursulas.forEach((ursula) => {
       const arrangement = this.proposeArrangement(ursula);
       if (arrangement) {
         arrangements.push(arrangement);
@@ -144,11 +145,11 @@ export class BlockchainPolicy {
       .map(({ arrangement, kFrag, ursula }) =>
         this.enactArrangement(arrangement, kFrag, ursula, publicationTx)
       );
-    const allEnacted = maybeAllEnacted.every(x => !!x);
+    const allEnacted = maybeAllEnacted.every((x) => !!x);
 
     if (!allEnacted) {
       const notEnacted = arrangements.filter(
-        x => !maybeAllEnacted.includes(x.ursula.checksumAddress)
+        (x) => !maybeAllEnacted.includes(x.ursula.checksumAddress)
       );
       throw Error(`Failed to enact some of arrangements: ${notEnacted}`);
     }

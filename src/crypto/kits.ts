@@ -1,8 +1,8 @@
 import { Capsule, CapsuleWithFrags, PublicKey, Signer } from 'umbral-pre';
 
+import { Enrico } from '../characters/enrico';
 import { PrePublishedTreasureMap, Revocation } from '../policies/collections';
 import { ChecksumAddress } from '../types';
-import { Enrico } from '../characters/enrico';
 
 export class RevocationKit {
   public revocations: Record<ChecksumAddress, Revocation>;
@@ -38,7 +38,7 @@ export class PolicyMessageKit {
     this.recipientEncryptingKey = recipientEncryptingKey;
   }
 
-  public toBytes(includeAlicePublicKey: boolean = true): Buffer {
+  public toBytes(includeAlicePublicKey = true): Buffer {
     const asBytes = [this.capsule.toBytes()];
     if (includeAlicePublicKey && !!this.senderVerifyingKey) {
       asBytes.push(this.senderVerifyingKey.toBytes());

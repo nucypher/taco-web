@@ -1,7 +1,7 @@
 import { PublicKey, SecretKey } from 'umbral-pre';
 
-import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
 import { keccakDigest } from './api';
+import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
 
 export class UmbralKeyingMaterial {
   private readonly keyingMaterial: Buffer;

@@ -1,9 +1,9 @@
 import {
-  PublicKey,
-  VerifiedCapsuleFrag,
-  Signer,
   Capsule,
   CapsuleWithFrags,
+  PublicKey,
+  Signer,
+  VerifiedCapsuleFrag,
 } from 'umbral-pre';
 
 import { keccakDigest, verifySignature } from '../crypto/api';
@@ -13,13 +13,14 @@ import {
   SIGNATURE_HEADER_LENGTH,
   SIGNATURE_LENGTH,
 } from '../crypto/constants';
+import { NucypherKeyring } from '../crypto/keyring';
 import { PolicyMessageKit, ReencryptedMessageKit } from '../crypto/kits';
 import { DecryptingPower, SigningPower } from '../crypto/powers';
 import { PublishedTreasureMap, WorkOrder } from '../policies/collections';
-import { Porter } from './porter';
-import { NucypherKeyring } from '../crypto/keyring';
-import { Enrico } from './enrico';
 import { Configuration } from '../types';
+
+import { Enrico } from './enrico';
+import { Porter } from './porter';
 
 export class Bob {
   private readonly config: Configuration;
@@ -92,7 +93,7 @@ export class Bob {
 
     // Perform sanity checks
 
-    messageKits.forEach(mk =>
+    messageKits.forEach((mk) =>
       mk.ensureCorrectSender(enrico, aliceVerifyingKey)
     );
 
@@ -100,7 +101,7 @@ export class Bob {
 
     // TODO: How to test correctness with umbral-pre-wasm?
     const correctnessKeys: Record<string, any> = {};
-    messageKits.forEach(mk => {
+    messageKits.forEach((mk) => {
       const capsuleId = mk.capsule.toString();
       correctnessKeys[capsuleId] = {
         receiving: this.decryptingPower.publicKey,
@@ -109,7 +110,7 @@ export class Bob {
     });
 
     // TODO: Do we also want to handle incomplete work orders? Is Porter keeping track of them?
-    const capsulesToActivate = messageKits.map(mk => mk.capsule);
+    const capsulesToActivate = messageKits.map((mk) => mk.capsule);
     const workOrders = await this.workOrdersForCapsules(
       capsulesToActivate,
       treasureMap,
@@ -121,7 +122,7 @@ export class Bob {
     const activatedCapsules = this.activateCapsules(capsulesToActivate, cFrags);
 
     // Decrypt ciphertexts
-    return messageKits.map(messageKit => {
+    return messageKits.map((messageKit) => {
       const { ciphertext, signature, capsule } = messageKit;
       const reencryptedMessageKit: ReencryptedMessageKit = {
         ciphertext,
@@ -139,9 +140,9 @@ export class Bob {
     cFrags: VerifiedCapsuleFrag[]
   ): Record<string, CapsuleWithFrags> {
     return Object.fromEntries(
-      capsulesToActivate.map(capsule => {
+      capsulesToActivate.map((capsule) => {
         let capsuleWithFrags: CapsuleWithFrags;
-        cFrags.forEach(cFrag => {
+        cFrags.forEach((cFrag) => {
           capsuleWithFrags = capsuleWithFrags
             ? capsuleWithFrags.withCFrag(cFrag)
             : capsule.withCFrag(cFrag);
@@ -158,12 +159,12 @@ export class Bob {
     // TODO: Do we need to execute all work orders if we only need m cFrags?
     const cFrags = await Promise.all(
       workOrders
-        .map(async workOrder => {
+        .map(async (workOrder) => {
           const { cFrag } = await this.porter.executeWorkOrder(workOrder);
           // TODO: Verify `reencryptionSignature`, return null or throw if fails
           return cFrag;
         })
-        .filter(maybeCFrag => !!maybeCFrag)
+        .filter((maybeCFrag) => !!maybeCFrag)
     );
     if (cFrags.length < m) {
       throw new Error(
@@ -182,7 +183,7 @@ export class Bob {
   public verifyFrom(
     strangerPublicKey: PublicKey,
     messageKit: PolicyMessageKit | ReencryptedMessageKit,
-    decrypt: boolean = false,
+    decrypt = false,
     providedSignature?: Buffer
   ): Buffer {
     const strangerVkBytes = Buffer.from(strangerPublicKey.toBytes());
@@ -196,9 +197,8 @@ export class Bob {
     let signatureFromKit;
 
     if (decrypt) {
-      const cleartextWithSignatureHeader = this.decryptingPower.decrypt(
-        messageKit
-      );
+      const cleartextWithSignatureHeader =
+        this.decryptingPower.decrypt(messageKit);
       const signatureHeaderBytes = cleartextWithSignatureHeader.slice(
         0,
         SIGNATURE_HEADER_LENGTH
@@ -282,7 +282,7 @@ export class Bob {
       nodeIds
     );
     const ursulasByNodeId = Object.fromEntries(
-      ursulas.map(ursula => [ursula.checksumAddress, ursula])
+      ursulas.map((ursula) => [ursula.checksumAddress, ursula])
     );
     return Object.entries(treasureMap.destinations).map(
       ([nodeId, arrangementId]) => {

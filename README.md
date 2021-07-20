@@ -4,8 +4,6 @@ Boilerplate for `js-nucypher` replacement.
 
 **This is a work in progress**
 
-Additional information about the project setup are in `README.old.md`.
-
 ## Usage
 
 Checkout git submodules

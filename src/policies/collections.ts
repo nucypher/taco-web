@@ -1,14 +1,13 @@
 import {
   Capsule,
-  VerifiedCapsuleFrag,
   PublicKey,
   Signature,
   Signer,
+  VerifiedCapsuleFrag,
 } from 'umbral-pre';
 
+import { Bob } from '../characters/bob';
 import { IUrsula } from '../characters/porter';
-import { Arrangement } from './policy';
-import { ChecksumAddress } from '../types';
 import { encryptAndSign, keccakDigest } from '../crypto/api';
 import {
   ETH_ADDRESS_BYTE_LENGTH,
@@ -16,12 +15,14 @@ import {
   HRAC_LENGTH,
 } from '../crypto/constants';
 import { PolicyMessageKit } from '../crypto/kits';
-import { Bob } from '../characters/bob';
 import {
   canonicalAddressFromPublicKey,
   toCanonicalAddress,
   toChecksumAddress,
 } from '../crypto/utils';
+import { ChecksumAddress } from '../types';
+
+import { Arrangement } from './policy';
 
 const ARRANGEMENT_ID_LENGTH = 32;
 
@@ -299,7 +300,7 @@ export class WorkOrder {
     const ursulaIdentityEvidence = Buffer.from('0x0', 'hex');
     const ursulaPublicKey = Buffer.from(ursula.encryptingKey, 'hex');
 
-    const tasks = capsules.map(capsule => {
+    const tasks = capsules.map((capsule) => {
       const task = new PRETask(capsule);
       const specification = task.getSpecification(
         ursulaPublicKey,
@@ -337,7 +338,7 @@ export class WorkOrder {
   ) {
     // TODO: It was marked as `TODO` in `nucypher/nucypher. Should it be implemented?
     // TODO: What's the purpose of the receipt? Should it include only the capsules?
-    const capsulesBytes = Buffer.concat(capsules.map(c => c.toBytes()));
+    const capsulesBytes = Buffer.concat(capsules.map((c) => c.toBytes()));
     const receiptBytes = Buffer.concat([
       this.HEADER,
       ursulaPublicKey,

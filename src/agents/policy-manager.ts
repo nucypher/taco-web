@@ -1,8 +1,9 @@
 import { ContractTransaction } from 'ethers';
 
+import { PolicyManager__factory } from '../../types/ethers-contracts';
 import { TransactingPower } from '../crypto/powers';
 import { ChecksumAddress } from '../types';
-import { PolicyManager__factory } from '../../types/ethers-contracts';
+
 import {
   DEFAULT_WAIT_N_CONFIRMATIONS,
   POLICY_MANAGER_ADDRESS,

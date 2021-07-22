@@ -34,7 +34,7 @@
     "version": "standard-version",
     "reset-hard": "git clean -dfx && git reset --hard && yarn",
     "prepare-release": "run-s reset-hard test cov:check doc:html version doc:publish",
-    "postinstall": "typechain --target=ethers-v5 \"abi/**/*.json\""
+    "typechain": "typechain --target=ethers-v5 \"abi/**/*.json\""
   },
   "dependencies": {
     "axios": "^0.21.1",
@@ -45,11 +45,11 @@
   },
   "devDependencies": {
     "@size-limit/preset-small-lib": "^4.11.0",
+    "@typechain/ethers-v5": "^7.0.1",
     "@types/axios": "^0.14.0",
     "@types/jest": "^26.0.24",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.0.1",
-    "@typechain/ethers-v5": "^7.0.1",
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "^7.8.0",
     "eslint-config-prettier": "^6.11.0",
@@ -68,9 +68,9 @@
     "tsconfig-paths": "^3.9.0",
     "tsdx": "^0.14.1",
     "tslib": "^2.2.0",
+    "typechain": "^5.1.1",
     "typedoc": "^0.19.0",
-    "typescript": "^4.3.2",
-    "typechain": "^5.1.1"
+    "typescript": "^4.3.2"
   },
   "files": [
     "build/main",
@@ -83,7 +83,7 @@
   ],
   "husky": {
     "hooks": {
-      "pre-commit": "yarn test"
+      "pre-commit": "yarn typechain && yarn test"
     }
   },
   "config": {
@@ -100,6 +100,9 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
+    "transform": {
+      "^.+\\.js": "babel-jest"
+    },
     "coverageReporters": [
       "json",
       "text",

@@ -1,7 +1,8 @@
 import { PublicKey } from 'umbral-pre';
 
-import { PolicyMessageKit } from '../kits/message';
+import { encryptAndSign } from '../crypto/api';
 import { SigningPower } from '../crypto/powers';
+import { PolicyMessageKit } from '../kits/message';
 
 export class Enrico {
   public readonly recipientEncryptingKey: PublicKey;
@@ -9,7 +10,7 @@ export class Enrico {
 
   constructor(
     recipientEncryptingKey: PublicKey,
-    enricoVerifyingKey?: PublicKey,
+    enricoVerifyingKey?: PublicKey
   ) {
     this.recipientEncryptingKey = recipientEncryptingKey;
     if (enricoVerifyingKey) {
@@ -28,7 +29,7 @@ export class Enrico {
       this.recipientEncryptingKey,
       plaintext,
       this.signingPower.signer,
-      this.signingPower.publicKey,
+      this.signingPower.publicKey
     );
   }
 }

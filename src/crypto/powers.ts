@@ -1,3 +1,5 @@
+import { Provider } from '@ethersproject/providers';
+import { Wallet } from 'ethers';
 import secureRandom from 'secure-random';
 import {
   decryptOriginal,
@@ -8,18 +10,17 @@ import {
   Signer,
 } from 'umbral-pre';
 
-import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
-import { Wallet } from 'ethers';
-import { UmbralKeyingMaterial } from './keys';
 import { PolicyMessageKit, ReencryptedMessageKit } from '../kits/message';
-import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
 import { ChecksumAddress } from '../types';
-import { Provider } from '@ethersproject/providers';
+
+import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
+import { UmbralKeyingMaterial } from './keys';
 
 export abstract class TransactingPower {
   public abstract get account(): ChecksumAddress;
 
   public abstract get wallet(): Wallet;
+
   public abstract connect(provider: Provider): void;
 }
 
@@ -29,7 +30,7 @@ export class DerivedTransactionPower extends TransactingPower {
   constructor(keyingMaterial: Buffer, provider?: Provider) {
     super();
     const secretKey = new UmbralKeyingMaterial(
-      keyingMaterial,
+      keyingMaterial
     ).deriveSecretKey();
     this.wallet = new Wallet(secretKey.toSecretBytes());
     if (provider) {
@@ -58,7 +59,7 @@ export class DelegatingPower {
     signer: Signer,
     label: string,
     m: number,
-    n: number,
+    n: number
   ): Promise<{
     delegatingPublicKey: PublicKey;
     kFrags: KeyFrag[];
@@ -72,7 +73,7 @@ export class DelegatingPower {
       m,
       n,
       false,
-      false,
+      false
     );
     return {
       delegatingPublicKey,
@@ -80,13 +81,13 @@ export class DelegatingPower {
     };
   }
 
-  private async getSecretKeyFromLabel(label: string): Promise<SecretKey> {
-    return this.keyingMaterial.deriveSecretKeyFromLabel(label);
-  }
-
   public async getPublicKeyFromLabel(label: string): Promise<PublicKey> {
     const sk = await this.getSecretKeyFromLabel(label);
     return sk.publicKey();
+  }
+
+  private async getSecretKeyFromLabel(label: string): Promise<SecretKey> {
+    return this.keyingMaterial.deriveSecretKeyFromLabel(label);
   }
 }
 
@@ -100,7 +101,7 @@ abstract class CryptoPower {
     }
     if (keyingMaterial) {
       this._secretKey = new UmbralKeyingMaterial(
-        keyingMaterial,
+        keyingMaterial
       ).deriveSecretKey();
       this._publicKey = this.secretKey.publicKey();
     }
@@ -118,7 +119,7 @@ abstract class CryptoPower {
       return this._secretKey;
     } else {
       throw new Error(
-        'Power initialized with public key, secret key not present.',
+        'Power initialized with public key, secret key not present.'
       );
     }
   }
@@ -127,6 +128,10 @@ abstract class CryptoPower {
 // TODO: Deduplicate `from*` methods into `CryptoPower`?
 
 export class SigningPower extends CryptoPower {
+  public get signer(): Signer {
+    return new Signer(this.secretKey);
+  }
+
   public static fromPublicKey(publicKey: PublicKey): SigningPower {
     return new SigningPower(undefined, publicKey);
   }
@@ -138,10 +143,6 @@ export class SigningPower extends CryptoPower {
   public static fromRandom(): SigningPower {
     const keyingMaterial = secureRandom(UMBRAL_KEYING_MATERIAL_BYTES_LENGTH);
     return SigningPower.fromKeyingMaterial(keyingMaterial);
-  }
-
-  public get signer(): Signer {
-    return new Signer(this.secretKey);
   }
 }
 
@@ -160,16 +161,16 @@ export class DecryptingPower extends CryptoPower {
         decryptOriginal(
           this.secretKey,
           messageKit.capsule,
-          messageKit.ciphertext,
-        ),
+          messageKit.ciphertext
+        )
       );
     } else {
       return Buffer.from(
         messageKit.capsule.decryptReencrypted(
           this.secretKey,
           messageKit.recipientEncryptingKey,
-          messageKit.ciphertext,
-        ),
+          messageKit.ciphertext
+        )
       );
     }
   }

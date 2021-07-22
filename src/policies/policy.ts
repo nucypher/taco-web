@@ -1,16 +1,16 @@
 import secureRandom from 'secure-random';
 import { KeyFrag, PublicKey, VerifiedCapsuleFrag } from 'umbral-pre';
 
+import { PolicyManagerAgent } from '../agents/policy-manager';
 import { Alice } from '../characters/alice';
 import { Bob } from '../characters/bob';
 import { IUrsula } from '../characters/porter';
 import { Ursula } from '../characters/ursula';
 import { keccakDigest } from '../crypto/api';
+import { RevocationKit } from '../kits/revocation';
 import { ChecksumAddress } from '../types';
 
 import { PrePublishedTreasureMap, TreasureMap } from './collections';
-import { PolicyManagerAgent } from '../agents/policy-manager';
-import { RevocationKit } from '../kits/revocation';
 
 export interface EnactedPolicy {
   id: Buffer;

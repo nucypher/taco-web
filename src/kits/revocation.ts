@@ -1,4 +1,5 @@
 import { Signer } from 'umbral-pre';
+
 import { PrePublishedTreasureMap, Revocation } from '../policies/collections';
 import { ChecksumAddress } from '../types';
 

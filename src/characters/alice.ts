@@ -1,20 +1,19 @@
+import { Provider } from '@ethersproject/providers';
 import { KeyFrag, PublicKey, Signer } from 'umbral-pre';
 
+import { encryptAndSign } from '../crypto/api';
 import { NucypherKeyring } from '../crypto/keyring';
-import { PolicyMessageKit } from '../kits/message';
 import {
   DelegatingPower,
   SigningPower,
   TransactingPower,
 } from '../crypto/powers';
+import { PolicyMessageKit } from '../kits/message';
 import { BlockchainPolicy, EnactedPolicy } from '../policies/policy';
 import { Configuration } from '../types';
 
 import { Bob } from './bob';
 import { IUrsula, Porter } from './porter';
-import { Provider } from '@ethersproject/providers';
-import { Configuration } from '../types';
-import { encryptAndSign } from '../crypto/api';
 
 export class Alice {
   private config: Configuration;
@@ -29,7 +28,7 @@ export class Alice {
     config: Configuration,
     signingPower: SigningPower,
     delegatingPower: DelegatingPower,
-    transactingPower: TransactingPower,
+    transactingPower: TransactingPower
   ) {
     this.config = config;
     this.porter = new Porter(config.porterUri);
@@ -40,7 +39,7 @@ export class Alice {
 
   public static fromKeyring(
     config: Configuration,
-    keyring: NucypherKeyring,
+    keyring: NucypherKeyring
   ): Alice {
     const signingPower = keyring.deriveSigningPower();
     const delegatingPower = keyring.deriveDelegatingPower();
@@ -61,7 +60,7 @@ export class Alice {
   }
 
   public async getPolicyEncryptingKeyFromLabel(
-    label: string,
+    label: string
   ): Promise<PublicKey> {
     return this.delegatingPower.getPublicKeyFromLabel(label);
   }
@@ -72,11 +71,11 @@ export class Alice {
     m: number,
     n: number,
     expiration: Date,
-    handpickedUrsulas?: IUrsula[],
+    handpickedUrsulas?: IUrsula[]
   ): Promise<EnactedPolicy> {
     const ursulas = await this.porter.getUrsulas(n);
     const selectedUrsulas: IUrsula[] = handpickedUrsulas
-      ? [ ...new Set([ ...ursulas, ...handpickedUrsulas ]) ]
+      ? [...new Set([...ursulas, ...handpickedUrsulas])]
       : ursulas;
 
     const policy = await this.createPolicy(bob, label, m, n, expiration);
@@ -84,7 +83,7 @@ export class Alice {
 
     await this.porter.publishTreasureMap(
       enactedPolicy.treasureMap,
-      bob.encryptingPublicKey,
+      bob.encryptingPublicKey
     );
 
     return enactedPolicy;
@@ -92,13 +91,13 @@ export class Alice {
 
   public encryptFor(
     recipientPublicKey: PublicKey,
-    payload: Buffer,
+    payload: Buffer
   ): PolicyMessageKit {
     return encryptAndSign(
       recipientPublicKey,
       payload,
       this.signer,
-      this.signer.verifyingKey(),
+      this.signer.verifyingKey()
     );
   }
 
@@ -107,13 +106,13 @@ export class Alice {
     label: string,
     m: number,
     n: number,
-    expiration: Date,
+    expiration: Date
   ): Promise<BlockchainPolicy> {
     const { delegatingPublicKey, kFrags } = await this.generateKFrags(
       bob,
       label,
       m,
-      n,
+      n
     );
     // TODO: Validate policy parameters
     return new BlockchainPolicy(
@@ -123,7 +122,7 @@ export class Alice {
       bob,
       kFrags,
       delegatingPublicKey,
-      m,
+      m
     );
   }
 
@@ -131,7 +130,7 @@ export class Alice {
     bob: Bob,
     label: string,
     m: number,
-    n: number,
+    n: number
   ): Promise<{
     delegatingPublicKey: PublicKey;
     kFrags: KeyFrag[];
@@ -141,7 +140,7 @@ export class Alice {
       this.signer,
       label,
       m,
-      n,
+      n
     );
   }
 }

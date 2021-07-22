@@ -14,12 +14,12 @@ import {
   ETH_HASH_BYTE_LENGTH,
   HRAC_LENGTH,
 } from '../crypto/constants';
-import { PolicyMessageKit } from '../kits/message';
 import {
   canonicalAddressFromPublicKey,
   toCanonicalAddress,
   toChecksumAddress,
 } from '../crypto/utils';
+import { PolicyMessageKit } from '../kits/message';
 import { ChecksumAddress } from '../types';
 
 import { Arrangement } from './policy';

@@ -34,7 +34,7 @@ export class PolicyMessageKit implements MessageKit {
     ciphertext: Buffer,
     signature: Buffer,
     senderVerifyingKey: PublicKey,
-    recipientEncryptingKey: PublicKey,
+    recipientEncryptingKey: PublicKey
   ) {
     this.capsule = capsule;
     this.ciphertext = ciphertext;
@@ -44,7 +44,7 @@ export class PolicyMessageKit implements MessageKit {
   }
 
   public toBytes(includeAlicePublicKey = true): Buffer {
-    const asBytes = [ this.capsule.toBytes() ];
+    const asBytes = [this.capsule.toBytes()];
     if (includeAlicePublicKey && !!this.senderVerifyingKey) {
       asBytes.push(this.senderVerifyingKey.toBytes());
     }
@@ -54,7 +54,7 @@ export class PolicyMessageKit implements MessageKit {
 
   public ensureCorrectSender(
     enrico: Enrico,
-    recipientEncryptingKey: PublicKey,
+    recipientEncryptingKey: PublicKey
   ): void {
     if (
       enrico.recipientEncryptingKey !== this.recipientEncryptingKey &&

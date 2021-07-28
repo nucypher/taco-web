@@ -1,6 +1,7 @@
 import { decryptOriginal } from 'umbral-pre';
 
 import { Enrico } from '../../src';
+import { fromBytes, toBytes } from '../../src/utils';
 import { mockAlice, mockBob, reencryptKFrags } from '../utils';
 
 describe('enrico', () => {
@@ -11,7 +12,7 @@ describe('enrico', () => {
 
     const policyPublicKey = await alice.getPolicyEncryptingKeyFromLabel(label);
     const enrico = new Enrico(policyPublicKey);
-    const { capsule, ciphertext } = enrico.encrypt(Buffer.from(message));
+    const { capsule, ciphertext } = enrico.encrypt(toBytes(message));
 
     const alicePower = (alice as any).delegatingPower;
     const aliceSk = await alicePower.getSecretKeyFromLabel(label);
@@ -29,7 +30,7 @@ describe('enrico', () => {
     );
 
     const plaintext = 'Plaintext message';
-    const plaintextBytes = Buffer.from(plaintext);
+    const plaintextBytes = toBytes(plaintext);
 
     const enrico = new Enrico(policyEncryptingKey);
     const encrypted = enrico.encrypt(plaintextBytes);
@@ -40,11 +41,7 @@ describe('enrico', () => {
       label
     );
     const plaintextAlice = decryptOriginal(aliceSk, capsule, ciphertext);
-    expect(
-      Buffer.from(plaintextAlice)
-        .toString('utf-8')
-        .endsWith(plaintext)
-    ).toBeTruthy();
+    expect(fromBytes(plaintextAlice).endsWith(plaintext)).toBeTruthy();
 
     const n = 3;
     const m = 2;
@@ -67,11 +64,7 @@ describe('enrico', () => {
       policyEncryptingKey,
       ciphertext
     );
-    expect(
-      Buffer.from(plaintextBob)
-        .toString('utf-8')
-        .endsWith(plaintext)
-    ).toBeTruthy();
+    expect(fromBytes(plaintextBob).endsWith(plaintext)).toBeTruthy();
 
     // Bob can decrypt ciphertext and verify origin of the message
     const isValid = bob.verifyFrom(

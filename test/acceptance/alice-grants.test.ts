@@ -3,6 +3,7 @@ import { KeyFrag, PublicKey } from 'umbral-pre';
 import { Enrico } from '../../src';
 import { PolicyMessageKit } from '../../src/kits/message';
 import { PrePublishedTreasureMap } from '../../src/policies/collections';
+import { fromBytes, toBytes } from '../../src/utils';
 import {
   mockAlice,
   mockBob,
@@ -53,22 +54,20 @@ describe('story: alice shares message with bob through policy', () => {
 
     const policy = await alice.grant(remoteBob, label, m, n, expired);
 
-    const nodeIds = new Set(ursulas.map(u => u.checksumAddress));
+    const nodeIds = new Set(ursulas.map((u) => u.checksumAddress));
     const revocationNodeIds = new Set(
       Object.keys(policy.revocationKit.revocations)
     );
     const treasureMapNodeIds = new Set(
       Object.keys(policy.treasureMap.destinations)
     );
-    revocationNodeIds.forEach(nodeId =>
+    revocationNodeIds.forEach((nodeId) =>
       expect(nodeIds.has(nodeId)).toBeTruthy()
     );
-    treasureMapNodeIds.forEach(nodeId =>
+    treasureMapNodeIds.forEach((nodeId) =>
       expect(nodeIds.has(nodeId)).toBeTruthy()
     );
-    expect(policy.aliceVerifyingKey).toEqual(
-      Buffer.from(alice.verifyingKey.toBytes())
-    );
+    expect(policy.aliceVerifyingKey).toEqual(alice.verifyingKey.toBytes());
     expect(policy.label).toBe(label);
     expect(getUrsulasSpy).toHaveBeenCalled();
     expect(generateKFragsSpy).toHaveBeenCalled();
@@ -96,7 +95,7 @@ describe('story: alice shares message with bob through policy', () => {
 
   it('enrico encrypts the message', () => {
     const enrico = new Enrico(policyEncryptingKey);
-    encryptedMessage = enrico.encrypt(Buffer.from(message));
+    encryptedMessage = enrico.encrypt(toBytes(message));
     enricoVerifyingKey = enrico.verifyingKey;
   });
 
@@ -135,7 +134,7 @@ describe('story: alice shares message with bob through policy', () => {
         label,
         enrico
       );
-      const bobPlaintext = retrievedMessage[0].toString();
+      const bobPlaintext = fromBytes(retrievedMessage[0]);
 
       expect(getUrsulasSpy).toHaveBeenCalled();
       expect(executeWorkOrderSpy).toHaveBeenCalledTimes(ursulas.length);

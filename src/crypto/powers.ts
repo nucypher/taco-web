@@ -27,7 +27,7 @@ export abstract class TransactingPower {
 export class DerivedTransactionPower extends TransactingPower {
   public wallet: Wallet;
 
-  constructor(keyingMaterial: Buffer, provider?: Provider) {
+  constructor(keyingMaterial: Uint8Array, provider?: Provider) {
     super();
     const secretKey = new UmbralKeyingMaterial(
       keyingMaterial
@@ -50,7 +50,7 @@ export class DerivedTransactionPower extends TransactingPower {
 export class DelegatingPower {
   private keyingMaterial: UmbralKeyingMaterial;
 
-  constructor(keyingMaterial: Buffer) {
+  constructor(keyingMaterial: Uint8Array) {
     this.keyingMaterial = new UmbralKeyingMaterial(keyingMaterial);
   }
 
@@ -95,7 +95,7 @@ abstract class CryptoPower {
   private readonly _secretKey?: SecretKey;
   private readonly _publicKey?: PublicKey;
 
-  protected constructor(keyingMaterial?: Buffer, publicKey?: PublicKey) {
+  protected constructor(keyingMaterial?: Uint8Array, publicKey?: PublicKey) {
     if (keyingMaterial && publicKey) {
       throw new Error('Pass either keyMaterial or publicKey - not both.');
     }
@@ -136,7 +136,7 @@ export class SigningPower extends CryptoPower {
     return new SigningPower(undefined, publicKey);
   }
 
-  public static fromKeyingMaterial(keyingMaterial: Buffer): SigningPower {
+  public static fromKeyingMaterial(keyingMaterial: Uint8Array): SigningPower {
     return new SigningPower(keyingMaterial, undefined);
   }
 
@@ -151,26 +151,26 @@ export class DecryptingPower extends CryptoPower {
     return new DecryptingPower(undefined, publicKey);
   }
 
-  public static fromKeyingMaterial(keyingMaterial: Buffer): DecryptingPower {
+  public static fromKeyingMaterial(
+    keyingMaterial: Uint8Array
+  ): DecryptingPower {
     return new DecryptingPower(keyingMaterial, undefined);
   }
 
-  public decrypt(messageKit: PolicyMessageKit | ReencryptedMessageKit): Buffer {
+  public decrypt(
+    messageKit: PolicyMessageKit | ReencryptedMessageKit
+  ): Uint8Array {
     if (messageKit instanceof PolicyMessageKit) {
-      return Buffer.from(
-        decryptOriginal(
-          this.secretKey,
-          messageKit.capsule,
-          messageKit.ciphertext
-        )
+      return decryptOriginal(
+        this.secretKey,
+        messageKit.capsule,
+        messageKit.ciphertext
       );
     } else {
-      return Buffer.from(
-        messageKit.capsule.decryptReencrypted(
-          this.secretKey,
-          messageKit.recipientEncryptingKey,
-          messageKit.ciphertext
-        )
+      return messageKit.capsule.decryptReencrypted(
+        this.secretKey,
+        messageKit.recipientEncryptingKey,
+        messageKit.ciphertext
       );
     }
   }

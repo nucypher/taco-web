@@ -9,17 +9,18 @@ import { Ursula } from '../characters/ursula';
 import { keccakDigest } from '../crypto/api';
 import { RevocationKit } from '../kits/revocation';
 import { ChecksumAddress } from '../types';
+import { fromHexString, toBytes } from '../utils';
 
 import { PrePublishedTreasureMap, TreasureMap } from './collections';
 
 export interface EnactedPolicy {
-  id: Buffer;
-  hrac: Buffer;
+  id: Uint8Array;
+  hrac: Uint8Array;
   label: string;
-  publicKey: Buffer;
+  publicKey: Uint8Array;
   treasureMap: PrePublishedTreasureMap;
   revocationKit: RevocationKit;
-  aliceVerifyingKey: Buffer;
+  aliceVerifyingKey: Uint8Array;
 }
 
 export interface ArrangementForUrsula {
@@ -36,7 +37,7 @@ export class BlockchainPolicy {
   private kFrags: KeyFrag[];
   private publicKey: PublicKey;
   private readonly m: number;
-  private readonly policyId: Buffer;
+  private readonly policyId: Uint8Array;
 
   constructor(
     alice: Alice,
@@ -61,14 +62,14 @@ export class BlockchainPolicy {
     arrangement: Arrangement,
     kFrag: VerifiedCapsuleFrag,
     ursula: IUrsula,
-    publicationTransaction: any
+    publicationTransaction: Uint8Array
   ): ChecksumAddress | null {
-    const enactmentPayload = Buffer.concat([
-      Buffer.from(publicationTransaction),
-      Buffer.from(kFrag.toBytes()),
+    const enactmentPayload = new Uint8Array([
+      ...publicationTransaction,
+      ...kFrag.toBytes(),
     ]);
     const ursulaPublicKey = PublicKey.fromBytes(
-      Buffer.from(ursula.encryptingKey, 'hex')
+      fromHexString(ursula.encryptingKey)
     );
     const messageKit = this.alice.encryptFor(ursulaPublicKey, enactmentPayload);
     return Ursula.enactPolicy(ursula, arrangement.getId(), messageKit);
@@ -101,18 +102,21 @@ export class BlockchainPolicy {
     return {
       id: this.policyId,
       label: this.label,
-      publicKey: Buffer.from(this.publicKey.toBytes()),
+      publicKey: this.publicKey.toBytes(),
       treasureMap,
       revocationKit,
-      aliceVerifyingKey: Buffer.from(this.alice.verifyingKey.toBytes()),
+      aliceVerifyingKey: this.alice.verifyingKey.toBytes(),
       hrac: treasureMap.hrac,
     };
   }
 
-  private constructPolicyId(): Buffer {
-    const label = Buffer.from(this.label);
-    const pk = this.bob.verifyingKey.toBytes();
-    return keccakDigest(Buffer.concat([label, pk])).slice(0, this.ID_LENGTH);
+  private constructPolicyId(): Uint8Array {
+    return keccakDigest(
+      new Uint8Array([
+        ...toBytes(this.label),
+        ...this.bob.verifyingKey.toBytes(),
+      ])
+    ).slice(0, this.ID_LENGTH);
   }
 
   private proposeArrangement(ursula: IUrsula): ArrangementForUrsula | null {
@@ -146,7 +150,12 @@ export class BlockchainPolicy {
         kFrag: this.kFrags[index],
       }))
       .map(({ arrangement, kFrag, ursula }) =>
-        this.enactArrangement(arrangement, kFrag, ursula, publicationTx)
+        this.enactArrangement(
+          arrangement,
+          kFrag,
+          ursula,
+          toBytes(publicationTx)
+        )
       );
     const allEnacted = maybeAllEnacted.every((x) => !!x);
 
@@ -177,12 +186,12 @@ export class BlockchainPolicy {
 export class Arrangement {
   private static ID_LENGTH = 32;
   private aliceVerifyingKey: PublicKey;
-  private readonly arrangementId: Buffer;
+  private readonly arrangementId: Uint8Array;
   private expiration: Date;
 
   constructor(
     aliceVerifyingKey: PublicKey,
-    arrangementId: Buffer,
+    arrangementId: Uint8Array,
     expiration: Date
   ) {
     this.aliceVerifyingKey = aliceVerifyingKey;
@@ -191,19 +200,19 @@ export class Arrangement {
   }
 
   public static fromAlice(alice: Alice, expiration: Date): Arrangement {
-    const arrangementId = Buffer.from(secureRandom(this.ID_LENGTH));
+    const arrangementId = Uint8Array.from(secureRandom(this.ID_LENGTH));
     return new Arrangement(alice.verifyingKey, arrangementId, expiration);
   }
 
-  public toBytes(): Buffer {
-    return Buffer.concat([
-      this.aliceVerifyingKey.toBytes(),
-      this.arrangementId,
-      Buffer.from(this.expiration.toISOString()),
+  public toBytes(): Uint8Array {
+    return new Uint8Array([
+      ...this.aliceVerifyingKey.toBytes(),
+      ...this.arrangementId,
+      ...toBytes(this.expiration.toISOString()),
     ]);
   }
 
-  public getId(): Buffer {
+  public getId(): Uint8Array {
     return this.arrangementId;
   }
 }

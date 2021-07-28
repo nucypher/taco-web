@@ -1,26 +1,27 @@
-import keccak256 from 'keccak256';
+import sha3 from 'js-sha3';
 import { encrypt, PublicKey, Signature, Signer } from 'umbral-pre';
 
 import { PolicyMessageKit } from '../kits/message';
+import { fromHexString, toBytes } from '../utils';
 
-import { SIGNATURE_HEADER } from './constants';
+import { SIGNATURE_HEADER_HEX } from './constants';
 
 export const encryptAndSign = (
   recipientPublicKey: PublicKey,
-  plaintext: Buffer,
+  plaintext: Uint8Array,
   signer: Signer,
   senderVerifyingKey: PublicKey
 ): PolicyMessageKit => {
-  const signature = Buffer.from(signer.sign(plaintext).toBytes());
-  const payload = Buffer.concat([
-    Buffer.from(SIGNATURE_HEADER.SIGNATURE_TO_FOLLOW, 'hex'),
-    signature,
-    plaintext,
+  const signature = signer.sign(plaintext).toBytes();
+  const payload = new Uint8Array([
+    ...fromHexString(SIGNATURE_HEADER_HEX.SIGNATURE_TO_FOLLOW),
+    ...signature,
+    ...plaintext,
   ]);
   const { ciphertext, capsule } = encrypt(recipientPublicKey, payload);
   return new PolicyMessageKit(
     capsule,
-    Buffer.from(ciphertext),
+    ciphertext,
     signature,
     senderVerifyingKey,
     recipientPublicKey
@@ -28,11 +29,12 @@ export const encryptAndSign = (
 };
 
 export const verifySignature = (
-  signature: Buffer,
-  message: Buffer,
+  signature: Uint8Array,
+  message: Uint8Array,
   verifyingKey: PublicKey
 ): boolean => {
   return Signature.fromBytes(signature).verify(verifyingKey, message);
 };
 
-export const keccakDigest = (m: Buffer): Buffer => keccak256(m);
+export const keccakDigest = (m: Uint8Array): Uint8Array =>
+  toBytes(sha3.keccak_256(m)).slice(0, 32);

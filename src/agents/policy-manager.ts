@@ -11,7 +11,7 @@ import {
 
 export class PolicyManagerAgent {
   public static async createPolicy(
-    policyId: Buffer,
+    policyId: Uint8Array,
     transactingPower: TransactingPower,
     value: number, // wei
     endTimestamp: number,

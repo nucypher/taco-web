@@ -9,8 +9,8 @@ import {
 import { keccakDigest, verifySignature } from '../crypto/api';
 import {
   HRAC_LENGTH,
-  SIGNATURE_HEADER,
-  SIGNATURE_HEADER_LENGTH,
+  SIGNATURE_HEADER_BYTES_LENGTH,
+  SIGNATURE_HEADER_HEX,
   SIGNATURE_LENGTH,
 } from '../crypto/constants';
 import { NucypherKeyring } from '../crypto/keyring';
@@ -18,6 +18,7 @@ import { DecryptingPower, SigningPower } from '../crypto/powers';
 import { PolicyMessageKit, ReencryptedMessageKit } from '../kits/message';
 import { PublishedTreasureMap, WorkOrder } from '../policies/collections';
 import { Configuration } from '../types';
+import { bytesEqual, fromHexString, toHexString } from '../utils';
 
 import { Enrico } from './enrico';
 import { Porter } from './porter';
@@ -78,7 +79,7 @@ export class Bob {
     label: string,
     enrico: Enrico,
     maybeTreasureMap?: PublishedTreasureMap
-  ): Promise<Buffer[]> {
+  ): Promise<Uint8Array[]> {
     let treasureMap = maybeTreasureMap;
     if (!treasureMap) {
       const mapId = this.makeTreasureMapId(aliceVerifyingKey, label);
@@ -184,11 +185,11 @@ export class Bob {
     strangerPublicKey: PublicKey,
     messageKit: PolicyMessageKit | ReencryptedMessageKit,
     decrypt = false,
-    providedSignature?: Buffer
-  ): Buffer {
-    const strangerVkBytes = Buffer.from(strangerPublicKey.toBytes());
-    const verifyingKey = Buffer.from(messageKit.senderVerifyingKey.toBytes());
-    if (strangerVkBytes.compare(verifyingKey)) {
+    providedSignature?: Uint8Array
+  ): Uint8Array {
+    const strangerVkBytes = strangerPublicKey.toBytes();
+    const verifyingKey = messageKit.senderVerifyingKey.toBytes();
+    if (!bytesEqual(strangerVkBytes, verifyingKey)) {
       throw new Error("Stranger public key doesn't match message kit sender.");
     }
 
@@ -201,12 +202,12 @@ export class Bob {
         this.decryptingPower.decrypt(messageKit);
       const signatureHeaderBytes = cleartextWithSignatureHeader.slice(
         0,
-        SIGNATURE_HEADER_LENGTH
+        SIGNATURE_HEADER_BYTES_LENGTH
       );
-      const signatureHeader = signatureHeaderBytes.toString('hex');
+      const signatureHeader = toHexString(signatureHeaderBytes);
 
       switch (signatureHeader) {
-        case SIGNATURE_HEADER.SIGNATURE_IS_ON_CIPHERTEXT:
+        case SIGNATURE_HEADER_HEX.SIGNATURE_IS_ON_CIPHERTEXT:
           message = messageKit.ciphertext;
           if (!providedSignature) {
             throw Error(
@@ -215,16 +216,18 @@ export class Bob {
           }
           signatureFromKit = providedSignature;
           break;
-        case SIGNATURE_HEADER.SIGNATURE_TO_FOLLOW:
+        case SIGNATURE_HEADER_HEX.SIGNATURE_TO_FOLLOW:
           // TODO: This never runs
           cleartext = cleartextWithSignatureHeader.slice(
-            SIGNATURE_HEADER_LENGTH
+            SIGNATURE_HEADER_BYTES_LENGTH
           );
           signatureFromKit = cleartext.slice(0, SIGNATURE_LENGTH);
           message = cleartext.slice(SIGNATURE_LENGTH);
           break;
-        case SIGNATURE_HEADER.NOT_SIGNED:
-          message = cleartextWithSignatureHeader.slice(SIGNATURE_HEADER_LENGTH);
+        case SIGNATURE_HEADER_HEX.NOT_SIGNED:
+          message = cleartextWithSignatureHeader.slice(
+            SIGNATURE_HEADER_BYTES_LENGTH
+          );
           break;
         default:
           throw Error(`Unrecognized signature header: ${signatureHeader}`);
@@ -245,7 +248,7 @@ export class Bob {
     if (
       providedSignature &&
       signatureFromKit &&
-      providedSignature.compare(signatureFromKit)
+      !bytesEqual(providedSignature, signatureFromKit)
     ) {
       throw Error(
         "Provided signature doesn't match PolicyMessageKit signature"
@@ -319,18 +322,18 @@ export class Bob {
   }
 
   private makeTreasureMapId(verifyingKey: PublicKey, label: string): string {
-    const vkBytes = Buffer.from(verifyingKey.toBytes());
+    const vkBytes = verifyingKey.toBytes();
     const hrac = this.makePolicyHrac(vkBytes, label);
-    const mapId = keccakDigest(Buffer.concat([vkBytes, hrac]));
-    return mapId.toString('hex');
+    const mapId = keccakDigest(new Uint8Array([...vkBytes, ...hrac]));
+    return toHexString(mapId);
   }
 
-  private makePolicyHrac(verifyingKey: Buffer, label: string) {
+  private makePolicyHrac(verifyingKey: Uint8Array, label: string) {
     return keccakDigest(
-      Buffer.concat([
-        verifyingKey,
-        this.verifyingKey.toBytes(),
-        Buffer.from(label),
+      new Uint8Array([
+        ...verifyingKey,
+        ...this.verifyingKey.toBytes(),
+        ...fromHexString(label),
       ])
     ).slice(0, HRAC_LENGTH);
   }

@@ -1,3 +1,4 @@
+import axios from 'axios';
 import {
   Capsule,
   CapsuleWithFrags,
@@ -7,29 +8,29 @@ import {
   Signature,
   VerifiedCapsuleFrag,
 } from 'umbral-pre';
-import axios from 'axios';
 
+import { Alice, Bob, NucypherKeyring } from '../src';
+import { GetUrsulasResponse, IUrsula, Porter } from '../src/characters/porter';
+import { Ursula } from '../src/characters/ursula';
 import * as cryptoApi from '../src/crypto/api';
 import { keccakDigest } from '../src/crypto/api';
-import { GetUrsulasResponse, IUrsula, Porter } from '../src/characters/porter';
+import { PolicyMessageKit } from '../src/kits/message';
 import {
   PrePublishedTreasureMap,
   PublishedTreasureMap,
   WorkOrder,
   WorkOrderResult,
 } from '../src/policies/collections';
-import { Alice, Bob, NucypherKeyring } from '../src';
 import { Arrangement, BlockchainPolicy } from '../src/policies/policy';
-import { Ursula } from '../src/characters/ursula';
 import { Configuration } from '../src/types';
-import { PolicyMessageKit } from '../src/kits/message';
+import { toBytes } from '../src/utils';
 
 export const mockConfig: Configuration = {
   porterUri: 'https://_this_will_crash.com/',
 };
 
 export const mockBob = (): Bob => {
-  const bobKeyringSeed = Buffer.from('fake-keyring-seed-32-bytes-bob-x');
+  const bobKeyringSeed = toBytes('fake-keyring-seed-32-bytes-bob-x');
   const bobKeyring = new NucypherKeyring(bobKeyringSeed);
   return Bob.fromKeyring(mockConfig, bobKeyring);
 };
@@ -44,7 +45,7 @@ export const mockRemoteBob = (): Bob => {
 };
 
 export const mockAlice = () => {
-  const aliceKeyringSeed = Buffer.from('fake-keyring-seed-32-bytes-alice');
+  const aliceKeyringSeed = toBytes('fake-keyring-seed-32-bytes-alice');
   const aliceKeyring = new NucypherKeyring(aliceKeyringSeed);
   return Alice.fromKeyring(mockConfig, aliceKeyring);
 };
@@ -95,7 +96,7 @@ export const mockPorterUrsulas = (
 ): GetUrsulasResponse => {
   return {
     result: {
-      ursulas: mockUrsulas.map(u => ({
+      ursulas: mockUrsulas.map((u) => ({
         encrypting_key: u.encryptingKey,
         uri: u.uri,
         checksum_address: u.checksumAddress,
@@ -188,15 +189,15 @@ export const mockWorkOrderResults = (
   if (ursulas.length !== kFrags.length) {
     throw new Error('Number of kFrags must match the number of Ursulas');
   }
-  const cFrags = kFrags.map(kFrag => reencrypt(capsule, kFrag));
+  const cFrags = kFrags.map((kFrag) => reencrypt(capsule, kFrag));
 
   const results: Record<string, WorkOrderResult> = {};
   for (let i = 0; i < ursulas.length; i += 1) {
     const cFrag = cFrags[i];
     // TODO; How to mock reencryptionSignature?
-    const reencryptionSignature = Buffer.concat([
-      keccakDigest(Buffer.from(cFrag.toBytes())),
-      keccakDigest(Buffer.from(cFrag.toBytes())),
+    const reencryptionSignature = new Uint8Array([
+      ...keccakDigest(cFrag.toBytes()),
+      ...keccakDigest(cFrag.toBytes()),
     ]);
     results[ursulas[i].checksumAddress] = new WorkOrderResult(
       cFrag,
@@ -235,7 +236,7 @@ export const reencryptKFrags = (kFrags: KeyFrag[], capsule: Capsule) => {
     throw new Error('Pass at least one kFrag.');
   }
   let capsuleWithFrags: CapsuleWithFrags;
-  kFrags.forEach(kFrag => {
+  kFrags.forEach((kFrag) => {
     const cFrag = reencrypt(capsule, kFrag);
     capsuleWithFrags = capsuleWithFrags
       ? capsuleWithFrags.withCFrag(cFrag)

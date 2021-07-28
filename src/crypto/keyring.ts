@@ -6,9 +6,9 @@ import {
 } from './powers';
 
 export class NucypherKeyring {
-  private readonly seed: Buffer;
+  private readonly seed: Uint8Array;
 
-  constructor(seed: Buffer) {
+  constructor(seed: Uint8Array) {
     this.seed = seed;
   }
 

@@ -39,7 +39,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "ethers": "^5.4.1",
-    "keccak256": "^1.0.2",
+    "js-sha3": "^0.8.0",
     "secure-random": "^1.1.2",
     "umbral-pre": "file:./rust-umbral/umbral-pre-wasm/pkg"
   },

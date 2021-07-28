@@ -24,7 +24,7 @@ export class Enrico {
     return this.signingPower.publicKey;
   }
 
-  public encrypt(plaintext: Buffer): PolicyMessageKit {
+  public encrypt(plaintext: Uint8Array): PolicyMessageKit {
     return encryptAndSign(
       this.recipientEncryptingKey,
       plaintext,

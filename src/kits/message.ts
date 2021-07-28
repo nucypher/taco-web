@@ -12,8 +12,8 @@ import { ChecksumAddress } from '../types';
 
 export interface MessageKit {
   capsule: Capsule;
-  ciphertext: Buffer;
-  signature: Buffer;
+  ciphertext: Uint8Array;
+  signature: Uint8Array;
   senderVerifyingKey: PublicKey;
   recipientEncryptingKey: PublicKey;
 }
@@ -24,15 +24,15 @@ export type ReencryptedMessageKit = Omit<MessageKit, 'capsule'> & {
 
 export class PolicyMessageKit implements MessageKit {
   public readonly capsule: Capsule;
-  public readonly ciphertext: Buffer;
-  public readonly signature: Buffer;
+  public readonly ciphertext: Uint8Array;
+  public readonly signature: Uint8Array;
   public readonly senderVerifyingKey: PublicKey;
   public readonly recipientEncryptingKey: PublicKey;
 
   constructor(
     capsule: Capsule,
-    ciphertext: Buffer,
-    signature: Buffer,
+    ciphertext: Uint8Array,
+    signature: Uint8Array,
     senderVerifyingKey: PublicKey,
     recipientEncryptingKey: PublicKey
   ) {
@@ -43,13 +43,15 @@ export class PolicyMessageKit implements MessageKit {
     this.recipientEncryptingKey = recipientEncryptingKey;
   }
 
-  public toBytes(includeAlicePublicKey = true): Buffer {
+  public toBytes(includeAlicePublicKey = true): Uint8Array {
     const asBytes = [this.capsule.toBytes()];
     if (includeAlicePublicKey && !!this.senderVerifyingKey) {
       asBytes.push(this.senderVerifyingKey.toBytes());
     }
     asBytes.push(this.ciphertext);
-    return Buffer.concat(asBytes);
+    return asBytes.reduce(
+      (next, accumulator) => new Uint8Array([...accumulator, ...next])
+    );
   }
 
   public ensureCorrectSender(

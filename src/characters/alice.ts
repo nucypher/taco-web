@@ -91,7 +91,7 @@ export class Alice {
 
   public encryptFor(
     recipientPublicKey: PublicKey,
-    payload: Buffer
+    payload: Uint8Array
   ): PolicyMessageKit {
     return encryptAndSign(
       recipientPublicKey,

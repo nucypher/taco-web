@@ -1,12 +1,14 @@
 import axios, { AxiosResponse } from 'axios';
 import { PublicKey } from 'umbral-pre';
 
+import { PolicyMessageKit } from '../kits/message';
 import {
   PrePublishedTreasureMap,
   PublishedTreasureMap,
   WorkOrder,
   WorkOrderResult,
 } from '../policies/collections';
+import { Arrangement } from '../policies/policy';
 import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from '../types';
 import { fromBase64, toBase64, toBytes, toHexString } from '../utils';
 
@@ -150,5 +152,43 @@ export class Porter {
     );
     const asBytes = fromBase64(resp.data.work_order_result);
     return WorkOrderResult.fromBytes(asBytes);
+  }
+
+  public async proposeArrangement(
+    ursula: IUrsula,
+    arrangement: Arrangement
+  ): Promise<ChecksumAddress | null> {
+    const url = `${this.porterUri}/proxy/consider_arrangement`;
+    const config = {
+      headers: {
+        'X-PROXY-DESTINATION': ursula.uri,
+        'Content-Type': 'application/octet-stream',
+      },
+    };
+    await axios
+      .post(url, arrangement.toBytes(), config)
+      .catch(() => {
+        return null;
+      });
+    return ursula.checksumAddress;
+  }
+
+  public async enactPolicy(
+    ursula: IUrsula,
+    arrangementId: Uint8Array,
+    messageKit: PolicyMessageKit
+  ): Promise<ChecksumAddress | null> {
+    const kFragId = toHexString(arrangementId);
+    const url = `${this.porterUri}/proxy/kFrag/${kFragId}`;
+    const config = {
+      headers: {
+        'X-PROXY-DESTINATION': ursula.uri,
+        'Content-Type': 'application/octet-stream',
+      },
+    };
+    await axios.post(url, messageKit.toBytes(), config).catch(() => {
+      return null;
+    });
+    return ursula.checksumAddress;
   }
 }

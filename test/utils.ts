@@ -11,7 +11,6 @@ import {
 
 import { Alice, Bob, NucypherKeyring } from '../src';
 import { GetUrsulasResponse, IUrsula, Porter } from '../src/characters/porter';
-import { Ursula } from '../src/characters/ursula';
 import * as cryptoApi from '../src/crypto/api';
 import { keccakDigest } from '../src/crypto/api';
 import { PolicyMessageKit } from '../src/kits/message';
@@ -146,8 +145,10 @@ export const mockPublishToBlockchain = () => {
 
 export const mockProposeArrangement = () => {
   return jest
-    .spyOn(Ursula, 'proposeArrangement')
-    .mockImplementation((ursula: IUrsula) => ursula.checksumAddress);
+    .spyOn(Porter.prototype, 'proposeArrangement')
+    .mockImplementation((ursula: IUrsula) =>
+      Promise.resolve(ursula.checksumAddress)
+    );
 };
 
 export const mockEnactArrangement = () => {
@@ -158,9 +159,9 @@ export const mockEnactArrangement = () => {
         _arrangement: Arrangement,
         _kFrag: VerifiedCapsuleFrag,
         ursula: IUrsula,
-        _publicationTransaction: any
+        _publicationTransaction: Uint8Array
       ) => {
-        return ursula.checksumAddress;
+        return Promise.resolve(ursula.checksumAddress);
       }
     );
 };

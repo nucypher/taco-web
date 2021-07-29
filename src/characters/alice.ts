@@ -17,7 +17,7 @@ import { IUrsula, Porter } from './porter';
 
 export class Alice {
   private config: Configuration;
-  private porter: Porter;
+  public readonly porter: Porter;
   private delegatingPower: DelegatingPower;
   private signingPower: SigningPower;
   // TODO: This is the only visible transacting power

@@ -5,7 +5,6 @@ import { PolicyManagerAgent } from '../agents/policy-manager';
 import { Alice } from '../characters/alice';
 import { Bob } from '../characters/bob';
 import { IUrsula } from '../characters/porter';
-import { Ursula } from '../characters/ursula';
 import { keccakDigest } from '../crypto/api';
 import { RevocationKit } from '../kits/revocation';
 import { ChecksumAddress } from '../types';
@@ -58,12 +57,12 @@ export class BlockchainPolicy {
     this.policyId = this.constructPolicyId();
   }
 
-  public enactArrangement(
+  public async enactArrangement(
     arrangement: Arrangement,
     kFrag: VerifiedCapsuleFrag,
     ursula: IUrsula,
     publicationTransaction: Uint8Array
-  ): ChecksumAddress | null {
+  ): Promise<ChecksumAddress | null> {
     const enactmentPayload = new Uint8Array([
       ...publicationTransaction,
       ...kFrag.toBytes(),
@@ -72,7 +71,11 @@ export class BlockchainPolicy {
       fromHexString(ursula.encryptingKey)
     );
     const messageKit = this.alice.encryptFor(ursulaPublicKey, enactmentPayload);
-    return Ursula.enactPolicy(ursula, arrangement.getId(), messageKit);
+    return this.alice.porter.enactPolicy(
+      ursula,
+      arrangement.getId(),
+      messageKit
+    );
   }
 
   public async publishToBlockchain(
@@ -92,7 +95,7 @@ export class BlockchainPolicy {
   }
 
   public async enact(ursulas: IUrsula[]): Promise<EnactedPolicy> {
-    const arrangements = this.makeArrangements(ursulas);
+    const arrangements = await this.makeArrangements(ursulas);
     await this.enactArrangements(arrangements);
 
     const treasureMap = this.makeTreasureMap(arrangements);
@@ -119,31 +122,37 @@ export class BlockchainPolicy {
     ).slice(0, this.ID_LENGTH);
   }
 
-  private proposeArrangement(ursula: IUrsula): ArrangementForUrsula | null {
+  private async proposeArrangement(
+    ursula: IUrsula
+  ): Promise<ArrangementForUrsula | null> {
     const arrangement = Arrangement.fromAlice(this.alice, this.expiration);
-    const maybeAddress = Ursula.proposeArrangement(ursula, arrangement);
+    const maybeAddress = await this.alice.porter.proposeArrangement(
+      ursula,
+      arrangement
+    );
     if (maybeAddress) {
       return { ursula, arrangement };
     }
     return null;
   }
 
-  private makeArrangements(ursulas: IUrsula[]): ArrangementForUrsula[] {
-    const arrangements: ArrangementForUrsula[] = [];
-    ursulas.forEach((ursula) => {
-      const arrangement = this.proposeArrangement(ursula);
-      if (arrangement) {
-        arrangements.push(arrangement);
-      }
-    });
-    return arrangements;
+  private async makeArrangements(
+    ursulas: IUrsula[]
+  ): Promise<ArrangementForUrsula[]> {
+    const arrangementPromises = ursulas.map((ursula) =>
+      this.proposeArrangement(ursula)
+    );
+    const maybeArrangements = await Promise.all(arrangementPromises);
+    return maybeArrangements.filter(
+      (arrangement) => !!arrangement
+    ) as ArrangementForUrsula[];
   }
 
   private async enactArrangements(
     arrangements: ArrangementForUrsula[]
   ): Promise<void> {
     const publicationTx = await this.publishToBlockchain(arrangements);
-    const maybeAllEnacted = arrangements
+    const enactedPromises = arrangements
       .map((x, index) => ({
         ursula: x.ursula,
         arrangement: x.arrangement,
@@ -157,6 +166,7 @@ export class BlockchainPolicy {
           toBytes(publicationTx)
         )
       );
+    const maybeAllEnacted = await Promise.all(enactedPromises);
     const allEnacted = maybeAllEnacted.every((x) => !!x);
 
     if (!allEnacted) {

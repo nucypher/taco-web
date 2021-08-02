@@ -8,10 +8,7 @@ export class Enrico {
   public readonly recipientEncryptingKey: PublicKey;
   private readonly signingPower: SigningPower;
 
-  constructor(
-    recipientEncryptingKey: PublicKey,
-    enricoVerifyingKey?: PublicKey
-  ) {
+  constructor(recipientEncryptingKey: PublicKey, enricoVerifyingKey?: PublicKey) {
     this.recipientEncryptingKey = recipientEncryptingKey;
     if (enricoVerifyingKey) {
       this.signingPower = SigningPower.fromPublicKey(enricoVerifyingKey);

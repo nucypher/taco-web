@@ -36,5 +36,4 @@ export const verifySignature = (
   return Signature.fromBytes(signature).verify(verifyingKey, message);
 };
 
-export const keccakDigest = (m: Uint8Array): Uint8Array =>
-  toBytes(sha3.keccak_256(m)).slice(0, 32);
+export const keccakDigest = (m: Uint8Array): Uint8Array => toBytes(sha3.keccak_256(m)).slice(0, 32);

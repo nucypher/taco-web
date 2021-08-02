@@ -116,7 +116,7 @@ export class Porter {
       treasure_map: toBase64(treasureMap.payload),
       bob_encrypting_key: toHexString(bobEncryptingKey.toBytes()),
     };
-    await axios.post(`${this.porterUri}/publish_treasure_map`, { data });
+    await axios.post(`${this.porterUri}/publish_treasure_map`, data);
   }
 
   public revoke(revocations: RevocationRequest[]): RevocationResponse {
@@ -139,9 +139,7 @@ export class Porter {
     return PublishedTreasureMap.fromBytes(asBytes);
   }
 
-  public async executeWorkOrder(
-    workOrder: WorkOrder
-  ): Promise<WorkOrderResult> {
+  public async executeWorkOrder(workOrder: WorkOrder): Promise<WorkOrderResult> {
     const data: PostExecuteWorkOrderRequest = {
       ursula: workOrder.ursula.checksumAddress,
       work_order: toBase64(workOrder.payload()),
@@ -165,11 +163,9 @@ export class Porter {
         'Content-Type': 'application/octet-stream',
       },
     };
-    await axios
-      .post(url, arrangement.toBytes(), config)
-      .catch(() => {
-        return null;
-      });
+    await axios.post(url, arrangement.toBytes(), config).catch(() => {
+      return null;
+    });
     return ursula.checksumAddress;
   }
 

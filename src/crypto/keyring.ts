@@ -1,30 +1,25 @@
-import {
-  DecryptingPower,
-  DelegatingPower,
-  DerivedTransactionPower,
-  SigningPower,
-} from './powers';
+import { DecryptingPower, DelegatingPower, DerivedTransactionPower, SigningPower } from './powers';
 
 export class NucypherKeyring {
-  private readonly seed: Uint8Array;
+  private readonly keyingMaterial: Uint8Array;
 
-  constructor(seed: Uint8Array) {
-    this.seed = seed;
+  constructor(keyingMaterial: Uint8Array) {
+    this.keyingMaterial = keyingMaterial;
   }
 
   public deriveDelegatingPower(): DelegatingPower {
-    return new DelegatingPower(this.seed);
+    return DelegatingPower.fromKeyingMaterial(this.keyingMaterial);
   }
 
   public deriveSigningPower(): SigningPower {
-    return SigningPower.fromKeyingMaterial(this.seed);
+    return SigningPower.fromKeyingMaterial(this.keyingMaterial);
   }
 
   public deriveDecryptingPower(): DecryptingPower {
-    return DecryptingPower.fromKeyingMaterial(this.seed);
+    return DecryptingPower.fromKeyingMaterial(this.keyingMaterial);
   }
 
   public deriveTransactingPower(): DerivedTransactionPower {
-    return new DerivedTransactionPower(this.seed);
+    return DerivedTransactionPower.fromKeyingMaterial(this.keyingMaterial);
   }
 }

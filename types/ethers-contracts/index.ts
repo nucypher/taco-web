@@ -2,5 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { PolicyManager } from "./PolicyManager";
+export type { StakingEscrow } from "./StakingEscrow";
 
 export { PolicyManager__factory } from "./factories/PolicyManager__factory";
+export { StakingEscrow__factory } from "./factories/StakingEscrow__factory";

@@ -1,10 +1,4 @@
-import {
-  Capsule,
-  CapsuleWithFrags,
-  encrypt,
-  PublicKey,
-  Signer,
-} from 'umbral-pre';
+import { Capsule, CapsuleWithFrags, encrypt, PublicKey, Signer } from 'umbral-pre';
 
 import { Enrico } from '../characters/enrico';
 import { Revocation } from '../policies/collections';
@@ -49,15 +43,10 @@ export class PolicyMessageKit implements MessageKit {
       asBytes.push(this.senderVerifyingKey.toBytes());
     }
     asBytes.push(this.ciphertext);
-    return asBytes.reduce(
-      (next, accumulator) => new Uint8Array([...accumulator, ...next])
-    );
+    return asBytes.reduce((next, accumulator) => new Uint8Array([...accumulator, ...next]));
   }
 
-  public ensureCorrectSender(
-    enrico: Enrico,
-    recipientEncryptingKey: PublicKey
-  ): void {
+  public ensureCorrectSender(enrico: Enrico, recipientEncryptingKey: PublicKey): void {
     if (
       enrico.recipientEncryptingKey !== this.recipientEncryptingKey &&
       recipientEncryptingKey !== this.recipientEncryptingKey

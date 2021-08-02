@@ -1,10 +1,4 @@
-import {
-  Capsule,
-  CapsuleWithFrags,
-  PublicKey,
-  Signer,
-  VerifiedCapsuleFrag,
-} from 'umbral-pre';
+import { Capsule, CapsuleWithFrags, PublicKey, Signer, VerifiedCapsuleFrag } from 'umbral-pre';
 
 import { keccakDigest, verifySignature } from '../crypto/api';
 import {
@@ -30,11 +24,7 @@ export class Bob {
   private readonly signingPower: SigningPower;
   private readonly decryptingPower: DecryptingPower;
 
-  constructor(
-    config: Configuration,
-    signingPower: SigningPower,
-    decryptingPower: DecryptingPower
-  ) {
+  constructor(config: Configuration, signingPower: SigningPower, decryptingPower: DecryptingPower) {
     this.config = config;
     this.porter = new Porter(config.porterUri);
     this.signingPower = signingPower;
@@ -52,10 +42,7 @@ export class Bob {
     return new Bob(config, signingPower, decryptingPower);
   }
 
-  public static fromKeyring(
-    config: Configuration,
-    keyring: NucypherKeyring
-  ): Bob {
+  public static fromKeyring(config: Configuration, keyring: NucypherKeyring): Bob {
     const signingPower = keyring.deriveSigningPower();
     const decryptingPower = keyring.deriveDecryptingPower();
     return new Bob(config, signingPower, decryptingPower);
@@ -94,9 +81,7 @@ export class Bob {
 
     // Perform sanity checks
 
-    messageKits.forEach((mk) =>
-      mk.ensureCorrectSender(enrico, aliceVerifyingKey)
-    );
+    messageKits.forEach((mk) => mk.ensureCorrectSender(enrico, aliceVerifyingKey));
 
     // Assemble WorkOrders
 
@@ -168,9 +153,7 @@ export class Bob {
         .filter((maybeCFrag) => !!maybeCFrag)
     );
     if (cFrags.length < m) {
-      throw new Error(
-        `Failed to get enough cFrags: received ${cFrags.length}, expected ${m}`
-      );
+      throw new Error(`Failed to get enough cFrags: received ${cFrags.length}, expected ${m}`);
     }
     return cFrags;
     // TODO: Return exactly m cFrags here?
@@ -198,8 +181,7 @@ export class Bob {
     let signatureFromKit;
 
     if (decrypt) {
-      const cleartextWithSignatureHeader =
-        this.decryptingPower.decrypt(messageKit);
+      const cleartextWithSignatureHeader = this.decryptingPower.decrypt(messageKit);
       const signatureHeaderBytes = cleartextWithSignatureHeader.slice(
         0,
         SIGNATURE_HEADER_BYTES_LENGTH
@@ -210,24 +192,18 @@ export class Bob {
         case SIGNATURE_HEADER_HEX.SIGNATURE_IS_ON_CIPHERTEXT:
           message = messageKit.ciphertext;
           if (!providedSignature) {
-            throw Error(
-              "Can't check a signature on the ciphertext if don't provide one"
-            );
+            throw Error("Can't check a signature on the ciphertext if don't provide one");
           }
           signatureFromKit = providedSignature;
           break;
         case SIGNATURE_HEADER_HEX.SIGNATURE_TO_FOLLOW:
           // TODO: This never runs
-          cleartext = cleartextWithSignatureHeader.slice(
-            SIGNATURE_HEADER_BYTES_LENGTH
-          );
+          cleartext = cleartextWithSignatureHeader.slice(SIGNATURE_HEADER_BYTES_LENGTH);
           signatureFromKit = cleartext.slice(0, SIGNATURE_LENGTH);
           message = cleartext.slice(SIGNATURE_LENGTH);
           break;
         case SIGNATURE_HEADER_HEX.NOT_SIGNED:
-          message = cleartextWithSignatureHeader.slice(
-            SIGNATURE_HEADER_BYTES_LENGTH
-          );
+          message = cleartextWithSignatureHeader.slice(SIGNATURE_HEADER_BYTES_LENGTH);
           break;
         default:
           throw Error(`Unrecognized signature header: ${signatureHeader}`);
@@ -239,20 +215,12 @@ export class Bob {
       } else {
         // TODO: Remove this workaround after implementing ReencryptedMessageKit::toBytes
         // TODO: Should we even distinguish between MessageKits here?
-        throw new Error(
-          'Expected PolicyMessageKit, received ReencryptedMessageKit instead'
-        );
+        throw new Error('Expected PolicyMessageKit, received ReencryptedMessageKit instead');
       }
     }
 
-    if (
-      providedSignature &&
-      signatureFromKit &&
-      !bytesEqual(providedSignature, signatureFromKit)
-    ) {
-      throw Error(
-        "Provided signature doesn't match PolicyMessageKit signature"
-      );
+    if (providedSignature && signatureFromKit && !bytesEqual(providedSignature, signatureFromKit)) {
+      throw Error("Provided signature doesn't match PolicyMessageKit signature");
     }
 
     signatureFromKit = signatureFromKit ?? providedSignature;
@@ -260,11 +228,7 @@ export class Bob {
       throw Error('Missing signature for PolicyMessageKit');
     }
 
-    const isValid = verifySignature(
-      signatureFromKit,
-      message,
-      strangerPublicKey
-    );
+    const isValid = verifySignature(signatureFromKit, message, strangerPublicKey);
     if (!isValid) {
       throw Error('Invalid signature on PolicyMessageKit');
     }
@@ -278,26 +242,19 @@ export class Bob {
     aliceVerifyingKey: PublicKey
   ) {
     const nodeIds = Object.keys(treasureMap.destinations);
-    const ursulas = await this.porter.getUrsulas(
-      nodeIds.length,
-      undefined,
-      undefined,
-      nodeIds
-    );
+    const ursulas = await this.porter.getUrsulas(nodeIds.length, undefined, undefined, nodeIds);
     const ursulasByNodeId = Object.fromEntries(
       ursulas.map((ursula) => [ursula.checksumAddress, ursula])
     );
-    return Object.entries(treasureMap.destinations).map(
-      ([nodeId, arrangementId]) => {
-        return WorkOrder.constructByBob(
-          arrangementId,
-          aliceVerifyingKey,
-          capsules,
-          ursulasByNodeId[nodeId],
-          this
-        );
-      }
-    );
+    return Object.entries(treasureMap.destinations).map(([nodeId, arrangementId]) => {
+      return WorkOrder.constructByBob(
+        arrangementId,
+        aliceVerifyingKey,
+        capsules,
+        ursulasByNodeId[nodeId],
+        this
+      );
+    });
   }
 
   private async getTreasureMap(
@@ -305,19 +262,13 @@ export class Bob {
     label: string
   ): Promise<PublishedTreasureMap> {
     const mapId = this.makeTreasureMapId(aliceVerifyingKey, label);
-    const treasureMap = await this.porter.getTreasureMap(
-      mapId,
-      this.encryptingPublicKey
-    );
+    const treasureMap = await this.porter.getTreasureMap(mapId, this.encryptingPublicKey);
     this.tryOrient(treasureMap, aliceVerifyingKey);
     this.treasureMaps[mapId] = treasureMap;
     return treasureMap;
   }
 
-  private tryOrient(
-    treasureMap: PublishedTreasureMap,
-    aliceVerifyingKey: PublicKey
-  ) {
+  private tryOrient(treasureMap: PublishedTreasureMap, aliceVerifyingKey: PublicKey) {
     treasureMap.orient(aliceVerifyingKey, this);
   }
 
@@ -330,11 +281,7 @@ export class Bob {
 
   private makePolicyHrac(verifyingKey: Uint8Array, label: string) {
     return keccakDigest(
-      new Uint8Array([
-        ...verifyingKey,
-        ...this.verifyingKey.toBytes(),
-        ...fromHexString(label),
-      ])
+      new Uint8Array([...verifyingKey, ...this.verifyingKey.toBytes(), ...fromHexString(label)])
     ).slice(0, HRAC_LENGTH);
   }
 }

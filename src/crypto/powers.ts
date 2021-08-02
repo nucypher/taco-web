@@ -1,14 +1,7 @@
 import { Provider } from '@ethersproject/providers';
 import { Wallet } from 'ethers';
 import secureRandom from 'secure-random';
-import {
-  decryptOriginal,
-  generateKFrags,
-  KeyFrag,
-  PublicKey,
-  SecretKey,
-  Signer,
-} from 'umbral-pre';
+import { decryptOriginal, generateKFrags, KeyFrag, PublicKey, SecretKey, Signer } from 'umbral-pre';
 
 import { PolicyMessageKit, ReencryptedMessageKit } from '../kits/message';
 import { ChecksumAddress } from '../types';
@@ -27,22 +20,21 @@ export abstract class TransactingPower {
 export class DerivedTransactionPower extends TransactingPower {
   public wallet: Wallet;
 
-  constructor(keyingMaterial: Uint8Array, provider?: Provider) {
+  private constructor(keyingMaterial: Uint8Array, provider?: Provider) {
     super();
-    const secretKey = new UmbralKeyingMaterial(
-      keyingMaterial
-    ).deriveSecretKey();
-    this.wallet = new Wallet(secretKey.toSecretBytes());
-    if (provider) {
-      this.wallet.connect(provider);
-    }
+    const secretKey = new UmbralKeyingMaterial(keyingMaterial).deriveSecretKey();
+    this.wallet = new Wallet(keyingMaterial);
+  }
+
+  public static fromKeyingMaterial(keyingMaterial: Uint8Array): DerivedTransactionPower {
+    return new DerivedTransactionPower(keyingMaterial);
   }
 
   public get account(): ChecksumAddress {
     return this.wallet.address;
   }
 
-  connect(provider: Provider): void {
+  public connect(provider: Provider): void {
     this.wallet = this.wallet.connect(provider);
   }
 }
@@ -50,7 +42,11 @@ export class DerivedTransactionPower extends TransactingPower {
 export class DelegatingPower {
   private keyingMaterial: UmbralKeyingMaterial;
 
-  constructor(keyingMaterial: Uint8Array) {
+  public static fromKeyingMaterial(keyingMaterial: Uint8Array) {
+    return new DelegatingPower(keyingMaterial);
+  }
+
+  private constructor(keyingMaterial: Uint8Array) {
     this.keyingMaterial = new UmbralKeyingMaterial(keyingMaterial);
   }
 
@@ -100,9 +96,7 @@ abstract class CryptoPower {
       throw new Error('Pass either keyMaterial or publicKey - not both.');
     }
     if (keyingMaterial) {
-      this._secretKey = new UmbralKeyingMaterial(
-        keyingMaterial
-      ).deriveSecretKey();
+      this._secretKey = new UmbralKeyingMaterial(keyingMaterial).deriveSecretKey();
       this._publicKey = this.secretKey.publicKey();
     }
     if (publicKey) {
@@ -118,9 +112,7 @@ abstract class CryptoPower {
     if (this._secretKey) {
       return this._secretKey;
     } else {
-      throw new Error(
-        'Power initialized with public key, secret key not present.'
-      );
+      throw new Error('Power initialized with public key, secret key not present.');
     }
   }
 }
@@ -151,21 +143,13 @@ export class DecryptingPower extends CryptoPower {
     return new DecryptingPower(undefined, publicKey);
   }
 
-  public static fromKeyingMaterial(
-    keyingMaterial: Uint8Array
-  ): DecryptingPower {
+  public static fromKeyingMaterial(keyingMaterial: Uint8Array): DecryptingPower {
     return new DecryptingPower(keyingMaterial, undefined);
   }
 
-  public decrypt(
-    messageKit: PolicyMessageKit | ReencryptedMessageKit
-  ): Uint8Array {
+  public decrypt(messageKit: PolicyMessageKit | ReencryptedMessageKit): Uint8Array {
     if (messageKit instanceof PolicyMessageKit) {
-      return decryptOriginal(
-        this.secretKey,
-        messageKit.capsule,
-        messageKit.ciphertext
-      );
+      return decryptOriginal(this.secretKey, messageKit.capsule, messageKit.ciphertext);
     } else {
       return messageKit.capsule.decryptReencrypted(
         this.secretKey,

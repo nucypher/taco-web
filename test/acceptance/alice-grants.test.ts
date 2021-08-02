@@ -25,7 +25,7 @@ describe('story: alice shares message with bob through policy', () => {
   const message = 'secret-message-from-alice';
   const m = 2;
   const n = 3;
-  const expired = new Date();
+  const expired = new Date(Date.now() + 60 * 1000);
   const ursulas = mockUrsulas().slice(0, n);
 
   // Intermediate variables used for mocking

@@ -1,3 +1,5 @@
+import { Provider } from '@ethersproject/providers';
+import { Wallet } from 'ethers';
 import secureRandom from 'secure-random';
 import {
   decryptOriginal,
@@ -8,15 +10,48 @@ import {
   Signer,
 } from 'umbral-pre';
 
+import { PolicyMessageKit, ReencryptedMessageKit } from '../kits/message';
+import { ChecksumAddress } from '../types';
+
 import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
 import { UmbralKeyingMaterial } from './keys';
-import { PolicyMessageKit, ReencryptedMessageKit } from './kits';
+
+export abstract class TransactingPower {
+  public abstract get account(): ChecksumAddress;
+
+  public abstract get wallet(): Wallet;
+
+  public abstract connect(provider: Provider): void;
+}
+
+export class DerivedTransactionPower extends TransactingPower {
+  public wallet: Wallet;
+
+  constructor(keyingMaterial: Buffer, provider?: Provider) {
+    super();
+    const secretKey = new UmbralKeyingMaterial(
+      keyingMaterial
+    ).deriveSecretKey();
+    this.wallet = new Wallet(secretKey.toSecretBytes());
+    if (provider) {
+      this.wallet.connect(provider);
+    }
+  }
+
+  public get account(): ChecksumAddress {
+    return this.wallet.address;
+  }
+
+  connect(provider: Provider): void {
+    this.wallet = this.wallet.connect(provider);
+  }
+}
 
 export class DelegatingPower {
-  private umbralKeyingMaterial: UmbralKeyingMaterial;
+  private keyingMaterial: UmbralKeyingMaterial;
 
   constructor(keyingMaterial: Buffer) {
-    this.umbralKeyingMaterial = new UmbralKeyingMaterial(keyingMaterial);
+    this.keyingMaterial = new UmbralKeyingMaterial(keyingMaterial);
   }
 
   public async generateKFrags(
@@ -46,18 +81,18 @@ export class DelegatingPower {
     };
   }
 
-  private async getSecretKeyFromLabel(label: string): Promise<SecretKey> {
-    return this.umbralKeyingMaterial.deriveSecretKeyFromLabel(label);
-  }
-
   public async getPublicKeyFromLabel(label: string): Promise<PublicKey> {
     const sk = await this.getSecretKeyFromLabel(label);
     return sk.publicKey();
   }
+
+  private async getSecretKeyFromLabel(label: string): Promise<SecretKey> {
+    return this.keyingMaterial.deriveSecretKeyFromLabel(label);
+  }
 }
 
 abstract class CryptoPower {
-  private readonly umbralKeyingMaterial?: UmbralKeyingMaterial;
+  private readonly _secretKey?: SecretKey;
   private readonly _publicKey?: PublicKey;
 
   protected constructor(keyingMaterial?: Buffer, publicKey?: PublicKey) {
@@ -65,7 +100,10 @@ abstract class CryptoPower {
       throw new Error('Pass either keyMaterial or publicKey - not both.');
     }
     if (keyingMaterial) {
-      this.umbralKeyingMaterial = new UmbralKeyingMaterial(keyingMaterial);
+      this._secretKey = new UmbralKeyingMaterial(
+        keyingMaterial
+      ).deriveSecretKey();
+      this._publicKey = this.secretKey.publicKey();
     }
     if (publicKey) {
       this._publicKey = publicKey;
@@ -73,16 +111,12 @@ abstract class CryptoPower {
   }
 
   public get publicKey(): PublicKey {
-    if (this.umbralKeyingMaterial) {
-      return this.umbralKeyingMaterial.derivePublicKey();
-    } else {
-      return this._publicKey!;
-    }
+    return this._publicKey!;
   }
 
   protected get secretKey(): SecretKey {
-    if (this.umbralKeyingMaterial) {
-      return this.umbralKeyingMaterial.deriveSecretKey();
+    if (this._secretKey) {
+      return this._secretKey;
     } else {
       throw new Error(
         'Power initialized with public key, secret key not present.'
@@ -94,6 +128,10 @@ abstract class CryptoPower {
 // TODO: Deduplicate `from*` methods into `CryptoPower`?
 
 export class SigningPower extends CryptoPower {
+  public get signer(): Signer {
+    return new Signer(this.secretKey);
+  }
+
   public static fromPublicKey(publicKey: PublicKey): SigningPower {
     return new SigningPower(undefined, publicKey);
   }
@@ -105,10 +143,6 @@ export class SigningPower extends CryptoPower {
   public static fromRandom(): SigningPower {
     const keyingMaterial = secureRandom(UMBRAL_KEYING_MATERIAL_BYTES_LENGTH);
     return SigningPower.fromKeyingMaterial(keyingMaterial);
-  }
-
-  public get signer(): Signer {
-    return new Signer(this.secretKey);
   }
 }
 

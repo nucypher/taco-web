@@ -2,6 +2,6 @@
 .DS_Store
 node_modules
 build
-.nyc_output
 coverage
 example/dist
+.husky

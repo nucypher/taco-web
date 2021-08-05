@@ -1,9 +1,14 @@
+import { Provider } from '@ethersproject/providers';
 import { KeyFrag, PublicKey, Signer } from 'umbral-pre';
 
 import { encryptAndSign } from '../crypto/api';
 import { NucypherKeyring } from '../crypto/keyring';
-import { PolicyMessageKit } from '../crypto/kits';
-import { DelegatingPower, SigningPower } from '../crypto/powers';
+import {
+  DelegatingPower,
+  SigningPower,
+  TransactingPower,
+} from '../crypto/powers';
+import { PolicyMessageKit } from '../kits/message';
 import { BlockchainPolicy, EnactedPolicy } from '../policies/policy';
 import { Configuration } from '../types';
 
@@ -15,16 +20,21 @@ export class Alice {
   private porter: Porter;
   private delegatingPower: DelegatingPower;
   private signingPower: SigningPower;
+  // TODO: This is the only visible transacting power
+  //       Should powers be visible or should they be used indirectly?
+  public readonly transactingPower: TransactingPower;
 
   constructor(
     config: Configuration,
     signingPower: SigningPower,
-    delegatingPower: DelegatingPower
+    delegatingPower: DelegatingPower,
+    transactingPower: TransactingPower
   ) {
-    this.signingPower = signingPower;
-    this.delegatingPower = delegatingPower;
     this.config = config;
     this.porter = new Porter(config.porterUri);
+    this.signingPower = signingPower;
+    this.delegatingPower = delegatingPower;
+    this.transactingPower = transactingPower;
   }
 
   public static fromKeyring(
@@ -33,7 +43,12 @@ export class Alice {
   ): Alice {
     const signingPower = keyring.deriveSigningPower();
     const delegatingPower = keyring.deriveDelegatingPower();
-    return new Alice(config, signingPower, delegatingPower);
+    const transactingPower = keyring.deriveTransactingPower();
+    return new Alice(config, signingPower, delegatingPower, transactingPower);
+  }
+
+  public connect(provider: Provider) {
+    this.transactingPower.connect(provider);
   }
 
   public get verifyingKey(): PublicKey {

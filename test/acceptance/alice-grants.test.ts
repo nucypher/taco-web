@@ -1,7 +1,7 @@
 import { KeyFrag, PublicKey } from 'umbral-pre';
 
 import { Enrico } from '../../src';
-import { PolicyMessageKit } from '../../src/crypto/kits';
+import { PolicyMessageKit } from '../../src/kits/message';
 import { PrePublishedTreasureMap } from '../../src/policies/collections';
 import {
   mockAlice,

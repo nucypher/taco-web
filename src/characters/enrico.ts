@@ -1,8 +1,8 @@
 import { PublicKey } from 'umbral-pre';
 
 import { encryptAndSign } from '../crypto/api';
-import { PolicyMessageKit } from '../crypto/kits';
 import { SigningPower } from '../crypto/powers';
+import { PolicyMessageKit } from '../kits/message';
 
 export class Enrico {
   public readonly recipientEncryptingKey: PublicKey;

@@ -1,8 +1,9 @@
 import keccak256 from 'keccak256';
 import { encrypt, PublicKey, Signature, Signer } from 'umbral-pre';
 
+import { PolicyMessageKit } from '../kits/message';
+
 import { SIGNATURE_HEADER } from './constants';
-import { PolicyMessageKit } from './kits';
 
 export const encryptAndSign = (
   recipientPublicKey: PublicKey,

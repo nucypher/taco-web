@@ -20,6 +20,11 @@ yarn test
 yarn build
 ```
 
+Install git hooks
+```bash
+npx husky install
+```
+
 ## Running the example
 
 Build `nucypher-ts`:
@@ -36,10 +41,10 @@ yarn start
 # outputs a URL to visit in browser
 ```
 
-## Github Actions
+## GitHub Actions
 
 CI is disabled. Enable it with:
 
 ```bash
-gh workflow disable ci
+gh workflow enable ci
 ```

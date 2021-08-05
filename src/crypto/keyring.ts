@@ -1,4 +1,9 @@
-import { DecryptingPower, DelegatingPower, SigningPower } from './powers';
+import {
+  DecryptingPower,
+  DelegatingPower,
+  DerivedTransactionPower,
+  SigningPower,
+} from './powers';
 
 export class NucypherKeyring {
   private readonly seed: Buffer;
@@ -17,5 +22,9 @@ export class NucypherKeyring {
 
   public deriveDecryptingPower(): DecryptingPower {
     return DecryptingPower.fromKeyingMaterial(this.seed);
+  }
+
+  public deriveTransactingPower(): DerivedTransactionPower {
+    return new DerivedTransactionPower(this.seed);
   }
 }

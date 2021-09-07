@@ -1,9 +1,10 @@
 import axios, { AxiosResponse } from 'axios';
+import qs from 'qs';
 import { PublicKey } from 'umbral-pre';
 
 import { PolicyMessageKit } from '../kits/message';
 import {
-  PrePublishedTreasureMap,
+  EncryptedTreasureMap,
   PublishedTreasureMap,
   WorkOrder,
   WorkOrderResult,
@@ -53,7 +54,7 @@ export interface GetUrsulasRequest {
   quantity: number;
   duration_periods: number;
   exclude_ursulas?: ChecksumAddress[];
-  handpicked_ursulas?: ChecksumAddress[];
+  include_ursulas?: ChecksumAddress[];
 }
 
 export interface PorterUrsula {
@@ -89,17 +90,25 @@ export class Porter {
     quantity = 3, // TODO: Pick reasonable default
     durationPeriods = 7, // TODO: Pick reasonable default
     excludeUrsulas?: ChecksumAddress[],
-    handpickedUrsulas?: ChecksumAddress[]
+    includeUrsulas?: ChecksumAddress[]
   ): Promise<IUrsula[]> {
     const params: GetUrsulasRequest = {
       quantity,
       duration_periods: durationPeriods,
       exclude_ursulas: excludeUrsulas,
-      handpicked_ursulas: handpickedUrsulas,
+      include_ursulas: includeUrsulas,
     };
     const resp: AxiosResponse<GetUrsulasResponse> = await axios.get(
       `${this.porterUri}/get_ursulas`,
-      { params }
+      {
+        params,
+        paramsSerializer: (params) => {
+          return qs.stringify(params, { arrayFormat: 'repeat' });
+        },
+        headers: {
+          'Access-Control-Allow-Origin': this.porterUri,
+        },
+      }
     );
     return resp.data.result.ursulas.map((u: PorterUrsula) => ({
       checksumAddress: u.checksum_address,
@@ -108,15 +117,17 @@ export class Porter {
     }));
   }
 
-  public async publishTreasureMap(
-    treasureMap: PrePublishedTreasureMap,
-    bobEncryptingKey: PublicKey
-  ) {
+  public async publishTreasureMap(treasureMap: EncryptedTreasureMap, bobEncryptingKey: PublicKey) {
+    const treasureMapBytes = treasureMap.toBytes();
     const data: PublishTreasureMapRequest = {
-      treasure_map: toBase64(treasureMap.payload),
+      treasure_map: toBase64(treasureMapBytes),
       bob_encrypting_key: toHexString(bobEncryptingKey.toBytes()),
     };
-    await axios.post(`${this.porterUri}/publish_treasure_map`, data);
+    await axios.post(`${this.porterUri}/publish_treasure_map`, data, {
+      headers: {
+        'Access-Control-Allow-Origin': this.porterUri,
+      },
+    });
   }
 
   public revoke(revocations: RevocationRequest[]): RevocationResponse {
@@ -133,7 +144,12 @@ export class Porter {
     };
     const resp: AxiosResponse<GetTreasureMapResponse> = await axios.get(
       `${this.porterUri}/get_treasure_map`,
-      { params }
+      {
+        params,
+        headers: {
+          'Access-Control-Allow-Origin': this.porterUri,
+        },
+      }
     );
     const asBytes = fromBase64(resp.data.result.treasureMap);
     return PublishedTreasureMap.fromBytes(asBytes);
@@ -146,7 +162,12 @@ export class Porter {
     };
     const resp: AxiosResponse<PostExecuteWorkOrderResult> = await axios.post(
       `${this.porterUri}/exec_work_order`,
-      { data }
+      { data },
+      {
+        headers: {
+          'Access-Control-Allow-Origin': this.porterUri,
+        },
+      }
     );
     const asBytes = fromBase64(resp.data.work_order_result);
     return WorkOrderResult.fromBytes(asBytes);
@@ -156,11 +177,13 @@ export class Porter {
     ursula: IUrsula,
     arrangement: Arrangement
   ): Promise<ChecksumAddress | null> {
+    console.log({ ursula });
     const url = `${this.porterUri}/proxy/consider_arrangement`;
     const config = {
       headers: {
         'X-PROXY-DESTINATION': ursula.uri,
         'Content-Type': 'application/octet-stream',
+        'Access-Control-Allow-Origin': this.porterUri,
       },
     };
     await axios.post(url, arrangement.toBytes(), config).catch(() => {
@@ -180,6 +203,7 @@ export class Porter {
       headers: {
         'X-PROXY-DESTINATION': ursula.uri,
         'Content-Type': 'application/octet-stream',
+        'Access-Control-Allow-Origin': this.porterUri,
       },
     };
     await axios.post(url, messageKit.toBytes(), config).catch(() => {

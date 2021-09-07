@@ -1,5 +1,5 @@
 import { Provider } from '@ethersproject/providers';
-import { KeyFrag, PublicKey, Signer } from 'umbral-pre';
+import { PublicKey, Signer, VerifiedKeyFrag } from 'umbral-pre';
 
 import { StakingEscrowAgent } from '../agents/staking-escrow';
 import { encryptAndSign } from '../crypto/api';
@@ -7,20 +7,20 @@ import { NucypherKeyring } from '../crypto/keyring';
 import { DelegatingPower, SigningPower, TransactingPower } from '../crypto/powers';
 import { PolicyMessageKit } from '../kits/message';
 import { BlockchainPolicy, BlockchainPolicyParameters, EnactedPolicy } from '../policies/policy';
-import { Configuration } from '../types';
-import { calculatePeriodDuration, dateAtPeriod, merge } from '../utils';
+import { ChecksumAddress, Configuration } from '../types';
+import { calculatePeriodDuration, dateAtPeriod, mergeWithoutUndefined } from '../utils';
 
 import { Bob } from './bob';
-import { IUrsula, Porter } from './porter';
+import { Porter } from './porter';
 
 export class Alice {
-  private config: Configuration;
   public readonly porter: Porter;
+  // TODO:  Should powers be visible or should they be used indirectly?
+  // TODO: This is the only visible transacting power
+  public readonly transactingPower: TransactingPower;
+  private config: Configuration;
   private delegatingPower: DelegatingPower;
   private signingPower: SigningPower;
-  // TODO: This is the only visible transacting power
-  //       Should powers be visible or should they be used indirectly?
-  public readonly transactingPower: TransactingPower;
 
   constructor(
     config: Configuration,
@@ -35,6 +35,14 @@ export class Alice {
     this.transactingPower = transactingPower;
   }
 
+  public get verifyingKey(): PublicKey {
+    return this.signingPower.publicKey;
+  }
+
+  public get signer(): Signer {
+    return this.signingPower.signer;
+  }
+
   public static fromKeyring(config: Configuration, keyring: NucypherKeyring): Alice {
     const signingPower = keyring.deriveSigningPower();
     const delegatingPower = keyring.deriveDelegatingPower();
@@ -46,28 +54,24 @@ export class Alice {
     this.transactingPower.connect(provider);
   }
 
-  public get verifyingKey(): PublicKey {
-    return this.signingPower.publicKey;
-  }
-
-  public get signer(): Signer {
-    return this.signingPower.signer;
-  }
-
   public async getPolicyEncryptingKeyFromLabel(label: string): Promise<PublicKey> {
     return this.delegatingPower.getPublicKeyFromLabel(label);
   }
 
   public async grant(
-    policyParameters: BlockchainPolicyParameters,
-    handpickedUrsulas?: IUrsula[]
+    policyParameters: BlockchainPolicyParameters, // TODO: Should this object be used in user-facing API?
+    excludeUrsulas?: ChecksumAddress[],
+    includeUrsulas?: ChecksumAddress[]
   ): Promise<EnactedPolicy> {
-    const ursulas = await this.porter.getUrsulas(policyParameters.n);
-    const selectedUrsulas: IUrsula[] = handpickedUrsulas
-      ? [...new Set([...ursulas, ...handpickedUrsulas])]
-      : ursulas;
+    const ursulas = await this.porter.getUrsulas(
+      policyParameters.n,
+      policyParameters.paymentPeriods,
+      excludeUrsulas,
+      includeUrsulas
+    );
     const policy = await this.createPolicy(policyParameters);
-    const enactedPolicy = await policy.enact(selectedUrsulas);
+    console.log({ ursulas });
+    const enactedPolicy = await policy.enact(ursulas);
     await this.porter.publishTreasureMap(
       enactedPolicy.treasureMap,
       policyParameters.bob.encryptingPublicKey
@@ -76,14 +80,24 @@ export class Alice {
   }
 
   public encryptFor(recipientPublicKey: PublicKey, payload: Uint8Array): PolicyMessageKit {
-    return encryptAndSign(recipientPublicKey, payload, this.signer, this.signer.verifyingKey());
+    const messageKit = encryptAndSign(recipientPublicKey, payload, this.signer);
+    return PolicyMessageKit.fromMessageKit(messageKit, this.signer.verifyingKey());
+  }
+
+  public async generateKFrags(
+    bob: Bob,
+    label: string,
+    m: number,
+    n: number
+  ): Promise<{ delegatingPublicKey: PublicKey; verifiedKFrags: VerifiedKeyFrag[] }> {
+    return this.delegatingPower.generateKFrags(bob.encryptingPublicKey, this.signer, label, m, n);
   }
 
   private async createPolicy(
     policyParameters: BlockchainPolicyParameters
   ): Promise<BlockchainPolicy> {
     const { label, m, n, bob } = policyParameters;
-    const { delegatingPublicKey, kFrags } = await this.generateKFrags(
+    const { delegatingPublicKey, verifiedKFrags } = await this.generateKFrags(
       policyParameters.bob,
       label,
       m,
@@ -95,7 +109,7 @@ export class Alice {
       label,
       expiration!,
       bob,
-      kFrags,
+      verifiedKFrags,
       delegatingPublicKey,
       m,
       n,
@@ -119,10 +133,10 @@ export class Alice {
 
     const blockNumber = await this.transactingPower.wallet.provider.getBlockNumber();
     const block = await this.transactingPower.wallet.provider.getBlock(blockNumber);
-    const blocktime = new Date(block.timestamp * 1000);
-    if (expiration && expiration < blocktime) {
+    const blockTime = new Date(block.timestamp * 1000);
+    if (expiration && expiration < blockTime) {
       throw new Error(
-        `Expiration must be in the future (${expiration} is earlier than blocktime ${blocktime}).`
+        `Expiration must be in the future (${expiration} is earlier than block time ${blockTime}).`
       );
     }
 
@@ -134,11 +148,11 @@ export class Alice {
         this.transactingPower.wallet.provider
       );
       const newExpiration = dateAtPeriod(currentPeriod + paymentPeriods, secondsPerPeriod, true);
-      const expiration = new Date(newExpiration.getTime() - 1000); //  Get the last second of the target period
-      policyParams.expiration = expiration;
+      //  Get the last second of the target period
+      policyParams.expiration = new Date(newExpiration.getTime() - 1000);
     } else {
-      const paymentPeriods = calculatePeriodDuration(expiration!, secondsPerPeriod) + 1; // +1 will equal to number of all included periods
-      policyParams.paymentPeriods = paymentPeriods;
+      // +1 will equal to number of all included periods
+      policyParams.paymentPeriods = calculatePeriodDuration(expiration!, secondsPerPeriod) + 1;
     }
 
     const blockchainParams = BlockchainPolicy.generatePolicyParameters(
@@ -148,21 +162,12 @@ export class Alice {
       rate
     );
 
-    // These values may have been recalculated in this blocktime.
+    // These values may have been recalculated in this block time.
     const policyEndTime = { paymentPeriods, expiration };
     // TODO: Can we do that more elegantly?
-    return merge(
-      merge(policyParams, blockchainParams),
+    return mergeWithoutUndefined(
+      mergeWithoutUndefined(policyParams, blockchainParams),
       policyEndTime
     ) as BlockchainPolicyParameters;
-  }
-
-  public async generateKFrags(
-    bob: Bob,
-    label: string,
-    m: number,
-    n: number
-  ): Promise<{ delegatingPublicKey: PublicKey; kFrags: KeyFrag[] }> {
-    return this.delegatingPower.generateKFrags(bob.encryptingPublicKey, this.signer, label, m, n);
   }
 }

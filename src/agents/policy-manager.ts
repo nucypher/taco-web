@@ -3,6 +3,7 @@ import { ContractTransaction, Wallet } from 'ethers';
 import { PolicyManager, PolicyManager__factory } from '../../types/ethers-contracts';
 import { TransactingPower } from '../crypto/powers';
 import { ChecksumAddress } from '../types';
+import { toHexString } from '../utils';
 
 import { CONTRACTS, DEFAULT_WAIT_N_CONFIRMATIONS } from './constants';
 
@@ -17,7 +18,6 @@ export class PolicyManagerAgent {
   ): Promise<ContractTransaction> {
     const PolicyManager = await this.connect(transactingPower.wallet);
 
-    console.log({ wallet: transactingPower.wallet });
     // TODO: Tx fails due to "UNPREDICTABLE_GAS_LIMIT" error, hardcoding `gasLimit` for now
     // const estimatedGas = await PolicyManager.estimateGas.createPolicy(
     //   policyId,
@@ -27,11 +27,11 @@ export class PolicyManagerAgent {
     // );
     const overrides = {
       // gasLimit: estimatedGas.toNumber(),
-      gasLimit: 300_000,
+      gasLimit: 600_000,
       value,
     };
     const tx = await PolicyManager.createPolicy(
-      policyId,
+      `0x${toHexString(policyId)}`, // TODO: Use etherjs arraify/hexlify?
       ownerAddress ?? transactingPower.account,
       expirationTimestamp,
       nodeAddresses,

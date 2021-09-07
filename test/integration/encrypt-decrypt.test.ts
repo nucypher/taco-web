@@ -12,11 +12,10 @@ describe('encrypt decrypt', () => {
       bob.encryptingPublicKey,
       plaintext,
       alice.signer,
-      alice.verifyingKey
     );
 
     expect(
-      verifySignature(messageKit.signature!, plaintext, alice.verifyingKey)
+      verifySignature(messageKit.signature!, plaintext, alice.verifyingKey),
     ).toBeTruthy();
     expect((bob as any).decryptingPower.decrypt(messageKit)).toBeTruthy();
   });

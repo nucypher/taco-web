@@ -1,7 +1,7 @@
 import sha3 from 'js-sha3';
 import { encrypt, PublicKey, Signature, Signer } from 'umbral-pre';
 
-import { PolicyMessageKit } from '../kits/message';
+import { MessageKit, PolicyMessageKit } from '../kits/message';
 import { fromHexString, toBytes } from '../utils';
 
 import { SIGNATURE_HEADER_HEX } from './constants';
@@ -9,9 +9,8 @@ import { SIGNATURE_HEADER_HEX } from './constants';
 export const encryptAndSign = (
   recipientPublicKey: PublicKey,
   plaintext: Uint8Array,
-  signer: Signer,
-  senderVerifyingKey: PublicKey
-): PolicyMessageKit => {
+  signer: Signer
+): MessageKit => {
   const signature = signer.sign(plaintext).toBytes();
   const payload = new Uint8Array([
     ...fromHexString(SIGNATURE_HEADER_HEX.SIGNATURE_TO_FOLLOW),
@@ -19,13 +18,7 @@ export const encryptAndSign = (
     ...plaintext,
   ]);
   const { ciphertext, capsule } = encrypt(recipientPublicKey, payload);
-  return new PolicyMessageKit(
-    capsule,
-    ciphertext,
-    signature,
-    senderVerifyingKey,
-    recipientPublicKey
-  );
+  return new MessageKit(capsule, ciphertext, signature, recipientPublicKey);
 };
 
 export const verifySignature = (

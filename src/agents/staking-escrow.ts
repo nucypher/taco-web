@@ -18,6 +18,9 @@ export class StakingEscrowAgent {
   private static async connect(provider: Provider): Promise<StakingEscrow> {
     const network = await provider.getNetwork();
     const contractAddress = CONTRACTS[network.name].STAKINGESCROW;
+    if (!contractAddress) {
+      throw Error(`StakingEscrow contract address not found for network ${network.name}`);
+    }
     return StakingEscrow__factory.connect(contractAddress, provider);
   }
 }

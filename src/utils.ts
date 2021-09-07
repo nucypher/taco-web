@@ -55,8 +55,7 @@ export const dateAtPeriod = (
   const now = new Date(Date.now());
   const currentPeriod = dateToPeriod(now, secondsPerPeriod);
   const deltaPeriods = period - currentPeriod;
-  const targetDate = new Date(now.getTime() - secondsPerPeriod * deltaPeriods * 1000);
-  return targetDate;
+  return new Date(now.getTime() - secondsPerPeriod * deltaPeriods * 1000);
 };
 
 /**
@@ -79,10 +78,37 @@ export const calculatePeriodDuration = (
   return futurePeriod - currentPeriod;
 };
 
-export const merge = (A: Record<string, any>, B: Record<string, any>) => {
+export const mergeWithoutUndefined = (A: Record<string, any>, B: Record<string, any>) => {
   const res: Record<string, any> = {};
   Object.keys({ ...A, ...B }).map((key) => {
     res[key] = B[key] || A[key];
   });
   return res;
 };
+
+export const bytesArray = (n: number): Uint8Array => {
+  const bytes = [];
+  bytes.unshift(n & 255);
+  while (n >= 256) {
+    n = n >>> 8;
+    bytes.unshift(n & 255);
+  }
+  return new Uint8Array(bytes.reverse());
+};
+
+// TODO: Move to protocol.ts / data.ts?
+const VARIABLE_HEADER_LENGTH = 4;
+export const encodeVariableLengthMessage = (message: Uint8Array) => {
+  const maxMessageLength = 256 ** VARIABLE_HEADER_LENGTH - 1;
+  if (message.length > maxMessageLength) {
+    throw new Error(
+      `Your message is too long. The max length is ${maxMessageLength} bytes; yours is ${message.length}`
+    );
+  }
+  const messageLengthAsBytes = new Uint8Array(VARIABLE_HEADER_LENGTH);
+  messageLengthAsBytes.set(bytesArray(message.length));
+  messageLengthAsBytes.reverse(); // Ensure encoding is big-endian
+  return new Uint8Array([...messageLengthAsBytes, ...message]);
+};
+
+export const zip = (a: Array<any>, b: Array<any>) => a.map((k, i) => [k, b[i]]);

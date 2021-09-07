@@ -2,25 +2,25 @@ import { Capsule, CapsuleWithFrags, PublicKey, Signer, VerifiedCapsuleFrag } fro
 
 import { keccakDigest, verifySignature } from '../crypto/api';
 import {
-  HRAC_LENGTH,
   SIGNATURE_HEADER_BYTES_LENGTH,
   SIGNATURE_HEADER_HEX,
   SIGNATURE_LENGTH,
 } from '../crypto/constants';
 import { NucypherKeyring } from '../crypto/keyring';
 import { DecryptingPower, SigningPower } from '../crypto/powers';
-import { PolicyMessageKit, ReencryptedMessageKit } from '../kits/message';
+import { MessageKit, PolicyMessageKit, ReencryptedMessageKit } from '../kits/message';
 import { PublishedTreasureMap, WorkOrder } from '../policies/collections';
+import { HRAC } from '../policies/hrac';
 import { Configuration } from '../types';
-import { bytesEqual, fromHexString, toHexString } from '../utils';
+import { bytesEqual, toHexString } from '../utils';
 
 import { Enrico } from './enrico';
 import { Porter } from './porter';
 
 export class Bob {
+  public readonly treasureMaps: Record<string, PublishedTreasureMap>;
   private readonly config: Configuration;
   private readonly porter: Porter;
-  public readonly treasureMaps: Record<string, PublishedTreasureMap>;
   private readonly signingPower: SigningPower;
   private readonly decryptingPower: DecryptingPower;
 
@@ -30,6 +30,18 @@ export class Bob {
     this.signingPower = signingPower;
     this.decryptingPower = decryptingPower;
     this.treasureMaps = {};
+  }
+
+  public get encryptingPublicKey(): PublicKey {
+    return this.decryptingPower.publicKey;
+  }
+
+  public get verifyingKey(): PublicKey {
+    return this.signingPower.publicKey;
+  }
+
+  public get signer(): Signer {
+    return this.signingPower.signer;
   }
 
   static fromPublicKeys(
@@ -48,18 +60,6 @@ export class Bob {
     return new Bob(config, signingPower, decryptingPower);
   }
 
-  public get encryptingPublicKey(): PublicKey {
-    return this.decryptingPower.publicKey;
-  }
-
-  public get verifyingKey(): PublicKey {
-    return this.signingPower.publicKey;
-  }
-
-  public get signer(): Signer {
-    return this.signingPower.signer;
-  }
-
   public async retrieve(
     messageKits: PolicyMessageKit[],
     aliceVerifyingKey: PublicKey,
@@ -75,7 +75,7 @@ export class Bob {
         throw new Error(`Failed to find a treasure map for map id ${mapId}.`);
       }
     } else {
-      // TODO: Repeat this check after the one in joinPolicy?
+      // TODO: Do we repeat this check here after the one in `joinPolicy`?
       this.tryOrient(treasureMap, aliceVerifyingKey);
     }
 
@@ -115,49 +115,10 @@ export class Bob {
         signature,
         capsule: activatedCapsules[capsule.toString()],
         senderVerifyingKey: enrico.verifyingKey,
-        recipientEncryptingKey: enrico.recipientEncryptingKey,
+        recipientPublicKey: enrico.recipientEncryptingKey,
       };
       return this.verifyFrom(enrico.verifyingKey, reencryptedMessageKit, true);
     });
-  }
-
-  private activateCapsules(
-    capsulesToActivate: Capsule[],
-    cFrags: VerifiedCapsuleFrag[]
-  ): Record<string, CapsuleWithFrags> {
-    return Object.fromEntries(
-      capsulesToActivate.map((capsule) => {
-        let capsuleWithFrags: CapsuleWithFrags;
-        cFrags.forEach((cFrag) => {
-          capsuleWithFrags = capsuleWithFrags
-            ? capsuleWithFrags.withCFrag(cFrag)
-            : capsule.withCFrag(cFrag);
-        });
-        return [capsule.toString(), capsuleWithFrags!];
-      })
-    );
-  }
-
-  private async executeWorkOrders(
-    workOrders: WorkOrder[],
-    m: number
-  ): Promise<VerifiedCapsuleFrag[]> {
-    // TODO: Do we need to execute all work orders if we only need m cFrags?
-    const cFrags = await Promise.all(
-      workOrders
-        .map(async (workOrder) => {
-          const { cFrag } = await this.porter.executeWorkOrder(workOrder);
-          // TODO: Verify `reencryptionSignature`, return null or throw if fails
-          return cFrag;
-        })
-        .filter((maybeCFrag) => !!maybeCFrag)
-    );
-    if (cFrags.length < m) {
-      throw new Error(`Failed to get enough cFrags: received ${cFrags.length}, expected ${m}`);
-    }
-    return cFrags;
-    // TODO: Return exactly m cFrags here?
-    // return cFrags.slice(0, m);
   }
 
   public async joinPolicy(aliceVerifyingKey: PublicKey, label: string) {
@@ -166,14 +127,16 @@ export class Bob {
 
   public verifyFrom(
     strangerPublicKey: PublicKey,
-    messageKit: PolicyMessageKit | ReencryptedMessageKit,
+    messageKit: MessageKit | PolicyMessageKit | ReencryptedMessageKit,
     decrypt = false,
     providedSignature?: Uint8Array
   ): Uint8Array {
-    const strangerVkBytes = strangerPublicKey.toBytes();
-    const verifyingKey = messageKit.senderVerifyingKey.toBytes();
-    if (!bytesEqual(strangerVkBytes, verifyingKey)) {
-      throw new Error("Stranger public key doesn't match message kit sender.");
+    if (!(messageKit instanceof MessageKit)) {
+      const strangerVkBytes = strangerPublicKey.toBytes();
+      const verifyingKey = messageKit.senderVerifyingKey.toBytes();
+      if (!bytesEqual(strangerVkBytes, verifyingKey)) {
+        throw new Error("Stranger public key doesn't match message kit sender.");
+      }
     }
 
     let cleartext;
@@ -236,6 +199,45 @@ export class Bob {
     return message;
   }
 
+  private activateCapsules(
+    capsulesToActivate: Capsule[],
+    cFrags: VerifiedCapsuleFrag[]
+  ): Record<string, CapsuleWithFrags> {
+    return Object.fromEntries(
+      capsulesToActivate.map((capsule) => {
+        let capsuleWithFrags: CapsuleWithFrags;
+        cFrags.forEach((cFrag) => {
+          capsuleWithFrags = capsuleWithFrags
+            ? capsuleWithFrags.withCFrag(cFrag)
+            : capsule.withCFrag(cFrag);
+        });
+        return [capsule.toString(), capsuleWithFrags!];
+      })
+    );
+  }
+
+  private async executeWorkOrders(
+    workOrders: WorkOrder[],
+    m: number
+  ): Promise<VerifiedCapsuleFrag[]> {
+    // TODO: Do we need to execute all work orders if we only need m cFrags?
+    const cFrags = await Promise.all(
+      workOrders
+        .map(async (workOrder) => {
+          const { cFrag } = await this.porter.executeWorkOrder(workOrder);
+          // TODO: Verify `reencryptionSignature`, return null or throw if fails
+          return cFrag;
+        })
+        .filter((maybeCFrag) => !!maybeCFrag)
+    );
+    if (cFrags.length < m) {
+      throw new Error(`Failed to get enough cFrags: received ${cFrags.length}, expected ${m}`);
+    }
+    return cFrags;
+    // TODO: Return exactly m cFrags here?
+    // return cFrags.slice(0, m+1);
+  }
+
   private async workOrdersForCapsules(
     capsules: Capsule[],
     treasureMap: PublishedTreasureMap,
@@ -274,14 +276,8 @@ export class Bob {
 
   private makeTreasureMapId(verifyingKey: PublicKey, label: string): string {
     const vkBytes = verifyingKey.toBytes();
-    const hrac = this.makePolicyHrac(vkBytes, label);
-    const mapId = keccakDigest(new Uint8Array([...vkBytes, ...hrac]));
+    const hrac = HRAC.derive(vkBytes, this.verifyingKey.toBytes(), label);
+    const mapId = keccakDigest(new Uint8Array([...vkBytes, ...hrac.toBytes()]));
     return toHexString(mapId);
-  }
-
-  private makePolicyHrac(verifyingKey: Uint8Array, label: string) {
-    return keccakDigest(
-      new Uint8Array([...verifyingKey, ...this.verifyingKey.toBytes(), ...fromHexString(label)])
-    ).slice(0, HRAC_LENGTH);
   }
 }

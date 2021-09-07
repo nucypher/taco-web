@@ -1,23 +1,23 @@
 import secureRandom from 'secure-random';
-import { KeyFrag, PublicKey, VerifiedCapsuleFrag } from 'umbral-pre';
+import { PublicKey, VerifiedCapsuleFrag, VerifiedKeyFrag } from 'umbral-pre';
 
 import { PolicyManagerAgent } from '../agents/policy-manager';
 import { Alice } from '../characters/alice';
 import { Bob } from '../characters/bob';
 import { IUrsula } from '../characters/porter';
-import { keccakDigest } from '../crypto/api';
 import { RevocationKit } from '../kits/revocation';
 import { ChecksumAddress } from '../types';
 import { fromHexString, toBytes } from '../utils';
 
-import { PrePublishedTreasureMap, TreasureMap } from './collections';
+import { EncryptedTreasureMap, TreasureMap } from './collections';
+import { HRAC } from './hrac';
 
 export interface EnactedPolicy {
-  id: Uint8Array;
-  hrac: Uint8Array;
+  id: HRAC;
+  hrac: HRAC;
   label: string;
   publicKey: Uint8Array;
-  treasureMap: PrePublishedTreasureMap;
+  treasureMap: EncryptedTreasureMap;
   revocationKit: RevocationKit;
   aliceVerifyingKey: Uint8Array;
 }
@@ -39,31 +39,34 @@ export interface BlockchainPolicyParameters {
 }
 
 export class BlockchainPolicy {
-  private ID_LENGTH = 16;
-  private readonly policyId: Uint8Array;
+  // private ID_LENGTH = 16;
+  private readonly hrac: HRAC;
 
   constructor(
-    private readonly alice: Alice,
+    private readonly publisher: Alice,
     private readonly label: string,
     private readonly expiration: Date,
     private bob: Bob,
-    private kFrags: KeyFrag[],
+    private verifiedKFrags: VerifiedKeyFrag[],
     private delegatingPublicKey: PublicKey,
     private readonly m: number,
     private readonly n: number,
     private readonly value: number
   ) {
-    this.alice = alice;
+    this.publisher = publisher;
     this.label = label;
     this.expiration = expiration;
     this.bob = bob;
-    this.kFrags = kFrags;
+    this.verifiedKFrags = verifiedKFrags;
     this.delegatingPublicKey = delegatingPublicKey;
     this.m = m;
     this.n = n;
     this.value = value;
-
-    this.policyId = this.constructPolicyId();
+    this.hrac = HRAC.derive(
+      this.publisher.verifyingKey.toBytes(),
+      this.bob.verifyingKey.toBytes(),
+      this.label
+    );
   }
 
   public static generatePolicyParameters(
@@ -132,15 +135,15 @@ export class BlockchainPolicy {
   ): Promise<ChecksumAddress | null> {
     const enactmentPayload = new Uint8Array([...publicationTransaction, ...kFrag.toBytes()]);
     const ursulaPublicKey = PublicKey.fromBytes(fromHexString(ursula.encryptingKey));
-    const messageKit = this.alice.encryptFor(ursulaPublicKey, enactmentPayload);
-    return this.alice.porter.enactPolicy(ursula, arrangement.getId(), messageKit);
+    const messageKit = this.publisher.encryptFor(ursulaPublicKey, enactmentPayload);
+    return this.publisher.porter.enactPolicy(ursula, arrangement.getId(), messageKit);
   }
 
   public async publishToBlockchain(arrangements: ArrangementForUrsula[]): Promise<string> {
     const addresses = arrangements.map((a) => a.ursula.checksumAddress);
     const txReceipt = await PolicyManagerAgent.createPolicy(
-      this.policyId,
-      this.alice.transactingPower,
+      this.hrac.toBytes(),
+      this.publisher.transactingPower,
       this.value,
       (this.expiration.getTime() / 1000) | 0,
       addresses
@@ -152,29 +155,39 @@ export class BlockchainPolicy {
 
   public async enact(ursulas: IUrsula[]): Promise<EnactedPolicy> {
     const arrangements = await this.makeArrangements(ursulas);
+
     await this.enactArrangements(arrangements);
-    const treasureMap = this.makeTreasureMap(arrangements);
-    const revocationKit = new RevocationKit(treasureMap, this.alice.signer);
+
+    const treasureMap = await TreasureMap.constructByPublisher(
+      this.hrac,
+      this.publisher,
+      this.bob,
+      this.label,
+      ursulas,
+      this.verifiedKFrags,
+      this.m
+    );
+    const encryptedTreasureMap = await this.encryptTreasureMap(treasureMap);
+    const revocationKit = new RevocationKit(treasureMap, this.publisher.signer);
+
     return {
-      id: this.policyId,
+      id: this.hrac,
       label: this.label,
       publicKey: this.delegatingPublicKey.toBytes(),
-      treasureMap,
+      treasureMap: encryptedTreasureMap,
       revocationKit,
-      aliceVerifyingKey: this.alice.verifyingKey.toBytes(),
-      hrac: treasureMap.hrac,
+      aliceVerifyingKey: this.publisher.verifyingKey.toBytes(),
+      hrac: this.hrac,
     };
   }
 
-  private constructPolicyId(): Uint8Array {
-    return keccakDigest(
-      new Uint8Array([...toBytes(this.label), ...this.bob.verifyingKey.toBytes()])
-    ).slice(0, this.ID_LENGTH);
+  private encryptTreasureMap(treasureMap: TreasureMap): Promise<EncryptedTreasureMap> {
+    return treasureMap.encrypt(this.publisher, this.bob);
   }
 
   private async proposeArrangement(ursula: IUrsula): Promise<ArrangementForUrsula | null> {
-    const arrangement = Arrangement.fromAlice(this.alice, this.expiration);
-    const maybeAddress = await this.alice.porter.proposeArrangement(ursula, arrangement);
+    const arrangement = Arrangement.fromAlice(this.publisher, this.expiration);
+    const maybeAddress = await this.publisher.porter.proposeArrangement(ursula, arrangement);
     if (maybeAddress) {
       return { ursula, arrangement };
     }
@@ -193,7 +206,7 @@ export class BlockchainPolicy {
       .map((x, index) => ({
         ursula: x.ursula,
         arrangement: x.arrangement,
-        kFrag: this.kFrags[index],
+        kFrag: this.verifiedKFrags[index],
       }))
       .map(({ arrangement, kFrag, ursula }) =>
         this.enactArrangement(arrangement, kFrag, ursula, toBytes(publicationTx))
@@ -205,21 +218,12 @@ export class BlockchainPolicy {
       const notEnacted = arrangements.filter(
         (x) => !maybeAllEnacted.includes(x.ursula.checksumAddress)
       );
-      throw Error(`Failed to enact some of arrangements: ${notEnacted}`);
+      throw Error(`Failed to enact some of the arrangements: ${notEnacted}`);
     }
-  }
 
-  private makeTreasureMap(arrangements: ArrangementForUrsula[]): PrePublishedTreasureMap {
-    const treasureMap = new TreasureMap(this.m);
-    arrangements.forEach(({ arrangement, ursula }) => {
-      treasureMap.addArrangement(ursula, arrangement);
-    });
-    return treasureMap.prepareForPublication(
-      this.bob.encryptingPublicKey,
-      this.bob.verifyingKey,
-      this.alice.signer,
-      this.label
-    );
+    // return Object.fromEntries(
+    //   arrangements.map(({ ursula, arrangement }) => [ursula.checksumAddress, arrangement.toBytes()])
+    // );
   }
 }
 

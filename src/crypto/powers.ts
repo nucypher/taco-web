@@ -1,9 +1,17 @@
 import { Provider } from '@ethersproject/providers';
 import { Wallet } from 'ethers';
 import secureRandom from 'secure-random';
-import { decryptOriginal, generateKFrags, KeyFrag, PublicKey, SecretKey, Signer } from 'umbral-pre';
+import {
+  decryptOriginal,
+  generateKFrags,
+  KeyFrag,
+  PublicKey,
+  SecretKey,
+  Signer,
+  VerifiedKeyFrag,
+} from 'umbral-pre';
 
-import { PolicyMessageKit, ReencryptedMessageKit } from '../kits/message';
+import { MessageKit, PolicyMessageKit, ReencryptedMessageKit } from '../kits/message';
 import { ChecksumAddress } from '../types';
 
 import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
@@ -26,12 +34,12 @@ export class DerivedTransactionPower extends TransactingPower {
     this.wallet = new Wallet(keyingMaterial);
   }
 
-  public static fromKeyingMaterial(keyingMaterial: Uint8Array): DerivedTransactionPower {
-    return new DerivedTransactionPower(keyingMaterial);
-  }
-
   public get account(): ChecksumAddress {
     return this.wallet.address;
+  }
+
+  public static fromKeyingMaterial(keyingMaterial: Uint8Array): DerivedTransactionPower {
+    return new DerivedTransactionPower(keyingMaterial);
   }
 
   public connect(provider: Provider): void {
@@ -42,12 +50,12 @@ export class DerivedTransactionPower extends TransactingPower {
 export class DelegatingPower {
   private keyingMaterial: UmbralKeyingMaterial;
 
-  public static fromKeyingMaterial(keyingMaterial: Uint8Array) {
-    return new DelegatingPower(keyingMaterial);
-  }
-
   private constructor(keyingMaterial: Uint8Array) {
     this.keyingMaterial = new UmbralKeyingMaterial(keyingMaterial);
+  }
+
+  public static fromKeyingMaterial(keyingMaterial: Uint8Array) {
+    return new DelegatingPower(keyingMaterial);
   }
 
   public async generateKFrags(
@@ -58,7 +66,7 @@ export class DelegatingPower {
     n: number
   ): Promise<{
     delegatingPublicKey: PublicKey;
-    kFrags: KeyFrag[];
+    verifiedKFrags: VerifiedKeyFrag[];
   }> {
     const delegatingSecretKey = await this.getSecretKeyFromLabel(label);
     const delegatingPublicKey = await this.getPublicKeyFromLabel(label);
@@ -71,9 +79,12 @@ export class DelegatingPower {
       false,
       false
     );
+    const verifiedKFrags = kFrags.map((kFrag) =>
+      VerifiedKeyFrag.fromVerifiedBytes(kFrag.toBytes())
+    );
     return {
       delegatingPublicKey,
-      kFrags,
+      verifiedKFrags,
     };
   }
 
@@ -147,13 +158,13 @@ export class DecryptingPower extends CryptoPower {
     return new DecryptingPower(keyingMaterial, undefined);
   }
 
-  public decrypt(messageKit: PolicyMessageKit | ReencryptedMessageKit): Uint8Array {
-    if (messageKit instanceof PolicyMessageKit) {
+  public decrypt(messageKit: PolicyMessageKit | MessageKit | ReencryptedMessageKit): Uint8Array {
+    if (messageKit instanceof PolicyMessageKit || messageKit instanceof MessageKit) {
       return decryptOriginal(this.secretKey, messageKit.capsule, messageKit.ciphertext);
     } else {
       return messageKit.capsule.decryptReencrypted(
         this.secretKey,
-        messageKit.recipientEncryptingKey,
+        messageKit.recipientPublicKey,
         messageKit.ciphertext
       );
     }

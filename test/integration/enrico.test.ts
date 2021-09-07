@@ -25,9 +25,7 @@ describe('enrico', () => {
     const alice = mockAlice();
     const bob = mockBob();
 
-    const policyEncryptingKey = await alice.getPolicyEncryptingKeyFromLabel(
-      label
-    );
+    const policyEncryptingKey = await alice.getPolicyEncryptingKeyFromLabel(label);
 
     const plaintext = 'Plaintext message';
     const plaintextBytes = toBytes(plaintext);
@@ -37,32 +35,23 @@ describe('enrico', () => {
     const { ciphertext, capsule, signature } = encrypted;
 
     // Alice can decrypt capsule she created
-    const aliceSk = await (alice as any).delegatingPower.getSecretKeyFromLabel(
-      label
-    );
+    const aliceSk = await (alice as any).delegatingPower.getSecretKeyFromLabel(label);
     const plaintextAlice = decryptOriginal(aliceSk, capsule, ciphertext);
     expect(fromBytes(plaintextAlice).endsWith(plaintext)).toBeTruthy();
 
     const n = 3;
     const m = 2;
-    const { kFrags, delegatingPublicKey } = await alice.generateKFrags(
-      bob,
-      label,
-      m,
-      n
-    );
-    expect(delegatingPublicKey.toBytes()).toEqual(
-      policyEncryptingKey.toBytes()
-    );
+    const { verifiedKFrags, delegatingPublicKey } = await alice.generateKFrags(bob, label, m, n);
+    expect(delegatingPublicKey.toBytes()).toEqual(policyEncryptingKey.toBytes());
 
-    const capsuleWithFrags = reencryptKFrags(kFrags.slice(0, m), capsule);
+    const capsuleWithFrags = reencryptKFrags(verifiedKFrags.slice(0, m), capsule);
 
     // Bob can decrypt re-encrypted ciphertext
     const bobSk = (bob as any).decryptingPower.secretKey;
     const plaintextBob = capsuleWithFrags.decryptReencrypted(
       bobSk,
       policyEncryptingKey,
-      ciphertext
+      ciphertext,
     );
     expect(fromBytes(plaintextBob).endsWith(plaintext)).toBeTruthy();
 
@@ -73,10 +62,10 @@ describe('enrico', () => {
         ciphertext,
         capsule: capsuleWithFrags,
         senderVerifyingKey: enrico.verifyingKey, // Message was signed off by Enrico
-        recipientEncryptingKey: policyEncryptingKey, // Message was encrypted using key derived by Alice
+        recipientPublicKey: policyEncryptingKey, // Message was encrypted using key derived by Alice
         signature,
       },
-      true
+      true,
     );
     expect(isValid).toBeTruthy();
   });

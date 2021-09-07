@@ -2,942 +2,1062 @@
 /* tslint:disable */
 /* eslint-disable */
 
+import { EventFragment, FunctionFragment, Result } from '@ethersproject/abi';
+import { BytesLike } from '@ethersproject/bytes';
+import { Listener, Provider } from '@ethersproject/providers';
 import {
-  ethers,
-  EventFilter,
-  Signer,
+  BaseContract,
   BigNumber,
   BigNumberish,
-  PopulatedTransaction,
-  BaseContract,
-  ContractTransaction,
-  Overrides,
   CallOverrides,
-} from "ethers";
-import { BytesLike } from "@ethersproject/bytes";
-import { Listener, Provider } from "@ethersproject/providers";
-import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+  ContractTransaction,
+  ethers,
+  Overrides,
+  PopulatedTransaction,
+  Signer,
+} from 'ethers';
+import { TypedEvent, TypedEventFilter, TypedListener } from './commons';
 
 interface StakingEscrowInterface extends ethers.utils.Interface {
   functions: {
-    "MAX_SUB_STAKES()": FunctionFragment;
-    "adjudicator()": FunctionFragment;
-    "balanceHistory(uint256)": FunctionFragment;
-    "bondWorker(address)": FunctionFragment;
-    "commitToNextPeriod()": FunctionFragment;
-    "currentMintingPeriod()": FunctionFragment;
-    "currentPeriodSupply()": FunctionFragment;
-    "deposit(address,uint256,uint16)": FunctionFragment;
-    "depositAndIncrease(uint256,uint256)": FunctionFragment;
-    "depositFromWorkLock(address,uint256,uint16)": FunctionFragment;
-    "divideStake(uint256,uint256,uint16)": FunctionFragment;
-    "donate(uint256)": FunctionFragment;
-    "findIndexOfPastDowntime(address,uint16)": FunctionFragment;
-    "finishUpgrade(address)": FunctionFragment;
-    "firstPhaseMaxIssuance()": FunctionFragment;
-    "firstPhaseTotalSupply()": FunctionFragment;
-    "genesisSecondsPerPeriod()": FunctionFragment;
-    "getActiveStakers(uint16,uint256,uint256)": FunctionFragment;
-    "getAllTokens(address)": FunctionFragment;
-    "getCompletedWork(address)": FunctionFragment;
-    "getCurrentPeriod()": FunctionFragment;
-    "getFlags(address)": FunctionFragment;
-    "getLastCommittedPeriod(address)": FunctionFragment;
-    "getLastPeriodOfSubStake(address,uint256)": FunctionFragment;
-    "getLockedTokens(address,uint16)": FunctionFragment;
-    "getPastDowntime(address,uint256)": FunctionFragment;
-    "getPastDowntimeLength(address)": FunctionFragment;
-    "getReservedReward()": FunctionFragment;
-    "getStakersLength()": FunctionFragment;
-    "getSubStakeInfo(address,uint256)": FunctionFragment;
-    "getSubStakesLength(address)": FunctionFragment;
-    "getWorkerFromStaker(address)": FunctionFragment;
-    "initialize(uint256,address)": FunctionFragment;
-    "isOwner()": FunctionFragment;
-    "isUpgrade()": FunctionFragment;
-    "lockAndCreate(uint256,uint16)": FunctionFragment;
-    "lockAndIncrease(uint256,uint256)": FunctionFragment;
-    "lockDurationCoefficient1()": FunctionFragment;
-    "lockDurationCoefficient2()": FunctionFragment;
-    "lockedPerPeriod(uint16)": FunctionFragment;
-    "maxAllowableLockedTokens()": FunctionFragment;
-    "maximumRewardedPeriods()": FunctionFragment;
-    "mergeStake(uint256,uint256)": FunctionFragment;
-    "migrate(address)": FunctionFragment;
-    "minAllowableLockedTokens()": FunctionFragment;
-    "minLockedPeriods()": FunctionFragment;
-    "minWorkerPeriods()": FunctionFragment;
-    "mint()": FunctionFragment;
-    "mintingCoefficient()": FunctionFragment;
-    "owner()": FunctionFragment;
-    "policyManager()": FunctionFragment;
-    "previousPeriodSupply()": FunctionFragment;
-    "previousTarget()": FunctionFragment;
-    "prolongStake(uint256,uint16)": FunctionFragment;
-    "receiveApproval(address,uint256,address,bytes)": FunctionFragment;
-    "removeUnusedSubStake(uint16)": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
-    "secondsPerPeriod()": FunctionFragment;
-    "setReStake(bool)": FunctionFragment;
-    "setSnapshots(bool)": FunctionFragment;
-    "setWindDown(bool)": FunctionFragment;
-    "setWorkMeasurement(address,bool)": FunctionFragment;
-    "slashStaker(address,uint256,address,uint256)": FunctionFragment;
-    "stakerFromWorker(address)": FunctionFragment;
-    "stakerInfo(address)": FunctionFragment;
-    "stakers(uint256)": FunctionFragment;
-    "supportsHistory()": FunctionFragment;
-    "target()": FunctionFragment;
-    "token()": FunctionFragment;
-    "totalStakedAt(uint256)": FunctionFragment;
-    "totalStakedForAt(address,uint256)": FunctionFragment;
-    "totalSupply()": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
-    "verifyState(address)": FunctionFragment;
-    "withdraw(uint256)": FunctionFragment;
-    "workLock()": FunctionFragment;
+    'MAX_SUB_STAKES()': FunctionFragment;
+    'adjudicator()': FunctionFragment;
+    'balanceHistory(uint256)': FunctionFragment;
+    'bondWorker(address)': FunctionFragment;
+    'commitToNextPeriod()': FunctionFragment;
+    'currentMintingPeriod()': FunctionFragment;
+    'currentPeriodSupply()': FunctionFragment;
+    'deposit(address,uint256,uint16)': FunctionFragment;
+    'depositAndIncrease(uint256,uint256)': FunctionFragment;
+    'depositFromWorkLock(address,uint256,uint16)': FunctionFragment;
+    'divideStake(uint256,uint256,uint16)': FunctionFragment;
+    'donate(uint256)': FunctionFragment;
+    'findIndexOfPastDowntime(address,uint16)': FunctionFragment;
+    'finishUpgrade(address)': FunctionFragment;
+    'firstPhaseMaxIssuance()': FunctionFragment;
+    'firstPhaseTotalSupply()': FunctionFragment;
+    'genesisSecondsPerPeriod()': FunctionFragment;
+    'getActiveStakers(uint16,uint256,uint256)': FunctionFragment;
+    'getAllTokens(address)': FunctionFragment;
+    'getCompletedWork(address)': FunctionFragment;
+    'getCurrentPeriod()': FunctionFragment;
+    'getFlags(address)': FunctionFragment;
+    'getLastCommittedPeriod(address)': FunctionFragment;
+    'getLastPeriodOfSubStake(address,uint256)': FunctionFragment;
+    'getLockedTokens(address,uint16)': FunctionFragment;
+    'getPastDowntime(address,uint256)': FunctionFragment;
+    'getPastDowntimeLength(address)': FunctionFragment;
+    'getReservedReward()': FunctionFragment;
+    'getStakersLength()': FunctionFragment;
+    'getSubStakeInfo(address,uint256)': FunctionFragment;
+    'getSubStakesLength(address)': FunctionFragment;
+    'getWorkerFromStaker(address)': FunctionFragment;
+    'initialize(uint256,address)': FunctionFragment;
+    'isOwner()': FunctionFragment;
+    'isUpgrade()': FunctionFragment;
+    'lockAndCreate(uint256,uint16)': FunctionFragment;
+    'lockAndIncrease(uint256,uint256)': FunctionFragment;
+    'lockDurationCoefficient1()': FunctionFragment;
+    'lockDurationCoefficient2()': FunctionFragment;
+    'lockedPerPeriod(uint16)': FunctionFragment;
+    'maxAllowableLockedTokens()': FunctionFragment;
+    'maximumRewardedPeriods()': FunctionFragment;
+    'mergeStake(uint256,uint256)': FunctionFragment;
+    'migrate(address)': FunctionFragment;
+    'minAllowableLockedTokens()': FunctionFragment;
+    'minLockedPeriods()': FunctionFragment;
+    'minWorkerPeriods()': FunctionFragment;
+    'mint()': FunctionFragment;
+    'mintingCoefficient()': FunctionFragment;
+    'owner()': FunctionFragment;
+    'policyManager()': FunctionFragment;
+    'previousPeriodSupply()': FunctionFragment;
+    'previousTarget()': FunctionFragment;
+    'prolongStake(uint256,uint16)': FunctionFragment;
+    'receiveApproval(address,uint256,address,bytes)': FunctionFragment;
+    'removeUnusedSubStake(uint16)': FunctionFragment;
+    'renounceOwnership()': FunctionFragment;
+    'secondsPerPeriod()': FunctionFragment;
+    'setReStake(bool)': FunctionFragment;
+    'setSnapshots(bool)': FunctionFragment;
+    'setWindDown(bool)': FunctionFragment;
+    'setWorkMeasurement(address,bool)': FunctionFragment;
+    'slashStaker(address,uint256,address,uint256)': FunctionFragment;
+    'stakerFromWorker(address)': FunctionFragment;
+    'stakerInfo(address)': FunctionFragment;
+    'stakers(uint256)': FunctionFragment;
+    'supportsHistory()': FunctionFragment;
+    'target()': FunctionFragment;
+    'token()': FunctionFragment;
+    'totalStakedAt(uint256)': FunctionFragment;
+    'totalStakedForAt(address,uint256)': FunctionFragment;
+    'totalSupply()': FunctionFragment;
+    'transferOwnership(address)': FunctionFragment;
+    'verifyState(address)': FunctionFragment;
+    'withdraw(uint256)': FunctionFragment;
+    'workLock()': FunctionFragment;
   };
-
-  encodeFunctionData(
-    functionFragment: "MAX_SUB_STAKES",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "adjudicator",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "balanceHistory",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "bondWorker", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "commitToNextPeriod",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "currentMintingPeriod",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "currentPeriodSupply",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "deposit",
-    values: [string, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "depositAndIncrease",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "depositFromWorkLock",
-    values: [string, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "divideStake",
-    values: [BigNumberish, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "donate",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "findIndexOfPastDowntime",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "finishUpgrade",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "firstPhaseMaxIssuance",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "firstPhaseTotalSupply",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "genesisSecondsPerPeriod",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getActiveStakers",
-    values: [BigNumberish, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getAllTokens",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getCompletedWork",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getCurrentPeriod",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "getFlags", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "getLastCommittedPeriod",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getLastPeriodOfSubStake",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getLockedTokens",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getPastDowntime",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getPastDowntimeLength",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getReservedReward",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getStakersLength",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getSubStakeInfo",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getSubStakesLength",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getWorkerFromStaker",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "initialize",
-    values: [BigNumberish, string]
-  ): string;
-  encodeFunctionData(functionFragment: "isOwner", values?: undefined): string;
-  encodeFunctionData(functionFragment: "isUpgrade", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "lockAndCreate",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lockAndIncrease",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lockDurationCoefficient1",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lockDurationCoefficient2",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lockedPerPeriod",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "maxAllowableLockedTokens",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "maximumRewardedPeriods",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "mergeStake",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "migrate", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "minAllowableLockedTokens",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "minLockedPeriods",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "minWorkerPeriods",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "mint", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "mintingCoefficient",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "policyManager",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "previousPeriodSupply",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "previousTarget",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "prolongStake",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "receiveApproval",
-    values: [string, BigNumberish, string, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "removeUnusedSubStake",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "secondsPerPeriod",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "setReStake", values: [boolean]): string;
-  encodeFunctionData(
-    functionFragment: "setSnapshots",
-    values: [boolean]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setWindDown",
-    values: [boolean]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setWorkMeasurement",
-    values: [string, boolean]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "slashStaker",
-    values: [string, BigNumberish, string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "stakerFromWorker",
-    values: [string]
-  ): string;
-  encodeFunctionData(functionFragment: "stakerInfo", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "stakers",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "supportsHistory",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "target", values?: undefined): string;
-  encodeFunctionData(functionFragment: "token", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "totalStakedAt",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalStakedForAt",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalSupply",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [string]
-  ): string;
-  encodeFunctionData(functionFragment: "verifyState", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "withdraw",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "workLock", values?: undefined): string;
-
-  decodeFunctionResult(
-    functionFragment: "MAX_SUB_STAKES",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "adjudicator",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "balanceHistory",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "bondWorker", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "commitToNextPeriod",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "currentMintingPeriod",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "currentPeriodSupply",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "depositAndIncrease",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "depositFromWorkLock",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "divideStake",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "donate", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "findIndexOfPastDowntime",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "finishUpgrade",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "firstPhaseMaxIssuance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "firstPhaseTotalSupply",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "genesisSecondsPerPeriod",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getActiveStakers",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getAllTokens",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getCompletedWork",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getCurrentPeriod",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "getFlags", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getLastCommittedPeriod",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getLastPeriodOfSubStake",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getLockedTokens",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getPastDowntime",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getPastDowntimeLength",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getReservedReward",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getStakersLength",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getSubStakeInfo",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getSubStakesLength",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getWorkerFromStaker",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "isOwner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "isUpgrade", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "lockAndCreate",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "lockAndIncrease",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "lockDurationCoefficient1",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "lockDurationCoefficient2",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "lockedPerPeriod",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "maxAllowableLockedTokens",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "maximumRewardedPeriods",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "mergeStake", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "migrate", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "minAllowableLockedTokens",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "minLockedPeriods",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "minWorkerPeriods",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "mintingCoefficient",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "policyManager",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "previousPeriodSupply",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "previousTarget",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "prolongStake",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "receiveApproval",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "removeUnusedSubStake",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "secondsPerPeriod",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "setReStake", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setSnapshots",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setWindDown",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setWorkMeasurement",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "slashStaker",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "stakerFromWorker",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "stakerInfo", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "stakers", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "supportsHistory",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "target", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "totalStakedAt",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalStakedForAt",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalSupply",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "verifyState",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "workLock", data: BytesLike): Result;
-
   events: {
-    "CommitmentMade(address,uint16,uint256)": EventFragment;
-    "Deposited(address,uint256,uint16)": EventFragment;
-    "Divided(address,uint256,uint16,uint256,uint16)": EventFragment;
-    "Donated(address,uint256)": EventFragment;
-    "Initialized(uint256)": EventFragment;
-    "Locked(address,uint256,uint16,uint16)": EventFragment;
-    "Merged(address,uint256,uint256,uint16)": EventFragment;
-    "Migrated(address,uint16)": EventFragment;
-    "Minted(address,uint16,uint256)": EventFragment;
-    "OwnershipTransferred(address,address)": EventFragment;
-    "Prolonged(address,uint256,uint16,uint16)": EventFragment;
-    "ReStakeSet(address,bool)": EventFragment;
-    "Slashed(address,uint256,address,uint256)": EventFragment;
-    "SnapshotSet(address,bool)": EventFragment;
-    "StateVerified(address,address)": EventFragment;
-    "UpgradeFinished(address,address)": EventFragment;
-    "WindDownSet(address,bool)": EventFragment;
-    "Withdrawn(address,uint256)": EventFragment;
-    "WorkMeasurementSet(address,bool)": EventFragment;
-    "WorkerBonded(address,address,uint16)": EventFragment;
+    'CommitmentMade(address,uint16,uint256)': EventFragment;
+    'Deposited(address,uint256,uint16)': EventFragment;
+    'Divided(address,uint256,uint16,uint256,uint16)': EventFragment;
+    'Donated(address,uint256)': EventFragment;
+    'Initialized(uint256)': EventFragment;
+    'Locked(address,uint256,uint16,uint16)': EventFragment;
+    'Merged(address,uint256,uint256,uint16)': EventFragment;
+    'Migrated(address,uint16)': EventFragment;
+    'Minted(address,uint16,uint256)': EventFragment;
+    'OwnershipTransferred(address,address)': EventFragment;
+    'Prolonged(address,uint256,uint16,uint16)': EventFragment;
+    'ReStakeSet(address,bool)': EventFragment;
+    'Slashed(address,uint256,address,uint256)': EventFragment;
+    'SnapshotSet(address,bool)': EventFragment;
+    'StateVerified(address,address)': EventFragment;
+    'UpgradeFinished(address,address)': EventFragment;
+    'WindDownSet(address,bool)': EventFragment;
+    'Withdrawn(address,uint256)': EventFragment;
+    'WorkMeasurementSet(address,bool)': EventFragment;
+    'WorkerBonded(address,address,uint16)': EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "CommitmentMade"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Deposited"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Divided"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Donated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Locked"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Merged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Migrated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Minted"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Prolonged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ReStakeSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Slashed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SnapshotSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "StateVerified"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "UpgradeFinished"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "WindDownSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Withdrawn"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "WorkMeasurementSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "WorkerBonded"): EventFragment;
+  encodeFunctionData(
+    functionFragment: 'MAX_SUB_STAKES',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'adjudicator',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'balanceHistory',
+    values: [ BigNumberish ],
+  ): string;
+
+  encodeFunctionData(functionFragment: 'bondWorker', values: [ string ]): string;
+
+  encodeFunctionData(
+    functionFragment: 'commitToNextPeriod',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'currentMintingPeriod',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'currentPeriodSupply',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'deposit',
+    values: [ string, BigNumberish, BigNumberish ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'depositAndIncrease',
+    values: [ BigNumberish, BigNumberish ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'depositFromWorkLock',
+    values: [ string, BigNumberish, BigNumberish ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'divideStake',
+    values: [ BigNumberish, BigNumberish, BigNumberish ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'donate',
+    values: [ BigNumberish ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'findIndexOfPastDowntime',
+    values: [ string, BigNumberish ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'finishUpgrade',
+    values: [ string ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'firstPhaseMaxIssuance',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'firstPhaseTotalSupply',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'genesisSecondsPerPeriod',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'getActiveStakers',
+    values: [ BigNumberish, BigNumberish, BigNumberish ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'getAllTokens',
+    values: [ string ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'getCompletedWork',
+    values: [ string ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'getCurrentPeriod',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(functionFragment: 'getFlags', values: [ string ]): string;
+
+  encodeFunctionData(
+    functionFragment: 'getLastCommittedPeriod',
+    values: [ string ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'getLastPeriodOfSubStake',
+    values: [ string, BigNumberish ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'getLockedTokens',
+    values: [ string, BigNumberish ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'getPastDowntime',
+    values: [ string, BigNumberish ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'getPastDowntimeLength',
+    values: [ string ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'getReservedReward',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'getStakersLength',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'getSubStakeInfo',
+    values: [ string, BigNumberish ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'getSubStakesLength',
+    values: [ string ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'getWorkerFromStaker',
+    values: [ string ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'initialize',
+    values: [ BigNumberish, string ],
+  ): string;
+
+  encodeFunctionData(functionFragment: 'isOwner', values?: undefined): string;
+
+  encodeFunctionData(functionFragment: 'isUpgrade', values?: undefined): string;
+
+  encodeFunctionData(
+    functionFragment: 'lockAndCreate',
+    values: [ BigNumberish, BigNumberish ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'lockAndIncrease',
+    values: [ BigNumberish, BigNumberish ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'lockDurationCoefficient1',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'lockDurationCoefficient2',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'lockedPerPeriod',
+    values: [ BigNumberish ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'maxAllowableLockedTokens',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'maximumRewardedPeriods',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'mergeStake',
+    values: [ BigNumberish, BigNumberish ],
+  ): string;
+
+  encodeFunctionData(functionFragment: 'migrate', values: [ string ]): string;
+
+  encodeFunctionData(
+    functionFragment: 'minAllowableLockedTokens',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'minLockedPeriods',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'minWorkerPeriods',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(functionFragment: 'mint', values?: undefined): string;
+
+  encodeFunctionData(
+    functionFragment: 'mintingCoefficient',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
+
+  encodeFunctionData(
+    functionFragment: 'policyManager',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'previousPeriodSupply',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'previousTarget',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'prolongStake',
+    values: [ BigNumberish, BigNumberish ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'receiveApproval',
+    values: [ string, BigNumberish, string, BytesLike ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'removeUnusedSubStake',
+    values: [ BigNumberish ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'renounceOwnership',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'secondsPerPeriod',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(functionFragment: 'setReStake', values: [ boolean ]): string;
+
+  encodeFunctionData(
+    functionFragment: 'setSnapshots',
+    values: [ boolean ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'setWindDown',
+    values: [ boolean ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'setWorkMeasurement',
+    values: [ string, boolean ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'slashStaker',
+    values: [ string, BigNumberish, string, BigNumberish ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'stakerFromWorker',
+    values: [ string ],
+  ): string;
+
+  encodeFunctionData(functionFragment: 'stakerInfo', values: [ string ]): string;
+
+  encodeFunctionData(
+    functionFragment: 'stakers',
+    values: [ BigNumberish ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'supportsHistory',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(functionFragment: 'target', values?: undefined): string;
+
+  encodeFunctionData(functionFragment: 'token', values?: undefined): string;
+
+  encodeFunctionData(
+    functionFragment: 'totalStakedAt',
+    values: [ BigNumberish ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'totalStakedForAt',
+    values: [ string, BigNumberish ],
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'totalSupply',
+    values?: undefined,
+  ): string;
+
+  encodeFunctionData(
+    functionFragment: 'transferOwnership',
+    values: [ string ],
+  ): string;
+
+  encodeFunctionData(functionFragment: 'verifyState', values: [ string ]): string;
+
+  encodeFunctionData(
+    functionFragment: 'withdraw',
+    values: [ BigNumberish ],
+  ): string;
+
+  encodeFunctionData(functionFragment: 'workLock', values?: undefined): string;
+
+  decodeFunctionResult(
+    functionFragment: 'MAX_SUB_STAKES',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'adjudicator',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'balanceHistory',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(functionFragment: 'bondWorker', data: BytesLike): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'commitToNextPeriod',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'currentMintingPeriod',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'currentPeriodSupply',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(functionFragment: 'deposit', data: BytesLike): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'depositAndIncrease',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'depositFromWorkLock',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'divideStake',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(functionFragment: 'donate', data: BytesLike): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'findIndexOfPastDowntime',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'finishUpgrade',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'firstPhaseMaxIssuance',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'firstPhaseTotalSupply',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'genesisSecondsPerPeriod',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'getActiveStakers',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'getAllTokens',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'getCompletedWork',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'getCurrentPeriod',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(functionFragment: 'getFlags', data: BytesLike): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'getLastCommittedPeriod',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'getLastPeriodOfSubStake',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'getLockedTokens',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'getPastDowntime',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'getPastDowntimeLength',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'getReservedReward',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'getStakersLength',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'getSubStakeInfo',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'getSubStakesLength',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'getWorkerFromStaker',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(functionFragment: 'initialize', data: BytesLike): Result;
+
+  decodeFunctionResult(functionFragment: 'isOwner', data: BytesLike): Result;
+
+  decodeFunctionResult(functionFragment: 'isUpgrade', data: BytesLike): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'lockAndCreate',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'lockAndIncrease',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'lockDurationCoefficient1',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'lockDurationCoefficient2',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'lockedPerPeriod',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'maxAllowableLockedTokens',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'maximumRewardedPeriods',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(functionFragment: 'mergeStake', data: BytesLike): Result;
+
+  decodeFunctionResult(functionFragment: 'migrate', data: BytesLike): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'minAllowableLockedTokens',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'minLockedPeriods',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'minWorkerPeriods',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(functionFragment: 'mint', data: BytesLike): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'mintingCoefficient',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'policyManager',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'previousPeriodSupply',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'previousTarget',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'prolongStake',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'receiveApproval',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'removeUnusedSubStake',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'renounceOwnership',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'secondsPerPeriod',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(functionFragment: 'setReStake', data: BytesLike): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'setSnapshots',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'setWindDown',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'setWorkMeasurement',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'slashStaker',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'stakerFromWorker',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(functionFragment: 'stakerInfo', data: BytesLike): Result;
+
+  decodeFunctionResult(functionFragment: 'stakers', data: BytesLike): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'supportsHistory',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(functionFragment: 'target', data: BytesLike): Result;
+
+  decodeFunctionResult(functionFragment: 'token', data: BytesLike): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'totalStakedAt',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'totalStakedForAt',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'totalSupply',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'transferOwnership',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(
+    functionFragment: 'verifyState',
+    data: BytesLike,
+  ): Result;
+
+  decodeFunctionResult(functionFragment: 'withdraw', data: BytesLike): Result;
+
+  decodeFunctionResult(functionFragment: 'workLock', data: BytesLike): Result;
+
+  getEvent(nameOrSignatureOrTopic: 'CommitmentMade'): EventFragment;
+
+  getEvent(nameOrSignatureOrTopic: 'Deposited'): EventFragment;
+
+  getEvent(nameOrSignatureOrTopic: 'Divided'): EventFragment;
+
+  getEvent(nameOrSignatureOrTopic: 'Donated'): EventFragment;
+
+  getEvent(nameOrSignatureOrTopic: 'Initialized'): EventFragment;
+
+  getEvent(nameOrSignatureOrTopic: 'Locked'): EventFragment;
+
+  getEvent(nameOrSignatureOrTopic: 'Merged'): EventFragment;
+
+  getEvent(nameOrSignatureOrTopic: 'Migrated'): EventFragment;
+
+  getEvent(nameOrSignatureOrTopic: 'Minted'): EventFragment;
+
+  getEvent(nameOrSignatureOrTopic: 'OwnershipTransferred'): EventFragment;
+
+  getEvent(nameOrSignatureOrTopic: 'Prolonged'): EventFragment;
+
+  getEvent(nameOrSignatureOrTopic: 'ReStakeSet'): EventFragment;
+
+  getEvent(nameOrSignatureOrTopic: 'Slashed'): EventFragment;
+
+  getEvent(nameOrSignatureOrTopic: 'SnapshotSet'): EventFragment;
+
+  getEvent(nameOrSignatureOrTopic: 'StateVerified'): EventFragment;
+
+  getEvent(nameOrSignatureOrTopic: 'UpgradeFinished'): EventFragment;
+
+  getEvent(nameOrSignatureOrTopic: 'WindDownSet'): EventFragment;
+
+  getEvent(nameOrSignatureOrTopic: 'Withdrawn'): EventFragment;
+
+  getEvent(nameOrSignatureOrTopic: 'WorkMeasurementSet'): EventFragment;
+
+  getEvent(nameOrSignatureOrTopic: 'WorkerBonded'): EventFragment;
 }
 
 export class StakingEscrow extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
-
-  listeners<EventArgsArray extends Array<any>, EventArgsObject>(
-    eventFilter?: TypedEventFilter<EventArgsArray, EventArgsObject>
-  ): Array<TypedListener<EventArgsArray, EventArgsObject>>;
-  off<EventArgsArray extends Array<any>, EventArgsObject>(
-    eventFilter: TypedEventFilter<EventArgsArray, EventArgsObject>,
-    listener: TypedListener<EventArgsArray, EventArgsObject>
-  ): this;
-  on<EventArgsArray extends Array<any>, EventArgsObject>(
-    eventFilter: TypedEventFilter<EventArgsArray, EventArgsObject>,
-    listener: TypedListener<EventArgsArray, EventArgsObject>
-  ): this;
-  once<EventArgsArray extends Array<any>, EventArgsObject>(
-    eventFilter: TypedEventFilter<EventArgsArray, EventArgsObject>,
-    listener: TypedListener<EventArgsArray, EventArgsObject>
-  ): this;
-  removeListener<EventArgsArray extends Array<any>, EventArgsObject>(
-    eventFilter: TypedEventFilter<EventArgsArray, EventArgsObject>,
-    listener: TypedListener<EventArgsArray, EventArgsObject>
-  ): this;
-  removeAllListeners<EventArgsArray extends Array<any>, EventArgsObject>(
-    eventFilter: TypedEventFilter<EventArgsArray, EventArgsObject>
-  ): this;
-
-  listeners(eventName?: string): Array<Listener>;
-  off(eventName: string, listener: Listener): this;
-  on(eventName: string, listener: Listener): this;
-  once(eventName: string, listener: Listener): this;
-  removeListener(eventName: string, listener: Listener): this;
-  removeAllListeners(eventName?: string): this;
-
-  queryFilter<EventArgsArray extends Array<any>, EventArgsObject>(
-    event: TypedEventFilter<EventArgsArray, EventArgsObject>,
-    fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
-  ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
-
   interface: StakingEscrowInterface;
-
   functions: {
-    MAX_SUB_STAKES(overrides?: CallOverrides): Promise<[number]>;
+    MAX_SUB_STAKES(overrides?: CallOverrides): Promise<[ number ]>;
 
-    adjudicator(overrides?: CallOverrides): Promise<[string]>;
+    adjudicator(overrides?: CallOverrides): Promise<[ string ]>;
 
     balanceHistory(
       arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+      overrides?: CallOverrides,
+    ): Promise<[ BigNumber ]>;
 
     bondWorker(
       _worker: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
     commitToNextPeriod(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
-    currentMintingPeriod(overrides?: CallOverrides): Promise<[number]>;
+    currentMintingPeriod(overrides?: CallOverrides): Promise<[ number ]>;
 
-    currentPeriodSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
+    currentPeriodSupply(overrides?: CallOverrides): Promise<[ BigNumber ]>;
 
     deposit(
       _staker: string,
       _value: BigNumberish,
       _unlockingDuration: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
     depositAndIncrease(
       _index: BigNumberish,
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
     depositFromWorkLock(
       _staker: string,
       _value: BigNumberish,
       _unlockingDuration: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
     divideStake(
       _index: BigNumberish,
       _newValue: BigNumberish,
       _additionalDuration: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
     donate(
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
     findIndexOfPastDowntime(
       _staker: string,
       _period: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { index: BigNumber }>;
+      overrides?: CallOverrides,
+    ): Promise<[ BigNumber ] & { index: BigNumber }>;
 
     finishUpgrade(
       _target: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
-    firstPhaseMaxIssuance(overrides?: CallOverrides): Promise<[BigNumber]>;
+    firstPhaseMaxIssuance(overrides?: CallOverrides): Promise<[ BigNumber ]>;
 
-    firstPhaseTotalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
+    firstPhaseTotalSupply(overrides?: CallOverrides): Promise<[ BigNumber ]>;
 
-    genesisSecondsPerPeriod(overrides?: CallOverrides): Promise<[number]>;
+    genesisSecondsPerPeriod(overrides?: CallOverrides): Promise<[ number ]>;
 
     getActiveStakers(
       _offsetPeriods: BigNumberish,
       _startIndex: BigNumberish,
       _maxStakers: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, [BigNumber, BigNumber][]] & {
-        allLockedTokens: BigNumber;
-        activeStakers: [BigNumber, BigNumber][];
-      }
-    >;
+      overrides?: CallOverrides,
+    ): Promise<[ BigNumber, [ BigNumber, BigNumber ][] ] & {
+      allLockedTokens: BigNumber;
+      activeStakers: [ BigNumber, BigNumber ][];
+    }>;
 
     getAllTokens(
       _staker: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+      overrides?: CallOverrides,
+    ): Promise<[ BigNumber ]>;
 
     getCompletedWork(
       _staker: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+      overrides?: CallOverrides,
+    ): Promise<[ BigNumber ]>;
 
-    getCurrentPeriod(overrides?: CallOverrides): Promise<[number]>;
+    getCurrentPeriod(overrides?: CallOverrides): Promise<[ number ]>;
 
     getFlags(
       _staker: string,
-      overrides?: CallOverrides
-    ): Promise<
-      [boolean, boolean, boolean, boolean, boolean] & {
-        windDown: boolean;
-        reStake: boolean;
-        measureWork: boolean;
-        snapshots: boolean;
-        migrated: boolean;
-      }
-    >;
+      overrides?: CallOverrides,
+    ): Promise<[ boolean, boolean, boolean, boolean, boolean ] & {
+      windDown: boolean;
+      reStake: boolean;
+      measureWork: boolean;
+      snapshots: boolean;
+      migrated: boolean;
+    }>;
 
     getLastCommittedPeriod(
       _staker: string,
-      overrides?: CallOverrides
-    ): Promise<[number]>;
+      overrides?: CallOverrides,
+    ): Promise<[ number ]>;
 
     getLastPeriodOfSubStake(
       _staker: string,
       _index: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[number]>;
+      overrides?: CallOverrides,
+    ): Promise<[ number ]>;
 
     getLockedTokens(
       _staker: string,
       _offsetPeriods: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { lockedValue: BigNumber }>;
+      overrides?: CallOverrides,
+    ): Promise<[ BigNumber ] & { lockedValue: BigNumber }>;
 
     getPastDowntime(
       _staker: string,
       _index: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[number, number] & { startPeriod: number; endPeriod: number }>;
+      overrides?: CallOverrides,
+    ): Promise<[ number, number ] & { startPeriod: number; endPeriod: number }>;
 
     getPastDowntimeLength(
       _staker: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+      overrides?: CallOverrides,
+    ): Promise<[ BigNumber ]>;
 
-    getReservedReward(overrides?: CallOverrides): Promise<[BigNumber]>;
+    getReservedReward(overrides?: CallOverrides): Promise<[ BigNumber ]>;
 
-    getStakersLength(overrides?: CallOverrides): Promise<[BigNumber]>;
+    getStakersLength(overrides?: CallOverrides): Promise<[ BigNumber ]>;
 
     getSubStakeInfo(
       _staker: string,
       _index: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [number, number, number, BigNumber] & {
-        firstPeriod: number;
-        lastPeriod: number;
-        unlockingDuration: number;
-        lockedValue: BigNumber;
-      }
-    >;
+      overrides?: CallOverrides,
+    ): Promise<[ number, number, number, BigNumber ] & {
+      firstPeriod: number;
+      lastPeriod: number;
+      unlockingDuration: number;
+      lockedValue: BigNumber;
+    }>;
 
     getSubStakesLength(
       _staker: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+      overrides?: CallOverrides,
+    ): Promise<[ BigNumber ]>;
 
     getWorkerFromStaker(
       _staker: string,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
+      overrides?: CallOverrides,
+    ): Promise<[ string ]>;
 
     initialize(
       _reservedReward: BigNumberish,
       _sourceOfFunds: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
-    isOwner(overrides?: CallOverrides): Promise<[boolean]>;
+    isOwner(overrides?: CallOverrides): Promise<[ boolean ]>;
 
-    isUpgrade(overrides?: CallOverrides): Promise<[number]>;
+    isUpgrade(overrides?: CallOverrides): Promise<[ number ]>;
 
     lockAndCreate(
       _value: BigNumberish,
       _unlockingDuration: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
     lockAndIncrease(
       _index: BigNumberish,
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
-    lockDurationCoefficient1(overrides?: CallOverrides): Promise<[BigNumber]>;
+    lockDurationCoefficient1(overrides?: CallOverrides): Promise<[ BigNumber ]>;
 
-    lockDurationCoefficient2(overrides?: CallOverrides): Promise<[BigNumber]>;
+    lockDurationCoefficient2(overrides?: CallOverrides): Promise<[ BigNumber ]>;
 
     lockedPerPeriod(
       _period: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+      overrides?: CallOverrides,
+    ): Promise<[ BigNumber ]>;
 
-    maxAllowableLockedTokens(overrides?: CallOverrides): Promise<[BigNumber]>;
+    maxAllowableLockedTokens(overrides?: CallOverrides): Promise<[ BigNumber ]>;
 
-    maximumRewardedPeriods(overrides?: CallOverrides): Promise<[number]>;
+    maximumRewardedPeriods(overrides?: CallOverrides): Promise<[ number ]>;
 
     mergeStake(
       _index1: BigNumberish,
       _index2: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
     migrate(
       _staker: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
-    minAllowableLockedTokens(overrides?: CallOverrides): Promise<[BigNumber]>;
+    minAllowableLockedTokens(overrides?: CallOverrides): Promise<[ BigNumber ]>;
 
-    minLockedPeriods(overrides?: CallOverrides): Promise<[number]>;
+    minLockedPeriods(overrides?: CallOverrides): Promise<[ number ]>;
 
-    minWorkerPeriods(overrides?: CallOverrides): Promise<[number]>;
+    minWorkerPeriods(overrides?: CallOverrides): Promise<[ number ]>;
 
     mint(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
-    mintingCoefficient(overrides?: CallOverrides): Promise<[BigNumber]>;
+    mintingCoefficient(overrides?: CallOverrides): Promise<[ BigNumber ]>;
 
-    owner(overrides?: CallOverrides): Promise<[string]>;
+    owner(overrides?: CallOverrides): Promise<[ string ]>;
 
-    policyManager(overrides?: CallOverrides): Promise<[string]>;
+    policyManager(overrides?: CallOverrides): Promise<[ string ]>;
 
-    previousPeriodSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
+    previousPeriodSupply(overrides?: CallOverrides): Promise<[ BigNumber ]>;
 
-    previousTarget(overrides?: CallOverrides): Promise<[string]>;
+    previousTarget(overrides?: CallOverrides): Promise<[ string ]>;
 
     prolongStake(
       _index: BigNumberish,
       _additionalDuration: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
     receiveApproval(
@@ -945,39 +1065,39 @@ export class StakingEscrow extends BaseContract {
       _value: BigNumberish,
       _tokenContract: string,
       arg3: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
     removeUnusedSubStake(
       _index: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
     renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
-    secondsPerPeriod(overrides?: CallOverrides): Promise<[number]>;
+    secondsPerPeriod(overrides?: CallOverrides): Promise<[ number ]>;
 
     setReStake(
       _reStake: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
     setSnapshots(
       _enableSnapshots: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
     setWindDown(
       _windDown: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
     setWorkMeasurement(
       _staker: string,
       _measureWork: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
     slashStaker(
@@ -985,377 +1105,18 @@ export class StakingEscrow extends BaseContract {
       _penalty: BigNumberish,
       _investigator: string,
       _reward: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
     stakerFromWorker(
       arg0: string,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
+      overrides?: CallOverrides,
+    ): Promise<[ string ]>;
 
     stakerInfo(
       arg0: string,
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        BigNumber,
-        number,
-        number,
-        number,
-        number,
-        BigNumber,
-        number,
-        string,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber
-      ] & {
-        value: BigNumber;
-        currentCommittedPeriod: number;
-        nextCommittedPeriod: number;
-        lastCommittedPeriod: number;
-        stub1: number;
-        completedWork: BigNumber;
-        workerStartPeriod: number;
-        worker: string;
-        flags: BigNumber;
-        reservedSlot1: BigNumber;
-        reservedSlot2: BigNumber;
-        reservedSlot3: BigNumber;
-        reservedSlot4: BigNumber;
-        reservedSlot5: BigNumber;
-      }
-    >;
-
-    stakers(arg0: BigNumberish, overrides?: CallOverrides): Promise<[string]>;
-
-    supportsHistory(overrides?: CallOverrides): Promise<[boolean]>;
-
-    target(overrides?: CallOverrides): Promise<[string]>;
-
-    token(overrides?: CallOverrides): Promise<[string]>;
-
-    totalStakedAt(
-      _blockNumber: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    totalStakedForAt(
-      _owner: string,
-      _blockNumber: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    verifyState(
-      _testTarget: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    withdraw(
-      _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    workLock(overrides?: CallOverrides): Promise<[string]>;
-  };
-
-  MAX_SUB_STAKES(overrides?: CallOverrides): Promise<number>;
-
-  adjudicator(overrides?: CallOverrides): Promise<string>;
-
-  balanceHistory(
-    arg0: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  bondWorker(
-    _worker: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  commitToNextPeriod(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  currentMintingPeriod(overrides?: CallOverrides): Promise<number>;
-
-  currentPeriodSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
-  deposit(
-    _staker: string,
-    _value: BigNumberish,
-    _unlockingDuration: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  depositAndIncrease(
-    _index: BigNumberish,
-    _value: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  depositFromWorkLock(
-    _staker: string,
-    _value: BigNumberish,
-    _unlockingDuration: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  divideStake(
-    _index: BigNumberish,
-    _newValue: BigNumberish,
-    _additionalDuration: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  donate(
-    _value: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  findIndexOfPastDowntime(
-    _staker: string,
-    _period: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  finishUpgrade(
-    _target: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  firstPhaseMaxIssuance(overrides?: CallOverrides): Promise<BigNumber>;
-
-  firstPhaseTotalSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
-  genesisSecondsPerPeriod(overrides?: CallOverrides): Promise<number>;
-
-  getActiveStakers(
-    _offsetPeriods: BigNumberish,
-    _startIndex: BigNumberish,
-    _maxStakers: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, [BigNumber, BigNumber][]] & {
-      allLockedTokens: BigNumber;
-      activeStakers: [BigNumber, BigNumber][];
-    }
-  >;
-
-  getAllTokens(_staker: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-  getCompletedWork(
-    _staker: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  getCurrentPeriod(overrides?: CallOverrides): Promise<number>;
-
-  getFlags(
-    _staker: string,
-    overrides?: CallOverrides
-  ): Promise<
-    [boolean, boolean, boolean, boolean, boolean] & {
-      windDown: boolean;
-      reStake: boolean;
-      measureWork: boolean;
-      snapshots: boolean;
-      migrated: boolean;
-    }
-  >;
-
-  getLastCommittedPeriod(
-    _staker: string,
-    overrides?: CallOverrides
-  ): Promise<number>;
-
-  getLastPeriodOfSubStake(
-    _staker: string,
-    _index: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<number>;
-
-  getLockedTokens(
-    _staker: string,
-    _offsetPeriods: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  getPastDowntime(
-    _staker: string,
-    _index: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<[number, number] & { startPeriod: number; endPeriod: number }>;
-
-  getPastDowntimeLength(
-    _staker: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  getReservedReward(overrides?: CallOverrides): Promise<BigNumber>;
-
-  getStakersLength(overrides?: CallOverrides): Promise<BigNumber>;
-
-  getSubStakeInfo(
-    _staker: string,
-    _index: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [number, number, number, BigNumber] & {
-      firstPeriod: number;
-      lastPeriod: number;
-      unlockingDuration: number;
-      lockedValue: BigNumber;
-    }
-  >;
-
-  getSubStakesLength(
-    _staker: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  getWorkerFromStaker(
-    _staker: string,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  initialize(
-    _reservedReward: BigNumberish,
-    _sourceOfFunds: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  isOwner(overrides?: CallOverrides): Promise<boolean>;
-
-  isUpgrade(overrides?: CallOverrides): Promise<number>;
-
-  lockAndCreate(
-    _value: BigNumberish,
-    _unlockingDuration: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  lockAndIncrease(
-    _index: BigNumberish,
-    _value: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  lockDurationCoefficient1(overrides?: CallOverrides): Promise<BigNumber>;
-
-  lockDurationCoefficient2(overrides?: CallOverrides): Promise<BigNumber>;
-
-  lockedPerPeriod(
-    _period: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  maxAllowableLockedTokens(overrides?: CallOverrides): Promise<BigNumber>;
-
-  maximumRewardedPeriods(overrides?: CallOverrides): Promise<number>;
-
-  mergeStake(
-    _index1: BigNumberish,
-    _index2: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  migrate(
-    _staker: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  minAllowableLockedTokens(overrides?: CallOverrides): Promise<BigNumber>;
-
-  minLockedPeriods(overrides?: CallOverrides): Promise<number>;
-
-  minWorkerPeriods(overrides?: CallOverrides): Promise<number>;
-
-  mint(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  mintingCoefficient(overrides?: CallOverrides): Promise<BigNumber>;
-
-  owner(overrides?: CallOverrides): Promise<string>;
-
-  policyManager(overrides?: CallOverrides): Promise<string>;
-
-  previousPeriodSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
-  previousTarget(overrides?: CallOverrides): Promise<string>;
-
-  prolongStake(
-    _index: BigNumberish,
-    _additionalDuration: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  receiveApproval(
-    _from: string,
-    _value: BigNumberish,
-    _tokenContract: string,
-    arg3: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  removeUnusedSubStake(
-    _index: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  renounceOwnership(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  secondsPerPeriod(overrides?: CallOverrides): Promise<number>;
-
-  setReStake(
-    _reStake: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setSnapshots(
-    _enableSnapshots: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setWindDown(
-    _windDown: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setWorkMeasurement(
-    _staker: string,
-    _measureWork: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  slashStaker(
-    _staker: string,
-    _penalty: BigNumberish,
-    _investigator: string,
-    _reward: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  stakerFromWorker(arg0: string, overrides?: CallOverrides): Promise<string>;
-
-  stakerInfo(
-    arg0: string,
-    overrides?: CallOverrides
-  ): Promise<
-    [
+      overrides?: CallOverrides,
+    ): Promise<[
       BigNumber,
       number,
       number,
@@ -1385,47 +1146,46 @@ export class StakingEscrow extends BaseContract {
       reservedSlot3: BigNumber;
       reservedSlot4: BigNumber;
       reservedSlot5: BigNumber;
-    }
-  >;
+    }>;
 
-  stakers(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
+    stakers(arg0: BigNumberish, overrides?: CallOverrides): Promise<[ string ]>;
 
-  supportsHistory(overrides?: CallOverrides): Promise<boolean>;
+    supportsHistory(overrides?: CallOverrides): Promise<[ boolean ]>;
 
-  target(overrides?: CallOverrides): Promise<string>;
+    target(overrides?: CallOverrides): Promise<[ string ]>;
 
-  token(overrides?: CallOverrides): Promise<string>;
+    token(overrides?: CallOverrides): Promise<[ string ]>;
 
-  totalStakedAt(
-    _blockNumber: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+    totalStakedAt(
+      _blockNumber: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<[ BigNumber ]>;
 
-  totalStakedForAt(
-    _owner: string,
-    _blockNumber: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+    totalStakedForAt(
+      _owner: string,
+      _blockNumber: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<[ BigNumber ]>;
 
-  totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
+    totalSupply(overrides?: CallOverrides): Promise<[ BigNumber ]>;
 
-  transferOwnership(
-    newOwner: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+    transferOwnership(
+      newOwner: string,
+      overrides?: Overrides & { from?: string | Promise<string> },
+    ): Promise<ContractTransaction>;
 
-  verifyState(
-    _testTarget: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+    verifyState(
+      _testTarget: string,
+      overrides?: Overrides & { from?: string | Promise<string> },
+    ): Promise<ContractTransaction>;
 
-  withdraw(
-    _value: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+    withdraw(
+      _value: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> },
+    ): Promise<ContractTransaction>;
 
-  workLock(overrides?: CallOverrides): Promise<string>;
-
+    workLock(overrides?: CallOverrides): Promise<[ string ]>;
+  };
   callStatic: {
     MAX_SUB_STAKES(overrides?: CallOverrides): Promise<number>;
 
@@ -1433,7 +1193,7 @@ export class StakingEscrow extends BaseContract {
 
     balanceHistory(
       arg0: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     bondWorker(_worker: string, overrides?: CallOverrides): Promise<void>;
@@ -1448,27 +1208,27 @@ export class StakingEscrow extends BaseContract {
       _staker: string,
       _value: BigNumberish,
       _unlockingDuration: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     depositAndIncrease(
       _index: BigNumberish,
       _value: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     depositFromWorkLock(
       _staker: string,
       _value: BigNumberish,
       _unlockingDuration: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     divideStake(
       _index: BigNumberish,
       _newValue: BigNumberish,
       _additionalDuration: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     donate(_value: BigNumberish, overrides?: CallOverrides): Promise<void>;
@@ -1476,7 +1236,7 @@ export class StakingEscrow extends BaseContract {
     findIndexOfPastDowntime(
       _staker: string,
       _period: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     finishUpgrade(_target: string, overrides?: CallOverrides): Promise<void>;
@@ -1491,65 +1251,61 @@ export class StakingEscrow extends BaseContract {
       _offsetPeriods: BigNumberish,
       _startIndex: BigNumberish,
       _maxStakers: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, [BigNumber, BigNumber][]] & {
-        allLockedTokens: BigNumber;
-        activeStakers: [BigNumber, BigNumber][];
-      }
-    >;
+      overrides?: CallOverrides,
+    ): Promise<[ BigNumber, [ BigNumber, BigNumber ][] ] & {
+      allLockedTokens: BigNumber;
+      activeStakers: [ BigNumber, BigNumber ][];
+    }>;
 
     getAllTokens(
       _staker: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getCompletedWork(
       _staker: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getCurrentPeriod(overrides?: CallOverrides): Promise<number>;
 
     getFlags(
       _staker: string,
-      overrides?: CallOverrides
-    ): Promise<
-      [boolean, boolean, boolean, boolean, boolean] & {
-        windDown: boolean;
-        reStake: boolean;
-        measureWork: boolean;
-        snapshots: boolean;
-        migrated: boolean;
-      }
-    >;
+      overrides?: CallOverrides,
+    ): Promise<[ boolean, boolean, boolean, boolean, boolean ] & {
+      windDown: boolean;
+      reStake: boolean;
+      measureWork: boolean;
+      snapshots: boolean;
+      migrated: boolean;
+    }>;
 
     getLastCommittedPeriod(
       _staker: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<number>;
 
     getLastPeriodOfSubStake(
       _staker: string,
       _index: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<number>;
 
     getLockedTokens(
       _staker: string,
       _offsetPeriods: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getPastDowntime(
       _staker: string,
       _index: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[number, number] & { startPeriod: number; endPeriod: number }>;
+      overrides?: CallOverrides,
+    ): Promise<[ number, number ] & { startPeriod: number; endPeriod: number }>;
 
     getPastDowntimeLength(
       _staker: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getReservedReward(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1559,30 +1315,28 @@ export class StakingEscrow extends BaseContract {
     getSubStakeInfo(
       _staker: string,
       _index: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [number, number, number, BigNumber] & {
-        firstPeriod: number;
-        lastPeriod: number;
-        unlockingDuration: number;
-        lockedValue: BigNumber;
-      }
-    >;
+      overrides?: CallOverrides,
+    ): Promise<[ number, number, number, BigNumber ] & {
+      firstPeriod: number;
+      lastPeriod: number;
+      unlockingDuration: number;
+      lockedValue: BigNumber;
+    }>;
 
     getSubStakesLength(
       _staker: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getWorkerFromStaker(
       _staker: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<string>;
 
     initialize(
       _reservedReward: BigNumberish,
       _sourceOfFunds: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     isOwner(overrides?: CallOverrides): Promise<boolean>;
@@ -1592,13 +1346,13 @@ export class StakingEscrow extends BaseContract {
     lockAndCreate(
       _value: BigNumberish,
       _unlockingDuration: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     lockAndIncrease(
       _index: BigNumberish,
       _value: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     lockDurationCoefficient1(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1607,7 +1361,7 @@ export class StakingEscrow extends BaseContract {
 
     lockedPerPeriod(
       _period: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     maxAllowableLockedTokens(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1617,7 +1371,7 @@ export class StakingEscrow extends BaseContract {
     mergeStake(
       _index1: BigNumberish,
       _index2: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     migrate(_staker: string, overrides?: CallOverrides): Promise<void>;
@@ -1643,7 +1397,7 @@ export class StakingEscrow extends BaseContract {
     prolongStake(
       _index: BigNumberish,
       _additionalDuration: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     receiveApproval(
@@ -1651,12 +1405,12 @@ export class StakingEscrow extends BaseContract {
       _value: BigNumberish,
       _tokenContract: string,
       arg3: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     removeUnusedSubStake(
       _index: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
@@ -1667,7 +1421,7 @@ export class StakingEscrow extends BaseContract {
 
     setSnapshots(
       _enableSnapshots: boolean,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     setWindDown(_windDown: boolean, overrides?: CallOverrides): Promise<void>;
@@ -1675,7 +1429,7 @@ export class StakingEscrow extends BaseContract {
     setWorkMeasurement(
       _staker: string,
       _measureWork: boolean,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     slashStaker(
@@ -1683,47 +1437,45 @@ export class StakingEscrow extends BaseContract {
       _penalty: BigNumberish,
       _investigator: string,
       _reward: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     stakerFromWorker(arg0: string, overrides?: CallOverrides): Promise<string>;
 
     stakerInfo(
       arg0: string,
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        BigNumber,
-        number,
-        number,
-        number,
-        number,
-        BigNumber,
-        number,
-        string,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber
-      ] & {
-        value: BigNumber;
-        currentCommittedPeriod: number;
-        nextCommittedPeriod: number;
-        lastCommittedPeriod: number;
-        stub1: number;
-        completedWork: BigNumber;
-        workerStartPeriod: number;
-        worker: string;
-        flags: BigNumber;
-        reservedSlot1: BigNumber;
-        reservedSlot2: BigNumber;
-        reservedSlot3: BigNumber;
-        reservedSlot4: BigNumber;
-        reservedSlot5: BigNumber;
-      }
-    >;
+      overrides?: CallOverrides,
+    ): Promise<[
+      BigNumber,
+      number,
+      number,
+      number,
+      number,
+      BigNumber,
+      number,
+      string,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber
+    ] & {
+      value: BigNumber;
+      currentCommittedPeriod: number;
+      nextCommittedPeriod: number;
+      lastCommittedPeriod: number;
+      stub1: number;
+      completedWork: BigNumber;
+      workerStartPeriod: number;
+      worker: string;
+      flags: BigNumber;
+      reservedSlot1: BigNumber;
+      reservedSlot2: BigNumber;
+      reservedSlot3: BigNumber;
+      reservedSlot4: BigNumber;
+      reservedSlot5: BigNumber;
+    }>;
 
     stakers(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
@@ -1735,20 +1487,20 @@ export class StakingEscrow extends BaseContract {
 
     totalStakedAt(
       _blockNumber: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     totalStakedForAt(
       _owner: string,
       _blockNumber: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferOwnership(
       newOwner: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     verifyState(_testTarget: string, overrides?: CallOverrides): Promise<void>;
@@ -1757,190 +1509,154 @@ export class StakingEscrow extends BaseContract {
 
     workLock(overrides?: CallOverrides): Promise<string>;
   };
-
   filters: {
     CommitmentMade(
       staker?: string | null,
       period?: BigNumberish | null,
-      value?: null
-    ): TypedEventFilter<
-      [string, number, BigNumber],
-      { staker: string; period: number; value: BigNumber }
-    >;
+      value?: null,
+    ): TypedEventFilter<[ string, number, BigNumber ],
+      { staker: string; period: number; value: BigNumber }>;
 
     Deposited(
       staker?: string | null,
       value?: null,
-      periods?: null
-    ): TypedEventFilter<
-      [string, BigNumber, number],
-      { staker: string; value: BigNumber; periods: number }
-    >;
+      periods?: null,
+    ): TypedEventFilter<[ string, BigNumber, number ],
+      { staker: string; value: BigNumber; periods: number }>;
 
     Divided(
       staker?: string | null,
       oldValue?: null,
       lastPeriod?: null,
       newValue?: null,
-      periods?: null
-    ): TypedEventFilter<
-      [string, BigNumber, number, BigNumber, number],
+      periods?: null,
+    ): TypedEventFilter<[ string, BigNumber, number, BigNumber, number ],
       {
         staker: string;
         oldValue: BigNumber;
         lastPeriod: number;
         newValue: BigNumber;
         periods: number;
-      }
-    >;
+      }>;
 
     Donated(
       sender?: string | null,
-      value?: null
-    ): TypedEventFilter<
-      [string, BigNumber],
-      { sender: string; value: BigNumber }
-    >;
+      value?: null,
+    ): TypedEventFilter<[ string, BigNumber ],
+      { sender: string; value: BigNumber }>;
 
     Initialized(
-      reservedReward?: null
-    ): TypedEventFilter<[BigNumber], { reservedReward: BigNumber }>;
+      reservedReward?: null,
+    ): TypedEventFilter<[ BigNumber ], { reservedReward: BigNumber }>;
 
     Locked(
       staker?: string | null,
       value?: null,
       firstPeriod?: null,
-      periods?: null
-    ): TypedEventFilter<
-      [string, BigNumber, number, number],
-      { staker: string; value: BigNumber; firstPeriod: number; periods: number }
-    >;
+      periods?: null,
+    ): TypedEventFilter<[ string, BigNumber, number, number ],
+      { staker: string; value: BigNumber; firstPeriod: number; periods: number }>;
 
     Merged(
       staker?: string | null,
       value1?: null,
       value2?: null,
-      lastPeriod?: null
-    ): TypedEventFilter<
-      [string, BigNumber, BigNumber, number],
+      lastPeriod?: null,
+    ): TypedEventFilter<[ string, BigNumber, BigNumber, number ],
       {
         staker: string;
         value1: BigNumber;
         value2: BigNumber;
         lastPeriod: number;
-      }
-    >;
+      }>;
 
     Migrated(
       staker?: string | null,
-      period?: BigNumberish | null
-    ): TypedEventFilter<[string, number], { staker: string; period: number }>;
+      period?: BigNumberish | null,
+    ): TypedEventFilter<[ string, number ], { staker: string; period: number }>;
 
     Minted(
       staker?: string | null,
       period?: BigNumberish | null,
-      value?: null
-    ): TypedEventFilter<
-      [string, number, BigNumber],
-      { staker: string; period: number; value: BigNumber }
-    >;
+      value?: null,
+    ): TypedEventFilter<[ string, number, BigNumber ],
+      { staker: string; period: number; value: BigNumber }>;
 
     OwnershipTransferred(
       previousOwner?: string | null,
-      newOwner?: string | null
-    ): TypedEventFilter<
-      [string, string],
-      { previousOwner: string; newOwner: string }
-    >;
+      newOwner?: string | null,
+    ): TypedEventFilter<[ string, string ],
+      { previousOwner: string; newOwner: string }>;
 
     Prolonged(
       staker?: string | null,
       value?: null,
       lastPeriod?: null,
-      periods?: null
-    ): TypedEventFilter<
-      [string, BigNumber, number, number],
-      { staker: string; value: BigNumber; lastPeriod: number; periods: number }
-    >;
+      periods?: null,
+    ): TypedEventFilter<[ string, BigNumber, number, number ],
+      { staker: string; value: BigNumber; lastPeriod: number; periods: number }>;
 
     ReStakeSet(
       staker?: string | null,
-      reStake?: null
-    ): TypedEventFilter<
-      [string, boolean],
-      { staker: string; reStake: boolean }
-    >;
+      reStake?: null,
+    ): TypedEventFilter<[ string, boolean ],
+      { staker: string; reStake: boolean }>;
 
     Slashed(
       staker?: string | null,
       penalty?: null,
       investigator?: string | null,
-      reward?: null
-    ): TypedEventFilter<
-      [string, BigNumber, string, BigNumber],
+      reward?: null,
+    ): TypedEventFilter<[ string, BigNumber, string, BigNumber ],
       {
         staker: string;
         penalty: BigNumber;
         investigator: string;
         reward: BigNumber;
-      }
-    >;
+      }>;
 
     SnapshotSet(
       staker?: string | null,
-      snapshotsEnabled?: null
-    ): TypedEventFilter<
-      [string, boolean],
-      { staker: string; snapshotsEnabled: boolean }
-    >;
+      snapshotsEnabled?: null,
+    ): TypedEventFilter<[ string, boolean ],
+      { staker: string; snapshotsEnabled: boolean }>;
 
     StateVerified(
       testTarget?: string | null,
-      sender?: null
-    ): TypedEventFilter<
-      [string, string],
-      { testTarget: string; sender: string }
-    >;
+      sender?: null,
+    ): TypedEventFilter<[ string, string ],
+      { testTarget: string; sender: string }>;
 
     UpgradeFinished(
       target?: string | null,
-      sender?: null
-    ): TypedEventFilter<[string, string], { target: string; sender: string }>;
+      sender?: null,
+    ): TypedEventFilter<[ string, string ], { target: string; sender: string }>;
 
     WindDownSet(
       staker?: string | null,
-      windDown?: null
-    ): TypedEventFilter<
-      [string, boolean],
-      { staker: string; windDown: boolean }
-    >;
+      windDown?: null,
+    ): TypedEventFilter<[ string, boolean ],
+      { staker: string; windDown: boolean }>;
 
     Withdrawn(
       staker?: string | null,
-      value?: null
-    ): TypedEventFilter<
-      [string, BigNumber],
-      { staker: string; value: BigNumber }
-    >;
+      value?: null,
+    ): TypedEventFilter<[ string, BigNumber ],
+      { staker: string; value: BigNumber }>;
 
     WorkMeasurementSet(
       staker?: string | null,
-      measureWork?: null
-    ): TypedEventFilter<
-      [string, boolean],
-      { staker: string; measureWork: boolean }
-    >;
+      measureWork?: null,
+    ): TypedEventFilter<[ string, boolean ],
+      { staker: string; measureWork: boolean }>;
 
     WorkerBonded(
       staker?: string | null,
       worker?: string | null,
-      startPeriod?: BigNumberish | null
-    ): TypedEventFilter<
-      [string, string, number],
-      { staker: string; worker: string; startPeriod: number }
-    >;
+      startPeriod?: BigNumberish | null,
+    ): TypedEventFilter<[ string, string, number ],
+      { staker: string; worker: string; startPeriod: number }>;
   };
-
   estimateGas: {
     MAX_SUB_STAKES(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1948,16 +1664,16 @@ export class StakingEscrow extends BaseContract {
 
     balanceHistory(
       arg0: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     bondWorker(
       _worker: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     commitToNextPeriod(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     currentMintingPeriod(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1968,43 +1684,43 @@ export class StakingEscrow extends BaseContract {
       _staker: string,
       _value: BigNumberish,
       _unlockingDuration: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     depositAndIncrease(
       _index: BigNumberish,
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     depositFromWorkLock(
       _staker: string,
       _value: BigNumberish,
       _unlockingDuration: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     divideStake(
       _index: BigNumberish,
       _newValue: BigNumberish,
       _additionalDuration: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     donate(
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     findIndexOfPastDowntime(
       _staker: string,
       _period: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     finishUpgrade(
       _target: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     firstPhaseMaxIssuance(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2017,17 +1733,17 @@ export class StakingEscrow extends BaseContract {
       _offsetPeriods: BigNumberish,
       _startIndex: BigNumberish,
       _maxStakers: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getAllTokens(
       _staker: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getCompletedWork(
       _staker: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getCurrentPeriod(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2036,30 +1752,30 @@ export class StakingEscrow extends BaseContract {
 
     getLastCommittedPeriod(
       _staker: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getLastPeriodOfSubStake(
       _staker: string,
       _index: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getLockedTokens(
       _staker: string,
       _offsetPeriods: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getPastDowntime(
       _staker: string,
       _index: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getPastDowntimeLength(
       _staker: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getReservedReward(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2069,23 +1785,23 @@ export class StakingEscrow extends BaseContract {
     getSubStakeInfo(
       _staker: string,
       _index: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getSubStakesLength(
       _staker: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getWorkerFromStaker(
       _staker: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     initialize(
       _reservedReward: BigNumberish,
       _sourceOfFunds: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     isOwner(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2095,13 +1811,13 @@ export class StakingEscrow extends BaseContract {
     lockAndCreate(
       _value: BigNumberish,
       _unlockingDuration: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     lockAndIncrease(
       _index: BigNumberish,
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     lockDurationCoefficient1(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2110,7 +1826,7 @@ export class StakingEscrow extends BaseContract {
 
     lockedPerPeriod(
       _period: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     maxAllowableLockedTokens(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2120,12 +1836,12 @@ export class StakingEscrow extends BaseContract {
     mergeStake(
       _index1: BigNumberish,
       _index2: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     migrate(
       _staker: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     minAllowableLockedTokens(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2135,7 +1851,7 @@ export class StakingEscrow extends BaseContract {
     minWorkerPeriods(overrides?: CallOverrides): Promise<BigNumber>;
 
     mint(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     mintingCoefficient(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2151,7 +1867,7 @@ export class StakingEscrow extends BaseContract {
     prolongStake(
       _index: BigNumberish,
       _additionalDuration: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     receiveApproval(
@@ -2159,39 +1875,39 @@ export class StakingEscrow extends BaseContract {
       _value: BigNumberish,
       _tokenContract: string,
       arg3: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     removeUnusedSubStake(
       _index: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     secondsPerPeriod(overrides?: CallOverrides): Promise<BigNumber>;
 
     setReStake(
       _reStake: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     setSnapshots(
       _enableSnapshots: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     setWindDown(
       _windDown: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     setWorkMeasurement(
       _staker: string,
       _measureWork: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     slashStaker(
@@ -2199,12 +1915,12 @@ export class StakingEscrow extends BaseContract {
       _penalty: BigNumberish,
       _investigator: string,
       _reward: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     stakerFromWorker(
       arg0: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     stakerInfo(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -2219,35 +1935,34 @@ export class StakingEscrow extends BaseContract {
 
     totalStakedAt(
       _blockNumber: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     totalStakedForAt(
       _owner: string,
       _blockNumber: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferOwnership(
       newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     verifyState(
       _testTarget: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     withdraw(
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     workLock(overrides?: CallOverrides): Promise<BigNumber>;
   };
-
   populateTransaction: {
     MAX_SUB_STAKES(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -2255,131 +1970,131 @@ export class StakingEscrow extends BaseContract {
 
     balanceHistory(
       arg0: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     bondWorker(
       _worker: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     commitToNextPeriod(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     currentMintingPeriod(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     currentPeriodSupply(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     deposit(
       _staker: string,
       _value: BigNumberish,
       _unlockingDuration: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     depositAndIncrease(
       _index: BigNumberish,
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     depositFromWorkLock(
       _staker: string,
       _value: BigNumberish,
       _unlockingDuration: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     divideStake(
       _index: BigNumberish,
       _newValue: BigNumberish,
       _additionalDuration: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     donate(
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     findIndexOfPastDowntime(
       _staker: string,
       _period: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     finishUpgrade(
       _target: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     firstPhaseMaxIssuance(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     firstPhaseTotalSupply(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     genesisSecondsPerPeriod(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getActiveStakers(
       _offsetPeriods: BigNumberish,
       _startIndex: BigNumberish,
       _maxStakers: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getAllTokens(
       _staker: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getCompletedWork(
       _staker: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getCurrentPeriod(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getFlags(
       _staker: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getLastCommittedPeriod(
       _staker: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getLastPeriodOfSubStake(
       _staker: string,
       _index: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getLockedTokens(
       _staker: string,
       _offsetPeriods: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getPastDowntime(
       _staker: string,
       _index: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getPastDowntimeLength(
       _staker: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getReservedReward(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -2389,23 +2104,23 @@ export class StakingEscrow extends BaseContract {
     getSubStakeInfo(
       _staker: string,
       _index: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getSubStakesLength(
       _staker: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getWorkerFromStaker(
       _staker: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     initialize(
       _reservedReward: BigNumberish,
       _sourceOfFunds: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     isOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -2415,49 +2130,49 @@ export class StakingEscrow extends BaseContract {
     lockAndCreate(
       _value: BigNumberish,
       _unlockingDuration: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     lockAndIncrease(
       _index: BigNumberish,
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     lockDurationCoefficient1(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     lockDurationCoefficient2(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     lockedPerPeriod(
       _period: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     maxAllowableLockedTokens(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     maximumRewardedPeriods(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     mergeStake(
       _index1: BigNumberish,
       _index2: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     migrate(
       _staker: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     minAllowableLockedTokens(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     minLockedPeriods(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -2465,11 +2180,11 @@ export class StakingEscrow extends BaseContract {
     minWorkerPeriods(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     mint(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     mintingCoefficient(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -2477,7 +2192,7 @@ export class StakingEscrow extends BaseContract {
     policyManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     previousPeriodSupply(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     previousTarget(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -2485,7 +2200,7 @@ export class StakingEscrow extends BaseContract {
     prolongStake(
       _index: BigNumberish,
       _additionalDuration: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     receiveApproval(
@@ -2493,39 +2208,39 @@ export class StakingEscrow extends BaseContract {
       _value: BigNumberish,
       _tokenContract: string,
       arg3: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     removeUnusedSubStake(
       _index: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     secondsPerPeriod(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     setReStake(
       _reStake: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     setSnapshots(
       _enableSnapshots: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     setWindDown(
       _windDown: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     setWorkMeasurement(
       _staker: string,
       _measureWork: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     slashStaker(
@@ -2533,22 +2248,22 @@ export class StakingEscrow extends BaseContract {
       _penalty: BigNumberish,
       _investigator: string,
       _reward: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     stakerFromWorker(
       arg0: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     stakerInfo(
       arg0: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     stakers(
       arg0: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     supportsHistory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -2559,32 +2274,433 @@ export class StakingEscrow extends BaseContract {
 
     totalStakedAt(
       _blockNumber: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     totalStakedForAt(
       _owner: string,
       _blockNumber: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     transferOwnership(
       newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     verifyState(
       _testTarget: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     withdraw(
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     workLock(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
+
+  connect(signerOrProvider: Signer | Provider | string): this;
+
+  attach(addressOrName: string): this;
+
+  deployed(): Promise<this>;
+
+  listeners<EventArgsArray extends Array<any>, EventArgsObject>(
+    eventFilter?: TypedEventFilter<EventArgsArray, EventArgsObject>,
+  ): Array<TypedListener<EventArgsArray, EventArgsObject>>;
+
+  off<EventArgsArray extends Array<any>, EventArgsObject>(
+    eventFilter: TypedEventFilter<EventArgsArray, EventArgsObject>,
+    listener: TypedListener<EventArgsArray, EventArgsObject>,
+  ): this;
+
+  on<EventArgsArray extends Array<any>, EventArgsObject>(
+    eventFilter: TypedEventFilter<EventArgsArray, EventArgsObject>,
+    listener: TypedListener<EventArgsArray, EventArgsObject>,
+  ): this;
+
+  once<EventArgsArray extends Array<any>, EventArgsObject>(
+    eventFilter: TypedEventFilter<EventArgsArray, EventArgsObject>,
+    listener: TypedListener<EventArgsArray, EventArgsObject>,
+  ): this;
+
+  removeListener<EventArgsArray extends Array<any>, EventArgsObject>(
+    eventFilter: TypedEventFilter<EventArgsArray, EventArgsObject>,
+    listener: TypedListener<EventArgsArray, EventArgsObject>,
+  ): this;
+
+  removeAllListeners<EventArgsArray extends Array<any>, EventArgsObject>(
+    eventFilter: TypedEventFilter<EventArgsArray, EventArgsObject>,
+  ): this;
+
+  listeners(eventName?: string): Array<Listener>;
+
+  off(eventName: string, listener: Listener): this;
+
+  on(eventName: string, listener: Listener): this;
+
+  once(eventName: string, listener: Listener): this;
+
+  removeListener(eventName: string, listener: Listener): this;
+
+  removeAllListeners(eventName?: string): this;
+
+  queryFilter<EventArgsArray extends Array<any>, EventArgsObject>(
+    event: TypedEventFilter<EventArgsArray, EventArgsObject>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined,
+  ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
+
+  MAX_SUB_STAKES(overrides?: CallOverrides): Promise<number>;
+
+  adjudicator(overrides?: CallOverrides): Promise<string>;
+
+  balanceHistory(
+    arg0: BigNumberish,
+    overrides?: CallOverrides,
+  ): Promise<BigNumber>;
+
+  bondWorker(
+    _worker: string,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  commitToNextPeriod(
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  currentMintingPeriod(overrides?: CallOverrides): Promise<number>;
+
+  currentPeriodSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+  deposit(
+    _staker: string,
+    _value: BigNumberish,
+    _unlockingDuration: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  depositAndIncrease(
+    _index: BigNumberish,
+    _value: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  depositFromWorkLock(
+    _staker: string,
+    _value: BigNumberish,
+    _unlockingDuration: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  divideStake(
+    _index: BigNumberish,
+    _newValue: BigNumberish,
+    _additionalDuration: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  donate(
+    _value: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  findIndexOfPastDowntime(
+    _staker: string,
+    _period: BigNumberish,
+    overrides?: CallOverrides,
+  ): Promise<BigNumber>;
+
+  finishUpgrade(
+    _target: string,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  firstPhaseMaxIssuance(overrides?: CallOverrides): Promise<BigNumber>;
+
+  firstPhaseTotalSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+  genesisSecondsPerPeriod(overrides?: CallOverrides): Promise<number>;
+
+  getActiveStakers(
+    _offsetPeriods: BigNumberish,
+    _startIndex: BigNumberish,
+    _maxStakers: BigNumberish,
+    overrides?: CallOverrides,
+  ): Promise<[ BigNumber, [ BigNumber, BigNumber ][] ] & {
+    allLockedTokens: BigNumber;
+    activeStakers: [ BigNumber, BigNumber ][];
+  }>;
+
+  getAllTokens(_staker: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+  getCompletedWork(
+    _staker: string,
+    overrides?: CallOverrides,
+  ): Promise<BigNumber>;
+
+  getCurrentPeriod(overrides?: CallOverrides): Promise<number>;
+
+  getFlags(
+    _staker: string,
+    overrides?: CallOverrides,
+  ): Promise<[ boolean, boolean, boolean, boolean, boolean ] & {
+    windDown: boolean;
+    reStake: boolean;
+    measureWork: boolean;
+    snapshots: boolean;
+    migrated: boolean;
+  }>;
+
+  getLastCommittedPeriod(
+    _staker: string,
+    overrides?: CallOverrides,
+  ): Promise<number>;
+
+  getLastPeriodOfSubStake(
+    _staker: string,
+    _index: BigNumberish,
+    overrides?: CallOverrides,
+  ): Promise<number>;
+
+  getLockedTokens(
+    _staker: string,
+    _offsetPeriods: BigNumberish,
+    overrides?: CallOverrides,
+  ): Promise<BigNumber>;
+
+  getPastDowntime(
+    _staker: string,
+    _index: BigNumberish,
+    overrides?: CallOverrides,
+  ): Promise<[ number, number ] & { startPeriod: number; endPeriod: number }>;
+
+  getPastDowntimeLength(
+    _staker: string,
+    overrides?: CallOverrides,
+  ): Promise<BigNumber>;
+
+  getReservedReward(overrides?: CallOverrides): Promise<BigNumber>;
+
+  getStakersLength(overrides?: CallOverrides): Promise<BigNumber>;
+
+  getSubStakeInfo(
+    _staker: string,
+    _index: BigNumberish,
+    overrides?: CallOverrides,
+  ): Promise<[ number, number, number, BigNumber ] & {
+    firstPeriod: number;
+    lastPeriod: number;
+    unlockingDuration: number;
+    lockedValue: BigNumber;
+  }>;
+
+  getSubStakesLength(
+    _staker: string,
+    overrides?: CallOverrides,
+  ): Promise<BigNumber>;
+
+  getWorkerFromStaker(
+    _staker: string,
+    overrides?: CallOverrides,
+  ): Promise<string>;
+
+  initialize(
+    _reservedReward: BigNumberish,
+    _sourceOfFunds: string,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  isOwner(overrides?: CallOverrides): Promise<boolean>;
+
+  isUpgrade(overrides?: CallOverrides): Promise<number>;
+
+  lockAndCreate(
+    _value: BigNumberish,
+    _unlockingDuration: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  lockAndIncrease(
+    _index: BigNumberish,
+    _value: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  lockDurationCoefficient1(overrides?: CallOverrides): Promise<BigNumber>;
+
+  lockDurationCoefficient2(overrides?: CallOverrides): Promise<BigNumber>;
+
+  lockedPerPeriod(
+    _period: BigNumberish,
+    overrides?: CallOverrides,
+  ): Promise<BigNumber>;
+
+  maxAllowableLockedTokens(overrides?: CallOverrides): Promise<BigNumber>;
+
+  maximumRewardedPeriods(overrides?: CallOverrides): Promise<number>;
+
+  mergeStake(
+    _index1: BigNumberish,
+    _index2: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  migrate(
+    _staker: string,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  minAllowableLockedTokens(overrides?: CallOverrides): Promise<BigNumber>;
+
+  minLockedPeriods(overrides?: CallOverrides): Promise<number>;
+
+  minWorkerPeriods(overrides?: CallOverrides): Promise<number>;
+
+  mint(
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  mintingCoefficient(overrides?: CallOverrides): Promise<BigNumber>;
+
+  owner(overrides?: CallOverrides): Promise<string>;
+
+  policyManager(overrides?: CallOverrides): Promise<string>;
+
+  previousPeriodSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+  previousTarget(overrides?: CallOverrides): Promise<string>;
+
+  prolongStake(
+    _index: BigNumberish,
+    _additionalDuration: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  receiveApproval(
+    _from: string,
+    _value: BigNumberish,
+    _tokenContract: string,
+    arg3: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  removeUnusedSubStake(
+    _index: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  renounceOwnership(
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  secondsPerPeriod(overrides?: CallOverrides): Promise<number>;
+
+  setReStake(
+    _reStake: boolean,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  setSnapshots(
+    _enableSnapshots: boolean,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  setWindDown(
+    _windDown: boolean,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  setWorkMeasurement(
+    _staker: string,
+    _measureWork: boolean,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  slashStaker(
+    _staker: string,
+    _penalty: BigNumberish,
+    _investigator: string,
+    _reward: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  stakerFromWorker(arg0: string, overrides?: CallOverrides): Promise<string>;
+
+  stakerInfo(
+    arg0: string,
+    overrides?: CallOverrides,
+  ): Promise<[
+    BigNumber,
+    number,
+    number,
+    number,
+    number,
+    BigNumber,
+    number,
+    string,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber
+  ] & {
+    value: BigNumber;
+    currentCommittedPeriod: number;
+    nextCommittedPeriod: number;
+    lastCommittedPeriod: number;
+    stub1: number;
+    completedWork: BigNumber;
+    workerStartPeriod: number;
+    worker: string;
+    flags: BigNumber;
+    reservedSlot1: BigNumber;
+    reservedSlot2: BigNumber;
+    reservedSlot3: BigNumber;
+    reservedSlot4: BigNumber;
+    reservedSlot5: BigNumber;
+  }>;
+
+  stakers(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
+
+  supportsHistory(overrides?: CallOverrides): Promise<boolean>;
+
+  target(overrides?: CallOverrides): Promise<string>;
+
+  token(overrides?: CallOverrides): Promise<string>;
+
+  totalStakedAt(
+    _blockNumber: BigNumberish,
+    overrides?: CallOverrides,
+  ): Promise<BigNumber>;
+
+  totalStakedForAt(
+    _owner: string,
+    _blockNumber: BigNumberish,
+    overrides?: CallOverrides,
+  ): Promise<BigNumber>;
+
+  totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+  transferOwnership(
+    newOwner: string,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  verifyState(
+    _testTarget: string,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  withdraw(
+    _value: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  workLock(overrides?: CallOverrides): Promise<string>;
 }

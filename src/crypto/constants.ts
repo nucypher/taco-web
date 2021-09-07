@@ -7,7 +7,6 @@ export const SIGNATURE_HEADER_HEX = {
   SIGNATURE_TO_FOLLOW: '01',
   SIGNATURE_IS_ON_CIPHERTEXT: '02',
 };
-
 // TODO: There must be a smarter way to do this
 export const SIGNATURE_HEADER_BYTES_LENGTH = 1;
 
@@ -17,3 +16,6 @@ export const ETH_ADDRESS_BYTE_LENGTH = 20;
 export const ETH_HASH_BYTE_LENGTH = 32;
 
 export const UMBRAL_KEYING_MATERIAL_BYTES_LENGTH = 32;
+
+// Policy component sizes
+export const EIP712_MESSAGE_SIGNATURE_SIZE = 65;

@@ -1,5 +1,5 @@
 name: CI
-on: [push]
+on: [ push ]
 jobs:
   build:
     name: Build, lint, and test on Node ${{ matrix.node }} and ${{ matrix.os }}
@@ -7,8 +7,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node: ['10.x', '12.x', '14.x']
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        node: [ '10.x', '12.x', '14.x' ]
+        os: [ ubuntu-latest, windows-latest, macOS-latest ]
 
     steps:
       - name: Checkout repo

@@ -8,9 +8,10 @@ import {
   PublicKey,
   SecretKey,
   Signer,
+  VerifiedKeyFrag,
 } from 'umbral-pre';
 
-import { PolicyMessageKit, ReencryptedMessageKit } from '../kits/message';
+import { MessageKit, PolicyMessageKit, ReencryptedMessageKit } from '../kits/message';
 import { ChecksumAddress } from '../types';
 
 import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
@@ -27,22 +28,21 @@ export abstract class TransactingPower {
 export class DerivedTransactionPower extends TransactingPower {
   public wallet: Wallet;
 
-  constructor(keyingMaterial: Buffer, provider?: Provider) {
+  private constructor(keyingMaterial: Uint8Array, provider?: Provider) {
     super();
-    const secretKey = new UmbralKeyingMaterial(
-      keyingMaterial
-    ).deriveSecretKey();
-    this.wallet = new Wallet(secretKey.toSecretBytes());
-    if (provider) {
-      this.wallet.connect(provider);
-    }
+    const secretKey = new UmbralKeyingMaterial(keyingMaterial).deriveSecretKey();
+    this.wallet = new Wallet(keyingMaterial);
   }
 
   public get account(): ChecksumAddress {
     return this.wallet.address;
   }
 
-  connect(provider: Provider): void {
+  public static fromKeyingMaterial(keyingMaterial: Uint8Array): DerivedTransactionPower {
+    return new DerivedTransactionPower(keyingMaterial);
+  }
+
+  public connect(provider: Provider): void {
     this.wallet = this.wallet.connect(provider);
   }
 }
@@ -50,8 +50,12 @@ export class DerivedTransactionPower extends TransactingPower {
 export class DelegatingPower {
   private keyingMaterial: UmbralKeyingMaterial;
 
-  constructor(keyingMaterial: Buffer) {
+  private constructor(keyingMaterial: Uint8Array) {
     this.keyingMaterial = new UmbralKeyingMaterial(keyingMaterial);
+  }
+
+  public static fromKeyingMaterial(keyingMaterial: Uint8Array) {
+    return new DelegatingPower(keyingMaterial);
   }
 
   public async generateKFrags(
@@ -62,7 +66,7 @@ export class DelegatingPower {
     n: number
   ): Promise<{
     delegatingPublicKey: PublicKey;
-    kFrags: KeyFrag[];
+    verifiedKFrags: VerifiedKeyFrag[];
   }> {
     const delegatingSecretKey = await this.getSecretKeyFromLabel(label);
     const delegatingPublicKey = await this.getPublicKeyFromLabel(label);
@@ -75,9 +79,12 @@ export class DelegatingPower {
       false,
       false
     );
+    const verifiedKFrags = kFrags.map((kFrag) =>
+      VerifiedKeyFrag.fromVerifiedBytes(kFrag.toBytes())
+    );
     return {
       delegatingPublicKey,
-      kFrags,
+      verifiedKFrags,
     };
   }
 
@@ -95,14 +102,12 @@ abstract class CryptoPower {
   private readonly _secretKey?: SecretKey;
   private readonly _publicKey?: PublicKey;
 
-  protected constructor(keyingMaterial?: Buffer, publicKey?: PublicKey) {
+  protected constructor(keyingMaterial?: Uint8Array, publicKey?: PublicKey) {
     if (keyingMaterial && publicKey) {
       throw new Error('Pass either keyMaterial or publicKey - not both.');
     }
     if (keyingMaterial) {
-      this._secretKey = new UmbralKeyingMaterial(
-        keyingMaterial
-      ).deriveSecretKey();
+      this._secretKey = new UmbralKeyingMaterial(keyingMaterial).deriveSecretKey();
       this._publicKey = this.secretKey.publicKey();
     }
     if (publicKey) {
@@ -118,9 +123,7 @@ abstract class CryptoPower {
     if (this._secretKey) {
       return this._secretKey;
     } else {
-      throw new Error(
-        'Power initialized with public key, secret key not present.'
-      );
+      throw new Error('Power initialized with public key, secret key not present.');
     }
   }
 }
@@ -136,7 +139,7 @@ export class SigningPower extends CryptoPower {
     return new SigningPower(undefined, publicKey);
   }
 
-  public static fromKeyingMaterial(keyingMaterial: Buffer): SigningPower {
+  public static fromKeyingMaterial(keyingMaterial: Uint8Array): SigningPower {
     return new SigningPower(keyingMaterial, undefined);
   }
 
@@ -151,26 +154,18 @@ export class DecryptingPower extends CryptoPower {
     return new DecryptingPower(undefined, publicKey);
   }
 
-  public static fromKeyingMaterial(keyingMaterial: Buffer): DecryptingPower {
+  public static fromKeyingMaterial(keyingMaterial: Uint8Array): DecryptingPower {
     return new DecryptingPower(keyingMaterial, undefined);
   }
 
-  public decrypt(messageKit: PolicyMessageKit | ReencryptedMessageKit): Buffer {
-    if (messageKit instanceof PolicyMessageKit) {
-      return Buffer.from(
-        decryptOriginal(
-          this.secretKey,
-          messageKit.capsule,
-          messageKit.ciphertext
-        )
-      );
+  public decrypt(messageKit: PolicyMessageKit | MessageKit | ReencryptedMessageKit): Uint8Array {
+    if (messageKit instanceof PolicyMessageKit || messageKit instanceof MessageKit) {
+      return decryptOriginal(this.secretKey, messageKit.capsule, messageKit.ciphertext);
     } else {
-      return Buffer.from(
-        messageKit.capsule.decryptReencrypted(
-          this.secretKey,
-          messageKit.recipientEncryptingKey,
-          messageKit.ciphertext
-        )
+      return messageKit.capsule.decryptReencrypted(
+        this.secretKey,
+        messageKit.recipientPublicKey,
+        messageKit.ciphertext
       );
     }
   }

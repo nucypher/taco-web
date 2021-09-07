@@ -1,64 +1,62 @@
-import {
-  Capsule,
-  CapsuleWithFrags,
-  encrypt,
-  PublicKey,
-  Signer,
-} from 'umbral-pre';
+import { Capsule, CapsuleWithFrags, PublicKey } from 'umbral-pre';
 
 import { Enrico } from '../characters/enrico';
-import { Revocation } from '../policies/collections';
-import { ChecksumAddress } from '../types';
+import { encodeVariableLengthMessage } from '../utils';
 
-export interface MessageKit {
-  capsule: Capsule;
-  ciphertext: Buffer;
-  signature: Buffer;
-  senderVerifyingKey: PublicKey;
-  recipientEncryptingKey: PublicKey;
+export class MessageKit {
+  constructor(
+    public readonly capsule: Capsule,
+    public readonly ciphertext: Uint8Array,
+    public readonly signature: Uint8Array,
+    public readonly recipientPublicKey: PublicKey
+  ) {}
 }
 
 export type ReencryptedMessageKit = Omit<MessageKit, 'capsule'> & {
   capsule: CapsuleWithFrags;
+  senderVerifyingKey: PublicKey;
 };
 
-export class PolicyMessageKit implements MessageKit {
-  public readonly capsule: Capsule;
-  public readonly ciphertext: Buffer;
-  public readonly signature: Buffer;
-  public readonly senderVerifyingKey: PublicKey;
-  public readonly recipientEncryptingKey: PublicKey;
-
+export class PolicyMessageKit extends MessageKit {
   constructor(
-    capsule: Capsule,
-    ciphertext: Buffer,
-    signature: Buffer,
-    senderVerifyingKey: PublicKey,
-    recipientEncryptingKey: PublicKey
+    public readonly capsule: Capsule,
+    public readonly ciphertext: Uint8Array,
+    public readonly signature: Uint8Array,
+    public readonly recipientPublicKey: PublicKey,
+    public readonly senderVerifyingKey: PublicKey
   ) {
-    this.capsule = capsule;
-    this.ciphertext = ciphertext;
-    this.signature = signature;
-    this.senderVerifyingKey = senderVerifyingKey;
-    this.recipientEncryptingKey = recipientEncryptingKey;
+    super(capsule, ciphertext, signature, recipientPublicKey);
   }
 
-  public toBytes(includeAlicePublicKey = true): Buffer {
+  public static fromMessageKit(
+    messageKit: MessageKit,
+    senderVerifyingKey: PublicKey
+  ): PolicyMessageKit {
+    const { capsule, ciphertext, signature, recipientPublicKey } = messageKit;
+    return new PolicyMessageKit(
+      capsule,
+      ciphertext,
+      signature,
+      recipientPublicKey,
+      senderVerifyingKey
+    );
+  }
+
+  public toBytes(includeAlicePublicKey = true): Uint8Array {
     const asBytes = [this.capsule.toBytes()];
     if (includeAlicePublicKey && !!this.senderVerifyingKey) {
       asBytes.push(this.senderVerifyingKey.toBytes());
     }
-    asBytes.push(this.ciphertext);
-    return Buffer.concat(asBytes);
+    const encodedCiphertext = encodeVariableLengthMessage(this.ciphertext);
+    asBytes.push(encodedCiphertext);
+    // asBytes.forEach((a) => console.log(toHexString(a)));
+    return asBytes.reduce((prev, next) => new Uint8Array([...prev, ...next]));
   }
 
-  public ensureCorrectSender(
-    enrico: Enrico,
-    recipientEncryptingKey: PublicKey
-  ): void {
+  public ensureCorrectSender(enrico: Enrico, recipientEncryptingKey: PublicKey): void {
     if (
-      enrico.recipientEncryptingKey !== this.recipientEncryptingKey &&
-      recipientEncryptingKey !== this.recipientEncryptingKey
+      enrico.recipientEncryptingKey !== this.recipientPublicKey &&
+      recipientEncryptingKey !== this.recipientPublicKey
     ) {
       throw new Error('Recipient encrypting key does not match');
     }

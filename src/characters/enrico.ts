@@ -3,15 +3,13 @@ import { PublicKey } from 'umbral-pre';
 import { encryptAndSign } from '../crypto/api';
 import { SigningPower } from '../crypto/powers';
 import { PolicyMessageKit } from '../kits/message';
+import { toBytes } from '../utils';
 
 export class Enrico {
   public readonly recipientEncryptingKey: PublicKey;
   private readonly signingPower: SigningPower;
 
-  constructor(
-    recipientEncryptingKey: PublicKey,
-    enricoVerifyingKey?: PublicKey
-  ) {
+  constructor(recipientEncryptingKey: PublicKey, enricoVerifyingKey?: PublicKey) {
     this.recipientEncryptingKey = recipientEncryptingKey;
     if (enricoVerifyingKey) {
       this.signingPower = SigningPower.fromPublicKey(enricoVerifyingKey);
@@ -24,12 +22,13 @@ export class Enrico {
     return this.signingPower.publicKey;
   }
 
-  public encrypt(plaintext: Buffer): PolicyMessageKit {
-    return encryptAndSign(
+  public encrypt(plaintext: Uint8Array | string): PolicyMessageKit {
+    const plaintextBytes = plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext);
+    const messageKit = encryptAndSign(
       this.recipientEncryptingKey,
-      plaintext,
-      this.signingPower.signer,
-      this.signingPower.publicKey
+      plaintextBytes,
+      this.signingPower.signer
     );
+    return PolicyMessageKit.fromMessageKit(messageKit, this.signingPower.signer.verifyingKey());
   }
 }

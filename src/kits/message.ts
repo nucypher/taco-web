@@ -49,13 +49,15 @@ export class PolicyMessageKit extends MessageKit {
     }
     const encodedCiphertext = encodeVariableLengthMessage(this.ciphertext);
     asBytes.push(encodedCiphertext);
-    // asBytes.forEach((a) => console.log(toHexString(a)));
     return asBytes.reduce((prev, next) => new Uint8Array([...prev, ...next]));
   }
 
-  public ensureCorrectSender(enrico: Enrico, recipientEncryptingKey: PublicKey): void {
+  public ensureCorrectSender(
+    enrico: Enrico,
+    recipientEncryptingKey: PublicKey
+  ): void {
     if (
-      enrico.recipientEncryptingKey !== this.recipientPublicKey &&
+      enrico.policyEncryptingKey !== this.recipientPublicKey &&
       recipientEncryptingKey !== this.recipientPublicKey
     ) {
       throw new Error('Recipient encrypting key does not match');

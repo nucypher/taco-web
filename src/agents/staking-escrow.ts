@@ -1,6 +1,9 @@
 import { Provider } from '@ethersproject/providers';
 
-import { StakingEscrow, StakingEscrow__factory } from '../../types/ethers-contracts';
+import {
+  StakingEscrow,
+  StakingEscrow__factory,
+} from '../../types/ethers-contracts';
 
 import { CONTRACTS } from './constants';
 
@@ -19,7 +22,9 @@ export class StakingEscrowAgent {
     const network = await provider.getNetwork();
     const contractAddress = CONTRACTS[network.name].STAKINGESCROW;
     if (!contractAddress) {
-      throw Error(`StakingEscrow contract address not found for network ${network.name}`);
+      throw Error(
+        `StakingEscrow contract address not found for network ${network.name}`
+      );
     }
     return StakingEscrow__factory.connect(contractAddress, provider);
   }

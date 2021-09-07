@@ -1,17 +1,11 @@
 import axios, { AxiosResponse } from 'axios';
 import qs from 'qs';
-import { PublicKey } from 'umbral-pre';
 
 import { PolicyMessageKit } from '../kits/message';
-import {
-  EncryptedTreasureMap,
-  PublishedTreasureMap,
-  WorkOrder,
-  WorkOrderResult,
-} from '../policies/collections';
+import { WorkOrder, WorkOrderResult } from '../policies/collections';
 import { Arrangement } from '../policies/policy';
 import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from '../types';
-import { fromBase64, toBase64, toBytes, toHexString } from '../utils';
+import { fromBase64, toBase64, toHexString } from '../utils';
 
 export interface IUrsula {
   checksumAddress: ChecksumAddress;
@@ -117,45 +111,13 @@ export class Porter {
     }));
   }
 
-  public async publishTreasureMap(treasureMap: EncryptedTreasureMap, bobEncryptingKey: PublicKey) {
-    const treasureMapBytes = treasureMap.toBytes();
-    const data: PublishTreasureMapRequest = {
-      treasure_map: toBase64(treasureMapBytes),
-      bob_encrypting_key: toHexString(bobEncryptingKey.toBytes()),
-    };
-    await axios.post(`${this.porterUri}/publish_treasure_map`, data, {
-      headers: {
-        'Access-Control-Allow-Origin': this.porterUri,
-      },
-    });
-  }
-
   public revoke(revocations: RevocationRequest[]): RevocationResponse {
     throw new Error('Method not implemented.');
   }
 
-  public async getTreasureMap(
-    treasureMapId: string,
-    bobEncryptingKey: PublicKey
-  ): Promise<PublishedTreasureMap> {
-    const params: GetTreasureMapRequest = {
-      treasure_map_id: toHexString(toBytes(treasureMapId)),
-      bob_encrypting_key: toHexString(bobEncryptingKey.toBytes()),
-    };
-    const resp: AxiosResponse<GetTreasureMapResponse> = await axios.get(
-      `${this.porterUri}/get_treasure_map`,
-      {
-        params,
-        headers: {
-          'Access-Control-Allow-Origin': this.porterUri,
-        },
-      }
-    );
-    const asBytes = fromBase64(resp.data.result.treasureMap);
-    return PublishedTreasureMap.fromBytes(asBytes);
-  }
-
-  public async executeWorkOrder(workOrder: WorkOrder): Promise<WorkOrderResult> {
+  public async executeWorkOrder(
+    workOrder: WorkOrder
+  ): Promise<WorkOrderResult> {
     const data: PostExecuteWorkOrderRequest = {
       ursula: workOrder.ursula.checksumAddress,
       work_order: toBase64(workOrder.payload()),
@@ -177,7 +139,6 @@ export class Porter {
     ursula: IUrsula,
     arrangement: Arrangement
   ): Promise<ChecksumAddress | null> {
-    console.log({ ursula });
     const url = `${this.porterUri}/proxy/consider_arrangement`;
     const config = {
       headers: {

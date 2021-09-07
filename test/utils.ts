@@ -1,27 +1,12 @@
 import { Block, Provider } from '@ethersproject/providers';
 import axios from 'axios';
-import {
-  Capsule,
-  CapsuleWithFrags,
-  PublicKey,
-  reencrypt,
-  Signature,
-  VerifiedCapsuleFrag,
-  VerifiedKeyFrag,
-} from 'umbral-pre';
+import { Capsule, CapsuleWithFrags, reencrypt, Signature, VerifiedCapsuleFrag, VerifiedKeyFrag } from 'umbral-pre';
 
 import { Alice, Bob, NucypherKeyring } from '../src';
 import { StakingEscrowAgent } from '../src/agents/staking-escrow';
 import { GetUrsulasResponse, IUrsula, Porter } from '../src/characters/porter';
 import { keccakDigest } from '../src/crypto/api';
-import { MessageKit } from '../src/kits/message';
-import {
-  KFragDestinations,
-  PublishedTreasureMap,
-  TreasureMap,
-  WorkOrder,
-  WorkOrderResult,
-} from '../src/policies/collections';
+import { WorkOrder, WorkOrderResult } from '../src/policies/collections';
 import { Arrangement, BlockchainPolicy } from '../src/policies/policy';
 import { Configuration } from '../src/types';
 import { toBytes } from '../src/utils';
@@ -118,11 +103,6 @@ export const mockGetUrsulasOnce = (ursulas: IUrsula[]) => {
   });
 };
 
-export const mockPublishTreasureMapOnce = () => {
-  return jest.spyOn(Porter.prototype, 'publishTreasureMap').mockImplementationOnce(async () => {
-    return Promise.resolve();
-  });
-};
 
 export const mockPublishToBlockchain = () => {
   return jest
@@ -151,18 +131,6 @@ export const mockEnactArrangement = () => {
         return Promise.resolve(ursula.checksumAddress);
       },
     );
-};
-
-export const mockGetTreasureMapOnce = (
-  m: number,
-  encryptedTreasureMap: MessageKit,
-  destinations: KFragDestinations,
-) => {
-  return jest
-    .spyOn(Porter.prototype, 'getTreasureMap')
-    .mockImplementationOnce(async (_treasureMapId: string, _bobEncryptingKey: PublicKey) => {
-      return Promise.resolve(new PublishedTreasureMap(encryptedTreasureMap, destinations, m));
-    });
 };
 
 export const mockWorkOrderResults = (
@@ -209,8 +177,8 @@ export const mockGenerateKFrags = () => {
   return jest.spyOn(Alice.prototype as any, 'generateKFrags');
 };
 
-export const mockMakeDestinations = () => {
-  return jest.spyOn(TreasureMap as any, 'makeDestinations');
+export const mockEncryptTreasureMap = () => {
+  return jest.spyOn(BlockchainPolicy.prototype as any, 'encryptTreasureMap');
 };
 
 export const reencryptKFrags = (kFrags: VerifiedKeyFrag[], capsule: Capsule) => {

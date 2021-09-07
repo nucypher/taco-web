@@ -4,11 +4,23 @@ import { PublicKey, Signer, VerifiedKeyFrag } from 'umbral-pre';
 import { StakingEscrowAgent } from '../agents/staking-escrow';
 import { encryptAndSign } from '../crypto/api';
 import { NucypherKeyring } from '../crypto/keyring';
-import { DelegatingPower, SigningPower, TransactingPower } from '../crypto/powers';
+import {
+  DelegatingPower,
+  SigningPower,
+  TransactingPower,
+} from '../crypto/powers';
 import { PolicyMessageKit } from '../kits/message';
-import { BlockchainPolicy, BlockchainPolicyParameters, EnactedPolicy } from '../policies/policy';
+import {
+  BlockchainPolicy,
+  BlockchainPolicyParameters,
+  EnactedPolicy,
+} from '../policies/policy';
 import { ChecksumAddress, Configuration } from '../types';
-import { calculatePeriodDuration, dateAtPeriod, mergeWithoutUndefined } from '../utils';
+import {
+  calculatePeriodDuration,
+  dateAtPeriod,
+  mergeWithoutUndefined,
+} from '../utils';
 
 import { Bob } from './bob';
 import { Porter } from './porter';
@@ -43,7 +55,10 @@ export class Alice {
     return this.signingPower.signer;
   }
 
-  public static fromKeyring(config: Configuration, keyring: NucypherKeyring): Alice {
+  public static fromKeyring(
+    config: Configuration,
+    keyring: NucypherKeyring
+  ): Alice {
     const signingPower = keyring.deriveSigningPower();
     const delegatingPower = keyring.deriveDelegatingPower();
     const transactingPower = keyring.deriveTransactingPower();
@@ -54,7 +69,9 @@ export class Alice {
     this.transactingPower.connect(provider);
   }
 
-  public async getPolicyEncryptingKeyFromLabel(label: string): Promise<PublicKey> {
+  public async getPolicyEncryptingKeyFromLabel(
+    label: string
+  ): Promise<PublicKey> {
     return this.delegatingPower.getPublicKeyFromLabel(label);
   }
 
@@ -70,18 +87,19 @@ export class Alice {
       includeUrsulas
     );
     const policy = await this.createPolicy(policyParameters);
-    console.log({ ursulas });
     const enactedPolicy = await policy.enact(ursulas);
-    await this.porter.publishTreasureMap(
-      enactedPolicy.treasureMap,
-      policyParameters.bob.encryptingPublicKey
-    );
     return enactedPolicy;
   }
 
-  public encryptFor(recipientPublicKey: PublicKey, payload: Uint8Array): PolicyMessageKit {
+  public encryptFor(
+    recipientPublicKey: PublicKey,
+    payload: Uint8Array
+  ): PolicyMessageKit {
     const messageKit = encryptAndSign(recipientPublicKey, payload, this.signer);
-    return PolicyMessageKit.fromMessageKit(messageKit, this.signer.verifyingKey());
+    return PolicyMessageKit.fromMessageKit(
+      messageKit,
+      this.signer.verifyingKey()
+    );
   }
 
   public async generateKFrags(
@@ -89,8 +107,17 @@ export class Alice {
     label: string,
     m: number,
     n: number
-  ): Promise<{ delegatingPublicKey: PublicKey; verifiedKFrags: VerifiedKeyFrag[] }> {
-    return this.delegatingPower.generateKFrags(bob.encryptingPublicKey, this.signer, label, m, n);
+  ): Promise<{
+    delegatingPublicKey: PublicKey;
+    verifiedKFrags: VerifiedKeyFrag[];
+  }> {
+    return this.delegatingPower.generateKFrags(
+      bob.encryptingPublicKey,
+      this.signer,
+      label,
+      m,
+      n
+    );
   }
 
   private async createPolicy(
@@ -103,7 +130,9 @@ export class Alice {
       m,
       n
     );
-    const { expiration, value } = await this.generatePolicyParameters(policyParameters);
+    const { expiration, value } = await this.generatePolicyParameters(
+      policyParameters
+    );
     return new BlockchainPolicy(
       this,
       label,
@@ -131,8 +160,11 @@ export class Alice {
       throw new Error(`Expiration must be in the future: ${expiration}).`);
     }
 
-    const blockNumber = await this.transactingPower.wallet.provider.getBlockNumber();
-    const block = await this.transactingPower.wallet.provider.getBlock(blockNumber);
+    const blockNumber =
+      await this.transactingPower.wallet.provider.getBlockNumber();
+    const block = await this.transactingPower.wallet.provider.getBlock(
+      blockNumber
+    );
     const blockTime = new Date(block.timestamp * 1000);
     if (expiration && expiration < blockTime) {
       throw new Error(
@@ -147,12 +179,17 @@ export class Alice {
       const currentPeriod = await StakingEscrowAgent.getCurrentPeriod(
         this.transactingPower.wallet.provider
       );
-      const newExpiration = dateAtPeriod(currentPeriod + paymentPeriods, secondsPerPeriod, true);
+      const newExpiration = dateAtPeriod(
+        currentPeriod + paymentPeriods,
+        secondsPerPeriod,
+        true
+      );
       //  Get the last second of the target period
       policyParams.expiration = new Date(newExpiration.getTime() - 1000);
     } else {
       // +1 will equal to number of all included periods
-      policyParams.paymentPeriods = calculatePeriodDuration(expiration!, secondsPerPeriod) + 1;
+      policyParams.paymentPeriods =
+        calculatePeriodDuration(expiration!, secondsPerPeriod) + 1;
     }
 
     const blockchainParams = BlockchainPolicy.generatePolicyParameters(

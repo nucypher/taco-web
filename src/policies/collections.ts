@@ -24,7 +24,14 @@ import {
 } from '../crypto/utils';
 import { MessageKit, PolicyMessageKit } from '../kits/message';
 import { ChecksumAddress } from '../types';
-import { encodeVariableLengthMessage, fromHexString, toBytes, zip } from '../utils';
+import {
+  encodeVariableLengthMessage,
+  fromBase64,
+  fromHexString,
+  toBase64,
+  toBytes,
+  zip,
+} from '../utils';
 
 import { HRAC } from './hrac';
 
@@ -36,22 +43,6 @@ export class PublishedTreasureMap {
     public destinations: KFragDestinations,
     public m: number
   ) {}
-
-  public static fromBytes(bytes: Uint8Array): PublishedTreasureMap {
-    // TODO: Implement this
-    throw new Error('Method not implemented.');
-  }
-
-  public orient(aliceVerifyingKey: PublicKey, bob: Bob) {
-    const mapBytes = bob.verifyFrom(aliceVerifyingKey, this.messageKit, true);
-    const { m, destinations } = TreasureMap.fromBytes(mapBytes);
-    const actualM = Object.keys(destinations).length;
-    if (actualM < m) {
-      throw new Error(`Expected ${m} destinations, found ${actualM} instead.`);
-    }
-    this.m = m;
-    this.destinations = destinations;
-  }
 }
 
 export class TreasureMap {
@@ -81,15 +72,19 @@ export class TreasureMap {
       );
     }
 
-    const destinations = TreasureMap.makeDestinations(ursulas, verifiedKFrags, hrac, publisher);
+    const destinations = TreasureMap.makeDestinations(
+      ursulas,
+      verifiedKFrags,
+      hrac,
+      publisher
+    );
     return new TreasureMap(m, destinations, hrac);
   }
 
   public static fromBytes(bytes: Uint8Array): TreasureMap {
-    const m = bytes[0]; // TODO: This is probably wrong
+    const m = bytes[0];
     const hrac = new HRAC(bytes.slice(1, HRAC.BYTE_LENGTH + 1));
     const destinations = this.bytesToNodes(bytes.slice(1 + HRAC.BYTE_LENGTH));
-    console.log({ destinations });
     return new TreasureMap(m, destinations, hrac);
   }
 
@@ -106,8 +101,14 @@ export class TreasureMap {
         verifiedKFrag,
         publisher.signer
       ).toBytes();
-      const ursulaEncryptingKey = PublicKey.fromBytes(fromHexString(ursula.encryptingKey));
-      const encryptedKFrag = encryptAndSign(ursulaEncryptingKey, kFragPayload, publisher.signer);
+      const ursulaEncryptingKey = PublicKey.fromBytes(
+        fromHexString(ursula.encryptingKey)
+      );
+      const encryptedKFrag = encryptAndSign(
+        ursulaEncryptingKey,
+        kFragPayload,
+        publisher.signer
+      );
       destinations[ursula.checksumAddress] = encryptedKFrag.ciphertext;
     });
     return destinations;
@@ -120,7 +121,10 @@ export class TreasureMap {
       const address = toChecksumAddress(addressBytes);
       i += ETH_ADDRESS_BYTE_LENGTH;
 
-      const arrangementIdBytes = bytes.slice(i, i + AuthorizedKeyFrag.ENCRYPTED_SIZE);
+      const arrangementIdBytes = bytes.slice(
+        i,
+        i + AuthorizedKeyFrag.ENCRYPTED_SIZE
+      );
       i += AuthorizedKeyFrag.ENCRYPTED_SIZE;
 
       destinations[address] = arrangementIdBytes;
@@ -133,7 +137,12 @@ export class TreasureMap {
     bob: Bob,
     blockchainSigner?: Signer
   ): Promise<EncryptedTreasureMap> {
-    return EncryptedTreasureMap.constructByPublisher(this, publisher, bob, blockchainSigner);
+    return EncryptedTreasureMap.constructByPublisher(
+      this,
+      publisher,
+      bob,
+      blockchainSigner
+    );
   }
 
   public toBytes(): Uint8Array {
@@ -148,7 +157,10 @@ export class TreasureMap {
     return Object.entries(ursulas)
       .map(
         ([ursulaAddress, arrangementId]) =>
-          new Uint8Array([...toCanonicalAddress(ursulaAddress), ...arrangementId])
+          new Uint8Array([
+            ...toCanonicalAddress(ursulaAddress),
+            ...arrangementId,
+          ])
       )
       .reduce((next, accumulator) => new Uint8Array([...accumulator, ...next]));
   }
@@ -183,16 +195,25 @@ export class AuthorizedKeyFrag {
   }
 
   private static kFragChecksum(kFrag: KeyFrag): Uint8Array {
-    return keccakDigest(kFrag.toBytes()).slice(0, AuthorizedKeyFrag.WRIT_CHECKSUM_SIZE);
+    return keccakDigest(kFrag.toBytes()).slice(
+      0,
+      AuthorizedKeyFrag.WRIT_CHECKSUM_SIZE
+    );
   }
 
   public toBytes(): Uint8Array {
-    return new Uint8Array([...this.writ, ...this.writSignature.toBytes(), ...this.kFrag.toBytes()]);
+    return new Uint8Array([
+      ...this.writ,
+      ...this.writSignature.toBytes(),
+      ...this.kFrag.toBytes(),
+    ]);
   }
 }
 
 export class EncryptedTreasureMap {
-  private readonly EMPTY_BLOCKCHAIN_SIGNATURE = new Uint8Array(EIP712_MESSAGE_SIGNATURE_SIZE);
+  private readonly EMPTY_BLOCKCHAIN_SIGNATURE = new Uint8Array(
+    EIP712_MESSAGE_SIGNATURE_SIZE
+  );
 
   constructor(
     public readonly hrac: HRAC,
@@ -265,6 +286,15 @@ export class EncryptedTreasureMap {
       ...signature,
     ]);
   }
+
+  public decrypt(bob: Bob, publisherVerifyingKey: PublicKey): TreasureMap {
+    const bytes = bob.verifyFrom(
+      publisherVerifyingKey,
+      this.encryptedTreasureMap,
+      true
+    );
+    return TreasureMap.fromBytes(bytes);
+  }
 }
 
 export class Revocation {
@@ -279,7 +309,10 @@ export class Revocation {
 }
 
 class PRETask {
-  constructor(public readonly capsule: Capsule, private signature?: Uint8Array) {}
+  constructor(
+    public readonly capsule: Capsule,
+    private signature?: Uint8Array
+  ) {}
 
   public setSignature(signature: Uint8Array) {
     this.signature = signature;
@@ -308,7 +341,9 @@ class PRETask {
 
     expectedLengths.forEach(({ value, name, expectedLength }) => {
       if (value.length !== expectedLength) {
-        throw new Error(`${name} must be of length ${expectedLength}, but it's ${value.length}`);
+        throw new Error(
+          `${name} must be of length ${expectedLength}, but it's ${value.length}`
+        );
       }
     });
 
@@ -372,7 +407,11 @@ export class WorkOrder {
       task.setSignature(taskSignature);
       return task;
     });
-    const receiptSignature = this.makeReceiptSignature(capsules, ursulaPublicKey, bob);
+    const receiptSignature = this.makeReceiptSignature(
+      capsules,
+      ursulaPublicKey,
+      bob
+    );
 
     return new WorkOrder(
       bob,
@@ -385,7 +424,11 @@ export class WorkOrder {
     );
   }
 
-  private static makeReceiptSignature(capsules: Capsule[], ursulaPublicKey: Uint8Array, bob: Bob) {
+  private static makeReceiptSignature(
+    capsules: Capsule[],
+    ursulaPublicKey: Uint8Array,
+    bob: Bob
+  ) {
     // TODO: It was marked as `TODO` in `nucypher/nucypher. Should it be implemented?
     // TODO: What's the purpose of the receipt? Should it include only the capsules?
     const capsulesBytes = new Uint8Array(
@@ -397,7 +440,11 @@ export class WorkOrder {
             new Uint8Array([...accumulator, ...next])
         )
     );
-    const receiptBytes = new Uint8Array([...this.HEADER, ...ursulaPublicKey, ...capsulesBytes]);
+    const receiptBytes = new Uint8Array([
+      ...this.HEADER,
+      ...ursulaPublicKey,
+      ...capsulesBytes,
+    ]);
     return bob.signer.sign(receiptBytes).toBytes();
   }
 

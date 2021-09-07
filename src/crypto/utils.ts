@@ -13,7 +13,9 @@ export const toCanonicalAddress = (address: string): Uint8Array => {
   return fromHexString(nonPrefixed);
 };
 
-export const canonicalAddressFromPublicKey = (aliceVerifyingKey: PublicKey): Uint8Array => {
+export const canonicalAddressFromPublicKey = (
+  aliceVerifyingKey: PublicKey
+): Uint8Array => {
   // TODO: Is this key compressed?
   // `ethers.util.computeAddress` doesn't care whether key is compressed or not
   const ethAddress = computeAddress(aliceVerifyingKey.toBytes());

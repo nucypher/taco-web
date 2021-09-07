@@ -6,13 +6,13 @@ import { PolicyMessageKit } from '../kits/message';
 import { toBytes } from '../utils';
 
 export class Enrico {
-  public readonly recipientEncryptingKey: PublicKey;
+  public readonly policyEncryptingKey: PublicKey;
   private readonly signingPower: SigningPower;
 
-  constructor(recipientEncryptingKey: PublicKey, enricoVerifyingKey?: PublicKey) {
-    this.recipientEncryptingKey = recipientEncryptingKey;
-    if (enricoVerifyingKey) {
-      this.signingPower = SigningPower.fromPublicKey(enricoVerifyingKey);
+  constructor(policyEncryptingKey: PublicKey, verifyingKey?: PublicKey) {
+    this.policyEncryptingKey = policyEncryptingKey;
+    if (verifyingKey) {
+      this.signingPower = SigningPower.fromPublicKey(verifyingKey);
     } else {
       this.signingPower = SigningPower.fromRandom();
     }
@@ -23,12 +23,16 @@ export class Enrico {
   }
 
   public encrypt(plaintext: Uint8Array | string): PolicyMessageKit {
-    const plaintextBytes = plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext);
+    const plaintextBytes =
+      plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext);
     const messageKit = encryptAndSign(
-      this.recipientEncryptingKey,
+      this.policyEncryptingKey,
       plaintextBytes,
       this.signingPower.signer
     );
-    return PolicyMessageKit.fromMessageKit(messageKit, this.signingPower.signer.verifyingKey());
+    return PolicyMessageKit.fromMessageKit(
+      messageKit,
+      this.signingPower.signer.verifyingKey()
+    );
   }
 }

@@ -1,4 +1,9 @@
-import { DecryptingPower, DelegatingPower, DerivedTransactionPower, SigningPower } from './powers';
+import {
+  DecryptingPower,
+  DelegatingPower,
+  DerivedTransactionPower,
+  SigningPower,
+} from './powers';
 
 export class NucypherKeyring {
   private readonly keyingMaterial: Uint8Array;

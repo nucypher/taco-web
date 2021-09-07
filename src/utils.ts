@@ -1,6 +1,8 @@
-export const fromBytes = (bytes: Uint8Array): string => new TextDecoder().decode(bytes);
+export const fromBytes = (bytes: Uint8Array): string =>
+  new TextDecoder().decode(bytes);
 
-export const toBytes = (str: string): Uint8Array => new TextEncoder().encode(str);
+export const toBytes = (str: string): Uint8Array =>
+  new TextEncoder().encode(str);
 
 export const fromHexString = (hexString: string): Uint8Array => {
   const matches = hexString.match(/.{1,2}/g) ?? [];
@@ -25,13 +27,18 @@ export const fromBase64 = (str: string): Uint8Array =>
   ]);
 
 export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
-  first.length === second.length && first.every((value, index) => value === second[index]);
+  first.length === second.length &&
+  first.every((value, index) => value === second[index]);
 
-export const periodToEpoch = (period: number, secondsPerPeriod: number): number =>
-  period * secondsPerPeriod * 1000;
+export const periodToEpoch = (
+  period: number,
+  secondsPerPeriod: number
+): number => period * secondsPerPeriod * 1000;
 
-export const epochToPeriod = (epoch: number, secondsPerPeriod: number): number =>
-  Math.floor(epoch / secondsPerPeriod);
+export const epochToPeriod = (
+  epoch: number,
+  secondsPerPeriod: number
+): number => Math.floor(epoch / secondsPerPeriod);
 
 export const dateToPeriod = (date: Date, secondsPerPeriod: number): number =>
   epochToPeriod(date.getTime() * 1000, secondsPerPeriod);
@@ -78,7 +85,10 @@ export const calculatePeriodDuration = (
   return futurePeriod - currentPeriod;
 };
 
-export const mergeWithoutUndefined = (A: Record<string, any>, B: Record<string, any>) => {
+export const mergeWithoutUndefined = (
+  A: Record<string, any>,
+  B: Record<string, any>
+) => {
   const res: Record<string, any> = {};
   Object.keys({ ...A, ...B }).map((key) => {
     res[key] = B[key] || A[key];

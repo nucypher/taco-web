@@ -1,6 +1,9 @@
 import { ContractTransaction, Wallet } from 'ethers';
 
-import { PolicyManager, PolicyManager__factory } from '../../types/ethers-contracts';
+import {
+  PolicyManager,
+  PolicyManager__factory,
+} from '../../types/ethers-contracts';
 import { TransactingPower } from '../crypto/powers';
 import { ChecksumAddress } from '../types';
 import { toHexString } from '../utils';

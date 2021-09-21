@@ -11,11 +11,7 @@ import {
   VerifiedKeyFrag,
 } from 'umbral-pre';
 
-import {
-  MessageKit,
-  PolicyMessageKit,
-  ReencryptedMessageKit,
-} from '../kits/message';
+import { MessageKit, PolicyMessageKit } from '../kits/message';
 import { ChecksumAddress } from '../types';
 
 import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
@@ -34,6 +30,7 @@ export class DerivedTransactionPower extends TransactingPower {
 
   private constructor(keyingMaterial: Uint8Array, provider?: Provider) {
     super();
+    // TODO: Handle provider and secret key
     const secretKey = new UmbralKeyingMaterial(
       keyingMaterial
     ).deriveSecretKey();
@@ -67,23 +64,23 @@ export class DelegatingPower {
   }
 
   public async generateKFrags(
-    bobEncryptingKey: PublicKey,
+    bobDecryptingKey: PublicKey,
     signer: Signer,
     label: string,
-    m: number,
-    n: number
+    threshold: number,
+    shares: number
   ): Promise<{
-    delegatingPublicKey: PublicKey;
+    delegatingKey: PublicKey;
     verifiedKFrags: VerifiedKeyFrag[];
   }> {
     const delegatingSecretKey = await this.getSecretKeyFromLabel(label);
-    const delegatingPublicKey = await this.getPublicKeyFromLabel(label);
+    const delegatingKey = await this.getPublicKeyFromLabel(label);
     const kFrags: KeyFrag[] = generateKFrags(
       delegatingSecretKey,
-      bobEncryptingKey,
+      bobDecryptingKey,
       signer,
-      m,
-      n,
+      threshold,
+      shares,
       false,
       false
     );
@@ -91,17 +88,16 @@ export class DelegatingPower {
       VerifiedKeyFrag.fromVerifiedBytes(kFrag.toBytes())
     );
     return {
-      delegatingPublicKey,
+      delegatingKey,
       verifiedKFrags,
     };
   }
 
-  public async getPublicKeyFromLabel(label: string): Promise<PublicKey> {
-    const sk = await this.getSecretKeyFromLabel(label);
-    return sk.publicKey();
+  public getPublicKeyFromLabel(label: string): PublicKey {
+    return this.getSecretKeyFromLabel(label).publicKey();
   }
 
-  private async getSecretKeyFromLabel(label: string): Promise<SecretKey> {
+  private getSecretKeyFromLabel(label: string): SecretKey {
     return this.keyingMaterial.deriveSecretKeyFromLabel(label);
   }
 }
@@ -172,22 +168,20 @@ export class DecryptingPower extends CryptoPower {
     return new DecryptingPower(keyingMaterial, undefined);
   }
 
-  public decrypt(
-    messageKit: PolicyMessageKit | MessageKit | ReencryptedMessageKit
-  ): Uint8Array {
-    if (
-      messageKit instanceof PolicyMessageKit ||
-      messageKit instanceof MessageKit
-    ) {
-      return decryptOriginal(
+  public decrypt(messageKit: PolicyMessageKit | MessageKit): Uint8Array {
+    if (messageKit instanceof PolicyMessageKit) {
+      if (!messageKit.isDecryptableByReceiver()) {
+        throw Error('Unable to decrypt');
+      }
+      return messageKit.capsuleWithFrags.decryptReencrypted(
         this.secretKey,
-        messageKit.capsule,
+        messageKit.policyEncryptingKey,
         messageKit.ciphertext
       );
     } else {
-      return messageKit.capsule.decryptReencrypted(
+      return decryptOriginal(
         this.secretKey,
-        messageKit.recipientPublicKey,
+        messageKit.capsule,
         messageKit.ciphertext
       );
     }

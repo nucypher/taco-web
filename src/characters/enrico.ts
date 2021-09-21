@@ -1,8 +1,7 @@
 import { PublicKey } from 'umbral-pre';
 
-import { encryptAndSign } from '../crypto/api';
 import { SigningPower } from '../crypto/powers';
-import { PolicyMessageKit } from '../kits/message';
+import { MessageKit } from '../kits/message';
 import { toBytes } from '../utils';
 
 export class Enrico {
@@ -22,17 +21,11 @@ export class Enrico {
     return this.signingPower.publicKey;
   }
 
-  public encrypt(plaintext: Uint8Array | string): PolicyMessageKit {
-    const plaintextBytes =
-      plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext);
-    const messageKit = encryptAndSign(
+  public encryptMessage(plaintext: Uint8Array | string): MessageKit {
+    return MessageKit.author(
       this.policyEncryptingKey,
-      plaintextBytes,
+      plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext),
       this.signingPower.signer
-    );
-    return PolicyMessageKit.fromMessageKit(
-      messageKit,
-      this.signingPower.signer.verifyingKey()
     );
   }
 }

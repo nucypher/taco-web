@@ -17,7 +17,7 @@ export class UmbralKeyingMaterial {
     this.keyingMaterial = keyingMaterial;
   }
 
-  public async deriveSecretKeyFromLabel(label: string): Promise<SecretKey> {
+  public deriveSecretKeyFromLabel(label: string): SecretKey {
     // TODO: Use HKDF that supports BLAKE2b(64) hash
     //       Warning: As of now, this hash is incompatible with `nucypher/nucypher` HKDF
     const keyBytes = keccakDigest(toBytes(label));

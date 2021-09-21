@@ -9,8 +9,12 @@ export class RevocationKit {
   constructor(treasureMap: TreasureMap, signer: Signer) {
     this.revocations = {};
     Object.entries(treasureMap.destinations).forEach(
-      ([nodeId, arrangementId]) => {
-        this.revocations[nodeId] = new Revocation(arrangementId, signer);
+      ([nodeId, encryptedKFrag]) => {
+        this.revocations[nodeId] = new Revocation(
+          nodeId,
+          encryptedKFrag,
+          signer
+        );
       }
     );
   }

@@ -2,14 +2,13 @@ import { Provider } from '@ethersproject/providers';
 import { PublicKey, Signer, VerifiedKeyFrag } from 'umbral-pre';
 
 import { StakingEscrowAgent } from '../agents/staking-escrow';
-import { encryptAndSign } from '../crypto/api';
 import { NucypherKeyring } from '../crypto/keyring';
 import {
   DelegatingPower,
   SigningPower,
   TransactingPower,
 } from '../crypto/powers';
-import { PolicyMessageKit } from '../kits/message';
+import { MessageKit } from '../kits/message';
 import {
   BlockchainPolicy,
   BlockchainPolicyParameters,
@@ -27,10 +26,9 @@ import { Porter } from './porter';
 
 export class Alice {
   public readonly porter: Porter;
-  // TODO:  Should powers be visible or should they be used indirectly?
+  // TODO: Should powers be visible or should they be used indirectly?
   // TODO: This is the only visible transacting power
   public readonly transactingPower: TransactingPower;
-  private config: Configuration;
   private delegatingPower: DelegatingPower;
   private signingPower: SigningPower;
 
@@ -40,7 +38,6 @@ export class Alice {
     delegatingPower: DelegatingPower,
     transactingPower: TransactingPower
   ) {
-    this.config = config;
     this.porter = new Porter(config.porterUri);
     this.signingPower = signingPower;
     this.delegatingPower = delegatingPower;
@@ -69,9 +66,7 @@ export class Alice {
     this.transactingPower.connect(provider);
   }
 
-  public async getPolicyEncryptingKeyFromLabel(
-    label: string
-  ): Promise<PublicKey> {
+  public getPolicyEncryptingKeyFromLabel(label: string): PublicKey {
     return this.delegatingPower.getPublicKeyFromLabel(label);
   }
 
@@ -81,54 +76,46 @@ export class Alice {
     includeUrsulas?: ChecksumAddress[]
   ): Promise<EnactedPolicy> {
     const ursulas = await this.porter.getUrsulas(
-      policyParameters.n,
+      policyParameters.shares,
       policyParameters.paymentPeriods,
       excludeUrsulas,
       includeUrsulas
     );
     const policy = await this.createPolicy(policyParameters);
-    const enactedPolicy = await policy.enact(ursulas);
-    return enactedPolicy;
+    return await policy.enact(ursulas);
   }
 
-  public encryptFor(
-    recipientPublicKey: PublicKey,
-    payload: Uint8Array
-  ): PolicyMessageKit {
-    const messageKit = encryptAndSign(recipientPublicKey, payload, this.signer);
-    return PolicyMessageKit.fromMessageKit(
-      messageKit,
-      this.signer.verifyingKey()
-    );
+  public encryptFor(recipientKey: PublicKey, payload: Uint8Array): MessageKit {
+    return MessageKit.author(recipientKey, payload, this.signer);
   }
 
   public async generateKFrags(
     bob: Bob,
     label: string,
-    m: number,
-    n: number
+    threshold: number,
+    shares: number
   ): Promise<{
-    delegatingPublicKey: PublicKey;
+    delegatingKey: PublicKey;
     verifiedKFrags: VerifiedKeyFrag[];
   }> {
     return this.delegatingPower.generateKFrags(
-      bob.encryptingPublicKey,
+      bob.decryptingKey,
       this.signer,
       label,
-      m,
-      n
+      threshold,
+      shares
     );
   }
 
   private async createPolicy(
     policyParameters: BlockchainPolicyParameters
   ): Promise<BlockchainPolicy> {
-    const { label, m, n, bob } = policyParameters;
-    const { delegatingPublicKey, verifiedKFrags } = await this.generateKFrags(
+    const { label, threshold, shares, bob } = policyParameters;
+    const { delegatingKey, verifiedKFrags } = await this.generateKFrags(
       policyParameters.bob,
       label,
-      m,
-      n
+      threshold,
+      shares
     );
     const { expiration, value } = await this.generatePolicyParameters(
       policyParameters
@@ -139,9 +126,9 @@ export class Alice {
       expiration!,
       bob,
       verifiedKFrags,
-      delegatingPublicKey,
-      m,
-      n,
+      delegatingKey,
+      threshold,
+      shares,
       value!
     );
   }
@@ -149,7 +136,7 @@ export class Alice {
   private async generatePolicyParameters(
     policyParams: BlockchainPolicyParameters
   ): Promise<BlockchainPolicyParameters> {
-    const { n, paymentPeriods, expiration, value, rate } = policyParams;
+    const { shares, paymentPeriods, expiration, value, rate } = policyParams;
     if (!paymentPeriods && !expiration) {
       throw new Error(
         "Policy end time must be specified as 'expiration' or 'paymentPeriods', got neither"
@@ -193,7 +180,7 @@ export class Alice {
     }
 
     const blockchainParams = BlockchainPolicy.generatePolicyParameters(
-      n,
+      shares,
       paymentPeriods!,
       value,
       rate

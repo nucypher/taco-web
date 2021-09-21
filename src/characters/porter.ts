@@ -1,8 +1,10 @@
 import axios, { AxiosResponse } from 'axios';
 import qs from 'qs';
+import { PublicKey } from 'umbral-pre';
 
-import { PolicyMessageKit } from '../kits/message';
-import { WorkOrder, WorkOrderResult } from '../policies/collections';
+import { MessageKit } from '../kits/message';
+import { RetrievalKit, RetrievalResult } from '../kits/retrieval';
+import { TreasureMap } from '../policies/collections';
 import { Arrangement } from '../policies/policy';
 import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from '../types';
 import { fromBase64, toBase64, toHexString } from '../utils';
@@ -28,11 +30,6 @@ export interface RevocationResponse {
   failures: RevocationFailure[];
 }
 
-export interface PublishTreasureMapRequest {
-  treasure_map: HexEncodedBytes;
-  bob_encrypting_key: HexEncodedBytes;
-}
-
 export interface GetTreasureMapRequest {
   treasure_map_id: HexEncodedBytes;
   bob_encrypting_key: HexEncodedBytes;
@@ -42,6 +39,7 @@ export interface GetTreasureMapResponse {
   result: {
     treasureMap: Base64EncodedBytes;
   };
+  version: string;
 }
 
 export interface GetUrsulasRequest {
@@ -64,13 +62,24 @@ export interface GetUrsulasResponse {
   version: string;
 }
 
-export interface PostExecuteWorkOrderRequest {
-  ursula: ChecksumAddress;
-  work_order: Base64EncodedBytes;
+export interface PostRetrieveCFragsRequest {
+  treasure_map: Base64EncodedBytes;
+  retrieval_kits: Base64EncodedBytes[];
+  alice_verifying_key: HexEncodedBytes;
+  bob_encrypting_key: HexEncodedBytes;
+  bob_verifying_key: HexEncodedBytes;
+  policy_encrypting_key: HexEncodedBytes;
 }
 
-export interface PostExecuteWorkOrderResult {
-  work_order_result: Base64EncodedBytes;
+type RetrievalResultCFrag = [string, string];
+
+export interface PostRetrieveCFragsResult {
+  result: {
+    retrieval_results: {
+      cfrags: RetrievalResultCFrag[];
+    }[];
+  };
+  version: string;
 }
 
 export class Porter {
@@ -115,15 +124,24 @@ export class Porter {
     throw new Error('Method not implemented.');
   }
 
-  public async executeWorkOrder(
-    workOrder: WorkOrder
-  ): Promise<WorkOrderResult> {
-    const data: PostExecuteWorkOrderRequest = {
-      ursula: workOrder.ursula.checksumAddress,
-      work_order: toBase64(workOrder.payload()),
+  public async retrieveCFrags(
+    treasureMap: TreasureMap,
+    retrievalKits: RetrievalKit[],
+    aliceVerifyingKey: PublicKey,
+    bobEncryptingKey: PublicKey,
+    bobVerifyingKey: PublicKey,
+    policyEncryptingKey: PublicKey
+  ): Promise<RetrievalResult[]> {
+    const data: PostRetrieveCFragsRequest = {
+      treasure_map: toBase64(treasureMap.toBytes()),
+      retrieval_kits: retrievalKits.map((rk) => toBase64(rk.toBytes())),
+      alice_verifying_key: toBase64(aliceVerifyingKey.toBytes()),
+      bob_encrypting_key: toBase64(bobEncryptingKey.toBytes()),
+      bob_verifying_key: toBase64(bobVerifyingKey.toBytes()),
+      policy_encrypting_key: toBase64(policyEncryptingKey.toBytes()),
     };
-    const resp: AxiosResponse<PostExecuteWorkOrderResult> = await axios.post(
-      `${this.porterUri}/exec_work_order`,
+    const resp: AxiosResponse<PostRetrieveCFragsResult> = await axios.post(
+      `${this.porterUri}/retrieve_cfrags`,
       { data },
       {
         headers: {
@@ -131,8 +149,15 @@ export class Porter {
         },
       }
     );
-    const asBytes = fromBase64(resp.data.work_order_result);
-    return WorkOrderResult.fromBytes(asBytes);
+    return resp.data.result.retrieval_results
+      .map((result) => result.cfrags)
+      .map((cFrags) => {
+        const parsed = cFrags.map(([address, cFrag]) => [
+          address,
+          fromBase64(cFrag),
+        ]);
+        return new RetrievalResult(Object.fromEntries(parsed));
+      });
   }
 
   public async proposeArrangement(
@@ -142,7 +167,7 @@ export class Porter {
     const url = `${this.porterUri}/proxy/consider_arrangement`;
     const config = {
       headers: {
-        'X-PROXY-DESTINATION': ursula.uri,
+        'X-PROXY-DESTINATION': ursula.uri, // TODO: Add proxy to `nucypher`
         'Content-Type': 'application/octet-stream',
         'Access-Control-Allow-Origin': this.porterUri,
       },
@@ -156,13 +181,13 @@ export class Porter {
   public async enactPolicy(
     ursula: IUrsula,
     arrangementId: Uint8Array,
-    messageKit: PolicyMessageKit
+    messageKit: MessageKit
   ): Promise<ChecksumAddress | null> {
     const kFragId = toHexString(arrangementId);
     const url = `${this.porterUri}/proxy/kFrag/${kFragId}`;
     const config = {
       headers: {
-        'X-PROXY-DESTINATION': ursula.uri,
+        'X-PROXY-DESTINATION': ursula.uri, // TODO: Add proxy to `nucypher`
         'Content-Type': 'application/octet-stream',
         'Access-Control-Allow-Origin': this.porterUri,
       },

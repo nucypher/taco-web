@@ -1,15 +1,16 @@
 import { Block, Provider } from '@ethersproject/providers';
 import axios from 'axios';
-import { Capsule, CapsuleWithFrags, reencrypt, Signature, VerifiedCapsuleFrag, VerifiedKeyFrag } from 'umbral-pre';
+import { Capsule, CapsuleWithFrags, reencrypt, VerifiedCapsuleFrag, VerifiedKeyFrag } from 'umbral-pre';
 
 import { Alice, Bob, NucypherKeyring } from '../src';
 import { StakingEscrowAgent } from '../src/agents/staking-escrow';
 import { GetUrsulasResponse, IUrsula, Porter } from '../src/characters/porter';
-import { keccakDigest } from '../src/crypto/api';
-import { WorkOrder, WorkOrderResult } from '../src/policies/collections';
+import { RetrievalResult } from '../src/kits/retrieval';
+import { TreasureMap } from '../src/policies/collections';
+import { HRAC } from '../src/policies/hrac';
 import { Arrangement, BlockchainPolicy } from '../src/policies/policy';
-import { Configuration } from '../src/types';
-import { toBytes } from '../src/utils';
+import { ChecksumAddress, Configuration } from '../src/types';
+import { toBytes, zip } from '../src/utils';
 
 export const mockConfig: Configuration = {
   porterUri: 'https://_this_will_crash.com/',
@@ -23,7 +24,11 @@ export const mockBob = (): Bob => {
 
 export const mockRemoteBob = (): Bob => {
   const bob = mockBob();
-  return Bob.fromPublicKeys(mockConfig, bob.signer.verifyingKey(), bob.encryptingPublicKey);
+  return Bob.fromPublicKeys(
+    mockConfig,
+    bob.signer.verifyingKey(),
+    bob.decryptingKey,
+  );
 };
 
 export const mockAlice = () => {
@@ -51,27 +56,32 @@ export const mockWeb3Provider = (
 export const mockUrsulas = (): IUrsula[] => {
   return [
     {
-      encryptingKey: '025a335eca37edce8191d43c156e7bc6b451b21e5258759966bbfe0e6ce44543cb',
+      encryptingKey:
+        '025a335eca37edce8191d43c156e7bc6b451b21e5258759966bbfe0e6ce44543cb',
       checksumAddress: '0x5cF1703A1c99A4b42Eb056535840e93118177232',
       uri: 'https://example.a.com:9151',
     },
     {
-      encryptingKey: '02b0a0099ee180b531b4937bd7446972296447b2479ca6259cb6357ed98b90da3a',
+      encryptingKey:
+        '02b0a0099ee180b531b4937bd7446972296447b2479ca6259cb6357ed98b90da3a',
       checksumAddress: '0x7fff551249D223f723557a96a0e1a469C79cC934',
       uri: 'https://example.b.com:9151',
     },
     {
-      encryptingKey: '02761c765e2f101df39a5f680f3943d0d993ef9576de8a3e0e5fbc040d6f8c15a5',
+      encryptingKey:
+        '02761c765e2f101df39a5f680f3943d0d993ef9576de8a3e0e5fbc040d6f8c15a5',
       checksumAddress: '0x9C7C824239D3159327024459Ad69bB215859Bd25',
       uri: 'https://example.c.com:9151',
     },
     {
-      encryptingKey: '0258b7c79fe73f3499de91dd5a5341387184035d0555b10e6ac762d211a39684c0',
+      encryptingKey:
+        '0258b7c79fe73f3499de91dd5a5341387184035d0555b10e6ac762d211a39684c0',
       checksumAddress: '0x9919C9f5CbBAA42CB3bEA153E14E16F85fEA5b5D',
       uri: 'https://example.d.com:9151',
     },
     {
-      encryptingKey: '02e43a623c24db4f62565f82b6081044c1968277edfdca494a81c8fd0826e0adf6',
+      encryptingKey:
+        '02e43a623c24db4f62565f82b6081044c1968277edfdca494a81c8fd0826e0adf6',
       checksumAddress: '0xfBeb3368735B3F0A65d1F1E02bf1d188bb5F5BE6',
       uri: 'https://example.e.com:9151',
     },
@@ -84,7 +94,9 @@ export const mockUrsulas = (): IUrsula[] => {
   });
 };
 
-export const mockPorterUrsulas = (mockUrsulas: IUrsula[]): GetUrsulasResponse => {
+export const mockPorterUrsulas = (
+  mockUrsulas: IUrsula[],
+): GetUrsulasResponse => {
   return {
     result: {
       ursulas: mockUrsulas.map((u) => ({
@@ -103,7 +115,6 @@ export const mockGetUrsulasOnce = (ursulas: IUrsula[]) => {
   });
 };
 
-
 export const mockPublishToBlockchain = () => {
   return jest
     .spyOn(BlockchainPolicy.prototype, 'publishToBlockchain')
@@ -115,7 +126,9 @@ export const mockPublishToBlockchain = () => {
 export const mockProposeArrangement = () => {
   return jest
     .spyOn(Porter.prototype, 'proposeArrangement')
-    .mockImplementation((ursula: IUrsula) => Promise.resolve(ursula.checksumAddress));
+    .mockImplementation((ursula: IUrsula) =>
+      Promise.resolve(ursula.checksumAddress),
+    );
 };
 
 export const mockEnactArrangement = () => {
@@ -133,43 +146,31 @@ export const mockEnactArrangement = () => {
     );
 };
 
-export const mockWorkOrderResults = (
-  ursulas: IUrsula[],
+export const mockRetrieveResults = (
+  ursulas: ChecksumAddress[],
   verifiedKFrags: VerifiedKeyFrag[],
   capsule: Capsule,
-): Record<string, WorkOrderResult> => {
+): RetrievalResult[] => {
   if (ursulas.length !== verifiedKFrags.length) {
-    throw new Error('Number of verifiedKFrags must match the number of Ursulas');
-  }
-  const cFrags = verifiedKFrags.map((kFrag) => reencrypt(capsule, kFrag));
-
-  const results: Record<string, WorkOrderResult> = {};
-  for (let i = 0; i < ursulas.length; i += 1) {
-    const cFrag = cFrags[i];
-    // TODO; How to mock reencryptionSignature?
-    const reencryptionSignature = new Uint8Array([
-      ...keccakDigest(cFrag.toBytes()),
-      ...keccakDigest(cFrag.toBytes()),
-    ]);
-    results[ursulas[i].checksumAddress] = new WorkOrderResult(
-      cFrag,
-      Signature.fromBytes(reencryptionSignature),
+    throw new Error(
+      'Number of verifiedKFrags must match the number of Ursulas',
     );
   }
-  return results;
+  const reencrypted = verifiedKFrags.map((kFrag) => reencrypt(capsule, kFrag));
+  const results = Object.fromEntries(zip(ursulas, reencrypted));
+  return [ new RetrievalResult(results) ];
 };
 
-export const mockExecuteWorkOrder = (mockResults: Record<string, WorkOrderResult>) => {
+export const mockRetrieveCFragsRequest = (
+  ursulas: ChecksumAddress[],
+  verifiedKFrags: VerifiedKeyFrag[],
+  capsule: Capsule,
+) => {
+  const results = mockRetrieveResults(ursulas, verifiedKFrags, capsule);
   return jest
-    .spyOn(Porter.prototype, 'executeWorkOrder')
-    .mockImplementation(async (workOrder: WorkOrder) => {
-      const result = mockResults[workOrder.ursula.checksumAddress];
-      if (!result) {
-        throw new Error(
-          `Failed to find a mocked result for Ursula ${workOrder.ursula.checksumAddress}`,
-        );
-      }
-      return Promise.resolve(result);
+    .spyOn(Porter.prototype, 'retrieveCFrags')
+    .mockImplementation(() => {
+      return Promise.resolve(results);
     });
 };
 
@@ -181,25 +182,59 @@ export const mockEncryptTreasureMap = () => {
   return jest.spyOn(BlockchainPolicy.prototype as any, 'encryptTreasureMap');
 };
 
-export const reencryptKFrags = (kFrags: VerifiedKeyFrag[], capsule: Capsule) => {
+export const reencryptKFrags = (
+  kFrags: VerifiedKeyFrag[],
+  capsule: Capsule,
+): { capsuleWithFrags: CapsuleWithFrags, cFrags: VerifiedCapsuleFrag[] } => {
   if (!kFrags) {
     throw new Error('Pass at least one kFrag.');
   }
   let capsuleWithFrags: CapsuleWithFrags;
-  kFrags.forEach((kFrag) => {
+  const cFrags = kFrags.map((kFrag) => {
     const cFrag = reencrypt(capsule, kFrag);
     capsuleWithFrags = capsuleWithFrags
       ? capsuleWithFrags.withCFrag(cFrag)
       : capsule.withCFrag(cFrag);
+    return cFrag;
   });
-  return capsuleWithFrags!;
+  return { capsuleWithFrags: capsuleWithFrags!, cFrags };
 };
 
-export const mockStakingEscrow = (currentPeriod?: number, secondsPerPeriod?: number) => {
+export const mockStakingEscrow = (
+  currentPeriod = 100,
+  secondsPerPeriod = 60,
+) => {
   jest
     .spyOn(StakingEscrowAgent, 'getCurrentPeriod')
-    .mockImplementation(async () => Promise.resolve(currentPeriod ?? 100));
+    .mockImplementation(async () => Promise.resolve(currentPeriod));
   jest
     .spyOn(StakingEscrowAgent, 'getSecondsPerPeriod')
-    .mockImplementation(async () => Promise.resolve(currentPeriod ?? 60));
+    .mockImplementation(async () => Promise.resolve(secondsPerPeriod));
+};
+
+export const mockTreasureMap = async () => {
+  const alice = mockAlice();
+  const bob = mockBob();
+  const label = 'fake-label';
+  const threshold = 2;
+  const shares = 3;
+  const { verifiedKFrags } = await (alice as any).generateKFrags(
+    bob,
+    label,
+    threshold,
+    shares,
+  );
+  const hrac = HRAC.derive(
+    alice.verifyingKey.toBytes(),
+    bob.verifyingKey.toBytes(),
+    label,
+  );
+  const ursulas = mockUrsulas().slice(0, shares);
+  return TreasureMap.constructByPublisher(
+    hrac,
+    alice,
+    ursulas,
+    verifiedKFrags,
+    threshold,
+  );
 };

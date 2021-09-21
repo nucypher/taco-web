@@ -30,8 +30,8 @@ export interface ArrangementForUrsula {
 export interface BlockchainPolicyParameters {
   bob: Bob;
   label: string;
-  m: number;
-  n: number;
+  threshold: number;
+  shares: number;
   expiration?: Date;
   paymentPeriods?: number;
   value?: number;
@@ -47,9 +47,9 @@ export class BlockchainPolicy {
     private readonly expiration: Date,
     private bob: Bob,
     private verifiedKFrags: VerifiedKeyFrag[],
-    private delegatingPublicKey: PublicKey,
-    private readonly m: number,
-    private readonly n: number,
+    private delegatingKey: PublicKey,
+    private readonly threshold: number,
+    private readonly shares: number,
     private readonly value: number
   ) {
     this.hrac = HRAC.derive(
@@ -60,13 +60,13 @@ export class BlockchainPolicy {
   }
 
   public static generatePolicyParameters(
-    n: number,
+    shares: number,
     paymentPeriods: number,
     value?: number,
     rate?: number
   ): { rate: number; value: number } {
     // Check for negative inputs
-    const inputs = { n, paymentPeriods, value, rate };
+    const inputs = { shares, paymentPeriods, value, rate };
     for (const [input_name, input_value] of Object.entries(inputs)) {
       if (input_value && input_value < 0) {
         throw Error(
@@ -86,15 +86,15 @@ export class BlockchainPolicy {
     }
 
     if (value === undefined) {
-      const recalculatedValue = rate! * paymentPeriods * n;
+      const recalculatedValue = rate! * paymentPeriods * shares;
       // TODO: Can we return here or do we need to run check below?
       return { rate: rate!, value: recalculatedValue };
     }
 
-    const valuePerNode = Math.floor(value / n);
-    if (valuePerNode * n != value) {
+    const valuePerNode = Math.floor(value / shares);
+    if (valuePerNode * shares != value) {
       throw Error(
-        `Policy value of (${value} wei) cannot be divided by N (${n}) without a remainder.`
+        `Policy value of (${value} wei) cannot be divided by N (${shares}) without a remainder.`
       );
     }
 
@@ -107,11 +107,11 @@ export class BlockchainPolicy {
     }
 
     // TODO: This check feels redundant
-    const ratePerPeriod = Math.floor(value / n / paymentPeriods);
-    const recalculatedValue = paymentPeriods * ratePerPeriod * n;
+    const ratePerPeriod = Math.floor(value / shares / paymentPeriods);
+    const recalculatedValue = paymentPeriods * ratePerPeriod * shares;
     if (recalculatedValue != value) {
       throw new Error(
-        `Invalid policy value calculation - ${value} cant be divided into ${n} ` +
+        `Invalid policy value calculation - ${value} cant be divided into ${shares} ` +
           `staker payments per period for ${paymentPeriods} periods without a remainder`
       );
     }
@@ -129,13 +129,8 @@ export class BlockchainPolicy {
       ...publicationTransaction,
       ...kFrag.toBytes(),
     ]);
-    const ursulaPublicKey = PublicKey.fromBytes(
-      fromHexString(ursula.encryptingKey)
-    );
-    const messageKit = this.publisher.encryptFor(
-      ursulaPublicKey,
-      enactmentPayload
-    );
+    const ursulaKey = PublicKey.fromBytes(fromHexString(ursula.encryptingKey));
+    const messageKit = this.publisher.encryptFor(ursulaKey, enactmentPayload);
     return this.publisher.porter.enactPolicy(
       ursula,
       arrangement.getId(),
@@ -154,24 +149,20 @@ export class BlockchainPolicy {
       (this.expiration.getTime() / 1000) | 0,
       addresses
     );
-    // TODO: We downcast here because since we wait for tx to be mined we
-    //       can be sure that `blockHash` is not undefined
+    // `blockHash` is not undefined because we wait for tx to be mined
     return txReceipt.blockHash!;
   }
 
   public async enact(ursulas: IUrsula[]): Promise<EnactedPolicy> {
     const arrangements = await this.makeArrangements(ursulas);
-
     await this.enactArrangements(arrangements);
 
     const treasureMap = await TreasureMap.constructByPublisher(
       this.hrac,
       this.publisher,
-      this.bob,
-      this.label,
       ursulas,
       this.verifiedKFrags,
-      this.m
+      this.threshold
     );
     const encryptedTreasureMap = await this.encryptTreasureMap(treasureMap);
     const revocationKit = new RevocationKit(treasureMap, this.publisher.signer);
@@ -179,7 +170,7 @@ export class BlockchainPolicy {
     return {
       id: this.hrac,
       label: this.label,
-      publicKey: this.delegatingPublicKey.toBytes(),
+      publicKey: this.delegatingKey.toBytes(),
       encryptedTreasureMap,
       revocationKit,
       aliceVerifyingKey: this.publisher.verifyingKey.toBytes(),
@@ -246,10 +237,6 @@ export class BlockchainPolicy {
       );
       throw Error(`Failed to enact some of the arrangements: ${notEnacted}`);
     }
-
-    // return Object.fromEntries(
-    //   arrangements.map(({ ursula, arrangement }) => [ursula.checksumAddress, arrangement.toBytes()])
-    // );
   }
 }
 

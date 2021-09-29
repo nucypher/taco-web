@@ -18,7 +18,11 @@ export class HRAC {
     label: string
   ): HRAC {
     const hrac = keccakDigest(
-      new Uint8Array([...publisherVerifyingKey, ...bobVerifyingKey, ...fromHexString(label)])
+      new Uint8Array([
+        ...publisherVerifyingKey,
+        ...bobVerifyingKey,
+        ...fromHexString(label),
+      ])
     ).slice(0, HRAC.BYTE_LENGTH);
     return new HRAC(hrac);
   }

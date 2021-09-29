@@ -1,19 +1,15 @@
 import axios, { AxiosResponse } from 'axios';
 import qs from 'qs';
-import { PublicKey } from 'umbral-pre';
+import { PublicKey, VerifiedCapsuleFrag } from 'umbral-pre';
 
-import { PolicyMessageKit } from '../kits/message';
-import {
-  EncryptedTreasureMap,
-  PublishedTreasureMap,
-  WorkOrder,
-  WorkOrderResult,
-} from '../policies/collections';
+import { MessageKit } from '../kits/message';
+import { RetrievalKit, RetrievalResult } from '../kits/retrieval';
+import { TreasureMap } from '../policies/collections';
 import { Arrangement } from '../policies/policy';
 import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from '../types';
-import { fromBase64, toBase64, toBytes, toHexString } from '../utils';
+import { fromBase64, toBase64, toHexString } from '../utils';
 
-export interface IUrsula {
+export interface Ursula {
   checksumAddress: ChecksumAddress;
   uri: string;
   encryptingKey: HexEncodedBytes;
@@ -34,11 +30,6 @@ export interface RevocationResponse {
   failures: RevocationFailure[];
 }
 
-export interface PublishTreasureMapRequest {
-  treasure_map: HexEncodedBytes;
-  bob_encrypting_key: HexEncodedBytes;
-}
-
 export interface GetTreasureMapRequest {
   treasure_map_id: HexEncodedBytes;
   bob_encrypting_key: HexEncodedBytes;
@@ -48,6 +39,7 @@ export interface GetTreasureMapResponse {
   result: {
     treasureMap: Base64EncodedBytes;
   };
+  version: string;
 }
 
 export interface GetUrsulasRequest {
@@ -70,13 +62,24 @@ export interface GetUrsulasResponse {
   version: string;
 }
 
-export interface PostExecuteWorkOrderRequest {
-  ursula: ChecksumAddress;
-  work_order: Base64EncodedBytes;
+export interface PostRetrieveCFragsRequest {
+  treasure_map: Base64EncodedBytes;
+  retrieval_kits: Base64EncodedBytes[];
+  alice_verifying_key: HexEncodedBytes;
+  bob_encrypting_key: HexEncodedBytes;
+  bob_verifying_key: HexEncodedBytes;
+  policy_encrypting_key: HexEncodedBytes;
 }
 
-export interface PostExecuteWorkOrderResult {
-  work_order_result: Base64EncodedBytes;
+export interface PostRetrieveCFragsResult {
+  result: {
+    retrieval_results: {
+      cfrags: {
+        [address: string]: string;
+      };
+    }[];
+  };
+  version: string;
 }
 
 export class Porter {
@@ -87,11 +90,11 @@ export class Porter {
   }
 
   public async getUrsulas(
-    quantity = 3, // TODO: Pick reasonable default
-    durationPeriods = 7, // TODO: Pick reasonable default
+    quantity: number,
+    durationPeriods: number,
     excludeUrsulas?: ChecksumAddress[],
     includeUrsulas?: ChecksumAddress[]
-  ): Promise<IUrsula[]> {
+  ): Promise<Ursula[]> {
     const params: GetUrsulasRequest = {
       quantity,
       duration_periods: durationPeriods,
@@ -103,7 +106,7 @@ export class Porter {
       {
         params,
         paramsSerializer: (params) => {
-          return qs.stringify(params, { arrayFormat: 'repeat' });
+          return qs.stringify(params, { arrayFormat: 'comma' });
         },
         headers: {
           'Access-Control-Allow-Origin': this.porterUri,
@@ -117,71 +120,54 @@ export class Porter {
     }));
   }
 
-  public async publishTreasureMap(treasureMap: EncryptedTreasureMap, bobEncryptingKey: PublicKey) {
-    const treasureMapBytes = treasureMap.toBytes();
-    const data: PublishTreasureMapRequest = {
-      treasure_map: toBase64(treasureMapBytes),
-      bob_encrypting_key: toHexString(bobEncryptingKey.toBytes()),
-    };
-    await axios.post(`${this.porterUri}/publish_treasure_map`, data, {
-      headers: {
-        'Access-Control-Allow-Origin': this.porterUri,
-      },
-    });
-  }
-
   public revoke(revocations: RevocationRequest[]): RevocationResponse {
     throw new Error('Method not implemented.');
   }
 
-  public async getTreasureMap(
-    treasureMapId: string,
-    bobEncryptingKey: PublicKey
-  ): Promise<PublishedTreasureMap> {
-    const params: GetTreasureMapRequest = {
-      treasure_map_id: toHexString(toBytes(treasureMapId)),
+  public async retrieveCFrags(
+    treasureMap: TreasureMap,
+    retrievalKits: RetrievalKit[],
+    aliceVerifyingKey: PublicKey,
+    bobEncryptingKey: PublicKey,
+    bobVerifyingKey: PublicKey,
+    policyEncryptingKey: PublicKey
+  ): Promise<RetrievalResult[]> {
+    const data: PostRetrieveCFragsRequest = {
+      treasure_map: toBase64(treasureMap.toBytes()),
+      retrieval_kits: retrievalKits.map((rk) => toBase64(rk.toBytes())),
+      alice_verifying_key: toHexString(aliceVerifyingKey.toBytes()),
       bob_encrypting_key: toHexString(bobEncryptingKey.toBytes()),
+      bob_verifying_key: toHexString(bobVerifyingKey.toBytes()),
+      policy_encrypting_key: toHexString(policyEncryptingKey.toBytes()),
     };
-    const resp: AxiosResponse<GetTreasureMapResponse> = await axios.get(
-      `${this.porterUri}/get_treasure_map`,
-      {
-        params,
-        headers: {
-          'Access-Control-Allow-Origin': this.porterUri,
-        },
-      }
-    );
-    const asBytes = fromBase64(resp.data.result.treasureMap);
-    return PublishedTreasureMap.fromBytes(asBytes);
-  }
-
-  public async executeWorkOrder(workOrder: WorkOrder): Promise<WorkOrderResult> {
-    const data: PostExecuteWorkOrderRequest = {
-      ursula: workOrder.ursula.checksumAddress,
-      work_order: toBase64(workOrder.payload()),
-    };
-    const resp: AxiosResponse<PostExecuteWorkOrderResult> = await axios.post(
-      `${this.porterUri}/exec_work_order`,
-      { data },
+    const resp: AxiosResponse<PostRetrieveCFragsResult> = await axios.post(
+      `${this.porterUri}/retrieve_cfrags`,
+      data,
       {
         headers: {
           'Access-Control-Allow-Origin': this.porterUri,
         },
       }
     );
-    const asBytes = fromBase64(resp.data.work_order_result);
-    return WorkOrderResult.fromBytes(asBytes);
+    return resp.data.result.retrieval_results
+      .map((result) => result.cfrags)
+      .map((cFrags) => {
+        const parsed = Object.keys(cFrags).map((address) => [
+          address,
+          VerifiedCapsuleFrag.fromVerifiedBytes(fromBase64(cFrags[address])),
+        ]);
+        return new RetrievalResult(Object.fromEntries(parsed));
+      });
   }
 
   public async proposeArrangement(
-    ursula: IUrsula,
+    ursula: Ursula,
     arrangement: Arrangement
   ): Promise<ChecksumAddress | null> {
-    console.log({ ursula });
     const url = `${this.porterUri}/proxy/consider_arrangement`;
     const config = {
       headers: {
-        'X-PROXY-DESTINATION': ursula.uri,
+        'X-PROXY-DESTINATION': ursula.uri, // TODO: Add proxy to `nucypher`
         'Content-Type': 'application/octet-stream',
         'Access-Control-Allow-Origin': this.porterUri,
       },
@@ -193,15 +179,15 @@ export class Porter {
   }
 
   public async enactPolicy(
-    ursula: IUrsula,
+    ursula: Ursula,
     arrangementId: Uint8Array,
-    messageKit: PolicyMessageKit
+    messageKit: MessageKit
   ): Promise<ChecksumAddress | null> {
     const kFragId = toHexString(arrangementId);
     const url = `${this.porterUri}/proxy/kFrag/${kFragId}`;
     const config = {
       headers: {
-        'X-PROXY-DESTINATION': ursula.uri,
+        'X-PROXY-DESTINATION': ursula.uri, // TODO: Add proxy to `nucypher`
         'Content-Type': 'application/octet-stream',
         'Access-Control-Allow-Origin': this.porterUri,
       },

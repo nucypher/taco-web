@@ -11,7 +11,7 @@ import {
   VerifiedKeyFrag,
 } from 'umbral-pre';
 
-import { MessageKit, PolicyMessageKit, ReencryptedMessageKit } from '../kits/message';
+import { MessageKit, PolicyMessageKit } from '../kits/message';
 import { ChecksumAddress } from '../types';
 
 import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
@@ -30,7 +30,10 @@ export class DerivedTransactionPower extends TransactingPower {
 
   private constructor(keyingMaterial: Uint8Array, provider?: Provider) {
     super();
-    const secretKey = new UmbralKeyingMaterial(keyingMaterial).deriveSecretKey();
+    // TODO: Handle provider and secret key
+    const secretKey = new UmbralKeyingMaterial(
+      keyingMaterial
+    ).deriveSecretKey();
     this.wallet = new Wallet(keyingMaterial);
   }
 
@@ -38,7 +41,9 @@ export class DerivedTransactionPower extends TransactingPower {
     return this.wallet.address;
   }
 
-  public static fromKeyingMaterial(keyingMaterial: Uint8Array): DerivedTransactionPower {
+  public static fromKeyingMaterial(
+    keyingMaterial: Uint8Array
+  ): DerivedTransactionPower {
     return new DerivedTransactionPower(keyingMaterial);
   }
 
@@ -59,41 +64,41 @@ export class DelegatingPower {
   }
 
   public async generateKFrags(
-    bobEncryptingKey: PublicKey,
+    receivingKey: PublicKey,
     signer: Signer,
     label: string,
-    m: number,
-    n: number
+    threshold: number,
+    shares: number
   ): Promise<{
-    delegatingPublicKey: PublicKey;
+    delegatingKey: PublicKey;
     verifiedKFrags: VerifiedKeyFrag[];
   }> {
     const delegatingSecretKey = await this.getSecretKeyFromLabel(label);
-    const delegatingPublicKey = await this.getPublicKeyFromLabel(label);
+    const delegatingKey = delegatingSecretKey.publicKey();
     const kFrags: KeyFrag[] = generateKFrags(
       delegatingSecretKey,
-      bobEncryptingKey,
+      receivingKey,
       signer,
-      m,
-      n,
+      threshold,
+      shares,
       false,
       false
     );
+    // Turn KFrags into VerifiedKFrags - we know they're good
     const verifiedKFrags = kFrags.map((kFrag) =>
       VerifiedKeyFrag.fromVerifiedBytes(kFrag.toBytes())
     );
     return {
-      delegatingPublicKey,
+      delegatingKey,
       verifiedKFrags,
     };
   }
 
-  public async getPublicKeyFromLabel(label: string): Promise<PublicKey> {
-    const sk = await this.getSecretKeyFromLabel(label);
-    return sk.publicKey();
+  public getPublicKeyFromLabel(label: string): PublicKey {
+    return this.getSecretKeyFromLabel(label).publicKey();
   }
 
-  private async getSecretKeyFromLabel(label: string): Promise<SecretKey> {
+  private getSecretKeyFromLabel(label: string): SecretKey {
     return this.keyingMaterial.deriveSecretKeyFromLabel(label);
   }
 }
@@ -104,10 +109,12 @@ abstract class CryptoPower {
 
   protected constructor(keyingMaterial?: Uint8Array, publicKey?: PublicKey) {
     if (keyingMaterial && publicKey) {
-      throw new Error('Pass either keyMaterial or publicKey - not both.');
+      throw new Error('Pass either keyingMaterial or publicKey - not both.');
     }
     if (keyingMaterial) {
-      this._secretKey = new UmbralKeyingMaterial(keyingMaterial).deriveSecretKey();
+      this._secretKey = new UmbralKeyingMaterial(
+        keyingMaterial
+      ).deriveSecretKey();
       this._publicKey = this.secretKey.publicKey();
     }
     if (publicKey) {
@@ -123,7 +130,9 @@ abstract class CryptoPower {
     if (this._secretKey) {
       return this._secretKey;
     } else {
-      throw new Error('Power initialized with public key, secret key not present.');
+      throw new Error(
+        'Power initialized with public key, secret key not present.'
+      );
     }
   }
 }
@@ -154,17 +163,26 @@ export class DecryptingPower extends CryptoPower {
     return new DecryptingPower(undefined, publicKey);
   }
 
-  public static fromKeyingMaterial(keyingMaterial: Uint8Array): DecryptingPower {
+  public static fromKeyingMaterial(
+    keyingMaterial: Uint8Array
+  ): DecryptingPower {
     return new DecryptingPower(keyingMaterial, undefined);
   }
 
-  public decrypt(messageKit: PolicyMessageKit | MessageKit | ReencryptedMessageKit): Uint8Array {
-    if (messageKit instanceof PolicyMessageKit || messageKit instanceof MessageKit) {
-      return decryptOriginal(this.secretKey, messageKit.capsule, messageKit.ciphertext);
-    } else {
-      return messageKit.capsule.decryptReencrypted(
+  public decrypt(messageKit: PolicyMessageKit | MessageKit): Uint8Array {
+    if (messageKit instanceof PolicyMessageKit) {
+      if (!messageKit.isDecryptableByReceiver()) {
+        throw Error('Unable to decrypt');
+      }
+      return messageKit.capsuleWithFrags.decryptReencrypted(
         this.secretKey,
-        messageKit.recipientPublicKey,
+        messageKit.policyEncryptingKey,
+        messageKit.ciphertext
+      );
+    } else {
+      return decryptOriginal(
+        this.secretKey,
+        messageKit.capsule,
         messageKit.ciphertext
       );
     }

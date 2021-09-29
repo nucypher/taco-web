@@ -10,7 +10,7 @@
     "node": ">=10"
   },
   "scripts": {
-    "build": "yarn build:umbral:bundler && run-p build:*",
+    "build": "yarn build:umbral:bundler && ./scripts/fix-umbral.sh && run-p build:*",
     "build:main": "tsc -p tsconfig.json",
     "build:module": "tsc -p tsconfig.module.json",
     "build:umbral:bundler": "(cd rust-umbral/umbral-pre-wasm && make clean && make TARGET=bundler) && yarn check:umbral",
@@ -40,6 +40,7 @@
     "axios": "^0.21.1",
     "ethers": "^5.4.1",
     "js-sha3": "^0.8.0",
+    "qs": "^6.10.1",
     "secure-random": "^1.1.2",
     "umbral-pre": "file:./rust-umbral/umbral-pre-wasm/pkg"
   },
@@ -48,6 +49,7 @@
     "@typechain/ethers-v5": "^7.0.1",
     "@types/axios": "^0.14.0",
     "@types/jest": "^26.0.24",
+    "@types/qs": "^6.9.7",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.0.1",
     "cz-conventional-changelog": "^3.3.0",

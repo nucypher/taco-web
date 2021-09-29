@@ -1,6 +1,8 @@
-export const fromBytes = (bytes: Uint8Array): string => new TextDecoder().decode(bytes);
+export const fromBytes = (bytes: Uint8Array): string =>
+  new TextDecoder().decode(bytes);
 
-export const toBytes = (str: string): Uint8Array => new TextEncoder().encode(str);
+export const toBytes = (str: string): Uint8Array =>
+  new TextEncoder().encode(str);
 
 export const fromHexString = (hexString: string): Uint8Array => {
   const matches = hexString.match(/.{1,2}/g) ?? [];
@@ -10,28 +12,38 @@ export const fromHexString = (hexString: string): Uint8Array => {
 export const toHexString = (bytes: Uint8Array): string =>
   bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
 
-// TODO: Use typed arrays instead of btoa
 export const toBase64 = (bytes: Uint8Array): string =>
-  btoa(String.fromCharCode.apply(null, [...bytes]));
+  Buffer.from(bytes).toString('base64');
 
-// TODO: Use typed arrays instead of atob
 export const fromBase64 = (str: string): Uint8Array =>
-  new Uint8Array([
-    ...atob(str)
-      .split('')
-      .map(function (c) {
-        return c.charCodeAt(0);
-      }),
-  ]);
+  Buffer.from(str, 'base64');
+
+export const toNumber = (bytes: Uint8Array, littleEndian = true): number =>
+  new DataView(bytes.buffer, 0).getUint32(0, littleEndian);
 
 export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
-  first.length === second.length && first.every((value, index) => value === second[index]);
+  first.length === second.length &&
+  first.every((value, index) => value === second[index]);
 
-export const periodToEpoch = (period: number, secondsPerPeriod: number): number =>
-  period * secondsPerPeriod * 1000;
+export const split = (
+  bytes: Uint8Array,
+  size: number
+): [Uint8Array, Uint8Array] => {
+  if (size > bytes.length) {
+    throw Error(`Index out of bounds: ${size}`);
+  }
+  return [bytes.slice(0, size), bytes.slice(size, bytes.length)];
+};
 
-export const epochToPeriod = (epoch: number, secondsPerPeriod: number): number =>
-  Math.floor(epoch / secondsPerPeriod);
+export const periodToEpoch = (
+  period: number,
+  secondsPerPeriod: number
+): number => period * secondsPerPeriod * 1000;
+
+export const epochToPeriod = (
+  epoch: number,
+  secondsPerPeriod: number
+): number => Math.floor(epoch / secondsPerPeriod);
 
 export const dateToPeriod = (date: Date, secondsPerPeriod: number): number =>
   epochToPeriod(date.getTime() * 1000, secondsPerPeriod);
@@ -78,7 +90,10 @@ export const calculatePeriodDuration = (
   return futurePeriod - currentPeriod;
 };
 
-export const mergeWithoutUndefined = (A: Record<string, any>, B: Record<string, any>) => {
+export const mergeWithoutUndefined = (
+  A: Record<string, any>,
+  B: Record<string, any>
+) => {
   const res: Record<string, any> = {};
   Object.keys({ ...A, ...B }).map((key) => {
     res[key] = B[key] || A[key];
@@ -111,4 +126,20 @@ export const encodeVariableLengthMessage = (message: Uint8Array) => {
   return new Uint8Array([...messageLengthAsBytes, ...message]);
 };
 
+export const decodeVariableLengthMessage = (
+  bytes: Uint8Array
+): [Uint8Array, Uint8Array] => {
+  const [header, remainder1] = split(bytes, VARIABLE_HEADER_LENGTH);
+  const messageLength = toNumber(header, false); // is big-endian
+  const [message, remainder2] = split(remainder1, messageLength);
+  return [message, remainder2];
+};
+
 export const zip = (a: Array<any>, b: Array<any>) => a.map((k, i) => [k, b[i]]);
+
+export const shuffle = (array: any[]) => {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+};

@@ -4,10 +4,10 @@ import { PublicKey, VerifiedCapsuleFrag, VerifiedKeyFrag } from 'umbral-pre';
 import { PolicyManagerAgent } from '../agents/policy-manager';
 import { Alice } from '../characters/alice';
 import { Bob } from '../characters/bob';
-import { IUrsula } from '../characters/porter';
+import { Ursula } from '../characters/porter';
 import { RevocationKit } from '../kits/revocation';
 import { ChecksumAddress } from '../types';
-import { fromHexString, toBytes } from '../utils';
+import { encodeVariableLengthMessage, fromHexString, toBytes } from '../utils';
 
 import { EncryptedTreasureMap, TreasureMap } from './collections';
 import { HRAC } from './hrac';
@@ -17,29 +17,28 @@ export interface EnactedPolicy {
   hrac: HRAC;
   label: string;
   publicKey: Uint8Array;
-  treasureMap: EncryptedTreasureMap;
+  encryptedTreasureMap: EncryptedTreasureMap;
   revocationKit: RevocationKit;
   aliceVerifyingKey: Uint8Array;
 }
 
 export interface ArrangementForUrsula {
-  ursula: IUrsula;
+  ursula: Ursula;
   arrangement: Arrangement;
 }
 
 export interface BlockchainPolicyParameters {
   bob: Bob;
   label: string;
-  m: number;
-  n: number;
+  threshold: number;
+  shares: number;
   expiration?: Date;
-  paymentPeriods?: number;
+  paymentPeriods: number;
   value?: number;
   rate?: number;
 }
 
 export class BlockchainPolicy {
-  // private ID_LENGTH = 16;
   private readonly hrac: HRAC;
 
   constructor(
@@ -48,20 +47,11 @@ export class BlockchainPolicy {
     private readonly expiration: Date,
     private bob: Bob,
     private verifiedKFrags: VerifiedKeyFrag[],
-    private delegatingPublicKey: PublicKey,
-    private readonly m: number,
-    private readonly n: number,
+    private delegatingKey: PublicKey,
+    private readonly threshold: number,
+    private readonly shares: number,
     private readonly value: number
   ) {
-    this.publisher = publisher;
-    this.label = label;
-    this.expiration = expiration;
-    this.bob = bob;
-    this.verifiedKFrags = verifiedKFrags;
-    this.delegatingPublicKey = delegatingPublicKey;
-    this.m = m;
-    this.n = n;
-    this.value = value;
     this.hrac = HRAC.derive(
       this.publisher.verifyingKey.toBytes(),
       this.bob.verifyingKey.toBytes(),
@@ -70,16 +60,18 @@ export class BlockchainPolicy {
   }
 
   public static generatePolicyParameters(
-    n: number,
+    shares: number,
     paymentPeriods: number,
     value?: number,
     rate?: number
   ): { rate: number; value: number } {
     // Check for negative inputs
-    const inputs = { n, paymentPeriods, value, rate };
+    const inputs = { shares, paymentPeriods, value, rate };
     for (const [input_name, input_value] of Object.entries(inputs)) {
       if (input_value && input_value < 0) {
-        throw Error(`Negative policy parameters are not allowed: ${input_name} is ${input_value}`);
+        throw Error(
+          `Negative policy parameters are not allowed: ${input_name} is ${input_value}`
+        );
       }
     }
 
@@ -94,15 +86,15 @@ export class BlockchainPolicy {
     }
 
     if (value === undefined) {
-      const recalculatedValue = rate! * paymentPeriods * n;
+      const recalculatedValue = rate! * paymentPeriods * shares;
       // TODO: Can we return here or do we need to run check below?
       return { rate: rate!, value: recalculatedValue };
     }
 
-    const valuePerNode = Math.floor(value / n);
-    if (valuePerNode * n != value) {
+    const valuePerNode = Math.floor(value / shares);
+    if (valuePerNode * shares != value) {
       throw Error(
-        `Policy value of (${value} wei) cannot be divided by N (${n}) without a remainder.`
+        `Policy value of (${value} wei) cannot be divided by N (${shares}) without a remainder.`
       );
     }
 
@@ -115,11 +107,11 @@ export class BlockchainPolicy {
     }
 
     // TODO: This check feels redundant
-    const ratePerPeriod = Math.floor(value / n / paymentPeriods);
-    const recalculatedValue = paymentPeriods * ratePerPeriod * n;
+    const ratePerPeriod = Math.floor(value / shares / paymentPeriods);
+    const recalculatedValue = paymentPeriods * ratePerPeriod * shares;
     if (recalculatedValue != value) {
       throw new Error(
-        `Invalid policy value calculation - ${value} cant be divided into ${n} ` +
+        `Invalid policy value calculation - ${value} cant be divided into ${shares} ` +
           `staker payments per period for ${paymentPeriods} periods without a remainder`
       );
     }
@@ -130,16 +122,25 @@ export class BlockchainPolicy {
   public async enactArrangement(
     arrangement: Arrangement,
     kFrag: VerifiedCapsuleFrag,
-    ursula: IUrsula,
+    ursula: Ursula,
     publicationTransaction: Uint8Array
   ): Promise<ChecksumAddress | null> {
-    const enactmentPayload = new Uint8Array([...publicationTransaction, ...kFrag.toBytes()]);
-    const ursulaPublicKey = PublicKey.fromBytes(fromHexString(ursula.encryptingKey));
-    const messageKit = this.publisher.encryptFor(ursulaPublicKey, enactmentPayload);
-    return this.publisher.porter.enactPolicy(ursula, arrangement.getId(), messageKit);
+    const enactmentPayload = new Uint8Array([
+      ...publicationTransaction,
+      ...kFrag.toBytes(),
+    ]);
+    const ursulaKey = PublicKey.fromBytes(fromHexString(ursula.encryptingKey));
+    const messageKit = this.publisher.encryptFor(ursulaKey, enactmentPayload);
+    return this.publisher.porter.enactPolicy(
+      ursula,
+      arrangement.arrangementId,
+      messageKit
+    );
   }
 
-  public async publishToBlockchain(arrangements: ArrangementForUrsula[]): Promise<string> {
+  public async publishToBlockchain(
+    arrangements: ArrangementForUrsula[]
+  ): Promise<string> {
     const addresses = arrangements.map((a) => a.ursula.checksumAddress);
     const txReceipt = await PolicyManagerAgent.createPolicy(
       this.hrac.toBytes(),
@@ -148,24 +149,20 @@ export class BlockchainPolicy {
       (this.expiration.getTime() / 1000) | 0,
       addresses
     );
-    // TODO: We downcast here because since we wait for tx to be mined we
-    //       can be sure that `blockHash` is not undefined
+    // `blockHash` is not undefined because we wait for tx to be mined
     return txReceipt.blockHash!;
   }
 
-  public async enact(ursulas: IUrsula[]): Promise<EnactedPolicy> {
+  public async enact(ursulas: Ursula[]): Promise<EnactedPolicy> {
     const arrangements = await this.makeArrangements(ursulas);
-
     await this.enactArrangements(arrangements);
 
     const treasureMap = await TreasureMap.constructByPublisher(
       this.hrac,
       this.publisher,
-      this.bob,
-      this.label,
       ursulas,
       this.verifiedKFrags,
-      this.m
+      this.threshold
     );
     const encryptedTreasureMap = await this.encryptTreasureMap(treasureMap);
     const revocationKit = new RevocationKit(treasureMap, this.publisher.signer);
@@ -173,34 +170,49 @@ export class BlockchainPolicy {
     return {
       id: this.hrac,
       label: this.label,
-      publicKey: this.delegatingPublicKey.toBytes(),
-      treasureMap: encryptedTreasureMap,
+      publicKey: this.delegatingKey.toBytes(),
+      encryptedTreasureMap,
       revocationKit,
       aliceVerifyingKey: this.publisher.verifyingKey.toBytes(),
       hrac: this.hrac,
     };
   }
 
-  private encryptTreasureMap(treasureMap: TreasureMap): Promise<EncryptedTreasureMap> {
+  private encryptTreasureMap(
+    treasureMap: TreasureMap
+  ): Promise<EncryptedTreasureMap> {
     return treasureMap.encrypt(this.publisher, this.bob);
   }
 
-  private async proposeArrangement(ursula: IUrsula): Promise<ArrangementForUrsula | null> {
+  private async proposeArrangement(
+    ursula: Ursula
+  ): Promise<ArrangementForUrsula | null> {
     const arrangement = Arrangement.fromAlice(this.publisher, this.expiration);
-    const maybeAddress = await this.publisher.porter.proposeArrangement(ursula, arrangement);
+    const maybeAddress = await this.publisher.porter.proposeArrangement(
+      ursula,
+      arrangement
+    );
     if (maybeAddress) {
       return { ursula, arrangement };
     }
     return null;
   }
 
-  private async makeArrangements(ursulas: IUrsula[]): Promise<ArrangementForUrsula[]> {
-    const arrangementPromises = ursulas.map((ursula) => this.proposeArrangement(ursula));
+  private async makeArrangements(
+    ursulas: Ursula[]
+  ): Promise<ArrangementForUrsula[]> {
+    const arrangementPromises = ursulas.map((ursula) =>
+      this.proposeArrangement(ursula)
+    );
     const maybeArrangements = await Promise.all(arrangementPromises);
-    return maybeArrangements.filter((arrangement) => !!arrangement) as ArrangementForUrsula[];
+    return maybeArrangements.filter(
+      (arrangement) => !!arrangement
+    ) as ArrangementForUrsula[];
   }
 
-  private async enactArrangements(arrangements: ArrangementForUrsula[]): Promise<void> {
+  private async enactArrangements(
+    arrangements: ArrangementForUrsula[]
+  ): Promise<void> {
     const publicationTx = await this.publishToBlockchain(arrangements);
     const enactedPromises = arrangements
       .map((x, index) => ({
@@ -209,7 +221,12 @@ export class BlockchainPolicy {
         kFrag: this.verifiedKFrags[index],
       }))
       .map(({ arrangement, kFrag, ursula }) =>
-        this.enactArrangement(arrangement, kFrag, ursula, toBytes(publicationTx))
+        this.enactArrangement(
+          arrangement,
+          kFrag,
+          ursula,
+          toBytes(publicationTx)
+        )
       );
     const maybeAllEnacted = await Promise.all(enactedPromises);
     const allEnacted = maybeAllEnacted.every((x) => !!x);
@@ -220,20 +237,20 @@ export class BlockchainPolicy {
       );
       throw Error(`Failed to enact some of the arrangements: ${notEnacted}`);
     }
-
-    // return Object.fromEntries(
-    //   arrangements.map(({ ursula, arrangement }) => [ursula.checksumAddress, arrangement.toBytes()])
-    // );
   }
 }
 
 export class Arrangement {
   private static ID_LENGTH = 32;
   private aliceVerifyingKey: PublicKey;
-  private readonly arrangementId: Uint8Array;
+  public readonly arrangementId: Uint8Array;
   private expiration: Date;
 
-  constructor(aliceVerifyingKey: PublicKey, arrangementId: Uint8Array, expiration: Date) {
+  constructor(
+    aliceVerifyingKey: PublicKey,
+    arrangementId: Uint8Array,
+    expiration: Date
+  ) {
     this.aliceVerifyingKey = aliceVerifyingKey;
     this.arrangementId = arrangementId;
     this.expiration = expiration;
@@ -247,12 +264,7 @@ export class Arrangement {
   public toBytes(): Uint8Array {
     return new Uint8Array([
       ...this.aliceVerifyingKey.toBytes(),
-      ...this.arrangementId,
-      ...toBytes(this.expiration.toISOString()),
+      ...encodeVariableLengthMessage(toBytes(this.expiration.toISOString())),
     ]);
-  }
-
-  public getId(): Uint8Array {
-    return this.arrangementId;
   }
 }

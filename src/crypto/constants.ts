@@ -1,17 +1,20 @@
-export const HRAC_LENGTH = 16;
+import { fromHexString } from '../utils';
+
+// Umbral constants
 export const SIGNATURE_LENGTH = 64;
+export const CAPSULE_LENGTH = 98;
+export const PUBLIC_KEY_LENGTH = 33;
 
 // TODO: Those values must be compatible with `nucypher/nucypher`
 export const SIGNATURE_HEADER_HEX = {
-  NOT_SIGNED: '00',
-  SIGNATURE_TO_FOLLOW: '01',
-  SIGNATURE_IS_ON_CIPHERTEXT: '02',
+  SIGNATURE_TO_FOLLOW: '1859a46e3f1143e6',
 };
 // TODO: There must be a smarter way to do this
-export const SIGNATURE_HEADER_BYTES_LENGTH = 1;
+export const SIGNATURE_HEADER_BYTES_LENGTH = fromHexString(
+  SIGNATURE_HEADER_HEX.SIGNATURE_TO_FOLLOW
+).length;
 
 // TODO: Move to `src/constants.ts` or `blockchain/constants.ts`
-export const ETH_ADDRESS_STRING_PREFIX = '0x';
 export const ETH_ADDRESS_BYTE_LENGTH = 20;
 export const ETH_HASH_BYTE_LENGTH = 32;
 

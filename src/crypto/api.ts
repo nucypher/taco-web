@@ -1,32 +1,19 @@
 import sha3 from 'js-sha3';
-import { encrypt, PublicKey, Signature, Signer } from 'umbral-pre';
+import { PublicKey, Signature } from 'umbral-pre';
 
-import { MessageKit, PolicyMessageKit } from '../kits/message';
-import { fromHexString, toBytes } from '../utils';
-
-import { SIGNATURE_HEADER_HEX } from './constants';
-
-export const encryptAndSign = (
-  recipientPublicKey: PublicKey,
-  plaintext: Uint8Array,
-  signer: Signer
-): MessageKit => {
-  const signature = signer.sign(plaintext).toBytes();
-  const payload = new Uint8Array([
-    ...fromHexString(SIGNATURE_HEADER_HEX.SIGNATURE_TO_FOLLOW),
-    ...signature,
-    ...plaintext,
-  ]);
-  const { ciphertext, capsule } = encrypt(recipientPublicKey, payload);
-  return new MessageKit(capsule, ciphertext, signature, recipientPublicKey);
-};
+import { fromHexString } from '../utils';
 
 export const verifySignature = (
-  signature: Uint8Array,
+  signature: Uint8Array | Signature,
   message: Uint8Array,
   verifyingKey: PublicKey
 ): boolean => {
-  return Signature.fromBytes(signature).verify(verifyingKey, message);
+  const sig =
+    signature instanceof Uint8Array
+      ? Signature.fromBytes(signature)
+      : signature;
+  return sig.verify(verifyingKey, message);
 };
 
-export const keccakDigest = (m: Uint8Array): Uint8Array => toBytes(sha3.keccak_256(m)).slice(0, 32);
+export const keccakDigest = (m: Uint8Array): Uint8Array =>
+  fromHexString(sha3.keccak_256(m)).slice(0, 32);

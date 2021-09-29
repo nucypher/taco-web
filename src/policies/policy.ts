@@ -1,13 +1,12 @@
 import secureRandom from 'secure-random';
-import { PublicKey, VerifiedCapsuleFrag, VerifiedKeyFrag } from 'umbral-pre';
+import { PublicKey, VerifiedKeyFrag } from 'umbral-pre';
 
 import { PolicyManagerAgent } from '../agents/policy-manager';
 import { Alice } from '../characters/alice';
 import { Bob } from '../characters/bob';
 import { Ursula } from '../characters/porter';
 import { RevocationKit } from '../kits/revocation';
-import { ChecksumAddress } from '../types';
-import { encodeVariableLengthMessage, fromHexString, toBytes } from '../utils';
+import { encodeVariableLengthMessage, toBytes } from '../utils';
 
 import { EncryptedTreasureMap, TreasureMap } from './collections';
 import { HRAC } from './hrac';
@@ -16,13 +15,13 @@ export interface EnactedPolicy {
   id: HRAC;
   hrac: HRAC;
   label: string;
-  publicKey: Uint8Array;
+  policyKey: PublicKey;
   encryptedTreasureMap: EncryptedTreasureMap;
   revocationKit: RevocationKit;
   aliceVerifyingKey: Uint8Array;
 }
 
-export interface ArrangementForUrsula {
+interface ArrangementForUrsula {
   ursula: Ursula;
   arrangement: Arrangement;
 }
@@ -87,7 +86,7 @@ export class BlockchainPolicy {
 
     if (value === undefined) {
       const recalculatedValue = rate! * paymentPeriods * shares;
-      // TODO: Can we return here or do we need to run check below?
+      // TODO: Can we return here or do we need to also run check below?
       return { rate: rate!, value: recalculatedValue };
     }
 
@@ -117,25 +116,6 @@ export class BlockchainPolicy {
     }
 
     return { rate: rate!, value: value! };
-  }
-
-  public async enactArrangement(
-    arrangement: Arrangement,
-    kFrag: VerifiedCapsuleFrag,
-    ursula: Ursula,
-    publicationTransaction: Uint8Array
-  ): Promise<ChecksumAddress | null> {
-    const enactmentPayload = new Uint8Array([
-      ...publicationTransaction,
-      ...kFrag.toBytes(),
-    ]);
-    const ursulaKey = PublicKey.fromBytes(fromHexString(ursula.encryptingKey));
-    const messageKit = this.publisher.encryptFor(ursulaKey, enactmentPayload);
-    return this.publisher.porter.enactPolicy(
-      ursula,
-      arrangement.arrangementId,
-      messageKit
-    );
   }
 
   public async publishToBlockchain(
@@ -170,7 +150,7 @@ export class BlockchainPolicy {
     return {
       id: this.hrac,
       label: this.label,
-      publicKey: this.delegatingKey.toBytes(),
+      policyKey: this.delegatingKey,
       encryptedTreasureMap,
       revocationKit,
       aliceVerifyingKey: this.publisher.verifyingKey.toBytes(),
@@ -212,31 +192,8 @@ export class BlockchainPolicy {
 
   private async enactArrangements(
     arrangements: ArrangementForUrsula[]
-  ): Promise<void> {
-    const publicationTx = await this.publishToBlockchain(arrangements);
-    const enactedPromises = arrangements
-      .map((x, index) => ({
-        ursula: x.ursula,
-        arrangement: x.arrangement,
-        kFrag: this.verifiedKFrags[index],
-      }))
-      .map(({ arrangement, kFrag, ursula }) =>
-        this.enactArrangement(
-          arrangement,
-          kFrag,
-          ursula,
-          toBytes(publicationTx)
-        )
-      );
-    const maybeAllEnacted = await Promise.all(enactedPromises);
-    const allEnacted = maybeAllEnacted.every((x) => !!x);
-
-    if (!allEnacted) {
-      const notEnacted = arrangements.filter(
-        (x) => !maybeAllEnacted.includes(x.ursula.checksumAddress)
-      );
-      throw Error(`Failed to enact some of the arrangements: ${notEnacted}`);
-    }
+  ): Promise<string> {
+    return this.publishToBlockchain(arrangements);
   }
 }
 

@@ -1,18 +1,14 @@
 # nucypher-ts
 
-Boilerplate for `js-nucypher` replacement.
+Communicate with NuCypher network from browser.
 
 **This is a work in progress**
 
 ## Usage
 
-Checkout git submodules
+Notice: `nucypher-ts` requires setting up Porter from the [top of this PR](https://github.com/nucypher/nucypher/pull/2803).
 
-```bash
-git submodule update --init --recursive
-```
-
-Continue with:
+Run with:
 
 ```bash
 yarn install

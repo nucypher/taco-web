@@ -124,11 +124,6 @@ export class MessageKit {
   }
 }
 
-export type ReencryptedMessageKit = Omit<MessageKit, 'capsule'> & {
-  capsule: CapsuleWithFrags;
-  delegatingKey: PublicKey;
-};
-
 export class PolicyMessageKit {
   constructor(
     public policyEncryptingKey: PublicKey,

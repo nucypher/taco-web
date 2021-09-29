@@ -8,7 +8,7 @@ import { GetUrsulasResponse, Porter, Ursula } from '../src/characters/porter';
 import { RetrievalResult } from '../src/kits/retrieval';
 import { TreasureMap } from '../src/policies/collections';
 import { HRAC } from '../src/policies/hrac';
-import { Arrangement, BlockchainPolicy } from '../src/policies/policy';
+import { BlockchainPolicy } from '../src/policies/policy';
 import { ChecksumAddress, Configuration } from '../src/types';
 import { toBytes, zip } from '../src/utils';
 
@@ -128,21 +128,6 @@ export const mockProposeArrangement = () => {
     .spyOn(Porter.prototype, 'proposeArrangement')
     .mockImplementation((ursula: Ursula) =>
       Promise.resolve(ursula.checksumAddress),
-    );
-};
-
-export const mockEnactArrangement = () => {
-  return jest
-    .spyOn(BlockchainPolicy.prototype, 'enactArrangement')
-    .mockImplementation(
-      (
-        _arrangement: Arrangement,
-        _kFrag: VerifiedCapsuleFrag,
-        ursula: Ursula,
-        _publicationTransaction: Uint8Array,
-      ) => {
-        return Promise.resolve(ursula.checksumAddress);
-      },
     );
 };
 

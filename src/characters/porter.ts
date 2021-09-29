@@ -2,7 +2,6 @@ import axios, { AxiosResponse } from 'axios';
 import qs from 'qs';
 import { PublicKey, VerifiedCapsuleFrag } from 'umbral-pre';
 
-import { MessageKit } from '../kits/message';
 import { RetrievalKit, RetrievalResult } from '../kits/retrieval';
 import { TreasureMap } from '../policies/collections';
 import { Arrangement } from '../policies/policy';
@@ -20,36 +19,24 @@ interface RevocationRequest {
   revocationKit: Base64EncodedBytes;
 }
 
-export interface RevocationFailure {
+interface RevocationFailure {
   ursula: ChecksumAddress;
   failure: string;
 }
 
-export interface RevocationResponse {
+interface RevocationResponse {
   failedRevocations: number;
   failures: RevocationFailure[];
 }
 
-export interface GetTreasureMapRequest {
-  treasure_map_id: HexEncodedBytes;
-  bob_encrypting_key: HexEncodedBytes;
-}
-
-export interface GetTreasureMapResponse {
-  result: {
-    treasureMap: Base64EncodedBytes;
-  };
-  version: string;
-}
-
-export interface GetUrsulasRequest {
+interface GetUrsulasRequest {
   quantity: number;
   duration_periods: number;
   exclude_ursulas?: ChecksumAddress[];
   include_ursulas?: ChecksumAddress[];
 }
 
-export interface PorterUrsula {
+interface UrsulaResponse {
   checksum_address: ChecksumAddress;
   uri: string;
   encrypting_key: HexEncodedBytes;
@@ -57,12 +44,12 @@ export interface PorterUrsula {
 
 export interface GetUrsulasResponse {
   result: {
-    ursulas: PorterUrsula[];
+    ursulas: UrsulaResponse[];
   };
   version: string;
 }
 
-export interface PostRetrieveCFragsRequest {
+interface PostRetrieveCFragsRequest {
   treasure_map: Base64EncodedBytes;
   retrieval_kits: Base64EncodedBytes[];
   alice_verifying_key: HexEncodedBytes;
@@ -71,7 +58,7 @@ export interface PostRetrieveCFragsRequest {
   policy_encrypting_key: HexEncodedBytes;
 }
 
-export interface PostRetrieveCFragsResult {
+interface PostRetrieveCFragsResult {
   result: {
     retrieval_results: {
       cfrags: {
@@ -113,7 +100,7 @@ export class Porter {
         },
       }
     );
-    return resp.data.result.ursulas.map((u: PorterUrsula) => ({
+    return resp.data.result.ursulas.map((u: UrsulaResponse) => ({
       checksumAddress: u.checksum_address,
       uri: u.uri,
       encryptingKey: u.encrypting_key,
@@ -167,32 +154,12 @@ export class Porter {
     const url = `${this.porterUri}/proxy/consider_arrangement`;
     const config = {
       headers: {
-        'X-PROXY-DESTINATION': ursula.uri, // TODO: Add proxy to `nucypher`
+        'X-PROXY-DESTINATION': ursula.uri,
         'Content-Type': 'application/octet-stream',
         'Access-Control-Allow-Origin': this.porterUri,
       },
     };
     await axios.post(url, arrangement.toBytes(), config).catch(() => {
-      return null;
-    });
-    return ursula.checksumAddress;
-  }
-
-  public async enactPolicy(
-    ursula: Ursula,
-    arrangementId: Uint8Array,
-    messageKit: MessageKit
-  ): Promise<ChecksumAddress | null> {
-    const kFragId = toHexString(arrangementId);
-    const url = `${this.porterUri}/proxy/kFrag/${kFragId}`;
-    const config = {
-      headers: {
-        'X-PROXY-DESTINATION': ursula.uri, // TODO: Add proxy to `nucypher`
-        'Content-Type': 'application/octet-stream',
-        'Access-Control-Allow-Origin': this.porterUri,
-      },
-    };
-    await axios.post(url, messageKit.toBytes(), config).catch(() => {
       return null;
     });
     return ursula.checksumAddress;

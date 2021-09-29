@@ -1,5 +1,4 @@
 import {
-  Capsule,
   KeyFrag,
   PublicKey,
   Signature,
@@ -14,7 +13,6 @@ import { keccakDigest } from '../crypto/api';
 import {
   EIP712_MESSAGE_SIGNATURE_SIZE,
   ETH_ADDRESS_BYTE_LENGTH,
-  ETH_HASH_BYTE_LENGTH,
 } from '../crypto/constants';
 import { toCanonicalAddress, toChecksumAddress } from '../crypto/utils';
 import { MessageKit } from '../kits/message';
@@ -25,7 +23,6 @@ import {
   fromHexString,
   split,
   toBytes,
-  toHexString,
   zip,
 } from '../utils';
 
@@ -311,55 +308,6 @@ export class Revocation {
       ...this.PREFIX,
       ...toCanonicalAddress(this.ursulaAddress),
       ...this.encryptedKFrag.toBytes(),
-    ]);
-  }
-}
-
-class PRETask {
-  constructor(
-    public readonly capsule: Capsule,
-    private signature?: Uint8Array
-  ) {}
-
-  public setSignature(signature: Uint8Array) {
-    this.signature = signature;
-  }
-
-  public getSpecification(
-    ursulaPublicKey: Uint8Array,
-    aliceAddress: Uint8Array,
-    blockHash: Uint8Array,
-    ursulaIdentityEvidence: Uint8Array
-  ): Uint8Array {
-    const expectedLengths = [
-      // TODO: What is the expected length of pub key? 32 or 33 bytes?
-      // [ursulaPublicKey, 'ursulaPublicKey', 32 or 33?]
-      {
-        value: aliceAddress,
-        name: 'aliceAddress',
-        expectedLength: ETH_ADDRESS_BYTE_LENGTH,
-      },
-      {
-        value: blockHash,
-        name: 'blockHash',
-        expectedLength: ETH_HASH_BYTE_LENGTH,
-      },
-    ];
-
-    expectedLengths.forEach(({ value, name, expectedLength }) => {
-      if (value.length !== expectedLength) {
-        throw new Error(
-          `${name} must be of length ${expectedLength}, but it's ${value.length}`
-        );
-      }
-    });
-
-    return new Uint8Array([
-      ...this.capsule.toBytes(),
-      ...ursulaPublicKey,
-      ...ursulaIdentityEvidence,
-      ...aliceAddress,
-      ...blockHash,
     ]);
   }
 }

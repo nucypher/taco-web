@@ -25,7 +25,7 @@ export class PolicyManagerAgent {
     // const estimatedGas = await PolicyManager.estimateGas.createPolicy(
     //   policyId,
     //   ownerAddress ?? transactingPower.account,
-    //   endTimestamp,
+    //   expirationTimestamp,
     //   nodeAddresses
     // );
     const overrides = {

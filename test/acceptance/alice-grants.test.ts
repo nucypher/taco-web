@@ -1,7 +1,7 @@
 import { CapsuleFrag, PublicKey, VerifiedKeyFrag } from 'umbral-pre';
 
 import { Enrico } from '../../src';
-import { MessageKit } from '../../src/kits/message';
+import { MessageKit } from '../../src';
 import { EncryptedTreasureMap } from '../../src/policies/collections';
 import { ChecksumAddress } from '../../src/types';
 import { bytesEqual, fromBytes, toBytes } from '../../src/utils';
@@ -9,7 +9,6 @@ import {
   mockAlice,
   mockBob,
   mockConstructTreasureMap,
-  mockEnactArrangement,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
   mockGetUrsulasOnce,
@@ -49,7 +48,6 @@ describe('story: alice shares message with bob through policy', () => {
     const publishToBlockchainSpy = mockPublishToBlockchain();
     const proposeArrangementSpy = mockProposeArrangement();
     const constructTreasureMapSpy = mockConstructTreasureMap();
-    const enactArrangementSpy = mockEnactArrangement();
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
     const alice = mockAlice();
@@ -65,20 +63,15 @@ describe('story: alice shares message with bob through policy', () => {
     expect(encryptTreasureMapSpy).toHaveBeenCalled();
     expect(constructTreasureMapSpy).toHaveBeenCalled();
     expect(proposeArrangementSpy).toHaveBeenCalledTimes(shares);
-    expect(enactArrangementSpy).toHaveBeenCalledTimes(shares);
 
     // Persist side-channel
     aliceVerifyingKey = alice.verifyingKey;
-    policyEncryptingKey = PublicKey.fromBytes(policy.publicKey);
+    policyEncryptingKey = policy.policyKey;
     encryptedTreasureMap = await encryptTreasureMapSpy.mock.results[0].value;
 
     // Persist variables for mocking
-    // ursulaAddresses = enactArrangementSpy.mock.calls.map((call) => call[2].checksumAddress);
-    // verifiedKFrags = enactArrangementSpy.mock.calls.map((call) => call[1]);
     ursulaAddresses = constructTreasureMapSpy.mock.calls[0][2].map((ursula) => ursula.checksumAddress);
     verifiedKFrags = constructTreasureMapSpy.mock.calls[0][3];
-    // expect(mockResults.delegatingKey.toBytes()).toEqual(policyEncryptingKey.toBytes());
-    // verifiedKFrags = mockResults.verifiedKFrags;
   });
 
   it('enrico encrypts the message', () => {
@@ -106,7 +99,7 @@ describe('story: alice shares message with bob through policy', () => {
       expect(retrieveCFragsSpy).toHaveBeenCalled();
       expect(bobPlaintext).toEqual(message);
 
-      // Does the data received by Bob can be decrypted correctly?
+      // Can data received by Bob be decrypted?
       const [
         _treasureMap,
         _retrievalKits,

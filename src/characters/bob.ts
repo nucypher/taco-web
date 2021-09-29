@@ -93,7 +93,6 @@ export class Bob {
     }
 
     const [signature, message] = split(cleartext, SIGNATURE_LENGTH);
-
     const isValid = verifySignature(signature, message, strangerVerifyingKey);
     if (!isValid) {
       throw Error('Invalid signature on message kit');
@@ -154,7 +153,7 @@ export class Bob {
       policyEncryptingKey
     );
 
-    // TODO: Use `reduce` here
+    // TODO: Rewrite elegantly
     return policyMessageKits.map((messageKit) => {
       let acc = messageKit;
       retrievalResults.forEach((result) => {

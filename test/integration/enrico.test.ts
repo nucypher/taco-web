@@ -1,6 +1,7 @@
 import { decryptOriginal } from 'umbral-pre';
 
-import { Enrico, PolicyMessageKit } from '../../src';
+import { Enrico } from '../../src';
+import { PolicyMessageKit } from '../../src/kits/message';
 import { RetrievalResult } from '../../src/kits/retrieval';
 import { fromBytes, toBytes } from '../../src/utils';
 import { mockAlice, mockBob, reencryptKFrags } from '../utils';

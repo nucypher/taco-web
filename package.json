@@ -10,12 +10,9 @@
     "node": ">=10"
   },
   "scripts": {
-    "build": "yarn build:umbral:bundler && ./scripts/fix-umbral.sh && run-p build:*",
+    "build": "run-p build:*",
     "build:main": "tsc -p tsconfig.json",
     "build:module": "tsc -p tsconfig.module.json",
-    "build:umbral:bundler": "(cd rust-umbral/umbral-pre-wasm && make clean && make TARGET=bundler) && yarn check:umbral",
-    "build:umbral:nodejs": "(cd rust-umbral/umbral-pre-wasm && make clean && make TARGET=nodejs) && yarn check:umbral",
-    "check:umbral": "yarn add --check-files ./rust-umbral/umbral-pre-wasm/pkg",
     "fix": "run-s fix:*",
     "fix:prettier": "prettier \"src/**/*.ts\" --write",
     "fix:lint": "eslint src --ext .ts --fix",
@@ -42,7 +39,7 @@
     "js-sha3": "^0.8.0",
     "qs": "^6.10.1",
     "secure-random": "^1.1.2",
-    "umbral-pre": "file:./rust-umbral/umbral-pre-wasm/pkg"
+    "umbral-pre": "^0.3.2"
   },
   "devDependencies": {
     "@size-limit/preset-small-lib": "^4.11.0",

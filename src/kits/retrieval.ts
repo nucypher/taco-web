@@ -36,15 +36,9 @@ export class RetrievalKit {
       ...this.queriedAddresses
         .map(toCanonicalAddress)
         .reduce(
-          (next, accumulator) => new Uint8Array([...accumulator, ...next])
+          (previous, next) => new Uint8Array([...previous, ...next]),
+          new Uint8Array()
         ),
     ]);
   }
-}
-
-export class RetrievalWorkOrder {
-  constructor(
-    public ursulaAddress: ChecksumAddress,
-    public capsules: VerifiedCapsuleFrag[]
-  ) {}
 }

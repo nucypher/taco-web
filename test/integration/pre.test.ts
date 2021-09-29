@@ -1,6 +1,9 @@
+import { CapsuleFrag } from 'umbral-pre';
+
 import { Enrico } from '../../src';
+import { MessageKit } from '../../src/kits/message';
 import { toBytes } from '../../src/utils';
-import { mockAlice, mockBob, mockRetrieveResults, mockUrsulas } from '../utils';
+import { mockAlice, mockBob, mockRetrieveResults, mockUrsulas, reencryptKFrags } from '../utils';
 
 describe('proxy reencryption', () => {
   const plaintext = toBytes('plaintext-message');
@@ -10,6 +13,16 @@ describe('proxy reencryption', () => {
   const label = 'fake-data-label';
   const alice = mockAlice();
   const bob = mockBob();
+
+  it('verifies capsule frags', async () => {
+    const { capsule } = MessageKit.author(bob.decryptingKey, plaintext, alice.signer);
+    const { delegatingKey, verifiedKFrags } = await alice.generateKFrags(bob, label, threshold, shares);
+
+    const { verifiedCFrags } = reencryptKFrags(verifiedKFrags, capsule);
+    const cFrags = verifiedCFrags.map((verifiedCFrag) => CapsuleFrag.fromBytes(verifiedCFrag.toBytes()));
+    const areVerified = cFrags.every((cFrag) => cFrag.verify(capsule, alice.verifyingKey, delegatingKey, bob.decryptingKey));
+    expect(areVerified).toBeTruthy();
+  });
 
   it('encrypts and decrypts reencrypted message', async () => {
     const { verifiedKFrags } = await alice.generateKFrags(
@@ -34,7 +47,6 @@ describe('proxy reencryption', () => {
     const policyMessageKit = encryptedMessage
       .asPolicyKit(policyEncryptingKey, threshold)
       .withResult(retrievalResults[0]);
-
     expect(policyMessageKit.isDecryptableByReceiver()).toBeTruthy();
 
     const bobPlaintext = bob.verifyFrom(

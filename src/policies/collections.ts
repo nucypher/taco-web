@@ -9,7 +9,7 @@ import {
 
 import { Alice } from '../characters/alice';
 import { Bob } from '../characters/bob';
-import { IUrsula } from '../characters/porter';
+import { Ursula } from '../characters/porter';
 import { keccakDigest } from '../crypto/api';
 import {
   EIP712_MESSAGE_SIGNATURE_SIZE,
@@ -25,6 +25,7 @@ import {
   fromHexString,
   split,
   toBytes,
+  toHexString,
   zip,
 } from '../utils';
 
@@ -50,7 +51,7 @@ export class TreasureMap {
   public static async constructByPublisher(
     hrac: HRAC,
     publisher: Alice,
-    ursulas: IUrsula[],
+    ursulas: Ursula[],
     verifiedKFrags: VerifiedKeyFrag[],
     threshold: number
   ): Promise<TreasureMap> {
@@ -84,7 +85,7 @@ export class TreasureMap {
   }
 
   private static makeDestinations(
-    ursulas: IUrsula[],
+    ursulas: Ursula[],
     verifiedKFrags: VerifiedKeyFrag[],
     hrac: HRAC,
     publisher: Alice
@@ -139,7 +140,7 @@ export class TreasureMap {
 
   public toBytes(): Uint8Array {
     return new Uint8Array([
-      // `threshold` must be is big-endian
+      // `threshold` must be big-endian
       ...Uint8Array.from([this.threshold]).reverse(),
       ...this.hrac.toBytes(),
       ...TreasureMap.nodesToBytes(this.destinations),
@@ -147,6 +148,7 @@ export class TreasureMap {
   }
 
   private static nodesToBytes(destinations: KFragDestinations): Uint8Array {
+    const kFrag = Object.values(destinations)[0];
     return Object.entries(destinations)
       .map(
         ([ursulaAddress, encryptedKFrag]) =>
@@ -155,7 +157,7 @@ export class TreasureMap {
             ...encodeVariableLengthMessage(encryptedKFrag.toBytes()),
           ])
       )
-      .reduce((next, accumulator) => new Uint8Array([...accumulator, ...next]));
+      .reduce((previous, next) => new Uint8Array([...previous, ...next]));
   }
 }
 

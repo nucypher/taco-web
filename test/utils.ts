@@ -4,7 +4,7 @@ import { Capsule, CapsuleWithFrags, reencrypt, VerifiedCapsuleFrag, VerifiedKeyF
 
 import { Alice, Bob, NucypherKeyring } from '../src';
 import { StakingEscrowAgent } from '../src/agents/staking-escrow';
-import { GetUrsulasResponse, IUrsula, Porter } from '../src/characters/porter';
+import { GetUrsulasResponse, Porter, Ursula } from '../src/characters/porter';
 import { RetrievalResult } from '../src/kits/retrieval';
 import { TreasureMap } from '../src/policies/collections';
 import { HRAC } from '../src/policies/hrac';
@@ -13,7 +13,7 @@ import { ChecksumAddress, Configuration } from '../src/types';
 import { toBytes, zip } from '../src/utils';
 
 export const mockConfig: Configuration = {
-  porterUri: 'https://_this_will_crash.com/',
+  porterUri: 'https://_this_should_crash.com/',
 };
 
 export const mockBob = (): Bob => {
@@ -26,7 +26,7 @@ export const mockRemoteBob = (): Bob => {
   const bob = mockBob();
   return Bob.fromPublicKeys(
     mockConfig,
-    bob.signer.verifyingKey(),
+    bob.verifyingKey,
     bob.decryptingKey,
   );
 };
@@ -53,7 +53,7 @@ export const mockWeb3Provider = (
   };
 };
 
-export const mockUrsulas = (): IUrsula[] => {
+export const mockUrsulas = (): Ursula[] => {
   return [
     {
       encryptingKey:
@@ -95,7 +95,7 @@ export const mockUrsulas = (): IUrsula[] => {
 };
 
 export const mockPorterUrsulas = (
-  mockUrsulas: IUrsula[],
+  mockUrsulas: Ursula[],
 ): GetUrsulasResponse => {
   return {
     result: {
@@ -109,7 +109,7 @@ export const mockPorterUrsulas = (
   };
 };
 
-export const mockGetUrsulasOnce = (ursulas: IUrsula[]) => {
+export const mockGetUrsulasOnce = (ursulas: Ursula[]) => {
   return jest.spyOn(axios, 'get').mockImplementationOnce(async () => {
     return Promise.resolve({ data: mockPorterUrsulas(ursulas) });
   });
@@ -126,7 +126,7 @@ export const mockPublishToBlockchain = () => {
 export const mockProposeArrangement = () => {
   return jest
     .spyOn(Porter.prototype, 'proposeArrangement')
-    .mockImplementation((ursula: IUrsula) =>
+    .mockImplementation((ursula: Ursula) =>
       Promise.resolve(ursula.checksumAddress),
     );
 };
@@ -138,7 +138,7 @@ export const mockEnactArrangement = () => {
       (
         _arrangement: Arrangement,
         _kFrag: VerifiedCapsuleFrag,
-        ursula: IUrsula,
+        ursula: Ursula,
         _publicationTransaction: Uint8Array,
       ) => {
         return Promise.resolve(ursula.checksumAddress);
@@ -185,19 +185,19 @@ export const mockEncryptTreasureMap = () => {
 export const reencryptKFrags = (
   kFrags: VerifiedKeyFrag[],
   capsule: Capsule,
-): { capsuleWithFrags: CapsuleWithFrags, cFrags: VerifiedCapsuleFrag[] } => {
+): { capsuleWithFrags: CapsuleWithFrags, verifiedCFrags: VerifiedCapsuleFrag[] } => {
   if (!kFrags) {
     throw new Error('Pass at least one kFrag.');
   }
   let capsuleWithFrags: CapsuleWithFrags;
-  const cFrags = kFrags.map((kFrag) => {
+  const verifiedCFrags = kFrags.map((kFrag) => {
     const cFrag = reencrypt(capsule, kFrag);
     capsuleWithFrags = capsuleWithFrags
       ? capsuleWithFrags.withCFrag(cFrag)
       : capsule.withCFrag(cFrag);
     return cFrag;
   });
-  return { capsuleWithFrags: capsuleWithFrags!, cFrags };
+  return { capsuleWithFrags: capsuleWithFrags!, verifiedCFrags };
 };
 
 export const mockStakingEscrow = (
@@ -237,4 +237,8 @@ export const mockTreasureMap = async () => {
     verifiedKFrags,
     threshold,
   );
+};
+
+export const mockConstructTreasureMap = () => {
+  return jest.spyOn(TreasureMap, 'constructByPublisher');
 };

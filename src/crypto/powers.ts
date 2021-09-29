@@ -64,7 +64,7 @@ export class DelegatingPower {
   }
 
   public async generateKFrags(
-    bobDecryptingKey: PublicKey,
+    receivingKey: PublicKey,
     signer: Signer,
     label: string,
     threshold: number,
@@ -74,16 +74,17 @@ export class DelegatingPower {
     verifiedKFrags: VerifiedKeyFrag[];
   }> {
     const delegatingSecretKey = await this.getSecretKeyFromLabel(label);
-    const delegatingKey = await this.getPublicKeyFromLabel(label);
+    const delegatingKey = delegatingSecretKey.publicKey();
     const kFrags: KeyFrag[] = generateKFrags(
       delegatingSecretKey,
-      bobDecryptingKey,
+      receivingKey,
       signer,
       threshold,
       shares,
       false,
       false
     );
+    // Turn KFrags into VerifiedKFrags - we know they're good
     const verifiedKFrags = kFrags.map((kFrag) =>
       VerifiedKeyFrag.fromVerifiedBytes(kFrag.toBytes())
     );
@@ -108,7 +109,7 @@ abstract class CryptoPower {
 
   protected constructor(keyingMaterial?: Uint8Array, publicKey?: PublicKey) {
     if (keyingMaterial && publicKey) {
-      throw new Error('Pass either keyMaterial or publicKey - not both.');
+      throw new Error('Pass either keyingMaterial or publicKey - not both.');
     }
     if (keyingMaterial) {
       this._secretKey = new UmbralKeyingMaterial(

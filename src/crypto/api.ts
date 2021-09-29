@@ -1,7 +1,7 @@
 import sha3 from 'js-sha3';
 import { PublicKey, Signature } from 'umbral-pre';
 
-import { toBytes } from '../utils';
+import { fromHexString } from '../utils';
 
 export const verifySignature = (
   signature: Uint8Array | Signature,
@@ -16,4 +16,4 @@ export const verifySignature = (
 };
 
 export const keccakDigest = (m: Uint8Array): Uint8Array =>
-  toBytes(sha3.keccak_256(m)).slice(0, 32);
+  fromHexString(sha3.keccak_256(m)).slice(0, 32);

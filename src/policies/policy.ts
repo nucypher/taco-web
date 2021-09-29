@@ -4,10 +4,10 @@ import { PublicKey, VerifiedCapsuleFrag, VerifiedKeyFrag } from 'umbral-pre';
 import { PolicyManagerAgent } from '../agents/policy-manager';
 import { Alice } from '../characters/alice';
 import { Bob } from '../characters/bob';
-import { IUrsula } from '../characters/porter';
+import { Ursula } from '../characters/porter';
 import { RevocationKit } from '../kits/revocation';
 import { ChecksumAddress } from '../types';
-import { fromHexString, toBytes } from '../utils';
+import { encodeVariableLengthMessage, fromHexString, toBytes } from '../utils';
 
 import { EncryptedTreasureMap, TreasureMap } from './collections';
 import { HRAC } from './hrac';
@@ -23,7 +23,7 @@ export interface EnactedPolicy {
 }
 
 export interface ArrangementForUrsula {
-  ursula: IUrsula;
+  ursula: Ursula;
   arrangement: Arrangement;
 }
 
@@ -33,7 +33,7 @@ export interface BlockchainPolicyParameters {
   threshold: number;
   shares: number;
   expiration?: Date;
-  paymentPeriods?: number;
+  paymentPeriods: number;
   value?: number;
   rate?: number;
 }
@@ -122,7 +122,7 @@ export class BlockchainPolicy {
   public async enactArrangement(
     arrangement: Arrangement,
     kFrag: VerifiedCapsuleFrag,
-    ursula: IUrsula,
+    ursula: Ursula,
     publicationTransaction: Uint8Array
   ): Promise<ChecksumAddress | null> {
     const enactmentPayload = new Uint8Array([
@@ -133,7 +133,7 @@ export class BlockchainPolicy {
     const messageKit = this.publisher.encryptFor(ursulaKey, enactmentPayload);
     return this.publisher.porter.enactPolicy(
       ursula,
-      arrangement.getId(),
+      arrangement.arrangementId,
       messageKit
     );
   }
@@ -153,7 +153,7 @@ export class BlockchainPolicy {
     return txReceipt.blockHash!;
   }
 
-  public async enact(ursulas: IUrsula[]): Promise<EnactedPolicy> {
+  public async enact(ursulas: Ursula[]): Promise<EnactedPolicy> {
     const arrangements = await this.makeArrangements(ursulas);
     await this.enactArrangements(arrangements);
 
@@ -185,7 +185,7 @@ export class BlockchainPolicy {
   }
 
   private async proposeArrangement(
-    ursula: IUrsula
+    ursula: Ursula
   ): Promise<ArrangementForUrsula | null> {
     const arrangement = Arrangement.fromAlice(this.publisher, this.expiration);
     const maybeAddress = await this.publisher.porter.proposeArrangement(
@@ -199,7 +199,7 @@ export class BlockchainPolicy {
   }
 
   private async makeArrangements(
-    ursulas: IUrsula[]
+    ursulas: Ursula[]
   ): Promise<ArrangementForUrsula[]> {
     const arrangementPromises = ursulas.map((ursula) =>
       this.proposeArrangement(ursula)
@@ -243,7 +243,7 @@ export class BlockchainPolicy {
 export class Arrangement {
   private static ID_LENGTH = 32;
   private aliceVerifyingKey: PublicKey;
-  private readonly arrangementId: Uint8Array;
+  public readonly arrangementId: Uint8Array;
   private expiration: Date;
 
   constructor(
@@ -264,12 +264,7 @@ export class Arrangement {
   public toBytes(): Uint8Array {
     return new Uint8Array([
       ...this.aliceVerifyingKey.toBytes(),
-      ...this.arrangementId,
-      ...toBytes(this.expiration.toISOString()),
+      ...encodeVariableLengthMessage(toBytes(this.expiration.toISOString())),
     ]);
-  }
-
-  public getId(): Uint8Array {
-    return this.arrangementId;
   }
 }

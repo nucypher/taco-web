@@ -17,6 +17,7 @@ describe('message kit', () => {
 
     const isValid = verifySignature(messageKit.signature!, plaintext, alice.verifyingKey);
     expect(isValid).toBeTruthy();
+
     const decrypted = (bob as any).decryptingPower.decrypt(messageKit);
     expect(decrypted).toBeTruthy();
   });
@@ -28,7 +29,6 @@ describe('message kit', () => {
 
     const messageKit = alice.encryptFor(bob.decryptingKey, message);
     const cleartext = bob.verifyFrom(alice.verifyingKey, messageKit);
-
     expect(cleartext).toEqual(message);
   });
 });

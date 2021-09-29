@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 import qs from 'qs';
-import { PublicKey } from 'umbral-pre';
+import { PublicKey, VerifiedCapsuleFrag } from 'umbral-pre';
 
 import { MessageKit } from '../kits/message';
 import { RetrievalKit, RetrievalResult } from '../kits/retrieval';
@@ -9,7 +9,7 @@ import { Arrangement } from '../policies/policy';
 import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from '../types';
 import { fromBase64, toBase64, toHexString } from '../utils';
 
-export interface IUrsula {
+export interface Ursula {
   checksumAddress: ChecksumAddress;
   uri: string;
   encryptingKey: HexEncodedBytes;
@@ -71,12 +71,12 @@ export interface PostRetrieveCFragsRequest {
   policy_encrypting_key: HexEncodedBytes;
 }
 
-type RetrievalResultCFrag = [string, string];
-
 export interface PostRetrieveCFragsResult {
   result: {
     retrieval_results: {
-      cfrags: RetrievalResultCFrag[];
+      cfrags: {
+        [address: string]: string;
+      };
     }[];
   };
   version: string;
@@ -90,11 +90,11 @@ export class Porter {
   }
 
   public async getUrsulas(
-    quantity = 3, // TODO: Pick reasonable default
-    durationPeriods = 7, // TODO: Pick reasonable default
+    quantity: number,
+    durationPeriods: number,
     excludeUrsulas?: ChecksumAddress[],
     includeUrsulas?: ChecksumAddress[]
-  ): Promise<IUrsula[]> {
+  ): Promise<Ursula[]> {
     const params: GetUrsulasRequest = {
       quantity,
       duration_periods: durationPeriods,
@@ -106,7 +106,7 @@ export class Porter {
       {
         params,
         paramsSerializer: (params) => {
-          return qs.stringify(params, { arrayFormat: 'repeat' });
+          return qs.stringify(params, { arrayFormat: 'comma' });
         },
         headers: {
           'Access-Control-Allow-Origin': this.porterUri,
@@ -135,14 +135,14 @@ export class Porter {
     const data: PostRetrieveCFragsRequest = {
       treasure_map: toBase64(treasureMap.toBytes()),
       retrieval_kits: retrievalKits.map((rk) => toBase64(rk.toBytes())),
-      alice_verifying_key: toBase64(aliceVerifyingKey.toBytes()),
-      bob_encrypting_key: toBase64(bobEncryptingKey.toBytes()),
-      bob_verifying_key: toBase64(bobVerifyingKey.toBytes()),
-      policy_encrypting_key: toBase64(policyEncryptingKey.toBytes()),
+      alice_verifying_key: toHexString(aliceVerifyingKey.toBytes()),
+      bob_encrypting_key: toHexString(bobEncryptingKey.toBytes()),
+      bob_verifying_key: toHexString(bobVerifyingKey.toBytes()),
+      policy_encrypting_key: toHexString(policyEncryptingKey.toBytes()),
     };
     const resp: AxiosResponse<PostRetrieveCFragsResult> = await axios.post(
       `${this.porterUri}/retrieve_cfrags`,
-      { data },
+      data,
       {
         headers: {
           'Access-Control-Allow-Origin': this.porterUri,
@@ -152,16 +152,16 @@ export class Porter {
     return resp.data.result.retrieval_results
       .map((result) => result.cfrags)
       .map((cFrags) => {
-        const parsed = cFrags.map(([address, cFrag]) => [
+        const parsed = Object.keys(cFrags).map((address) => [
           address,
-          fromBase64(cFrag),
+          VerifiedCapsuleFrag.fromVerifiedBytes(fromBase64(cFrags[address])),
         ]);
         return new RetrievalResult(Object.fromEntries(parsed));
       });
   }
 
   public async proposeArrangement(
-    ursula: IUrsula,
+    ursula: Ursula,
     arrangement: Arrangement
   ): Promise<ChecksumAddress | null> {
     const url = `${this.porterUri}/proxy/consider_arrangement`;
@@ -179,7 +179,7 @@ export class Porter {
   }
 
   public async enactPolicy(
-    ursula: IUrsula,
+    ursula: Ursula,
     arrangementId: Uint8Array,
     messageKit: MessageKit
   ): Promise<ChecksumAddress | null> {

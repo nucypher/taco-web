@@ -19,6 +19,7 @@ import {
   calculatePeriodDuration,
   dateAtPeriod,
   mergeWithoutUndefined,
+  toHexString,
 } from '../utils';
 
 import { Bob } from './bob';
@@ -72,8 +73,8 @@ export class Alice {
 
   public async grant(
     policyParameters: BlockchainPolicyParameters, // TODO: Should this object be used in user-facing API?
-    excludeUrsulas?: ChecksumAddress[],
-    includeUrsulas?: ChecksumAddress[]
+    includeUrsulas?: ChecksumAddress[],
+    excludeUrsulas?: ChecksumAddress[]
   ): Promise<EnactedPolicy> {
     const ursulas = await this.porter.getUrsulas(
       policyParameters.shares,

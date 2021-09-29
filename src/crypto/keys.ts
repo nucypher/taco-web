@@ -1,4 +1,4 @@
-import { PublicKey, SecretKey } from 'umbral-pre';
+import { SecretKey } from 'umbral-pre';
 
 import { toBytes } from '../utils';
 
@@ -26,9 +26,5 @@ export class UmbralKeyingMaterial {
 
   public deriveSecretKey(): SecretKey {
     return SecretKey.fromBytes(this.keyingMaterial);
-  }
-
-  public derivePublicKey(): PublicKey {
-    return this.deriveSecretKey().publicKey();
   }
 }

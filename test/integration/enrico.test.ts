@@ -55,7 +55,7 @@ describe('enrico', () => {
       policyEncryptingKey.toBytes(),
     );
 
-    const { capsuleWithFrags, cFrags } = reencryptKFrags(
+    const { capsuleWithFrags, verifiedCFrags } = reencryptKFrags(
       verifiedKFrags,
       capsule,
     );
@@ -70,7 +70,7 @@ describe('enrico', () => {
     expect(fromBytes(plaintextBob).endsWith(plaintext)).toBeTruthy();
 
     // Bob can decrypt ciphertext and verify origin of the message
-    const cFragsWithUrsulas = cFrags.map((cFrag, index) => ([ `0x${index}`, cFrag ]));
+    const cFragsWithUrsulas = verifiedCFrags.map((cFrag, index) => ([ `0x${index}`, cFrag ]));
     const result = new RetrievalResult(Object.fromEntries(cFragsWithUrsulas));
     const pk = PolicyMessageKit
       .fromMessageKit(encrypted, policyEncryptingKey, threshold)

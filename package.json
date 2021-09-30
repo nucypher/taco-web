@@ -2,7 +2,11 @@
   "name": "nucypher-ts",
   "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
   "version": "0.1.0-alpha",
-  "license": "MIT",
+  "license": "GPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nucypher/nucypher-ts"
+  },
   "main": "build/main/src/index.js",
   "typings": "build/main/src/index.d.ts",
   "module": "build/module/src/index.js",

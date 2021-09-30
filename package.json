@@ -1,7 +1,7 @@
 {
   "name": "nucypher-ts",
   "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha",
   "license": "MIT",
   "main": "build/main/src/index.js",
   "typings": "build/main/src/index.d.ts",

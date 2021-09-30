@@ -7,7 +7,7 @@
   "typings": "build/main/src/index.d.ts",
   "module": "build/module/src/index.js",
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "scripts": {
     "build": "run-p build:*",

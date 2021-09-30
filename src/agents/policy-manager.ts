@@ -30,7 +30,7 @@ export class PolicyManagerAgent {
     // );
     const overrides = {
       // gasLimit: estimatedGas.toNumber(),
-      gasLimit: 600_000,
+      gasLimit: 200_000,
       value: valueInWei,
     };
     const tx = await PolicyManager.createPolicy(
@@ -40,7 +40,6 @@ export class PolicyManagerAgent {
       nodeAddresses,
       overrides
     );
-    // TODO: Should we wait for TX to be mined?
     await tx.wait(DEFAULT_WAIT_N_CONFIRMATIONS);
     return tx;
   }

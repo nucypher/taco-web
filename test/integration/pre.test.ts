@@ -1,7 +1,7 @@
 import { CapsuleFrag } from 'umbral-pre';
 
 import { Enrico } from '../../src';
-import { MessageKit } from '../../src/kits/message';
+import { MessageKit } from '../../src';
 import { toBytes } from '../../src/utils';
 import { mockAlice, mockBob, mockRetrieveResults, mockUrsulas, reencryptKFrags } from '../utils';
 

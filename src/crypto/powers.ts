@@ -19,7 +19,9 @@ import { UmbralKeyingMaterial } from './keys';
 
 export abstract class TransactingPower {
   public abstract get account(): ChecksumAddress;
+
   public abstract get wallet(): Wallet;
+
   public abstract connect(provider: Provider): void;
 }
 
@@ -28,11 +30,10 @@ export class DerivedTransactionPower extends TransactingPower {
 
   private constructor(keyingMaterial: Uint8Array, provider?: Provider) {
     super();
-    // TODO: Handle provider and secret key
-    const secretKey = new UmbralKeyingMaterial(
-      keyingMaterial
-    ).deriveSecretKey();
     this.wallet = new Wallet(keyingMaterial);
+    if (provider) {
+      this.connect(provider);
+    }
   }
 
   public get account(): ChecksumAddress {

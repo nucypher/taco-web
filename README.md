@@ -2,11 +2,9 @@
 
 Communicate with NuCypher network from browser.
 
-**This is a work in progress**
+**This is a work in progress. Do not use in a production.**
 
 ## Usage
-
-Notice: `nucypher-ts` requires setting up [Porter](https://github.com/nucypher/nucypher).
 
 Run with:
 
@@ -17,30 +15,13 @@ yarn build
 ```
 
 Install git hooks
+
 ```bash
 npx husky install
 ```
 
-## Running the example
+## Examples
 
-Build `nucypher-ts`:
+See `./test` directory for usage examples.
 
-```bash
-yarn build
-```
-
-Run the example:
-
-```
-yarn install
-yarn start
-# outputs a URL to visit in browser
-```
-
-## GitHub Actions
-
-CI is disabled. Enable it with:
-
-```bash
-gh workflow enable ci
-```
+See [`nucypher-ts-demo`](https://github.com/nucypher/nucypher-ts-demo) for usage example with React app.

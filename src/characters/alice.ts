@@ -25,14 +25,12 @@ import { Bob } from './bob';
 import { Porter } from './porter';
 
 export class Alice {
-  public readonly porter: Porter;
-  // TODO: Should powers be visible or should they be used indirectly?
-  // TODO: This is the only visible transacting power
+  private readonly porter: Porter;
   public readonly transactingPower: TransactingPower;
-  private delegatingPower: DelegatingPower;
-  private signingPower: SigningPower;
+  private readonly delegatingPower: DelegatingPower;
+  private readonly signingPower: SigningPower;
 
-  constructor(
+  private constructor(
     config: Configuration,
     signingPower: SigningPower,
     delegatingPower: DelegatingPower,
@@ -52,10 +50,11 @@ export class Alice {
     return this.signingPower.signer;
   }
 
-  public static fromKeyring(
+  public static fromSecretKey(
     config: Configuration,
-    keyring: NucypherKeyring
+    secretKey: Uint8Array
   ): Alice {
+    const keyring = new NucypherKeyring(secretKey);
     const signingPower = keyring.deriveSigningPower();
     const delegatingPower = keyring.deriveDelegatingPower();
     const transactingPower = keyring.deriveTransactingPower();

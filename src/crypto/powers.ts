@@ -19,9 +19,7 @@ import { UmbralKeyingMaterial } from './keys';
 
 export abstract class TransactingPower {
   public abstract get account(): ChecksumAddress;
-
   public abstract get wallet(): Wallet;
-
   public abstract connect(provider: Provider): void;
 }
 

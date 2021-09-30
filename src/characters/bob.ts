@@ -19,7 +19,7 @@ import { bytesEqual, split, toHexString } from '../utils';
 import { Porter } from './porter';
 
 export class Bob {
-  public readonly treasureMaps: Record<string, PublishedTreasureMap>;
+  private readonly treasureMaps: Record<string, PublishedTreasureMap>;
   private readonly config: Configuration;
   private readonly porter: Porter;
   private readonly signingPower: SigningPower;
@@ -59,10 +59,11 @@ export class Bob {
     return new Bob(config, signingPower, decryptingPower);
   }
 
-  public static fromKeyring(
+  public static fromSecretKey(
     config: Configuration,
-    keyring: NucypherKeyring
+    secretKey: Uint8Array
   ): Bob {
+    const keyring = new NucypherKeyring(secretKey);
     const signingPower = keyring.deriveSigningPower();
     const decryptingPower = keyring.deriveDecryptingPower();
     return new Bob(config, signingPower, decryptingPower);

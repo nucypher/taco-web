@@ -2,7 +2,7 @@ import { Block, Provider } from '@ethersproject/providers';
 import axios from 'axios';
 import { Capsule, CapsuleWithFrags, reencrypt, VerifiedCapsuleFrag, VerifiedKeyFrag } from 'umbral-pre';
 
-import { Alice, Bob, NucypherKeyring } from '../src';
+import { Alice, Bob } from '../src';
 import { StakingEscrowAgent } from '../src/agents/staking-escrow';
 import { GetUrsulasResponse, Porter, Ursula } from '../src/characters/porter';
 import { RetrievalResult } from '../src/kits/retrieval';
@@ -12,14 +12,13 @@ import { BlockchainPolicy } from '../src/policies/policy';
 import { ChecksumAddress, Configuration } from '../src/types';
 import { toBytes, zip } from '../src/utils';
 
-export const mockConfig: Configuration = {
+const mockConfig: Configuration = {
   porterUri: 'https://_this_should_crash.com/',
 };
 
 export const mockBob = (): Bob => {
-  const bobKeyringSeed = toBytes('fake-keyring-seed-32-bytes-bob-x');
-  const bobKeyring = new NucypherKeyring(bobKeyringSeed);
-  return Bob.fromKeyring(mockConfig, bobKeyring);
+  const bobKey = toBytes('fake-secret-key-32-bytes-bob-xxx');
+  return Bob.fromSecretKey(mockConfig, bobKey);
 };
 
 export const mockRemoteBob = (): Bob => {
@@ -32,9 +31,8 @@ export const mockRemoteBob = (): Bob => {
 };
 
 export const mockAlice = () => {
-  const aliceKeyringSeed = toBytes('fake-keyring-seed-32-bytes-alice');
-  const aliceKeyring = new NucypherKeyring(aliceKeyringSeed);
-  const alice = Alice.fromKeyring(mockConfig, aliceKeyring);
+  const aliceKey = toBytes('fake-secret-key-32-bytes-alice-x');
+  const alice = Alice.fromSecretKey(mockConfig, aliceKey);
   const provider = mockWeb3Provider();
   alice.transactingPower.connect(provider as Provider);
   return alice;

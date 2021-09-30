@@ -164,30 +164,16 @@ export class BlockchainPolicy {
     return treasureMap.encrypt(this.publisher, this.bob);
   }
 
-  private async proposeArrangement(
-    ursula: Ursula
-  ): Promise<ArrangementForUrsula | null> {
-    const arrangement = Arrangement.fromAlice(this.publisher, this.expiration);
-    const maybeAddress = await this.publisher.porter.proposeArrangement(
-      ursula,
-      arrangement
-    );
-    if (maybeAddress) {
-      return { ursula, arrangement };
-    }
-    return null;
-  }
-
   private async makeArrangements(
     ursulas: Ursula[]
   ): Promise<ArrangementForUrsula[]> {
-    const arrangementPromises = ursulas.map((ursula) =>
-      this.proposeArrangement(ursula)
-    );
-    const maybeArrangements = await Promise.all(arrangementPromises);
-    return maybeArrangements.filter(
-      (arrangement) => !!arrangement
-    ) as ArrangementForUrsula[];
+    return ursulas.map((ursula) => {
+      const arrangement = Arrangement.fromAlice(
+        this.publisher,
+        this.expiration
+      );
+      return { arrangement, ursula };
+    });
   }
 
   private async enactArrangements(

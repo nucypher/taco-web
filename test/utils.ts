@@ -123,14 +123,6 @@ export const mockPublishToBlockchain = () => {
     });
 };
 
-export const mockProposeArrangement = () => {
-  return jest
-    .spyOn(Porter.prototype, 'proposeArrangement')
-    .mockImplementation((ursula: Ursula) =>
-      Promise.resolve(ursula.checksumAddress),
-    );
-};
-
 export const mockRetrieveResults = (
   ursulas: ChecksumAddress[],
   verifiedKFrags: VerifiedKeyFrag[],

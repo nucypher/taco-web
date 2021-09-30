@@ -6,7 +6,7 @@ Communicate with NuCypher network from browser.
 
 ## Usage
 
-Notice: `nucypher-ts` requires setting up Porter from the [top of this PR](https://github.com/nucypher/nucypher/pull/2803).
+Notice: `nucypher-ts` requires setting up [Porter](https://github.com/nucypher/nucypher).
 
 Run with:
 

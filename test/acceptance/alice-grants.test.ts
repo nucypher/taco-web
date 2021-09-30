@@ -12,7 +12,6 @@ import {
   mockEncryptTreasureMap,
   mockGenerateKFrags,
   mockGetUrsulasOnce,
-  mockProposeArrangement,
   mockPublishToBlockchain,
   mockRemoteBob,
   mockRetrieveCFragsRequest,
@@ -46,7 +45,6 @@ describe('story: alice shares message with bob through policy', () => {
     const getUrsulasSpy = mockGetUrsulasOnce(ursulas);
     const generateKFragsSpy = mockGenerateKFrags();
     const publishToBlockchainSpy = mockPublishToBlockchain();
-    const proposeArrangementSpy = mockProposeArrangement();
     const constructTreasureMapSpy = mockConstructTreasureMap();
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
@@ -62,7 +60,6 @@ describe('story: alice shares message with bob through policy', () => {
     expect(publishToBlockchainSpy).toHaveBeenCalled();
     expect(encryptTreasureMapSpy).toHaveBeenCalled();
     expect(constructTreasureMapSpy).toHaveBeenCalled();
-    expect(proposeArrangementSpy).toHaveBeenCalledTimes(shares);
 
     // Persist side-channel
     aliceVerifyingKey = alice.verifyingKey;

@@ -4,7 +4,6 @@ import { PublicKey, VerifiedCapsuleFrag } from 'umbral-pre';
 
 import { RetrievalKit, RetrievalResult } from '../kits/retrieval';
 import { TreasureMap } from '../policies/collections';
-import { Arrangement } from '../policies/policy';
 import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from '../types';
 import { fromBase64, toBase64, toHexString } from '../utils';
 
@@ -145,23 +144,5 @@ export class Porter {
         ]);
         return new RetrievalResult(Object.fromEntries(parsed));
       });
-  }
-
-  public async proposeArrangement(
-    ursula: Ursula,
-    arrangement: Arrangement
-  ): Promise<ChecksumAddress | null> {
-    const url = `${this.porterUri}/proxy/consider_arrangement`;
-    const config = {
-      headers: {
-        'X-PROXY-DESTINATION': ursula.uri,
-        'Content-Type': 'application/octet-stream',
-        'Access-Control-Allow-Origin': this.porterUri,
-      },
-    };
-    await axios.post(url, arrangement.toBytes(), config).catch(() => {
-      return null;
-    });
-    return ursula.checksumAddress;
   }
 }

@@ -94,9 +94,6 @@ export class Porter {
         paramsSerializer: (params) => {
           return qs.stringify(params, { arrayFormat: 'comma' });
         },
-        headers: {
-          'Access-Control-Allow-Origin': this.porterUri,
-        },
       }
     );
     return resp.data.result.ursulas.map((u: UrsulaResponse) => ({
@@ -129,11 +126,6 @@ export class Porter {
     const resp: AxiosResponse<PostRetrieveCFragsResult> = await axios.post(
       `${this.porterUri}/retrieve_cfrags`,
       data,
-      {
-        headers: {
-          'Access-Control-Allow-Origin': this.porterUri,
-        },
-      }
     );
     return resp.data.result.retrieval_results
       .map((result) => result.cfrags)

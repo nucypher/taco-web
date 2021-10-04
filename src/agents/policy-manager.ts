@@ -1,4 +1,4 @@
-import { ContractTransaction, Wallet } from 'ethers';
+import { ContractTransaction, ethers, Wallet } from 'ethers';
 import { hexlify } from 'ethers/lib/utils';
 
 import {
@@ -19,7 +19,7 @@ export class PolicyManagerAgent {
     nodeAddresses: Array<ChecksumAddress>,
     ownerAddress?: ChecksumAddress
   ): Promise<ContractTransaction> {
-    const PolicyManager = await this.connect(transactingPower.wallet);
+    const PolicyManager = await this.connect(transactingPower.signer);
 
     // TODO: Call fails due to "UNPREDICTABLE_GAS_LIMIT" error, hard-coding `gasLimit` for now
     // const estimatedGas = await PolicyManager.estimateGas.createPolicy(
@@ -35,7 +35,7 @@ export class PolicyManagerAgent {
     };
     const tx = await PolicyManager.createPolicy(
       hexlify(policyId),
-      ownerAddress ?? transactingPower.account,
+      ownerAddress ?? (await transactingPower.signer.getAddress()),
       expirationTimestamp,
       nodeAddresses,
       overrides
@@ -44,9 +44,11 @@ export class PolicyManagerAgent {
     return tx;
   }
 
-  private static async connect(wallet: Wallet): Promise<PolicyManager> {
-    const network = await wallet.provider.getNetwork();
+  private static async connect(
+    signer: ethers.providers.JsonRpcSigner
+  ): Promise<PolicyManager> {
+    const network = await signer.provider.getNetwork();
     const contractAddress = CONTRACTS[network.name].POLICYMANAGER;
-    return PolicyManager__factory.connect(contractAddress, wallet);
+    return PolicyManager__factory.connect(contractAddress, signer);
   }
 }

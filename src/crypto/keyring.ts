@@ -1,10 +1,5 @@
 import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
-import {
-  DecryptingPower,
-  DelegatingPower,
-  DerivedTransactionPower,
-  SigningPower,
-} from './powers';
+import { DecryptingPower, DelegatingPower, SigningPower } from './powers';
 
 export class NucypherKeyring {
   private readonly secretKeyBytes: Uint8Array;
@@ -28,9 +23,5 @@ export class NucypherKeyring {
 
   public deriveDecryptingPower(): DecryptingPower {
     return DecryptingPower.fromSecretKeyBytes(this.secretKeyBytes);
-  }
-
-  public deriveTransactingPower(): DerivedTransactionPower {
-    return DerivedTransactionPower.fromSecretKeyBytes(this.secretKeyBytes);
   }
 }

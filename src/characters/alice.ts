@@ -1,4 +1,5 @@
 import { Provider } from '@ethersproject/providers';
+import { ethers } from 'ethers';
 import { PublicKey, Signer, VerifiedKeyFrag } from 'umbral-pre';
 
 import { StakingEscrowAgent } from '../agents/staking-escrow';
@@ -52,17 +53,14 @@ export class Alice {
 
   public static fromSecretKeyBytes(
     config: Configuration,
-    secretKeyBytes: Uint8Array
+    secretKeyBytes: Uint8Array,
+    web3Provider: ethers.providers.Web3Provider
   ): Alice {
     const keyring = new NucypherKeyring(secretKeyBytes);
     const signingPower = keyring.deriveSigningPower();
     const delegatingPower = keyring.deriveDelegatingPower();
-    const transactingPower = keyring.deriveTransactingPower();
+    const transactingPower = TransactingPower.fromWeb3Provider(web3Provider);
     return new Alice(config, signingPower, delegatingPower, transactingPower);
-  }
-
-  public connect(provider: Provider) {
-    this.transactingPower.connect(provider);
   }
 
   public getPolicyEncryptingKeyFromLabel(label: string): PublicKey {
@@ -147,8 +145,8 @@ export class Alice {
     }
 
     const blockNumber =
-      await this.transactingPower.wallet.provider.getBlockNumber();
-    const block = await this.transactingPower.wallet.provider.getBlock(
+      await this.transactingPower.signer.provider.getBlockNumber();
+    const block = await this.transactingPower.signer.provider.getBlock(
       blockNumber
     );
     const blockTime = new Date(block.timestamp * 1000);
@@ -159,11 +157,11 @@ export class Alice {
     }
 
     const secondsPerPeriod = await StakingEscrowAgent.getSecondsPerPeriod(
-      this.transactingPower.wallet.provider
+      this.transactingPower.signer.provider
     );
     if (paymentPeriods) {
       const currentPeriod = await StakingEscrowAgent.getCurrentPeriod(
-        this.transactingPower.wallet.provider
+        this.transactingPower.signer.provider
       );
       const newExpiration = dateAtPeriod(
         currentPeriod + paymentPeriods,

@@ -1,4 +1,4 @@
-import { Block, Provider } from '@ethersproject/providers';
+import { Block } from '@ethersproject/providers';
 import axios from 'axios';
 import { Capsule, CapsuleFrag, CapsuleWithFrags, reencrypt, VerifiedCapsuleFrag, VerifiedKeyFrag } from 'umbral-pre';
 
@@ -10,6 +10,7 @@ import { HRAC } from '../src/policies/hrac';
 import { BlockchainPolicy } from '../src/policies/policy';
 import { ChecksumAddress, Configuration } from '../src/types';
 import { toBytes, zip } from '../src/utils';
+import { ethers, Wallet } from "ethers";
 
 const mockConfig: Configuration = {
     porterUri: 'https://_this_should_crash.com/',
@@ -27,22 +28,29 @@ export const mockRemoteBob = (): RemoteBob => {
 
 export const mockAlice = () => {
     const aliceKey = toBytes('fake-secret-key-32-bytes-alice-x');
-    const alice = Alice.fromSecretKeyBytes(mockConfig, aliceKey);
-    const provider = mockWeb3Provider();
-    alice.transactingPower.connect(provider as Provider);
-    return alice;
+    const provider = mockWeb3Provider(aliceKey);
+    return Alice.fromSecretKeyBytes(mockConfig, aliceKey, provider as ethers.providers.Web3Provider);
 };
 
 export const mockWeb3Provider = (
+    secretKeyBytes: Uint8Array,
     blockNumber?: number,
     blockTimestamp?: number,
-): Partial<Provider> => {
+): Partial<ethers.providers.Web3Provider> => {
     const block = { timestamp: blockTimestamp ?? 1000 };
-    return {
+    const provider = {
         getBlockNumber: () => Promise.resolve(blockNumber ?? 1000),
         getBlock: () => Promise.resolve(block as Block),
         _isProvider: true,
         getNetwork: () => Promise.resolve({ name: 'mock', chainId: -1 }),
+    }
+    const fakeSignerWithProvider = {
+        ...new Wallet(secretKeyBytes),
+        provider
+    };
+    return {
+        ...provider,
+        getSigner: () => fakeSignerWithProvider as unknown as ethers.providers.JsonRpcSigner
     };
 };
 

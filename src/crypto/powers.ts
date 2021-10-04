@@ -1,10 +1,8 @@
-import { Provider } from '@ethersproject/providers';
-import { Wallet } from 'ethers';
+import { ethers } from 'ethers';
 import secureRandom from 'secure-random';
 import {
   decryptOriginal,
   generateKFrags,
-  KeyFrag,
   PublicKey,
   SecretKey,
   SecretKeyFactory,
@@ -13,43 +11,15 @@ import {
 } from 'umbral-pre';
 
 import { MessageKit, PolicyMessageKit } from '../kits/message';
-import { ChecksumAddress } from '../types';
 import { toBytes } from '../utils';
 
-import { keccakDigest } from './api';
 import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
 
-export abstract class TransactingPower {
-  public abstract get account(): ChecksumAddress;
+export class TransactingPower {
+  private constructor(public readonly signer: ethers.providers.JsonRpcSigner) {}
 
-  public abstract get wallet(): Wallet;
-
-  public abstract connect(provider: Provider): void;
-}
-
-export class DerivedTransactionPower extends TransactingPower {
-  public wallet: Wallet;
-
-  private constructor(secretKeyBytes: Uint8Array, provider?: Provider) {
-    super();
-    this.wallet = new Wallet(secretKeyBytes);
-    if (provider) {
-      this.connect(provider);
-    }
-  }
-
-  public get account(): ChecksumAddress {
-    return this.wallet.address;
-  }
-
-  public static fromSecretKeyBytes(
-    secretKeyBytes: Uint8Array
-  ): DerivedTransactionPower {
-    return new DerivedTransactionPower(secretKeyBytes);
-  }
-
-  public connect(provider: Provider): void {
-    this.wallet = this.wallet.connect(provider);
+  public static fromWeb3Provider(web3Provider: ethers.providers.Web3Provider) {
+    return new TransactingPower(web3Provider.getSigner());
   }
 }
 

@@ -9,32 +9,29 @@ import {
 import { NucypherKeyring } from '../crypto/keyring';
 import { DecryptingPower, SigningPower } from '../crypto/powers';
 import { MessageKit, PolicyMessageKit } from '../kits/message';
-import {
-  EncryptedTreasureMap,
-  PublishedTreasureMap,
-} from '../policies/collections';
+import { EncryptedTreasureMap } from '../policies/collections';
 import { Configuration } from '../types';
 import { bytesEqual, split, toHexString } from '../utils';
 
 import { Porter } from './porter';
 
+export interface RemoteBob {
+  verifyingKey: PublicKey;
+  decryptingKey: PublicKey;
+}
+
 export class Bob {
-  private readonly treasureMaps: Record<string, PublishedTreasureMap>;
-  private readonly config: Configuration;
   private readonly porter: Porter;
-  private readonly signingPower: SigningPower;
-  private readonly decryptingPower: DecryptingPower;
 
   constructor(
-    config: Configuration,
-    signingPower: SigningPower,
-    decryptingPower: DecryptingPower
+    private readonly config: Configuration,
+    private readonly signingPower: SigningPower,
+    private readonly decryptingPower: DecryptingPower
   ) {
     this.config = config;
     this.porter = new Porter(config.porterUri);
     this.signingPower = signingPower;
     this.decryptingPower = decryptingPower;
-    this.treasureMaps = {};
   }
 
   public get decryptingKey(): PublicKey {
@@ -47,16 +44,6 @@ export class Bob {
 
   public get signer(): Signer {
     return this.signingPower.signer;
-  }
-
-  public static fromPublicKeys(
-    config: Configuration,
-    verifyingKey: PublicKey,
-    encryptingKey: PublicKey
-  ): Bob {
-    const signingPower = SigningPower.fromPublicKey(verifyingKey);
-    const decryptingPower = DecryptingPower.fromPublicKey(encryptingKey);
-    return new Bob(config, signingPower, decryptingPower);
   }
 
   public static fromSecretKey(

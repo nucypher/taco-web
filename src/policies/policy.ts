@@ -3,7 +3,7 @@ import { PublicKey, VerifiedKeyFrag } from 'umbral-pre';
 
 import { PolicyManagerAgent } from '../agents/policy-manager';
 import { Alice } from '../characters/alice';
-import { Bob } from '../characters/bob';
+import { RemoteBob } from '../characters/bob';
 import { Ursula } from '../characters/porter';
 import { RevocationKit } from '../kits/revocation';
 import { encodeVariableLengthMessage, toBytes } from '../utils';
@@ -27,7 +27,7 @@ interface ArrangementForUrsula {
 }
 
 export interface BlockchainPolicyParameters {
-  bob: Bob;
+  bob: RemoteBob;
   label: string;
   threshold: number;
   shares: number;
@@ -44,7 +44,7 @@ export class BlockchainPolicy {
     private readonly publisher: Alice,
     private readonly label: string,
     private readonly expiration: Date,
-    private bob: Bob,
+    private bob: RemoteBob,
     private verifiedKFrags: VerifiedKeyFrag[],
     private delegatingKey: PublicKey,
     private readonly threshold: number,

@@ -21,7 +21,7 @@ import {
   mergeWithoutUndefined,
 } from '../utils';
 
-import { Bob } from './bob';
+import { RemoteBob } from './bob';
 import { Porter } from './porter';
 
 export class Alice {
@@ -89,7 +89,7 @@ export class Alice {
   }
 
   public async generateKFrags(
-    bob: Bob,
+    bob: RemoteBob,
     label: string,
     threshold: number,
     shares: number

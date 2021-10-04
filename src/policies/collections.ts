@@ -7,7 +7,7 @@ import {
 } from 'umbral-pre';
 
 import { Alice } from '../characters/alice';
-import { Bob } from '../characters/bob';
+import { Bob, RemoteBob } from '../characters/bob';
 import { Ursula } from '../characters/porter';
 import { keccakDigest } from '../crypto/api';
 import {
@@ -124,7 +124,7 @@ export class TreasureMap {
 
   public async encrypt(
     publisher: Alice,
-    bob: Bob,
+    bob: RemoteBob,
     blockchainSigner?: Signer
   ): Promise<EncryptedTreasureMap> {
     return EncryptedTreasureMap.constructByPublisher(
@@ -217,7 +217,7 @@ export class EncryptedTreasureMap {
   public static async constructByPublisher(
     treasureMap: TreasureMap,
     publisher: Alice,
-    bob: Bob,
+    bob: RemoteBob,
     blockchainSigner?: Signer
   ): Promise<EncryptedTreasureMap> {
     const encryptedTreasureMap = MessageKit.author(

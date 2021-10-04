@@ -75,7 +75,7 @@ export class DelegatingPower {
   }> {
     const delegatingSecretKey = await this.getSecretKeyFromLabel(label);
     const delegatingKey = delegatingSecretKey.publicKey();
-    const kFrags: KeyFrag[] = generateKFrags(
+    const verifiedKFrags: VerifiedKeyFrag[] = generateKFrags(
       delegatingSecretKey,
       receivingKey,
       signer,
@@ -83,10 +83,6 @@ export class DelegatingPower {
       shares,
       false,
       false
-    );
-    // Turn KFrags into VerifiedKFrags - we know they're good
-    const verifiedKFrags = kFrags.map((kFrag) =>
-      VerifiedKeyFrag.fromVerifiedBytes(kFrag.toBytes())
     );
     return {
       delegatingKey,

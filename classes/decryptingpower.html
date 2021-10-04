@@ -100,8 +100,8 @@
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="decryptingpower.html#decrypt" class="tsd-kind-icon">decrypt</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="decryptingpower.html#fromkeyingmaterial" class="tsd-kind-icon">from<wbr>Keying<wbr>Material</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="decryptingpower.html#frompublickey" class="tsd-kind-icon">from<wbr>Public<wbr>Key</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="decryptingpower.html#fromsecretkeybytes" class="tsd-kind-icon">from<wbr>Secret<wbr>Key<wbr>Bytes</a></li>
 							</ul>
 						</section>
 					</div>
@@ -113,20 +113,20 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Decrypting<wbr>Power<span class="tsd-signature-symbol">(</span>keyingMaterial<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Uint8Array</span>, publicKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="decryptingpower.html" class="tsd-signature-type">DecryptingPower</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Decrypting<wbr>Power<span class="tsd-signature-symbol">(</span>secretKeyBytes<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Uint8Array</span>, publicKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="decryptingpower.html" class="tsd-signature-type">DecryptingPower</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="cryptopower.html">CryptoPower</a>.<a href="cryptopower.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/849337a/src/crypto/powers.ts#L107">src/crypto/powers.ts:107</a></li>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/crypto/powers.ts#L77">src/crypto/powers.ts:77</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> keyingMaterial: <span class="tsd-signature-type">Uint8Array</span></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> secretKeyBytes: <span class="tsd-signature-type">Uint8Array</span></h5>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> publicKey: <span class="tsd-signature-type">PublicKey</span></h5>
@@ -150,7 +150,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="cryptopower.html">CryptoPower</a>.<a href="cryptopower.html#publickey">publicKey</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/849337a/src/crypto/powers.ts#L124">src/crypto/powers.ts:124</a></li>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/crypto/powers.ts#L92">src/crypto/powers.ts:92</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">PublicKey</span></h4>
@@ -168,7 +168,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="cryptopower.html">CryptoPower</a>.<a href="cryptopower.html#secretkey">secretKey</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/849337a/src/crypto/powers.ts#L128">src/crypto/powers.ts:128</a></li>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/crypto/powers.ts#L96">src/crypto/powers.ts:96</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">SecretKey</span></h4>
@@ -188,7 +188,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/849337a/src/crypto/powers.ts#L171">src/crypto/powers.ts:171</a></li>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/crypto/powers.ts#L139">src/crypto/powers.ts:139</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -202,29 +202,6 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
-					<a name="fromkeyingmaterial" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> from<wbr>Keying<wbr>Material</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">from<wbr>Keying<wbr>Material<span class="tsd-signature-symbol">(</span>keyingMaterial<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="decryptingpower.html" class="tsd-signature-type">DecryptingPower</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/849337a/src/crypto/powers.ts#L165">src/crypto/powers.ts:165</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>keyingMaterial: <span class="tsd-signature-type">Uint8Array</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="decryptingpower.html" class="tsd-signature-type">DecryptingPower</a></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
 					<a name="frompublickey" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> from<wbr>Public<wbr>Key</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
@@ -234,13 +211,36 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/849337a/src/crypto/powers.ts#L161">src/crypto/powers.ts:161</a></li>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/crypto/powers.ts#L129">src/crypto/powers.ts:129</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>publicKey: <span class="tsd-signature-type">PublicKey</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="decryptingpower.html" class="tsd-signature-type">DecryptingPower</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+					<a name="fromsecretkeybytes" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> from<wbr>Secret<wbr>Key<wbr>Bytes</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">from<wbr>Secret<wbr>Key<wbr>Bytes<span class="tsd-signature-symbol">(</span>secretKeyBytes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="decryptingpower.html" class="tsd-signature-type">DecryptingPower</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/crypto/powers.ts#L133">src/crypto/powers.ts:133</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>secretKeyBytes: <span class="tsd-signature-type">Uint8Array</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="decryptingpower.html" class="tsd-signature-type">DecryptingPower</a></h4>
@@ -277,10 +277,10 @@
 								<a href="decryptingpower.html#decrypt" class="tsd-kind-icon">decrypt</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="decryptingpower.html#fromkeyingmaterial" class="tsd-kind-icon">from<wbr>Keying<wbr>Material</a>
+								<a href="decryptingpower.html#frompublickey" class="tsd-kind-icon">from<wbr>Public<wbr>Key</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="decryptingpower.html#frompublickey" class="tsd-kind-icon">from<wbr>Public<wbr>Key</a>
+								<a href="decryptingpower.html#fromsecretkeybytes" class="tsd-kind-icon">from<wbr>Secret<wbr>Key<wbr>Bytes</a>
 							</li>
 						</ul>
 					</li>

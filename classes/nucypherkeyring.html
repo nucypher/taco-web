@@ -87,7 +87,7 @@
 						<section class="tsd-index-section tsd-is-private tsd-is-private-protected">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="nucypherkeyring.html#keyingmaterial" class="tsd-kind-icon">keying<wbr>Material</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="nucypherkeyring.html#secretkeybytes" class="tsd-kind-icon">secret<wbr>Key<wbr>Bytes</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
@@ -96,7 +96,6 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="nucypherkeyring.html#derivedecryptingpower" class="tsd-kind-icon">derive<wbr>Decrypting<wbr>Power</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="nucypherkeyring.html#derivedelegatingpower" class="tsd-kind-icon">derive<wbr>Delegating<wbr>Power</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="nucypherkeyring.html#derivesigningpower" class="tsd-kind-icon">derive<wbr>Signing<wbr>Power</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="nucypherkeyring.html#derivetransactingpower" class="tsd-kind-icon">derive<wbr>Transacting<wbr>Power</a></li>
 							</ul>
 						</section>
 					</div>
@@ -108,19 +107,19 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Nucypher<wbr>Keyring<span class="tsd-signature-symbol">(</span>keyingMaterial<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="nucypherkeyring.html" class="tsd-signature-type">NucypherKeyring</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Nucypher<wbr>Keyring<span class="tsd-signature-symbol">(</span>secretKeyBytes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="nucypherkeyring.html" class="tsd-signature-type">NucypherKeyring</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/849337a/src/crypto/keyring.ts#L9">src/crypto/keyring.ts:9</a></li>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/crypto/keyring.ts#L5">src/crypto/keyring.ts:5</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>keyingMaterial: <span class="tsd-signature-type">Uint8Array</span></h5>
+									<h5>secretKeyBytes: <span class="tsd-signature-type">Uint8Array</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="nucypherkeyring.html" class="tsd-signature-type">NucypherKeyring</a></h4>
@@ -131,12 +130,12 @@
 			<section class="tsd-panel-group tsd-member-group tsd-is-private tsd-is-private-protected">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
-					<a name="keyingmaterial" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> <span class="tsd-flag ts-flagReadonly">Readonly</span> keying<wbr>Material</h3>
-					<div class="tsd-signature tsd-kind-icon">keying<wbr>Material<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Uint8Array</span></div>
+					<a name="secretkeybytes" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> <span class="tsd-flag ts-flagReadonly">Readonly</span> secret<wbr>Key<wbr>Bytes</h3>
+					<div class="tsd-signature tsd-kind-icon">secret<wbr>Key<wbr>Bytes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Uint8Array</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/849337a/src/crypto/keyring.ts#L9">src/crypto/keyring.ts:9</a></li>
+							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/crypto/keyring.ts#L5">src/crypto/keyring.ts:5</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -153,7 +152,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/849337a/src/crypto/keyring.ts#L23">src/crypto/keyring.ts:23</a></li>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/crypto/keyring.ts#L24">src/crypto/keyring.ts:24</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="decryptingpower.html" class="tsd-signature-type">DecryptingPower</a></h4>
@@ -170,7 +169,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/849337a/src/crypto/keyring.ts#L15">src/crypto/keyring.ts:15</a></li>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/crypto/keyring.ts#L16">src/crypto/keyring.ts:16</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="delegatingpower.html" class="tsd-signature-type">DelegatingPower</a></h4>
@@ -187,27 +186,10 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/849337a/src/crypto/keyring.ts#L19">src/crypto/keyring.ts:19</a></li>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/crypto/keyring.ts#L20">src/crypto/keyring.ts:20</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="signingpower.html" class="tsd-signature-type">SigningPower</a></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="derivetransactingpower" class="tsd-anchor"></a>
-					<h3>derive<wbr>Transacting<wbr>Power</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">derive<wbr>Transacting<wbr>Power<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="derivedtransactionpower.html" class="tsd-signature-type">DerivedTransactionPower</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/849337a/src/crypto/keyring.ts#L27">src/crypto/keyring.ts:27</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <a href="derivedtransactionpower.html" class="tsd-signature-type">DerivedTransactionPower</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -232,7 +214,7 @@
 								<a href="nucypherkeyring.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
-								<a href="nucypherkeyring.html#keyingmaterial" class="tsd-kind-icon">keying<wbr>Material</a>
+								<a href="nucypherkeyring.html#secretkeybytes" class="tsd-kind-icon">secret<wbr>Key<wbr>Bytes</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="nucypherkeyring.html#derivedecryptingpower" class="tsd-kind-icon">derive<wbr>Decrypting<wbr>Power</a>
@@ -242,9 +224,6 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="nucypherkeyring.html#derivesigningpower" class="tsd-kind-icon">derive<wbr>Signing<wbr>Power</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="nucypherkeyring.html#derivetransactingpower" class="tsd-kind-icon">derive<wbr>Transacting<wbr>Power</a>
 							</li>
 						</ul>
 					</li>

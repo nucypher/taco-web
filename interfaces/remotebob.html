@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>GetUrsulasResponse | nucypher-ts</title>
+	<title>RemoteBob | nucypher-ts</title>
 	<meta name="description" content="Documentation for nucypher-ts">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,10 +56,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="getursulasresponse.html">GetUrsulasResponse</a>
+					<a href="remotebob.html">RemoteBob</a>
 				</li>
 			</ul>
-			<h1>Interface GetUrsulasResponse</h1>
+			<h1>Interface RemoteBob</h1>
 		</div>
 	</div>
 </header>
@@ -70,7 +70,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">GetUrsulasResponse</span>
+						<span class="target">RemoteBob</span>
 					</li>
 				</ul>
 			</section>
@@ -81,8 +81,8 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="getursulasresponse.html#result" class="tsd-kind-icon">result</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="getursulasresponse.html#version" class="tsd-kind-icon">version</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="remotebob.html#decryptingkey" class="tsd-kind-icon">decrypting<wbr>Key</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="remotebob.html#verifyingkey" class="tsd-kind-icon">verifying<wbr>Key</a></li>
 							</ul>
 						</section>
 					</div>
@@ -91,30 +91,22 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="result" class="tsd-anchor"></a>
-					<h3>result</h3>
-					<div class="tsd-signature tsd-kind-icon">result<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>ursulas<span class="tsd-signature-symbol">: </span><a href="ursularesponse.html" class="tsd-signature-type">UrsulaResponse</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> }</span></div>
+					<a name="decryptingkey" class="tsd-anchor"></a>
+					<h3>decrypting<wbr>Key</h3>
+					<div class="tsd-signature tsd-kind-icon">decrypting<wbr>Key<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">PublicKey</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/characters/porter.ts#L45">src/characters/porter.ts:45</a></li>
+							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/characters/bob.ts#L20">src/characters/bob.ts:20</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-type-declaration">
-						<h4>Type declaration</h4>
-						<ul class="tsd-parameters">
-							<li class="tsd-parameter">
-								<h5>ursulas<span class="tsd-signature-symbol">: </span><a href="ursularesponse.html" class="tsd-signature-type">UrsulaResponse</a><span class="tsd-signature-symbol">[]</span></h5>
-							</li>
-						</ul>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="version" class="tsd-anchor"></a>
-					<h3>version</h3>
-					<div class="tsd-signature tsd-kind-icon">version<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<a name="verifyingkey" class="tsd-anchor"></a>
+					<h3>verifying<wbr>Key</h3>
+					<div class="tsd-signature tsd-kind-icon">verifying<wbr>Key<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">PublicKey</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/characters/porter.ts#L48">src/characters/porter.ts:48</a></li>
+							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/characters/bob.ts#L19">src/characters/bob.ts:19</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -133,13 +125,13 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="getursulasresponse.html" class="tsd-kind-icon">Get<wbr>Ursulas<wbr>Response</a>
+						<a href="remotebob.html" class="tsd-kind-icon">Remote<wbr>Bob</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="getursulasresponse.html#result" class="tsd-kind-icon">result</a>
+								<a href="remotebob.html#decryptingkey" class="tsd-kind-icon">decrypting<wbr>Key</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="getursulasresponse.html#version" class="tsd-kind-icon">version</a>
+								<a href="remotebob.html#verifyingkey" class="tsd-kind-icon">verifying<wbr>Key</a>
 							</li>
 						</ul>
 					</li>

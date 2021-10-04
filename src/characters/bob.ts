@@ -1,6 +1,5 @@
-import { PublicKey, Signer } from 'umbral-pre';
+import { PublicKey, Signature, Signer } from 'umbral-pre';
 
-import { verifySignature } from '../crypto/api';
 import {
   SIGNATURE_HEADER_BYTES_LENGTH,
   SIGNATURE_HEADER_HEX,
@@ -80,8 +79,9 @@ export class Bob {
       throw Error(`Unrecognized signature header: ${header}`);
     }
 
-    const [signature, message] = split(cleartext, SIGNATURE_LENGTH);
-    const isValid = verifySignature(signature, message, strangerVerifyingKey);
+    const [signatureBytes, message] = split(cleartext, SIGNATURE_LENGTH);
+    const signature = Signature.fromBytes(signatureBytes);
+    const isValid = signature.verify(strangerVerifyingKey, message);
     if (!isValid) {
       throw Error('Invalid signature on message kit');
     }

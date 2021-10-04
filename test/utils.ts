@@ -2,7 +2,7 @@ import { Block, Provider } from '@ethersproject/providers';
 import axios from 'axios';
 import { Capsule, CapsuleWithFrags, reencrypt, VerifiedCapsuleFrag, VerifiedKeyFrag } from 'umbral-pre';
 
-import { Alice, Bob } from '../src';
+import { Alice, Bob, RemoteBob } from '../src';
 import { StakingEscrowAgent } from '../src/agents/staking-escrow';
 import { GetUrsulasResponse, Porter, Ursula } from '../src/characters/porter';
 import { RetrievalResult } from '../src/kits/retrieval';
@@ -11,7 +11,6 @@ import { HRAC } from '../src/policies/hrac';
 import { BlockchainPolicy } from '../src/policies/policy';
 import { ChecksumAddress, Configuration } from '../src/types';
 import { toBytes, zip } from '../src/utils';
-import { RemoteBob } from "../src/characters/bob";
 
 const mockConfig: Configuration = {
     porterUri: 'https://_this_should_crash.com/',

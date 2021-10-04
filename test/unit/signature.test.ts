@@ -1,7 +1,6 @@
 import { SecretKey } from 'umbral-pre';
 
 import { Enrico } from '../../src';
-import { verifySignature } from '../../src/crypto/api';
 import { toBytes } from '../../src/utils';
 import { mockAlice, mockBob } from '../utils';
 
@@ -18,8 +17,8 @@ describe('signature', () => {
 
   it('verifies signature', () => {
     const { alice, plaintext } = setup();
-    const signature = alice.signer.sign(plaintext).toBytes();
-    expect(verifySignature(signature, plaintext, alice.verifyingKey)).toBeTruthy();
+    const signature = alice.signer.sign(plaintext);
+    expect(signature.verify(alice.verifyingKey, plaintext)).toBeTruthy();
   });
 
   it('throws on invalid signer', () => {

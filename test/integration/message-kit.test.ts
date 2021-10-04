@@ -1,5 +1,4 @@
-import { verifySignature } from '../../src/crypto/api';
-import { MessageKit } from '../../src/kits/message';
+import { MessageKit } from '../../src';
 import { toBytes } from '../../src/utils';
 import { mockAlice, mockBob } from '../utils';
 
@@ -15,7 +14,7 @@ describe('message kit', () => {
       alice.signer,
     );
 
-    const isValid = verifySignature(messageKit.signature!, plaintext, alice.verifyingKey);
+    const isValid = messageKit.signature!.verify(alice.verifyingKey, plaintext);
     expect(isValid).toBeTruthy();
 
     const decrypted = (bob as any).decryptingPower.decrypt(messageKit);

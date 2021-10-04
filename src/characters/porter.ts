@@ -125,7 +125,7 @@ export class Porter {
     };
     const resp: AxiosResponse<PostRetrieveCFragsResult> = await axios.post(
       `${this.porterUri}/retrieve_cfrags`,
-      data,
+      data
     );
     return resp.data.result.retrieval_results
       .map((result) => result.cfrags)

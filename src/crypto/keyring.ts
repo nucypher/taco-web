@@ -1,3 +1,4 @@
+import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
 import {
   DecryptingPower,
   DelegatingPower,
@@ -6,25 +7,30 @@ import {
 } from './powers';
 
 export class NucypherKeyring {
-  private readonly keyingMaterial: Uint8Array;
+  private readonly secretKeyBytes: Uint8Array;
 
-  constructor(keyingMaterial: Uint8Array) {
-    this.keyingMaterial = keyingMaterial;
+  constructor(secretKeyBytes: Uint8Array) {
+    if (secretKeyBytes.length !== UMBRAL_KEYING_MATERIAL_BYTES_LENGTH) {
+      throw Error(
+        `Expected secretKeyBytes to be ${UMBRAL_KEYING_MATERIAL_BYTES_LENGTH} bytes long, received ${secretKeyBytes.length} bytes instead`
+      );
+    }
+    this.secretKeyBytes = secretKeyBytes;
   }
 
   public deriveDelegatingPower(): DelegatingPower {
-    return DelegatingPower.fromKeyingMaterial(this.keyingMaterial);
+    return DelegatingPower.fromSecretKeyBytes(this.secretKeyBytes);
   }
 
   public deriveSigningPower(): SigningPower {
-    return SigningPower.fromKeyingMaterial(this.keyingMaterial);
+    return SigningPower.fromSecretKeyBytes(this.secretKeyBytes);
   }
 
   public deriveDecryptingPower(): DecryptingPower {
-    return DecryptingPower.fromKeyingMaterial(this.keyingMaterial);
+    return DecryptingPower.fromSecretKeyBytes(this.secretKeyBytes);
   }
 
   public deriveTransactingPower(): DerivedTransactionPower {
-    return DerivedTransactionPower.fromKeyingMaterial(this.keyingMaterial);
+    return DerivedTransactionPower.fromSecretKeyBytes(this.secretKeyBytes);
   }
 }

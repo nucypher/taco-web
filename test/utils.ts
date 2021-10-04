@@ -32,7 +32,7 @@ export const mockRemoteBob = (): Bob => {
 
 export const mockAlice = () => {
   const aliceKey = toBytes('fake-secret-key-32-bytes-alice-x');
-  const alice = Alice.fromSecretKey(mockConfig, aliceKey);
+  const alice = Alice.fromSecretKeyBytes(mockConfig, aliceKey);
   const provider = mockWeb3Provider();
   alice.transactingPower.connect(provider as Provider);
   return alice;

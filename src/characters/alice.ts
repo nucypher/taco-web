@@ -50,11 +50,11 @@ export class Alice {
     return this.signingPower.signer;
   }
 
-  public static fromSecretKey(
+  public static fromSecretKeyBytes(
     config: Configuration,
-    secretKey: Uint8Array
+    secretKeyBytes: Uint8Array
   ): Alice {
-    const keyring = new NucypherKeyring(secretKey);
+    const keyring = new NucypherKeyring(secretKeyBytes);
     const signingPower = keyring.deriveSigningPower();
     const delegatingPower = keyring.deriveDelegatingPower();
     const transactingPower = keyring.deriveTransactingPower();

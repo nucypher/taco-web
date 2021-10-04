@@ -1,8 +1,10 @@
+import { ChecksumAddress } from '../types';
+
 interface Contracts {
-  NU: string;
-  STAKINGESCROW: string;
-  POLICYMANAGER: string;
-  ADJUDICATOR: string;
+  NU: ChecksumAddress;
+  STAKINGESCROW: ChecksumAddress;
+  POLICYMANAGER: ChecksumAddress;
+  ADJUDICATOR: ChecksumAddress;
 }
 
 const MAINNET: Contracts = {
@@ -26,7 +28,7 @@ const RINKEBY: Contracts = {
   ADJUDICATOR: '0xE1d0C09b94ba522BCC1b73922dc1f0b6ca9bEA26',
 };
 
-export const CONTRACTS: Record<string, Contracts> = {
+export const CONTRACTS: Record<ChecksumAddress, Contracts> = {
   mainnet: MAINNET,
   goerli: GOERLI,
   rinkeby: RINKEBY,

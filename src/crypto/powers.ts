@@ -13,9 +13,10 @@ import {
 
 import { MessageKit, PolicyMessageKit } from '../kits/message';
 import { ChecksumAddress } from '../types';
+import { toBytes } from '../utils';
 
+import { keccakDigest } from './api';
 import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
-import { UmbralKeyingMaterial } from './keys';
 
 export abstract class TransactingPower {
   public abstract get account(): ChecksumAddress;
@@ -28,9 +29,9 @@ export abstract class TransactingPower {
 export class DerivedTransactionPower extends TransactingPower {
   public wallet: Wallet;
 
-  private constructor(keyingMaterial: Uint8Array, provider?: Provider) {
+  private constructor(secretKeyBytes: Uint8Array, provider?: Provider) {
     super();
-    this.wallet = new Wallet(keyingMaterial);
+    this.wallet = new Wallet(secretKeyBytes);
     if (provider) {
       this.connect(provider);
     }
@@ -40,10 +41,10 @@ export class DerivedTransactionPower extends TransactingPower {
     return this.wallet.address;
   }
 
-  public static fromKeyingMaterial(
-    keyingMaterial: Uint8Array
+  public static fromSecretKeyBytes(
+    secretKeyBytes: Uint8Array
   ): DerivedTransactionPower {
-    return new DerivedTransactionPower(keyingMaterial);
+    return new DerivedTransactionPower(secretKeyBytes);
   }
 
   public connect(provider: Provider): void {
@@ -52,14 +53,14 @@ export class DerivedTransactionPower extends TransactingPower {
 }
 
 export class DelegatingPower {
-  private keyingMaterial: UmbralKeyingMaterial;
+  private secretKeyBytes: Uint8Array;
 
-  private constructor(keyingMaterial: Uint8Array) {
-    this.keyingMaterial = new UmbralKeyingMaterial(keyingMaterial);
+  private constructor(secretKeyBytes: Uint8Array) {
+    this.secretKeyBytes = secretKeyBytes;
   }
 
-  public static fromKeyingMaterial(keyingMaterial: Uint8Array) {
-    return new DelegatingPower(keyingMaterial);
+  public static fromSecretKeyBytes(secretKeyBytes: Uint8Array) {
+    return new DelegatingPower(secretKeyBytes);
   }
 
   public async generateKFrags(
@@ -98,7 +99,10 @@ export class DelegatingPower {
   }
 
   private getSecretKeyFromLabel(label: string): SecretKey {
-    return this.keyingMaterial.deriveSecretKeyFromLabel(label);
+    // TODO: Use HKDF that supports BLAKE2b(64) hash
+    //       Warning: As of now, this hash is incompatible with `nucypher/nucypher` HKDF
+    const keyBytes = keccakDigest(toBytes(label));
+    return SecretKey.fromBytes(keyBytes);
   }
 }
 
@@ -106,14 +110,12 @@ abstract class CryptoPower {
   private readonly _secretKey?: SecretKey;
   private readonly _publicKey?: PublicKey;
 
-  protected constructor(keyingMaterial?: Uint8Array, publicKey?: PublicKey) {
-    if (keyingMaterial && publicKey) {
-      throw new Error('Pass either keyingMaterial or publicKey - not both.');
+  protected constructor(secretKeyBytes?: Uint8Array, publicKey?: PublicKey) {
+    if (secretKeyBytes && publicKey) {
+      throw new Error('Pass either secretKeyBytes or publicKey - not both.');
     }
-    if (keyingMaterial) {
-      this._secretKey = new UmbralKeyingMaterial(
-        keyingMaterial
-      ).deriveSecretKey();
+    if (secretKeyBytes) {
+      this._secretKey = SecretKey.fromBytes(secretKeyBytes);
       this._publicKey = this.secretKey.publicKey();
     }
     if (publicKey) {
@@ -147,13 +149,13 @@ export class SigningPower extends CryptoPower {
     return new SigningPower(undefined, publicKey);
   }
 
-  public static fromKeyingMaterial(keyingMaterial: Uint8Array): SigningPower {
-    return new SigningPower(keyingMaterial, undefined);
+  public static fromSecretKeyBytes(secretKeyBytes: Uint8Array): SigningPower {
+    return new SigningPower(secretKeyBytes, undefined);
   }
 
   public static fromRandom(): SigningPower {
-    const keyingMaterial = secureRandom(UMBRAL_KEYING_MATERIAL_BYTES_LENGTH);
-    return SigningPower.fromKeyingMaterial(keyingMaterial);
+    const secretKeyBytes = secureRandom(UMBRAL_KEYING_MATERIAL_BYTES_LENGTH);
+    return SigningPower.fromSecretKeyBytes(secretKeyBytes);
   }
 }
 
@@ -162,10 +164,10 @@ export class DecryptingPower extends CryptoPower {
     return new DecryptingPower(undefined, publicKey);
   }
 
-  public static fromKeyingMaterial(
-    keyingMaterial: Uint8Array
+  public static fromSecretKeyBytes(
+    secretKeyBytes: Uint8Array
   ): DecryptingPower {
-    return new DecryptingPower(keyingMaterial, undefined);
+    return new DecryptingPower(secretKeyBytes, undefined);
   }
 
   public decrypt(messageKit: PolicyMessageKit | MessageKit): Uint8Array {

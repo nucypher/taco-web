@@ -88,15 +88,15 @@ export class Alice {
     return MessageKit.author(recipientKey, payload, this.signer);
   }
 
-  public async generateKFrags(
+  public generateKFrags(
     bob: RemoteBob,
     label: string,
     threshold: number,
     shares: number
-  ): Promise<{
+  ): {
     delegatingKey: PublicKey;
     verifiedKFrags: VerifiedKeyFrag[];
-  }> {
+  } {
     return this.delegatingPower.generateKFrags(
       bob.decryptingKey,
       this.signer,
@@ -110,7 +110,7 @@ export class Alice {
     policyParameters: BlockchainPolicyParameters
   ): Promise<BlockchainPolicy> {
     const { label, threshold, shares, bob } = policyParameters;
-    const { delegatingKey, verifiedKFrags } = await this.generateKFrags(
+    const { delegatingKey, verifiedKFrags } = this.generateKFrags(
       policyParameters.bob,
       label,
       threshold,

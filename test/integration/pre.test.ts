@@ -16,7 +16,7 @@ describe('proxy reencryption', () => {
 
     it('verifies capsule frags', async () => {
         const { capsule } = MessageKit.author(bob.decryptingKey, plaintext, alice.signer);
-        const { delegatingKey, verifiedKFrags } = await alice.generateKFrags(bob, label, threshold, shares);
+        const { delegatingKey, verifiedKFrags } = alice.generateKFrags(bob, label, threshold, shares);
 
         const { verifiedCFrags } = reencryptKFrags(verifiedKFrags, capsule);
         const cFrags = verifiedCFrags.map((verifiedCFrag) => CapsuleFrag.fromBytes(verifiedCFrag.toBytes()));
@@ -25,7 +25,7 @@ describe('proxy reencryption', () => {
     });
 
     it('encrypts and decrypts reencrypted message', async () => {
-        const { verifiedKFrags } = await alice.generateKFrags(
+        const { verifiedKFrags } = alice.generateKFrags(
             bob,
             label,
             threshold,

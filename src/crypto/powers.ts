@@ -7,6 +7,7 @@ import {
   KeyFrag,
   PublicKey,
   SecretKey,
+  SecretKeyFactory,
   Signer,
   VerifiedKeyFrag,
 } from 'umbral-pre';
@@ -63,17 +64,17 @@ export class DelegatingPower {
     return new DelegatingPower(secretKeyBytes);
   }
 
-  public async generateKFrags(
+  public generateKFrags(
     receivingKey: PublicKey,
     signer: Signer,
     label: string,
     threshold: number,
     shares: number
-  ): Promise<{
+  ): {
     delegatingKey: PublicKey;
     verifiedKFrags: VerifiedKeyFrag[];
-  }> {
-    const delegatingSecretKey = await this.getSecretKeyFromLabel(label);
+  } {
+    const delegatingSecretKey = this.getSecretKeyFromLabel(label);
     const delegatingKey = delegatingSecretKey.publicKey();
     const verifiedKFrags: VerifiedKeyFrag[] = generateKFrags(
       delegatingSecretKey,
@@ -95,10 +96,9 @@ export class DelegatingPower {
   }
 
   private getSecretKeyFromLabel(label: string): SecretKey {
-    // TODO: Use HKDF that supports BLAKE2b(64) hash
-    //       Warning: As of now, this hash is incompatible with `nucypher/nucypher` HKDF
-    const keyBytes = keccakDigest(toBytes(label));
-    return SecretKey.fromBytes(keyBytes);
+    return SecretKeyFactory.fromSecureRandomness(this.secretKeyBytes).makeKey(
+      toBytes(label)
+    );
   }
 }
 

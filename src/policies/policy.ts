@@ -110,7 +110,7 @@ export class BlockchainPolicy {
     const recalculatedValue = paymentPeriods * ratePerPeriod * shares;
     if (recalculatedValue != value) {
       throw new Error(
-        `Invalid policy value calculation - ${value} cant be divided into ${shares} ` +
+        `Invalid policy value calculation - ${value} cannot be divided into ${shares} ` +
           `staker payments per period for ${paymentPeriods} periods without a remainder`
       );
     }

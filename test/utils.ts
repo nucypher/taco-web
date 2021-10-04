@@ -1,11 +1,10 @@
 import { Block, Provider } from '@ethersproject/providers';
 import axios from 'axios';
-import { Capsule, CapsuleWithFrags, reencrypt, VerifiedCapsuleFrag, VerifiedKeyFrag } from 'umbral-pre';
+import { Capsule, CapsuleFrag, CapsuleWithFrags, reencrypt, VerifiedCapsuleFrag, VerifiedKeyFrag } from 'umbral-pre';
 
 import { Alice, Bob, RemoteBob } from '../src';
 import { StakingEscrowAgent } from '../src/agents/staking-escrow';
-import { GetUrsulasResponse, Porter, Ursula } from '../src/characters/porter';
-import { RetrievalResult } from '../src/kits/retrieval';
+import { GetUrsulasResponse, Porter, RetrieveCFragsResponse, Ursula } from '../src/characters/porter';
 import { TreasureMap } from '../src/policies/collections';
 import { HRAC } from '../src/policies/hrac';
 import { BlockchainPolicy } from '../src/policies/policy';
@@ -117,19 +116,22 @@ export const mockPublishToBlockchain = () => {
         });
 };
 
-export const mockRetrieveResults = (
+export const mockCFragResponse = (
     ursulas: ChecksumAddress[],
     verifiedKFrags: VerifiedKeyFrag[],
     capsule: Capsule,
-): RetrievalResult[] => {
+): RetrieveCFragsResponse[] => {
     if (ursulas.length !== verifiedKFrags.length) {
         throw new Error(
             'Number of verifiedKFrags must match the number of Ursulas',
         );
     }
-    const reencrypted = verifiedKFrags.map((kFrag) => reencrypt(capsule, kFrag));
-    const results = Object.fromEntries(zip(ursulas, reencrypted));
-    return [ new RetrievalResult(results) ];
+    const reencrypted = verifiedKFrags
+        .map((kFrag) => reencrypt(capsule, kFrag))
+        .map((cFrag) => CapsuleFrag.fromBytes(cFrag.toBytes()));
+    const result = Object.fromEntries(zip(ursulas, reencrypted));
+    // We return one result per capsule, so just one result
+    return [ result ];
 };
 
 export const mockRetrieveCFragsRequest = (
@@ -137,7 +139,7 @@ export const mockRetrieveCFragsRequest = (
     verifiedKFrags: VerifiedKeyFrag[],
     capsule: Capsule,
 ) => {
-    const results = mockRetrieveResults(ursulas, verifiedKFrags, capsule);
+    const results = mockCFragResponse(ursulas, verifiedKFrags, capsule);
     return jest
         .spyOn(Porter.prototype, 'retrieveCFrags')
         .mockImplementation(() => {

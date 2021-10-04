@@ -1,8 +1,8 @@
 import axios, { AxiosResponse } from 'axios';
 import qs from 'qs';
-import { PublicKey, VerifiedCapsuleFrag } from 'umbral-pre';
+import { CapsuleFrag, PublicKey } from 'umbral-pre';
 
-import { RetrievalKit, RetrievalResult } from '../kits/retrieval';
+import { RetrievalKit } from '../kits/retrieval';
 import { TreasureMap } from '../policies/collections';
 import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from '../types';
 import { fromBase64, toBase64, toHexString } from '../utils';
@@ -68,6 +68,8 @@ interface PostRetrieveCFragsResult {
   version: string;
 }
 
+export type RetrieveCFragsResponse = Record<ChecksumAddress, CapsuleFrag>;
+
 export class Porter {
   private readonly porterUri: string;
 
@@ -114,7 +116,7 @@ export class Porter {
     bobEncryptingKey: PublicKey,
     bobVerifyingKey: PublicKey,
     policyEncryptingKey: PublicKey
-  ): Promise<RetrievalResult[]> {
+  ): Promise<RetrieveCFragsResponse[]> {
     const data: PostRetrieveCFragsRequest = {
       treasure_map: toBase64(treasureMap.toBytes()),
       retrieval_kits: retrievalKits.map((rk) => toBase64(rk.toBytes())),
@@ -132,9 +134,9 @@ export class Porter {
       .map((cFrags) => {
         const parsed = Object.keys(cFrags).map((address) => [
           address,
-          VerifiedCapsuleFrag.fromVerifiedBytes(fromBase64(cFrags[address])),
+          CapsuleFrag.fromBytes(fromBase64(cFrags[address])),
         ]);
-        return new RetrievalResult(Object.fromEntries(parsed));
+        return Object.fromEntries(parsed);
       });
   }
 }

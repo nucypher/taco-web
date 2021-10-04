@@ -8,9 +8,10 @@ import {
 import { NucypherKeyring } from '../crypto/keyring';
 import { DecryptingPower, SigningPower } from '../crypto/powers';
 import { MessageKit, PolicyMessageKit } from '../kits/message';
+import { RetrievalResult } from '../kits/retrieval';
 import { EncryptedTreasureMap } from '../policies/collections';
 import { Configuration } from '../types';
-import { bytesEqual, split, toHexString } from '../utils';
+import { bytesEqual, split, toHexString, zip } from '../utils';
 
 import { Porter } from './porter';
 
@@ -132,7 +133,7 @@ export class Bob {
 
     const retrievalKits = policyMessageKits.map((pk) => pk.asRetrievalKit());
 
-    const retrievalResults = await this.porter.retrieveCFrags(
+    const retrieveCFragsResponses = await this.porter.retrieveCFrags(
       treasureMap,
       retrievalKits,
       publisherVerifyingKey,
@@ -141,13 +142,19 @@ export class Bob {
       policyEncryptingKey
     );
 
-    // TODO: Rewrite elegantly
-    return policyMessageKits.map((messageKit) => {
-      let acc = messageKit;
-      retrievalResults.forEach((result) => {
-        acc = acc.withResult(result);
+    return zip(policyMessageKits, retrieveCFragsResponses).map((pair) => {
+      const [messageKit, cFragResponse] = pair;
+      const results = Object.keys(cFragResponse).map((address) => {
+        const verified = cFragResponse[address].verify(
+          messageKit.capsule,
+          publisherVerifyingKey,
+          policyEncryptingKey,
+          this.decryptingKey
+        );
+        return [address, verified];
       });
-      return acc;
+      const retrievalResult = new RetrievalResult(Object.fromEntries(results));
+      return messageKit.withResult(retrievalResult);
     });
   }
 }

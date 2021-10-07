@@ -2,6 +2,7 @@ import { VerifiedCapsuleFrag } from 'umbral-pre';
 
 import { toCanonicalAddress } from '../crypto/utils';
 import { ChecksumAddress } from '../types';
+import { Versioned, VersionedParser, VersionTuple } from '../versioning';
 
 export class RetrievalResult {
   public readonly cFrags: Record<ChecksumAddress, VerifiedCapsuleFrag>;
@@ -24,14 +25,25 @@ export class RetrievalResult {
   }
 }
 
-export class RetrievalKit {
+export class RetrievalKit implements Versioned {
+  private static BRAND = 'RKit';
+  private static VERSION: VersionTuple = [1, 0];
+
   constructor(
     public capsule: VerifiedCapsuleFrag,
     public queriedAddresses: ChecksumAddress[]
   ) {}
 
-  toBytes(): Uint8Array {
+  private get header(): Uint8Array {
+    return VersionedParser.encodeHeader(
+      RetrievalKit.BRAND,
+      RetrievalKit.VERSION
+    );
+  }
+
+  public toBytes(): Uint8Array {
     return new Uint8Array([
+      ...this.header,
       ...this.capsule.toBytes(),
       ...this.queriedAddresses
         .map(toCanonicalAddress)

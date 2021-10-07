@@ -20,12 +20,22 @@ import {
   fromHexString,
   split,
 } from '../utils';
+import {
+  Deserializer,
+  Versioned,
+  VersionedDeserializers,
+  VersionedParser,
+  VersionHandler,
+  VersionTuple,
+} from '../versioning';
 
 import { RetrievalKit, RetrievalResult } from './retrieval';
 
-export class MessageKit {
-  private static NO_BYTES = new Uint8Array([0]);
-  private static HAS_BYTES = new Uint8Array([1]);
+export class MessageKit implements Versioned {
+  private static readonly NO_BYTES = new Uint8Array([0]);
+  private static readonly HAS_BYTES = new Uint8Array([1]);
+  private static readonly BRAND = 'MKit';
+  private static readonly VERSION: VersionTuple = [1, 0];
 
   constructor(
     public readonly capsule: Capsule,
@@ -55,15 +65,9 @@ export class MessageKit {
   }
 
   public static fromBytes(bytes: Uint8Array): MessageKit {
-    const [capsule, remainder1] = split(bytes, CAPSULE_LENGTH);
-    const [signature, remainder2] = this.parseSignature(remainder1);
-    const [key, remainder3] = this.parseKey(remainder2);
-    const [ciphertext, _] = decodeVariableLengthMessage(remainder3);
-    return new MessageKit(
-      Capsule.fromBytes(capsule),
-      ciphertext,
-      key ? PublicKey.fromBytes(key) : undefined,
-      signature ? Signature.fromBytes(signature) : undefined
+    return VersionedParser.fromVersionedBytes(
+      MessageKit.getVersionHandler(),
+      bytes
     );
   }
 
@@ -94,6 +98,36 @@ export class MessageKit {
     }
   }
 
+  private get header(): Uint8Array {
+    return VersionedParser.encodeHeader(MessageKit.BRAND, MessageKit.VERSION);
+  }
+
+  protected static getVersionHandler(): VersionHandler {
+    const oldVersionDeserializers = (): VersionedDeserializers<Versioned> => {
+      return {};
+    };
+    const currentVersionDeserializer: Deserializer = <T extends Versioned>(
+      bytes: Uint8Array
+    ): T => {
+      const [capsule, remainder1] = split(bytes, CAPSULE_LENGTH);
+      const [signature, remainder2] = this.parseSignature(remainder1);
+      const [key, remainder3] = this.parseKey(remainder2);
+      const [ciphertext, _] = decodeVariableLengthMessage(remainder3);
+      return new MessageKit(
+        Capsule.fromBytes(capsule),
+        ciphertext,
+        key ? PublicKey.fromBytes(key) : undefined,
+        signature ? Signature.fromBytes(signature) : undefined
+      ) as unknown as T;
+    };
+    return {
+      oldVersionDeserializers,
+      currentVersionDeserializer,
+      brand: MessageKit.BRAND,
+      version: MessageKit.VERSION,
+    };
+  }
+
   public toBytes(): Uint8Array {
     const signature = this.signature
       ? new Uint8Array([...MessageKit.HAS_BYTES, ...this.signature.toBytes()])
@@ -105,6 +139,7 @@ export class MessageKit {
         ])
       : MessageKit.HAS_BYTES;
     return new Uint8Array([
+      ...this.header,
       ...this.capsule.toBytes(),
       ...signature,
       ...senderVerifyingKey,

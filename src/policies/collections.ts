@@ -25,6 +25,14 @@ import {
   toBytes,
   zip,
 } from '../utils';
+import {
+  Deserializer,
+  Versioned,
+  VersionedDeserializers,
+  VersionedParser,
+  VersionHandler,
+  VersionTuple,
+} from '../versioning';
 
 import { HRAC } from './hrac';
 
@@ -38,7 +46,10 @@ export class PublishedTreasureMap {
   ) {}
 }
 
-export class TreasureMap {
+export class TreasureMap implements Versioned {
+  private static readonly BRAND = 'TMap';
+  private static readonly VERSION: VersionTuple = [1, 0];
+
   constructor(
     public readonly threshold: number,
     public readonly destinations: KFragDestinations,
@@ -73,12 +84,29 @@ export class TreasureMap {
   }
 
   public static fromBytes(bytes: Uint8Array): TreasureMap {
-    const [thresholdBytes, remainder1] = split(bytes, 1);
-    const [hracBytes, remainder2] = split(remainder1, HRAC.BYTE_LENGTH);
-    const threshold = thresholdBytes.reverse()[0];
-    const nodes = this.bytesToNodes(remainder2);
-    const hrac = new HRAC(hracBytes);
-    return new TreasureMap(threshold, nodes, hrac);
+    return VersionedParser.fromVersionedBytes(this.getVersionHandler(), bytes);
+  }
+
+  protected static getVersionHandler(): VersionHandler {
+    const oldVersionDeserializers = (): VersionedDeserializers<Versioned> => {
+      return {};
+    };
+    const currentVersionDeserializer: Deserializer = <T extends Versioned>(
+      bytes: Uint8Array
+    ): T => {
+      const [thresholdBytes, remainder1] = split(bytes, 1);
+      const [hracBytes, remainder2] = split(remainder1, HRAC.BYTE_LENGTH);
+      const threshold = thresholdBytes.reverse()[0];
+      const nodes = this.bytesToNodes(remainder2);
+      const hrac = new HRAC(hracBytes);
+      return new TreasureMap(threshold, nodes, hrac) as unknown as T;
+    };
+    return {
+      oldVersionDeserializers,
+      currentVersionDeserializer,
+      brand: this.BRAND,
+      version: this.VERSION,
+    };
   }
 
   private static makeDestinations(
@@ -135,8 +163,13 @@ export class TreasureMap {
     );
   }
 
+  private get header(): Uint8Array {
+    return VersionedParser.encodeHeader(TreasureMap.BRAND, TreasureMap.VERSION);
+  }
+
   public toBytes(): Uint8Array {
     return new Uint8Array([
+      ...this.header,
       // `threshold` must be big-endian
       ...Uint8Array.from([this.threshold]).reverse(),
       ...this.hrac.toBytes(),
@@ -145,7 +178,6 @@ export class TreasureMap {
   }
 
   private static nodesToBytes(destinations: KFragDestinations): Uint8Array {
-    const kFrag = Object.values(destinations)[0];
     return Object.entries(destinations)
       .map(
         ([ursulaAddress, encryptedKFrag]) =>
@@ -158,9 +190,11 @@ export class TreasureMap {
   }
 }
 
-export class AuthorizedKeyFrag {
-  public static readonly ENCRYPTED_SIZE = 477; // Hardcoded - depends on Umbral implementation
+export class AuthorizedKeyFrag implements Versioned {
   private static readonly WRIT_CHECKSUM_SIZE = 32;
+  private static readonly BRAND = 'AKF_';
+  private static readonly VERSION: VersionTuple = [1, 0];
+
   private readonly writ: Uint8Array;
 
   constructor(
@@ -193,8 +227,16 @@ export class AuthorizedKeyFrag {
     );
   }
 
+  private get header(): Uint8Array {
+    return VersionedParser.encodeHeader(
+      AuthorizedKeyFrag.BRAND,
+      AuthorizedKeyFrag.VERSION
+    );
+  }
+
   public toBytes(): Uint8Array {
     return new Uint8Array([
+      ...this.header,
       ...this.writ,
       ...this.writSignature.toBytes(),
       ...this.kFrag.toBytes(),
@@ -202,7 +244,9 @@ export class AuthorizedKeyFrag {
   }
 }
 
-export class EncryptedTreasureMap {
+export class EncryptedTreasureMap implements Versioned {
+  private static readonly BRAND = 'EMap';
+  private static readonly VERSION: VersionTuple = [1, 0];
   private readonly EMPTY_BLOCKCHAIN_SIGNATURE = new Uint8Array(
     EIP712_MESSAGE_SIGNATURE_SIZE
   );
@@ -263,11 +307,19 @@ export class EncryptedTreasureMap {
     return blockchainSigner.sign(payload);
   }
 
+  private get header(): Uint8Array {
+    return VersionedParser.encodeHeader(
+      EncryptedTreasureMap.BRAND,
+      EncryptedTreasureMap.VERSION
+    );
+  }
+
   public toBytes(): Uint8Array {
     const signature = this.blockchainSignature
       ? this.blockchainSignature.toBytes()
       : this.EMPTY_BLOCKCHAIN_SIGNATURE;
     return new Uint8Array([
+      ...this.header,
       ...this.publicSignature.toBytes(),
       ...this.hrac.toBytes(),
       ...encodeVariableLengthMessage(this.encryptedTreasureMap.toBytes()),
@@ -284,7 +336,9 @@ export class EncryptedTreasureMap {
   }
 }
 
-export class Revocation {
+export class RevocationOrder implements Versioned {
+  private static readonly BRAND = 'Revo';
+  private static readonly VERSION: VersionTuple = [1, 0];
   private PREFIX: Uint8Array = toBytes('REVOKE-');
   private signature?: Signature;
 
@@ -303,8 +357,16 @@ export class Revocation {
     }
   }
 
+  private get header(): Uint8Array {
+    return VersionedParser.encodeHeader(
+      RevocationOrder.BRAND,
+      RevocationOrder.VERSION
+    );
+  }
+
   public get payload(): Uint8Array {
     return new Uint8Array([
+      ...this.header,
       ...this.PREFIX,
       ...toCanonicalAddress(this.ursulaAddress),
       ...this.encryptedKFrag.toBytes(),

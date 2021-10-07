@@ -6,7 +6,6 @@ import { Alice } from '../characters/alice';
 import { RemoteBob } from '../characters/bob';
 import { Ursula } from '../characters/porter';
 import { RevocationKit } from '../kits/revocation';
-import { encodeVariableLengthMessage, toBytes } from '../utils';
 
 import { EncryptedTreasureMap, TreasureMap } from './collections';
 import { HRAC } from './hrac';
@@ -168,7 +167,7 @@ export class BlockchainPolicy {
     ursulas: Ursula[]
   ): Promise<ArrangementForUrsula[]> {
     return ursulas.map((ursula) => {
-      const arrangement = Arrangement.fromAlice(
+      const arrangement = Arrangement.fromPublisher(
         this.publisher,
         this.expiration
       );
@@ -183,11 +182,12 @@ export class BlockchainPolicy {
   }
 }
 
+// TODO: Investigate Arrangement being only used to pass around arrangementId
 export class Arrangement {
-  private static ID_LENGTH = 32;
-  private aliceVerifyingKey: PublicKey;
+  private static readonly ID_LENGTH = 32;
+  private readonly aliceVerifyingKey: PublicKey;
+  private readonly expiration: Date;
   public readonly arrangementId: Uint8Array;
-  private expiration: Date;
 
   constructor(
     aliceVerifyingKey: PublicKey,
@@ -199,15 +199,8 @@ export class Arrangement {
     this.expiration = expiration;
   }
 
-  public static fromAlice(alice: Alice, expiration: Date): Arrangement {
+  public static fromPublisher(publisher: Alice, expiration: Date): Arrangement {
     const arrangementId = Uint8Array.from(secureRandom(this.ID_LENGTH));
-    return new Arrangement(alice.verifyingKey, arrangementId, expiration);
-  }
-
-  public toBytes(): Uint8Array {
-    return new Uint8Array([
-      ...this.aliceVerifyingKey.toBytes(),
-      ...encodeVariableLengthMessage(toBytes(this.expiration.toISOString())),
-    ]);
+    return new Arrangement(publisher.verifyingKey, arrangementId, expiration);
   }
 }

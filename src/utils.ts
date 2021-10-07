@@ -18,8 +18,17 @@ export const toBase64 = (bytes: Uint8Array): string =>
 export const fromBase64 = (str: string): Uint8Array =>
   Buffer.from(str, 'base64');
 
-export const toNumber = (bytes: Uint8Array, littleEndian = true): number =>
-  new DataView(bytes.buffer, 0).getUint32(0, littleEndian);
+export const toNumber = (bytes: Uint8Array, littleEndian = true): number => {
+  const view = new DataView(bytes.buffer, 0);
+  switch (bytes.length) {
+    case 2:
+      return view.getUint16(0, littleEndian);
+    case 4:
+      return view.getUint32(0, littleEndian);
+    default:
+      throw Error(`Invalid bytes length: ${bytes.length}`);
+  }
+};
 
 export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
   first.length === second.length &&
@@ -111,6 +120,13 @@ export const bytesArray = (n: number): Uint8Array => {
   return new Uint8Array(bytes.reverse());
 };
 
+export const numberToBytes = (n: number, size: number): Uint8Array => {
+  const asBytes = new Uint8Array(size);
+  asBytes.set(bytesArray(n));
+  asBytes.reverse(); // Ensure encoding is big-endian
+  return asBytes;
+};
+
 const VARIABLE_HEADER_LENGTH = 4;
 export const encodeVariableLengthMessage = (message: Uint8Array) => {
   const maxMessageLength = 256 ** VARIABLE_HEADER_LENGTH - 1;
@@ -119,9 +135,10 @@ export const encodeVariableLengthMessage = (message: Uint8Array) => {
       `Your message is too long. The max length is ${maxMessageLength} bytes; yours is ${message.length}`
     );
   }
-  const messageLengthAsBytes = new Uint8Array(VARIABLE_HEADER_LENGTH);
-  messageLengthAsBytes.set(bytesArray(message.length));
-  messageLengthAsBytes.reverse(); // Ensure encoding is big-endian
+  const messageLengthAsBytes = numberToBytes(
+    message.length,
+    VARIABLE_HEADER_LENGTH
+  );
   return new Uint8Array([...messageLengthAsBytes, ...message]);
 };
 
@@ -129,7 +146,7 @@ export const decodeVariableLengthMessage = (
   bytes: Uint8Array
 ): [Uint8Array, Uint8Array] => {
   const [header, remainder1] = split(bytes, VARIABLE_HEADER_LENGTH);
-  const messageLength = toNumber(header, false); // is big-endian
+  const messageLength = toNumber(header, false); // Is big-endian
   const [message, remainder2] = split(remainder1, messageLength);
   return [message, remainder2];
 };

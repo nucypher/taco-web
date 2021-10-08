@@ -15,9 +15,26 @@ import { bytesEqual, split, toHexString, zip } from '../utils';
 
 import { Porter } from './porter';
 
-export interface RemoteBob {
-  verifyingKey: PublicKey;
-  decryptingKey: PublicKey;
+export class RemoteBob {
+  private constructor(
+    public readonly decryptingKey: PublicKey,
+    public readonly verifyingKey: PublicKey
+  ) {}
+
+  public static fromKeys(
+    decryptingKey: PublicKey | Uint8Array,
+    verifyingKey: PublicKey | Uint8Array
+  ): RemoteBob {
+    const dk =
+      decryptingKey instanceof PublicKey
+        ? decryptingKey
+        : PublicKey.fromBytes(decryptingKey);
+    const vk =
+      verifyingKey instanceof PublicKey
+        ? verifyingKey
+        : PublicKey.fromBytes(verifyingKey);
+    return new RemoteBob(dk, vk);
+  }
 }
 
 export class Bob {

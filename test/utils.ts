@@ -22,8 +22,8 @@ export const mockBob = (): Bob => {
 };
 
 export const mockRemoteBob = (): RemoteBob => {
-    const { verifyingKey, decryptingKey } = mockBob();
-    return { verifyingKey, decryptingKey };
+    const { decryptingKey, verifyingKey  } = mockBob();
+    return RemoteBob.fromKeys(decryptingKey, verifyingKey );
 };
 
 export const mockAlice = () => {

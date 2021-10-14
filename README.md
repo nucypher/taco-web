@@ -2,7 +2,7 @@
 
 Communicate with NuCypher network from browser.
 
-Compatible with [commit](https://github.com/nucypher/nucypher/pull/2805/commits/c0c2208826aee032bf6bcdc64c8bd4e45b79c04f).
+Compatible with [commit](https://github.com/nucypher/nucypher/commit/957250c6d8c8a80c08dbd5211188b297b7db1441).
 
 **This is a work in progress. Do not use in a production.**
 

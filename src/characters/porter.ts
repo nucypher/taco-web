@@ -54,7 +54,6 @@ interface PostRetrieveCFragsRequest {
   alice_verifying_key: HexEncodedBytes;
   bob_encrypting_key: HexEncodedBytes;
   bob_verifying_key: HexEncodedBytes;
-  policy_encrypting_key: HexEncodedBytes;
 }
 
 interface PostRetrieveCFragsResult {
@@ -114,8 +113,7 @@ export class Porter {
     retrievalKits: RetrievalKit[],
     aliceVerifyingKey: PublicKey,
     bobEncryptingKey: PublicKey,
-    bobVerifyingKey: PublicKey,
-    policyEncryptingKey: PublicKey
+    bobVerifyingKey: PublicKey
   ): Promise<RetrieveCFragsResponse[]> {
     const data: PostRetrieveCFragsRequest = {
       treasure_map: toBase64(treasureMap.toBytes()),
@@ -123,7 +121,6 @@ export class Porter {
       alice_verifying_key: toHexString(aliceVerifyingKey.toBytes()),
       bob_encrypting_key: toHexString(bobEncryptingKey.toBytes()),
       bob_verifying_key: toHexString(bobVerifyingKey.toBytes()),
-      policy_encrypting_key: toHexString(policyEncryptingKey.toBytes()),
     };
     const resp: AxiosResponse<PostRetrieveCFragsResult> = await axios.post(
       `${this.porterUri}/retrieve_cfrags`,

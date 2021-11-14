@@ -24,8 +24,7 @@ export class Enrico {
   public encryptMessage(plaintext: Uint8Array | string): MessageKit {
     return MessageKit.author(
       this.policyEncryptingKey,
-      plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext),
-      this.signingPower.signer
+      plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext)
     );
   }
 }

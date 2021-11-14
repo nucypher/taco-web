@@ -3,7 +3,7 @@ import { decryptOriginal } from 'umbral-pre';
 import { Enrico } from '../../src';
 import { PolicyMessageKit } from '../../src/kits/message';
 import { RetrievalResult } from '../../src/kits/retrieval';
-import { fromBytes, toBytes } from '../../src/utils';
+import { bytesEqual, fromBytes, toBytes } from '../../src/utils';
 import { mockAlice, mockBob, reencryptKFrags } from '../utils';
 
 describe('enrico', () => {
@@ -76,11 +76,9 @@ describe('enrico', () => {
     const pk = PolicyMessageKit
       .fromMessageKit(encrypted, policyEncryptingKey, threshold)
       .withResult(result);
+    expect(pk.isDecryptableByReceiver()).toBeTruthy();
 
-    const isValid = bob.verifyFrom(
-      enrico.verifyingKey, // Message was signed off by Enrico
-      pk,
-    );
-    expect(isValid).toBeTruthy();
+    const decrypted = bob.decrypt(pk);
+    expect(bytesEqual(decrypted, plaintextBytes)).toBeTruthy();
   });
 });

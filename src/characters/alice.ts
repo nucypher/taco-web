@@ -1,4 +1,3 @@
-import { Provider } from '@ethersproject/providers';
 import { ethers } from 'ethers';
 import { PublicKey, Signer, VerifiedKeyFrag } from 'umbral-pre';
 
@@ -9,7 +8,6 @@ import {
   SigningPower,
   TransactingPower,
 } from '../crypto/powers';
-import { MessageKit } from '../kits/message';
 import {
   BlockchainPolicy,
   BlockchainPolicyParameters,
@@ -80,10 +78,6 @@ export class Alice {
     );
     const policy = await this.createPolicy(policyParameters);
     return await policy.enact(ursulas);
-  }
-
-  public encryptFor(recipientKey: PublicKey, payload: Uint8Array): MessageKit {
-    return MessageKit.author(recipientKey, payload, this.signer);
   }
 
   public generateKFrags(

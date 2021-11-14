@@ -1,13 +1,13 @@
-import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
+import { KEYING_MATERIAL_BYTES_LENGTH } from './constants';
 import { DecryptingPower, DelegatingPower, SigningPower } from './powers';
 
 export class NucypherKeyring {
   private readonly secretKeyBytes: Uint8Array;
 
   constructor(secretKeyBytes: Uint8Array) {
-    if (secretKeyBytes.length !== UMBRAL_KEYING_MATERIAL_BYTES_LENGTH) {
+    if (secretKeyBytes.length !== KEYING_MATERIAL_BYTES_LENGTH) {
       throw Error(
-        `Expected secretKeyBytes to be ${UMBRAL_KEYING_MATERIAL_BYTES_LENGTH} bytes long, received ${secretKeyBytes.length} bytes instead`
+        `Expected secretKeyBytes to be ${KEYING_MATERIAL_BYTES_LENGTH} bytes long, received ${secretKeyBytes.length} bytes instead`
       );
     }
     this.secretKeyBytes = secretKeyBytes;

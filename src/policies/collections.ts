@@ -1,4 +1,6 @@
 import {
+  Capsule,
+  encrypt,
   KeyFrag,
   PublicKey,
   Signature,
@@ -7,22 +9,25 @@ import {
 } from 'umbral-pre';
 
 import { Alice } from '../characters/alice';
-import { Bob, RemoteBob } from '../characters/bob';
+import { Bob } from '../characters/bob';
 import { Ursula } from '../characters/porter';
-import { keccakDigest } from '../crypto/api';
 import {
-  EIP712_MESSAGE_SIGNATURE_SIZE,
+  CAPSULE_LENGTH,
   ETH_ADDRESS_BYTE_LENGTH,
+  PUBLIC_KEY_LENGTH,
+  SIGNATURE_LENGTH,
 } from '../crypto/constants';
 import { toCanonicalAddress, toChecksumAddress } from '../crypto/utils';
 import { MessageKit } from '../kits/message';
 import { ChecksumAddress } from '../types';
 import {
+  bytesEqual,
   decodeVariableLengthMessage,
   encodeVariableLengthMessage,
   fromHexString,
   split,
   toBytes,
+  toHexString,
   zip,
 } from '../utils';
 import {
@@ -36,15 +41,52 @@ import {
 
 import { HRAC } from './hrac';
 
-export type KFragDestinations = Record<ChecksumAddress, MessageKit>;
-
-export class PublishedTreasureMap {
+export class EncryptedKeyFrag {
   constructor(
-    public readonly messageKit: MessageKit,
-    public destinations: KFragDestinations,
-    public threshold: number
+    private readonly capsule: Capsule,
+    private readonly ciphertext: Uint8Array
   ) {}
+
+  public static author(
+    recipientKey: PublicKey,
+    authorizedKeyFrag: AuthorizedKeyFrag
+  ): EncryptedKeyFrag {
+    const { capsule, ciphertext } = encrypt(
+      recipientKey,
+      authorizedKeyFrag.toBytes()
+    );
+    return new EncryptedKeyFrag(capsule, ciphertext);
+  }
+
+  public toBytes(): Uint8Array {
+    return new Uint8Array([
+      ...this.capsule.toBytes(),
+      ...encodeVariableLengthMessage(this.ciphertext),
+    ]);
+  }
+
+  public static take(bytes: Uint8Array): {
+    encryptedKeyFrag: EncryptedKeyFrag;
+    remainder: Uint8Array;
+  } {
+    const [capsuleBytes, remainder1] = split(bytes, CAPSULE_LENGTH);
+    const [ciphertext, remainder] = decodeVariableLengthMessage(remainder1);
+    const encryptedKeyFrag = new EncryptedKeyFrag(
+      Capsule.fromBytes(capsuleBytes),
+      ciphertext
+    );
+    return { encryptedKeyFrag, remainder };
+  }
+
+  public equals(other: EncryptedKeyFrag): boolean {
+    return (
+      bytesEqual(this.capsule.toBytes(), other.capsule.toBytes()) &&
+      bytesEqual(this.ciphertext, other.ciphertext)
+    );
+  }
 }
+
+export type KFragDestinations = Record<ChecksumAddress, EncryptedKeyFrag>;
 
 export class TreasureMap implements Versioned {
   private static readonly BRAND = 'TMap';
@@ -52,8 +94,10 @@ export class TreasureMap implements Versioned {
 
   constructor(
     public readonly threshold: number,
-    public readonly destinations: KFragDestinations,
-    public readonly hrac: HRAC
+    public readonly hrac: HRAC,
+    public readonly policyEncryptingKey: PublicKey,
+    public readonly publisherVerifyingKey: PublicKey,
+    public readonly destinations: KFragDestinations
   ) {}
 
   public static async constructByPublisher(
@@ -61,7 +105,8 @@ export class TreasureMap implements Versioned {
     publisher: Alice,
     ursulas: Ursula[],
     verifiedKFrags: VerifiedKeyFrag[],
-    threshold: number
+    threshold: number,
+    policyEncryptingKey: PublicKey
   ): Promise<TreasureMap> {
     if (threshold < 1 || threshold > 255) {
       throw Error('The threshold must be between 1 and 255.');
@@ -80,7 +125,13 @@ export class TreasureMap implements Versioned {
       hrac,
       publisher
     );
-    return new TreasureMap(threshold, destinations, hrac);
+    return new TreasureMap(
+      threshold,
+      hrac,
+      policyEncryptingKey,
+      publisher.verifyingKey,
+      destinations
+    );
   }
 
   public static fromBytes(bytes: Uint8Array): TreasureMap {
@@ -96,10 +147,29 @@ export class TreasureMap implements Versioned {
     ): T => {
       const [thresholdBytes, remainder1] = split(bytes, 1);
       const [hracBytes, remainder2] = split(remainder1, HRAC.BYTE_LENGTH);
+      const [policyEncryptingKeyBytes, remainder3] = split(
+        remainder2,
+        PUBLIC_KEY_LENGTH
+      );
+      const [publisherVerifyingKeyBytes, remainder4] = split(
+        remainder3,
+        PUBLIC_KEY_LENGTH
+      );
+
       const threshold = thresholdBytes.reverse()[0];
-      const nodes = this.bytesToNodes(remainder2);
       const hrac = new HRAC(hracBytes);
-      return new TreasureMap(threshold, nodes, hrac) as unknown as T;
+      const policyEncryptingKey = PublicKey.fromBytes(policyEncryptingKeyBytes);
+      const publisherVerifyingKey = PublicKey.fromBytes(
+        publisherVerifyingKeyBytes
+      );
+      const nodes = this.bytesToNodes(remainder4);
+      return new TreasureMap(
+        threshold,
+        hrac,
+        policyEncryptingKey,
+        publisherVerifyingKey,
+        nodes
+      ) as unknown as T;
     };
     return {
       oldVersionDeserializers,
@@ -118,17 +188,16 @@ export class TreasureMap implements Versioned {
     const destinations: KFragDestinations = {};
     zip(ursulas, verifiedKFrags).forEach(([ursula, verifiedKFrag]) => {
       const kFragPayload = AuthorizedKeyFrag.constructByPublisher(
+        publisher.signer,
         hrac,
-        verifiedKFrag,
-        publisher.signer
-      ).toBytes();
+        verifiedKFrag
+      );
       const ursulaEncryptingKey = PublicKey.fromBytes(
         fromHexString(ursula.encryptingKey)
       );
-      destinations[ursula.checksumAddress] = MessageKit.author(
+      destinations[ursula.checksumAddress] = EncryptedKeyFrag.author(
         ursulaEncryptingKey,
-        kFragPayload,
-        publisher.signer
+        kFragPayload
       );
     });
     return destinations;
@@ -136,30 +205,28 @@ export class TreasureMap implements Versioned {
 
   private static bytesToNodes(bytes: Uint8Array): KFragDestinations {
     const destinations: KFragDestinations = {};
-    let bytesRemaining = bytes;
+    let bytesRemaining = decodeVariableLengthMessage(bytes)[0];
     while (bytesRemaining.length > 0) {
       const [addressBytes, remainder1] = split(
         bytesRemaining,
         ETH_ADDRESS_BYTE_LENGTH
       );
-      const [messageKit, remainder2] = decodeVariableLengthMessage(remainder1);
-      bytesRemaining = remainder2;
       const address = toChecksumAddress(addressBytes);
-      destinations[address] = MessageKit.fromBytes(messageKit);
+      const { encryptedKeyFrag, remainder } = EncryptedKeyFrag.take(remainder1);
+      destinations[address] = encryptedKeyFrag;
+      bytesRemaining = remainder;
     }
     return destinations;
   }
 
-  public async encrypt(
+  public encrypt(
     publisher: Alice,
-    bob: RemoteBob,
-    blockchainSigner?: Signer
-  ): Promise<EncryptedTreasureMap> {
+    recipientKey: PublicKey
+  ): EncryptedTreasureMap {
     return EncryptedTreasureMap.constructByPublisher(
       this,
       publisher,
-      bob,
-      blockchainSigner
+      recipientKey
     );
   }
 
@@ -173,58 +240,46 @@ export class TreasureMap implements Versioned {
       // `threshold` must be big-endian
       ...Uint8Array.from([this.threshold]).reverse(),
       ...this.hrac.toBytes(),
+      ...this.policyEncryptingKey.toBytes(),
+      ...this.publisherVerifyingKey.toBytes(),
       ...TreasureMap.nodesToBytes(this.destinations),
     ]);
   }
 
   private static nodesToBytes(destinations: KFragDestinations): Uint8Array {
-    return Object.entries(destinations)
+    const bytes = Object.entries(destinations)
       .map(
         ([ursulaAddress, encryptedKFrag]) =>
           new Uint8Array([
             ...toCanonicalAddress(ursulaAddress),
-            ...encodeVariableLengthMessage(encryptedKFrag.toBytes()),
+            ...encryptedKFrag.toBytes(),
           ])
       )
       .reduce((previous, next) => new Uint8Array([...previous, ...next]));
+    return encodeVariableLengthMessage(bytes);
   }
 }
 
 export class AuthorizedKeyFrag implements Versioned {
-  private static readonly WRIT_CHECKSUM_SIZE = 32;
-  private static readonly BRAND = 'AKF_';
+  private static readonly BRAND = 'AKFr';
   private static readonly VERSION: VersionTuple = [1, 0];
-
-  private readonly writ: Uint8Array;
 
   constructor(
     private readonly hrac: HRAC,
-    private readonly kFragChecksum: Uint8Array,
-    private readonly writSignature: Signature,
+    private readonly signature: Signature,
     private readonly kFrag: KeyFrag
-  ) {
-    this.writ = new Uint8Array([...hrac.toBytes(), ...kFragChecksum]);
-  }
+  ) {}
 
   public static constructByPublisher(
+    publisherSigner: Signer,
     hrac: HRAC,
-    verifiedKFrag: VerifiedKeyFrag,
-    publisherSigner: Signer
+    verifiedKFrag: VerifiedKeyFrag
   ): AuthorizedKeyFrag {
     const kFrag = KeyFrag.fromBytes(verifiedKFrag.toBytes());
-
-    const kFragChecksum = AuthorizedKeyFrag.kFragChecksum(kFrag);
-    const writ = new Uint8Array([...hrac.toBytes(), ...kFragChecksum]);
-    const writSignature = publisherSigner.sign(writ);
-
-    return new AuthorizedKeyFrag(hrac, kFragChecksum, writSignature, kFrag);
-  }
-
-  private static kFragChecksum(kFrag: KeyFrag): Uint8Array {
-    return keccakDigest(kFrag.toBytes()).slice(
-      0,
-      AuthorizedKeyFrag.WRIT_CHECKSUM_SIZE
+    const signature = publisherSigner.sign(
+      new Uint8Array([...hrac.toBytes(), ...kFrag.toBytes()])
     );
+    return new AuthorizedKeyFrag(hrac, signature, kFrag);
   }
 
   private get header(): Uint8Array {
@@ -237,60 +292,117 @@ export class AuthorizedKeyFrag implements Versioned {
   public toBytes(): Uint8Array {
     return new Uint8Array([
       ...this.header,
-      ...this.writ,
-      ...this.writSignature.toBytes(),
+      ...this.signature.toBytes(),
       ...this.kFrag.toBytes(),
     ]);
+  }
+}
+
+export class AuthorizedTreasureMap implements Versioned {
+  private static readonly BRAND = 'AMap';
+  private static readonly VERSION: VersionTuple = [1, 0];
+
+  constructor(
+    private readonly signature: Signature,
+    private readonly treasureMap: TreasureMap
+  ) {}
+
+  public static constructByPublisher(
+    signer: Signer,
+    recipientKey: PublicKey,
+    treasureMap: TreasureMap
+  ): AuthorizedTreasureMap {
+    const payload = new Uint8Array([
+      ...recipientKey.toBytes(),
+      ...treasureMap.toBytes(),
+    ]);
+    const signature = signer.sign(payload);
+    return new AuthorizedTreasureMap(signature, treasureMap);
+  }
+
+  private get header(): Uint8Array {
+    return VersionedParser.encodeHeader(
+      AuthorizedTreasureMap.BRAND,
+      AuthorizedTreasureMap.VERSION
+    );
+  }
+
+  public verify(
+    recipientKey: PublicKey,
+    publisherVerifyingKey: PublicKey
+  ): TreasureMap {
+    const payload = new Uint8Array([
+      ...recipientKey.toBytes(),
+      ...this.treasureMap.toBytes(),
+    ]);
+    const isValid = this.signature.verify(publisherVerifyingKey, payload);
+    if (!isValid) {
+      throw new Error('Invalid publisher signature');
+    }
+    return this.treasureMap;
+  }
+
+  public toBytes(): Uint8Array {
+    return new Uint8Array([
+      ...this.header,
+      ...this.signature.toBytes(),
+      ...this.treasureMap.toBytes(),
+    ]);
+  }
+
+  protected static getVersionHandler(): VersionHandler {
+    const oldVersionDeserializers = (): VersionedDeserializers<Versioned> => {
+      return {};
+    };
+    const currentVersionDeserializer: Deserializer = <T extends Versioned>(
+      bytes: Uint8Array
+    ): T => {
+      const [signature, treasureMap] = split(bytes, SIGNATURE_LENGTH);
+      return new AuthorizedTreasureMap(
+        Signature.fromBytes(signature),
+        TreasureMap.fromBytes(treasureMap)
+      ) as unknown as T;
+    };
+    return {
+      oldVersionDeserializers,
+      currentVersionDeserializer,
+      brand: AuthorizedTreasureMap.BRAND,
+      version: AuthorizedTreasureMap.VERSION,
+    };
+  }
+
+  public static fromBytes(bytes: Uint8Array): AuthorizedTreasureMap {
+    return VersionedParser.fromVersionedBytes(
+      AuthorizedTreasureMap.getVersionHandler(),
+      bytes
+    );
   }
 }
 
 export class EncryptedTreasureMap implements Versioned {
   private static readonly BRAND = 'EMap';
   private static readonly VERSION: VersionTuple = [1, 0];
-  private readonly EMPTY_BLOCKCHAIN_SIGNATURE = new Uint8Array(
-    EIP712_MESSAGE_SIGNATURE_SIZE
-  );
 
   constructor(
-    public readonly hrac: HRAC,
-    public readonly publicSignature: Signature,
-    public readonly encryptedTreasureMap: MessageKit,
-    public readonly blockchainSignature?: Signature | null
+    public readonly capsule: Capsule,
+    public readonly ciphertext: Uint8Array
   ) {}
 
-  public static async constructByPublisher(
+  public static constructByPublisher(
     treasureMap: TreasureMap,
     publisher: Alice,
-    bob: RemoteBob,
-    blockchainSigner?: Signer
-  ): Promise<EncryptedTreasureMap> {
-    const encryptedTreasureMap = MessageKit.author(
-      bob.decryptingKey,
-      treasureMap.toBytes(),
-      publisher.signer
+    recipientKey: PublicKey
+  ): EncryptedTreasureMap {
+    const authorizedTreasureMap = AuthorizedTreasureMap.constructByPublisher(
+      publisher.signer,
+      recipientKey,
+      treasureMap
     );
-
-    const toSign = new Uint8Array([
-      ...publisher.verifyingKey.toBytes(),
-      ...treasureMap.hrac.toBytes(),
-    ]);
-    const publicSignature = publisher.signer.sign(toSign);
-
-    const blockchainSignature = blockchainSigner
-      ? EncryptedTreasureMap.sign(
-          blockchainSigner,
-          publicSignature,
-          treasureMap.hrac,
-          encryptedTreasureMap
-        )
-      : null;
-
-    return new EncryptedTreasureMap(
-      treasureMap.hrac,
-      publicSignature,
-      encryptedTreasureMap,
-      blockchainSignature
+    const { capsule, ciphertext } = encrypt(
+      recipientKey,
+      authorizedTreasureMap.toBytes()
     );
+    return new EncryptedTreasureMap(capsule, ciphertext);
   }
 
   public static sign(
@@ -315,24 +427,17 @@ export class EncryptedTreasureMap implements Versioned {
   }
 
   public toBytes(): Uint8Array {
-    const signature = this.blockchainSignature
-      ? this.blockchainSignature.toBytes()
-      : this.EMPTY_BLOCKCHAIN_SIGNATURE;
     return new Uint8Array([
       ...this.header,
-      ...this.publicSignature.toBytes(),
-      ...this.hrac.toBytes(),
-      ...encodeVariableLengthMessage(this.encryptedTreasureMap.toBytes()),
-      ...signature,
+      ...this.capsule.toBytes(),
+      ...encodeVariableLengthMessage(this.ciphertext),
     ]);
   }
 
-  public decrypt(bob: Bob, publisherVerifyingKey: PublicKey): TreasureMap {
-    const bytes = bob.verifyFrom(
-      publisherVerifyingKey,
-      this.encryptedTreasureMap
-    );
-    return TreasureMap.fromBytes(bytes);
+  public decrypt(bob: Bob): AuthorizedTreasureMap {
+    const encrypted = new MessageKit(this.capsule, this.ciphertext);
+    const bytes = bob.decrypt(encrypted);
+    return AuthorizedTreasureMap.fromBytes(bytes);
   }
 }
 
@@ -344,7 +449,7 @@ export class RevocationOrder implements Versioned {
 
   constructor(
     private ursulaAddress: ChecksumAddress,
-    private encryptedKFrag: MessageKit,
+    private encryptedKFrag: EncryptedKeyFrag,
     signer?: Signer,
     signature?: Signature
   ) {

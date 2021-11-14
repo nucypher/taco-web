@@ -141,7 +141,8 @@ export class BlockchainPolicy {
       this.publisher,
       ursulas,
       this.verifiedKFrags,
-      this.threshold
+      this.threshold,
+      this.delegatingKey
     );
     const encryptedTreasureMap = await this.encryptTreasureMap(treasureMap);
     const revocationKit = new RevocationKit(treasureMap, this.publisher.signer);
@@ -157,10 +158,8 @@ export class BlockchainPolicy {
     };
   }
 
-  private encryptTreasureMap(
-    treasureMap: TreasureMap
-  ): Promise<EncryptedTreasureMap> {
-    return treasureMap.encrypt(this.publisher, this.bob);
+  private encryptTreasureMap(treasureMap: TreasureMap): EncryptedTreasureMap {
+    return treasureMap.encrypt(this.publisher, this.bob.decryptingKey);
   }
 
   private async makeArrangements(

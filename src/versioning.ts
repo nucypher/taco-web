@@ -25,10 +25,11 @@ export abstract class Versioned {
 }
 
 export class VersionedParser {
-  private static VERSION_PART_LENGTH = 2; // bytes
+  private static VERSION_PART_LENGTH_BYTES = 2;
   private static BRAND_LENGTH = 4;
   private static HEADER_LENGTH =
-    2 * VersionedParser.VERSION_PART_LENGTH + VersionedParser.BRAND_LENGTH;
+    2 * VersionedParser.VERSION_PART_LENGTH_BYTES +
+    VersionedParser.BRAND_LENGTH;
 
   public static encodeHeader(
     brand: string,
@@ -36,11 +37,11 @@ export class VersionedParser {
   ): Uint8Array {
     const majorBytes = numberToBytes(
       major,
-      VersionedParser.VERSION_PART_LENGTH
+      VersionedParser.VERSION_PART_LENGTH_BYTES
     );
     const minorBytes = numberToBytes(
       minor,
-      VersionedParser.VERSION_PART_LENGTH
+      VersionedParser.VERSION_PART_LENGTH_BYTES
     );
     return new Uint8Array([...toBytes(brand), ...majorBytes, ...minorBytes]);
   }
@@ -86,11 +87,11 @@ export class VersionedParser {
   private static parseVersion(bytes: Uint8Array): [VersionTuple, Uint8Array] {
     const [majorBytes, remainder1] = split(
       bytes,
-      VersionedParser.VERSION_PART_LENGTH
+      VersionedParser.VERSION_PART_LENGTH_BYTES
     );
     const [minorBytes, remainder2] = split(
       remainder1,
-      VersionedParser.VERSION_PART_LENGTH
+      VersionedParser.VERSION_PART_LENGTH_BYTES
     );
     const major = toNumber(majorBytes, false); // Is big-endian
     const minor = toNumber(minorBytes, false); // Is big-endian

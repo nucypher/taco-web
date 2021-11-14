@@ -1,4 +1,4 @@
-import { ContractTransaction, ethers, Wallet } from 'ethers';
+import { ContractTransaction, ethers } from 'ethers';
 import { hexlify } from 'ethers/lib/utils';
 
 import {

@@ -2,6 +2,7 @@ import { VerifiedCapsuleFrag } from 'umbral-pre';
 
 import { toCanonicalAddress } from '../crypto/utils';
 import { ChecksumAddress } from '../types';
+import { encodeVariableLengthMessage } from '../utils';
 import { Versioned, VersionedParser, VersionTuple } from '../versioning';
 
 export class RetrievalResult {
@@ -45,12 +46,14 @@ export class RetrievalKit implements Versioned {
     return new Uint8Array([
       ...this.header,
       ...this.capsule.toBytes(),
-      ...this.queriedAddresses
-        .map(toCanonicalAddress)
-        .reduce(
-          (previous, next) => new Uint8Array([...previous, ...next]),
-          new Uint8Array()
-        ),
+      ...encodeVariableLengthMessage(
+        this.queriedAddresses
+          .map(toCanonicalAddress)
+          .reduce(
+            (previous, next) => new Uint8Array([...previous, ...next]),
+            new Uint8Array()
+          )
+      ),
     ]);
   }
 }

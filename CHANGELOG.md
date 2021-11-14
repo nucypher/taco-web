@@ -1,7 +1,13 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
-See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [0.3.0-alpha](https://github.com/nucypher/nucypher-ts/compare/v0.2.0-alpha...v0.3.0-alpha) (2021-11-14)
+
+
+### Features
+
+* Update protocol entities in accordance to nucypher-core ([f0444e1](https://github.com/nucypher/nucypher-ts/commit/f0444e13615bc956ba271e80b8cc6a3ae8e49619))
 
 ## [0.2.0-alpha](https://github.com/nucypher/nucypher-ts/compare/v0.1.1-alpha...v0.2.0-alpha) (2021-10-14)
 

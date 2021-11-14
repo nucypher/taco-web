@@ -74,6 +74,12 @@
 					</li>
 				</ul>
 			</section>
+			<section class="tsd-panel">
+				<h3>Implements</h3>
+				<ul class="tsd-hierarchy">
+					<li><a href="versioned.html" class="tsd-signature-type">Versioned</a></li>
+				</ul>
+			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
@@ -87,11 +93,16 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="encryptedtreasuremap.html#empty_blockchain_signature" class="tsd-kind-icon">EMPTY_<wbr>BLOCKCHAIN_<wbr>SIGNATURE</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="encryptedtreasuremap.html#blockchainsignature" class="tsd-kind-icon">blockchain<wbr>Signature</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="encryptedtreasuremap.html#encryptedtreasuremap-1" class="tsd-kind-icon">encrypted<wbr>Treasure<wbr>Map</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="encryptedtreasuremap.html#hrac" class="tsd-kind-icon">hrac</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="encryptedtreasuremap.html#publicsignature" class="tsd-kind-icon">public<wbr>Signature</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="encryptedtreasuremap.html#capsule" class="tsd-kind-icon">capsule</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="encryptedtreasuremap.html#ciphertext" class="tsd-kind-icon">ciphertext</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="encryptedtreasuremap.html#brand" class="tsd-kind-icon">BRAND</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="encryptedtreasuremap.html#version" class="tsd-kind-icon">VERSION</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section tsd-is-private tsd-is-private-protected">
+							<h3>Accessors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-private"><a href="encryptedtreasuremap.html#header" class="tsd-kind-icon">header</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
@@ -112,28 +123,22 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Encrypted<wbr>Treasure<wbr>Map<span class="tsd-signature-symbol">(</span>hrac<span class="tsd-signature-symbol">: </span><a href="hrac.html" class="tsd-signature-type">HRAC</a>, publicSignature<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Signature</span>, encryptedTreasureMap<span class="tsd-signature-symbol">: </span><a href="messagekit.html" class="tsd-signature-type">MessageKit</a>, blockchainSignature<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Signature</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="encryptedtreasuremap.html" class="tsd-signature-type">EncryptedTreasureMap</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Encrypted<wbr>Treasure<wbr>Map<span class="tsd-signature-symbol">(</span>capsule<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Capsule</span>, ciphertext<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="encryptedtreasuremap.html" class="tsd-signature-type">EncryptedTreasureMap</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/policies/collections.ts#L208">src/policies/collections.ts:208</a></li>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/policies/collections.ts#L384">src/policies/collections.ts:384</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>hrac: <a href="hrac.html" class="tsd-signature-type">HRAC</a></h5>
+									<h5>capsule: <span class="tsd-signature-type">Capsule</span></h5>
 								</li>
 								<li>
-									<h5>publicSignature: <span class="tsd-signature-type">Signature</span></h5>
-								</li>
-								<li>
-									<h5>encryptedTreasureMap: <a href="messagekit.html" class="tsd-signature-type">MessageKit</a></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> blockchainSignature: <span class="tsd-signature-type">Signature</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h5>
+									<h5>ciphertext: <span class="tsd-signature-type">Uint8Array</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="encryptedtreasuremap.html" class="tsd-signature-type">EncryptedTreasureMap</a></h4>
@@ -143,55 +148,65 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
-					<a name="empty_blockchain_signature" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> <span class="tsd-flag ts-flagReadonly">Readonly</span> EMPTY_<wbr>BLOCKCHAIN_<wbr>SIGNATURE</h3>
-					<div class="tsd-signature tsd-kind-icon">EMPTY_<wbr>BLOCKCHAIN_<wbr>SIGNATURE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol"> = new Uint8Array(EIP712_MESSAGE_SIGNATURE_SIZE)</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="capsule" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> capsule</h3>
+					<div class="tsd-signature tsd-kind-icon">capsule<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Capsule</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/policies/collections.ts#L206">src/policies/collections.ts:206</a></li>
+							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/policies/collections.ts#L387">src/policies/collections.ts:387</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="blockchainsignature" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> <span class="tsd-flag ts-flagReadonly">Readonly</span> blockchain<wbr>Signature</h3>
-					<div class="tsd-signature tsd-kind-icon">blockchain<wbr>Signature<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Signature</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></div>
+					<a name="ciphertext" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> ciphertext</h3>
+					<div class="tsd-signature tsd-kind-icon">ciphertext<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Uint8Array</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/policies/collections.ts#L214">src/policies/collections.ts:214</a></li>
+							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/policies/collections.ts#L388">src/policies/collections.ts:388</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="encryptedtreasuremap-1" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> encrypted<wbr>Treasure<wbr>Map</h3>
-					<div class="tsd-signature tsd-kind-icon">encrypted<wbr>Treasure<wbr>Map<span class="tsd-signature-symbol">:</span> <a href="messagekit.html" class="tsd-signature-type">MessageKit</a></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+					<a name="brand" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> <span class="tsd-flag ts-flagReadonly">Readonly</span> BRAND</h3>
+					<div class="tsd-signature tsd-kind-icon">BRAND<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"EMap"</span><span class="tsd-signature-symbol"> = &quot;EMap&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/policies/collections.ts#L213">src/policies/collections.ts:213</a></li>
+							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/policies/collections.ts#L383">src/policies/collections.ts:383</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="hrac" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> hrac</h3>
-					<div class="tsd-signature tsd-kind-icon">hrac<span class="tsd-signature-symbol">:</span> <a href="hrac.html" class="tsd-signature-type">HRAC</a></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+					<a name="version" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> <span class="tsd-flag ts-flagReadonly">Readonly</span> VERSION</h3>
+					<div class="tsd-signature tsd-kind-icon">VERSION<span class="tsd-signature-symbol">:</span> <a href="../globals.html#versiontuple" class="tsd-signature-type">VersionTuple</a><span class="tsd-signature-symbol"> = [1, 0]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/policies/collections.ts#L211">src/policies/collections.ts:211</a></li>
+							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/policies/collections.ts#L384">src/policies/collections.ts:384</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="publicsignature" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> public<wbr>Signature</h3>
-					<div class="tsd-signature tsd-kind-icon">public<wbr>Signature<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Signature</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/policies/collections.ts#L212">src/policies/collections.ts:212</a></li>
-						</ul>
-					</aside>
+			</section>
+			<section class="tsd-panel-group tsd-member-group tsd-is-private tsd-is-private-protected">
+				<h2>Accessors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-private">
+					<a name="header" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> header</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> header<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Uint8Array</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/policies/collections.ts#L422">src/policies/collections.ts:422</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Uint8Array</span></h4>
+						</li>
+					</ul>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
@@ -200,13 +215,13 @@
 					<a name="decrypt" class="tsd-anchor"></a>
 					<h3>decrypt</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">decrypt<span class="tsd-signature-symbol">(</span>bob<span class="tsd-signature-symbol">: </span><a href="bob.html" class="tsd-signature-type">Bob</a>, publisherVerifyingKey<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="treasuremap.html" class="tsd-signature-type">TreasureMap</a></li>
+						<li class="tsd-signature tsd-kind-icon">decrypt<span class="tsd-signature-symbol">(</span>bob<span class="tsd-signature-symbol">: </span><a href="bob.html" class="tsd-signature-type">Bob</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="authorizedtreasuremap.html" class="tsd-signature-type">AuthorizedTreasureMap</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/policies/collections.ts#L278">src/policies/collections.ts:278</a></li>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/policies/collections.ts#L437">src/policies/collections.ts:437</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -214,11 +229,8 @@
 								<li>
 									<h5>bob: <a href="bob.html" class="tsd-signature-type">Bob</a></h5>
 								</li>
-								<li>
-									<h5>publisherVerifyingKey: <span class="tsd-signature-type">PublicKey</span></h5>
-								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="treasuremap.html" class="tsd-signature-type">TreasureMap</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="authorizedtreasuremap.html" class="tsd-signature-type">AuthorizedTreasureMap</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -232,7 +244,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/policies/collections.ts#L266">src/policies/collections.ts:266</a></li>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/policies/collections.ts#L429">src/policies/collections.ts:429</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Uint8Array</span></h4>
@@ -243,13 +255,13 @@
 					<a name="constructbypublisher" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> construct<wbr>ByPublisher</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">construct<wbr>ByPublisher<span class="tsd-signature-symbol">(</span>treasureMap<span class="tsd-signature-symbol">: </span><a href="treasuremap.html" class="tsd-signature-type">TreasureMap</a>, publisher<span class="tsd-signature-symbol">: </span><a href="alice.html" class="tsd-signature-type">Alice</a>, bob<span class="tsd-signature-symbol">: </span><a href="../interfaces/remotebob.html" class="tsd-signature-type">RemoteBob</a>, blockchainSigner<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Signer</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="encryptedtreasuremap.html" class="tsd-signature-type">EncryptedTreasureMap</a><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">construct<wbr>ByPublisher<span class="tsd-signature-symbol">(</span>treasureMap<span class="tsd-signature-symbol">: </span><a href="treasuremap.html" class="tsd-signature-type">TreasureMap</a>, publisher<span class="tsd-signature-symbol">: </span><a href="alice.html" class="tsd-signature-type">Alice</a>, recipientKey<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="encryptedtreasuremap.html" class="tsd-signature-type">EncryptedTreasureMap</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/policies/collections.ts#L217">src/policies/collections.ts:217</a></li>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/policies/collections.ts#L391">src/policies/collections.ts:391</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -261,13 +273,10 @@
 									<h5>publisher: <a href="alice.html" class="tsd-signature-type">Alice</a></h5>
 								</li>
 								<li>
-									<h5>bob: <a href="../interfaces/remotebob.html" class="tsd-signature-type">RemoteBob</a></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> blockchainSigner: <span class="tsd-signature-type">Signer</span></h5>
+									<h5>recipientKey: <span class="tsd-signature-type">PublicKey</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="encryptedtreasuremap.html" class="tsd-signature-type">EncryptedTreasureMap</a><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <a href="encryptedtreasuremap.html" class="tsd-signature-type">EncryptedTreasureMap</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -281,7 +290,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/policies/collections.ts#L252">src/policies/collections.ts:252</a></li>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/policies/collections.ts#L408">src/policies/collections.ts:408</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -323,20 +332,20 @@
 							<li class=" tsd-kind-constructor tsd-parent-kind-class">
 								<a href="encryptedtreasuremap.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
-								<a href="encryptedtreasuremap.html#empty_blockchain_signature" class="tsd-kind-icon">EMPTY_<wbr>BLOCKCHAIN_<wbr>SIGNATURE</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="encryptedtreasuremap.html#capsule" class="tsd-kind-icon">capsule</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="encryptedtreasuremap.html#blockchainsignature" class="tsd-kind-icon">blockchain<wbr>Signature</a>
+								<a href="encryptedtreasuremap.html#ciphertext" class="tsd-kind-icon">ciphertext</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="encryptedtreasuremap.html#encryptedtreasuremap-1" class="tsd-kind-icon">encrypted<wbr>Treasure<wbr>Map</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+								<a href="encryptedtreasuremap.html#brand" class="tsd-kind-icon">BRAND</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="encryptedtreasuremap.html#hrac" class="tsd-kind-icon">hrac</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+								<a href="encryptedtreasuremap.html#version" class="tsd-kind-icon">VERSION</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="encryptedtreasuremap.html#publicsignature" class="tsd-kind-icon">public<wbr>Signature</a>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-private">
+								<a href="encryptedtreasuremap.html#header" class="tsd-kind-icon">header</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="encryptedtreasuremap.html#decrypt" class="tsd-kind-icon">decrypt</a>

@@ -68,6 +68,7 @@
 					<h1>nucypher-ts</h1>
 				</a>
 				<p>Communicate with NuCypher network from browser.</p>
+				<p>Compatible with <a href="https://github.com/nucypher/nucypher/commit/957250c6d8c8a80c08dbd5211188b297b7db1441">commit</a>.</p>
 				<p><strong>This is a work in progress. Do not use in a production.</strong></p>
 				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
 					<h2>Usage</h2>
@@ -107,6 +108,9 @@ yarn build
 						<a href="classes/authorizedkeyfrag.html" class="tsd-kind-icon">Authorized<wbr>Key<wbr>Frag</a>
 					</li>
 					<li class=" tsd-kind-class">
+						<a href="classes/authorizedtreasuremap.html" class="tsd-kind-icon">Authorized<wbr>Treasure<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-class">
 						<a href="classes/blockchainpolicy.html" class="tsd-kind-icon">Blockchain<wbr>Policy</a>
 					</li>
 					<li class=" tsd-kind-class">
@@ -120,6 +124,9 @@ yarn build
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/delegatingpower.html" class="tsd-kind-icon">Delegating<wbr>Power</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/encryptedkeyfrag.html" class="tsd-kind-icon">Encrypted<wbr>Key<wbr>Frag</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/encryptedtreasuremap.html" class="tsd-kind-icon">Encrypted<wbr>Treasure<wbr>Map</a>
@@ -149,7 +156,7 @@ yarn build
 						<a href="classes/porter.html" class="tsd-kind-icon">Porter</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="classes/publishedtreasuremap.html" class="tsd-kind-icon">Published<wbr>Treasure<wbr>Map</a>
+						<a href="classes/remotebob.html" class="tsd-kind-icon">Remote<wbr>Bob</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/retrievalkit.html" class="tsd-kind-icon">Retrieval<wbr>Kit</a>
@@ -158,10 +165,10 @@ yarn build
 						<a href="classes/retrievalresult.html" class="tsd-kind-icon">Retrieval<wbr>Result</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="classes/revocation.html" class="tsd-kind-icon">Revocation</a>
+						<a href="classes/revocationkit.html" class="tsd-kind-icon">Revocation<wbr>Kit</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="classes/revocationkit.html" class="tsd-kind-icon">Revocation<wbr>Kit</a>
+						<a href="classes/revocationorder.html" class="tsd-kind-icon">Revocation<wbr>Order</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/signingpower.html" class="tsd-kind-icon">Signing<wbr>Power</a>
@@ -177,6 +184,12 @@ yarn build
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/treasuremap.html" class="tsd-kind-icon">Treasure<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/versioned.html" class="tsd-kind-icon">Versioned</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/versionedparser.html" class="tsd-kind-icon">Versioned<wbr>Parser</a>
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/arrangementforursula.html" class="tsd-kind-icon">Arrangement<wbr>For<wbr>Ursula</a>
@@ -206,9 +219,6 @@ yarn build
 						<a href="interfaces/postretrievecfragsresult.html" class="tsd-kind-icon">Post<wbr>RetrieveCFrags<wbr>Result</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="interfaces/remotebob.html" class="tsd-kind-icon">Remote<wbr>Bob</a>
-					</li>
-					<li class=" tsd-kind-interface">
 						<a href="interfaces/revocationfailure.html" class="tsd-kind-icon">Revocation<wbr>Failure</a>
 					</li>
 					<li class=" tsd-kind-interface">
@@ -229,11 +239,17 @@ yarn build
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/ursularesponse.html" class="tsd-kind-icon">Ursula<wbr>Response</a>
 					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/versionhandler.html" class="tsd-kind-icon">Version<wbr>Handler</a>
+					</li>
 					<li class=" tsd-kind-type-alias">
 						<a href="globals.html#base64encodedbytes" class="tsd-kind-icon">Base64<wbr>Encoded<wbr>Bytes</a>
 					</li>
 					<li class=" tsd-kind-type-alias">
 						<a href="globals.html#checksumaddress" class="tsd-kind-icon">Checksum<wbr>Address</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#deserializer" class="tsd-kind-icon">Deserializer</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-has-type-parameter tsd-is-external">
 						<a href="globals.html#getargstypefromfactory" class="tsd-kind-icon">GetARGs<wbr>Type<wbr>From<wbr>Factory</a>
@@ -256,6 +272,12 @@ yarn build
 					<li class=" tsd-kind-type-alias tsd-has-type-parameter tsd-is-external">
 						<a href="globals.html#typedlistener" class="tsd-kind-icon">Typed<wbr>Listener</a>
 					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#versiontuple" class="tsd-kind-icon">Version<wbr>Tuple</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="globals.html#versioneddeserializers" class="tsd-kind-icon">Versioned<wbr>Deserializers</a>
+					</li>
 					<li class=" tsd-kind-variable">
 						<a href="globals.html#capsule_length" class="tsd-kind-icon">CAPSULE_<wbr>LENGTH</a>
 					</li>
@@ -263,25 +285,16 @@ yarn build
 						<a href="globals.html#default_wait_n_confirmations" class="tsd-kind-icon">DEFAULT_<wbr>WAIT_<wbr><wbr>N_CONFIRMATIONS</a>
 					</li>
 					<li class=" tsd-kind-variable">
-						<a href="globals.html#eip712_message_signature_size" class="tsd-kind-icon">EIP712_<wbr>MESSAGE_<wbr>SIGNATURE_<wbr>SIZE</a>
-					</li>
-					<li class=" tsd-kind-variable">
 						<a href="globals.html#eth_address_byte_length" class="tsd-kind-icon">ETH_<wbr>ADDRESS_<wbr>BYTE_<wbr>LENGTH</a>
 					</li>
 					<li class=" tsd-kind-variable">
-						<a href="globals.html#eth_hash_byte_length" class="tsd-kind-icon">ETH_<wbr>HASH_<wbr>BYTE_<wbr>LENGTH</a>
+						<a href="globals.html#keying_material_bytes_length" class="tsd-kind-icon">KEYING_<wbr>MATERIAL_<wbr>BYTES_<wbr>LENGTH</a>
 					</li>
 					<li class=" tsd-kind-variable">
 						<a href="globals.html#public_key_length" class="tsd-kind-icon">PUBLIC_<wbr>KEY_<wbr>LENGTH</a>
 					</li>
 					<li class=" tsd-kind-variable">
-						<a href="globals.html#signature_header_bytes_length" class="tsd-kind-icon">SIGNATURE_<wbr>HEADER_<wbr>BYTES_<wbr>LENGTH</a>
-					</li>
-					<li class=" tsd-kind-variable">
 						<a href="globals.html#signature_length" class="tsd-kind-icon">SIGNATURE_<wbr>LENGTH</a>
-					</li>
-					<li class=" tsd-kind-variable">
-						<a href="globals.html#umbral_keying_material_bytes_length" class="tsd-kind-icon">UMBRAL_<wbr>KEYING_<wbr>MATERIAL_<wbr>BYTES_<wbr>LENGTH</a>
 					</li>
 					<li class=" tsd-kind-variable">
 						<a href="globals.html#variable_header_length" class="tsd-kind-icon">VARIABLE_<wbr>HEADER_<wbr>LENGTH</a>
@@ -332,6 +345,9 @@ yarn build
 						<a href="globals.html#mergewithoutundefined" class="tsd-kind-icon">merge<wbr>Without<wbr>Undefined</a>
 					</li>
 					<li class=" tsd-kind-function">
+						<a href="globals.html#numbertobytes" class="tsd-kind-icon">number<wbr>ToBytes</a>
+					</li>
+					<li class=" tsd-kind-function">
 						<a href="globals.html#periodtoepoch" class="tsd-kind-icon">period<wbr>ToEpoch</a>
 					</li>
 					<li class=" tsd-kind-function">
@@ -369,9 +385,6 @@ yarn build
 					</li>
 					<li class=" tsd-kind-object-literal">
 						<a href="globals.html#rinkeby" class="tsd-kind-icon">RINKEBY</a>
-					</li>
-					<li class=" tsd-kind-object-literal">
-						<a href="globals.html#signature_header_hex" class="tsd-kind-icon">SIGNATURE_<wbr>HEADER_<wbr>HEX</a>
 					</li>
 				</ul>
 			</nav>

@@ -1,0 +1,415 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>VersionedParser | nucypher-ts</title>
+	<meta name="description" content="Documentation for nucypher-ts">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">nucypher-ts</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="versionedparser.html">VersionedParser</a>
+				</li>
+			</ul>
+			<h1>Class VersionedParser</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">VersionedParser</span>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section tsd-is-private tsd-is-private-protected">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="versionedparser.html#brand_length" class="tsd-kind-icon">BRAND_<wbr>LENGTH</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="versionedparser.html#header_length" class="tsd-kind-icon">HEADER_<wbr>LENGTH</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="versionedparser.html#version_part_length_bytes" class="tsd-kind-icon">VERSION_<wbr>PART_<wbr>LENGTH_<wbr>BYTES</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="versionedparser.html#encodeheader" class="tsd-kind-icon">encode<wbr>Header</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-static"><a href="versionedparser.html#fromversionedbytes" class="tsd-kind-icon">from<wbr>Versioned<wbr>Bytes</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-private tsd-is-static"><a href="versionedparser.html#getdeserializer" class="tsd-kind-icon">get<wbr>Deserializer</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="versionedparser.html#parsebrand" class="tsd-kind-icon">parse<wbr>Brand</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="versionedparser.html#parseheader" class="tsd-kind-icon">parse<wbr>Header</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="versionedparser.html#parseversion" class="tsd-kind-icon">parse<wbr>Version</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="versionedparser.html#resolveversion" class="tsd-kind-icon">resolve<wbr>Version</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group tsd-is-private tsd-is-private-protected">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+					<a name="brand_length" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> BRAND_<wbr>LENGTH</h3>
+					<div class="tsd-signature tsd-kind-icon">BRAND_<wbr>LENGTH<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 4</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/versioning.ts#L29">src/versioning.ts:29</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+					<a name="header_length" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> HEADER_<wbr>LENGTH</h3>
+					<div class="tsd-signature tsd-kind-icon">HEADER_<wbr>LENGTH<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 2 * VersionedParser.VERSION_PART_LENGTH_BYTES +VersionedParser.BRAND_LENGTH</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/versioning.ts#L30">src/versioning.ts:30</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+					<a name="version_part_length_bytes" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> VERSION_<wbr>PART_<wbr>LENGTH_<wbr>BYTES</h3>
+					<div class="tsd-signature tsd-kind-icon">VERSION_<wbr>PART_<wbr>LENGTH_<wbr>BYTES<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 2</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/versioning.ts#L28">src/versioning.ts:28</a></li>
+						</ul>
+					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+					<a name="encodeheader" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> encode<wbr>Header</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">encode<wbr>Header<span class="tsd-signature-symbol">(</span>brand<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, __namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Uint8Array</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/versioning.ts#L34">src/versioning.ts:34</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>brand: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>__namedParameters: <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Uint8Array</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-static">
+					<a name="fromversionedbytes" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> from<wbr>Versioned<wbr>Bytes</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">from<wbr>Versioned<wbr>Bytes&lt;T&gt;<span class="tsd-signature-symbol">(</span>handler<span class="tsd-signature-symbol">: </span><a href="../interfaces/versionhandler.html" class="tsd-signature-type">VersionHandler</a>, bytes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/versioning.ts#L49">src/versioning.ts:49</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><a href="versioned.html" class="tsd-signature-type">Versioned</a></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>handler: <a href="../interfaces/versionhandler.html" class="tsd-signature-type">VersionHandler</a></h5>
+								</li>
+								<li>
+									<h5>bytes: <span class="tsd-signature-type">Uint8Array</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">T</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-private tsd-is-static">
+					<a name="getdeserializer" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> get<wbr>Deserializer</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-private tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Deserializer&lt;T&gt;<span class="tsd-signature-symbol">(</span>self<span class="tsd-signature-symbol">: </span><a href="../interfaces/versionhandler.html" class="tsd-signature-type">VersionHandler</a>, version<span class="tsd-signature-symbol">: </span><a href="../globals.html#versiontuple" class="tsd-signature-type">VersionTuple</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../globals.html#deserializer" class="tsd-signature-type">Deserializer</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/versioning.ts#L120">src/versioning.ts:120</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><a href="versioned.html" class="tsd-signature-type">Versioned</a></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>self: <a href="../interfaces/versionhandler.html" class="tsd-signature-type">VersionHandler</a></h5>
+								</li>
+								<li>
+									<h5>version: <a href="../globals.html#versiontuple" class="tsd-signature-type">VersionTuple</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../globals.html#deserializer" class="tsd-signature-type">Deserializer</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
+					<a name="parsebrand" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> parse<wbr>Brand</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">parse<wbr>Brand<span class="tsd-signature-symbol">(</span>brand<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, bytes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol">]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/versioning.ts#L75">src/versioning.ts:75</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>brand: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>bytes: <span class="tsd-signature-type">Uint8Array</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol">]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
+					<a name="parseheader" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> parse<wbr>Header</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">parse<wbr>Header<span class="tsd-signature-symbol">(</span>brand<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, bytes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><a href="../globals.html#versiontuple" class="tsd-signature-type">VersionTuple</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol">]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/versioning.ts#L63">src/versioning.ts:63</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>brand: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>bytes: <span class="tsd-signature-type">Uint8Array</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><a href="../globals.html#versiontuple" class="tsd-signature-type">VersionTuple</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol">]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
+					<a name="parseversion" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> parse<wbr>Version</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">parse<wbr>Version<span class="tsd-signature-symbol">(</span>bytes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">[</span><a href="../globals.html#versiontuple" class="tsd-signature-type">VersionTuple</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol">]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/versioning.ts#L87">src/versioning.ts:87</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>bytes: <span class="tsd-signature-type">Uint8Array</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">[</span><a href="../globals.html#versiontuple" class="tsd-signature-type">VersionTuple</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol">]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
+					<a name="resolveversion" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> resolve<wbr>Version</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">resolve<wbr>Version<span class="tsd-signature-symbol">(</span>version<span class="tsd-signature-symbol">: </span><a href="../globals.html#versiontuple" class="tsd-signature-type">VersionTuple</a>, actualVersion<span class="tsd-signature-symbol">: </span><a href="../globals.html#versiontuple" class="tsd-signature-type">VersionTuple</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../globals.html#versiontuple" class="tsd-signature-type">VersionTuple</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/versioning.ts#L101">src/versioning.ts:101</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>version: <a href="../globals.html#versiontuple" class="tsd-signature-type">VersionTuple</a></h5>
+								</li>
+								<li>
+									<h5>actualVersion: <a href="../globals.html#versiontuple" class="tsd-signature-type">VersionTuple</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../globals.html#versiontuple" class="tsd-signature-type">VersionTuple</a></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class">
+						<a href="versionedparser.html" class="tsd-kind-icon">Versioned<wbr>Parser</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+								<a href="versionedparser.html#brand_length" class="tsd-kind-icon">BRAND_<wbr>LENGTH</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+								<a href="versionedparser.html#header_length" class="tsd-kind-icon">HEADER_<wbr>LENGTH</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+								<a href="versionedparser.html#version_part_length_bytes" class="tsd-kind-icon">VERSION_<wbr>PART_<wbr>LENGTH_<wbr>BYTES</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+								<a href="versionedparser.html#encodeheader" class="tsd-kind-icon">encode<wbr>Header</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-static">
+								<a href="versionedparser.html#fromversionedbytes" class="tsd-kind-icon">from<wbr>Versioned<wbr>Bytes</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-private tsd-is-static">
+								<a href="versionedparser.html#getdeserializer" class="tsd-kind-icon">get<wbr>Deserializer</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
+								<a href="versionedparser.html#parsebrand" class="tsd-kind-icon">parse<wbr>Brand</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
+								<a href="versionedparser.html#parseheader" class="tsd-kind-icon">parse<wbr>Header</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
+								<a href="versionedparser.html#parseversion" class="tsd-kind-icon">parse<wbr>Version</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
+								<a href="versionedparser.html#resolveversion" class="tsd-kind-icon">resolve<wbr>Version</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>RemoteBob | nucypher-ts</title>
+	<title>VersionHandler | nucypher-ts</title>
 	<meta name="description" content="Documentation for nucypher-ts">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,10 +56,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="remotebob.html">RemoteBob</a>
+					<a href="versionhandler.html">VersionHandler</a>
 				</li>
 			</ul>
-			<h1>Interface RemoteBob</h1>
+			<h1>Interface VersionHandler</h1>
 		</div>
 	</div>
 </header>
@@ -70,7 +70,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">RemoteBob</span>
+						<span class="target">VersionHandler</span>
 					</li>
 				</ul>
 			</section>
@@ -81,8 +81,15 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="remotebob.html#decryptingkey" class="tsd-kind-icon">decrypting<wbr>Key</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="remotebob.html#verifyingkey" class="tsd-kind-icon">verifying<wbr>Key</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="versionhandler.html#brand" class="tsd-kind-icon">brand</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="versionhandler.html#currentversiondeserializer" class="tsd-kind-icon">current<wbr>Version<wbr>Deserializer</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="versionhandler.html#version" class="tsd-kind-icon">version</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-has-type-parameter"><a href="versionhandler.html#oldversiondeserializers" class="tsd-kind-icon">old<wbr>Version<wbr>Deserializers</a></li>
 							</ul>
 						</section>
 					</div>
@@ -91,24 +98,60 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="decryptingkey" class="tsd-anchor"></a>
-					<h3>decrypting<wbr>Key</h3>
-					<div class="tsd-signature tsd-kind-icon">decrypting<wbr>Key<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">PublicKey</span></div>
+					<a name="brand" class="tsd-anchor"></a>
+					<h3>brand</h3>
+					<div class="tsd-signature tsd-kind-icon">brand<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/characters/bob.ts#L20">src/characters/bob.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/versioning.ts#L13">src/versioning.ts:13</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="verifyingkey" class="tsd-anchor"></a>
-					<h3>verifying<wbr>Key</h3>
-					<div class="tsd-signature tsd-kind-icon">verifying<wbr>Key<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">PublicKey</span></div>
+					<a name="currentversiondeserializer" class="tsd-anchor"></a>
+					<h3>current<wbr>Version<wbr>Deserializer</h3>
+					<div class="tsd-signature tsd-kind-icon">current<wbr>Version<wbr>Deserializer<span class="tsd-signature-symbol">:</span> <a href="../globals.html#deserializer" class="tsd-signature-type">Deserializer</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/characters/bob.ts#L19">src/characters/bob.ts:19</a></li>
+							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/versioning.ts#L15">src/versioning.ts:15</a></li>
 						</ul>
 					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="version" class="tsd-anchor"></a>
+					<h3>version</h3>
+					<div class="tsd-signature tsd-kind-icon">version<span class="tsd-signature-symbol">:</span> <a href="../globals.html#versiontuple" class="tsd-signature-type">VersionTuple</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/versioning.ts#L14">src/versioning.ts:14</a></li>
+						</ul>
+					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-has-type-parameter">
+					<a name="oldversiondeserializers" class="tsd-anchor"></a>
+					<h3>old<wbr>Version<wbr>Deserializers</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">old<wbr>Version<wbr>Deserializers&lt;T&gt;<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../globals.html#versioneddeserializers" class="tsd-signature-type">VersionedDeserializers</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/versioning.ts#L16">src/versioning.ts:16</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><a href="../classes/versioned.html" class="tsd-signature-type">Versioned</a></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../globals.html#versioneddeserializers" class="tsd-signature-type">VersionedDeserializers</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
 				</section>
 			</section>
 		</div>
@@ -125,13 +168,19 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="remotebob.html" class="tsd-kind-icon">Remote<wbr>Bob</a>
+						<a href="versionhandler.html" class="tsd-kind-icon">Version<wbr>Handler</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="remotebob.html#decryptingkey" class="tsd-kind-icon">decrypting<wbr>Key</a>
+								<a href="versionhandler.html#brand" class="tsd-kind-icon">brand</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="remotebob.html#verifyingkey" class="tsd-kind-icon">verifying<wbr>Key</a>
+								<a href="versionhandler.html#currentversiondeserializer" class="tsd-kind-icon">current<wbr>Version<wbr>Deserializer</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="versionhandler.html#version" class="tsd-kind-icon">version</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-has-type-parameter">
+								<a href="versionhandler.html#oldversiondeserializers" class="tsd-kind-icon">old<wbr>Version<wbr>Deserializers</a>
 							</li>
 						</ul>
 					</li>

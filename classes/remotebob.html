@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>PublishedTreasureMap | nucypher-ts</title>
+	<title>RemoteBob | nucypher-ts</title>
 	<meta name="description" content="Documentation for nucypher-ts">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,10 +56,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="publishedtreasuremap.html">PublishedTreasureMap</a>
+					<a href="remotebob.html">RemoteBob</a>
 				</li>
 			</ul>
-			<h1>Class PublishedTreasureMap</h1>
+			<h1>Class RemoteBob</h1>
 		</div>
 	</div>
 </header>
@@ -70,7 +70,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">PublishedTreasureMap</span>
+						<span class="target">RemoteBob</span>
 					</li>
 				</ul>
 			</section>
@@ -78,51 +78,53 @@
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
-						<section class="tsd-index-section ">
+						<section class="tsd-index-section tsd-is-private tsd-is-private-protected">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="publishedtreasuremap.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-private"><a href="remotebob.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="publishedtreasuremap.html#destinations" class="tsd-kind-icon">destinations</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="publishedtreasuremap.html#messagekit" class="tsd-kind-icon">message<wbr>Kit</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="publishedtreasuremap.html#threshold" class="tsd-kind-icon">threshold</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="remotebob.html#decryptingkey" class="tsd-kind-icon">decrypting<wbr>Key</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="remotebob.html#verifyingkey" class="tsd-kind-icon">verifying<wbr>Key</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="remotebob.html#fromkeys" class="tsd-kind-icon">from<wbr>Keys</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group ">
+			<section class="tsd-panel-group tsd-member-group tsd-is-private tsd-is-private-protected">
 				<h2>Constructors</h2>
-				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-is-private">
 					<a name="constructor" class="tsd-anchor"></a>
-					<h3>constructor</h3>
-					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Published<wbr>Treasure<wbr>Map<span class="tsd-signature-symbol">(</span>messageKit<span class="tsd-signature-symbol">: </span><a href="messagekit.html" class="tsd-signature-type">MessageKit</a>, destinations<span class="tsd-signature-symbol">: </span><a href="../globals.html#kfragdestinations" class="tsd-signature-type">KFragDestinations</a>, threshold<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="publishedtreasuremap.html" class="tsd-signature-type">PublishedTreasureMap</a></li>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> constructor</h3>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Remote<wbr>Bob<span class="tsd-signature-symbol">(</span>decryptingKey<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">PublicKey</span>, verifyingKey<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="remotebob.html" class="tsd-signature-type">RemoteBob</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/policies/collections.ts#L33">src/policies/collections.ts:33</a></li>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/characters/bob.ts#L13">src/characters/bob.ts:13</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>messageKit: <a href="messagekit.html" class="tsd-signature-type">MessageKit</a></h5>
+									<h5>decryptingKey: <span class="tsd-signature-type">PublicKey</span></h5>
 								</li>
 								<li>
-									<h5>destinations: <a href="../globals.html#kfragdestinations" class="tsd-signature-type">KFragDestinations</a></h5>
-								</li>
-								<li>
-									<h5>threshold: <span class="tsd-signature-type">number</span></h5>
+									<h5>verifyingKey: <span class="tsd-signature-type">PublicKey</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="publishedtreasuremap.html" class="tsd-signature-type">PublishedTreasureMap</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="remotebob.html" class="tsd-signature-type">RemoteBob</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -130,34 +132,53 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="destinations" class="tsd-anchor"></a>
-					<h3>destinations</h3>
-					<div class="tsd-signature tsd-kind-icon">destinations<span class="tsd-signature-symbol">:</span> <a href="../globals.html#kfragdestinations" class="tsd-signature-type">KFragDestinations</a></div>
+					<a name="decryptingkey" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> decrypting<wbr>Key</h3>
+					<div class="tsd-signature tsd-kind-icon">decrypting<wbr>Key<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">PublicKey</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/policies/collections.ts#L36">src/policies/collections.ts:36</a></li>
+							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/characters/bob.ts#L15">src/characters/bob.ts:15</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="messagekit" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> message<wbr>Kit</h3>
-					<div class="tsd-signature tsd-kind-icon">message<wbr>Kit<span class="tsd-signature-symbol">:</span> <a href="messagekit.html" class="tsd-signature-type">MessageKit</a></div>
+					<a name="verifyingkey" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> verifying<wbr>Key</h3>
+					<div class="tsd-signature tsd-kind-icon">verifying<wbr>Key<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">PublicKey</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/policies/collections.ts#L35">src/policies/collections.ts:35</a></li>
+							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/characters/bob.ts#L16">src/characters/bob.ts:16</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="threshold" class="tsd-anchor"></a>
-					<h3>threshold</h3>
-					<div class="tsd-signature tsd-kind-icon">threshold<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/48d71dc/src/policies/collections.ts#L37">src/policies/collections.ts:37</a></li>
-						</ul>
-					</aside>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+					<a name="fromkeys" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> from<wbr>Keys</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">from<wbr>Keys<span class="tsd-signature-symbol">(</span>decryptingKey<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint8Array</span>, verifyingKey<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="remotebob.html" class="tsd-signature-type">RemoteBob</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4801ef5/src/characters/bob.ts#L19">src/characters/bob.ts:19</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>decryptingKey: <span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint8Array</span></h5>
+								</li>
+								<li>
+									<h5>verifyingKey: <span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint8Array</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="remotebob.html" class="tsd-signature-type">RemoteBob</a></h4>
+						</li>
+					</ul>
 				</section>
 			</section>
 		</div>
@@ -174,19 +195,19 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-class">
-						<a href="publishedtreasuremap.html" class="tsd-kind-icon">Published<wbr>Treasure<wbr>Map</a>
+						<a href="remotebob.html" class="tsd-kind-icon">Remote<wbr>Bob</a>
 						<ul>
-							<li class=" tsd-kind-constructor tsd-parent-kind-class">
-								<a href="publishedtreasuremap.html#constructor" class="tsd-kind-icon">constructor</a>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-private">
+								<a href="remotebob.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="publishedtreasuremap.html#destinations" class="tsd-kind-icon">destinations</a>
+								<a href="remotebob.html#decryptingkey" class="tsd-kind-icon">decrypting<wbr>Key</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="publishedtreasuremap.html#messagekit" class="tsd-kind-icon">message<wbr>Kit</a>
+								<a href="remotebob.html#verifyingkey" class="tsd-kind-icon">verifying<wbr>Key</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="publishedtreasuremap.html#threshold" class="tsd-kind-icon">threshold</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+								<a href="remotebob.html#fromkeys" class="tsd-kind-icon">from<wbr>Keys</a>
 							</li>
 						</ul>
 					</li>

@@ -188,10 +188,18 @@ export class Alice {
     ) as BlockchainPolicyParameters;
   }
 
-  public async revoke(policy: EnactedPolicy, onChain = true, offChain = true) {
-    if (!onChain && !offChain) {
-      throw Error('onChain or offChain must be true to issue revocation');
-    }
+  public async revoke(
+    policy: EnactedPolicy
+    // TODO: Remove after implementing off-chain revocation
+    // onChain = true,
+    // offChain = true
+  ) {
+    // TODO: Remove after implementing off-chain revocation
+    // if (!onChain && !offChain) {
+    //   throw Error('onChain or offChain must be true to issue revocation');
+    // }
+    const onChain = true;
+    const offChain = false;
 
     if (onChain) {
       const policyDisabled = await PolicyManagerAgent.policyDisabled(

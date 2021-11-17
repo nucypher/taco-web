@@ -51,7 +51,7 @@
       "node_modules/@types",
       "types"
     ],
-    "downlevelIteration": true,
+    "downlevelIteration": true
   },
   "include": [
     "src/**/*.ts"

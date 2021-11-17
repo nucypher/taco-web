@@ -1,23 +1,9 @@
-import {
-  Capsule,
-  CapsuleWithFrags,
-  encrypt,
-  PublicKey,
-  Signature,
-  Signer,
-} from 'umbral-pre';
+import { Capsule, CapsuleWithFrags, encrypt, PublicKey } from 'umbral-pre';
 
+import { CAPSULE_LENGTH } from '../crypto/constants';
 import {
-  CAPSULE_LENGTH,
-  PUBLIC_KEY_LENGTH,
-  SIGNATURE_HEADER_HEX,
-  SIGNATURE_LENGTH,
-} from '../crypto/constants';
-import {
-  bytesEqual,
   decodeVariableLengthMessage,
   encodeVariableLengthMessage,
-  fromHexString,
   split,
 } from '../utils';
 import {
@@ -32,36 +18,20 @@ import {
 import { RetrievalKit, RetrievalResult } from './retrieval';
 
 export class MessageKit implements Versioned {
-  private static readonly NO_BYTES = new Uint8Array([0]);
-  private static readonly HAS_BYTES = new Uint8Array([1]);
   private static readonly BRAND = 'MKit';
   private static readonly VERSION: VersionTuple = [1, 0];
 
   constructor(
     public readonly capsule: Capsule,
-    public readonly ciphertext: Uint8Array,
-    public readonly senderVerifyingKey?: PublicKey,
-    public readonly signature?: Signature
+    public readonly ciphertext: Uint8Array
   ) {}
 
   public static author(
     recipientKey: PublicKey,
-    plaintext: Uint8Array,
-    signer: Signer
+    message: Uint8Array
   ): MessageKit {
-    const signature = signer.sign(plaintext);
-    const payload = new Uint8Array([
-      ...fromHexString(SIGNATURE_HEADER_HEX.SIGNATURE_TO_FOLLOW),
-      ...signature.toBytes(),
-      ...plaintext,
-    ]);
-    const { ciphertext, capsule } = encrypt(recipientKey, payload);
-    return new MessageKit(
-      capsule,
-      ciphertext,
-      signer.verifyingKey(),
-      signature
-    );
+    const { ciphertext, capsule } = encrypt(recipientKey, message);
+    return new MessageKit(capsule, ciphertext);
   }
 
   public static fromBytes(bytes: Uint8Array): MessageKit {
@@ -69,33 +39,6 @@ export class MessageKit implements Versioned {
       MessageKit.getVersionHandler(),
       bytes
     );
-  }
-
-  private static parseSignature(
-    bytes: Uint8Array
-  ): [Uint8Array | undefined, Uint8Array] {
-    return this.parseBytes(bytes, SIGNATURE_LENGTH);
-  }
-
-  private static parseKey(
-    bytes: Uint8Array
-  ): [Uint8Array | undefined, Uint8Array] {
-    return this.parseBytes(bytes, PUBLIC_KEY_LENGTH);
-  }
-
-  private static parseBytes(
-    bytes: Uint8Array,
-    cutoff: number
-  ): [Uint8Array | undefined, Uint8Array] {
-    const [flag, remainder1] = split(bytes, 1);
-    if (bytesEqual(flag, MessageKit.NO_BYTES)) {
-      return [undefined, remainder1];
-    } else if (bytesEqual(flag, MessageKit.HAS_BYTES)) {
-      const [signature, newRemainder] = split(remainder1, cutoff);
-      return [signature, newRemainder];
-    } else {
-      throw Error(`Incorrect format for bytes flag: ${flag}`);
-    }
   }
 
   private get header(): Uint8Array {
@@ -109,15 +52,11 @@ export class MessageKit implements Versioned {
     const currentVersionDeserializer: Deserializer = <T extends Versioned>(
       bytes: Uint8Array
     ): T => {
-      const [capsule, remainder1] = split(bytes, CAPSULE_LENGTH);
-      const [signature, remainder2] = this.parseSignature(remainder1);
-      const [key, remainder3] = this.parseKey(remainder2);
-      const [ciphertext, _] = decodeVariableLengthMessage(remainder3);
+      const [capsule, remainder] = split(bytes, CAPSULE_LENGTH);
+      const [ciphertext, _] = decodeVariableLengthMessage(remainder);
       return new MessageKit(
         Capsule.fromBytes(capsule),
-        ciphertext,
-        key ? PublicKey.fromBytes(key) : undefined,
-        signature ? Signature.fromBytes(signature) : undefined
+        ciphertext
       ) as unknown as T;
     };
     return {
@@ -129,20 +68,9 @@ export class MessageKit implements Versioned {
   }
 
   public toBytes(): Uint8Array {
-    const signature = this.signature
-      ? new Uint8Array([...MessageKit.HAS_BYTES, ...this.signature.toBytes()])
-      : MessageKit.NO_BYTES;
-    const senderVerifyingKey = this.senderVerifyingKey
-      ? new Uint8Array([
-          ...MessageKit.HAS_BYTES,
-          ...this.senderVerifyingKey.toBytes(),
-        ])
-      : MessageKit.HAS_BYTES;
     return new Uint8Array([
       ...this.header,
       ...this.capsule.toBytes(),
-      ...signature,
-      ...senderVerifyingKey,
       ...encodeVariableLengthMessage(this.ciphertext),
     ]);
   }
@@ -180,10 +108,6 @@ export class PolicyMessageKit {
     );
   }
 
-  public get senderVerifyingKey(): PublicKey | undefined {
-    return this.messageKit.senderVerifyingKey;
-  }
-
   public get capsule(): Capsule {
     return this.messageKit.capsule;
   }
@@ -204,10 +128,6 @@ export class PolicyMessageKit {
 
   public get ciphertext(): Uint8Array {
     return this.messageKit.ciphertext;
-  }
-
-  public get signature(): Signature | undefined {
-    return this.messageKit.signature;
   }
 
   public asRetrievalKit(): RetrievalKit {

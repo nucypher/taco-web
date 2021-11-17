@@ -1,7 +1,6 @@
 import { CapsuleFrag, PublicKey, VerifiedKeyFrag } from 'umbral-pre';
 
-import { Enrico } from '../../src';
-import { MessageKit } from '../../src';
+import { Enrico, MessageKit } from '../../src';
 import { EncryptedTreasureMap } from '../../src/policies/collections';
 import { ChecksumAddress } from '../../src/types';
 import { bytesEqual, fromBytes, toBytes } from '../../src/utils';
@@ -16,7 +15,8 @@ import {
   mockRemoteBob,
   mockRetrieveCFragsRequest,
   mockStakingEscrow,
-  mockUrsulas, reencryptKFrags,
+  mockUrsulas,
+  reencryptKFrags,
 } from '../utils';
 
 describe('story: alice shares message with bob through policy', () => {
@@ -103,16 +103,14 @@ describe('story: alice shares message with bob through policy', () => {
         aliceVerifyingKey_,
         bobEncryptingKey_,
         bobVerifyingKey_,
-        policyEncryptingKey_,
       ] = retrieveCFragsSpy.mock.calls[0];
       expect(bytesEqual(aliceVerifyingKey_.toBytes(), aliceVerifyingKey.toBytes()));
       expect(bytesEqual(bobEncryptingKey_.toBytes(), bob.decryptingKey.toBytes()));
       expect(bytesEqual(bobVerifyingKey_.toBytes(), bob.verifyingKey.toBytes()));
-      expect(bytesEqual(policyEncryptingKey_.toBytes(), policyEncryptingKey.toBytes()));
 
       const { verifiedCFrags } = reencryptKFrags(verifiedKFrags, encryptedMessage.capsule);
       const cFrags = verifiedCFrags.map((verifiedCFrag) => CapsuleFrag.fromBytes(verifiedCFrag.toBytes()));
-      const areVerified = cFrags.every((cFrag) => cFrag.verify(encryptedMessage.capsule, aliceVerifyingKey_, policyEncryptingKey_, bob.decryptingKey));
+      const areVerified = cFrags.every((cFrag) => cFrag.verify(encryptedMessage.capsule, aliceVerifyingKey_, policyEncryptingKey, bob.decryptingKey));
       expect(areVerified).toBeTruthy();
     });
   });

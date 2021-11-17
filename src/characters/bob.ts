@@ -1,17 +1,12 @@
-import { PublicKey, Signature, Signer } from 'umbral-pre';
+import { PublicKey, Signer } from 'umbral-pre';
 
-import {
-  SIGNATURE_HEADER_BYTES_LENGTH,
-  SIGNATURE_HEADER_HEX,
-  SIGNATURE_LENGTH,
-} from '../crypto/constants';
 import { NucypherKeyring } from '../crypto/keyring';
 import { DecryptingPower, SigningPower } from '../crypto/powers';
 import { MessageKit, PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
 import { EncryptedTreasureMap } from '../policies/collections';
 import { Configuration } from '../types';
-import { bytesEqual, split, toHexString, zip } from '../utils';
+import { zip } from '../utils';
 
 import { Porter } from './porter';
 
@@ -73,38 +68,8 @@ export class Bob {
     return new Bob(config, signingPower, decryptingPower);
   }
 
-  public verifyFrom(
-    strangerVerifyingKey: PublicKey,
-    messageKit: MessageKit | PolicyMessageKit
-  ): Uint8Array {
-    if (messageKit.senderVerifyingKey) {
-      const verifyingKey = messageKit.senderVerifyingKey.toBytes();
-      if (!bytesEqual(strangerVerifyingKey.toBytes(), verifyingKey)) {
-        throw new Error(
-          `This message kit doesn't appear to have come from ${strangerVerifyingKey.toString()}`
-        );
-      }
-    }
-
-    const cleartextWithHeader = this.decryptingPower.decrypt(messageKit);
-    const [headerBytes, cleartext] = split(
-      cleartextWithHeader,
-      SIGNATURE_HEADER_BYTES_LENGTH
-    );
-
-    const header = toHexString(headerBytes);
-    if (header !== SIGNATURE_HEADER_HEX.SIGNATURE_TO_FOLLOW) {
-      throw Error(`Unrecognized signature header: ${header}`);
-    }
-
-    const [signatureBytes, message] = split(cleartext, SIGNATURE_LENGTH);
-    const signature = Signature.fromBytes(signatureBytes);
-    const isValid = signature.verify(strangerVerifyingKey, message);
-    if (!isValid) {
-      throw Error('Invalid signature on message kit');
-    }
-
-    return message;
+  public decrypt(messageKit: MessageKit | PolicyMessageKit): Uint8Array {
+    return this.decryptingPower.decrypt(messageKit);
   }
 
   public async retrieveAndDecrypt(
@@ -128,9 +93,7 @@ export class Bob {
       }
     });
 
-    return policyMessageKits.map((mk) =>
-      this.verifyFrom(mk.senderVerifyingKey!, mk)
-    );
+    return policyMessageKits.map((mk) => this.decryptingPower.decrypt(mk));
   }
 
   public async retrieve(
@@ -139,10 +102,9 @@ export class Bob {
     messageKits: MessageKit[],
     encryptedTreasureMap: EncryptedTreasureMap
   ): Promise<PolicyMessageKit[]> {
-    const treasureMap = encryptedTreasureMap.decrypt(
-      this,
-      publisherVerifyingKey
-    );
+    const treasureMap = encryptedTreasureMap
+      .decrypt(this)
+      .verify(this.decryptingKey, publisherVerifyingKey);
 
     const policyMessageKits = messageKits.map((mk) =>
       mk.asPolicyKit(policyEncryptingKey, treasureMap.threshold)
@@ -155,8 +117,7 @@ export class Bob {
       retrievalKits,
       publisherVerifyingKey,
       this.decryptingKey,
-      this.verifyingKey,
-      policyEncryptingKey
+      this.verifyingKey
     );
 
     return zip(policyMessageKits, retrieveCFragsResponses).map((pair) => {

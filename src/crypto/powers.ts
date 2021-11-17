@@ -13,7 +13,7 @@ import {
 import { MessageKit, PolicyMessageKit } from '../kits/message';
 import { toBytes } from '../utils';
 
-import { UMBRAL_KEYING_MATERIAL_BYTES_LENGTH } from './constants';
+import { KEYING_MATERIAL_BYTES_LENGTH } from './constants';
 
 export class TransactingPower {
   private constructor(public readonly signer: ethers.providers.JsonRpcSigner) {}
@@ -120,7 +120,7 @@ export class SigningPower extends CryptoPower {
   }
 
   public static fromRandom(): SigningPower {
-    const secretKeyBytes = secureRandom(UMBRAL_KEYING_MATERIAL_BYTES_LENGTH);
+    const secretKeyBytes = secureRandom(KEYING_MATERIAL_BYTES_LENGTH);
     return SigningPower.fromSecretKeyBytes(secretKeyBytes);
   }
 }

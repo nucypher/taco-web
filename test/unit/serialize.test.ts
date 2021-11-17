@@ -1,9 +1,31 @@
-import { MessageKit } from '../../src/kits/message';
-import { TreasureMap } from '../../src/policies/collections';
-import { decodeVariableLengthMessage, encodeVariableLengthMessage, split, toBytes, zip } from '../../src/utils';
+import { MessageKit } from '../../src';
+import { AuthorizedKeyFrag, EncryptedKeyFrag, TreasureMap } from '../../src/policies/collections';
+import {
+  decodeVariableLengthMessage,
+  encodeVariableLengthMessage,
+  fromHexString,
+  split,
+  toBytes,
+  toHexString,
+  zip,
+} from '../../src/utils';
 import { mockAlice, mockBob, mockTreasureMap } from '../utils';
+import { HRAC } from '../../src/policies/hrac';
+import { SecretKey } from 'umbral-pre';
+
+const matches = (mk1: MessageKit, mk2: MessageKit) => {
+  expect(mk1.capsule.toBytes()).toEqual(mk2.capsule.toBytes());
+  expect(mk1.ciphertext).toEqual(mk2.ciphertext);
+};
 
 describe('serialization ', () => {
+  it('encodes and decodes a hex string', () => {
+    const bytes = SecretKey.random().publicKey().toBytes();
+    const hexStr = toHexString(bytes);
+    const decodedBytes = fromHexString(hexStr);
+    expect(decodedBytes).toEqual(bytes);
+  });
+
   it('encodes and decodes a variable length message', () => {
     const msg = new Uint8Array([ 0, 1, 2, 3, 4, 5 ]);
 
@@ -18,16 +40,12 @@ describe('serialization ', () => {
     const messageKit = MessageKit.author(
       mockBob().decryptingKey,
       toBytes('fake-message'),
-      mockAlice().signer,
     );
 
     const encoded = messageKit.toBytes();
     const decoded = MessageKit.fromBytes(encoded);
 
-    expect(decoded.capsule.toBytes()).toEqual(messageKit.capsule.toBytes());
-    expect(decoded.ciphertext).toEqual(messageKit.ciphertext);
-    expect(decoded.senderVerifyingKey!.toBytes()).toEqual(messageKit.senderVerifyingKey!.toBytes());
-    expect(decoded.signature!.toBytes()).toEqual(messageKit.signature!.toBytes());
+    matches(decoded, messageKit);
   });
 
   it('splits bytes', async () => {
@@ -46,23 +64,26 @@ describe('serialization ', () => {
   });
 
   it('encodes and decodes kFrag destinations', () => {
-    const mk = MessageKit.author(
-      mockBob().decryptingKey,
-      toBytes('fake-message'),
-      mockAlice().signer,
+    const label = 'fake-label';
+    const alice = mockAlice();
+    const bob = mockBob();
+    const { verifiedKFrags } = alice.generateKFrags(bob, label, 1, 1);
+    const hrac = HRAC.derive(alice.verifyingKey.toBytes(), bob.verifyingKey.toBytes(), label);
+    const authorizedKFrag = AuthorizedKeyFrag.constructByPublisher(alice.signer, hrac, verifiedKFrags[0]);
+
+    const encryptedKFrag = EncryptedKeyFrag.author(
+      bob.decryptingKey,
+      authorizedKFrag,
     );
     const address = '0x0000000000000000000000000000000000000000';
-    const destinations = Object.fromEntries([ [ address, mk ] ]);
+    const destinations = Object.fromEntries([ [ address, encryptedKFrag ] ]);
 
-    const encoded = (TreasureMap as any).nodesToBytes(destinations);
-    const decoded = (TreasureMap as any).bytesToNodes(encoded);
-    const decodedMk = Object.values(decoded)[0] as MessageKit;
+    const encoded = TreasureMap['nodesToBytes'](destinations);
+    const decoded = TreasureMap['bytesToNodes'](encoded);
+    const decodedEncryptedKFrag = Object.values(decoded)[0];
 
     expect(Object.keys(decoded)[0]).toEqual(address);
-    expect(decodedMk.capsule.toBytes()).toEqual(mk.capsule.toBytes());
-    expect(decodedMk.ciphertext).toEqual(mk.ciphertext);
-    expect(decodedMk.signature!.toBytes()).toEqual(mk.signature!.toBytes());
-    expect(decodedMk.senderVerifyingKey!.toBytes()).toEqual(mk.senderVerifyingKey!.toBytes());
+    expect(decodedEncryptedKFrag.equals(encryptedKFrag)).toBeTruthy();
   });
 
   it('encodes and decodes a treasure map', async () => {
@@ -79,10 +100,7 @@ describe('serialization ', () => {
       expect(k1).toEqual(k2);
       const v1 = treasureMap.destinations[k1];
       const v2 = treasureMap.destinations[k2];
-      expect(v1.capsule.toBytes()).toEqual(v2.capsule.toBytes());
-      expect(v1.ciphertext).toEqual(v2.ciphertext);
-      expect(v1.senderVerifyingKey!.toBytes()).toEqual(v2.senderVerifyingKey!.toBytes());
-      expect(v1.signature!.toBytes()).toEqual(v2.signature!.toBytes());
+      expect(v1.equals(v2));
     });
   });
 });

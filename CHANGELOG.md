@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.1-alpha](https://github.com/nucypher/nucypher-ts/compare/v0.3.0-alpha...v0.3.1-alpha) (2021-11-17)
+
+
+### Features
+
+* Alice only revokes non-disabled policies ([2f1290b](https://github.com/nucypher/nucypher-ts/commit/2f1290b2a940a813deca7d0b128ee042b76288eb))
+* Alice revokes on-chain policy access ([9432c59](https://github.com/nucypher/nucypher-ts/commit/9432c598b5b6e420764e84bd09b1a8e4fc0b2d6b))
+
 ## [0.3.0-alpha](https://github.com/nucypher/nucypher-ts/compare/v0.2.0-alpha...v0.3.0-alpha) (2021-11-14)
 
 

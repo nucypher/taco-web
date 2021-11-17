@@ -13,7 +13,7 @@ export interface Ursula {
   encryptingKey: HexEncodedBytes;
 }
 
-interface RevocationRequest {
+export interface RevocationRequest {
   ursula: ChecksumAddress;
   revocationKit: Base64EncodedBytes;
 }
@@ -104,10 +104,6 @@ export class Porter {
     }));
   }
 
-  public revoke(revocations: RevocationRequest[]): RevocationResponse {
-    throw new Error('Method not implemented.');
-  }
-
   public async retrieveCFrags(
     treasureMap: TreasureMap,
     retrievalKits: RetrievalKit[],
@@ -135,5 +131,16 @@ export class Porter {
         ]);
         return Object.fromEntries(parsed);
       });
+  }
+
+  public async revokePolicy(
+    revocations: RevocationRequest[]
+  ): Promise<RevocationResponse> {
+    // TODO: Update RevocationRequest and RevocationResponse structure
+    const resp: AxiosResponse<RevocationResponse> = await axios.post(
+      `${this.porterUri}/revoke`,
+      revocations
+    );
+    return resp.data;
   }
 }

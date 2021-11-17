@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import { PublicKey, Signer, VerifiedKeyFrag } from 'umbral-pre';
 
+import { PolicyManagerAgent } from '../agents/policy-manager';
 import { StakingEscrowAgent } from '../agents/staking-escrow';
 import { NucypherKeyring } from '../crypto/keyring';
 import {
@@ -18,10 +19,11 @@ import {
   calculatePeriodDuration,
   dateAtPeriod,
   mergeWithoutUndefined,
+  toBase64,
 } from '../utils';
 
 import { RemoteBob } from './bob';
-import { Porter } from './porter';
+import { Porter, RevocationRequest } from './porter';
 
 export class Alice {
   private readonly porter: Porter;
@@ -184,5 +186,38 @@ export class Alice {
       mergeWithoutUndefined(policyParams, blockchainParams),
       policyEndTime
     ) as BlockchainPolicyParameters;
+  }
+
+  public async revoke(policy: EnactedPolicy, onChain = true, offChain = true) {
+    if (!onChain && !offChain) {
+      throw Error('onChain or offChain must be true to issue revocation');
+    }
+
+    if (onChain) {
+      await PolicyManagerAgent.revokePolicy(
+        policy.hrac.toBytes(),
+        this.transactingPower
+      );
+    }
+
+    if (offChain) {
+      const revocationRequests: RevocationRequest[] = Object.keys(
+        policy.revocationKit.revocations
+      ).map((ursula) => ({
+        ursula,
+        revocationKit: toBase64(
+          policy.revocationKit.revocations[ursula].payload
+        ),
+      }));
+      const revocationResponse = await this.porter.revokePolicy(
+        revocationRequests
+      );
+      if (revocationResponse.failedRevocations !== 0) {
+        const failureStr = revocationResponse.failures
+          .map(({ ursula, failure }) => `Ursula ${ursula}: ${failure}`)
+          .reduce((previous, current) => `${previous}, ${current}`);
+        throw Error(`Revocation failed: ${failureStr}`);
+      }
+    }
   }
 }

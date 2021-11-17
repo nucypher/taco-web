@@ -18,6 +18,7 @@ export interface EnactedPolicy {
   encryptedTreasureMap: EncryptedTreasureMap;
   revocationKit: RevocationKit;
   aliceVerifyingKey: Uint8Array;
+  ursulas: Ursula[];
 }
 
 interface ArrangementForUrsula {
@@ -37,7 +38,7 @@ export interface BlockchainPolicyParameters {
 }
 
 export class BlockchainPolicy {
-  private readonly hrac: HRAC;
+  public readonly hrac: HRAC;
 
   constructor(
     private readonly publisher: Alice,
@@ -155,6 +156,7 @@ export class BlockchainPolicy {
       revocationKit,
       aliceVerifyingKey: this.publisher.verifyingKey.toBytes(),
       hrac: this.hrac,
+      ursulas,
     };
   }
 

@@ -44,6 +44,21 @@ export class PolicyManagerAgent {
     return tx;
   }
 
+  public static async revokePolicy(
+    policyId: Uint8Array,
+    transactingPower: TransactingPower
+  ): Promise<ContractTransaction> {
+    const PolicyManager = await this.connect(transactingPower.signer);
+    const estimatedGas = await PolicyManager.estimateGas.revokePolicy(policyId);
+    const overrides = {
+      gasLimit: estimatedGas.toNumber(),
+      // gasLimit: 200_000,
+    };
+    const tx = await PolicyManager.revokePolicy(hexlify(policyId), overrides);
+    await tx.wait(DEFAULT_WAIT_N_CONFIRMATIONS);
+    return tx;
+  }
+
   private static async connect(
     signer: ethers.providers.JsonRpcSigner
   ): Promise<PolicyManager> {

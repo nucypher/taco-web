@@ -1,6 +1,6 @@
 import { CapsuleFrag, PublicKey, VerifiedKeyFrag } from 'umbral-pre';
 
-import { Enrico, MessageKit } from '../../src';
+import { EnactedPolicy, Enrico, MessageKit } from '../../src';
 import { EncryptedTreasureMap } from '../../src/policies/collections';
 import { ChecksumAddress } from '../../src/types';
 import { bytesEqual, fromBytes, toBytes } from '../../src/utils';
@@ -11,12 +11,14 @@ import {
   mockEncryptTreasureMap,
   mockGenerateKFrags,
   mockGetUrsulasOnce,
+  mockPolicyManagerRevokePolicy,
+  mockPorterRevokePolicy,
   mockPublishToBlockchain,
   mockRemoteBob,
   mockRetrieveCFragsRequest,
+  mockRetrieveCFragsRequestThrows,
   mockStakingEscrow,
-  mockUrsulas,
-  reencryptKFrags,
+  mockUrsulas, reencryptKFrags,
 } from '../utils';
 
 describe('story: alice shares message with bob through policy', () => {
@@ -35,6 +37,7 @@ describe('story: alice shares message with bob through policy', () => {
 
   // Application side-channel
   const label = 'fake-data-label';
+  let policy: EnactedPolicy;
   let encryptedMessage: MessageKit;
   let aliceVerifyingKey: PublicKey;
   let policyEncryptingKey: PublicKey;
@@ -51,7 +54,7 @@ describe('story: alice shares message with bob through policy', () => {
     const alice = mockAlice();
     const bob = mockRemoteBob();
     const policyParams = { bob, label, threshold, shares, expiration, paymentPeriods, rate };
-    const policy = await alice.grant(policyParams);
+    policy = await alice.grant(policyParams);
 
     expect(policy.aliceVerifyingKey).toEqual(alice.verifyingKey.toBytes());
     expect(policy.label).toBe(label);
@@ -66,7 +69,7 @@ describe('story: alice shares message with bob through policy', () => {
     policyEncryptingKey = policy.policyKey;
     encryptedTreasureMap = await encryptTreasureMapSpy.mock.results[0].value;
 
-    // Persist variables for mocking
+    // Persist variables for mocking and testing
     ursulaAddresses = constructTreasureMapSpy.mock.calls[0][2].map((ursula) => ursula.checksumAddress);
     verifiedKFrags = constructTreasureMapSpy.mock.calls[0][3];
   });
@@ -77,41 +80,65 @@ describe('story: alice shares message with bob through policy', () => {
     enricoVerifyingKey = enrico.verifyingKey;
   });
 
-  describe('bob', () => {
+  it('bob retrieves and decrypts the message', async () => {
     const bob = mockBob();
+    const getUrsulasSpy = mockGetUrsulasOnce(ursulas);
+    const retrieveCFragsSpy = mockRetrieveCFragsRequest(ursulaAddresses, verifiedKFrags, encryptedMessage.capsule);
 
-    it('retrieves and decrypts the message', async () => {
-      const getUrsulasSpy = mockGetUrsulasOnce(ursulas);
-      const retrieveCFragsSpy = mockRetrieveCFragsRequest(ursulaAddresses, verifiedKFrags, encryptedMessage.capsule);
+    const retrievedMessage = await bob.retrieveAndDecrypt(
+      policyEncryptingKey,
+      aliceVerifyingKey,
+      [ encryptedMessage ],
+      encryptedTreasureMap,
+    );
+    const bobPlaintext = fromBytes(retrievedMessage[0]);
 
-      const retrievedMessage = await bob.retrieveAndDecrypt(
-        policyEncryptingKey,
-        aliceVerifyingKey,
-        [ encryptedMessage ],
-        encryptedTreasureMap,
-      );
-      const bobPlaintext = fromBytes(retrievedMessage[0]);
+    expect(getUrsulasSpy).toHaveBeenCalled();
+    expect(retrieveCFragsSpy).toHaveBeenCalled();
+    expect(bobPlaintext).toEqual(message);
 
-      expect(getUrsulasSpy).toHaveBeenCalled();
-      expect(retrieveCFragsSpy).toHaveBeenCalled();
-      expect(bobPlaintext).toEqual(message);
+    // Can data received by Bob be decrypted?
+    const [
+      _treasureMap,
+      _retrievalKits,
+      aliceVerifyingKey_,
+      bobEncryptingKey_,
+      bobVerifyingKey_,
 
-      // Can data received by Bob be decrypted?
-      const [
-        _treasureMap,
-        _retrievalKits,
-        aliceVerifyingKey_,
-        bobEncryptingKey_,
-        bobVerifyingKey_,
-      ] = retrieveCFragsSpy.mock.calls[0];
-      expect(bytesEqual(aliceVerifyingKey_.toBytes(), aliceVerifyingKey.toBytes()));
-      expect(bytesEqual(bobEncryptingKey_.toBytes(), bob.decryptingKey.toBytes()));
-      expect(bytesEqual(bobVerifyingKey_.toBytes(), bob.verifyingKey.toBytes()));
+    ] = retrieveCFragsSpy.mock.calls[0];
+    expect(bytesEqual(aliceVerifyingKey_.toBytes(), aliceVerifyingKey.toBytes()));
+    expect(bytesEqual(bobEncryptingKey_.toBytes(), bob.decryptingKey.toBytes()));
+    expect(bytesEqual(bobVerifyingKey_.toBytes(), bob.verifyingKey.toBytes()));
 
-      const { verifiedCFrags } = reencryptKFrags(verifiedKFrags, encryptedMessage.capsule);
-      const cFrags = verifiedCFrags.map((verifiedCFrag) => CapsuleFrag.fromBytes(verifiedCFrag.toBytes()));
-      const areVerified = cFrags.every((cFrag) => cFrag.verify(encryptedMessage.capsule, aliceVerifyingKey_, policyEncryptingKey, bob.decryptingKey));
-      expect(areVerified).toBeTruthy();
-    });
+    const { verifiedCFrags } = reencryptKFrags(verifiedKFrags, encryptedMessage.capsule);
+    const cFrags = verifiedCFrags.map((verifiedCFrag) => CapsuleFrag.fromBytes(verifiedCFrag.toBytes()));
+    const areVerified = cFrags.every((cFrag) => cFrag.verify(encryptedMessage.capsule, aliceVerifyingKey_, policyEncryptingKey, bob.decryptingKey));
+    expect(areVerified).toBeTruthy();
+  });
+
+  it('alice revokes policy access', async () => {
+    const alice = mockAlice();
+    const porterRevokePolicySpy = mockPorterRevokePolicy();
+    const policyManagerRevokePolicySpy = mockPolicyManagerRevokePolicy();
+
+    await alice.revoke(policy, true, true);
+    expect(porterRevokePolicySpy).toHaveBeenCalled();
+    expect(policyManagerRevokePolicySpy).toHaveBeenCalled();
+  });
+
+  it('bob fails to retrieve kFrags again and decrypt the message', async () => {
+    const bob = mockBob();
+    const getUrsulasSpy = mockGetUrsulasOnce(ursulas);
+    const retrieveCFragsSpy = mockRetrieveCFragsRequestThrows();
+
+    const retrieveAndDecryptCall = async () => bob.retrieveAndDecrypt(
+      policyEncryptingKey,
+      aliceVerifyingKey,
+      [ encryptedMessage ],
+      encryptedTreasureMap,
+    );
+    expect(getUrsulasSpy).toHaveBeenCalled();
+    expect(retrieveCFragsSpy).toHaveBeenCalled();
+    await expect(retrieveAndDecryptCall).rejects.toThrow();
   });
 });

@@ -7,13 +7,14 @@ import {
 } from '../../types/ethers-contracts';
 import { TransactingPower } from '../crypto/powers';
 import { ChecksumAddress } from '../types';
+import { toHexString } from '../utils';
 
 import { CONTRACTS, DEFAULT_WAIT_N_CONFIRMATIONS } from './constants';
 
 export class PolicyManagerAgent {
   public static async createPolicy(
-    policyId: Uint8Array,
     transactingPower: TransactingPower,
+    policyId: Uint8Array,
     valueInWei: number,
     expirationTimestamp: number,
     nodeAddresses: Array<ChecksumAddress>,
@@ -44,9 +45,21 @@ export class PolicyManagerAgent {
     return tx;
   }
 
+  public static async policyDisabled(
+    transactingPower: TransactingPower,
+    policyId: Uint8Array
+  ): Promise<boolean> {
+    const PolicyManager = await this.connect(transactingPower.signer);
+    const policy = await PolicyManager.policies(policyId);
+    if (!policy) {
+      throw Error(`Policy with id ${toHexString(policyId)} does not exist.`);
+    }
+    return policy[0];
+  }
+
   public static async revokePolicy(
-    policyId: Uint8Array,
-    transactingPower: TransactingPower
+    transactingPower: TransactingPower,
+    policyId: Uint8Array
   ): Promise<ContractTransaction> {
     const PolicyManager = await this.connect(transactingPower.signer);
     const estimatedGas = await PolicyManager.estimateGas.revokePolicy(policyId);

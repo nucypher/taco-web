@@ -12,7 +12,6 @@ import { HRAC } from './hrac';
 
 export interface EnactedPolicy {
   id: HRAC;
-  hrac: HRAC;
   label: string;
   policyKey: PublicKey;
   encryptedTreasureMap: EncryptedTreasureMap;
@@ -123,8 +122,8 @@ export class BlockchainPolicy {
   ): Promise<string> {
     const addresses = arrangements.map((a) => a.ursula.checksumAddress);
     const txReceipt = await PolicyManagerAgent.createPolicy(
-      this.hrac.toBytes(),
       this.publisher.transactingPower,
+      this.hrac.toBytes(),
       this.value,
       (this.expiration.getTime() / 1000) | 0,
       addresses
@@ -155,7 +154,6 @@ export class BlockchainPolicy {
       encryptedTreasureMap,
       revocationKit,
       aliceVerifyingKey: this.publisher.verifyingKey.toBytes(),
-      hrac: this.hrac,
       ursulas,
     };
   }

@@ -129,6 +129,12 @@ export const mockPolicyManagerRevokePolicy = () => {
   });
 };
 
+export const mockPolicyManagerPolicyExists = (policyDisabled: boolean) => {
+  return jest.spyOn(PolicyManagerAgent, 'policyDisabled').mockImplementationOnce(async () => {
+    return Promise.resolve(policyDisabled);
+  });
+};
+
 export const mockPublishToBlockchain = () => {
   return jest
     .spyOn(BlockchainPolicy.prototype, 'publishToBlockchain')
@@ -172,7 +178,7 @@ export const mockRetrieveCFragsRequestThrows = () => {
   return jest
     .spyOn(Porter.prototype, 'retrieveCFrags')
     .mockRejectedValue(
-      new Error('fake-reencryption-request-failed-error')
+      new Error('fake-reencryption-request-failed-error'),
     );
 };
 

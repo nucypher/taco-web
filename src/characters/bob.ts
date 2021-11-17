@@ -88,7 +88,7 @@ export class Bob {
     policyMessageKits.forEach((mk) => {
       if (!mk.isDecryptableByReceiver()) {
         throw Error(
-          `Not enough cFrags retrieved to open capsule ${mk.capsule}`
+          `Not enough cFrags retrieved to open capsule ${mk.capsule}. Was the policy revoked?`
         );
       }
     });

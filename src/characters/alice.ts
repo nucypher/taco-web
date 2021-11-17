@@ -194,10 +194,16 @@ export class Alice {
     }
 
     if (onChain) {
-      await PolicyManagerAgent.revokePolicy(
-        policy.hrac.toBytes(),
-        this.transactingPower
+      const policyDisabled = await PolicyManagerAgent.policyDisabled(
+        this.transactingPower,
+        policy.id.toBytes()
       );
+      if (!policyDisabled) {
+        await PolicyManagerAgent.revokePolicy(
+          this.transactingPower,
+          policy.id.toBytes()
+        );
+      }
     }
 
     if (offChain) {

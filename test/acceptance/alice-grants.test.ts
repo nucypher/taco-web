@@ -10,7 +10,7 @@ import {
   mockConstructTreasureMap,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
-  mockGetUrsulasOnce,
+  mockGetUrsulasOnce, mockPolicyManagerPolicyExists,
   mockPolicyManagerRevokePolicy,
   mockPorterRevokePolicy,
   mockPublishToBlockchain,
@@ -119,10 +119,12 @@ describe('story: alice shares message with bob through policy', () => {
   it('alice revokes policy access', async () => {
     const alice = mockAlice();
     const porterRevokePolicySpy = mockPorterRevokePolicy();
+    const policyManagerPolicyExistsSpy = mockPolicyManagerPolicyExists(false);
     const policyManagerRevokePolicySpy = mockPolicyManagerRevokePolicy();
 
     await alice.revoke(policy, true, true);
     expect(porterRevokePolicySpy).toHaveBeenCalled();
+    expect(policyManagerPolicyExistsSpy).toHaveBeenCalled();
     expect(policyManagerRevokePolicySpy).toHaveBeenCalled();
   });
 

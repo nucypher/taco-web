@@ -123,7 +123,7 @@ describe('story: alice shares message with bob through policy', () => {
     const policyManagerPolicyExistsSpy = mockPolicyManagerPolicyExists(false);
     const policyManagerRevokePolicySpy = mockPolicyManagerRevokePolicy();
 
-    await alice.revoke(policy);
+    await alice.revoke(policy.id.toBytes());
     // TODO: Remove after implementing off-chain revocation
     // expect(porterRevokePolicySpy).toHaveBeenCalled();
     expect(policyManagerPolicyExistsSpy).toHaveBeenCalled();

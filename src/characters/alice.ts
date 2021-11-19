@@ -9,6 +9,7 @@ import {
   SigningPower,
   TransactingPower,
 } from '../crypto/powers';
+import { RevocationKit } from '../kits/revocation';
 import {
   BlockchainPolicy,
   BlockchainPolicyParameters,
@@ -185,40 +186,27 @@ export class Alice {
     ) as BlockchainPolicyParameters;
   }
 
-  public async revoke(
-    policy: EnactedPolicy
-    // TODO: Remove after implementing off-chain revocation
-    // onChain = true,
-    // offChain = true
-  ) {
-    // TODO: Remove after implementing off-chain revocation
-    // if (!onChain && !offChain) {
-    //   throw Error('onChain or offChain must be true to issue revocation');
-    // }
-    const onChain = true;
-    const offChain = false;
+  public async revoke(policyId?: Uint8Array, revocationKit?: RevocationKit) {
+    if (!policyId && !revocationKit) {
+      throw Error('You must provide at least one of policyId or revocationKit');
+    }
 
-    if (onChain) {
+    if (policyId) {
       const policyDisabled = await PolicyManagerAgent.policyDisabled(
         this.transactingPower.provider,
-        policy.id.toBytes()
+        policyId
       );
       if (!policyDisabled) {
-        await PolicyManagerAgent.revokePolicy(
-          this.transactingPower,
-          policy.id.toBytes()
-        );
+        await PolicyManagerAgent.revokePolicy(this.transactingPower, policyId);
       }
     }
 
-    if (offChain) {
+    if (revocationKit) {
       const revocationRequests: RevocationRequest[] = Object.keys(
-        policy.revocationKit.revocations
+        revocationKit.revocations
       ).map((ursula) => ({
         ursula,
-        revocationKit: toBase64(
-          policy.revocationKit.revocations[ursula].payload
-        ),
+        revocationKit: toBase64(revocationKit.revocations[ursula].payload),
       }));
       const revocationResponse = await this.porter.revokePolicy(
         revocationRequests

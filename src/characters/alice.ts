@@ -140,11 +140,8 @@ export class Alice {
       throw new Error(`Expiration must be in the future: ${expiration}).`);
     }
 
-    const blockNumber =
-      await this.transactingPower.signer.provider.getBlockNumber();
-    const block = await this.transactingPower.signer.provider.getBlock(
-      blockNumber
-    );
+    const blockNumber = await this.transactingPower.provider.getBlockNumber();
+    const block = await this.transactingPower.provider.getBlock(blockNumber);
     const blockTime = new Date(block.timestamp * 1000);
     if (expiration && expiration < blockTime) {
       throw new Error(
@@ -153,11 +150,11 @@ export class Alice {
     }
 
     const secondsPerPeriod = await StakingEscrowAgent.getSecondsPerPeriod(
-      this.transactingPower.signer.provider
+      this.transactingPower.provider
     );
     if (paymentPeriods) {
       const currentPeriod = await StakingEscrowAgent.getCurrentPeriod(
-        this.transactingPower.signer.provider
+        this.transactingPower.provider
       );
       const newExpiration = dateAtPeriod(
         currentPeriod + paymentPeriods,
@@ -203,7 +200,7 @@ export class Alice {
 
     if (onChain) {
       const policyDisabled = await PolicyManagerAgent.policyDisabled(
-        this.transactingPower,
+        this.transactingPower.provider,
         policy.id.toBytes()
       );
       if (!policyDisabled) {

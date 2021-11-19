@@ -1,4 +1,4 @@
-import { ContractTransaction, ethers } from 'ethers';
+import { ContractTransaction, ethers, providers } from 'ethers';
 import { hexlify } from 'ethers/lib/utils';
 
 import {
@@ -18,10 +18,12 @@ export class PolicyManagerAgent {
     valueInWei: number,
     expirationTimestamp: number,
     nodeAddresses: Array<ChecksumAddress>,
-    ownerAddress?: ChecksumAddress
+    ownerAddress: ChecksumAddress
   ): Promise<ContractTransaction> {
-    const PolicyManager = await this.connect(transactingPower.signer);
-
+    const PolicyManager = await this.connect(
+      transactingPower.provider,
+      transactingPower.signer
+    );
     // TODO: Call fails due to "UNPREDICTABLE_GAS_LIMIT" error, hard-coding `gasLimit` for now
     // const estimatedGas = await PolicyManager.estimateGas.createPolicy(
     //   policyId,
@@ -36,7 +38,7 @@ export class PolicyManagerAgent {
     };
     const tx = await PolicyManager.createPolicy(
       hexlify(policyId),
-      ownerAddress ?? (await transactingPower.signer.getAddress()),
+      ownerAddress,
       expirationTimestamp,
       nodeAddresses,
       overrides
@@ -46,10 +48,10 @@ export class PolicyManagerAgent {
   }
 
   public static async policyDisabled(
-    transactingPower: TransactingPower,
+    provider: ethers.providers.Provider,
     policyId: Uint8Array
   ): Promise<boolean> {
-    const PolicyManager = await this.connect(transactingPower.signer);
+    const PolicyManager = await this.connect(provider);
     const policy = await PolicyManager.policies(policyId);
     if (!policy) {
       throw Error(`Policy with id ${toHexString(policyId)} does not exist.`);
@@ -61,7 +63,10 @@ export class PolicyManagerAgent {
     transactingPower: TransactingPower,
     policyId: Uint8Array
   ): Promise<ContractTransaction> {
-    const PolicyManager = await this.connect(transactingPower.signer);
+    const PolicyManager = await this.connect(
+      transactingPower.provider,
+      transactingPower.signer
+    );
     const estimatedGas = await PolicyManager.estimateGas.revokePolicy(policyId);
     const overrides = {
       gasLimit: estimatedGas.toNumber(),
@@ -73,10 +78,11 @@ export class PolicyManagerAgent {
   }
 
   private static async connect(
-    signer: ethers.providers.JsonRpcSigner
+    provider: ethers.providers.Provider,
+    signer?: ethers.providers.JsonRpcSigner
   ): Promise<PolicyManager> {
-    const network = await signer.provider.getNetwork();
+    const network = await provider.getNetwork();
     const contractAddress = CONTRACTS[network.name].POLICYMANAGER;
-    return PolicyManager__factory.connect(contractAddress, signer);
+    return PolicyManager__factory.connect(contractAddress, signer ?? provider);
   }
 }

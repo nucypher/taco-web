@@ -121,12 +121,14 @@ export class BlockchainPolicy {
     arrangements: ArrangementForUrsula[]
   ): Promise<string> {
     const addresses = arrangements.map((a) => a.ursula.checksumAddress);
+    const ownerAddress = await this.publisher.transactingPower.getAddress();
     const txReceipt = await PolicyManagerAgent.createPolicy(
       this.publisher.transactingPower,
       this.hrac.toBytes(),
       this.value,
       (this.expiration.getTime() / 1000) | 0,
-      addresses
+      addresses,
+      ownerAddress
     );
     // `blockHash` is not undefined because we wait for tx to be mined
     return txReceipt.blockHash!;

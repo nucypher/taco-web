@@ -11,15 +11,28 @@ import {
 } from 'umbral-pre';
 
 import { MessageKit, PolicyMessageKit } from '../kits/message';
+import { ChecksumAddress } from '../types';
 import { toBytes } from '../utils';
 
 import { KEYING_MATERIAL_BYTES_LENGTH } from './constants';
 
 export class TransactingPower {
-  private constructor(public readonly signer: ethers.providers.JsonRpcSigner) {}
+  private constructor(private web3Provider: ethers.providers.Web3Provider) {}
 
   public static fromWeb3Provider(web3Provider: ethers.providers.Web3Provider) {
-    return new TransactingPower(web3Provider.getSigner());
+    return new TransactingPower(web3Provider);
+  }
+
+  public getAddress(): Promise<ChecksumAddress> {
+    return this.web3Provider.getSigner().getAddress();
+  }
+
+  public get provider(): ethers.providers.Web3Provider {
+    return this.web3Provider;
+  }
+
+  public get signer(): ethers.providers.JsonRpcSigner {
+    return this.web3Provider.getSigner();
   }
 }
 

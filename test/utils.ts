@@ -1,8 +1,10 @@
 import { Block } from '@ethersproject/providers';
 import axios from 'axios';
+import { ContractTransaction, ethers, Wallet } from 'ethers';
 import { Capsule, CapsuleFrag, CapsuleWithFrags, reencrypt, VerifiedCapsuleFrag, VerifiedKeyFrag } from 'umbral-pre';
 
 import { Alice, Bob, RemoteBob } from '../src';
+import { PolicyManagerAgent } from '../src/agents/policy-manager';
 import { StakingEscrowAgent } from '../src/agents/staking-escrow';
 import { GetUrsulasResponse, Porter, RetrieveCFragsResponse, Ursula } from '../src/characters/porter';
 import { TreasureMap } from '../src/policies/collections';
@@ -10,8 +12,7 @@ import { HRAC } from '../src/policies/hrac';
 import { BlockchainPolicy } from '../src/policies/policy';
 import { ChecksumAddress, Configuration } from '../src/types';
 import { toBytes, zip } from '../src/utils';
-import { ContractTransaction, ethers, Wallet } from 'ethers';
-import { PolicyManagerAgent } from '../src/agents/policy-manager';
+
 
 const mockConfig: Configuration = {
   porterUri: 'https://_this_should_crash.com/',
@@ -114,12 +115,6 @@ export const mockGetUrsulasOnce = (ursulas: Ursula[]) => {
 
   return jest.spyOn(axios, 'get').mockImplementationOnce(async () => {
     return Promise.resolve({ data: mockPorterUrsulas(ursulas) });
-  });
-};
-
-export const mockPorterRevokePolicy = () => {
-  return jest.spyOn(Porter.prototype, 'revokePolicy').mockImplementationOnce(async () => {
-    return Promise.resolve({ failedRevocations: 0, failures: [] });
   });
 };
 

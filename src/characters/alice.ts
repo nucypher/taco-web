@@ -9,7 +9,6 @@ import {
   SigningPower,
   TransactingPower,
 } from '../crypto/powers';
-import { RevocationKit } from '../kits/revocation';
 import {
   BlockchainPolicy,
   BlockchainPolicyParameters,
@@ -20,11 +19,10 @@ import {
   calculatePeriodDuration,
   dateAtPeriod,
   mergeWithoutUndefined,
-  toBase64,
 } from '../utils';
 
 import { RemoteBob } from './bob';
-import { Porter, RevocationRequest } from './porter';
+import { Porter } from './porter';
 
 export class Alice {
   private readonly porter: Porter;
@@ -192,37 +190,13 @@ export class Alice {
     ) as BlockchainPolicyParameters;
   }
 
-  public async revoke(policyId?: Uint8Array, revocationKit?: RevocationKit) {
-    if (!policyId && !revocationKit) {
-      throw Error('You must provide at least one of policyId or revocationKit');
-    }
-
-    if (policyId) {
-      const policyDisabled = await PolicyManagerAgent.policyDisabled(
-        this.transactingPower.provider,
-        policyId
-      );
-      if (!policyDisabled) {
-        await PolicyManagerAgent.revokePolicy(this.transactingPower, policyId);
-      }
-    }
-
-    if (revocationKit) {
-      const revocationRequests: RevocationRequest[] = Object.keys(
-        revocationKit.revocations
-      ).map((ursula) => ({
-        ursula,
-        revocationKit: toBase64(revocationKit.revocations[ursula].payload),
-      }));
-      const revocationResponse = await this.porter.revokePolicy(
-        revocationRequests
-      );
-      if (revocationResponse.failedRevocations !== 0) {
-        const failureStr = revocationResponse.failures
-          .map(({ ursula, failure }) => `Ursula ${ursula}: ${failure}`)
-          .reduce((previous, current) => `${previous}, ${current}`);
-        throw Error(`Revocation failed: ${failureStr}`);
-      }
+  public async revoke(policyId: Uint8Array) {
+    const policyDisabled = await PolicyManagerAgent.policyDisabled(
+      this.transactingPower.provider,
+      policyId
+    );
+    if (!policyDisabled) {
+      await PolicyManagerAgent.revokePolicy(this.transactingPower, policyId);
     }
   }
 }

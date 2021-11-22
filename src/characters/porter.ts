@@ -13,21 +13,6 @@ export interface Ursula {
   encryptingKey: HexEncodedBytes;
 }
 
-export interface RevocationRequest {
-  ursula: ChecksumAddress;
-  revocationKit: Base64EncodedBytes;
-}
-
-interface RevocationFailure {
-  ursula: ChecksumAddress;
-  failure: string;
-}
-
-interface RevocationResponse {
-  failedRevocations: number;
-  failures: RevocationFailure[];
-}
-
 interface GetUrsulasRequest {
   quantity: number;
   duration_periods: number;
@@ -131,16 +116,5 @@ export class Porter {
         ]);
         return Object.fromEntries(parsed);
       });
-  }
-
-  public async revokePolicy(
-    revocations: RevocationRequest[]
-  ): Promise<RevocationResponse> {
-    // TODO: Update RevocationRequest and RevocationResponse structure
-    const resp: AxiosResponse<RevocationResponse> = await axios.post(
-      `${this.porterUri}/revoke`,
-      revocations
-    );
-    return resp.data;
   }
 }

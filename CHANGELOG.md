@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.4.0-alpha](https://github.com/nucypher/nucypher-ts/compare/v0.3.1-alpha...v0.4.0-alpha) (2021-11-22)
+
+
+### Bug Fixes
+
+* Gas limit too low when creating policies ([b2842de](https://github.com/nucypher/nucypher-ts/commit/b2842de15ec8df97c03ad5035557bee37c616eaf))
+
 ### [0.3.1-alpha](https://github.com/nucypher/nucypher-ts/compare/v0.3.0-alpha...v0.3.1-alpha) (2021-11-17)
 
 

@@ -34,7 +34,7 @@ export class PolicyManagerAgent {
     const overrides = {
       // gasLimit: estimatedGas.toNumber(),
       gasLimit: 350_000,
-      value: valueInWei,
+      value: BigInt(valueInWei),
     };
     const tx = await PolicyManager.createPolicy(
       hexlify(policyId),

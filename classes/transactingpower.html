@@ -84,15 +84,23 @@
 								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-private"><a href="transactingpower.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
-						<section class="tsd-index-section ">
+						<section class="tsd-index-section tsd-is-private tsd-is-private-protected">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="transactingpower.html#signer" class="tsd-kind-icon">signer</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="transactingpower.html#web3provider" class="tsd-kind-icon">web3<wbr>Provider</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Accessors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="transactingpower.html#provider" class="tsd-kind-icon">provider</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="transactingpower.html#signer" class="tsd-kind-icon">signer</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="transactingpower.html#getaddress" class="tsd-kind-icon">get<wbr>Address</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="transactingpower.html#fromweb3provider" class="tsd-kind-icon">from<wbr>Web3<wbr>Provider</a></li>
 							</ul>
 						</section>
@@ -105,19 +113,19 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Transacting<wbr>Power<span class="tsd-signature-symbol">(</span>signer<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">JsonRpcSigner</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="transactingpower.html" class="tsd-signature-type">TransactingPower</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Transacting<wbr>Power<span class="tsd-signature-symbol">(</span>web3Provider<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Web3Provider</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="transactingpower.html" class="tsd-signature-type">TransactingPower</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/43f5122/src/crypto/powers.ts#L18">src/crypto/powers.ts:18</a></li>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/3fb597c/src/crypto/powers.ts#L19">src/crypto/powers.ts:19</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>signer: <span class="tsd-signature-type">JsonRpcSigner</span></h5>
+									<h5>web3Provider: <span class="tsd-signature-type">Web3Provider</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="transactingpower.html" class="tsd-signature-type">TransactingPower</a></h4>
@@ -125,21 +133,75 @@
 					</ul>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group ">
+			<section class="tsd-panel-group tsd-member-group tsd-is-private tsd-is-private-protected">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="signer" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> signer</h3>
-					<div class="tsd-signature tsd-kind-icon">signer<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">JsonRpcSigner</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="web3provider" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> web3<wbr>Provider</h3>
+					<div class="tsd-signature tsd-kind-icon">web3<wbr>Provider<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Web3Provider</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/43f5122/src/crypto/powers.ts#L19">src/crypto/powers.ts:19</a></li>
+							<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/3fb597c/src/crypto/powers.ts#L20">src/crypto/powers.ts:20</a></li>
 						</ul>
 					</aside>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Accessors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="provider" class="tsd-anchor"></a>
+					<h3>provider</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> provider<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Web3Provider</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/3fb597c/src/crypto/powers.ts#L30">src/crypto/powers.ts:30</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Web3Provider</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="signer" class="tsd-anchor"></a>
+					<h3>signer</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> signer<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">JsonRpcSigner</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/3fb597c/src/crypto/powers.ts#L34">src/crypto/powers.ts:34</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">JsonRpcSigner</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getaddress" class="tsd-anchor"></a>
+					<h3>get<wbr>Address</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Address<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#checksumaddress" class="tsd-signature-type">ChecksumAddress</a><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/3fb597c/src/crypto/powers.ts#L26">src/crypto/powers.ts:26</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#checksumaddress" class="tsd-signature-type">ChecksumAddress</a><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
 					<a name="fromweb3provider" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> from<wbr>Web3<wbr>Provider</h3>
@@ -150,7 +212,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/43f5122/src/crypto/powers.ts#L21">src/crypto/powers.ts:21</a></li>
+									<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/3fb597c/src/crypto/powers.ts#L22">src/crypto/powers.ts:22</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -183,8 +245,17 @@
 							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-private">
 								<a href="transactingpower.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="transactingpower.html#web3provider" class="tsd-kind-icon">web3<wbr>Provider</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="transactingpower.html#provider" class="tsd-kind-icon">provider</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
 								<a href="transactingpower.html#signer" class="tsd-kind-icon">signer</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="transactingpower.html#getaddress" class="tsd-kind-icon">get<wbr>Address</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
 								<a href="transactingpower.html#fromweb3provider" class="tsd-kind-icon">from<wbr>Web3<wbr>Provider</a>

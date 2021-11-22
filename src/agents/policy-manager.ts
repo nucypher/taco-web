@@ -1,4 +1,4 @@
-import { ContractTransaction, ethers, providers } from 'ethers';
+import { ContractTransaction, ethers } from 'ethers';
 import { hexlify } from 'ethers/lib/utils';
 
 import {
@@ -27,13 +27,13 @@ export class PolicyManagerAgent {
     // TODO: Call fails due to "UNPREDICTABLE_GAS_LIMIT" error, hard-coding `gasLimit` for now
     // const estimatedGas = await PolicyManager.estimateGas.createPolicy(
     //   policyId,
-    //   ownerAddress ?? transactingPower.account,
+    //   ownerAddress,
     //   expirationTimestamp,
     //   nodeAddresses
     // );
     const overrides = {
       // gasLimit: estimatedGas.toNumber(),
-      gasLimit: 200_000,
+      gasLimit: 350_000,
       value: valueInWei,
     };
     const tx = await PolicyManager.createPolicy(
@@ -70,7 +70,6 @@ export class PolicyManagerAgent {
     const estimatedGas = await PolicyManager.estimateGas.revokePolicy(policyId);
     const overrides = {
       gasLimit: estimatedGas.toNumber(),
-      // gasLimit: 200_000,
     };
     const tx = await PolicyManager.revokePolicy(hexlify(policyId), overrides);
     await tx.wait(DEFAULT_WAIT_N_CONFIRMATIONS);

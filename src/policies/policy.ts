@@ -57,64 +57,52 @@ export class BlockchainPolicy {
     );
   }
 
-  public static generatePolicyParameters(
+  public static calculateValue(
     shares: number,
     paymentPeriods: number,
     value?: number,
     rate?: number
-  ): { rate: number; value: number } {
+  ): number {
     // Check for negative inputs
     const inputs = { shares, paymentPeriods, value, rate };
-    for (const [input_name, input_value] of Object.entries(inputs)) {
-      if (input_value && input_value < 0) {
+    for (const [inputName, inputValue] of Object.entries(inputs)) {
+      if (inputValue && inputValue < 0) {
         throw Error(
-          `Negative policy parameters are not allowed: ${input_name} is ${input_value}`
+          `Negative policy parameters are not allowed: ${inputName} is ${inputValue}`
         );
       }
     }
 
-    // Check for policy params
+    // Check for invalid policy parameters
     const hasNoValue = value === undefined || value === 0;
     const hasNoRate = rate === undefined || rate === 0;
     if (hasNoValue && hasNoRate) {
-      // Support a min fee rate of 0
       throw Error(
         `Either 'value' or 'rate'  must be provided for policy. Got value: ${value} and rate: ${rate}`
       );
     }
 
     if (value === undefined) {
-      const recalculatedValue = rate! * paymentPeriods * shares;
-      // TODO: Can we return here or do we need to also run check below?
-      return { rate: rate!, value: recalculatedValue };
+      value = rate! * paymentPeriods * shares;
     }
 
     const valuePerNode = Math.floor(value / shares);
-    if (valuePerNode * shares != value) {
+    if (valuePerNode * shares !== value) {
       throw Error(
-        `Policy value of (${value} wei) cannot be divided by N (${shares}) without a remainder.`
+        `Policy value of ${value} wei cannot be divided into ${shares} shares without a remainder.`
       );
     }
 
-    const recalculatedRate = Math.floor(valuePerNode / paymentPeriods);
-    if (recalculatedRate * paymentPeriods !== valuePerNode) {
+    const ratePerPeriod = Math.floor(valuePerNode / paymentPeriods);
+    const recalculatedValue = ratePerPeriod * paymentPeriods * shares;
+    if (recalculatedValue !== value) {
       throw Error(
-        `Policy value of (${valuePerNode} wei) per node cannot be divided by duration ` +
-          `(${paymentPeriods} periods) without a remainder.`
+        `Policy value of ${valuePerNode} wei per node cannot be divided by duration ` +
+          `${paymentPeriods} periods without a remainder.`
       );
     }
 
-    // TODO: This check feels redundant
-    const ratePerPeriod = Math.floor(value / shares / paymentPeriods);
-    const recalculatedValue = paymentPeriods * ratePerPeriod * shares;
-    if (recalculatedValue != value) {
-      throw new Error(
-        `Invalid policy value calculation - ${value} cannot be divided into ${shares} ` +
-          `staker payments per period for ${paymentPeriods} periods without a remainder`
-      );
-    }
-
-    return { rate: rate!, value: value! };
+    return value!;
   }
 
   public async publishToBlockchain(

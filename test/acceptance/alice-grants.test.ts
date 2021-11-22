@@ -10,22 +10,23 @@ import {
   mockConstructTreasureMap,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
-  mockGetUrsulasOnce, mockPolicyManagerPolicyExists,
+  mockGetUrsulasOnce,
+  mockPolicyManagerPolicyExists,
   mockPolicyManagerRevokePolicy,
-  mockPorterRevokePolicy,
   mockPublishToBlockchain,
   mockRemoteBob,
   mockRetrieveCFragsRequest,
   mockRetrieveCFragsRequestThrows,
   mockStakingEscrow,
-  mockUrsulas, reencryptKFrags,
+  mockUrsulas,
+  reencryptKFrags,
 } from '../utils';
 
 describe('story: alice shares message with bob through policy', () => {
   const message = 'secret-message-from-alice';
   const threshold = 2;
   const shares = 3;
-  const paymentPeriods = 7;
+  const paymentPeriods = 3;
   const expiration = new Date(Date.now() + 60 * 1000);
   const rate = 1;
   const ursulas = mockUrsulas().slice(0, shares);
@@ -53,7 +54,7 @@ describe('story: alice shares message with bob through policy', () => {
 
     const alice = mockAlice();
     const bob = mockRemoteBob();
-    const policyParams = { bob, label, threshold, shares, expiration, paymentPeriods, rate };
+    const policyParams = { bob, label, threshold, shares, expiration, paymentPeriods, rate};
     policy = await alice.grant(policyParams);
 
     expect(policy.aliceVerifyingKey).toEqual(alice.verifyingKey.toBytes());

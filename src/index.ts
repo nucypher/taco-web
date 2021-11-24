@@ -1,8 +1,7 @@
-export const sum = (a: number, b: number) => {
-  if ('development' === process.env.NODE_ENV) {
-    console.log('boop');
-  }
-  return a + b;
-};
+export { Alice } from './characters/alice';
+export { Bob, RemoteBob } from './characters/bob';
+export { Enrico } from './characters/enrico';
+export { BlockchainPolicyParameters, EnactedPolicy } from './policies/policy';
+export { MessageKit } from './kits/message';
 
-export * from './umbral';
+export { PublicKey } from 'umbral-pre';

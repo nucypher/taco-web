@@ -1,20 +1,14 @@
 # nucypher-ts
 
-Boilerplate for `js-nucypher` replacement.
+Communicate with NuCypher network from browser.
 
-**This is a work in progress**
+Compatible with [commit](https://github.com/nucypher/nucypher/commit/957250c6d8c8a80c08dbd5211188b297b7db1441).
 
-Additional information about the project setup are in `README.old.md`.
+**This is a work in progress. Do not use in a production.**
 
 ## Usage
 
-Checkout git submodules
-
-```bash
-git submodule update --init --recursive
-```
-
-Continue with:
+Run with:
 
 ```bash
 yarn install
@@ -22,18 +16,14 @@ yarn test
 yarn build
 ```
 
-## Running the example
-
-Build `nucypher-ts`:
+Install git hooks
 
 ```bash
-yarn build
+npx husky install
 ```
 
-Run the example:
+## Examples
 
-```
-yarn install
-yarn start
-# outputs a URL to visit in browser
-```
+See `./test` directory for usage examples.
+
+See [`nucypher-ts-demo`](https://github.com/nucypher/nucypher-ts-demo) for usage example with React app.

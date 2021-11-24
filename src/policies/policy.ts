@@ -1,4 +1,3 @@
-import secureRandom from 'secure-random';
 import { PublicKey, VerifiedKeyFrag } from 'umbral-pre';
 
 import { PolicyManagerAgent } from '../agents/policy-manager';
@@ -6,6 +5,7 @@ import { Alice } from '../characters/alice';
 import { RemoteBob } from '../characters/bob';
 import { Ursula } from '../characters/porter';
 import { RevocationKit } from '../kits/revocation';
+import { ChecksumAddress } from '../types';
 
 import { EncryptedTreasureMap, TreasureMap } from './collections';
 import { HRAC } from './hrac';
@@ -18,11 +18,6 @@ export interface EnactedPolicy {
   revocationKit: RevocationKit;
   aliceVerifyingKey: Uint8Array;
   ursulas: Ursula[];
-}
-
-interface ArrangementForUrsula {
-  ursula: Ursula;
-  arrangement: Arrangement;
 }
 
 export interface BlockchainPolicyParameters {
@@ -105,26 +100,21 @@ export class BlockchainPolicy {
     return value!;
   }
 
-  public async publishToBlockchain(
-    arrangements: ArrangementForUrsula[]
-  ): Promise<string> {
-    const addresses = arrangements.map((a) => a.ursula.checksumAddress);
+  public async publish(ursulas: ChecksumAddress[]): Promise<void> {
     const ownerAddress = await this.publisher.transactingPower.getAddress();
-    const txReceipt = await PolicyManagerAgent.createPolicy(
+    await PolicyManagerAgent.createPolicy(
       this.publisher.transactingPower,
       this.hrac.toBytes(),
       this.value,
       (this.expiration.getTime() / 1000) | 0,
-      addresses,
+      ursulas,
       ownerAddress
     );
-    // `blockHash` is not undefined because we wait for tx to be mined
-    return txReceipt.blockHash!;
   }
 
   public async enact(ursulas: Ursula[]): Promise<EnactedPolicy> {
-    const arrangements = await this.makeArrangements(ursulas);
-    await this.enactArrangements(arrangements);
+    const ursulaAddresses = ursulas.map((u) => u.checksumAddress);
+    await this.publish(ursulaAddresses);
 
     const treasureMap = await TreasureMap.constructByPublisher(
       this.hrac,
@@ -150,46 +140,5 @@ export class BlockchainPolicy {
 
   private encryptTreasureMap(treasureMap: TreasureMap): EncryptedTreasureMap {
     return treasureMap.encrypt(this.publisher, this.bob.decryptingKey);
-  }
-
-  private async makeArrangements(
-    ursulas: Ursula[]
-  ): Promise<ArrangementForUrsula[]> {
-    return ursulas.map((ursula) => {
-      const arrangement = Arrangement.fromPublisher(
-        this.publisher,
-        this.expiration
-      );
-      return { arrangement, ursula };
-    });
-  }
-
-  private async enactArrangements(
-    arrangements: ArrangementForUrsula[]
-  ): Promise<string> {
-    return this.publishToBlockchain(arrangements);
-  }
-}
-
-// TODO: Investigate Arrangement being only used to pass around arrangementId
-export class Arrangement {
-  private static readonly ID_LENGTH = 32;
-  private readonly aliceVerifyingKey: PublicKey;
-  private readonly expiration: Date;
-  public readonly arrangementId: Uint8Array;
-
-  constructor(
-    aliceVerifyingKey: PublicKey,
-    arrangementId: Uint8Array,
-    expiration: Date
-  ) {
-    this.aliceVerifyingKey = aliceVerifyingKey;
-    this.arrangementId = arrangementId;
-    this.expiration = expiration;
-  }
-
-  public static fromPublisher(publisher: Alice, expiration: Date): Arrangement {
-    const arrangementId = Uint8Array.from(secureRandom(this.ID_LENGTH));
-    return new Arrangement(publisher.verifyingKey, arrangementId, expiration);
   }
 }

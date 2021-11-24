@@ -132,10 +132,8 @@ export const mockPolicyManagerPolicyExists = (policyDisabled: boolean) => {
 
 export const mockPublishToBlockchain = () => {
   return jest
-    .spyOn(BlockchainPolicy.prototype, 'publishToBlockchain')
-    .mockImplementation(async () => {
-      return '0x';
-    });
+    .spyOn(BlockchainPolicy.prototype, 'publish')
+    .mockImplementation(async () => {});
 };
 
 export const mockCFragResponse = (

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.2](https://github.com/nucypher/nucypher-ts/compare/v0.4.0-alpha...v0.4.2) (2021-11-25)
+
+
+### Bug Fixes
+
+* Transaction value integer overflow ([a397859](https://github.com/nucypher/nucypher-ts/commit/a3978597cede067beadcb556bc754b4fcf8c685f))
+
 ### [0.4.1-alpha](https://github.com/nucypher/nucypher-ts/compare/v0.4.0-alpha...v0.4.1-alpha) (2021-11-22)
 
 

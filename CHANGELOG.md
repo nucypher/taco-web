@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.3](https://github.com/nucypher/nucypher-ts/compare/v0.4.2...v0.4.3) (2021-11-27)
+
+
+### Features
+
+* Set default fee rate for policyfrom global min fee ([466fca2](https://github.com/nucypher/nucypher-ts/commit/466fca24aab0d74e607721a6ad837939141b095f))
+
 ### [0.4.2](https://github.com/nucypher/nucypher-ts/compare/v0.4.0-alpha...v0.4.2) (2021-11-25)
 
 

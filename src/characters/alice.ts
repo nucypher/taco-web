@@ -172,6 +172,13 @@ export class Alice {
       rawParams.paymentPeriods =
         calculatePeriodDuration(rawParams.expiration!, secondsPerPeriod) + 1;
     }
+
+    if (!rawParams.rate && !rawParams.value) {
+      rawParams.rate = await PolicyManagerAgent.getGlobalMinRate(
+        this.transactingPower.provider
+      );
+    }
+
     rawParams.value = BlockchainPolicy.calculateValue(
       rawParams.shares,
       rawParams.paymentPeriods!,
@@ -191,7 +198,7 @@ export class Alice {
   }
 
   public async revoke(policyId: Uint8Array) {
-    const policyDisabled = await PolicyManagerAgent.policyDisabled(
+    const policyDisabled = await PolicyManagerAgent.isPolicyDisabled(
       this.transactingPower.provider,
       policyId
     );

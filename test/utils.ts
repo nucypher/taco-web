@@ -1,18 +1,29 @@
 import { Block } from '@ethersproject/providers';
 import axios from 'axios';
 import { ContractTransaction, ethers, Wallet } from 'ethers';
-import { Capsule, CapsuleFrag, CapsuleWithFrags, reencrypt, VerifiedCapsuleFrag, VerifiedKeyFrag } from 'umbral-pre';
+import {
+  Capsule,
+  CapsuleFrag,
+  CapsuleWithFrags,
+  reencrypt,
+  VerifiedCapsuleFrag,
+  VerifiedKeyFrag,
+} from 'umbral-pre';
 
 import { Alice, Bob, RemoteBob } from '../src';
 import { PolicyManagerAgent } from '../src/agents/policy-manager';
 import { StakingEscrowAgent } from '../src/agents/staking-escrow';
-import { GetUrsulasResponse, Porter, RetrieveCFragsResponse, Ursula } from '../src/characters/porter';
+import {
+  GetUrsulasResponse,
+  Porter,
+  RetrieveCFragsResponse,
+  Ursula,
+} from '../src/characters/porter';
 import { TreasureMap } from '../src/policies/collections';
 import { HRAC } from '../src/policies/hrac';
 import { BlockchainPolicy } from '../src/policies/policy';
 import { ChecksumAddress, Configuration } from '../src/types';
 import { toBytes, zip } from '../src/utils';
-
 
 const mockConfig: Configuration = {
   porterUri: 'https://_this_should_crash.com/',
@@ -31,13 +42,17 @@ export const mockRemoteBob = (): RemoteBob => {
 export const mockAlice = () => {
   const aliceKey = toBytes('fake-secret-key-32-bytes-alice-x');
   const provider = mockWeb3Provider(aliceKey);
-  return Alice.fromSecretKeyBytes(mockConfig, aliceKey, provider as ethers.providers.Web3Provider);
+  return Alice.fromSecretKeyBytes(
+    mockConfig,
+    aliceKey,
+    provider as ethers.providers.Web3Provider
+  );
 };
 
 export const mockWeb3Provider = (
   secretKeyBytes: Uint8Array,
   blockNumber?: number,
-  blockTimestamp?: number,
+  blockTimestamp?: number
 ): Partial<ethers.providers.Web3Provider> => {
   const block = { timestamp: blockTimestamp ?? 1000 };
   const provider = {
@@ -52,7 +67,8 @@ export const mockWeb3Provider = (
   };
   return {
     ...provider,
-    getSigner: () => fakeSignerWithProvider as unknown as ethers.providers.JsonRpcSigner,
+    getSigner: () =>
+      fakeSignerWithProvider as unknown as ethers.providers.JsonRpcSigner,
   };
 };
 
@@ -98,9 +114,7 @@ export const mockUrsulas = (): Ursula[] => {
 };
 
 export const mockGetUrsulasOnce = (ursulas: Ursula[]) => {
-  const mockPorterUrsulas = (
-    mockUrsulas: Ursula[],
-  ): GetUrsulasResponse => {
+  const mockPorterUrsulas = (mockUrsulas: Ursula[]): GetUrsulasResponse => {
     return {
       result: {
         ursulas: mockUrsulas.map((u) => ({
@@ -119,15 +133,27 @@ export const mockGetUrsulasOnce = (ursulas: Ursula[]) => {
 };
 
 export const mockPolicyManagerRevokePolicy = () => {
-  return jest.spyOn(PolicyManagerAgent, 'revokePolicy').mockImplementationOnce(async () => {
-    return Promise.resolve(undefined as unknown as ContractTransaction);
-  });
+  return jest
+    .spyOn(PolicyManagerAgent, 'revokePolicy')
+    .mockImplementationOnce(async () => {
+      return Promise.resolve(undefined as unknown as ContractTransaction);
+    });
 };
 
 export const mockPolicyManagerPolicyExists = (policyDisabled: boolean) => {
-  return jest.spyOn(PolicyManagerAgent, 'policyDisabled').mockImplementationOnce(async () => {
-    return Promise.resolve(policyDisabled);
-  });
+  return jest
+    .spyOn(PolicyManagerAgent, 'isPolicyDisabled')
+    .mockImplementationOnce(async () => {
+      return Promise.resolve(policyDisabled);
+    });
+};
+
+export const mockGetGlobalMinRate = () => {
+  return jest
+    .spyOn(PolicyManagerAgent, 'getGlobalMinRate')
+    .mockImplementationOnce(async () => {
+      return Promise.resolve(50000000000);
+    });
 };
 
 export const mockPublishToBlockchain = () => {
@@ -139,11 +165,11 @@ export const mockPublishToBlockchain = () => {
 export const mockCFragResponse = (
   ursulas: ChecksumAddress[],
   verifiedKFrags: VerifiedKeyFrag[],
-  capsule: Capsule,
+  capsule: Capsule
 ): RetrieveCFragsResponse[] => {
   if (ursulas.length !== verifiedKFrags.length) {
     throw new Error(
-      'Number of verifiedKFrags must match the number of Ursulas',
+      'Number of verifiedKFrags must match the number of Ursulas'
     );
   }
   const reencrypted = verifiedKFrags
@@ -151,13 +177,13 @@ export const mockCFragResponse = (
     .map((cFrag) => CapsuleFrag.fromBytes(cFrag.toBytes()));
   const result = Object.fromEntries(zip(ursulas, reencrypted));
   // We return one result per capsule, so just one result
-  return [ result ];
+  return [result];
 };
 
 export const mockRetrieveCFragsRequest = (
   ursulas: ChecksumAddress[],
   verifiedKFrags: VerifiedKeyFrag[],
-  capsule: Capsule,
+  capsule: Capsule
 ) => {
   const results = mockCFragResponse(ursulas, verifiedKFrags, capsule);
   return jest
@@ -170,11 +196,8 @@ export const mockRetrieveCFragsRequest = (
 export const mockRetrieveCFragsRequestThrows = () => {
   return jest
     .spyOn(Porter.prototype, 'retrieveCFrags')
-    .mockRejectedValue(
-      new Error('fake-reencryption-request-failed-error'),
-    );
+    .mockRejectedValue(new Error('fake-reencryption-request-failed-error'));
 };
-
 
 export const mockGenerateKFrags = () => {
   return jest.spyOn(Alice.prototype as any, 'generateKFrags');
@@ -186,8 +209,11 @@ export const mockEncryptTreasureMap = () => {
 
 export const reencryptKFrags = (
   kFrags: VerifiedKeyFrag[],
-  capsule: Capsule,
-): { capsuleWithFrags: CapsuleWithFrags, verifiedCFrags: VerifiedCapsuleFrag[] } => {
+  capsule: Capsule
+): {
+  capsuleWithFrags: CapsuleWithFrags;
+  verifiedCFrags: VerifiedCapsuleFrag[];
+} => {
   if (!kFrags) {
     throw new Error('Pass at least one kFrag.');
   }
@@ -204,9 +230,10 @@ export const reencryptKFrags = (
 
 export const mockStakingEscrow = (
   currentPeriod = 100,
-  secondsPerPeriod = 60,
+  secondsPerPeriod = 60
 ) => {
-  const getCurrentPeriodSpy = jest.spyOn(StakingEscrowAgent, 'getCurrentPeriod')
+  const getCurrentPeriodSpy = jest
+    .spyOn(StakingEscrowAgent, 'getCurrentPeriod')
     .mockImplementation(async () => Promise.resolve(currentPeriod));
   const getSecondsPerPeriodSpy = jest
     .spyOn(StakingEscrowAgent, 'getSecondsPerPeriod')
@@ -224,12 +251,12 @@ export const mockTreasureMap = async () => {
     bob,
     label,
     threshold,
-    shares,
+    shares
   );
   const hrac = HRAC.derive(
     alice.verifyingKey.toBytes(),
     bob.verifyingKey.toBytes(),
-    label,
+    label
   );
   const ursulas = mockUrsulas().slice(0, shares);
   return TreasureMap.constructByPublisher(
@@ -238,7 +265,7 @@ export const mockTreasureMap = async () => {
     ursulas,
     verifiedKFrags,
     threshold,
-    delegatingKey,
+    delegatingKey
   );
 };
 

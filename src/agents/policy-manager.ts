@@ -47,7 +47,7 @@ export class PolicyManagerAgent {
     return tx;
   }
 
-  public static async policyDisabled(
+  public static async isPolicyDisabled(
     provider: ethers.providers.Provider,
     policyId: Uint8Array
   ): Promise<boolean> {
@@ -56,7 +56,15 @@ export class PolicyManagerAgent {
     if (!policy) {
       throw Error(`Policy with id ${toHexString(policyId)} does not exist.`);
     }
-    return policy[0];
+    return policy.disabled;
+  }
+
+  public static async getGlobalMinRate(
+    provider: ethers.providers.Provider
+  ): Promise<number> {
+    const PolicyManager = await this.connect(provider);
+    const feeRateRange = await PolicyManager.feeRateRange();
+    return feeRateRange.min.toNumber();
   }
 
   public static async revokePolicy(

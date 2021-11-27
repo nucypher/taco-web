@@ -27,7 +27,6 @@ import {
   fromHexString,
   split,
   toBytes,
-  toHexString,
   zip,
 } from '../utils';
 import {

@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.2](https://github.com/nucypher/nucypher-ts/compare/v0.4.0-alpha...v0.4.2) (2021-11-25)
+
+
+### Bug Fixes
+
+* Transaction value integer overflow ([a397859](https://github.com/nucypher/nucypher-ts/commit/a3978597cede067beadcb556bc754b4fcf8c685f))
+
+### [0.4.1-alpha](https://github.com/nucypher/nucypher-ts/compare/v0.4.0-alpha...v0.4.1-alpha) (2021-11-22)
+
+
+### Bug Fixes
+
+* Transaction value integer overflow ([a397859](https://github.com/nucypher/nucypher-ts/commit/a3978597cede067beadcb556bc754b4fcf8c685f))
+
+## [0.4.0-alpha](https://github.com/nucypher/nucypher-ts/compare/v0.3.1-alpha...v0.4.0-alpha) (2021-11-22)
+
+
+### Bug Fixes
+
+* Gas limit too low when creating policies ([b2842de](https://github.com/nucypher/nucypher-ts/commit/b2842de15ec8df97c03ad5035557bee37c616eaf))
+
+### [0.3.1-alpha](https://github.com/nucypher/nucypher-ts/compare/v0.3.0-alpha...v0.3.1-alpha) (2021-11-17)
+
+
+### Features
+
+* Alice only revokes non-disabled policies ([2f1290b](https://github.com/nucypher/nucypher-ts/commit/2f1290b2a940a813deca7d0b128ee042b76288eb))
+* Alice revokes on-chain policy access ([9432c59](https://github.com/nucypher/nucypher-ts/commit/9432c598b5b6e420764e84bd09b1a8e4fc0b2d6b))
+
 ## [0.3.0-alpha](https://github.com/nucypher/nucypher-ts/compare/v0.2.0-alpha...v0.3.0-alpha) (2021-11-14)
 
 

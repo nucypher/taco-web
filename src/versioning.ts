@@ -13,6 +13,7 @@ export interface VersionHandler {
   brand: string;
   version: VersionTuple;
   currentVersionDeserializer: Deserializer;
+
   oldVersionDeserializers<T extends Versioned>(): VersionedDeserializers<T>;
 }
 

@@ -1,4 +1,3 @@
-import secureRandom from 'secure-random';
 import { PublicKey, VerifiedKeyFrag } from 'umbral-pre';
 
 import { PolicyManagerAgent } from '../agents/policy-manager';
@@ -6,23 +5,19 @@ import { Alice } from '../characters/alice';
 import { RemoteBob } from '../characters/bob';
 import { Ursula } from '../characters/porter';
 import { RevocationKit } from '../kits/revocation';
+import { ChecksumAddress } from '../types';
 
 import { EncryptedTreasureMap, TreasureMap } from './collections';
 import { HRAC } from './hrac';
 
 export interface EnactedPolicy {
   id: HRAC;
-  hrac: HRAC;
   label: string;
   policyKey: PublicKey;
   encryptedTreasureMap: EncryptedTreasureMap;
   revocationKit: RevocationKit;
   aliceVerifyingKey: Uint8Array;
-}
-
-interface ArrangementForUrsula {
-  ursula: Ursula;
-  arrangement: Arrangement;
+  ursulas: Ursula[];
 }
 
 export interface BlockchainPolicyParameters {
@@ -37,7 +32,7 @@ export interface BlockchainPolicyParameters {
 }
 
 export class BlockchainPolicy {
-  private readonly hrac: HRAC;
+  public readonly hrac: HRAC;
 
   constructor(
     private readonly publisher: Alice,
@@ -57,84 +52,69 @@ export class BlockchainPolicy {
     );
   }
 
-  public static generatePolicyParameters(
+  public static calculateValue(
     shares: number,
     paymentPeriods: number,
     value?: number,
     rate?: number
-  ): { rate: number; value: number } {
+  ): number {
     // Check for negative inputs
     const inputs = { shares, paymentPeriods, value, rate };
-    for (const [input_name, input_value] of Object.entries(inputs)) {
-      if (input_value && input_value < 0) {
+    for (const [inputName, inputValue] of Object.entries(inputs)) {
+      if (inputValue && inputValue < 0) {
         throw Error(
-          `Negative policy parameters are not allowed: ${input_name} is ${input_value}`
+          `Negative policy parameters are not allowed: ${inputName} is ${inputValue}`
         );
       }
     }
 
-    // Check for policy params
+    // Check for invalid policy parameters
     const hasNoValue = value === undefined || value === 0;
     const hasNoRate = rate === undefined || rate === 0;
     if (hasNoValue && hasNoRate) {
-      // Support a min fee rate of 0
       throw Error(
         `Either 'value' or 'rate'  must be provided for policy. Got value: ${value} and rate: ${rate}`
       );
     }
 
     if (value === undefined) {
-      const recalculatedValue = rate! * paymentPeriods * shares;
-      // TODO: Can we return here or do we need to also run check below?
-      return { rate: rate!, value: recalculatedValue };
+      value = rate! * paymentPeriods * shares;
     }
 
     const valuePerNode = Math.floor(value / shares);
-    if (valuePerNode * shares != value) {
+    if (valuePerNode * shares !== value) {
       throw Error(
-        `Policy value of (${value} wei) cannot be divided by N (${shares}) without a remainder.`
+        `Policy value of ${value} wei cannot be divided into ${shares} shares without a remainder.`
       );
     }
 
-    const recalculatedRate = Math.floor(valuePerNode / paymentPeriods);
-    if (recalculatedRate * paymentPeriods !== valuePerNode) {
+    const ratePerPeriod = Math.floor(valuePerNode / paymentPeriods);
+    const recalculatedValue = ratePerPeriod * paymentPeriods * shares;
+    if (recalculatedValue !== value) {
       throw Error(
-        `Policy value of (${valuePerNode} wei) per node cannot be divided by duration ` +
-          `(${paymentPeriods} periods) without a remainder.`
+        `Policy value of ${valuePerNode} wei per node cannot be divided by duration ` +
+          `${paymentPeriods} periods without a remainder.`
       );
     }
 
-    // TODO: This check feels redundant
-    const ratePerPeriod = Math.floor(value / shares / paymentPeriods);
-    const recalculatedValue = paymentPeriods * ratePerPeriod * shares;
-    if (recalculatedValue != value) {
-      throw new Error(
-        `Invalid policy value calculation - ${value} cannot be divided into ${shares} ` +
-          `staker payments per period for ${paymentPeriods} periods without a remainder`
-      );
-    }
-
-    return { rate: rate!, value: value! };
+    return value!;
   }
 
-  public async publishToBlockchain(
-    arrangements: ArrangementForUrsula[]
-  ): Promise<string> {
-    const addresses = arrangements.map((a) => a.ursula.checksumAddress);
-    const txReceipt = await PolicyManagerAgent.createPolicy(
-      this.hrac.toBytes(),
+  public async publish(ursulas: ChecksumAddress[]): Promise<void> {
+    const ownerAddress = await this.publisher.transactingPower.getAddress();
+    await PolicyManagerAgent.createPolicy(
       this.publisher.transactingPower,
+      this.hrac.toBytes(),
       this.value,
       (this.expiration.getTime() / 1000) | 0,
-      addresses
+      ursulas,
+      ownerAddress
     );
-    // `blockHash` is not undefined because we wait for tx to be mined
-    return txReceipt.blockHash!;
   }
 
   public async enact(ursulas: Ursula[]): Promise<EnactedPolicy> {
-    const arrangements = await this.makeArrangements(ursulas);
-    await this.enactArrangements(arrangements);
+    const ursulaAddresses = ursulas.map((u) => u.checksumAddress);
+    await this.publish(ursulaAddresses);
 
     const treasureMap = await TreasureMap.constructByPublisher(
       this.hrac,
@@ -154,52 +134,11 @@ export class BlockchainPolicy {
       encryptedTreasureMap,
       revocationKit,
       aliceVerifyingKey: this.publisher.verifyingKey.toBytes(),
-      hrac: this.hrac,
+      ursulas,
     };
   }
 
   private encryptTreasureMap(treasureMap: TreasureMap): EncryptedTreasureMap {
     return treasureMap.encrypt(this.publisher, this.bob.decryptingKey);
-  }
-
-  private async makeArrangements(
-    ursulas: Ursula[]
-  ): Promise<ArrangementForUrsula[]> {
-    return ursulas.map((ursula) => {
-      const arrangement = Arrangement.fromPublisher(
-        this.publisher,
-        this.expiration
-      );
-      return { arrangement, ursula };
-    });
-  }
-
-  private async enactArrangements(
-    arrangements: ArrangementForUrsula[]
-  ): Promise<string> {
-    return this.publishToBlockchain(arrangements);
-  }
-}
-
-// TODO: Investigate Arrangement being only used to pass around arrangementId
-export class Arrangement {
-  private static readonly ID_LENGTH = 32;
-  private readonly aliceVerifyingKey: PublicKey;
-  private readonly expiration: Date;
-  public readonly arrangementId: Uint8Array;
-
-  constructor(
-    aliceVerifyingKey: PublicKey,
-    arrangementId: Uint8Array,
-    expiration: Date
-  ) {
-    this.aliceVerifyingKey = aliceVerifyingKey;
-    this.arrangementId = arrangementId;
-    this.expiration = expiration;
-  }
-
-  public static fromPublisher(publisher: Alice, expiration: Date): Arrangement {
-    const arrangementId = Uint8Array.from(secureRandom(this.ID_LENGTH));
-    return new Arrangement(publisher.verifyingKey, arrangementId, expiration);
   }
 }

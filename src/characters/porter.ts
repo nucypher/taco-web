@@ -13,21 +13,6 @@ export interface Ursula {
   encryptingKey: HexEncodedBytes;
 }
 
-interface RevocationRequest {
-  ursula: ChecksumAddress;
-  revocationKit: Base64EncodedBytes;
-}
-
-interface RevocationFailure {
-  ursula: ChecksumAddress;
-  failure: string;
-}
-
-interface RevocationResponse {
-  failedRevocations: number;
-  failures: RevocationFailure[];
-}
-
 interface GetUrsulasRequest {
   quantity: number;
   duration_periods: number;
@@ -102,10 +87,6 @@ export class Porter {
       uri: u.uri,
       encryptingKey: u.encrypting_key,
     }));
-  }
-
-  public revoke(revocations: RevocationRequest[]): RevocationResponse {
-    throw new Error('Method not implemented.');
   }
 
   public async retrieveCFrags(

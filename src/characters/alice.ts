@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import { PublicKey, Signer, VerifiedKeyFrag } from 'umbral-pre';
 
+import { PolicyManagerAgent } from '../agents/policy-manager';
 import { StakingEscrowAgent } from '../agents/staking-escrow';
 import { NucypherKeyring } from '../crypto/keyring';
 import {
@@ -99,17 +100,15 @@ export class Alice {
   }
 
   private async createPolicy(
-    policyParameters: BlockchainPolicyParameters
+    rawParameters: BlockchainPolicyParameters
   ): Promise<BlockchainPolicy> {
-    const { label, threshold, shares, bob } = policyParameters;
+    const { bob, label, threshold, shares, expiration, value } =
+      await this.generatePolicyParameters(rawParameters);
     const { delegatingKey, verifiedKFrags } = this.generateKFrags(
-      policyParameters.bob,
+      bob,
       label,
       threshold,
       shares
-    );
-    const { expiration, value } = await this.generatePolicyParameters(
-      policyParameters
     );
     return new BlockchainPolicy(
       this,
@@ -125,64 +124,79 @@ export class Alice {
   }
 
   private async generatePolicyParameters(
-    policyParams: BlockchainPolicyParameters
+    rawParams: BlockchainPolicyParameters
   ): Promise<BlockchainPolicyParameters> {
-    const { shares, paymentPeriods, expiration, value, rate } = policyParams;
-    if (!paymentPeriods && !expiration) {
+    // Validate raw parameters
+    if (!rawParams.paymentPeriods && !rawParams.expiration) {
       throw new Error(
-        "Policy end time must be specified as 'expiration' or 'paymentPeriods', got neither"
+        "Policy end time must be specified as 'expiration' or 'paymentPeriods', got neither."
       );
     }
 
-    if (expiration && expiration < new Date(Date.now())) {
-      throw new Error(`Expiration must be in the future: ${expiration}).`);
+    if (rawParams.threshold > rawParams.shares) {
+      throw new Error('Threshold may not be greater than number of shares.');
     }
 
-    const blockNumber =
-      await this.transactingPower.signer.provider.getBlockNumber();
-    const block = await this.transactingPower.signer.provider.getBlock(
-      blockNumber
-    );
+    if (rawParams.expiration && rawParams.expiration < new Date(Date.now())) {
+      throw new Error(
+        `Expiration must be in the future: ${rawParams.expiration}).`
+      );
+    }
+
+    const blockNumber = await this.transactingPower.provider.getBlockNumber();
+    const block = await this.transactingPower.provider.getBlock(blockNumber);
     const blockTime = new Date(block.timestamp * 1000);
-    if (expiration && expiration < blockTime) {
+    if (rawParams.expiration && rawParams.expiration < blockTime) {
       throw new Error(
-        `Expiration must be in the future (${expiration} is earlier than block time ${blockTime}).`
+        `Expiration must be in the future (${rawParams.expiration} is earlier than block time ${blockTime}).`
       );
     }
 
+    // Generate new parameters when needed
     const secondsPerPeriod = await StakingEscrowAgent.getSecondsPerPeriod(
-      this.transactingPower.signer.provider
+      this.transactingPower.provider
     );
-    if (paymentPeriods) {
+    if (rawParams.paymentPeriods) {
       const currentPeriod = await StakingEscrowAgent.getCurrentPeriod(
-        this.transactingPower.signer.provider
+        this.transactingPower.provider
       );
       const newExpiration = dateAtPeriod(
-        currentPeriod + paymentPeriods,
+        currentPeriod + rawParams.paymentPeriods,
         secondsPerPeriod,
         true
       );
       //  Get the last second of the target period
-      policyParams.expiration = new Date(newExpiration.getTime() - 1000);
+      rawParams.expiration = new Date(newExpiration.getTime() - 1000);
     } else {
       // +1 will equal to number of all included periods
-      policyParams.paymentPeriods =
-        calculatePeriodDuration(expiration!, secondsPerPeriod) + 1;
+      rawParams.paymentPeriods =
+        calculatePeriodDuration(rawParams.expiration!, secondsPerPeriod) + 1;
     }
-
-    const blockchainParams = BlockchainPolicy.generatePolicyParameters(
-      shares,
-      paymentPeriods!,
-      value,
-      rate
+    rawParams.value = BlockchainPolicy.calculateValue(
+      rawParams.shares,
+      rawParams.paymentPeriods!,
+      rawParams.value,
+      rawParams.rate
     );
 
     // These values may have been recalculated in this block time.
-    const policyEndTime = { paymentPeriods, expiration };
-    // TODO: Can we do that more elegantly?
+    const policyEndTime = {
+      paymentPeriods: rawParams.paymentPeriods,
+      expiration: rawParams.expiration,
+    };
     return mergeWithoutUndefined(
-      mergeWithoutUndefined(policyParams, blockchainParams),
+      rawParams,
       policyEndTime
     ) as BlockchainPolicyParameters;
+  }
+
+  public async revoke(policyId: Uint8Array) {
+    const policyDisabled = await PolicyManagerAgent.policyDisabled(
+      this.transactingPower.provider,
+      policyId
+    );
+    if (!policyDisabled) {
+      await PolicyManagerAgent.revokePolicy(this.transactingPower, policyId);
+    }
   }
 }

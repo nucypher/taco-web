@@ -1,8 +1,10 @@
 import { Block } from '@ethersproject/providers';
 import axios from 'axios';
+import { ContractTransaction, ethers, Wallet } from 'ethers';
 import { Capsule, CapsuleFrag, CapsuleWithFrags, reencrypt, VerifiedCapsuleFrag, VerifiedKeyFrag } from 'umbral-pre';
 
 import { Alice, Bob, RemoteBob } from '../src';
+import { PolicyManagerAgent } from '../src/agents/policy-manager';
 import { StakingEscrowAgent } from '../src/agents/staking-escrow';
 import { GetUrsulasResponse, Porter, RetrieveCFragsResponse, Ursula } from '../src/characters/porter';
 import { TreasureMap } from '../src/policies/collections';
@@ -10,7 +12,7 @@ import { HRAC } from '../src/policies/hrac';
 import { BlockchainPolicy } from '../src/policies/policy';
 import { ChecksumAddress, Configuration } from '../src/types';
 import { toBytes, zip } from '../src/utils';
-import { ethers, Wallet } from 'ethers';
+
 
 const mockConfig: Configuration = {
   porterUri: 'https://_this_should_crash.com/',
@@ -95,33 +97,43 @@ export const mockUrsulas = (): Ursula[] => {
   });
 };
 
-export const mockPorterUrsulas = (
-  mockUrsulas: Ursula[],
-): GetUrsulasResponse => {
-  return {
-    result: {
-      ursulas: mockUrsulas.map((u) => ({
-        encrypting_key: u.encryptingKey,
-        uri: u.uri,
-        checksum_address: u.checksumAddress,
-      })),
-    },
-    version: '5.2.0',
-  };
-};
-
 export const mockGetUrsulasOnce = (ursulas: Ursula[]) => {
+  const mockPorterUrsulas = (
+    mockUrsulas: Ursula[],
+  ): GetUrsulasResponse => {
+    return {
+      result: {
+        ursulas: mockUrsulas.map((u) => ({
+          encrypting_key: u.encryptingKey,
+          uri: u.uri,
+          checksum_address: u.checksumAddress,
+        })),
+      },
+      version: '5.2.0',
+    };
+  };
+
   return jest.spyOn(axios, 'get').mockImplementationOnce(async () => {
     return Promise.resolve({ data: mockPorterUrsulas(ursulas) });
   });
 };
 
+export const mockPolicyManagerRevokePolicy = () => {
+  return jest.spyOn(PolicyManagerAgent, 'revokePolicy').mockImplementationOnce(async () => {
+    return Promise.resolve(undefined as unknown as ContractTransaction);
+  });
+};
+
+export const mockPolicyManagerPolicyExists = (policyDisabled: boolean) => {
+  return jest.spyOn(PolicyManagerAgent, 'policyDisabled').mockImplementationOnce(async () => {
+    return Promise.resolve(policyDisabled);
+  });
+};
+
 export const mockPublishToBlockchain = () => {
   return jest
-    .spyOn(BlockchainPolicy.prototype, 'publishToBlockchain')
-    .mockImplementation(async () => {
-      return '0x';
-    });
+    .spyOn(BlockchainPolicy.prototype, 'publish')
+    .mockImplementation(async () => {});
 };
 
 export const mockCFragResponse = (
@@ -155,6 +167,15 @@ export const mockRetrieveCFragsRequest = (
     });
 };
 
+export const mockRetrieveCFragsRequestThrows = () => {
+  return jest
+    .spyOn(Porter.prototype, 'retrieveCFrags')
+    .mockRejectedValue(
+      new Error('fake-reencryption-request-failed-error'),
+    );
+};
+
+
 export const mockGenerateKFrags = () => {
   return jest.spyOn(Alice.prototype as any, 'generateKFrags');
 };
@@ -185,12 +206,12 @@ export const mockStakingEscrow = (
   currentPeriod = 100,
   secondsPerPeriod = 60,
 ) => {
-  jest
-    .spyOn(StakingEscrowAgent, 'getCurrentPeriod')
+  const getCurrentPeriodSpy = jest.spyOn(StakingEscrowAgent, 'getCurrentPeriod')
     .mockImplementation(async () => Promise.resolve(currentPeriod));
-  jest
+  const getSecondsPerPeriodSpy = jest
     .spyOn(StakingEscrowAgent, 'getSecondsPerPeriod')
     .mockImplementation(async () => Promise.resolve(secondsPerPeriod));
+  return { getCurrentPeriodSpy, getSecondsPerPeriodSpy };
 };
 
 export const mockTreasureMap = async () => {

@@ -10,12 +10,23 @@ import { zip } from '../utils';
 
 import { Porter } from './porter';
 
+/**
+ * RemoteBob
+ *
+ * Represents a remote Bob that other characters may interact with.
+ */
 export class RemoteBob {
   private constructor(
     public readonly decryptingKey: PublicKey,
     public readonly verifyingKey: PublicKey
   ) {}
 
+  /**
+   * Construct `RemoteBob` from `Bob`'s public parameters.
+   *
+   * @param decryptingKey
+   * @param verifyingKey
+   */
   public static fromKeys(
     decryptingKey: PublicKey | Uint8Array,
     verifyingKey: PublicKey | Uint8Array
@@ -32,6 +43,9 @@ export class RemoteBob {
   }
 }
 
+/**
+ * Bob - "The Data Recipient"
+ */
 export class Bob {
   private readonly porter: Porter;
 
@@ -72,6 +86,14 @@ export class Bob {
     return this.decryptingPower.decrypt(messageKit);
   }
 
+  /**
+   * Retrieve and decrypt encrypted messages using treasure map.
+   *
+   * @param policyEncryptingKey Policy's encrypting key
+   * @param publisherVerifyingKey Alice's verifying key
+   * @param messageKits Encrypted messages
+   * @param encryptedTreasureMap Encrypted treasure map
+   */
   public async retrieveAndDecrypt(
     policyEncryptingKey: PublicKey,
     publisherVerifyingKey: PublicKey,
@@ -96,7 +118,7 @@ export class Bob {
     return policyMessageKits.map((mk) => this.decryptingPower.decrypt(mk));
   }
 
-  public async retrieve(
+  private async retrieve(
     policyEncryptingKey: PublicKey,
     publisherVerifyingKey: PublicKey,
     messageKits: MessageKit[],

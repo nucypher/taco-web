@@ -24,6 +24,9 @@ import {
 import { RemoteBob } from './bob';
 import { Porter } from './porter';
 
+/**
+ * Alice - "The Data Owner"
+ */
 export class Alice {
   private readonly porter: Porter;
   public readonly transactingPower: TransactingPower;
@@ -66,11 +69,20 @@ export class Alice {
     return this.delegatingPower.getPublicKeyFromLabel(label);
   }
 
+  /**
+   * Creates and enacts a new policy according to `policyParameters`.
+   *
+   * Returns policy id.
+   *
+   * @param policyParameters Blockchain policy parameters to be used
+   * @param includeUrsulas A list of Ursula's checksum addresses to be included
+   * @param excludeUrsulas A list of Ursula's checksum addresses to be excluded
+   */
   public async grant(
     policyParameters: BlockchainPolicyParameters,
     includeUrsulas?: ChecksumAddress[],
     excludeUrsulas?: ChecksumAddress[]
-  ): Promise<EnactedPolicy> {
+  ): Promise<Uint8Array> {
     const ursulas = await this.porter.getUrsulas(
       policyParameters.shares,
       policyParameters.paymentPeriods,
@@ -78,10 +90,11 @@ export class Alice {
       includeUrsulas
     );
     const policy = await this.createPolicy(policyParameters);
-    return await policy.enact(ursulas);
+    const enactedPolicy = await policy.enact(ursulas);
+    return enactedPolicy.id.toBytes();
   }
 
-  public generateKFrags(
+  private generateKFrags(
     bob: RemoteBob,
     label: string,
     threshold: number,

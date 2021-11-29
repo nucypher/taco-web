@@ -46,7 +46,7 @@ describe('enrico', () => {
 
     const threshold = 2;
     const shares = 3;
-    const { verifiedKFrags, delegatingKey } = alice.generateKFrags(
+    const { verifiedKFrags, delegatingKey } = alice['generateKFrags'](
       bob,
       label,
       threshold,

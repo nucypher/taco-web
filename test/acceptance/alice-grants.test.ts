@@ -1,13 +1,15 @@
 import { CapsuleFrag, PublicKey, VerifiedKeyFrag } from 'umbral-pre';
 
-import { EnactedPolicy, Enrico, MessageKit } from '../../src';
+import { Enrico, MessageKit } from '../../src';
 import { EncryptedTreasureMap } from '../../src/policies/collections';
+import { EnactedPolicy } from '../../src/policies/policy';
 import { ChecksumAddress } from '../../src/types';
 import { bytesEqual, fromBytes, toBytes } from '../../src/utils';
 import {
   mockAlice,
   mockBob,
   mockConstructTreasureMap,
+  mockEnact,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
   mockGetUrsulasOnce,
@@ -18,8 +20,7 @@ import {
   mockRetrieveCFragsRequest,
   mockRetrieveCFragsRequestThrows,
   mockStakingEscrow,
-  mockUrsulas,
-  reencryptKFrags,
+  mockUrsulas, reencryptKFrags,
 } from '../utils';
 
 describe('story: alice shares message with bob through policy', () => {
@@ -35,19 +36,20 @@ describe('story: alice shares message with bob through policy', () => {
   let encryptedTreasureMap: EncryptedTreasureMap;
   let verifiedKFrags: VerifiedKeyFrag[];
   let ursulaAddresses: ChecksumAddress[];
+  let policy: EnactedPolicy;
 
   // Application side-channel
   const label = 'fake-data-label';
-  let policy: EnactedPolicy;
+  let policyId: Uint8Array;
   let encryptedMessage: MessageKit;
   let aliceVerifyingKey: PublicKey;
   let policyEncryptingKey: PublicKey;
-  let enricoVerifyingKey: PublicKey;
 
   it('alice grants a new policy to bob', async () => {
     mockStakingEscrow();
     const getUrsulasSpy = mockGetUrsulasOnce(ursulas);
     const generateKFragsSpy = mockGenerateKFrags();
+    const enactSpy = mockEnact();
     const publishToBlockchainSpy = mockPublishToBlockchain();
     const constructTreasureMapSpy = mockConstructTreasureMap();
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
@@ -55,15 +57,18 @@ describe('story: alice shares message with bob through policy', () => {
     const alice = mockAlice();
     const bob = mockRemoteBob();
     const policyParams = { bob, label, threshold, shares, expiration, paymentPeriods, rate};
-    policy = await alice.grant(policyParams);
+    policyId = await alice.grant(policyParams);
 
-    expect(policy.aliceVerifyingKey).toEqual(alice.verifyingKey.toBytes());
-    expect(policy.label).toBe(label);
     expect(getUrsulasSpy).toHaveBeenCalled();
     expect(generateKFragsSpy).toHaveBeenCalled();
+    expect(enactSpy).toHaveBeenCalled();
     expect(publishToBlockchainSpy).toHaveBeenCalled();
     expect(encryptTreasureMapSpy).toHaveBeenCalled();
     expect(constructTreasureMapSpy).toHaveBeenCalled();
+
+    policy = await enactSpy.mock.results[0].value;
+    expect(policy.aliceVerifyingKey).toEqual(alice.verifyingKey.toBytes());
+    expect(policy.label).toBe(label);
 
     // Persist side-channel
     aliceVerifyingKey = alice.verifyingKey;
@@ -78,7 +83,6 @@ describe('story: alice shares message with bob through policy', () => {
   it('enrico encrypts the message', () => {
     const enrico = new Enrico(policyEncryptingKey);
     encryptedMessage = enrico.encryptMessage(toBytes(message));
-    enricoVerifyingKey = enrico.verifyingKey;
   });
 
   it('bob retrieves and decrypts the message', async () => {

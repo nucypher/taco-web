@@ -21,13 +21,21 @@ export interface EnactedPolicy {
 }
 
 export interface BlockchainPolicyParameters {
+  /** `RemoteBob` which represents the receiver of the encrypted messages **/
   bob: RemoteBob;
+  /** Policy label **/
   label: string;
+  /** Policy threshold. "N" in the "N" of "N". **/
   threshold: number;
+  /** Policy shares. "M" in the "N" of "N". **/
   shares: number;
+  /** Policy expiration date. If left blank, will be calculated from `paymentPeriods` **/
   expiration?: Date;
-  paymentPeriods: number;
+  /** Number of payment periods that the policy will be valid for. **/
+  paymentPeriods: number; // TODO: Make it optional and calculate from expiration if needed.
+  /** Policy value. Used to compensate Ursulas. If left blank, will be calculated from `rate`. **/
   value?: number;
+  /** Fee rate to compensate Ursulas. If left blank, the global minimal rate will be fetched from staking contract instead. **/
   rate?: number;
 }
 

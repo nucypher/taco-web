@@ -67,7 +67,7 @@ describe('serialization ', () => {
     const label = 'fake-label';
     const alice = mockAlice();
     const bob = mockBob();
-    const { verifiedKFrags } = alice.generateKFrags(bob, label, 1, 1);
+    const { verifiedKFrags } = alice['generateKFrags'](bob, label, 1, 1);
     const hrac = HRAC.derive(alice.verifyingKey.toBytes(), bob.verifyingKey.toBytes(), label);
     const authorizedKFrag = AuthorizedKeyFrag.constructByPublisher(alice.signer, hrac, verifiedKFrags[0]);
 

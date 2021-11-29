@@ -199,6 +199,10 @@ export const mockRetrieveCFragsRequestThrows = () => {
     .mockRejectedValue(new Error('fake-reencryption-request-failed-error'));
 };
 
+export const mockEnact = () => {
+  return jest.spyOn(BlockchainPolicy.prototype, 'enact');
+};
+
 export const mockGenerateKFrags = () => {
   return jest.spyOn(Alice.prototype as any, 'generateKFrags');
 };

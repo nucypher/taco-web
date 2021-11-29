@@ -44,17 +44,13 @@ export const split = (
   return [bytes.slice(0, size), bytes.slice(size, bytes.length)];
 };
 
-export const periodToEpoch = (
-  period: number,
-  secondsPerPeriod: number
-): number => period * secondsPerPeriod * 1000;
+const periodToEpoch = (period: number, secondsPerPeriod: number): number =>
+  period * secondsPerPeriod * 1000;
 
-export const epochToPeriod = (
-  epoch: number,
-  secondsPerPeriod: number
-): number => Math.floor(epoch / secondsPerPeriod);
+const epochToPeriod = (epoch: number, secondsPerPeriod: number): number =>
+  Math.floor(epoch / secondsPerPeriod);
 
-export const dateToPeriod = (date: Date, secondsPerPeriod: number): number =>
+const dateToPeriod = (date: Date, secondsPerPeriod: number): number =>
   epochToPeriod(date.getTime() * 1000, secondsPerPeriod);
 
 /**

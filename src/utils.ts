@@ -18,6 +18,11 @@ export const toBase64 = (bytes: Uint8Array): string =>
 export const fromBase64 = (str: string): Uint8Array =>
   Buffer.from(str, 'base64');
 
+export const toUtf8 = (bytes: Uint8Array): string =>
+  Buffer.from(bytes).toString('utf-8');
+
+export const fromUtf8 = (str: string): Uint8Array => Buffer.from(str, 'utf-8');
+
 export const toNumber = (bytes: Uint8Array, littleEndian = true): number => {
   const view = new DataView(bytes.buffer, 0);
   switch (bytes.length) {

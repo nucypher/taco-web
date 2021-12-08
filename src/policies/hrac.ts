@@ -21,7 +21,7 @@ export class HRAC {
       new Uint8Array([
         ...publisherVerifyingKey,
         ...bobVerifyingKey,
-        ...fromUtf8(label),
+        ...toBytes(label),
       ])
     ).slice(0, HRAC.BYTE_LENGTH);
     return new HRAC(hrac);

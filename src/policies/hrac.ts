@@ -1,5 +1,5 @@
 import { keccakDigest } from '../crypto/api';
-import { fromUtf8 } from '../utils';
+import { toBytes } from '../utils';
 
 export class HRAC {
   public static readonly BYTE_LENGTH: number = 16;

@@ -1,5 +1,5 @@
 import { keccakDigest } from '../crypto/api';
-import { fromHexString } from '../utils';
+import { toBytes } from '../utils';
 
 export class HRAC {
   public static readonly BYTE_LENGTH: number = 16;
@@ -21,7 +21,7 @@ export class HRAC {
       new Uint8Array([
         ...publisherVerifyingKey,
         ...bobVerifyingKey,
-        ...fromHexString(label),
+        ...toBytes(label),
       ])
     ).slice(0, HRAC.BYTE_LENGTH);
     return new HRAC(hrac);

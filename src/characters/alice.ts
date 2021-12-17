@@ -81,6 +81,21 @@ export class Alice {
     return await policy.enact(ursulas);
   }
 
+  public async generatePolicy(
+    policyParameters: BlockchainPolicyParameters,
+    includeUrsulas?: ChecksumAddress[],
+    excludeUrsulas?: ChecksumAddress[]
+  ): Promise<EnactedPolicy> {
+    const ursulas = await this.porter.getUrsulas(
+      policyParameters.shares,
+      policyParameters.paymentPeriods,
+      excludeUrsulas,
+      includeUrsulas
+    );
+    const policy = await this.createPolicy(policyParameters);
+    return await policy.generateEnactedPolicy(ursulas);
+  }
+
   public generateKFrags(
     bob: RemoteBob,
     label: string,

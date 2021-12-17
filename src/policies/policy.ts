@@ -18,6 +18,8 @@ export interface EnactedPolicy {
   revocationKit: RevocationKit;
   aliceVerifyingKey: Uint8Array;
   ursulas: Ursula[];
+  expirationTimestamp: number;
+  valueInWei: number;
 }
 
 export interface BlockchainPolicyParameters {
@@ -115,7 +117,12 @@ export class BlockchainPolicy {
   public async enact(ursulas: Ursula[]): Promise<EnactedPolicy> {
     const ursulaAddresses = ursulas.map((u) => u.checksumAddress);
     await this.publish(ursulaAddresses);
+    return await this.generateEnactedPolicy(ursulas);
+  }
 
+  public async generateEnactedPolicy(
+    ursulas: Ursula[]
+  ): Promise<EnactedPolicy> {
     const treasureMap = await TreasureMap.constructByPublisher(
       this.hrac,
       this.publisher,
@@ -135,6 +142,8 @@ export class BlockchainPolicy {
       revocationKit,
       aliceVerifyingKey: this.publisher.verifyingKey.toBytes(),
       ursulas,
+      expirationTimestamp: (this.expiration.getTime() / 1000) | 0,
+      valueInWei: this.value,
     };
   }
 

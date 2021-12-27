@@ -225,6 +225,7 @@ export const reencryptKFrags = (
       : capsule.withCFrag(cFrag);
     return cFrag;
   });
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   return { capsuleWithFrags: capsuleWithFrags!, verifiedCFrags };
 };
 
@@ -247,6 +248,7 @@ export const mockTreasureMap = async () => {
   const label = 'fake-label';
   const threshold = 2;
   const shares = 3;
+  const expiration = new Date();
   const { verifiedKFrags, delegatingKey } = await (alice as any).generateKFrags(
     bob,
     label,
@@ -265,7 +267,8 @@ export const mockTreasureMap = async () => {
     ursulas,
     verifiedKFrags,
     threshold,
-    delegatingKey
+    delegatingKey,
+    expiration
   );
 };
 

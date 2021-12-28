@@ -13,6 +13,7 @@ import {
   BlockchainPolicy,
   BlockchainPolicyParameters,
   EnactedPolicy,
+  PreEnactedPolicy,
 } from '../policies/policy';
 import { ChecksumAddress, Configuration } from '../types';
 import {
@@ -79,6 +80,21 @@ export class Alice {
     );
     const policy = await this.createPolicy(policyParameters);
     return await policy.enact(ursulas);
+  }
+
+  public async generatePreEnactedPolicy(
+    policyParameters: BlockchainPolicyParameters,
+    includeUrsulas?: ChecksumAddress[],
+    excludeUrsulas?: ChecksumAddress[]
+  ): Promise<PreEnactedPolicy> {
+    const ursulas = await this.porter.getUrsulas(
+      policyParameters.shares,
+      policyParameters.paymentPeriods,
+      excludeUrsulas,
+      includeUrsulas
+    );
+    const policy = await this.createPolicy(policyParameters);
+    return await policy.generatePreEnactedPolicy(ursulas);
   }
 
   public generateKFrags(

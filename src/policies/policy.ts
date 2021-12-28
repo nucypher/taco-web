@@ -17,7 +17,47 @@ export interface EnactedPolicy {
   encryptedTreasureMap: EncryptedTreasureMap;
   revocationKit: RevocationKit;
   aliceVerifyingKey: Uint8Array;
-  ursulas: Ursula[];
+  ursulaAddresses: ChecksumAddress[];
+  expiration: Date;
+  value: number;
+  txHash: string;
+}
+
+type IPreEnactedPolicy = Omit<EnactedPolicy, 'txHash'>;
+export class PreEnactedPolicy implements IPreEnactedPolicy {
+  constructor(
+    public readonly id: HRAC,
+    public readonly label: string,
+    public readonly policyKey: PublicKey,
+    public readonly encryptedTreasureMap: EncryptedTreasureMap,
+    public readonly revocationKit: RevocationKit,
+    public readonly aliceVerifyingKey: Uint8Array,
+    public readonly ursulaAddresses: ChecksumAddress[],
+    public readonly expiration: Date,
+    public readonly value: number
+  ) {}
+
+  public async enact(publisher: Alice): Promise<EnactedPolicy> {
+    const txHash = await this.publish(publisher);
+    return {
+      ...this,
+      txHash,
+    };
+  }
+
+  private async publish(publisher: Alice): Promise<string> {
+    const expirationTimestamp = (this.expiration.getTime() / 1000) | 0;
+    const ownerAddress = await publisher.transactingPower.getAddress();
+    const tx = await PolicyManagerAgent.createPolicy(
+      publisher.transactingPower,
+      this.id.toBytes(),
+      this.value,
+      expirationTimestamp,
+      this.ursulaAddresses,
+      ownerAddress
+    );
+    return tx.hash;
+  }
 }
 
 export interface BlockchainPolicyParameters {
@@ -100,22 +140,14 @@ export class BlockchainPolicy {
     return value!;
   }
 
-  public async publish(ursulas: ChecksumAddress[]): Promise<void> {
-    const ownerAddress = await this.publisher.transactingPower.getAddress();
-    await PolicyManagerAgent.createPolicy(
-      this.publisher.transactingPower,
-      this.hrac.toBytes(),
-      this.value,
-      (this.expiration.getTime() / 1000) | 0,
-      ursulas,
-      ownerAddress
-    );
+  public async enact(ursulas: Ursula[]): Promise<EnactedPolicy> {
+    const preEnacted = await this.generatePreEnactedPolicy(ursulas);
+    return await preEnacted.enact(this.publisher);
   }
 
-  public async enact(ursulas: Ursula[]): Promise<EnactedPolicy> {
-    const ursulaAddresses = ursulas.map((u) => u.checksumAddress);
-    await this.publish(ursulaAddresses);
-
+  public async generatePreEnactedPolicy(
+    ursulas: Ursula[]
+  ): Promise<PreEnactedPolicy> {
     const treasureMap = await TreasureMap.constructByPublisher(
       this.hrac,
       this.publisher,
@@ -126,16 +158,19 @@ export class BlockchainPolicy {
     );
     const encryptedTreasureMap = await this.encryptTreasureMap(treasureMap);
     const revocationKit = new RevocationKit(treasureMap, this.publisher.signer);
+    const ursulaAddresses = ursulas.map((u) => u.checksumAddress);
 
-    return {
-      id: this.hrac,
-      label: this.label,
-      policyKey: this.delegatingKey,
+    return new PreEnactedPolicy(
+      this.hrac,
+      this.label,
+      this.delegatingKey,
       encryptedTreasureMap,
       revocationKit,
-      aliceVerifyingKey: this.publisher.verifyingKey.toBytes(),
-      ursulas,
-    };
+      this.publisher.verifyingKey.toBytes(),
+      ursulaAddresses,
+      this.expiration,
+      this.value
+    );
   }
 
   private encryptTreasureMap(treasureMap: TreasureMap): EncryptedTreasureMap {

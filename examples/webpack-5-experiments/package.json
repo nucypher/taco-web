@@ -1,0 +1,21 @@
+{
+  "name": "nucypher-ts-example-webpack-5-experiments",
+  "version": "0.1.0",
+  "description": "A usage example for nucypher-ts",
+  "main": "index.js",
+  "author": "Piotr Rosłaniec <p.roslaniec@gmail.com>",
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "start": "webpack-dev-server"
+  },
+  "license": "GPL-3.0-only",
+  "dependencies": {
+    "nucypher-ts": "0.4.3"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^5.0.0",
+    "webpack": "^5.4.0",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "^3.1.5"
+  }
+}

@@ -10,7 +10,7 @@ import {
   mockConstructTreasureMap,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
-  mockGetUrsulasOnce,
+  mockGetUrsulas,
   mockPolicyManagerPolicyExists,
   mockPolicyManagerRevokePolicy,
   mockPublishToBlockchain,
@@ -46,7 +46,7 @@ describe('story: alice shares message with bob through policy', () => {
 
   it('alice grants a new policy to bob', async () => {
     mockStakingEscrow();
-    const getUrsulasSpy = mockGetUrsulasOnce(ursulas);
+    const getUrsulasSpy = mockGetUrsulas(ursulas);
     const generateKFragsSpy = mockGenerateKFrags();
     const publishToBlockchainSpy = mockPublishToBlockchain();
     const constructTreasureMapSpy = mockConstructTreasureMap();
@@ -83,7 +83,7 @@ describe('story: alice shares message with bob through policy', () => {
 
   it('bob retrieves and decrypts the message', async () => {
     const bob = mockBob();
-    const getUrsulasSpy = mockGetUrsulasOnce(ursulas);
+    const getUrsulasSpy = mockGetUrsulas(ursulas);
     const retrieveCFragsSpy = mockRetrieveCFragsRequest(ursulaAddresses, verifiedKFrags, encryptedMessage.capsule);
 
     const retrievedMessage = await bob.retrieveAndDecrypt(
@@ -129,7 +129,7 @@ describe('story: alice shares message with bob through policy', () => {
 
   it('bob fails to retrieve kFrags again and decrypt the message', async () => {
     const bob = mockBob();
-    const getUrsulasSpy = mockGetUrsulasOnce(ursulas);
+    const getUrsulasSpy = mockGetUrsulas(ursulas);
     const retrieveCFragsSpy = mockRetrieveCFragsRequestThrows();
 
     const retrieveAndDecryptCall = async () => bob.retrieveAndDecrypt(

@@ -21,7 +21,7 @@ import {
 } from '../src/characters/porter';
 import { TreasureMap } from '../src/policies/collections';
 import { HRAC } from '../src/policies/hrac';
-import { BlockchainPolicy } from '../src/policies/policy';
+import { BlockchainPolicy, PreEnactedPolicy } from '../src/policies/policy';
 import { ChecksumAddress, Configuration } from '../src/types';
 import { toBytes, zip } from '../src/utils';
 
@@ -39,12 +39,14 @@ export const mockRemoteBob = (): RemoteBob => {
   return RemoteBob.fromKeys(decryptingKey, verifyingKey);
 };
 
-export const mockAlice = () => {
-  const aliceKey = toBytes('fake-secret-key-32-bytes-alice-x');
-  const provider = mockWeb3Provider(aliceKey);
+export const mockAlice = (aliceKey?: string) => {
+  const keyBytes = aliceKey
+    ? toBytes(aliceKey)
+    : toBytes('fake-secret-key-32-bytes-alice-x');
+  const provider = mockWeb3Provider(keyBytes);
   return Alice.fromSecretKeyBytes(
     mockConfig,
-    aliceKey,
+    keyBytes,
     provider as ethers.providers.Web3Provider
   );
 };
@@ -113,7 +115,7 @@ export const mockUrsulas = (): Ursula[] => {
   });
 };
 
-export const mockGetUrsulasOnce = (ursulas: Ursula[]) => {
+export const mockGetUrsulas = (ursulas: Ursula[]) => {
   const mockPorterUrsulas = (mockUrsulas: Ursula[]): GetUrsulasResponse => {
     return {
       result: {
@@ -127,7 +129,7 @@ export const mockGetUrsulasOnce = (ursulas: Ursula[]) => {
     };
   };
 
-  return jest.spyOn(axios, 'get').mockImplementationOnce(async () => {
+  return jest.spyOn(axios, 'get').mockImplementation(async () => {
     return Promise.resolve({ data: mockPorterUrsulas(ursulas) });
   });
 };
@@ -157,9 +159,10 @@ export const mockGetGlobalMinRate = () => {
 };
 
 export const mockPublishToBlockchain = () => {
+  const txHash = '0x1234567890123456789012345678901234567890';
   return jest
-    .spyOn(BlockchainPolicy.prototype, 'publish')
-    .mockImplementation(async () => {});
+    .spyOn(PreEnactedPolicy.prototype as any, 'publish')
+    .mockImplementation(async () => Promise.resolve(txHash));
 };
 
 export const mockCFragResponse = (

@@ -5,3 +5,5 @@ build
 coverage
 example/dist
 .husky
+.env
+types

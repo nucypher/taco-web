@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0](https://github.com/nucypher/nucypher-ts/compare/v0.4.3...v0.5.0) (2022-01-18)
+
+
+### Features
+
+* Enact policies with a different publisher ([725d25c](https://github.com/nucypher/nucypher-ts/commit/725d25c761b166d5bb227ed97688f142af2b5e60))
+
+
+### Bug Fixes
+
+* **src/policies/hrac.ts:** changed label string encoding used by HRAC to utf-8 ([59769cc](https://github.com/nucypher/nucypher-ts/commit/59769cc515aa4d15a2bcf8c626569c021afa9732))
+
 ### [0.4.3](https://github.com/nucypher/nucypher-ts/compare/v0.4.2...v0.4.3) (2021-11-27)
 
 

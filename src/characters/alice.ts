@@ -1,5 +1,5 @@
+import { PublicKey, Signer, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
-import { PublicKey, Signer, VerifiedKeyFrag } from '@nucypher/umbral-pre';
 
 import { PolicyManagerAgent } from '../agents/policy-manager';
 import { StakingEscrowAgent } from '../agents/staking-escrow';

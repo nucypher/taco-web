@@ -1,4 +1,4 @@
-import { decryptOriginal } from '@nucypher/umbral-pre';
+import { decryptOriginal } from '@nucypher/nucypher-core';
 
 import { Enrico } from '../../src';
 import { PolicyMessageKit } from '../../src/kits/message';
@@ -12,7 +12,7 @@ describe('enrico', () => {
     const message = 'fake-message';
     const alice = mockAlice();
 
-    const policyKey = await alice.getPolicyEncryptingKeyFromLabel(label);
+    const policyKey = alice.getPolicyEncryptingKeyFromLabel(label);
     const enrico = new Enrico(policyKey);
     const { capsule, ciphertext } = enrico.encryptMessage(toBytes(message));
 

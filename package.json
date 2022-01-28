@@ -42,7 +42,8 @@
     "axios": "^0.21.1",
     "ethers": "^5.4.1",
     "js-sha3": "^0.8.0",
-    "qs": "^6.10.1",
+    "@nucypher/nucypher-core": "file:../nucypher-core/nucypher-core-wasm/pkg",
+    "qs": "^6.10.1"
     "secure-random": "^1.1.2"
   },
   "devDependencies": {

@@ -1,16 +1,19 @@
+import {
+  CapsuleFrag,
+  PublicKey,
+  RetrievalKit,
+  TreasureMap,
+} from '@nucypher/nucypher-core';
 import axios, { AxiosResponse } from 'axios';
 import qs from 'qs';
-import { CapsuleFrag, PublicKey } from '@nucypher/umbral-pre';
 
-import { RetrievalKit } from '../kits/retrieval';
-import { TreasureMap } from '../policies/collections';
 import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from '../types';
-import { fromBase64, toBase64, toHexString } from '../utils';
+import { fromBase64, fromHexString, toBase64, toHexString } from '../utils';
 
 export interface Ursula {
   checksumAddress: ChecksumAddress;
   uri: string;
-  encryptingKey: HexEncodedBytes;
+  encryptingKey: PublicKey;
 }
 
 interface GetUrsulasRequest {
@@ -85,7 +88,7 @@ export class Porter {
     return resp.data.result.ursulas.map((u: UrsulaResponse) => ({
       checksumAddress: u.checksum_address,
       uri: u.uri,
-      encryptingKey: u.encrypting_key,
+      encryptingKey: PublicKey.fromBytes(fromHexString(u.encrypting_key)),
     }));
   }
 

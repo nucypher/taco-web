@@ -1,9 +1,9 @@
 import {
   mockAlice,
-  mockConstructTreasureMap,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
   mockGetUrsulas,
+  mockMakeTresureMap,
   mockPublishToBlockchain,
   mockRemoteBob,
   mockStakingEscrow,
@@ -24,7 +24,7 @@ describe('story: alice1 creates a policy but alice2 enacts it', () => {
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const generateKFragsSpy = mockGenerateKFrags();
     const publishToBlockchainSpy = mockPublishToBlockchain();
-    const constructTreasureMapSpy = mockConstructTreasureMap();
+    const constructTreasureMapSpy = mockMakeTresureMap();
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
     const alice1 = mockAlice('fake-secret-key-32-bytes-alice-1');

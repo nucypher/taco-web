@@ -1,21 +1,17 @@
-import { Signer } from '@nucypher/umbral-pre';
+import { RevocationOrder, Signer, TreasureMap } from '@nucypher/nucypher-core';
 
-import { RevocationOrder, TreasureMap } from '../policies/collections';
 import { ChecksumAddress } from '../types';
 
 export class RevocationKit {
   public revocations: Record<ChecksumAddress, RevocationOrder>;
 
   constructor(treasureMap: TreasureMap, signer: Signer) {
-    this.revocations = {};
-    Object.entries(treasureMap.destinations).forEach(
-      ([nodeId, encryptedKFrag]) => {
-        this.revocations[nodeId] = new RevocationOrder(
-          nodeId,
-          encryptedKFrag,
-          signer
-        );
-      }
+    const revocationOrders = treasureMap.makeRevocationOrders(signer);
+    this.revocations = Object.fromEntries(
+      revocationOrders.map((order: RevocationOrder) => [
+        order.stakerAddress,
+        order,
+      ])
     );
   }
 }

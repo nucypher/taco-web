@@ -1,5 +1,5 @@
 {
-  "name": "nucypher-ts",
+  "name": "@nucypher/nucypher-ts",
   "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
   "version": "0.5.0",
   "license": "GPL-3.0-only",

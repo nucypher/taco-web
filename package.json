@@ -34,7 +34,8 @@
     "version": "standard-version",
     "reset-hard": "git clean -dfx && git reset --hard && yarn",
     "prepare-release": "run-s reset-hard test doc:html version doc:publish",
-    "typechain": "typechain --target=ethers-v5 \"abi/**/*.json\""
+    "typechain": "typechain --target=ethers-v5 \"abi/**/*.json\"",
+    "npm-publish": "npm publish --access=public"
   },
   "dependencies": {
     "axios": "^0.21.1",

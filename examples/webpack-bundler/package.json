@@ -9,11 +9,10 @@
     "build": "webpack --config webpack.config.js",
     "start": "webpack-dev-server"
   },
-
   "license": "GPL-3.0-only",
   "dependencies": {
     "ethers": "^5.5.2",
-    "nucypher-ts": "0.4.3"
+    "@nucypher/nucypher-ts": "0.5.1"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^5.0.0",

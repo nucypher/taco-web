@@ -1,5 +1,5 @@
+import { Alice, Bob } from '@nucypher/nucypher-ts';
 import { ethers } from 'ethers';
-import { Alice, Bob } from 'nucypher-ts';
 
 const config = {
   // Public Porter endpoint on Lynx network

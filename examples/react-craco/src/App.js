@@ -17,7 +17,7 @@ function App() {
   const [policy, setPolicy] = useState('');
 
   const loadNucypher = async () => {
-    const nucypherModule = await import('nucypher-ts');
+    const nucypherModule = await import('@nucypher/nucypher-ts');
     setNucypher(nucypherModule);
   };
 

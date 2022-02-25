@@ -7,3 +7,4 @@ example/dist
 .husky
 .env
 types
+dist

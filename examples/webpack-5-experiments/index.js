@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { Alice, Bob } from 'nucypher-ts';
+import { Alice, Bob } from '@nucypher/nucypher-ts';
 
 const txtEncoder = new TextEncoder();
 

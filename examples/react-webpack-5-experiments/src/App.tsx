@@ -1,7 +1,9 @@
 import { ethers } from 'ethers';
-import { Alice, Bob, EnactedPolicy } from 'nucypher-ts';
+import { Alice, Bob, EnactedPolicy } from '@nucypher/nucypher-ts';
 import React from 'react';
 import { useEffect, useState } from 'react';
+
+declare let window: any;
 
 function toHexString(byteArray: Uint8Array) {
   return Array.from(byteArray, function (byte) {
@@ -10,7 +12,7 @@ function toHexString(byteArray: Uint8Array) {
 }
 
 export function App() {
-  const [provider, setProvider] = useState();
+  const [provider, setProvider] = useState(undefined as ethers.providers.Web3Provider | undefined);
   const [alice, setAlice] = useState(undefined as Alice | undefined);
   const [bob, setBob] = useState(undefined as Bob | undefined);
   const [policy, setPolicy] = useState(undefined as EnactedPolicy | undefined);
@@ -36,6 +38,9 @@ export function App() {
   };
 
   const makeAlice = () => {
+    if (!provider) {
+      return;
+    }
     const secretKey = Buffer.from('fake-secret-key-32-bytes-alice-x');
     const alice = Alice.fromSecretKeyBytes(config, secretKey, provider);
     setAlice(alice);
@@ -55,12 +60,15 @@ export function App() {
   const makeCharacters = () => {
     makeAlice();
     makeBob();
-    setPolicy('');
+    setPolicy(undefined);
   };
 
   const getRandomLabel = () => `label-${new Date().getTime()}`;
 
   const runExample = async () => {
+    if (!alice || !bob) {
+      return;
+    }
     const remoteBob = makeRemoteBob(bob);
     const threshold = 2;
     const shares = 3;
@@ -73,12 +81,10 @@ export function App() {
       paymentPeriods,
     };
 
-    const includeUrsulas = [];
-    const excludeUrsulas = [];
     const policy = await alice.grant(
       policyParams,
-      includeUrsulas,
-      excludeUrsulas
+      [],
+      []
     );
 
     console.log('Policy created');

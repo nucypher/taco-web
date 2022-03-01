@@ -1,4 +1,4 @@
-import { PublicKey } from 'umbral-pre';
+import { PublicKey } from '@nucypher/umbral-pre';
 
 import { SigningPower } from '../crypto/powers';
 import { MessageKit } from '../kits/message';

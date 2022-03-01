@@ -8,7 +8,7 @@ import {
   reencrypt,
   VerifiedCapsuleFrag,
   VerifiedKeyFrag,
-} from 'umbral-pre';
+} from '@nucypher/umbral-pre';
 
 import { Alice, Bob, RemoteBob } from '../src';
 import { PolicyManagerAgent } from '../src/agents/policy-manager';

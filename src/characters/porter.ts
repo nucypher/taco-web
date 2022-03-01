@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 import qs from 'qs';
-import { CapsuleFrag, PublicKey } from 'umbral-pre';
+import { CapsuleFrag, PublicKey } from '@nucypher/umbral-pre';
 
 import { RetrievalKit } from '../kits/retrieval';
 import { TreasureMap } from '../policies/collections';

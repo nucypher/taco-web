@@ -1,4 +1,4 @@
-import { PublicKey, Signer } from 'umbral-pre';
+import { PublicKey, Signer } from '@nucypher/umbral-pre';
 
 import { NucypherKeyring } from '../crypto/keyring';
 import { DecryptingPower, SigningPower } from '../crypto/powers';

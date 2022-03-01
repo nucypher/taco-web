@@ -1,4 +1,4 @@
-import { Signer } from 'umbral-pre';
+import { Signer } from '@nucypher/umbral-pre';
 
 import { RevocationOrder, TreasureMap } from '../policies/collections';
 import { ChecksumAddress } from '../types';

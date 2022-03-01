@@ -8,7 +8,7 @@ import {
   SecretKeyFactory,
   Signer,
   VerifiedKeyFrag,
-} from 'umbral-pre';
+} from '@nucypher/umbral-pre';
 
 import { MessageKit, PolicyMessageKit } from '../kits/message';
 import { ChecksumAddress } from '../types';

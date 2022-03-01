@@ -1,4 +1,4 @@
-import { CapsuleFrag, PublicKey, VerifiedKeyFrag } from 'umbral-pre';
+import { CapsuleFrag, PublicKey, VerifiedKeyFrag } from '@nucypher/umbral-pre';
 
 import { EnactedPolicy, Enrico, MessageKit } from '../../src';
 import { EncryptedTreasureMap } from '../../src/policies/collections';

@@ -1,4 +1,4 @@
-import { decryptOriginal } from 'umbral-pre';
+import { decryptOriginal } from '@nucypher/umbral-pre';
 
 import { Enrico } from '../../src';
 import { PolicyMessageKit } from '../../src/kits/message';

@@ -1,4 +1,4 @@
-import { CapsuleFrag, reencrypt } from 'umbral-pre';
+import { CapsuleFrag, reencrypt } from '@nucypher/umbral-pre';
 
 import { Enrico, MessageKit } from '../../src';
 import { toBytes, zip } from '../../src/utils';

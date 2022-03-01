@@ -11,7 +11,7 @@ import {
 } from '../../src/utils';
 import { mockAlice, mockBob, mockTreasureMap } from '../utils';
 import { HRAC } from '../../src/policies/hrac';
-import { SecretKey } from 'umbral-pre';
+import { SecretKey } from '@nucypher/umbral-pre';
 
 const matches = (mk1: MessageKit, mk2: MessageKit) => {
   expect(mk1.capsule.toBytes()).toEqual(mk2.capsule.toBytes());

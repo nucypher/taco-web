@@ -1,4 +1,4 @@
-import { PublicKey, VerifiedKeyFrag } from 'umbral-pre';
+import { PublicKey, VerifiedKeyFrag } from '@nucypher/umbral-pre';
 
 import { PolicyManagerAgent } from '../agents/policy-manager';
 import { Alice } from '../characters/alice';

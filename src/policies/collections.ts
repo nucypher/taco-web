@@ -6,7 +6,7 @@ import {
   Signature,
   Signer,
   VerifiedKeyFrag,
-} from 'umbral-pre';
+} from '@nucypher/umbral-pre';
 
 import { Alice } from '../characters/alice';
 import { Bob } from '../characters/bob';

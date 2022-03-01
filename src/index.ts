@@ -4,4 +4,4 @@ export { Enrico } from './characters/enrico';
 export { BlockchainPolicyParameters, EnactedPolicy } from './policies/policy';
 export { MessageKit } from './kits/message';
 
-export { PublicKey } from 'umbral-pre';
+export { PublicKey } from '@nucypher/umbral-pre';

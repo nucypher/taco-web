@@ -38,12 +38,12 @@
     "npm-publish": "npm publish --access=public"
   },
   "dependencies": {
+    "@nucypher/umbral-pre": "^0.5.1",
     "axios": "^0.21.1",
     "ethers": "^5.4.1",
     "js-sha3": "^0.8.0",
     "qs": "^6.10.1",
-    "secure-random": "^1.1.2",
-    "umbral-pre": "^0.3.2"
+    "secure-random": "^1.1.2"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.15.6",

@@ -1,4 +1,4 @@
-import { Capsule, CapsuleWithFrags, encrypt, PublicKey } from 'umbral-pre';
+import { Capsule, CapsuleWithFrags, encrypt, PublicKey } from '@nucypher/umbral-pre';
 
 import { CAPSULE_LENGTH } from '../crypto/constants';
 import {

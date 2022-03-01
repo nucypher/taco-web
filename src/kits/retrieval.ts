@@ -1,4 +1,4 @@
-import { VerifiedCapsuleFrag } from 'umbral-pre';
+import { VerifiedCapsuleFrag } from '@nucypher/umbral-pre';
 
 import { toCanonicalAddress } from '../crypto/utils';
 import { ChecksumAddress } from '../types';

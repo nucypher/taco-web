@@ -5,7 +5,7 @@ import {
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
 
-import { EnactedPolicy, Enrico, MessageKit } from '../../src';
+import { BlockchainPolicyParameters, EnactedPolicy, Enrico, MessageKit } from '../../src';
 import { Ursula } from '../../src/characters/porter';
 import { ChecksumAddress } from '../../src/types';
 import { toBytes } from '../../src/utils';
@@ -17,14 +17,9 @@ import {
   mockEncryptTreasureMap,
   mockGenerateKFrags,
   mockGetUrsulas,
-  mockMakeTresureMap,
-  mockPolicyManagerPolicyExists,
-  mockPolicyManagerRevokePolicy,
   mockPublishToBlockchain,
   mockRemoteBob,
   mockRetrieveCFragsRequest,
-  mockRetrieveCFragsRequestThrows,
-  mockStakingEscrow,
   mockUrsulas,
   reencryptKFrags,
 } from '../utils';
@@ -33,10 +28,9 @@ describe('story: alice shares message with bob through policy', () => {
   const message = 'secret-message-from-alice';
   const threshold = 2;
   const shares = 3;
-  const paymentPeriods = 3;
-  const expiration = new Date(Date.now() + 60 * 1000);
-  const rate = 1;
-  const ursulas = mockUrsulas().slice(0, shares);
+  const startDate = new Date();
+  const endDate = new Date(Date.now() + 60 * 1000);
+  const mockedUrsulas = mockUrsulas().slice(0, shares);
 
   // Intermediate variables used for mocking
   let encryptedTreasureMap: EncryptedTreasureMap;
@@ -52,8 +46,7 @@ describe('story: alice shares message with bob through policy', () => {
   let enricoVerifyingKey: PublicKey;
 
   it('alice grants a new policy to bob', async () => {
-    mockStakingEscrow();
-    const getUrsulasSpy = mockGetUrsulas(ursulas);
+    const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const generateKFragsSpy = mockGenerateKFrags();
     const publishToBlockchainSpy = mockPublishToBlockchain();
     const makeTreasureMapSpy = mockMakeTresureMap();
@@ -61,15 +54,7 @@ describe('story: alice shares message with bob through policy', () => {
 
     const alice = mockAlice();
     const bob = mockRemoteBob();
-    const policyParams = {
-      bob,
-      label,
-      threshold,
-      shares,
-      expiration,
-      paymentPeriods,
-      rate,
-    };
+    const policyParams: BlockchainPolicyParameters = { bob, label, threshold, shares, startDate, endDate };
     policy = await alice.grant(policyParams);
 
     expect(policy.aliceVerifyingKey).toEqual(alice.verifyingKey.toBytes());
@@ -100,7 +85,7 @@ describe('story: alice shares message with bob through policy', () => {
 
   it('bob retrieves and decrypts the message', async () => {
     const bob = mockBob();
-    const getUrsulasSpy = mockGetUrsulas(ursulas);
+    const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const retrieveCFragsSpy = mockRetrieveCFragsRequest(
       ursulaAddresses,
       verifiedKFrags,
@@ -153,30 +138,4 @@ describe('story: alice shares message with bob through policy', () => {
     expect(areVerified).toBeTruthy();
   });
 
-  it('alice revokes policy access', async () => {
-    const alice = mockAlice();
-    const policyManagerPolicyExistsSpy = mockPolicyManagerPolicyExists(false);
-    const policyManagerRevokePolicySpy = mockPolicyManagerRevokePolicy();
-
-    await alice.revoke(policy.id.toBytes());
-    expect(policyManagerPolicyExistsSpy).toHaveBeenCalled();
-    expect(policyManagerRevokePolicySpy).toHaveBeenCalled();
-  });
-
-  it('bob fails to retrieve kFrags again and decrypt the message', async () => {
-    const bob = mockBob();
-    const getUrsulasSpy = mockGetUrsulas(ursulas);
-    const retrieveCFragsSpy = mockRetrieveCFragsRequestThrows();
-
-    const retrieveAndDecryptCall = async () =>
-      bob.retrieveAndDecrypt(
-        policyEncryptingKey,
-        aliceVerifyingKey,
-        [encryptedMessage],
-        encryptedTreasureMap
-      );
-    expect(getUrsulasSpy).toHaveBeenCalled();
-    expect(retrieveCFragsSpy).toHaveBeenCalled();
-    await expect(retrieveAndDecryptCall).rejects.toThrow();
-  });
 });

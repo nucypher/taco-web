@@ -1,8 +1,7 @@
 import { PublicKey, Signer, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
+import { ethers } from 'ethers';
 
-import { PolicyManagerAgent } from '../agents/policy-manager';
-import { StakingEscrowAgent } from '../agents/staking-escrow';
 import { NucypherKeyring } from '../crypto/keyring';
 import {
   DelegatingPower,
@@ -16,11 +15,6 @@ import {
   PreEnactedPolicy,
 } from '../policies/policy';
 import { ChecksumAddress, Configuration } from '../types';
-import {
-  calculatePeriodDuration,
-  dateAtPeriod,
-  mergeWithoutUndefined,
-} from '../utils';
 
 import { RemoteBob } from './bob';
 import { Porter } from './porter';
@@ -116,8 +110,8 @@ export class Alice {
   private async createPolicy(
     rawParameters: BlockchainPolicyParameters
   ): Promise<BlockchainPolicy> {
-    const { bob, label, threshold, shares, expiration, value } =
-      await this.generatePolicyParameters(rawParameters);
+    const { bob, label, threshold, shares, startDate, endDate } =
+      await this.validatePolicyParameters(rawParameters);
     const { delegatingKey, verifiedKFrags } = this.generateKFrags(
       bob,
       label,
@@ -127,97 +121,50 @@ export class Alice {
     return new BlockchainPolicy(
       this,
       label,
-      expiration!,
       bob,
       verifiedKFrags,
       delegatingKey,
       threshold,
       shares,
-      value!
+      startDate,
+      endDate
     );
   }
 
-  private async generatePolicyParameters(
+  private async validatePolicyParameters(
     rawParams: BlockchainPolicyParameters
   ): Promise<BlockchainPolicyParameters> {
+    const startDate = rawParams.startDate ?? new Date();
+    const { endDate, threshold, shares } = rawParams;
     // Validate raw parameters
-    if (!rawParams.paymentPeriods && !rawParams.expiration) {
+    if (threshold > shares) {
       throw new Error(
-        "Policy end time must be specified as 'expiration' or 'paymentPeriods', got neither."
+        `Threshold may not be greater than number of shares: ${threshold} > ${shares}`
       );
     }
 
-    if (rawParams.threshold > rawParams.shares) {
-      throw new Error('Threshold may not be greater than number of shares.');
+    if (endDate < new Date(Date.now())) {
+      throw new Error(`End timestamp must be in the future: ${endDate}).`);
     }
 
-    if (rawParams.expiration && rawParams.expiration < new Date(Date.now())) {
+    if (endDate < new Date(Date.now())) {
+      throw new Error(`End timestamp must be in the future: ${endDate}).`);
+    }
+
+    if (startDate > endDate) {
       throw new Error(
-        `Expiration must be in the future: ${rawParams.expiration}).`
+        `Start timestamp must accur before endTimestamp: ${startDate} > ${endDate}).`
       );
     }
 
     const blockNumber = await this.transactingPower.provider.getBlockNumber();
     const block = await this.transactingPower.provider.getBlock(blockNumber);
     const blockTime = new Date(block.timestamp * 1000);
-    if (rawParams.expiration && rawParams.expiration < blockTime) {
+    if (endDate < blockTime) {
       throw new Error(
-        `Expiration must be in the future (${rawParams.expiration} is earlier than block time ${blockTime}).`
+        `End timestamp must be in the future, (${endDate} is earlier than block time ${blockTime}).`
       );
     }
-
-    // Generate new parameters when needed
-    const secondsPerPeriod = await StakingEscrowAgent.getSecondsPerPeriod(
-      this.transactingPower.provider
-    );
-    if (rawParams.paymentPeriods) {
-      const currentPeriod = await StakingEscrowAgent.getCurrentPeriod(
-        this.transactingPower.provider
-      );
-      const newExpiration = dateAtPeriod(
-        currentPeriod + rawParams.paymentPeriods,
-        secondsPerPeriod,
-        true
-      );
-      //  Get the last second of the target period
-      rawParams.expiration = new Date(newExpiration.getTime() - 1000);
-    } else {
-      // +1 will equal to number of all included periods
-      rawParams.paymentPeriods =
-        calculatePeriodDuration(rawParams.expiration!, secondsPerPeriod) + 1;
-    }
-
-    if (!rawParams.rate && !rawParams.value) {
-      rawParams.rate = await PolicyManagerAgent.getGlobalMinRate(
-        this.transactingPower.provider
-      );
-    }
-
-    rawParams.value = BlockchainPolicy.calculateValue(
-      rawParams.shares,
-      rawParams.paymentPeriods!,
-      rawParams.value,
-      rawParams.rate
-    );
-
-    // These values may have been recalculated in this block time.
-    const policyEndTime = {
-      paymentPeriods: rawParams.paymentPeriods,
-      expiration: rawParams.expiration,
-    };
-    return mergeWithoutUndefined(
-      rawParams,
-      policyEndTime
-    ) as BlockchainPolicyParameters;
-  }
-
-  public async revoke(policyId: Uint8Array) {
-    const policyDisabled = await PolicyManagerAgent.isPolicyDisabled(
-      this.transactingPower.provider,
-      policyId
-    );
-    if (!policyDisabled) {
-      await PolicyManagerAgent.revokePolicy(this.transactingPower, policyId);
-    }
+    return { ...rawParams, startDate };
   }
 }

@@ -10,16 +10,11 @@ import {
 } from '@nucypher/nucypher-core';
 import axios from 'axios';
 import { ContractTransaction, ethers, Wallet } from 'ethers';
+import axios from 'axios';
+import { ethers, Wallet } from 'ethers';
 
 import { Alice, Bob, RemoteBob } from '../src';
-import { PolicyManagerAgent } from '../src/agents/policy-manager';
-import { StakingEscrowAgent } from '../src/agents/staking-escrow';
-import {
-  GetUrsulasResponse,
-  Porter,
-  RetrieveCFragsResponse,
-  Ursula,
-} from '../src/characters/porter';
+import { GetUrsulasResponse, Porter, RetrieveCFragsResponse, Ursula } from '../src/characters/porter';
 import { BlockchainPolicy, PreEnactedPolicy } from '../src/policies/policy';
 import { ChecksumAddress, Configuration } from '../src/types';
 import { toBytes, toHexString, zip } from '../src/utils';
@@ -53,14 +48,14 @@ export const mockAlice = (aliceKey?: string) => {
   return Alice.fromSecretKeyBytes(
     mockConfig,
     keyBytes,
-    provider as ethers.providers.Web3Provider
+    provider as ethers.providers.Web3Provider,
   );
 };
 
 export const mockWeb3Provider = (
   secretKeyBytes: Uint8Array,
   blockNumber?: number,
-  blockTimestamp?: number
+  blockTimestamp?: number,
 ): Partial<ethers.providers.Web3Provider> => {
   const block = { timestamp: blockTimestamp ?? 1000 };
   const provider = {
@@ -134,31 +129,6 @@ export const mockGetUrsulas = (ursulas: Ursula[]) => {
     return Promise.resolve({ data: mockPorterUrsulas(ursulas) });
   });
 };
-
-export const mockPolicyManagerRevokePolicy = () => {
-  return jest
-    .spyOn(PolicyManagerAgent, 'revokePolicy')
-    .mockImplementationOnce(async () => {
-      return Promise.resolve(undefined as unknown as ContractTransaction);
-    });
-};
-
-export const mockPolicyManagerPolicyExists = (policyDisabled: boolean) => {
-  return jest
-    .spyOn(PolicyManagerAgent, 'isPolicyDisabled')
-    .mockImplementationOnce(async () => {
-      return Promise.resolve(policyDisabled);
-    });
-};
-
-export const mockGetGlobalMinRate = () => {
-  return jest
-    .spyOn(PolicyManagerAgent, 'getGlobalMinRate')
-    .mockImplementationOnce(async () => {
-      return Promise.resolve(50000000000);
-    });
-};
-
 export const mockPublishToBlockchain = () => {
   const txHash = '0x1234567890123456789012345678901234567890';
   return jest
@@ -169,11 +139,11 @@ export const mockPublishToBlockchain = () => {
 export const mockCFragResponse = (
   ursulas: ChecksumAddress[],
   verifiedKFrags: VerifiedKeyFrag[],
-  capsule: Capsule
+  capsule: Capsule,
 ): RetrieveCFragsResponse[] => {
   if (ursulas.length !== verifiedKFrags.length) {
     throw new Error(
-      'Number of verifiedKFrags must match the number of Ursulas'
+      'Number of verifiedKFrags must match the number of Ursulas',
     );
   }
   const reencrypted = verifiedKFrags
@@ -181,13 +151,13 @@ export const mockCFragResponse = (
     .map((cFrag) => CapsuleFrag.fromBytes(cFrag.toBytes()));
   const result = Object.fromEntries(zip(ursulas, reencrypted));
   // We return one result per capsule, so just one result
-  return [result];
+  return [ result ];
 };
 
 export const mockRetrieveCFragsRequest = (
   ursulas: ChecksumAddress[],
   verifiedKFrags: VerifiedKeyFrag[],
-  capsule: Capsule
+  capsule: Capsule,
 ) => {
   const results = mockCFragResponse(ursulas, verifiedKFrags, capsule);
   return jest
@@ -213,7 +183,7 @@ export const mockEncryptTreasureMap = () => {
 
 export const reencryptKFrags = (
   kFrags: VerifiedKeyFrag[],
-  capsule: Capsule
+  capsule: Capsule,
 ): {
   capsuleWithFrags: CapsuleWithFrags;
   verifiedCFrags: VerifiedCapsuleFrag[];
@@ -232,19 +202,34 @@ export const reencryptKFrags = (
   return { capsuleWithFrags: capsuleWithFrags!, verifiedCFrags };
 };
 
-export const mockStakingEscrow = (
-  currentPeriod = 100,
-  secondsPerPeriod = 60
-) => {
-  const getCurrentPeriodSpy = jest
-    .spyOn(StakingEscrowAgent, 'getCurrentPeriod')
-    .mockImplementation(async () => Promise.resolve(currentPeriod));
-  const getSecondsPerPeriodSpy = jest
-    .spyOn(StakingEscrowAgent, 'getSecondsPerPeriod')
-    .mockImplementation(async () => Promise.resolve(secondsPerPeriod));
-  return { getCurrentPeriodSpy, getSecondsPerPeriodSpy };
+export const mockTreasureMap = async () => {
+  const alice = mockAlice();
+  const bob = mockBob();
+  const label = 'fake-label';
+  const threshold = 2;
+  const shares = 3;
+  const { verifiedKFrags, delegatingKey } = await (alice as any).generateKFrags(
+    bob,
+    label,
+    threshold,
+    shares,
+  );
+  const hrac = HRAC.derive(
+    alice.verifyingKey.toBytes(),
+    bob.verifyingKey.toBytes(),
+    label,
+  );
+  const ursulas = mockUrsulas().slice(0, shares);
+  return TreasureMap.constructByPublisher(
+    hrac,
+    alice,
+    ursulas,
+    verifiedKFrags,
+    threshold,
+    delegatingKey,
+  );
 };
 
-export const mockMakeTresureMap = () => {
-  return jest.spyOn(BlockchainPolicy.prototype as any, 'makeTreasureMap');
+export const mockConstructTreasureMap = () => {
+  return jest.spyOn(TreasureMap, 'constructByPublisher');
 };

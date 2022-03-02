@@ -8,7 +8,7 @@ import axios, { AxiosResponse } from 'axios';
 import qs from 'qs';
 
 import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from '../types';
-import { fromBase64, fromHexString, toBase64, toHexString } from '../utils';
+import { fromBase64, fromHexString, toBase64, toEpoch, toHexString } from '../utils';
 
 export interface Ursula {
   checksumAddress: ChecksumAddress;

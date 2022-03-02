@@ -78,3 +78,5 @@ export const mergeWithoutUndefined = (
 };
 
 export const zip = (a: Array<any>, b: Array<any>) => a.map((k, i) => [k, b[i]]);
+
+export const toEpoch = (date: Date) => (date.getTime() / 1000) | 0;

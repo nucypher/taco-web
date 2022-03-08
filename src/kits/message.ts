@@ -50,10 +50,6 @@ export class PolicyMessageKit {
     return mk.decryptReencrypted(secretKey, policyEncryptingKey);
   }
 
-  public get ciphertext(): Uint8Array {
-    return this.messageKit.ciphertext;
-  }
-
   public asRetrievalKit(): RetrievalKit {
     return RetrievalKit.fromMessageKit(this.messageKit);
   }

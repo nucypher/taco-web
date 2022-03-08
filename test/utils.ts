@@ -3,10 +3,8 @@ import {
   Capsule,
   CapsuleFrag,
   CapsuleWithFrags,
-  HRAC,
   reencrypt,
   SecretKey,
-  TreasureMapBuilder,
   VerifiedCapsuleFrag,
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
@@ -25,6 +23,13 @@ import {
 import { BlockchainPolicy, PreEnactedPolicy } from '../src/policies/policy';
 import { ChecksumAddress, Configuration } from '../src/types';
 import { toBytes, toHexString, zip } from '../src/utils';
+
+export const fromBytes = (bytes: Uint8Array): string =>
+  new TextDecoder().decode(bytes);
+
+export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
+  first.length === second.length &&
+  first.every((value, index) => value === second[index]);
 
 const mockConfig: Configuration = {
   porterUri: 'https://_this_should_crash.com/',
@@ -238,36 +243,6 @@ export const mockStakingEscrow = (
     .spyOn(StakingEscrowAgent, 'getSecondsPerPeriod')
     .mockImplementation(async () => Promise.resolve(secondsPerPeriod));
   return { getCurrentPeriodSpy, getSecondsPerPeriodSpy };
-};
-
-export const mockTreasureMap = async () => {
-  const alice = mockAlice();
-  const bob = mockBob();
-  const label = 'fake-label';
-  const threshold = 2;
-  const shares = 3;
-  const { verifiedKFrags, delegatingKey } = await (alice as any).generateKFrags(
-    bob,
-    label,
-    threshold,
-    shares
-  );
-  const hrac = new HRAC(alice.verifyingKey, bob.verifyingKey, toBytes(label));
-  const ursulas = mockUrsulas().slice(0, shares);
-  const builder = new TreasureMapBuilder(
-    alice.signer,
-    hrac,
-    delegatingKey,
-    threshold
-  );
-  zip(ursulas, verifiedKFrags).forEach(([ursula, kFrag]) => {
-    builder.addKfrag(
-      toBytes(ursula.checksumAddress),
-      ursula.encryptingKey,
-      kFrag
-    );
-  });
-  return builder.build();
 };
 
 export const mockMakeTresureMap = () => {

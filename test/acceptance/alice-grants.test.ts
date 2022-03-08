@@ -8,8 +8,10 @@ import {
 import { EnactedPolicy, Enrico, MessageKit } from '../../src';
 import { Ursula } from '../../src/characters/porter';
 import { ChecksumAddress } from '../../src/types';
-import { bytesEqual, fromBytes, toBytes } from '../../src/utils';
+import { toBytes } from '../../src/utils';
 import {
+  bytesEqual,
+  fromBytes,
   mockAlice,
   mockBob,
   mockEncryptTreasureMap,

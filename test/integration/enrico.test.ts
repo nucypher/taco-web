@@ -1,5 +1,3 @@
-import { decryptOriginal } from '@nucypher/nucypher-core';
-
 import { Enrico } from '../../src';
 import { PolicyMessageKit } from '../../src/kits/message';
 import { RetrievalResult } from '../../src/kits/retrieval';
@@ -20,11 +18,11 @@ describe('enrico', () => {
 
     const policyKey = alice.getPolicyEncryptingKeyFromLabel(label);
     const enrico = new Enrico(policyKey);
-    const { capsule, ciphertext } = enrico.encryptMessage(toBytes(message));
+    const encrypted = enrico.encryptMessage(toBytes(message));
 
     const alicePower = (alice as any).delegatingPower;
     const aliceSk = await alicePower.getSecretKeyFromLabel(label);
-    const alicePlaintext = decryptOriginal(aliceSk, capsule, ciphertext);
+    const alicePlaintext = encrypted.decrypt(aliceSk);
     expect(alicePlaintext).toEqual(alicePlaintext);
   });
 
@@ -33,7 +31,7 @@ describe('enrico', () => {
     const alice = mockAlice();
     const bob = mockBob();
 
-    const policyEncryptingKey = await alice.getPolicyEncryptingKeyFromLabel(
+    const policyEncryptingKey = alice.getPolicyEncryptingKeyFromLabel(
       label
     );
     const enrico = new Enrico(policyEncryptingKey);
@@ -41,13 +39,12 @@ describe('enrico', () => {
     const plaintext = 'Plaintext message';
     const plaintextBytes = toBytes(plaintext);
     const encrypted = enrico.encryptMessage(plaintextBytes);
-    const { ciphertext, capsule } = encrypted;
 
     // Alice can decrypt capsule she created
     const aliceSk = await (alice as any).delegatingPower.getSecretKeyFromLabel(
       label
     );
-    const plaintextAlice = decryptOriginal(aliceSk, capsule, ciphertext);
+    const plaintextAlice = encrypted.decrypt(aliceSk);
     expect(fromBytes(plaintextAlice).endsWith(plaintext)).toBeTruthy();
 
     const threshold = 2;
@@ -60,18 +57,17 @@ describe('enrico', () => {
     );
     expect(delegatingKey.toBytes()).toEqual(policyEncryptingKey.toBytes());
 
-    const { capsuleWithFrags, verifiedCFrags } = reencryptKFrags(
-      verifiedKFrags,
-      capsule
-    );
 
     // Bob can decrypt re-encrypted ciphertext
-    const bobSk = (bob as any).decryptingPower.secretKey;
-    const plaintextBob = capsuleWithFrags.decryptReencrypted(
-      bobSk,
-      policyEncryptingKey,
-      ciphertext
+    const { verifiedCFrags } = reencryptKFrags(
+      verifiedKFrags,
+      encrypted.capsule
     );
+    const bobSk = (bob as any).decryptingPower.secretKey;
+
+    const plaintextBob = encrypted.withCFrag(verifiedCFrags[0])
+      .withCFrag(verifiedCFrags[1])
+      .decryptReencrypted(bobSk, policyEncryptingKey);
     expect(fromBytes(plaintextBob).endsWith(plaintext)).toBeTruthy();
 
     // Bob can decrypt ciphertext and verify origin of the message

@@ -22,6 +22,7 @@
     "fix:lint": "eslint src --ext .ts --fix",
     "test": "run-s build test:*",
     "test:lint": "eslint src --ext .ts",
+    "test:exports": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
     "test:prettier": "prettier \"src/**/*.ts\" --list-different",
     "test:unit": "jest",
     "watch:build": "tsc -p tsconfig.json -w",
@@ -38,7 +39,7 @@
     "npm-publish": "npm publish --access=public"
   },
   "dependencies": {
-    "@nucypher/umbral-pre": "^0.5.1",
+    "@nucypher/nucypher-core": "^0.1.0-alpha",
     "axios": "^0.21.1",
     "ethers": "^5.4.1",
     "js-sha3": "^0.8.0",
@@ -68,6 +69,7 @@
     "standard-version": "^9.0.0",
     "ts-jest": "^27.0.3",
     "ts-node": "^9.0.0",
+    "ts-unused-exports": "^8.0.0",
     "tsconfig-paths": "^3.9.0",
     "tslib": "^2.2.0",
     "typechain": "^5.1.1",

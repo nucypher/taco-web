@@ -1,14 +1,20 @@
-import { PublicKey, VerifiedKeyFrag } from '@nucypher/umbral-pre';
+import {
+  EncryptedTreasureMap,
+  HRAC,
+  PublicKey,
+  TreasureMap,
+  TreasureMapBuilder,
+  VerifiedKeyFrag,
+} from '@nucypher/nucypher-core';
 
 import { PolicyManagerAgent } from '../agents/policy-manager';
 import { Alice } from '../characters/alice';
 import { RemoteBob } from '../characters/bob';
 import { Ursula } from '../characters/porter';
+import { toCanonicalAddress } from '../crypto/utils';
 import { RevocationKit } from '../kits/revocation';
 import { ChecksumAddress } from '../types';
-
-import { EncryptedTreasureMap, TreasureMap } from './collections';
-import { HRAC } from './hrac';
+import { toBytes, zip } from '../utils';
 
 export interface EnactedPolicy {
   id: HRAC;
@@ -85,10 +91,10 @@ export class BlockchainPolicy {
     private readonly shares: number,
     private readonly value: number
   ) {
-    this.hrac = HRAC.derive(
-      this.publisher.verifyingKey.toBytes(),
-      this.bob.verifyingKey.toBytes(),
-      this.label
+    this.hrac = new HRAC(
+      this.publisher.verifyingKey,
+      this.bob.verifyingKey,
+      toBytes(this.label)
     );
   }
 
@@ -148,15 +154,8 @@ export class BlockchainPolicy {
   public async generatePreEnactedPolicy(
     ursulas: Ursula[]
   ): Promise<PreEnactedPolicy> {
-    const treasureMap = await TreasureMap.constructByPublisher(
-      this.hrac,
-      this.publisher,
-      ursulas,
-      this.verifiedKFrags,
-      this.threshold,
-      this.delegatingKey
-    );
-    const encryptedTreasureMap = await this.encryptTreasureMap(treasureMap);
+    const treasureMap = this.makeTreasureMap(ursulas, this.verifiedKFrags);
+    const encryptedTreasureMap = this.encryptTreasureMap(treasureMap);
     const revocationKit = new RevocationKit(treasureMap, this.publisher.signer);
     const ursulaAddresses = ursulas.map((u) => u.checksumAddress);
 
@@ -173,7 +172,24 @@ export class BlockchainPolicy {
     );
   }
 
+  private makeTreasureMap(
+    ursulas: Ursula[],
+    verifiedKFrags: VerifiedKeyFrag[]
+  ): TreasureMap {
+    const builder = new TreasureMapBuilder(
+      this.publisher.signer,
+      this.hrac,
+      this.delegatingKey,
+      this.threshold
+    );
+    zip(ursulas, verifiedKFrags).forEach(([ursula, kFrag]) => {
+      const ursulaAddress = toCanonicalAddress(ursula.checksumAddress);
+      builder.addKfrag(ursulaAddress, ursula.encryptingKey, kFrag);
+    });
+    return builder.build();
+  }
+
   private encryptTreasureMap(treasureMap: TreasureMap): EncryptedTreasureMap {
-    return treasureMap.encrypt(this.publisher, this.bob.decryptingKey);
+    return treasureMap.encrypt(this.publisher.signer, this.bob.decryptingKey);
   }
 }

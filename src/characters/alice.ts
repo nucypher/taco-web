@@ -1,5 +1,5 @@
+import { PublicKey, Signer, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
-import { PublicKey, Signer, VerifiedKeyFrag } from '@nucypher/umbral-pre';
 
 import { PolicyManagerAgent } from '../agents/policy-manager';
 import { StakingEscrowAgent } from '../agents/staking-escrow';
@@ -74,7 +74,6 @@ export class Alice {
   ): Promise<EnactedPolicy> {
     const ursulas = await this.porter.getUrsulas(
       policyParameters.shares,
-      policyParameters.paymentPeriods,
       excludeUrsulas,
       includeUrsulas
     );
@@ -89,7 +88,6 @@ export class Alice {
   ): Promise<PreEnactedPolicy> {
     const ursulas = await this.porter.getUrsulas(
       policyParameters.shares,
-      policyParameters.paymentPeriods,
       excludeUrsulas,
       includeUrsulas
     );

@@ -39,7 +39,7 @@
     "npm-publish": "npm publish --access=public"
   },
   "dependencies": {
-    "@nucypher/nucypher-core": "file:../nucypher-core/nucypher-core-wasm/pkg",
+    "@nucypher/nucypher-core": "^0.1.0-alpha",
     "axios": "^0.21.1",
     "ethers": "^5.4.1",
     "js-sha3": "^0.8.0",

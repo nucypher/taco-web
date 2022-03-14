@@ -9,8 +9,6 @@ import {
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
 import axios from 'axios';
-import { ContractTransaction, ethers, Wallet } from 'ethers';
-import axios from 'axios';
 import { ethers, Wallet } from 'ethers';
 
 import { Alice, Bob, RemoteBob } from '../src';
@@ -202,34 +200,6 @@ export const reencryptKFrags = (
   return { capsuleWithFrags: capsuleWithFrags!, verifiedCFrags };
 };
 
-export const mockTreasureMap = async () => {
-  const alice = mockAlice();
-  const bob = mockBob();
-  const label = 'fake-label';
-  const threshold = 2;
-  const shares = 3;
-  const { verifiedKFrags, delegatingKey } = await (alice as any).generateKFrags(
-    bob,
-    label,
-    threshold,
-    shares,
-  );
-  const hrac = HRAC.derive(
-    alice.verifyingKey.toBytes(),
-    bob.verifyingKey.toBytes(),
-    label,
-  );
-  const ursulas = mockUrsulas().slice(0, shares);
-  return TreasureMap.constructByPublisher(
-    hrac,
-    alice,
-    ursulas,
-    verifiedKFrags,
-    threshold,
-    delegatingKey,
-  );
-};
-
-export const mockConstructTreasureMap = () => {
-  return jest.spyOn(TreasureMap, 'constructByPublisher');
+export const mockMakeTreasureMap = () => {
+  return jest.spyOn(BlockchainPolicy.prototype as any, 'makeTreasureMap');
 };

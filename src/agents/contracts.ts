@@ -15,10 +15,9 @@ const CONTRACTS: Record<number, Contracts> = {
 export const getContracts = (chainId: number): Contracts => {
   const contracts = CONTRACTS[chainId];
   if (!contracts) {
-    console.error(`No contracts found for chainId: ${chainId}`)
-    return contracts;
+    throw new Error(`No contracts found for chainId: ${chainId}`);
   }
   return contracts;
-}
+};
 
 export const DEFAULT_WAIT_N_CONFIRMATIONS = 1;

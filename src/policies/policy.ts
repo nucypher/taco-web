@@ -13,8 +13,7 @@ import { RemoteBob } from '../characters/bob';
 import { Ursula } from '../characters/porter';
 import { toCanonicalAddress } from '../crypto/utils';
 import { RevocationKit } from '../kits/revocation';
-import { toEpoch } from '../utils';
-import { toBytes, zip } from '../utils';
+import { toBytes, toEpoch, zip } from '../utils';
 
 export interface EnactedPolicy {
   id: HRAC;

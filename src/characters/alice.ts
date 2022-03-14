@@ -1,6 +1,5 @@
 import { PublicKey, Signer, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
-import { ethers } from 'ethers';
 
 import { NucypherKeyring } from '../crypto/keyring';
 import {

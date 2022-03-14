@@ -1,9 +1,4 @@
-import {
-  CapsuleFrag,
-  EncryptedTreasureMap,
-  PublicKey,
-  VerifiedKeyFrag,
-} from '@nucypher/nucypher-core';
+import { CapsuleFrag, EncryptedTreasureMap, PublicKey, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 
 import { BlockchainPolicyParameters, EnactedPolicy, Enrico, MessageKit } from '../../src';
 import { Ursula } from '../../src/characters/porter';
@@ -20,6 +15,7 @@ import {
   mockPublishToBlockchain,
   mockRemoteBob,
   mockRetrieveCFragsRequest,
+  mockMakeTreasureMap,
   mockUrsulas,
   reencryptKFrags,
 } from '../utils';
@@ -49,12 +45,19 @@ describe('story: alice shares message with bob through policy', () => {
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const generateKFragsSpy = mockGenerateKFrags();
     const publishToBlockchainSpy = mockPublishToBlockchain();
-    const makeTreasureMapSpy = mockMakeTresureMap();
+    const makeTreasureMapSpy = mockMakeTreasureMap();
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
     const alice = mockAlice();
     const bob = mockRemoteBob();
-    const policyParams: BlockchainPolicyParameters = { bob, label, threshold, shares, startDate, endDate };
+    const policyParams: BlockchainPolicyParameters = {
+      bob,
+      label,
+      threshold,
+      shares,
+      startDate,
+      endDate,
+    };
     policy = await alice.grant(policyParams);
 
     expect(policy.aliceVerifyingKey).toEqual(alice.verifyingKey.toBytes());
@@ -72,7 +75,7 @@ describe('story: alice shares message with bob through policy', () => {
 
     // Persist variables for mocking and testing
     ursulaAddresses = (makeTreasureMapSpy.mock.calls[0][0] as Ursula[]).map(
-      (u) => u.checksumAddress
+      (u) => u.checksumAddress,
     );
     verifiedKFrags = makeTreasureMapSpy.mock.calls[0][1] as VerifiedKeyFrag[];
   });
@@ -89,14 +92,14 @@ describe('story: alice shares message with bob through policy', () => {
     const retrieveCFragsSpy = mockRetrieveCFragsRequest(
       ursulaAddresses,
       verifiedKFrags,
-      encryptedMessage.capsule
+      encryptedMessage.capsule,
     );
 
     const retrievedMessage = await bob.retrieveAndDecrypt(
       policyEncryptingKey,
       aliceVerifyingKey,
-      [encryptedMessage],
-      encryptedTreasureMap
+      [ encryptedMessage ],
+      encryptedTreasureMap,
     );
     const bobPlaintext = fromBytes(retrievedMessage[0]);
 
@@ -113,29 +116,28 @@ describe('story: alice shares message with bob through policy', () => {
       bobVerifyingKey_,
     ] = retrieveCFragsSpy.mock.calls[0];
     expect(
-      bytesEqual(aliceVerifyingKey_.toBytes(), aliceVerifyingKey.toBytes())
+      bytesEqual(aliceVerifyingKey_.toBytes(), aliceVerifyingKey.toBytes()),
     );
     expect(
-      bytesEqual(bobEncryptingKey_.toBytes(), bob.decryptingKey.toBytes())
+      bytesEqual(bobEncryptingKey_.toBytes(), bob.decryptingKey.toBytes()),
     );
     expect(bytesEqual(bobVerifyingKey_.toBytes(), bob.verifyingKey.toBytes()));
 
     const { verifiedCFrags } = reencryptKFrags(
       verifiedKFrags,
-      encryptedMessage.capsule
+      encryptedMessage.capsule,
     );
     const cFrags = verifiedCFrags.map((verifiedCFrag) =>
-      CapsuleFrag.fromBytes(verifiedCFrag.toBytes())
+      CapsuleFrag.fromBytes(verifiedCFrag.toBytes()),
     );
     const areVerified = cFrags.every((cFrag) =>
       cFrag.verify(
         encryptedMessage.capsule,
         aliceVerifyingKey_,
         policyEncryptingKey,
-        bob.decryptingKey
-      )
+        bob.decryptingKey,
+      ),
     );
     expect(areVerified).toBeTruthy();
   });
-
 });

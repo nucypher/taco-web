@@ -21,20 +21,20 @@ describe('proxy reencryption', () => {
       bob,
       label,
       threshold,
-      shares
+      shares,
     );
 
     const { verifiedCFrags } = reencryptKFrags(verifiedKFrags, capsule);
     const cFrags = verifiedCFrags.map((verifiedCFrag) =>
-      CapsuleFrag.fromBytes(verifiedCFrag.toBytes())
+      CapsuleFrag.fromBytes(verifiedCFrag.toBytes()),
     );
     const areVerified = cFrags.every((cFrag) =>
       cFrag.verify(
         capsule,
         alice.verifyingKey,
         delegatingKey,
-        bob.decryptingKey
-      )
+        bob.decryptingKey,
+      ),
     );
     expect(areVerified).toBeTruthy();
   });
@@ -44,26 +44,26 @@ describe('proxy reencryption', () => {
       bob,
       label,
       threshold,
-      shares
+      shares,
     );
 
     const policyEncryptingKey = await alice.getPolicyEncryptingKeyFromLabel(
-      label
+      label,
     );
     const enrico = new Enrico(policyEncryptingKey);
     const encryptedMessage = enrico.encryptMessage(plaintext);
 
     const ursulaAddresses = ursulas.map((ursula) => ursula.checksumAddress);
     const reencrypted = verifiedKFrags.map((kFrag) =>
-      reencrypt(encryptedMessage.capsule, kFrag)
+      reencrypt(encryptedMessage.capsule, kFrag),
     );
     const results = new RetrievalResult(
-      Object.fromEntries(zip(ursulaAddresses, reencrypted))
+      Object.fromEntries(zip(ursulaAddresses, reencrypted)),
     );
     const policyMessageKit = PolicyMessageKit.fromMessageKit(
       encryptedMessage,
       policyEncryptingKey,
-      threshold
+      threshold,
     ).withResult(results);
     expect(policyMessageKit.isDecryptableByReceiver()).toBeTruthy();
 

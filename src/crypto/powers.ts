@@ -8,7 +8,6 @@ import {
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
-import { ethers } from 'ethers';
 
 import { PolicyMessageKit } from '../kits/message';
 import { ChecksumAddress } from '../types';

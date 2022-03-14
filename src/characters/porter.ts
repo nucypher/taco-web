@@ -18,7 +18,6 @@ export interface Ursula {
 
 interface GetUrsulasRequest {
   quantity: number;
-  duration_periods: number;
   exclude_ursulas?: ChecksumAddress[];
   include_ursulas?: ChecksumAddress[];
 }
@@ -66,13 +65,11 @@ export class Porter {
 
   public async getUrsulas(
     quantity: number,
-    durationPeriods: number,
     excludeUrsulas?: ChecksumAddress[],
     includeUrsulas?: ChecksumAddress[]
   ): Promise<Ursula[]> {
     const params: GetUrsulasRequest = {
       quantity,
-      duration_periods: durationPeriods,
       exclude_ursulas: excludeUrsulas,
       include_ursulas: includeUrsulas,
     };

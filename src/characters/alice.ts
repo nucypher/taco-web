@@ -74,7 +74,6 @@ export class Alice {
   ): Promise<EnactedPolicy> {
     const ursulas = await this.porter.getUrsulas(
       policyParameters.shares,
-      policyParameters.paymentPeriods,
       excludeUrsulas,
       includeUrsulas
     );
@@ -89,7 +88,6 @@ export class Alice {
   ): Promise<PreEnactedPolicy> {
     const ursulas = await this.porter.getUrsulas(
       policyParameters.shares,
-      policyParameters.paymentPeriods,
       excludeUrsulas,
       includeUrsulas
     );

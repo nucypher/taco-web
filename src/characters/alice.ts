@@ -144,16 +144,12 @@ export class Alice {
     }
 
     if (endDate < new Date(Date.now())) {
-      throw new Error(`End timestamp must be in the future: ${endDate}).`);
-    }
-
-    if (endDate < new Date(Date.now())) {
-      throw new Error(`End timestamp must be in the future: ${endDate}).`);
+      throw new Error(`End date must be in the future: ${endDate}).`);
     }
 
     if (startDate > endDate) {
       throw new Error(
-        `Start timestamp must accur before endTimestamp: ${startDate} > ${endDate}).`
+        `Start date must accur before end date: ${startDate} > ${endDate}).`
       );
     }
 
@@ -162,7 +158,7 @@ export class Alice {
     const blockTime = new Date(block.timestamp * 1000);
     if (endDate < blockTime) {
       throw new Error(
-        `End timestamp must be in the future, (${endDate} is earlier than block time ${blockTime}).`
+        `End date must be in the future, ${endDate} is earlier than block time ${blockTime}).`
       );
     }
     return { ...rawParams, startDate };

@@ -8,7 +8,7 @@ import {
 import { TransactingPower } from '../crypto/powers';
 import { ChecksumAddress } from '../types';
 
-import { CONTRACTS, DEFAULT_WAIT_N_CONFIRMATIONS } from './constants';
+import { DEFAULT_WAIT_N_CONFIRMATIONS, getContracts } from './contracts';
 
 export class SubscriptionManagerAgent {
   public static async createPolicy(
@@ -68,7 +68,7 @@ export class SubscriptionManagerAgent {
     signer?: ethers.providers.JsonRpcSigner
   ): Promise<SubscriptionManager> {
     const network = await provider.getNetwork();
-    const contractAddress = CONTRACTS[network.name].SUBSCRIPTION_MANAGER;
+    const contractAddress = getContracts(network.chainId).SUBSCRIPTION_MANAGER;
     return SubscriptionManager__factory.connect(
       contractAddress,
       signer ?? provider

@@ -40,7 +40,7 @@
     "prebuild": "yarn typechain"
   },
   "dependencies": {
-    "@nucypher/nucypher-core": "^0.1.0-alpha",
+    "@nucypher/nucypher-core": "^0.1.0",
     "axios": "^0.21.1",
     "ethers": "^5.4.1",
     "js-sha3": "^0.8.0",

@@ -37,7 +37,7 @@
     "prepare-release": "run-s reset-hard test doc:html version doc:publish",
     "typechain": "typechain --target=ethers-v5 \"abi/**/*.json\"",
     "npm-publish": "npm publish --access=public",
-    "postinstall": "yarn typechain"
+    "prebuild": "yarn typechain"
   },
   "dependencies": {
     "@nucypher/nucypher-core": "^0.1.0-alpha",

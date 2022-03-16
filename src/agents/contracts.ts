@@ -5,7 +5,7 @@ interface Contracts {
 }
 
 const MUMBAI: Contracts = {
-  SUBSCRIPTION_MANAGER: '0x17758Ca3B285480CFA6e991A2B56B2a11EB0287d',
+  SUBSCRIPTION_MANAGER: '0xb9015d7b35ce7c81dde38ef7136baa3b1044f313',
 };
 
 const CONTRACTS: Record<number, Contracts> = {

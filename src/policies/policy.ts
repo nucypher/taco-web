@@ -7,14 +7,13 @@ import {
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
 
-import { PolicyManagerAgent } from '../agents/policy-manager';
+import { SubscriptionManagerAgent } from '../agents/subscription-manager';
 import { Alice } from '../characters/alice';
 import { RemoteBob } from '../characters/bob';
 import { Ursula } from '../characters/porter';
 import { toCanonicalAddress } from '../crypto/utils';
 import { RevocationKit } from '../kits/revocation';
-import { ChecksumAddress } from '../types';
-import { toBytes, zip } from '../utils';
+import { toBytes, toEpoch, zip } from '../utils';
 
 export interface EnactedPolicy {
   id: HRAC;
@@ -23,13 +22,14 @@ export interface EnactedPolicy {
   encryptedTreasureMap: EncryptedTreasureMap;
   revocationKit: RevocationKit;
   aliceVerifyingKey: Uint8Array;
-  ursulaAddresses: ChecksumAddress[];
-  expiration: Date;
-  value: number;
+  size: number;
+  startTimestamp: Date;
+  endTimestamp: Date;
   txHash: string;
 }
 
 type IPreEnactedPolicy = Omit<EnactedPolicy, 'txHash'>;
+
 export class PreEnactedPolicy implements IPreEnactedPolicy {
   constructor(
     public readonly id: HRAC,
@@ -38,9 +38,9 @@ export class PreEnactedPolicy implements IPreEnactedPolicy {
     public readonly encryptedTreasureMap: EncryptedTreasureMap,
     public readonly revocationKit: RevocationKit,
     public readonly aliceVerifyingKey: Uint8Array,
-    public readonly ursulaAddresses: ChecksumAddress[],
-    public readonly expiration: Date,
-    public readonly value: number
+    public readonly size: number,
+    public readonly startTimestamp: Date,
+    public readonly endTimestamp: Date
   ) {}
 
   public async enact(publisher: Alice): Promise<EnactedPolicy> {
@@ -52,14 +52,22 @@ export class PreEnactedPolicy implements IPreEnactedPolicy {
   }
 
   private async publish(publisher: Alice): Promise<string> {
-    const expirationTimestamp = (this.expiration.getTime() / 1000) | 0;
+    const startTimestamp = toEpoch(this.startTimestamp);
+    const endTimestamp = toEpoch(this.endTimestamp);
     const ownerAddress = await publisher.transactingPower.getAddress();
-    const tx = await PolicyManagerAgent.createPolicy(
+    const value = await SubscriptionManagerAgent.getPolicyCost(
+      publisher.transactingPower.provider,
+      this.size,
+      startTimestamp,
+      endTimestamp
+    );
+    const tx = await SubscriptionManagerAgent.createPolicy(
       publisher.transactingPower,
+      value,
       this.id.toBytes(),
-      this.value,
-      expirationTimestamp,
-      this.ursulaAddresses,
+      this.size,
+      startTimestamp,
+      endTimestamp,
       ownerAddress
     );
     return tx.hash;
@@ -71,10 +79,8 @@ export interface BlockchainPolicyParameters {
   label: string;
   threshold: number;
   shares: number;
-  expiration?: Date;
-  paymentPeriods: number;
-  value?: number;
-  rate?: number;
+  startDate: Date;
+  endDate: Date;
 }
 
 export class BlockchainPolicy {
@@ -83,67 +89,19 @@ export class BlockchainPolicy {
   constructor(
     private readonly publisher: Alice,
     private readonly label: string,
-    private readonly expiration: Date,
     private bob: RemoteBob,
     private verifiedKFrags: VerifiedKeyFrag[],
     private delegatingKey: PublicKey,
     private readonly threshold: number,
     private readonly shares: number,
-    private readonly value: number
+    private readonly startDate: Date,
+    private readonly endDate: Date
   ) {
     this.hrac = new HRAC(
       this.publisher.verifyingKey,
       this.bob.verifyingKey,
       toBytes(this.label)
     );
-  }
-
-  public static calculateValue(
-    shares: number,
-    paymentPeriods: number,
-    value?: number,
-    rate?: number
-  ): number {
-    // Check for negative inputs
-    const inputs = { shares, paymentPeriods, value, rate };
-    for (const [inputName, inputValue] of Object.entries(inputs)) {
-      if (inputValue && inputValue < 0) {
-        throw Error(
-          `Negative policy parameters are not allowed: ${inputName} is ${inputValue}`
-        );
-      }
-    }
-
-    // Check for invalid policy parameters
-    const hasNoValue = value === undefined || value === 0;
-    const hasNoRate = rate === undefined || rate === 0;
-    if (hasNoValue && hasNoRate) {
-      throw Error(
-        `Either 'value' or 'rate'  must be provided for policy. Got value: ${value} and rate: ${rate}`
-      );
-    }
-
-    if (value === undefined) {
-      value = rate! * paymentPeriods * shares;
-    }
-
-    const valuePerNode = Math.floor(value / shares);
-    if (valuePerNode * shares !== value) {
-      throw Error(
-        `Policy value of ${value} wei cannot be divided into ${shares} shares without a remainder.`
-      );
-    }
-
-    const ratePerPeriod = Math.floor(valuePerNode / paymentPeriods);
-    const recalculatedValue = ratePerPeriod * paymentPeriods * shares;
-    if (recalculatedValue !== value) {
-      throw Error(
-        `Policy value of ${valuePerNode} wei per node cannot be divided by duration ` +
-          `${paymentPeriods} periods without a remainder.`
-      );
-    }
-
-    return value!;
   }
 
   public async enact(ursulas: Ursula[]): Promise<EnactedPolicy> {
@@ -157,7 +115,6 @@ export class BlockchainPolicy {
     const treasureMap = this.makeTreasureMap(ursulas, this.verifiedKFrags);
     const encryptedTreasureMap = this.encryptTreasureMap(treasureMap);
     const revocationKit = new RevocationKit(treasureMap, this.publisher.signer);
-    const ursulaAddresses = ursulas.map((u) => u.checksumAddress);
 
     return new PreEnactedPolicy(
       this.hrac,
@@ -166,9 +123,9 @@ export class BlockchainPolicy {
       encryptedTreasureMap,
       revocationKit,
       this.publisher.verifyingKey.toBytes(),
-      ursulaAddresses,
-      this.expiration,
-      this.value
+      this.shares,
+      this.startDate,
+      this.endDate
     );
   }
 

@@ -2,13 +2,7 @@ import { Enrico } from '../../src';
 import { PolicyMessageKit } from '../../src/kits/message';
 import { RetrievalResult } from '../../src/kits/retrieval';
 import { toBytes } from '../../src/utils';
-import {
-  bytesEqual,
-  fromBytes,
-  mockAlice,
-  mockBob,
-  reencryptKFrags,
-} from '../utils';
+import { bytesEqual, fromBytes, mockAlice, mockBob, reencryptKFrags } from '../utils';
 
 describe('enrico', () => {
   it('alice decrypts message encrypted by enrico', async () => {
@@ -31,9 +25,7 @@ describe('enrico', () => {
     const alice = mockAlice();
     const bob = mockBob();
 
-    const policyEncryptingKey = alice.getPolicyEncryptingKeyFromLabel(
-      label
-    );
+    const policyEncryptingKey = alice.getPolicyEncryptingKeyFromLabel(label);
     const enrico = new Enrico(policyEncryptingKey);
 
     const plaintext = 'Plaintext message';
@@ -42,7 +34,7 @@ describe('enrico', () => {
 
     // Alice can decrypt capsule she created
     const aliceSk = await (alice as any).delegatingPower.getSecretKeyFromLabel(
-      label
+      label,
     );
     const plaintextAlice = encrypted.decrypt(aliceSk);
     expect(fromBytes(plaintextAlice).endsWith(plaintext)).toBeTruthy();
@@ -53,19 +45,19 @@ describe('enrico', () => {
       bob,
       label,
       threshold,
-      shares
+      shares,
     );
     expect(delegatingKey.toBytes()).toEqual(policyEncryptingKey.toBytes());
-
 
     // Bob can decrypt re-encrypted ciphertext
     const { verifiedCFrags } = reencryptKFrags(
       verifiedKFrags,
-      encrypted.capsule
+      encrypted.capsule,
     );
     const bobSk = (bob as any).decryptingPower.secretKey;
 
-    const plaintextBob = encrypted.withCFrag(verifiedCFrags[0])
+    const plaintextBob = encrypted
+      .withCFrag(verifiedCFrags[0])
       .withCFrag(verifiedCFrags[1])
       .decryptReencrypted(bobSk, policyEncryptingKey);
     expect(fromBytes(plaintextBob).endsWith(plaintext)).toBeTruthy();
@@ -79,7 +71,7 @@ describe('enrico', () => {
     const pk = PolicyMessageKit.fromMessageKit(
       encrypted,
       policyEncryptingKey,
-      threshold
+      threshold,
     ).withResult(result);
     expect(pk.isDecryptableByReceiver()).toBeTruthy();
 

@@ -36,20 +36,19 @@
     "reset-hard": "git clean -dfx && git reset --hard && yarn",
     "prepare-release": "run-s reset-hard test doc:html version doc:publish",
     "typechain": "typechain --target=ethers-v5 \"abi/**/*.json\"",
-    "npm-publish": "npm publish --access=public"
+    "npm-publish": "npm publish --access=public",
+    "postinstall": "yarn typechain"
   },
   "dependencies": {
     "@nucypher/nucypher-core": "^0.1.0-alpha",
     "axios": "^0.21.1",
     "ethers": "^5.4.1",
     "js-sha3": "^0.8.0",
-    "qs": "^6.10.1",
-    "secure-random": "^1.1.2"
+    "qs": "^6.10.1"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.15.6",
-    "@typechain/ethers-v5": "^7.0.1",
-    "@types/axios": "^0.14.0",
+    "@typechain/ethers-v5": "^9.0.0",
     "@types/jest": "^26.0.24",
     "@types/qs": "^6.9.7",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
@@ -72,7 +71,7 @@
     "ts-unused-exports": "^8.0.0",
     "tsconfig-paths": "^3.9.0",
     "tslib": "^2.2.0",
-    "typechain": "^5.1.1",
+    "typechain": "^7.0.0",
     "typedoc": "^0.22.11",
     "typedoc-plugin-missing-exports": "^0.22.6",
     "typescript": "^4.3.2"
@@ -88,7 +87,7 @@
   ],
   "husky": {
     "hooks": {
-      "pre-commit": "yarn typechain && yarn test"
+      "pre-commit": "yarn typechain && yarn test:lint && yarn test"
     }
   },
   "config": {

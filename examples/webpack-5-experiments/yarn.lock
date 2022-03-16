@@ -368,17 +368,21 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@nucypher/nucypher-ts@0.5.1":
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/@nucypher/nucypher-ts/-/nucypher-ts-0.5.1.tgz#74af9ea465ad98ec05fc005b22a4e3384c3a2c67"
-  integrity sha512-rFBtI567IOrtTaXsRwlkAtBklGCKgxO+g2a8j0SkO+RrDeLXo7CokLba19evbak/7ya25vUz2OfvRCPC+gtlFA==
+"@nucypher/nucypher-core@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@nucypher/nucypher-core/-/nucypher-core-0.1.0.tgz#6a71fc079999699a3f76b9841e509b47575924c4"
+  integrity sha512-mggUpq0xKaW/LXhNKvtOm6CC5aQcujwN1YJUbXz8DrCGMhldyFa8AHDYu835PeOJ8A7F5YmhyxVJAZByrgw+Xw==
+
+"@nucypher/nucypher-ts@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@nucypher/nucypher-ts/-/nucypher-ts-0.6.0.tgz#152f2e9eb70fa2992f960d127ed4863f979dee05"
+  integrity sha512-MUo826VWDmrWcQ5QOQwnH4xp3jmvjRB9ha2haVDZkNu50tTJjO7DkzspEQHIfthVHLrunKQGpIk8yse+LH5ksg==
   dependencies:
+    "@nucypher/nucypher-core" "^0.1.0"
     axios "^0.21.1"
     ethers "^5.4.1"
     js-sha3 "^0.8.0"
     qs "^6.10.1"
-    secure-random "^1.1.2"
-    umbral-pre "^0.3.2"
 
 "@types/body-parser@*":
   version "1.19.2"
@@ -2341,11 +2345,6 @@ scrypt-js@3.0.1:
   resolved "https://registry.yarnpkg.com/scrypt-js/-/scrypt-js-3.0.1.tgz#d314a57c2aef69d1ad98a138a21fe9eafa9ee312"
   integrity sha512-cdwTTnqPu0Hyvf5in5asVdZocVDTNRmR7XEcJuIzMjJeSHybHl7vpB66AzwTaIg6CLSbtjcxc8fqcySfnTkccA==
 
-secure-random@^1.1.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/secure-random/-/secure-random-1.1.2.tgz#ed103b460a851632d420d46448b2a900a41e7f7c"
-  integrity sha512-H2bdSKERKdBV1SwoqYm6C0y+9EA94v6SUBOWO8kDndc4NoUih7Dv6Tsgma7zO1lv27wIvjlD0ZpMQk7um5dheQ==
-
 select-hose@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/select-hose/-/select-hose-2.0.0.tgz#625d8658f865af43ec962bfc376a37359a4994ca"
@@ -2603,11 +2602,6 @@ type-is@~1.6.18:
   dependencies:
     media-typer "0.3.0"
     mime-types "~2.1.24"
-
-umbral-pre@^0.3.2:
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/umbral-pre/-/umbral-pre-0.3.3.tgz#00d4115d5d21f939bcb750762d7f251974f8fa52"
-  integrity sha512-i/6SlfGuLGJW6V8xyx8Eto6Ka7QEmg02o/vkOMUtJWFlR5P4Wbsg623LAbjHcrogc1erwAxKZQCeejyFdKh1lQ==
 
 unpipe@1.0.0, unpipe@~1.0.0:
   version "1.0.0"

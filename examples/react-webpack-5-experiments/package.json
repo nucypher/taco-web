@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "file-loader": "^6.2.0",
-    "@nucypher/nucypher-ts": "0.5.1",
+    "@nucypher/nucypher-ts": "^0.6.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
     "react-router-dom": "^5.2.0"

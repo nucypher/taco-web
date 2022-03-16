@@ -1,20 +1,17 @@
-import { ethers } from 'ethers';
-import secureRandom from 'secure-random';
 import {
-  decryptOriginal,
   generateKFrags,
+  MessageKit,
   PublicKey,
   SecretKey,
   SecretKeyFactory,
   Signer,
   VerifiedKeyFrag,
-} from 'umbral-pre';
+} from '@nucypher/nucypher-core';
+import { ethers } from 'ethers';
 
-import { MessageKit, PolicyMessageKit } from '../kits/message';
+import { PolicyMessageKit } from '../kits/message';
 import { ChecksumAddress } from '../types';
 import { toBytes } from '../utils';
-
-import { KEYING_MATERIAL_BYTES_LENGTH } from './constants';
 
 export class TransactingPower {
   private constructor(private web3Provider: ethers.providers.Web3Provider) {}
@@ -106,7 +103,7 @@ abstract class CryptoPower {
     return this._publicKey!;
   }
 
-  protected get secretKey(): SecretKey {
+  public get secretKey(): SecretKey {
     if (this._secretKey) {
       return this._secretKey;
     } else {
@@ -133,8 +130,7 @@ export class SigningPower extends CryptoPower {
   }
 
   public static fromRandom(): SigningPower {
-    const secretKeyBytes = secureRandom(KEYING_MATERIAL_BYTES_LENGTH);
-    return SigningPower.fromSecretKeyBytes(secretKeyBytes);
+    return SigningPower.fromSecretKeyBytes(SecretKey.random().toSecretBytes());
   }
 }
 
@@ -154,17 +150,12 @@ export class DecryptingPower extends CryptoPower {
       if (!messageKit.isDecryptableByReceiver()) {
         throw Error('Unable to decrypt');
       }
-      return messageKit.capsuleWithFrags.decryptReencrypted(
+      return messageKit.decryptReencrypted(
         this.secretKey,
-        messageKit.policyEncryptingKey,
-        messageKit.ciphertext
+        messageKit.policyEncryptingKey
       );
     } else {
-      return decryptOriginal(
-        this.secretKey,
-        messageKit.capsule,
-        messageKit.ciphertext
-      );
+      return messageKit.decrypt(this.secretKey);
     }
   }
 }

@@ -1,7 +1,6 @@
-import { PublicKey } from 'umbral-pre';
+import { MessageKit, PublicKey } from '@nucypher/nucypher-core';
 
 import { SigningPower } from '../crypto/powers';
-import { MessageKit } from '../kits/message';
 import { toBytes } from '../utils';
 
 export class Enrico {
@@ -22,7 +21,7 @@ export class Enrico {
   }
 
   public encryptMessage(plaintext: Uint8Array | string): MessageKit {
-    return MessageKit.author(
+    return new MessageKit(
       this.policyEncryptingKey,
       plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext)
     );

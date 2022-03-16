@@ -1,10 +1,14 @@
-import { PublicKey, Signer } from 'umbral-pre';
+import {
+  EncryptedTreasureMap,
+  MessageKit,
+  PublicKey,
+  Signer,
+} from '@nucypher/nucypher-core';
 
 import { NucypherKeyring } from '../crypto/keyring';
 import { DecryptingPower, SigningPower } from '../crypto/powers';
-import { MessageKit, PolicyMessageKit } from '../kits/message';
+import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
-import { EncryptedTreasureMap } from '../policies/collections';
 import { Configuration } from '../types';
 import { zip } from '../utils';
 
@@ -102,16 +106,20 @@ export class Bob {
     messageKits: MessageKit[],
     encryptedTreasureMap: EncryptedTreasureMap
   ): Promise<PolicyMessageKit[]> {
-    const treasureMap = encryptedTreasureMap
-      .decrypt(this)
-      .verify(this.decryptingKey, publisherVerifyingKey);
+    const treasureMap = encryptedTreasureMap.decrypt(
+      this.decryptingPower.secretKey,
+      publisherVerifyingKey
+    );
 
     const policyMessageKits = messageKits.map((mk) =>
-      mk.asPolicyKit(policyEncryptingKey, treasureMap.threshold)
+      PolicyMessageKit.fromMessageKit(
+        mk,
+        policyEncryptingKey,
+        treasureMap.threshold
+      )
     );
 
     const retrievalKits = policyMessageKits.map((pk) => pk.asRetrievalKit());
-
     const retrieveCFragsResponses = await this.porter.retrieveCFrags(
       treasureMap,
       retrievalKits,

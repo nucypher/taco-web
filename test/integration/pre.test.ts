@@ -1,9 +1,10 @@
-import { CapsuleFrag, reencrypt } from 'umbral-pre';
+import { CapsuleFrag, reencrypt } from '@nucypher/nucypher-core';
 
 import { Enrico, MessageKit } from '../../src';
+import { PolicyMessageKit } from '../../src/kits/message';
+import { RetrievalResult } from '../../src/kits/retrieval';
 import { toBytes, zip } from '../../src/utils';
 import { mockAlice, mockBob, mockUrsulas, reencryptKFrags } from '../utils';
-import { RetrievalResult } from '../../src/kits/retrieval';
 
 describe('proxy reencryption', () => {
   const plaintext = toBytes('plaintext-message');
@@ -15,12 +16,26 @@ describe('proxy reencryption', () => {
   const bob = mockBob();
 
   it('verifies capsule frags', async () => {
-    const { capsule } = MessageKit.author(bob.decryptingKey, plaintext);
-    const { delegatingKey, verifiedKFrags } = alice.generateKFrags(bob, label, threshold, shares);
+    const { capsule } = new MessageKit(bob.decryptingKey, plaintext);
+    const { delegatingKey, verifiedKFrags } = alice.generateKFrags(
+      bob,
+      label,
+      threshold,
+      shares,
+    );
 
     const { verifiedCFrags } = reencryptKFrags(verifiedKFrags, capsule);
-    const cFrags = verifiedCFrags.map((verifiedCFrag) => CapsuleFrag.fromBytes(verifiedCFrag.toBytes()));
-    const areVerified = cFrags.every((cFrag) => cFrag.verify(capsule, alice.verifyingKey, delegatingKey, bob.decryptingKey));
+    const cFrags = verifiedCFrags.map((verifiedCFrag) =>
+      CapsuleFrag.fromBytes(verifiedCFrag.toBytes()),
+    );
+    const areVerified = cFrags.every((cFrag) =>
+      cFrag.verify(
+        capsule,
+        alice.verifyingKey,
+        delegatingKey,
+        bob.decryptingKey,
+      ),
+    );
     expect(areVerified).toBeTruthy();
   });
 
@@ -39,12 +54,17 @@ describe('proxy reencryption', () => {
     const encryptedMessage = enrico.encryptMessage(plaintext);
 
     const ursulaAddresses = ursulas.map((ursula) => ursula.checksumAddress);
-    const reencrypted = verifiedKFrags
-      .map((kFrag) => reencrypt(encryptedMessage.capsule, kFrag));
-    const results = new RetrievalResult(Object.fromEntries(zip(ursulaAddresses, reencrypted)));
-    const policyMessageKit = encryptedMessage
-      .asPolicyKit(policyEncryptingKey, threshold)
-      .withResult(results);
+    const reencrypted = verifiedKFrags.map((kFrag) =>
+      reencrypt(encryptedMessage.capsule, kFrag),
+    );
+    const results = new RetrievalResult(
+      Object.fromEntries(zip(ursulaAddresses, reencrypted)),
+    );
+    const policyMessageKit = PolicyMessageKit.fromMessageKit(
+      encryptedMessage,
+      policyEncryptingKey,
+      threshold,
+    ).withResult(results);
     expect(policyMessageKit.isDecryptableByReceiver()).toBeTruthy();
 
     const bobPlaintext = bob.decrypt(policyMessageKit);

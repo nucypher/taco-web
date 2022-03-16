@@ -1,7 +1,9 @@
+import { Alice, Bob, EnactedPolicy } from '@nucypher/nucypher-ts';
 import { ethers } from 'ethers';
-import { Alice, Bob, EnactedPolicy } from 'nucypher-ts';
 import React from 'react';
 import { useEffect, useState } from 'react';
+
+declare let window: any;
 
 function toHexString(byteArray: Uint8Array) {
   return Array.from(byteArray, function (byte) {
@@ -10,7 +12,7 @@ function toHexString(byteArray: Uint8Array) {
 }
 
 export function App() {
-  const [provider, setProvider] = useState();
+  const [provider, setProvider] = useState(undefined as ethers.providers.Web3Provider | undefined);
   const [alice, setAlice] = useState(undefined as Alice | undefined);
   const [bob, setBob] = useState(undefined as Bob | undefined);
   const [policy, setPolicy] = useState(undefined as EnactedPolicy | undefined);
@@ -31,11 +33,14 @@ export function App() {
   };
 
   const config = {
-    // Public Porter endpoint on Lynx network
-    porterUri: 'https://porter-lynx.nucypher.community/',
-  };
+    // Public Porter endpoint on Ibex network
+    porterUri: 'https://porter-ibex.nucypher.community',
+  }
 
   const makeAlice = () => {
+    if (!provider) {
+      return;
+    }
     const secretKey = Buffer.from('fake-secret-key-32-bytes-alice-x');
     const alice = Alice.fromSecretKeyBytes(config, secretKey, provider);
     setAlice(alice);
@@ -55,30 +60,33 @@ export function App() {
   const makeCharacters = () => {
     makeAlice();
     makeBob();
-    setPolicy('');
+    setPolicy(undefined);
   };
 
   const getRandomLabel = () => `label-${new Date().getTime()}`;
 
   const runExample = async () => {
+    if (!alice || !bob) {
+      return;
+    }
     const remoteBob = makeRemoteBob(bob);
     const threshold = 2;
     const shares = 3;
-    const paymentPeriods = 3;
+    const startDate = new Date();
+    const endDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30); // In 30 days
     const policyParams = {
       bob: remoteBob,
       label: getRandomLabel(),
       threshold,
       shares,
-      paymentPeriods,
+      startDate,
+      endDate,
     };
 
-    const includeUrsulas = [];
-    const excludeUrsulas = [];
     const policy = await alice.grant(
       policyParams,
-      includeUrsulas,
-      excludeUrsulas
+      [],
+      []
     );
 
     console.log('Policy created');

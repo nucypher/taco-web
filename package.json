@@ -1,7 +1,7 @@
 {
-  "name": "nucypher-ts",
+  "name": "@nucypher/nucypher-ts",
   "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "license": "GPL-3.0-only",
   "repository": {
     "type": "git",
@@ -22,6 +22,7 @@
     "fix:lint": "eslint src --ext .ts --fix",
     "test": "run-s build test:*",
     "test:lint": "eslint src --ext .ts",
+    "test:exports": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
     "test:prettier": "prettier \"src/**/*.ts\" --list-different",
     "test:unit": "jest",
     "watch:build": "tsc -p tsconfig.json -w",
@@ -34,20 +35,20 @@
     "version": "standard-version",
     "reset-hard": "git clean -dfx && git reset --hard && yarn",
     "prepare-release": "run-s reset-hard test doc:html version doc:publish",
-    "typechain": "typechain --target=ethers-v5 \"abi/**/*.json\""
+    "typechain": "typechain --target=ethers-v5 \"abi/**/*.json\"",
+    "npm-publish": "npm publish --access=public",
+    "prebuild": "yarn typechain"
   },
   "dependencies": {
+    "@nucypher/nucypher-core": "^0.1.0",
     "axios": "^0.21.1",
     "ethers": "^5.4.1",
     "js-sha3": "^0.8.0",
-    "qs": "^6.10.1",
-    "secure-random": "^1.1.2",
-    "umbral-pre": "^0.3.2"
+    "qs": "^6.10.1"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.15.6",
-    "@typechain/ethers-v5": "^7.0.1",
-    "@types/axios": "^0.14.0",
+    "@typechain/ethers-v5": "^9.0.0",
     "@types/jest": "^26.0.24",
     "@types/qs": "^6.9.7",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
@@ -67,9 +68,10 @@
     "standard-version": "^9.0.0",
     "ts-jest": "^27.0.3",
     "ts-node": "^9.0.0",
+    "ts-unused-exports": "^8.0.0",
     "tsconfig-paths": "^3.9.0",
     "tslib": "^2.2.0",
-    "typechain": "^5.1.1",
+    "typechain": "^7.0.0",
     "typedoc": "^0.22.11",
     "typedoc-plugin-missing-exports": "^0.22.6",
     "typescript": "^4.3.2"
@@ -85,7 +87,7 @@
   ],
   "husky": {
     "hooks": {
-      "pre-commit": "yarn typechain && yarn test"
+      "pre-commit": "yarn typechain && yarn test:lint && yarn test"
     }
   },
   "config": {

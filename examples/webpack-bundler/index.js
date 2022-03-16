@@ -1,10 +1,10 @@
+import { Alice, Bob } from '@nucypher/nucypher-ts';
 import { ethers } from 'ethers';
-import { Alice, Bob } from 'nucypher-ts';
 
 const config = {
-  // Public Porter endpoint on Lynx network
-  porterUri: 'https://porter-lynx.nucypher.community/',
-};
+  // Public Porter endpoint on Ibex network
+  porterUri: 'https://porter-ibex.nucypher.community',
+}
 
 const makeAlice = (provider) => {
   const secretKey = Buffer.from('fake-secret-key-32-bytes-alice-x');
@@ -39,13 +39,16 @@ const runExample = async () => {
   const remoteBob = makeRemoteBob();
   const threshold = 2;
   const shares = 3;
-  const paymentPeriods = 3;
+  const startDate = new Date();
+  const endDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30); // In 30 days
+ 
   const policyParams = {
     bob: remoteBob,
     label: getRandomLabel(),
     threshold,
     shares,
-    paymentPeriods,
+    startDate,
+    endDate,
   };
 
   const alice = makeAlice(provider);

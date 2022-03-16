@@ -22,6 +22,12 @@ Install git hooks
 npx husky install
 ```
 
+Generate contract typings
+
+```bash
+yarn typechain
+```
+
 Prepare a new release
 
 ```bash
@@ -32,6 +38,6 @@ yarn run prepare-release
 
 See `./test` directory for usage examples.
 
-See `./examples` directory for examples of browser integration. 
+See `./examples` directory for examples of browser integration.
 
 See [`nucypher-ts-demo`](https://github.com/nucypher/nucypher-ts-demo) for usage example with React app.

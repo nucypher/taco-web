@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.0](https://github.com/nucypher/nucypher-ts/compare/v0.5.0...v0.6.0) (2022-03-16)
+
+
+### Features
+
+* Update policy smart contracts ([320117a](https://github.com/nucypher/nucypher-ts/commit/320117a22f5e30313ef46a4f5f256f608549ca45))
+* Update Porter client ([0df3ea2](https://github.com/nucypher/nucypher-ts/commit/0df3ea233d7de4fb8f1bd1464b9204d6a20e21e0))
+
+
+### Bug Fixes
+
+* Generating code in postinstall ([64d6cba](https://github.com/nucypher/nucypher-ts/commit/64d6cba55ba09931f9d057e8ab4578a2e7c87443))
+* Remove deprecated revocations ([4971886](https://github.com/nucypher/nucypher-ts/commit/4971886696b9736cb987d818642421068081b820))
+* Set correct contract address ([1e78e39](https://github.com/nucypher/nucypher-ts/commit/1e78e39d993f9d258369cb7470492d7ebc788005))
+
+### [0.5.1](https://github.com/nucypher/nucypher-ts/compare/v0.5.0...v0.5.1) (2022-02-07)
+
 ## [0.5.0](https://github.com/nucypher/nucypher-ts/compare/v0.4.3...v0.5.0) (2022-01-18)
 
 

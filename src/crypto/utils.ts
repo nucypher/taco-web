@@ -1,6 +1,3 @@
-import { hexlify } from 'ethers/lib/utils';
-
-import { ChecksumAddress } from '../types';
 import { fromHexString } from '../utils';
 
 export const toCanonicalAddress = (address: string): Uint8Array => {
@@ -10,6 +7,3 @@ export const toCanonicalAddress = (address: string): Uint8Array => {
     : address;
   return fromHexString(nonPrefixed);
 };
-
-export const toChecksumAddress = (bytes: Uint8Array): ChecksumAddress =>
-  hexlify(bytes);

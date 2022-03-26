@@ -12,10 +12,10 @@ import {
   mockEncryptTreasureMap,
   mockGenerateKFrags,
   mockGetUrsulas,
+  mockMakeTreasureMap,
   mockPublishToBlockchain,
   mockRemoteBob,
   mockRetrieveCFragsRequest,
-  mockMakeTreasureMap,
   mockUrsulas,
   reencryptKFrags,
 } from '../utils';

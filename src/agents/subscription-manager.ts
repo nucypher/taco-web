@@ -1,4 +1,4 @@
-import { ContractTransaction, ethers } from 'ethers';
+import { BigNumber, ContractTransaction, ethers } from 'ethers';
 import { hexlify } from 'ethers/lib/utils';
 
 import {
@@ -13,7 +13,7 @@ import { DEFAULT_WAIT_N_CONFIRMATIONS, getContracts } from './contracts';
 export class SubscriptionManagerAgent {
   public static async createPolicy(
     transactingPower: TransactingPower,
-    valueInWei: number,
+    valueInWei: BigNumber,
     policyId: Uint8Array,
     size: number,
     startTimestamp: number,
@@ -34,7 +34,7 @@ export class SubscriptionManagerAgent {
     const overrides = {
       // gasLimit: estimatedGas.toNumber(),
       gasLimit: 350_000,
-      value: BigInt(valueInWei),
+      value: valueInWei,
     };
     const tx = await SubscriptionManager.createPolicy(
       hexlify(policyId),
@@ -53,14 +53,14 @@ export class SubscriptionManagerAgent {
     size: number,
     startTimestamp: number,
     endTimestamp: number
-  ): Promise<number> {
+  ): Promise<BigNumber> {
     const SubscriptionManager = await this.connect(provider);
     const feeRateRange = await SubscriptionManager.getPolicyCost(
       size,
       startTimestamp,
       endTimestamp
     );
-    return feeRateRange.toNumber();
+    return feeRateRange;
   }
 
   private static async connect(

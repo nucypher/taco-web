@@ -24,25 +24,24 @@ export class SubscriptionManagerAgent {
       transactingPower.provider,
       transactingPower.signer
     );
-    // TODO: Call fails due to "UNPREDICTABLE_GAS_LIMIT" error, hard-coding `gasLimit` for now
-    // const estimatedGas = await SubscriptionManager.estimateGas.createPolicy(
-    //   policyId,
-    //   ownerAddress,
-    //   expirationTimestamp,
-    //   nodeAddresses
-    // );
     const overrides = {
-      // gasLimit: estimatedGas.toNumber(),
-      gasLimit: 350_000,
-      value: valueInWei,
+      value: valueInWei.toString(),
     };
-    const tx = await SubscriptionManager.createPolicy(
+    const estimatedGas = await SubscriptionManager.estimateGas.createPolicy(
       hexlify(policyId),
       ownerAddress,
       size,
       startTimestamp,
       endTimestamp,
       overrides
+    );
+    const tx = await SubscriptionManager.createPolicy(
+      hexlify(policyId),
+      ownerAddress,
+      size,
+      startTimestamp,
+      endTimestamp,
+      { ...overrides, gasLimit: estimatedGas }
     );
     await tx.wait(DEFAULT_WAIT_N_CONFIRMATIONS);
     return tx;

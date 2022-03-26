@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.1](https://github.com/nucypher/nucypher-ts/compare/v0.6.0...v0.6.1) (2022-03-26)
+
+
+### Bug Fixes
+
+* Fix number overflow ([60f6c91](https://github.com/nucypher/nucypher-ts/commit/60f6c914797c5cf399fd8010c0386c880bd8bfb6))
+* Remove hardcoded gas limit ([ab1a776](https://github.com/nucypher/nucypher-ts/commit/ab1a776c97024c9c40f7f19a76a94ec96344816f))
+
 ## [0.6.0](https://github.com/nucypher/nucypher-ts/compare/v0.5.0...v0.6.0) (2022-03-16)
 
 

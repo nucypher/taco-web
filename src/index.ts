@@ -4,4 +4,4 @@ export { Enrico } from './characters/enrico';
 export { BlockchainPolicyParameters, EnactedPolicy } from './policies/policy';
 export { Configuration } from './types';
 
-export { PublicKey, MessageKit } from '@nucypher/nucypher-core';
+export { PublicKey, MessageKit, SecretKey } from '@nucypher/nucypher-core';

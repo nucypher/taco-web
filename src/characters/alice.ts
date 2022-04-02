@@ -6,12 +6,7 @@ import {
 } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { NucypherKeyring } from '../crypto/keyring';
-import {
-  DelegatingPower,
-  SigningPower,
-  TransactingPower,
-} from '../crypto/powers';
+import { Keyring } from '../keyring';
 import {
   BlockchainPolicy,
   BlockchainPolicyParameters,
@@ -19,34 +14,30 @@ import {
   PreEnactedPolicy,
 } from '../policies/policy';
 import { ChecksumAddress, Configuration } from '../types';
+import { Web3Provider } from '../web3';
 
 import { RemoteBob } from './bob';
 import { Porter } from './porter';
 
 export class Alice {
   private readonly porter: Porter;
-  public readonly transactingPower: TransactingPower;
-  private readonly delegatingPower: DelegatingPower;
-  private readonly signingPower: SigningPower;
+  private readonly keyring: Keyring;
 
   private constructor(
     config: Configuration,
-    signingPower: SigningPower,
-    delegatingPower: DelegatingPower,
-    transactingPower: TransactingPower
+    secretKey: SecretKey,
+    public readonly web3Provider: Web3Provider
   ) {
     this.porter = new Porter(config.porterUri);
-    this.signingPower = signingPower;
-    this.delegatingPower = delegatingPower;
-    this.transactingPower = transactingPower;
+    this.keyring = new Keyring(secretKey);
   }
 
   public get verifyingKey(): PublicKey {
-    return this.signingPower.publicKey;
+    return this.keyring.publicKey;
   }
 
   public get signer(): Signer {
-    return this.signingPower.signer;
+    return this.keyring.signer;
   }
 
   public static fromSecretKey(
@@ -54,15 +45,12 @@ export class Alice {
     secretKey: SecretKey,
     web3Provider: ethers.providers.Web3Provider
   ): Alice {
-    const keyring = new NucypherKeyring(secretKey);
-    const signingPower = keyring.deriveSigningPower();
-    const delegatingPower = keyring.deriveDelegatingPower();
-    const transactingPower = TransactingPower.fromWeb3Provider(web3Provider);
-    return new Alice(config, signingPower, delegatingPower, transactingPower);
+    const web3 = Web3Provider.fromEthersWeb3Provider(web3Provider);
+    return new Alice(config, secretKey, web3);
   }
 
   public getPolicyEncryptingKeyFromLabel(label: string): PublicKey {
-    return this.delegatingPower.getPublicKeyFromLabel(label);
+    return this.keyring.getPublicKeyFromLabel(label);
   }
 
   public async grant(
@@ -102,7 +90,7 @@ export class Alice {
     delegatingKey: PublicKey;
     verifiedKFrags: VerifiedKeyFrag[];
   } {
-    return this.delegatingPower.generateKFrags(
+    return this.keyring.generateKFrags(
       bob.decryptingKey,
       this.signer,
       label,
@@ -157,8 +145,8 @@ export class Alice {
       );
     }
 
-    const blockNumber = await this.transactingPower.provider.getBlockNumber();
-    const block = await this.transactingPower.provider.getBlock(blockNumber);
+    const blockNumber = await this.web3Provider.provider.getBlockNumber();
+    const block = await this.web3Provider.provider.getBlock(blockNumber);
     const blockTime = new Date(block.timestamp * 1000);
     if (endDate < blockTime) {
       throw new Error(

@@ -1,4 +1,9 @@
-import { PublicKey, Signer, VerifiedKeyFrag } from '@nucypher/nucypher-core';
+import {
+  PublicKey,
+  SecretKey,
+  Signer,
+  VerifiedKeyFrag,
+} from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
 import { NucypherKeyring } from '../crypto/keyring';
@@ -44,12 +49,12 @@ export class Alice {
     return this.signingPower.signer;
   }
 
-  public static fromSecretKeyBytes(
+  public static fromSecretKey(
     config: Configuration,
-    secretKeyBytes: Uint8Array,
+    secretKey: SecretKey,
     web3Provider: ethers.providers.Web3Provider
   ): Alice {
-    const keyring = new NucypherKeyring(secretKeyBytes);
+    const keyring = new NucypherKeyring(secretKey);
     const signingPower = keyring.deriveSigningPower();
     const delegatingPower = keyring.deriveDelegatingPower();
     const transactingPower = TransactingPower.fromWeb3Provider(web3Provider);

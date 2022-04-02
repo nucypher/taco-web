@@ -29,8 +29,8 @@ const mockConfig: Configuration = {
 };
 
 export const mockBob = (): Bob => {
-  const bobKey = toBytes('fake-secret-key-32-bytes-bob-xxx');
-  return Bob.fromSecretKey(mockConfig, bobKey);
+  const secretKey = SecretKey.fromBytes(toBytes('fake-secret-key-32-bytes-bob-xxx'));
+  return Bob.fromSecretKey(mockConfig, secretKey);
 };
 
 export const mockRemoteBob = (): RemoteBob => {
@@ -38,14 +38,12 @@ export const mockRemoteBob = (): RemoteBob => {
   return RemoteBob.fromKeys(decryptingKey, verifyingKey);
 };
 
-export const mockAlice = (aliceKey?: string) => {
-  const keyBytes = aliceKey
-    ? toBytes(aliceKey)
-    : toBytes('fake-secret-key-32-bytes-alice-x');
-  const provider = mockWeb3Provider(keyBytes);
-  return Alice.fromSecretKeyBytes(
+export const mockAlice = (aliceKey = 'fake-secret-key-32-bytes-alice-x') => {
+  const secretKey = SecretKey.fromBytes(toBytes(aliceKey));
+  const provider = mockWeb3Provider(secretKey.toSecretBytes());
+  return Alice.fromSecretKey(
     mockConfig,
-    keyBytes,
+    secretKey,
     provider as ethers.providers.Web3Provider,
   );
 };
@@ -60,7 +58,7 @@ export const mockWeb3Provider = (
     getBlockNumber: () => Promise.resolve(blockNumber ?? 1000),
     getBlock: () => Promise.resolve(block as Block),
     _isProvider: true,
-    getNetwork: () => Promise.resolve({ name: 'mock', chainId: -1 }),
+    getNetwork: () => Promise.resolve({ name: 'mockNetwork', chainId: -1 }),
   };
   const fakeSignerWithProvider = {
     ...new Wallet(secretKeyBytes),
@@ -149,7 +147,7 @@ export const mockCFragResponse = (
     .map((cFrag) => CapsuleFrag.fromBytes(cFrag.toBytes()));
   const result = Object.fromEntries(zip(ursulas, reencrypted));
   // We return one result per capsule, so just one result
-  return [ result ];
+  return [result];
 };
 
 export const mockRetrieveCFragsRequest = (
@@ -203,3 +201,7 @@ export const reencryptKFrags = (
 export const mockMakeTreasureMap = () => {
   return jest.spyOn(BlockchainPolicy.prototype as any, 'makeTreasureMap');
 };
+function aliceKey(aliceKey: any) {
+  throw new Error('Function not implemented.');
+}
+

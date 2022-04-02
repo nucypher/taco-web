@@ -34,15 +34,7 @@ export class TransactingPower {
 }
 
 export class DelegatingPower {
-  private secretKeyBytes: Uint8Array;
-
-  private constructor(secretKeyBytes: Uint8Array) {
-    this.secretKeyBytes = secretKeyBytes;
-  }
-
-  public static fromSecretKeyBytes(secretKeyBytes: Uint8Array) {
-    return new DelegatingPower(secretKeyBytes);
-  }
+  constructor(private readonly secretKey: SecretKey) {}
 
   public generateKFrags(
     receivingKey: PublicKey,
@@ -76,9 +68,9 @@ export class DelegatingPower {
   }
 
   private getSecretKeyFromLabel(label: string): SecretKey {
-    return SecretKeyFactory.fromSecureRandomness(this.secretKeyBytes).makeKey(
-      toBytes(label)
-    );
+    return SecretKeyFactory.fromSecureRandomness(
+      this.secretKey.toSecretBytes()
+    ).makeKey(toBytes(label));
   }
 }
 
@@ -86,12 +78,12 @@ abstract class CryptoPower {
   private readonly _secretKey?: SecretKey;
   private readonly _publicKey?: PublicKey;
 
-  protected constructor(secretKeyBytes?: Uint8Array, publicKey?: PublicKey) {
-    if (secretKeyBytes && publicKey) {
-      throw new Error('Pass either secretKeyBytes or publicKey - not both.');
+  protected constructor(secretKey?: SecretKey, publicKey?: PublicKey) {
+    if (SecretKey && publicKey) {
+      throw new Error('Pass either a secret key or a public key - not both.');
     }
-    if (secretKeyBytes) {
-      this._secretKey = SecretKey.fromBytes(secretKeyBytes);
+    if (secretKey) {
+      this._secretKey = secretKey;
       this._publicKey = this.secretKey.publicKey();
     }
     if (publicKey) {
@@ -125,12 +117,12 @@ export class SigningPower extends CryptoPower {
     return new SigningPower(undefined, publicKey);
   }
 
-  public static fromSecretKeyBytes(secretKeyBytes: Uint8Array): SigningPower {
-    return new SigningPower(secretKeyBytes, undefined);
+  public static fromSecretKey(secretKey: SecretKey): SigningPower {
+    return new SigningPower(secretKey, undefined);
   }
 
   public static fromRandom(): SigningPower {
-    return SigningPower.fromSecretKeyBytes(SecretKey.random().toSecretBytes());
+    return SigningPower.fromSecretKey(SecretKey.random());
   }
 }
 
@@ -139,10 +131,8 @@ export class DecryptingPower extends CryptoPower {
     return new DecryptingPower(undefined, publicKey);
   }
 
-  public static fromSecretKeyBytes(
-    secretKeyBytes: Uint8Array
-  ): DecryptingPower {
-    return new DecryptingPower(secretKeyBytes, undefined);
+  public static fromSecretKey(secretKey: SecretKey): DecryptingPower {
+    return new DecryptingPower(secretKey, undefined);
   }
 
   public decrypt(messageKit: PolicyMessageKit | MessageKit): Uint8Array {

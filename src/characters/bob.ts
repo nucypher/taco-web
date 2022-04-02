@@ -2,6 +2,7 @@ import {
   EncryptedTreasureMap,
   MessageKit,
   PublicKey,
+  SecretKey,
   Signer,
 } from '@nucypher/nucypher-core';
 
@@ -64,7 +65,7 @@ export class Bob {
 
   public static fromSecretKey(
     config: Configuration,
-    secretKey: Uint8Array
+    secretKey: SecretKey
   ): Bob {
     const keyring = new NucypherKeyring(secretKey);
     const signingPower = keyring.deriveSigningPower();

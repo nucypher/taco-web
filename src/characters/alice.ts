@@ -1,11 +1,12 @@
+import { ethers } from 'ethers';
 import {
   PublicKey,
   SecretKey,
   Signer,
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
-import { ethers } from 'ethers';
 
+import { Configuration } from '../config';
 import { Keyring } from '../keyring';
 import {
   BlockchainPolicy,
@@ -13,7 +14,7 @@ import {
   EnactedPolicy,
   PreEnactedPolicy,
 } from '../policies/policy';
-import { ChecksumAddress, Configuration } from '../types';
+import { ChecksumAddress } from '../types';
 import { Web3Provider } from '../web3';
 
 import { RemoteBob } from './bob';

@@ -6,10 +6,10 @@ import {
   Signer,
 } from '@nucypher/nucypher-core';
 
+import { Configuration } from '../config';
 import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
-import { Configuration } from '../types';
 import { zip } from '../utils';
 
 import { Porter } from './porter';

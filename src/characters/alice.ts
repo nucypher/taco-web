@@ -1,10 +1,10 @@
-import { ethers } from 'ethers';
 import {
   PublicKey,
   SecretKey,
   Signer,
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
+import { ethers } from 'ethers';
 
 import { Configuration } from '../config';
 import { Keyring } from '../keyring';

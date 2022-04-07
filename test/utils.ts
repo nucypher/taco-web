@@ -11,10 +11,10 @@ import {
 import axios from 'axios';
 import { ethers, Wallet } from 'ethers';
 
-import { Alice, Bob, RemoteBob } from '../src';
+import { Alice, Bob, Configuration, RemoteBob } from '../src';
 import { GetUrsulasResponse, Porter, RetrieveCFragsResponse, Ursula } from '../src/characters/porter';
 import { BlockchainPolicy, PreEnactedPolicy } from '../src/policies/policy';
-import { ChecksumAddress, Configuration } from '../src/types';
+import { ChecksumAddress } from '../src/types';
 import { toBytes, toHexString, zip } from '../src/utils';
 
 export const fromBytes = (bytes: Uint8Array): string =>

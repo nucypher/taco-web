@@ -14,8 +14,8 @@ describe('enrico', () => {
     const enrico = new Enrico(policyKey);
     const encrypted = enrico.encryptMessage(toBytes(message));
 
-    const alicePower = (alice as any).delegatingPower;
-    const aliceSk = await alicePower.getSecretKeyFromLabel(label);
+    const aliceKeyring = (alice as any).keyring;
+    const aliceSk = await aliceKeyring.getSecretKeyFromLabel(label);
     const alicePlaintext = encrypted.decrypt(aliceSk);
     expect(alicePlaintext).toEqual(alicePlaintext);
   });
@@ -33,9 +33,7 @@ describe('enrico', () => {
     const encrypted = enrico.encryptMessage(plaintextBytes);
 
     // Alice can decrypt capsule she created
-    const aliceSk = await (alice as any).delegatingPower.getSecretKeyFromLabel(
-      label,
-    );
+    const aliceSk = await (alice as any).keyring.getSecretKeyFromLabel(label);
     const plaintextAlice = encrypted.decrypt(aliceSk);
     expect(fromBytes(plaintextAlice).endsWith(plaintext)).toBeTruthy();
 
@@ -54,7 +52,7 @@ describe('enrico', () => {
       verifiedKFrags,
       encrypted.capsule,
     );
-    const bobSk = (bob as any).decryptingPower.secretKey;
+    const bobSk = (bob as any).keyring.secretKey;
 
     const plaintextBob = encrypted
       .withCFrag(verifiedCFrags[0])

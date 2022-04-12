@@ -57,10 +57,10 @@ interface PostRetrieveCFragsResult {
 export type RetrieveCFragsResponse = Record<ChecksumAddress, CapsuleFrag>;
 
 export class Porter {
-  private readonly porterUri: string;
+  private readonly porterUri: URL;
 
   constructor(porterUri: string) {
-    this.porterUri = porterUri;
+    this.porterUri = new URL(porterUri);
   }
 
   public async getUrsulas(

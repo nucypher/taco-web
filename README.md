@@ -4,6 +4,13 @@ Communicate with NuCypher network from browser.
 
 **This is a work in progress. Do not use in production.**
 
+## Supported networks
+
+`nucypher-ts` is available on the following networks:
+
+- Polygon
+- Mumbai (Polygon testnet)
+
 ## Usage
 
 Run with:

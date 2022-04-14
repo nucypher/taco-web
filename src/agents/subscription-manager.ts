@@ -5,14 +5,14 @@ import {
   SubscriptionManager,
   SubscriptionManager__factory,
 } from '../../types/ethers-contracts';
-import { TransactingPower } from '../crypto/powers';
 import { ChecksumAddress } from '../types';
+import { Web3Provider } from '../web3';
 
 import { DEFAULT_WAIT_N_CONFIRMATIONS, getContracts } from './contracts';
 
 export class SubscriptionManagerAgent {
   public static async createPolicy(
-    transactingPower: TransactingPower,
+    web3Provider: Web3Provider,
     valueInWei: BigNumber,
     policyId: Uint8Array,
     size: number,
@@ -21,8 +21,8 @@ export class SubscriptionManagerAgent {
     ownerAddress: ChecksumAddress
   ): Promise<ContractTransaction> {
     const SubscriptionManager = await this.connect(
-      transactingPower.provider,
-      transactingPower.signer
+      web3Provider.provider,
+      web3Provider.signer
     );
     const overrides = {
       value: valueInWei.toString(),
@@ -54,12 +54,11 @@ export class SubscriptionManagerAgent {
     endTimestamp: number
   ): Promise<BigNumber> {
     const SubscriptionManager = await this.connect(provider);
-    const feeRateRange = await SubscriptionManager.getPolicyCost(
+    return await SubscriptionManager.getPolicyCost(
       size,
       startTimestamp,
       endTimestamp
     );
-    return feeRateRange;
   }
 
   private static async connect(

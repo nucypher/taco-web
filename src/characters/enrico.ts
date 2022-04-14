@@ -1,23 +1,14 @@
-import { MessageKit, PublicKey } from '@nucypher/nucypher-core';
+import { MessageKit, PublicKey, SecretKey } from '@nucypher/nucypher-core';
 
-import { SigningPower } from '../crypto/powers';
 import { toBytes } from '../utils';
 
 export class Enrico {
   public readonly policyEncryptingKey: PublicKey;
-  private readonly signingPower: SigningPower;
+  public readonly verifyingKey: PublicKey;
 
   constructor(policyEncryptingKey: PublicKey, verifyingKey?: PublicKey) {
     this.policyEncryptingKey = policyEncryptingKey;
-    if (verifyingKey) {
-      this.signingPower = SigningPower.fromPublicKey(verifyingKey);
-    } else {
-      this.signingPower = SigningPower.fromRandom();
-    }
-  }
-
-  public get verifyingKey(): PublicKey {
-    return this.signingPower.publicKey;
+    this.verifyingKey = verifyingKey ?? SecretKey.random().publicKey();
   }
 
   public encryptMessage(plaintext: Uint8Array | string): MessageKit {

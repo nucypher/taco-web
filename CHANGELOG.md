@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.7.0](https://github.com/nucypher/nucypher-ts/compare/v0.6.1...v0.7.0) (2022-04-14)
+
+### ⚠ BREAKING CHANGES
+
+* In public API, use SecretKey directly instead of raw secret key bytes
+
+### Features
+
+* Add default config per network ([25a84f1](https://github.com/nucypher/nucypher-ts/commit/25a84f153c46ddd8346f14fc30041f13faaa82e3))
+* Add Polygon mainnet contract config ([98ad251](https://github.com/nucypher/nucypher-ts/commit/98ad251d7b9a007b47f589fee80386f87da539d5))
+* Expose SecretKey from nucypher-core ([64ac724](https://github.com/nucypher/nucypher-ts/commit/64ac724c3506ebdcfa08bd83ed538ac1006fb0d2))
+* In public API, use SecretKey directly instead of raw secret key bytes ([868ff43](https://github.com/nucypher/nucypher-ts/commit/868ff437a7973543cd3f391cca0bfc86bafcb76a))
+* Validate Porter URI ([399c306](https://github.com/nucypher/nucypher-ts/commit/399c30673ec4093a5a5d8c0169f0abf7de023b8e))
+
+
+### Bug Fixes
+
+* Expose Configuration type ([4414fd4](https://github.com/nucypher/nucypher-ts/commit/4414fd49f406d3760dece9663cbd0f881cafd946))
+
 ### [0.6.1](https://github.com/nucypher/nucypher-ts/compare/v0.6.0...v0.6.1) (2022-03-26)
 
 

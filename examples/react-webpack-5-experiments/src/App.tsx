@@ -1,4 +1,4 @@
-import { Alice, Bob, EnactedPolicy } from '@nucypher/nucypher-ts';
+import { Alice, Bob, EnactedPolicy, SecretKey } from '@nucypher/nucypher-ts';
 import { ethers } from 'ethers';
 import React from 'react';
 import { useEffect, useState } from 'react';
@@ -41,13 +41,13 @@ export function App() {
     if (!provider) {
       return;
     }
-    const secretKey = Buffer.from('fake-secret-key-32-bytes-alice-x');
-    const alice = Alice.fromSecretKeyBytes(config, secretKey, provider);
+    const secretKey = SecretKey.fromBytes(Buffer.from('fake-secret-key-32-bytes-alice-x'));
+    const alice = Alice.fromSecretKey(config, secretKey, provider);
     setAlice(alice);
   };
 
   const makeBob = () => {
-    const secretKey = Buffer.from('fake-secret-key-32-bytes-bob-xxx');
+    const secretKey = SecretKey.fromBytes(Buffer.from('fake-secret-key-32-bytes-bob-xxx'));
     const bob = Bob.fromSecretKey(config, secretKey);
     setBob(bob);
   };

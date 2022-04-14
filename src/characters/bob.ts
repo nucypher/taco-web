@@ -2,14 +2,14 @@ import {
   EncryptedTreasureMap,
   MessageKit,
   PublicKey,
+  SecretKey,
   Signer,
 } from '@nucypher/nucypher-core';
 
-import { NucypherKeyring } from '../crypto/keyring';
-import { DecryptingPower, SigningPower } from '../crypto/powers';
+import { Configuration } from '../config';
+import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
-import { Configuration } from '../types';
 import { zip } from '../utils';
 
 import { Porter } from './porter';
@@ -38,42 +38,34 @@ export class RemoteBob {
 
 export class Bob {
   private readonly porter: Porter;
+  private readonly keyring: Keyring;
 
-  constructor(
-    private readonly config: Configuration,
-    private readonly signingPower: SigningPower,
-    private readonly decryptingPower: DecryptingPower
-  ) {
-    this.config = config;
+  constructor(config: Configuration, secretKey: SecretKey) {
     this.porter = new Porter(config.porterUri);
-    this.signingPower = signingPower;
-    this.decryptingPower = decryptingPower;
+    this.keyring = new Keyring(secretKey);
   }
 
   public get decryptingKey(): PublicKey {
-    return this.decryptingPower.publicKey;
+    return this.keyring.publicKey;
   }
 
   public get verifyingKey(): PublicKey {
-    return this.signingPower.publicKey;
+    return this.keyring.publicKey;
   }
 
   public get signer(): Signer {
-    return this.signingPower.signer;
+    return this.keyring.signer;
   }
 
   public static fromSecretKey(
     config: Configuration,
-    secretKey: Uint8Array
+    secretKey: SecretKey
   ): Bob {
-    const keyring = new NucypherKeyring(secretKey);
-    const signingPower = keyring.deriveSigningPower();
-    const decryptingPower = keyring.deriveDecryptingPower();
-    return new Bob(config, signingPower, decryptingPower);
+    return new Bob(config, secretKey);
   }
 
   public decrypt(messageKit: MessageKit | PolicyMessageKit): Uint8Array {
-    return this.decryptingPower.decrypt(messageKit);
+    return this.keyring.decrypt(messageKit);
   }
 
   public async retrieveAndDecrypt(
@@ -97,7 +89,7 @@ export class Bob {
       }
     });
 
-    return policyMessageKits.map((mk) => this.decryptingPower.decrypt(mk));
+    return policyMessageKits.map((mk) => this.keyring.decrypt(mk));
   }
 
   public async retrieve(
@@ -107,7 +99,7 @@ export class Bob {
     encryptedTreasureMap: EncryptedTreasureMap
   ): Promise<PolicyMessageKit[]> {
     const treasureMap = encryptedTreasureMap.decrypt(
-      this.decryptingPower.secretKey,
+      this.keyring.secretKey,
       publisherVerifyingKey
     );
 

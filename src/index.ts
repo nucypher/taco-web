@@ -2,5 +2,6 @@ export { Alice } from './characters/alice';
 export { Bob, RemoteBob } from './characters/bob';
 export { Enrico } from './characters/enrico';
 export { BlockchainPolicyParameters, EnactedPolicy } from './policies/policy';
+export { Configuration, defaultConfiguration } from './config';
 
-export { PublicKey, MessageKit } from '@nucypher/nucypher-core';
+export { PublicKey, MessageKit, SecretKey } from '@nucypher/nucypher-core';

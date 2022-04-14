@@ -67,9 +67,7 @@ module.exports = {
   devServer: {
     historyApiFallback: true,
     host: '127.0.0.1',
-    stats: 'errors-only',
-    overlay: true,
-    hot: true,
+    liveReload: true,
     headers: {
       'Access-Control-Allow-Origin': '*',
     },

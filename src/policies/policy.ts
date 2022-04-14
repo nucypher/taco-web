@@ -11,9 +11,9 @@ import { SubscriptionManagerAgent } from '../agents/subscription-manager';
 import { Alice } from '../characters/alice';
 import { RemoteBob } from '../characters/bob';
 import { Ursula } from '../characters/porter';
-import { toCanonicalAddress } from '../crypto/utils';
 import { RevocationKit } from '../kits/revocation';
 import { toBytes, toEpoch, zip } from '../utils';
+import { toCanonicalAddress } from '../web3';
 
 export interface EnactedPolicy {
   id: HRAC;
@@ -54,15 +54,15 @@ export class PreEnactedPolicy implements IPreEnactedPolicy {
   private async publish(publisher: Alice): Promise<string> {
     const startTimestamp = toEpoch(this.startTimestamp);
     const endTimestamp = toEpoch(this.endTimestamp);
-    const ownerAddress = await publisher.transactingPower.getAddress();
+    const ownerAddress = await publisher.web3Provider.getAddress();
     const value = await SubscriptionManagerAgent.getPolicyCost(
-      publisher.transactingPower.provider,
+      publisher.web3Provider.provider,
       this.size,
       startTimestamp,
       endTimestamp
     );
     const tx = await SubscriptionManagerAgent.createPolicy(
-      publisher.transactingPower,
+      publisher.web3Provider,
       value,
       this.id.toBytes(),
       this.size,

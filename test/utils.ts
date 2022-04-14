@@ -201,7 +201,3 @@ export const reencryptKFrags = (
 export const mockMakeTreasureMap = () => {
   return jest.spyOn(BlockchainPolicy.prototype as any, 'makeTreasureMap');
 };
-function aliceKey(aliceKey: any) {
-  throw new Error('Function not implemented.');
-}
-

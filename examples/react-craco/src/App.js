@@ -28,8 +28,8 @@ function App() {
     const provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
 
     const { chainId } = await provider.getNetwork();
-    if (chainId !== 5) {
-      console.error('You need to connect to the Goerli test network');
+    if (![137, 80001].includes(chainId)) {
+      console.error('You need to connect to the Mumbai or Polygon network');
     }
 
     await provider.send('eth_requestAccounts', []);
@@ -42,8 +42,8 @@ function App() {
   };
 
   const makeAlice = () => {
-    const secretKey = Buffer.from('fake-secret-key-32-bytes-alice-x');
-    const alice = nucypher.Alice.fromSecretKeyBytes(
+    const secretKey = nucypher.SecretKey.fromBytes(Buffer.from('fake-secret-key-32-bytes-alice-x'));
+    const alice = nucypher.Alice.fromSecretKey(
       config,
       secretKey,
       provider
@@ -52,7 +52,7 @@ function App() {
   };
 
   const makeBob = () => {
-    const secretKey = Buffer.from('fake-secret-key-32-bytes-bob-xxx');
+    const secretKey = nucypher.SecretKey.fromBytes(Buffer.from('fake-secret-key-32-bytes-bob-xxx'));
     const bob = nucypher.Bob.fromSecretKey(config, secretKey);
     setBob(bob);
   };

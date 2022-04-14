@@ -12,7 +12,7 @@
   "license": "GPL-3.0-only",
   "dependencies": {
     "ethers": "^5.5.2",
-    "@nucypher/nucypher-ts": "^0.6.1"
+    "@nucypher/nucypher-ts": "^0.7.0-rc0"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^5.0.0",

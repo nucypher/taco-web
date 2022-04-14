@@ -1,4 +1,4 @@
-import { Alice, Bob } from '@nucypher/nucypher-ts';
+import { Alice, Bob, SecretKey } from '@nucypher/nucypher-ts';
 import { ethers } from 'ethers';
 
 const txtEncoder = new TextEncoder();
@@ -9,12 +9,12 @@ const config = {
 }
 
 const makeAlice = (provider) => {
-  const secretKey = txtEncoder.encode('fake-secret-key-32-bytes-alice-x');
-  return Alice.fromSecretKeyBytes(config, secretKey, provider);
+  const secretKey = SecretKey.fromBytes(txtEncoder.encode('fake-secret-key-32-bytes-alice-x'));
+  return Alice.fromSecretKey(config, secretKey, provider);
 };
 
 const makeBob = () => {
-  const secretKey = txtEncoder.encode('fake-secret-key-32-bytes-bob-xxx');
+  const secretKey = SecretKey.fromBytes(txtEncoder.encode('fake-secret-key-32-bytes-bob-xxx'));
   return Bob.fromSecretKey(config, secretKey);
 };
 

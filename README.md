@@ -2,7 +2,7 @@
 
 Communicate with NuCypher network from browser.
 
-**This is a work in progress. Do not use in a production.**
+**This is a work in progress. Do not use in production.**
 
 ## Usage
 

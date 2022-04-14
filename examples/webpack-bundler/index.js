@@ -1,4 +1,4 @@
-import { Alice, Bob } from '@nucypher/nucypher-ts';
+import { Alice, Bob, SecretKey } from '@nucypher/nucypher-ts';
 import { ethers } from 'ethers';
 
 const config = {
@@ -7,12 +7,12 @@ const config = {
 }
 
 const makeAlice = (provider) => {
-  const secretKey = Buffer.from('fake-secret-key-32-bytes-alice-x');
-  return Alice.fromSecretKeyBytes(config, secretKey, provider);
+  const secretKey = SecretKey.fromBytes(Buffer.from('fake-secret-key-32-bytes-alice-x'));
+  return Alice.fromSecretKey(config, secretKey, provider);
 };
 
 const makeBob = () => {
-  const secretKey = Buffer.from('fake-secret-key-32-bytes-bob-xxx');
+  const secretKey = SecretKey.fromBytes(Buffer.from('fake-secret-key-32-bytes-bob-xxx'));
   return Bob.fromSecretKey(config, secretKey);
 };
 
@@ -41,7 +41,7 @@ const runExample = async () => {
   const shares = 3;
   const startDate = new Date();
   const endDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30); // In 30 days
- 
+
   const policyParams = {
     bob: remoteBob,
     label: getRandomLabel(),

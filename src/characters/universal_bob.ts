@@ -13,7 +13,6 @@ import { zip } from '../utils';
 
 import { Porter } from './porter';
 
-
 export class tDecDecrypter {
   private readonly porter: Porter;
   private readonly keyring: Keyring;
@@ -21,12 +20,13 @@ export class tDecDecrypter {
   private readonly encryptedTreasureMap: EncryptedTreasureMap;
   private readonly publisherVerifyingKey: PublicKey;
 
-
-  constructor(porterUri: string,
-              policyEncryptingKey:PublicKey,
-              encryptedTreasureMap: EncryptedTreasureMap,
-              publisherVerifyingKey: PublicKey,
-              decryptingKey: SecretKey) {
+  constructor(
+    porterUri: string,
+    policyEncryptingKey: PublicKey,
+    encryptedTreasureMap: EncryptedTreasureMap,
+    publisherVerifyingKey: PublicKey,
+    decryptingKey: SecretKey
+  ) {
     this.porter = new Porter(porterUri);
     this.keyring = new Keyring(decryptingKey);
     this.policyEncryptingKey = policyEncryptingKey;
@@ -35,41 +35,39 @@ export class tDecDecrypter {
   }
 
   public get decryptingKey(): PublicKey {
-      return this.keyring.publicKey;
+    return this.keyring.publicKey;
   }
 
   public get verifyingKey(): PublicKey {
-      return this.keyring.publicKey;
+    return this.keyring.publicKey;
   }
 
   public get signer(): Signer {
-      return this.keyring.signer;
+    return this.keyring.signer;
   }
 
   public decrypt(messageKit: MessageKit | PolicyMessageKit): Uint8Array {
-      return this.keyring.decrypt(messageKit);
+    return this.keyring.decrypt(messageKit);
   }
 
   public async retrieveAndDecrypt(
-      messageKits: MessageKit[],
+    messageKits: MessageKit[]
   ): Promise<Uint8Array[]> {
-      const policyMessageKits = await this.retrieve(
-      messageKits,
-      );
+    const policyMessageKits = await this.retrieve(messageKits);
 
-      policyMessageKits.forEach((mk) => {
+    policyMessageKits.forEach((mk) => {
       if (!mk.isDecryptableByReceiver()) {
-          throw Error(
+        throw Error(
           `Not enough cFrags retrieved to open capsule ${mk.capsule}. Was the policy revoked?`
-          );
+        );
       }
-      });
+    });
 
-      return policyMessageKits.map((mk) => this.keyring.decrypt(mk));
+    return policyMessageKits.map((mk) => this.keyring.decrypt(mk));
   }
 
   public async retrieve(
-    messageKits: MessageKit[],
+    messageKits: MessageKit[]
   ): Promise<PolicyMessageKit[]> {
     const treasureMap = this.encryptedTreasureMap.decrypt(
       this.keyring.secretKey,

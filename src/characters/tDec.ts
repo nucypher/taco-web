@@ -41,7 +41,7 @@ export const makeTDecDecrypter = (
   return new tDecDecrypter(
     porterUri,
     tDecConfig[configLabel]['policyEncryptingKey'],
-    tDecConfig[configLabel]['encryptedTreasureMapy'],
+    tDecConfig[configLabel]['encryptedTreasureMap'],
     tDecConfig[configLabel]['publisherVerifyingKey'],
     tDecConfig[configLabel]['decryptingKey']
   );

@@ -9,7 +9,7 @@ describe('threshold decryption', () => {
     const decrypter = makeTDecDecrypter("simple", "https://porter-ibex.nucypher.community")
     const encryptedMessageKit = encrypter.encryptMessage(plaintext);
 
-    const bobPlaintext = decrypter.retrieveAndDecrypt([encryptedMessageKit]);
+    const bobPlaintext = await decrypter.retrieveAndDecrypt([encryptedMessageKit]);
     expect(bobPlaintext).toEqual(plaintext);
   });
 });

@@ -19,26 +19,25 @@ export class tDecDecrypter {
   private readonly policyEncryptingKey: PublicKey;
   private readonly encryptedTreasureMap: EncryptedTreasureMap;
   private readonly publisherVerifyingKey: PublicKey;
+  private readonly verifyingKey: Keyring;
 
   constructor(
     porterUri: string,
     policyEncryptingKey: PublicKey,
     encryptedTreasureMap: EncryptedTreasureMap,
     publisherVerifyingKey: PublicKey,
-    decryptingKey: SecretKey
+    secretKey: SecretKey,
+    verifyingKey: SecretKey
   ) {
     this.porter = new Porter(porterUri);
-    this.keyring = new Keyring(decryptingKey);
+    this.keyring = new Keyring(secretKey);
     this.policyEncryptingKey = policyEncryptingKey;
     this.encryptedTreasureMap = encryptedTreasureMap;
     this.publisherVerifyingKey = publisherVerifyingKey;
+    this.verifyingKey = new Keyring(verifyingKey);
   }
 
   public get decryptingKey(): PublicKey {
-    return this.keyring.publicKey;
-  }
-
-  public get verifyingKey(): PublicKey {
     return this.keyring.publicKey;
   }
 
@@ -88,7 +87,7 @@ export class tDecDecrypter {
       retrievalKits,
       this.publisherVerifyingKey,
       this.decryptingKey,
-      this.verifyingKey
+      this.verifyingKey.publicKey
     );
 
     return zip(policyMessageKits, retrieveCFragsResponses).map((pair) => {

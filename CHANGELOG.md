@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.7.1](https://github.com/nucypher/nucypher-ts/compare/v0.7.0...v0.7.1) (2022-07-16)
+
+
+### Features
+
+* expose encrypted treasue map type ([1c18001](https://github.com/nucypher/nucypher-ts/commit/1c1800185fcc9a0600f38372624a6e54a924fe9f))
+
 ## [0.7.0](https://github.com/nucypher/nucypher-ts/compare/v0.6.1...v0.7.0) (2022-04-14)
 
 ### ⚠ BREAKING CHANGES

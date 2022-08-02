@@ -4,10 +4,13 @@ import {
   SecretKey,
 } from '@nucypher/nucypher-core';
 import axios from 'axios';
+import { ethers } from 'ethers';
+import { EnactedPolicy } from '../policies/policy';
 
 import { fromHexString } from '../utils';
-
+import { Bob } from './bob';
 import { Enrico } from './enrico';
+import { Alice } from './alice';
 import { tDecDecrypter } from './universal_bob';
 
 async function getTDecConfig(
@@ -17,6 +20,52 @@ async function getTDecConfig(
     'https://raw.githubusercontent.com/nucypher/network-keys/master/network-keys.json'
   );
   return data[configLabel];
+}
+
+export async function generateTDecEntities(
+  m: number,
+  n: number,
+  provider: ethers.providers.Web3Provider,
+  label: string,
+  startDate: Date,
+  endDate: Date,
+  porterUri: string,
+  aliceSecretKey: SecretKey = SecretKey.random()
+): Promise<[Enrico, tDecDecrypter, EnactedPolicy]> {
+  // const configuration = defaultConfiguration(chainId);
+  const configuration = {porterUri: porterUri}
+  const bobSecretKey = SecretKey.random();
+  const universalBob = new Bob(configuration, bobSecretKey);
+
+  const godAlice = Alice.fromSecretKey(configuration, aliceSecretKey, provider);
+  const policyParams = {
+    bob: universalBob,
+    label: label,
+    threshold: m,
+    shares: n,
+    startDate,
+    endDate,
+  }
+  const policy = await godAlice.grant(
+    policyParams,
+    // includeUrsulas,
+    // excludeUrsulas
+  );
+
+  const encrypter = new Enrico(
+    policy.policyKey,
+    godAlice.verifyingKey
+  );
+
+  const decrypter = new tDecDecrypter(
+    porterUri,
+    policy.policyKey,
+    policy.encryptedTreasureMap,
+    godAlice.verifyingKey,
+    bobSecretKey,
+    bobSecretKey
+  );
+  return [encrypter, decrypter, policy]
 }
 
 export async function makeTDecDecrypter(
@@ -36,7 +85,6 @@ export async function makeTDecDecrypter(
 
 export async function makeTDecEncrypter(configLabel: string): Promise<Enrico> {
   const config = await getTDecConfig(configLabel);
-  console.log(config);
   return new Enrico(
     PublicKey.fromBytes(fromHexString(config['policy_public_key'])),
     PublicKey.fromBytes(fromHexString(config['alice_verifying_key']))

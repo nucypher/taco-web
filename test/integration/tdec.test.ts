@@ -1,14 +1,23 @@
+import { SecretKey, VerifiedKeyFrag } from '@nucypher/nucypher-core';
+import { ethers } from 'ethers';
+import { Ursula } from '../../src/characters/porter';
+
 import {
+  generateTDecEntities,
   makeTDecDecrypter,
   makeTDecEncrypter,
-  generateTDecEntities,
 } from '../../src/characters/tDec';
 import { toBytes } from '../../src/utils';
 import {
+  mockEncryptTreasureMap,
+  mockGenerateKFrags,
+  mockGetUrsulas,
+  mockMakeTreasureMap,
+  mockPublishToBlockchain,
+  mockRetrieveCFragsRequest,
+  mockUrsulas,
   mockWeb3Provider,
 } from '../utils';
-import { ethers } from 'ethers';
-import { SecretKey } from '@nucypher/nucypher-core';
 
 describe('threshold decryption', () => {
   const plaintext = toBytes('plaintext-message');
@@ -28,26 +37,62 @@ describe('threshold decryption', () => {
   });
 
   it('encrypts and decrypts reencrypted message from dynamic config', async () => {
-    const secretKey = SecretKey.random()
-    const provider = mockWeb3Provider(secretKey.toSecretBytes());
+    const threshold = 3;
+    const shares = 5;
+    const label = 'test';
     const startDate = new Date();
     const endDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30); // In 30 days
+    const aliceSecretKey = SecretKey.random()
+    const provider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
 
-    let [encrypter, decrypter, policy] = await generateTDecEntities(
-      3,
-      5,
-      provider as ethers.providers.Web3Provider,
-      'test',
+    // Setup mocks for `generateTDecEntities`
+    const mockedUrsulas = mockUrsulas().slice(0, shares);
+    const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
+    const generateKFragsSpy = mockGenerateKFrags();
+    const publishToBlockchainSpy = mockPublishToBlockchain();
+    const makeTreasureMapSpy = mockMakeTreasureMap();
+    const encryptTreasureMapSpy = mockEncryptTreasureMap();
+
+    const [encrypter, decrypter, policy] = await generateTDecEntities(
+      threshold,
+      shares,
+      provider,
+      label,
       startDate,
       endDate,
       'https://porter-ibex.nucypher.community',
-      secretKey
+      aliceSecretKey
     );
+
+    expect(policy.label).toBe(label);
+    expect(getUrsulasSpy).toHaveBeenCalled();
+    expect(generateKFragsSpy).toHaveBeenCalled();
+    expect(publishToBlockchainSpy).toHaveBeenCalled();
+    expect(encryptTreasureMapSpy).toHaveBeenCalled();
+    expect(makeTreasureMapSpy).toHaveBeenCalled();
+
     const encryptedMessageKit = encrypter.encryptMessage(plaintext);
+
+
+    // Setup mocks for `retrieveAndDecrypt`
+    const getUrsulasSpy2 = mockGetUrsulas(mockedUrsulas);
+    const ursulaAddresses = (makeTreasureMapSpy.mock.calls[0][0] as Ursula[]).map(
+      (u) => u.checksumAddress,
+    );
+    const verifiedKFrags = makeTreasureMapSpy.mock.calls[0][1] as VerifiedKeyFrag[];
+    const retrieveCFragsSpy = mockRetrieveCFragsRequest(
+      ursulaAddresses,
+      verifiedKFrags,
+      encryptedMessageKit.capsule,
+    );
 
     const bobPlaintext = await decrypter.retrieveAndDecrypt([
       encryptedMessageKit,
     ]);
+
+    expect(getUrsulasSpy2).toHaveBeenCalled();
+    expect(retrieveCFragsSpy).toHaveBeenCalled();
     expect(bobPlaintext[0]).toEqual(plaintext);
+
   });
 });

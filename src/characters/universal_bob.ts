@@ -16,16 +16,13 @@ import { Porter } from './porter';
 export class tDecDecrypter {
   private readonly porter: Porter;
   private readonly keyring: Keyring;
-  private readonly policyEncryptingKey: PublicKey;
-  private readonly encryptedTreasureMap: EncryptedTreasureMap;
-  private readonly publisherVerifyingKey: PublicKey;
   private readonly verifyingKey: Keyring;
 
   constructor(
     porterUri: string,
-    policyEncryptingKey: PublicKey,
-    encryptedTreasureMap: EncryptedTreasureMap,
-    publisherVerifyingKey: PublicKey,
+    private readonly policyEncryptingKey: PublicKey,
+    private readonly encryptedTreasureMap: EncryptedTreasureMap,
+    private readonly publisherVerifyingKey: PublicKey,
     secretKey: SecretKey,
     verifyingKey: SecretKey
   ) {

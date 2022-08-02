@@ -5,12 +5,13 @@ import {
 } from '@nucypher/nucypher-core';
 import axios from 'axios';
 import { ethers } from 'ethers';
-import { EnactedPolicy } from '../policies/policy';
 
+import { EnactedPolicy } from '../policies/policy';
 import { fromHexString } from '../utils';
+
+import { Alice } from './alice';
 import { Bob } from './bob';
 import { Enrico } from './enrico';
-import { Alice } from './alice';
 import { tDecDecrypter } from './universal_bob';
 
 async function getTDecConfig(
@@ -23,8 +24,8 @@ async function getTDecConfig(
 }
 
 export async function generateTDecEntities(
-  m: number,
-  n: number,
+  threshold: number,
+  shares: number,
   provider: ethers.providers.Web3Provider,
   label: string,
   startDate: Date,
@@ -33,29 +34,26 @@ export async function generateTDecEntities(
   aliceSecretKey: SecretKey = SecretKey.random()
 ): Promise<[Enrico, tDecDecrypter, EnactedPolicy]> {
   // const configuration = defaultConfiguration(chainId);
-  const configuration = {porterUri: porterUri}
+  const configuration = { porterUri };
   const bobSecretKey = SecretKey.random();
   const universalBob = new Bob(configuration, bobSecretKey);
 
   const godAlice = Alice.fromSecretKey(configuration, aliceSecretKey, provider);
   const policyParams = {
     bob: universalBob,
-    label: label,
-    threshold: m,
-    shares: n,
+    label,
+    threshold,
+    shares,
     startDate,
     endDate,
-  }
+  };
   const policy = await godAlice.grant(
-    policyParams,
+    policyParams
     // includeUrsulas,
     // excludeUrsulas
   );
 
-  const encrypter = new Enrico(
-    policy.policyKey,
-    godAlice.verifyingKey
-  );
+  const encrypter = new Enrico(policy.policyKey, godAlice.verifyingKey);
 
   const decrypter = new tDecDecrypter(
     porterUri,
@@ -65,7 +63,7 @@ export async function generateTDecEntities(
     bobSecretKey,
     bobSecretKey
   );
-  return [encrypter, decrypter, policy]
+  return [encrypter, decrypter, policy];
 }
 
 export async function makeTDecDecrypter(

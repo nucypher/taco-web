@@ -47,4 +47,6 @@ See `./test` directory for usage examples.
 
 See `./examples` directory for examples of browser integration.
 
+See `./examples/api-example.ts` directory for an abridged API example.
+
 See [`nucypher-ts-demo`](https://github.com/nucypher/nucypher-ts-demo) for usage example with React app.

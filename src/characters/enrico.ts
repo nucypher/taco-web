@@ -5,26 +5,26 @@ import { toBytes } from '../utils';
 
 const accessControlConditions = [
   {
-    contractAddress: "",
-    standardContractType: "timestamp",
-    chain: "ethereum",
-    method: "eth_getBlockByNumber",
-    parameters: ["latest"],
+    contractAddress: '',
+    standardContractType: 'timestamp',
+    chain: 'ethereum',
+    method: 'eth_getBlockByNumber',
+    parameters: ['latest'],
     returnValueTest: {
-      comparator: ">=",
-      value: "1651276942"
+      comparator: '>=',
+      value: '1651276942',
     },
   },
-  {operator: "or"},
+  { operator: 'or' },
   {
-    contractAddress: "",
-    standardContractType: "timestamp",
-    chain: "ethereum",
-    method: "eth_getBlockByNumber",
-    parameters: ["latest"],
+    contractAddress: '',
+    standardContractType: 'timestamp',
+    chain: 'ethereum',
+    method: 'eth_getBlockByNumber',
+    parameters: ['latest'],
     returnValueTest: {
-      comparator: "<=",
-      value: "1651276942"
+      comparator: '<=',
+      value: '1651276942',
     },
   },
 ];

@@ -9,7 +9,7 @@ export {
   PreEnactedPolicy,
 } from './policies/policy';
 export { Configuration, defaultConfiguration } from './config';
-
+export { RevocationKit } from './kits/revocation';
 export {
   PublicKey,
   MessageKit,

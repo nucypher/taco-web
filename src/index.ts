@@ -15,4 +15,7 @@ export {
   MessageKit,
   SecretKey,
   EncryptedTreasureMap,
+  HRAC,
+  TreasureMapBuilder,
+  Signer,
 } from '@nucypher/nucypher-core';

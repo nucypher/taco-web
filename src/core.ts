@@ -25,7 +25,7 @@ export class MessageKit extends CoreMessageKit {
     this.dcs = decryptionConditions;
   }
 
-  public toNewBytes = () => {
+  public toBytes() {
     const conditionBytes = Buffer.from(JSON.stringify(this.dcs));
     const delimiterBytes = Uint8Array.from([this.delimiter]);
     const mkBytes = super.toBytes();
@@ -33,5 +33,5 @@ export class MessageKit extends CoreMessageKit {
     return Buffer.from(
       new Uint8Array([...conditionBytes, ...delimiterBytes, ...mkBytes])
     );
-  };
+  }
 }

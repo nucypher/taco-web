@@ -31,7 +31,6 @@ describe('enrico', () => {
     const plaintext = 'Plaintext message';
     const plaintextBytes = toBytes(plaintext);
     const encrypted = enrico.encryptMessage(plaintextBytes);
-    console.log(encrypted.toNewBytes())
 
     // Alice can decrypt capsule she created
     const aliceSk = await (alice as any).keyring.getSecretKeyFromLabel(label);

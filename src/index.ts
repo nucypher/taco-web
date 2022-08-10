@@ -6,11 +6,17 @@ export {
   EnactedPolicy,
   PreEnactedPolicy,
 } from './policies/policy';
+export { Porter } from './characters/porter';
+export { Keyring } from './keyring';
 export { Configuration, defaultConfiguration } from './config';
+export { RevocationKit } from './kits/revocation';
 
 export {
   PublicKey,
   MessageKit,
   SecretKey,
   EncryptedTreasureMap,
+  HRAC,
+  TreasureMapBuilder,
+  Signer,
 } from '@nucypher/nucypher-core';

@@ -2,7 +2,12 @@
 
 Communicate with NuCypher network from browser.
 
-**This is a work in progress. Do not use in production.**
+## Disclaimer
+
+**This is a work in progress**
+
+- SDK does not support policy revocation.
+- We expect breaking changes.
 
 ## Supported networks
 
@@ -47,6 +52,6 @@ See `./test` directory for usage examples.
 
 See `./examples` directory for examples of browser integration.
 
-See `./examples/api-example.ts` directory for an abridged API example.
+See `./examples/api-example.ts` for an abridged API example.
 
 See [`nucypher-ts-demo`](https://github.com/nucypher/nucypher-ts-demo) for usage example with React app.

@@ -1,7 +1,7 @@
 {
   "name": "@nucypher/nucypher-ts",
   "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "license": "GPL-3.0-only",
   "repository": {
     "type": "git",
@@ -40,7 +40,7 @@
     "prebuild": "yarn typechain"
   },
   "dependencies": {
-    "@nucypher/nucypher-core": "^0.1.0",
+    "@nucypher/nucypher-core": "^0.2.0",
     "axios": "^0.21.1",
     "ethers": "^5.4.1",
     "js-sha3": "^0.8.0",

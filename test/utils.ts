@@ -38,6 +38,11 @@ export const mockRemoteBob = (): RemoteBob => {
   return RemoteBob.fromKeys(decryptingKey, verifyingKey);
 };
 
+export const mockTemporaryBob = (): Bob => {
+  const secretKey = SecretKey.fromBytes(toBytes('fake-secret-key-32-bytes-tmp-bob'));
+  return Bob.fromSecretKey(mockConfig, secretKey);
+}
+
 export const mockAlice = (aliceKey = 'fake-secret-key-32-bytes-alice-x') => {
   const secretKey = SecretKey.fromBytes(toBytes(aliceKey));
   const provider = mockWeb3Provider(secretKey.toSecretBytes());

@@ -41,9 +41,11 @@
   },
   "dependencies": {
     "@nucypher/nucypher-core": "^0.2.0",
+    "@semaphore-protocol/group": "^2.0.0",
+    "@semaphore-protocol/identity": "^2.0.0",
+    "@semaphore-protocol/proof": "^2.2.0",
     "axios": "^0.21.1",
     "ethers": "^5.4.1",
-    "js-sha3": "^0.8.0",
     "qs": "^6.10.1"
   },
   "devDependencies": {

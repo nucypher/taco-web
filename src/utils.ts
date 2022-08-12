@@ -1,3 +1,8 @@
+import { sha256 as _sha256 } from '@ethersproject/sha2';
+import { keccak256 } from '@ethersproject/solidity';
+import { toUtf8Bytes } from '@ethersproject/strings';
+import { formatBytes32String } from '@ethersproject/strings';
+
 export const toBytes = (str: string): Uint8Array =>
   new TextEncoder().encode(str);
 
@@ -80,3 +85,24 @@ export const mergeWithoutUndefined = (
 export const zip = (a: Array<any>, b: Array<any>) => a.map((k, i) => [k, b[i]]);
 
 export const toEpoch = (date: Date) => (date.getTime() / 1000) | 0;
+
+// Reference: https://github.com/semaphore-protocol/semaphore.js/blob/c99af703eff08fa7f3e133b9e139bf3feca5dce5/packages/identity/src/utils.ts#L11
+/**
+ * Returns an hexadecimal sha256 hash of the message passed as parameter.
+ * @param message The string to hash.
+ * @returns The hexadecimal hash of the message.
+ */
+export const sha256 = (message: string): string =>
+  _sha256(toUtf8Bytes(message));
+
+// Reference: https://github.com/semaphore-protocol/semaphore.js/blob/45cd485110f638c083e070dcbe1cc15863b2c78c/packages/proof/src/generateSignalHash.ts
+/**
+ * Hashes a signal string with Keccak256.
+ * @param signal The Semaphore signal.
+ * @returns The signal hash.
+ */
+export default function generateSignalHash(signal: string): bigint {
+  return (
+    BigInt(keccak256(['bytes32'], [formatBytes32String(signal)])) >> BigInt(8)
+  );
+}

@@ -25,6 +25,7 @@
     "test:exports": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
     "test:prettier": "prettier \"src/**/*.ts\" --list-different",
     "test:unit": "jest",
+    "test:debug": "node --nolazy --inspect-brk ./node_modules/jest/bin/jest.js --runInBand --colors --verbose",
     "watch:build": "tsc -p tsconfig.json -w",
     "watch:test": "jest --watch",
     "cov": "run-s build test:unit && open-cli coverage/index.html",
@@ -43,6 +44,7 @@
     "@nucypher/nucypher-core": "^0.1.0",
     "axios": "^0.21.1",
     "ethers": "^5.4.1",
+    "joi": "^17.6.0",
     "js-sha3": "^0.8.0",
     "qs": "^6.10.1"
   },

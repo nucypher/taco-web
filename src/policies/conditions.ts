@@ -1,60 +1,130 @@
+import Joi from 'joi';
+
 class Operator {
   static operators: Array<string> = ['and', 'or'];
 
-  operator: string;
-
-  constructor(operator: string) {
+  constructor(public operator: string) {
     if (!Operator.operators.includes(operator)) {
       throw `"${operator}" is not a valid operator`;
     }
     this.operator = operator;
   }
+
+  toObj() {
+    return { operator: this.operator };
+  }
 }
 
-export { Operator };
+class ConditionSet {
+  constructor(public conditions: Array<Condition | Operator>) {}
 
-// class ConditionLingo {
-//     // # TODO: 'A Collection of re-encryption conditions evaluated as a compound boolean condition'
+  validate() {
+    if (this.conditions.length % 2 === 0) {
+      throw 'conditions must be odd length, ever other element being an operator';
+    }
+    this.conditions.forEach((cnd: Condition | Operator, index) => {
+      if (index % 2 && cnd.constructor.name !== 'Operator')
+        throw `${index} element must be an Operator; Got ${cnd.constructor.name}.`;
+      if (!(index % 2) && cnd.constructor.name === 'Operator')
+        throw `${index} element must be a Condition; Got ${cnd.constructor.name}.`;
+    });
+    return true;
+  }
 
-//     constructor(conditions: Array<Record<string, unknown>>[]) {
+  toList() {
+    return this.conditions.map((cnd) => {
+      return cnd.toObj();
+    });
+  }
 
-//     }
+  toJSON() {
+    return JSON.stringify(this.toList());
+  }
 
-//     validate (conditions: Array<Record<string, unknown>>[]) {
-//         if (!(conditions.length % 2 > 0)){
-//             throw ('conditions must be odd length, ever other element being an operator')
-//         }
-//         conditions.forEach((cn, index) => {
-//             if (!(index % 2 > 0))
-//         })
+  toBytes() {
+    return Buffer.from(this.toJSON()).toString('base64');
+  }
+}
 
-//         // if len(lingo) % 2 == 0:
-//         //     raise ValueError('conditions must be odd length, ever other element being an operator')
-//         // for index, element in enumerate(lingo):
-//         //     if (not index % 2) and not (isinstance(element, ReencryptionCondition)):
-//         //         raise Exception(f'{index} element must be a condition; Got {type(element)}.')
-//         //     elif (index % 2) and (not isinstance(element, Operator)):
-//         //         raise Exception(f'{index} element must be an operator; Got {type(element)}.')
-//     }
+class Condition {
+  defaults = {};
+  state = {};
 
-//     def __init__(self, lingo: List[Union[ReencryptionCondition, Operator, Any]]):
-//         """
-//         The input list must be structured:
-//         condition
-//         operator
-//         condition
-//         ...
-//         """
-//         self._validate(lingo=lingo)
-//         self.lingo = lingo
+  error: any = {};
+  value: any = {};
 
-//     @staticmethod
-//     def _validate(lingo) -> None:
-//         if len(lingo) % 2 == 0:
-//             raise ValueError('conditions must be odd length, ever other element being an operator')
-//         for index, element in enumerate(lingo):
-//             if (not index % 2) and not (isinstance(element, ReencryptionCondition)):
-//                 raise Exception(f'{index} element must be a condition; Got {type(element)}.')
-//             elif (index % 2) and (not isinstance(element, Operator)):
-//                 raise Exception(f'{index} element must be an operator; Got {type(element)}.')
-// }
+  toObj() {
+    return this.validate().value;
+  }
+
+  schema = Joi.object({});
+
+  validate(data: Record<string, unknown> = {}) {
+    this.state = Object.assign(this.defaults, this.state, data);
+    const { error, value } = this.schema.validate(this.state);
+    this.error = error;
+    this.value = value;
+    return { error, value };
+  }
+
+  constructor(data: Record<string, unknown> = {}) {
+    this.validate(data);
+  }
+}
+
+class RPCcondition extends Condition {
+  schema = Joi.object({
+    chain: Joi.string().required(),
+
+    method: Joi.string().valid('balanceOf', 'eth_getBalance').required(),
+
+    parameters: Joi.array(),
+
+    returnValueTest: Joi.object({
+      comparator: Joi.string().valid('==', '>', '<', '<=', '>=').required(),
+      value: Joi.string(),
+    }),
+  });
+}
+
+class ContractCondition extends Condition {
+  schema = Joi.object({
+    contractAddress: Joi.string()
+      .pattern(new RegExp('^0x[a-fA-F0-9]{40}$'))
+      .required(),
+
+    chain: Joi.string().required(),
+
+    standardContractType: Joi.string(),
+
+    functionAbi: Joi.string(),
+
+    method: Joi.string().required(),
+
+    parameters: Joi.array(),
+
+    returnValueTest: Joi.object({
+      comparator: Joi.string().valid('==', '>', '<', '<=', '>=').required(),
+      value: Joi.string(),
+    }),
+  });
+}
+
+class ERC721Ownership extends ContractCondition {
+  defaults = {
+    chain: 'ethereum',
+    method: 'ownerOf',
+    parameters: [],
+    standardContractType: 'ERC721',
+    returnValueTest: {
+      comparator: '==',
+      value: ':userAddress',
+    },
+  };
+}
+
+const Conditions = {
+  ERC721Ownership,
+};
+
+export { Operator, ConditionSet, Conditions };

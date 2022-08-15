@@ -60,7 +60,6 @@ export class MessageKit extends CoreMessageKit {
 
   public toBytes = () => {
     const mkBytes = super.toBytes();
-    console.log(mkBytes);
     return new ConditionsIntegrator(mkBytes, this.conditions).outputBytes;
   };
 }

@@ -1,6 +1,12 @@
 export { Alice } from './characters/alice';
 export { Bob, RemoteBob } from './characters/bob';
 export { Enrico } from './characters/enrico';
+export { tDecDecrypter } from './characters/universal_bob';
+export {
+  generateTDecEntities,
+  makeTDecDecrypter,
+  makeTDecEncrypter,
+} from './characters/tDec';
 export {
   BlockchainPolicyParameters,
   EnactedPolicy,

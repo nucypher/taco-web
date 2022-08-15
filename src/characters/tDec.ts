@@ -7,7 +7,8 @@ import axios from 'axios';
 import { ethers } from 'ethers';
 
 import { EnactedPolicy } from '../policies/policy';
-import { fromHexString } from '../utils';
+import { ChecksumAddress } from '../types';
+
 
 import { Alice } from './alice';
 import { Bob } from './bob';
@@ -31,7 +32,9 @@ export async function generateTDecEntities(
   startDate: Date,
   endDate: Date,
   porterUri: string,
-  aliceSecretKey: SecretKey = SecretKey.random()
+  aliceSecretKey: SecretKey = SecretKey.random(),
+  includeUrsulas?: ChecksumAddress[],
+  excludeUrsulas?: ChecksumAddress[]
 ): Promise<[Enrico, tDecDecrypter, EnactedPolicy]> {
   // const configuration = defaultConfiguration(chainId);
   const configuration = { porterUri };
@@ -48,9 +51,9 @@ export async function generateTDecEntities(
     endDate,
   };
   const policy = await godAlice.grant(
-    policyParams
-    // includeUrsulas,
-    // excludeUrsulas
+    policyParams,
+    includeUrsulas,
+    excludeUrsulas
   );
 
   const encrypter = new Enrico(policy.policyKey, godAlice.verifyingKey);

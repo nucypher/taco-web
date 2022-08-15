@@ -8,7 +8,7 @@ import { ethers } from 'ethers';
 
 import { EnactedPolicy } from '../policies/policy';
 import { ChecksumAddress } from '../types';
-
+import { fromHexString } from '../utils';
 
 import { Alice } from './alice';
 import { Bob } from './bob';

@@ -7,7 +7,7 @@ import { toBytes } from '../utils';
 export class Enrico {
   public readonly policyEncryptingKey: PublicKey;
   public readonly verifyingKey: PublicKey;
-  public readonly conditions?: ConditionSet;
+  public conditions?: ConditionSet;
 
   constructor(
     policyEncryptingKey: PublicKey,

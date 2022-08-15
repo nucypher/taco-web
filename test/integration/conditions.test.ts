@@ -59,9 +59,5 @@ describe('condition set', () => {
     expect (conditions.validate()).toEqual(true)
   })
 
-  console.log(conditions.toJSON())
-
-  console.log(conditions.toBytes())
-
 })
 

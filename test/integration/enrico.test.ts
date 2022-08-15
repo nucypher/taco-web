@@ -3,6 +3,8 @@ import { PolicyMessageKit } from '../../src/kits/message';
 import { RetrievalResult } from '../../src/kits/retrieval';
 import { toBytes } from '../../src/utils';
 import { bytesEqual, fromBytes, mockAlice, mockBob, reencryptKFrags } from '../utils';
+import { Conditions, ConditionSet } from '../../src/policies/conditions'
+import { MessageKit, ConditionsIntegrator } from '../../src/core'
 
 describe('enrico', () => {
   it('alice decrypts message encrypted by enrico', async () => {
@@ -75,5 +77,38 @@ describe('enrico', () => {
 
     const decrypted = bob.decrypt(pk);
     expect(bytesEqual(decrypted, plaintextBytes)).toBeTruthy();
+  });
+
+  it('erico generates a message kit with conditions', async () => {
+    const label = 'fake-label';
+    const message = 'fake-message';
+    const alice = mockAlice();
+
+    const policyKey = alice.getPolicyEncryptingKeyFromLabel(label);
+
+    const ownsBufficornNFT = new Conditions.ERC721Ownership({
+      contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
+      parameters: [3591]
+    })
+
+    const conditions = new ConditionSet([ownsBufficornNFT])
+
+    const enrico = new Enrico(policyKey, undefined, conditions);
+    const encrypted = enrico.encryptMessage(toBytes(message));
+
+    const bytes = Buffer.from(encrypted.toBytes())
+    expect(bytes).toContain(188)
+
+    const conditionbytes = ConditionsIntegrator.parse(bytes).conditions
+    // now take the bytes and remake a ConditionSet
+    if (conditionbytes){
+      const reconstituted = ConditionSet.fromBuffer(conditionbytes)
+      expect(reconstituted.toList()[0].contractAddress).toEqual(ownsBufficornNFT.value.contractAddress)
+    }
+
+    const aliceKeyring = (alice as any).keyring;
+    const aliceSk = await aliceKeyring.getSecretKeyFromLabel(label);
+    const alicePlaintext = encrypted.decrypt(aliceSk);
+    expect(alicePlaintext).toEqual(alicePlaintext);
   });
 });

@@ -1,3 +1,4 @@
+import { base64 } from 'ethers/lib/utils';
 import Joi from 'joi';
 
 class Operator {
@@ -12,6 +13,10 @@ class Operator {
 
   toObj() {
     return { operator: this.operator };
+  }
+
+  static fromObj(obj: any) {
+    return new Operator(obj.operator);
   }
 }
 
@@ -41,8 +46,24 @@ class ConditionSet {
     return JSON.stringify(this.toList());
   }
 
-  toBytes() {
-    return Buffer.from(this.toJSON()).toString('base64');
+  toBase64() {
+    return this.toBuffer().toString('base64');
+  }
+
+  toBuffer() {
+    return Buffer.from(this.toJSON());
+  }
+
+  static fromBuffer(bytes: Buffer) {
+    const decoded = Buffer.from(Buffer.from(bytes).toString('ascii'), 'base64');
+    const asList = JSON.parse(String.fromCharCode(...decoded));
+
+    return new ConditionSet(
+      asList.map((ele: any) => {
+        if ('operator' in ele) return Operator.fromObj(ele);
+        return Condition.fromObj(ele);
+      })
+    );
   }
 }
 
@@ -55,6 +76,10 @@ class Condition {
 
   toObj() {
     return this.validate().value;
+  }
+
+  static fromObj(obj: any) {
+    return new ContractCondition(obj);
   }
 
   schema = Joi.object({});
@@ -89,9 +114,7 @@ class RPCcondition extends Condition {
 
 class ContractCondition extends Condition {
   schema = Joi.object({
-    contractAddress: Joi.string()
-      .pattern(new RegExp('^0x[a-fA-F0-9]{40}$'))
-      .required(),
+    contractAddress: Joi.string().pattern(new RegExp('^0x[a-fA-F0-9]{40}$')),
 
     chain: Joi.string().required(),
 
@@ -99,7 +122,7 @@ class ContractCondition extends Condition {
 
     functionAbi: Joi.string(),
 
-    method: Joi.string().required(),
+    method: Joi.string(),
 
     parameters: Joi.array(),
 

@@ -13,10 +13,11 @@ export { RevocationKit } from './kits/revocation';
 
 export {
   PublicKey,
-  MessageKit,
   SecretKey,
   EncryptedTreasureMap,
   HRAC,
   TreasureMapBuilder,
   Signer,
 } from '@nucypher/nucypher-core';
+
+export { MessageKit } from './core';

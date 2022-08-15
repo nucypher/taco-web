@@ -54,7 +54,7 @@ class ConditionSet {
     return Buffer.from(this.toJSON());
   }
 
-  static fromBuffer(bytes: Buffer) {
+  static fromBytes(bytes: Uint8Array) {
     const decoded = Buffer.from(Buffer.from(bytes).toString('ascii'), 'base64');
     const asList = JSON.parse(String.fromCharCode(...decoded));
 

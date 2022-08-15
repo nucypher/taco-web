@@ -99,10 +99,11 @@ describe('enrico', () => {
     const bytes = Buffer.from(encrypted.toBytes())
     expect(bytes).toContain(188)
 
-    const conditionbytes = ConditionsIntegrator.parse(bytes).conditions
+    const conditionbytes = ConditionsIntegrator.parse(bytes).conditionsBytes
+
     // now take the bytes and remake a ConditionSet
     if (conditionbytes){
-      const reconstituted = ConditionSet.fromBuffer(conditionbytes)
+      const reconstituted = ConditionSet.fromBytes(conditionbytes)
       expect(reconstituted.toList()[0].contractAddress).toEqual(ownsBufficornNFT.value.contractAddress)
     }
 

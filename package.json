@@ -25,7 +25,6 @@
     "test:exports": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
     "test:prettier": "prettier \"src/**/*.ts\" --list-different",
     "test:unit": "jest",
-    "test:debug": "node --nolazy --inspect-brk ./node_modules/jest/bin/jest.js --runInBand --colors --verbose",
     "watch:build": "tsc -p tsconfig.json -w",
     "watch:test": "jest --watch",
     "cov": "run-s build test:unit && open-cli coverage/index.html",

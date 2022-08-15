@@ -16,7 +16,7 @@ export class Enrico {
   ) {
     this.policyEncryptingKey = policyEncryptingKey;
     this.verifyingKey = verifyingKey ?? SecretKey.random().publicKey();
-    if (conditions) this.conditions = conditions;
+    this.conditions = conditions;
   }
 
   public encryptMessage(plaintext: Uint8Array | string): MessageKit {

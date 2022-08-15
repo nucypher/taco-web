@@ -1,10 +1,11 @@
 import {
   Capsule,
-  MessageKit,
   PublicKey,
   RetrievalKit,
   SecretKey,
 } from '@nucypher/nucypher-core';
+
+import { MessageKit } from '../core';
 
 import { RetrievalResult } from './retrieval';
 

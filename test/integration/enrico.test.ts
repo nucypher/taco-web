@@ -96,8 +96,12 @@ describe('enrico', () => {
     const enrico = new Enrico(policyKey, undefined, conditions);
     const encrypted = enrico.encryptMessage(toBytes(message));
 
-    const bytes = Buffer.from(encrypted.toBytes())
-    expect(bytes).toContain(188)
+    const bytes = encrypted.toBytes()
+    expect(bytes).toContain(188) // the ESC delimter
+
+    // uncomment the following two lines to try out this output in python
+    // const b64 = Buffer.from(bytes).toString('base64');
+    // console.log(b64)
 
     const conditionbytes = ConditionsIntegrator.parse(bytes).conditionsBytes
 

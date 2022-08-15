@@ -1,12 +1,8 @@
-import {
-  CapsuleFrag,
-  PublicKey,
-  RetrievalKit,
-  TreasureMap,
-} from '@nucypher/nucypher-core';
+import { CapsuleFrag, PublicKey, TreasureMap } from '@nucypher/nucypher-core';
 import axios, { AxiosResponse } from 'axios';
 import qs from 'qs';
 
+import { RetrievalKit } from '../core';
 import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from '../types';
 import { fromBase64, fromHexString, toBase64, toHexString } from '../utils';
 

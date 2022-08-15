@@ -1,6 +1,7 @@
 import {
   Capsule,
   MessageKit as CoreMessageKit,
+  RetrievalKit as CoreRetrievalKit,
   PublicKey,
   SecretKey,
 } from '@nucypher/nucypher-core';
@@ -26,18 +27,18 @@ export class ConditionsIntegrator {
     return Buffer.from(this.outputBytes).toString('base64');
   };
 
-  static parse(bytes: Buffer) {
-    if (bytes.indexOf(ConditionsIntegrator.delimiter) > 0) {
-      const messageKit = bytes.slice(
+  static parse(bytes: Uint8Array) {
+    if (bytes.lastIndexOf(ConditionsIntegrator.delimiter) > 0) {
+      const messagekitBytes = bytes.slice(
         0,
-        bytes.indexOf(ConditionsIntegrator.delimiter)
+        bytes.lastIndexOf(ConditionsIntegrator.delimiter)
       );
-      const conditions = bytes.slice(
-        bytes.indexOf(ConditionsIntegrator.delimiter) + 1
+      const conditionsBytes = bytes.slice(
+        bytes.lastIndexOf(ConditionsIntegrator.delimiter) + 1
       );
-      return { messageKit, conditions };
+      return { messagekitBytes, conditionsBytes };
     }
-    return { messageKit: bytes, conditions: null };
+    return { messagekitBytes: bytes, conditionsBytes: undefined };
   }
 }
 
@@ -59,6 +60,38 @@ export class MessageKit extends CoreMessageKit {
 
   public toBytes = () => {
     const mkBytes = super.toBytes();
+    console.log(mkBytes);
     return new ConditionsIntegrator(mkBytes, this.conditions).outputBytes;
+  };
+}
+
+export class RetrievalKit extends CoreRetrievalKit {
+  constructor(
+    public coreInstance: CoreRetrievalKit,
+    public conditions?: ConditionSet
+  ) {
+    super();
+  }
+
+  static fromMessageKit(messageKit: MessageKit) {
+    const { messagekitBytes, conditionsBytes } = ConditionsIntegrator.parse(
+      messageKit.toBytes()
+    );
+
+    const messagekit = MessageKit.fromBytes(messagekitBytes);
+
+    const conditions =
+      conditionsBytes !== undefined && conditionsBytes.length
+        ? ConditionSet.fromBytes(conditionsBytes)
+        : undefined;
+
+    const coreInstance = CoreRetrievalKit.fromMessageKit(messagekit);
+
+    return new RetrievalKit(coreInstance, conditions);
+  }
+
+  public toBytes = () => {
+    const superBytes = this.coreInstance.toBytes();
+    return new ConditionsIntegrator(superBytes, this.conditions).outputBytes;
   };
 }

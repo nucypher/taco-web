@@ -92,7 +92,7 @@ describe('enrico', () => {
     })
 
     const conditions = new ConditionSet([ownsBufficornNFT])
-    console.log(conditions.toJSON())
+    // console.log(conditions.toJSON())
 
     const enrico = new Enrico(policyKey, undefined, conditions);
     const encrypted = enrico.encryptMessage(toBytes(message));

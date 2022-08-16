@@ -42,6 +42,15 @@ class ConditionSet {
     });
   }
 
+  static fromList(list: Array<Record<string, unknown>>) {
+    return new ConditionSet(
+      list.map((ele: any) => {
+        if ('operator' in ele) return Operator.fromObj(ele);
+        return Condition.fromObj(ele);
+      })
+    );
+  }
+
   toJSON() {
     return JSON.stringify(this.toList());
   }
@@ -56,14 +65,12 @@ class ConditionSet {
 
   static fromBytes(bytes: Uint8Array) {
     const decoded = Buffer.from(Buffer.from(bytes).toString('ascii'), 'base64');
-    const asList = JSON.parse(String.fromCharCode(...decoded));
+    const list = JSON.parse(String.fromCharCode(...decoded));
+    return ConditionSet.fromList(list);
+  }
 
-    return new ConditionSet(
-      asList.map((ele: any) => {
-        if ('operator' in ele) return Operator.fromObj(ele);
-        return Condition.fromObj(ele);
-      })
-    );
+  static fromJSON(json: string) {
+    return ConditionSet.fromList(JSON.parse(json));
   }
 }
 

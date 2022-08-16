@@ -1,3 +1,6 @@
+// Disabling some of the eslint rules for conveninence.
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Block } from '@ethersproject/providers';
 import {
   Capsule,
@@ -12,7 +15,12 @@ import axios from 'axios';
 import { ethers, Wallet } from 'ethers';
 
 import { Alice, Bob, Configuration, RemoteBob } from '../src';
-import { GetUrsulasResponse, Porter, RetrieveCFragsResponse, Ursula } from '../src/characters/porter';
+import {
+  GetUrsulasResponse,
+  Porter,
+  RetrieveCFragsResponse,
+  Ursula,
+} from '../src/characters/porter';
 import { BlockchainPolicy, PreEnactedPolicy } from '../src/policies/policy';
 import { ChecksumAddress } from '../src/types';
 import { toBytes, toHexString, zip } from '../src/utils';
@@ -29,7 +37,9 @@ const mockConfig: Configuration = {
 };
 
 export const mockBob = (): Bob => {
-  const secretKey = SecretKey.fromBytes(toBytes('fake-secret-key-32-bytes-bob-xxx'));
+  const secretKey = SecretKey.fromBytes(
+    toBytes('fake-secret-key-32-bytes-bob-xxx')
+  );
   return Bob.fromSecretKey(mockConfig, secretKey);
 };
 
@@ -41,17 +51,13 @@ export const mockRemoteBob = (): RemoteBob => {
 export const mockAlice = (aliceKey = 'fake-secret-key-32-bytes-alice-x') => {
   const secretKey = SecretKey.fromBytes(toBytes(aliceKey));
   const provider = mockWeb3Provider(secretKey.toSecretBytes());
-  return Alice.fromSecretKey(
-    mockConfig,
-    secretKey,
-    provider,
-  );
+  return Alice.fromSecretKey(mockConfig, secretKey, provider);
 };
 
 export const mockWeb3Provider = (
   secretKeyBytes: Uint8Array,
   blockNumber?: number,
-  blockTimestamp?: number,
+  blockTimestamp?: number
 ): ethers.providers.Web3Provider => {
   const block = { timestamp: blockTimestamp ?? 1000 };
   const provider = {
@@ -66,13 +72,12 @@ export const mockWeb3Provider = (
   } as unknown as ethers.providers.JsonRpcSigner;
   const fakeProvider = {
     ...provider,
-    getSigner: () =>
-      fakeSignerWithProvider,
+    getSigner: () => fakeSignerWithProvider,
   } as unknown as ethers.providers.Web3Provider;
   return fakeProvider;
 };
 
-export const mockUrsulas = (): Ursula[] => {
+export const mockUrsulas = (): readonly Ursula[] => {
   return [
     {
       encryptingKey: SecretKey.random().publicKey(),
@@ -108,8 +113,10 @@ export const mockUrsulas = (): Ursula[] => {
   });
 };
 
-export const mockGetUrsulas = (ursulas: Ursula[]) => {
-  const mockPorterUrsulas = (mockUrsulas: Ursula[]): GetUrsulasResponse => {
+export const mockGetUrsulas = (ursulas: readonly Ursula[]) => {
+  const mockPorterUrsulas = (
+    mockUrsulas: readonly Ursula[]
+  ): GetUrsulasResponse => {
     return {
       result: {
         ursulas: mockUrsulas.map(({ encryptingKey, uri, checksumAddress }) => ({
@@ -134,13 +141,13 @@ export const mockPublishToBlockchain = () => {
 };
 
 export const mockCFragResponse = (
-  ursulas: ChecksumAddress[],
-  verifiedKFrags: VerifiedKeyFrag[],
-  capsule: Capsule,
-): RetrieveCFragsResponse[] => {
+  ursulas: readonly ChecksumAddress[],
+  verifiedKFrags: readonly VerifiedKeyFrag[],
+  capsule: Capsule
+): readonly RetrieveCFragsResponse[] => {
   if (ursulas.length !== verifiedKFrags.length) {
     throw new Error(
-      'Number of verifiedKFrags must match the number of Ursulas',
+      'Number of verifiedKFrags must match the number of Ursulas'
     );
   }
   const reencrypted = verifiedKFrags
@@ -152,9 +159,9 @@ export const mockCFragResponse = (
 };
 
 export const mockRetrieveCFragsRequest = (
-  ursulas: ChecksumAddress[],
-  verifiedKFrags: VerifiedKeyFrag[],
-  capsule: Capsule,
+  ursulas: readonly ChecksumAddress[],
+  verifiedKFrags: readonly VerifiedKeyFrag[],
+  capsule: Capsule
 ) => {
   const results = mockCFragResponse(ursulas, verifiedKFrags, capsule);
   return jest
@@ -179,11 +186,11 @@ export const mockEncryptTreasureMap = () => {
 };
 
 export const reencryptKFrags = (
-  kFrags: VerifiedKeyFrag[],
-  capsule: Capsule,
+  kFrags: readonly VerifiedKeyFrag[],
+  capsule: Capsule
 ): {
-  capsuleWithFrags: CapsuleWithFrags;
-  verifiedCFrags: VerifiedCapsuleFrag[];
+  readonly capsuleWithFrags: CapsuleWithFrags;
+  readonly verifiedCFrags: readonly VerifiedCapsuleFrag[];
 } => {
   if (!kFrags) {
     throw new Error('Pass at least one kFrag.');

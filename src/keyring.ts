@@ -29,12 +29,12 @@ export class Keyring {
     threshold: number,
     shares: number
   ): {
-    delegatingKey: PublicKey;
-    verifiedKFrags: VerifiedKeyFrag[];
+    readonly delegatingKey: PublicKey;
+    readonly verifiedKFrags: readonly VerifiedKeyFrag[];
   } {
     const delegatingSecretKey = this.getSecretKeyFromLabel(label);
     const delegatingKey = delegatingSecretKey.publicKey();
-    const verifiedKFrags: VerifiedKeyFrag[] = generateKFrags(
+    const verifiedKFrags: readonly VerifiedKeyFrag[] = generateKFrags(
       delegatingSecretKey,
       receivingKey,
       signer,

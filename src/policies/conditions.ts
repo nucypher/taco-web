@@ -1,11 +1,10 @@
-import { base64 } from 'ethers/lib/utils';
-import Joi from 'joi';
+import Joi, { ValidationError } from 'joi';
 
 class Operator {
-  static operators: Array<string> = ['and', 'or'];
+  static readonly VALID_OPERATORS: ReadonlyArray<string> = ['and', 'or'];
 
-  constructor(public operator: string) {
-    if (!Operator.operators.includes(operator)) {
+  constructor(public readonly operator: string) {
+    if (!Operator.VALID_OPERATORS.includes(operator)) {
       throw `"${operator}" is not a valid operator`;
     }
     this.operator = operator;
@@ -15,23 +14,31 @@ class Operator {
     return { operator: this.operator };
   }
 
-  static fromObj(obj: any) {
+  static fromObj(obj: Record<string, string>) {
     return new Operator(obj.operator);
   }
 }
 
 class ConditionSet {
-  constructor(public conditions: Array<Condition | Operator>) {}
+  constructor(
+    public readonly conditions: ReadonlyArray<Condition | Operator>
+  ) {}
 
   validate() {
     if (this.conditions.length % 2 === 0) {
-      throw 'conditions must be odd length, ever other element being an operator';
+      throw new Error(
+        'conditions must be odd length, ever other element being an operator'
+      );
     }
     this.conditions.forEach((cnd: Condition | Operator, index) => {
       if (index % 2 && cnd.constructor.name !== 'Operator')
-        throw `${index} element must be an Operator; Got ${cnd.constructor.name}.`;
+        throw new Error(
+          `${index} element must be an Operator; Got ${cnd.constructor.name}.`
+        );
       if (!(index % 2) && cnd.constructor.name === 'Operator')
-        throw `${index} element must be a Condition; Got ${cnd.constructor.name}.`;
+        throw new Error(
+          `${index} element must be a Condition; Got ${cnd.constructor.name}.`
+        );
     });
     return true;
   }
@@ -42,9 +49,9 @@ class ConditionSet {
     });
   }
 
-  static fromList(list: Array<Record<string, unknown>>) {
+  static fromList(list: ReadonlyArray<Record<string, string>>) {
     return new ConditionSet(
-      list.map((ele: any) => {
+      list.map((ele: Record<string, string>) => {
         if ('operator' in ele) return Operator.fromObj(ele);
         return Condition.fromObj(ele);
       })
@@ -78,18 +85,18 @@ class Condition {
   defaults = {};
   state = {};
 
-  error: any = {};
-  value: any = {};
+  error: ValidationError | undefined;
+  value: Record<string, unknown> = {};
 
   toObj() {
     return this.validate().value;
   }
 
-  static fromObj(obj: any) {
+  static fromObj(obj: Record<string, string>) {
     return new ContractCondition(obj);
   }
 
-  schema = Joi.object({});
+  readonly schema = Joi.object({});
 
   validate(data: Record<string, unknown> = {}) {
     this.state = Object.assign(this.defaults, this.state, data);
@@ -105,7 +112,7 @@ class Condition {
 }
 
 class RPCcondition extends Condition {
-  schema = Joi.object({
+  readonly schema = Joi.object({
     chain: Joi.string().required(),
 
     method: Joi.string().valid('balanceOf', 'eth_getBalance').required(),
@@ -120,7 +127,7 @@ class RPCcondition extends Condition {
 }
 
 class ContractCondition extends Condition {
-  schema = Joi.object({
+  readonly schema = Joi.object({
     contractAddress: Joi.string().pattern(new RegExp('^0x[a-fA-F0-9]{40}$')),
 
     chain: Joi.string().required(),
@@ -141,7 +148,7 @@ class ContractCondition extends Condition {
 }
 
 class ERC721Ownership extends ContractCondition {
-  defaults = {
+  readonly defaults = {
     chain: 'ethereum',
     method: 'ownerOf',
     parameters: [],

@@ -47,8 +47,8 @@ export class tDecDecrypter {
   }
 
   public async retrieveAndDecrypt(
-    messageKits: MessageKit[]
-  ): Promise<Uint8Array[]> {
+    messageKits: readonly MessageKit[]
+  ): Promise<readonly Uint8Array[]> {
     const policyMessageKits = await this.retrieve(messageKits);
 
     policyMessageKits.forEach((mk) => {
@@ -63,8 +63,8 @@ export class tDecDecrypter {
   }
 
   public async retrieve(
-    messageKits: MessageKit[]
-  ): Promise<PolicyMessageKit[]> {
+    messageKits: readonly MessageKit[]
+  ): Promise<readonly PolicyMessageKit[]> {
     const treasureMap = this.encryptedTreasureMap.decrypt(
       this.keyring.secretKey,
       this.publisherVerifyingKey

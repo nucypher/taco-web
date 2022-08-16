@@ -1,10 +1,10 @@
 import { ChainId } from './types';
 
-export interface Configuration {
-  porterUri: string;
-}
+export type Configuration = {
+  readonly porterUri: string;
+};
 
-const CONFIGS: { [key in ChainId]: Configuration } = {
+const CONFIGS: { readonly [key in ChainId]: Configuration } = {
   [ChainId.POLYGON]: {
     porterUri: 'https://porter.nucypher.community',
   },

@@ -66,10 +66,11 @@ export const calculatePeriodDuration = (
   return futurePeriod - currentPeriod;
 };
 
-export const mergeWithoutUndefined = (
-  A: Record<string, any>,
-  B: Record<string, any>
+export const mergeWithoutUndefined = <T, Z>(
+  A: Record<string, T>,
+  B: Record<string, Z>
 ) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const res: Record<string, any> = {};
   Object.keys({ ...A, ...B }).map((key) => {
     res[key] = B[key] || A[key];
@@ -77,6 +78,9 @@ export const mergeWithoutUndefined = (
   return res;
 };
 
-export const zip = (a: Array<any>, b: Array<any>) => a.map((k, i) => [k, b[i]]);
+export const zip = <T, Z>(
+  a: ReadonlyArray<T>,
+  b: ReadonlyArray<Z>
+): ReadonlyArray<readonly [a: T, b: Z]> => a.map((k, i) => [k, b[i]]);
 
 export const toEpoch = (date: Date) => (date.getTime() / 1000) | 0;

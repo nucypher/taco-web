@@ -71,9 +71,9 @@ export class Bob {
   public async retrieveAndDecrypt(
     policyEncryptingKey: PublicKey,
     publisherVerifyingKey: PublicKey,
-    messageKits: MessageKit[],
+    messageKits: readonly MessageKit[],
     encryptedTreasureMap: EncryptedTreasureMap
-  ): Promise<Uint8Array[]> {
+  ): Promise<readonly Uint8Array[]> {
     const policyMessageKits = await this.retrieve(
       policyEncryptingKey,
       publisherVerifyingKey,
@@ -95,9 +95,9 @@ export class Bob {
   public async retrieve(
     policyEncryptingKey: PublicKey,
     publisherVerifyingKey: PublicKey,
-    messageKits: MessageKit[],
+    messageKits: readonly MessageKit[],
     encryptedTreasureMap: EncryptedTreasureMap
-  ): Promise<PolicyMessageKit[]> {
+  ): Promise<readonly PolicyMessageKit[]> {
     const treasureMap = encryptedTreasureMap.decrypt(
       this.keyring.secretKey,
       publisherVerifyingKey

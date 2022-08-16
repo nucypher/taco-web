@@ -15,18 +15,18 @@ import { RevocationKit } from '../kits/revocation';
 import { toBytes, toEpoch, zip } from '../utils';
 import { toCanonicalAddress } from '../web3';
 
-export interface EnactedPolicy {
-  id: HRAC;
-  label: string;
-  policyKey: PublicKey;
-  encryptedTreasureMap: EncryptedTreasureMap;
-  revocationKit: RevocationKit;
-  aliceVerifyingKey: Uint8Array;
-  size: number;
-  startTimestamp: Date;
-  endTimestamp: Date;
-  txHash: string;
-}
+export type EnactedPolicy = {
+  readonly id: HRAC;
+  readonly label: string;
+  readonly policyKey: PublicKey;
+  readonly encryptedTreasureMap: EncryptedTreasureMap;
+  readonly revocationKit: RevocationKit;
+  readonly aliceVerifyingKey: Uint8Array;
+  readonly size: number;
+  readonly startTimestamp: Date;
+  readonly endTimestamp: Date;
+  readonly txHash: string;
+};
 
 type IPreEnactedPolicy = Omit<EnactedPolicy, 'txHash'>;
 
@@ -74,14 +74,14 @@ export class PreEnactedPolicy implements IPreEnactedPolicy {
   }
 }
 
-export interface BlockchainPolicyParameters {
-  bob: RemoteBob;
-  label: string;
-  threshold: number;
-  shares: number;
-  startDate: Date;
-  endDate: Date;
-}
+export type BlockchainPolicyParameters = {
+  readonly bob: RemoteBob;
+  readonly label: string;
+  readonly threshold: number;
+  readonly shares: number;
+  readonly startDate: Date;
+  readonly endDate: Date;
+};
 
 export class BlockchainPolicy {
   public readonly hrac: HRAC;
@@ -89,9 +89,9 @@ export class BlockchainPolicy {
   constructor(
     private readonly publisher: Alice,
     private readonly label: string,
-    private bob: RemoteBob,
-    private verifiedKFrags: VerifiedKeyFrag[],
-    private delegatingKey: PublicKey,
+    private readonly bob: RemoteBob,
+    private readonly verifiedKFrags: readonly VerifiedKeyFrag[],
+    private readonly delegatingKey: PublicKey,
     private readonly threshold: number,
     private readonly shares: number,
     private readonly startDate: Date,
@@ -104,13 +104,13 @@ export class BlockchainPolicy {
     );
   }
 
-  public async enact(ursulas: Ursula[]): Promise<EnactedPolicy> {
+  public async enact(ursulas: readonly Ursula[]): Promise<EnactedPolicy> {
     const preEnacted = await this.generatePreEnactedPolicy(ursulas);
     return await preEnacted.enact(this.publisher);
   }
 
   public async generatePreEnactedPolicy(
-    ursulas: Ursula[]
+    ursulas: readonly Ursula[]
   ): Promise<PreEnactedPolicy> {
     const treasureMap = this.makeTreasureMap(ursulas, this.verifiedKFrags);
     const encryptedTreasureMap = this.encryptTreasureMap(treasureMap);
@@ -130,8 +130,8 @@ export class BlockchainPolicy {
   }
 
   private makeTreasureMap(
-    ursulas: Ursula[],
-    verifiedKFrags: VerifiedKeyFrag[]
+    ursulas: readonly Ursula[],
+    verifiedKFrags: readonly VerifiedKeyFrag[]
   ): TreasureMap {
     const builder = new TreasureMapBuilder(
       this.publisher.signer,

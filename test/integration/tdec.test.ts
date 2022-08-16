@@ -1,6 +1,8 @@
 import { SecretKey, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 import { Ursula } from '../../src/characters/porter';
+import { Conditions, ConditionSet } from '../../src/policies/conditions'
+import { MessageKit, ConditionsIntegrator } from '../../src/core'
 
 import {
   generateTDecEntities,
@@ -57,7 +59,25 @@ describe('threshold decryption', () => {
     expect(encryptTreasureMapSpy).toHaveBeenCalled();
     expect(makeTreasureMapSpy).toHaveBeenCalled();
 
+    const ownsBufficornNFT = new Conditions.ERC721Ownership({
+      contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
+      parameters: [3591]
+    })
+
+    const conditions = new ConditionSet([ownsBufficornNFT])
+    encrypter.conditions = conditions
+
     const encryptedMessageKit = encrypter.encryptMessage(plaintext);
+
+
+    const bytes = encryptedMessageKit.toBytes()
+    expect(bytes).toContain(188) // the ESC delimter
+    const conditionbytes = ConditionsIntegrator.parse(bytes).conditionsBytes
+
+    if (conditionbytes){
+      const reconstituted = ConditionSet.fromBytes(conditionbytes)
+      expect(reconstituted.toList()[0].contractAddress).toEqual(ownsBufficornNFT.value.contractAddress)
+    }
 
 
     // Setup mocks for `retrieveAndDecrypt`

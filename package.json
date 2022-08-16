@@ -33,10 +33,11 @@
     "doc:json": "typedoc src/ --exclude **/*.spec.ts --mode file --json build/docs/typedoc.json",
     "doc:publish": "gh-pages -m \"[ci skip] Updates\" -d build/docs",
     "version": "standard-version",
+    "version:alpha": "standard-version --prerelease alpha",
     "reset-hard": "git clean -dfx && git reset --hard && yarn",
     "prepare-release": "run-s reset-hard test doc:html version doc:publish",
+    "prepare-release:alpha": "run-s reset-hard test version:alpha ",
     "typechain": "typechain --target=ethers-v5 \"abi/**/*.json\"",
-    "npm-publish": "npm publish --access=public",
     "prebuild": "yarn typechain"
   },
   "dependencies": {

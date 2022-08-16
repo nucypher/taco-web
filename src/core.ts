@@ -18,7 +18,9 @@ export class ConditionsIntegrator {
 
     this.outputBytes = Uint8Array.from([
       ...nativeBytes,
-      ...Uint8Array.from([ConditionsIntegrator.delimiter]),
+      ...Uint8Array.from(
+        conditionBytes.length ? [ConditionsIntegrator.delimiter] : []
+      ),
       ...conditionBytes,
     ]);
   }

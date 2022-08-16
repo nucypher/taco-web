@@ -6,10 +6,10 @@ import { RetrievalResult } from './retrieval';
 
 export class PolicyMessageKit {
   constructor(
-    public policyEncryptingKey: PublicKey,
-    private threshold: number,
-    private result: RetrievalResult,
-    private messageKit: MessageKit
+    public readonly policyEncryptingKey: PublicKey,
+    private readonly threshold: number,
+    private readonly result: RetrievalResult,
+    private readonly messageKit: MessageKit
   ) {}
 
   public static fromMessageKit(

@@ -56,8 +56,8 @@ export class Alice {
 
   public async grant(
     policyParameters: BlockchainPolicyParameters,
-    includeUrsulas?: ChecksumAddress[],
-    excludeUrsulas?: ChecksumAddress[]
+    includeUrsulas?: readonly ChecksumAddress[],
+    excludeUrsulas?: readonly ChecksumAddress[]
   ): Promise<EnactedPolicy> {
     const ursulas = await this.porter.getUrsulas(
       policyParameters.shares,
@@ -70,8 +70,8 @@ export class Alice {
 
   public async generatePreEnactedPolicy(
     policyParameters: BlockchainPolicyParameters,
-    includeUrsulas?: ChecksumAddress[],
-    excludeUrsulas?: ChecksumAddress[]
+    includeUrsulas?: readonly ChecksumAddress[],
+    excludeUrsulas?: readonly ChecksumAddress[]
   ): Promise<PreEnactedPolicy> {
     const ursulas = await this.porter.getUrsulas(
       policyParameters.shares,
@@ -88,8 +88,8 @@ export class Alice {
     threshold: number,
     shares: number
   ): {
-    delegatingKey: PublicKey;
-    verifiedKFrags: VerifiedKeyFrag[];
+    readonly delegatingKey: PublicKey;
+    readonly verifiedKFrags: readonly VerifiedKeyFrag[];
   } {
     return this.keyring.generateKFrags(
       bob.decryptingKey,

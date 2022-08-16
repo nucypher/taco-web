@@ -16,8 +16,8 @@ import { tDecDecrypter } from './universal_bob';
 
 async function getTDecConfig(
   configLabel: string
-): Promise<{ [key: string]: any }> {
-  const { data, status } = await axios.get(
+): Promise<Record<string, string>> {
+  const { data } = await axios.get(
     'https://raw.githubusercontent.com/nucypher/network-keys/master/network-keys.json'
   );
   return data[configLabel];
@@ -32,7 +32,7 @@ export async function generateTDecEntities(
   endDate: Date,
   porterUri: string,
   aliceSecretKey: SecretKey = SecretKey.random()
-): Promise<[Enrico, tDecDecrypter, EnactedPolicy]> {
+): Promise<readonly [Enrico, tDecDecrypter, EnactedPolicy]> {
   // const configuration = defaultConfiguration(chainId);
   const configuration = { porterUri };
   const bobSecretKey = SecretKey.random();

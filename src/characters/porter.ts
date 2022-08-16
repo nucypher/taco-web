@@ -6,49 +6,49 @@ import { RetrievalKit } from '../core';
 import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from '../types';
 import { fromBase64, fromHexString, toBase64, toHexString } from '../utils';
 
-export interface Ursula {
-  checksumAddress: ChecksumAddress;
-  uri: string;
-  encryptingKey: PublicKey;
-}
+export type Ursula = {
+  readonly checksumAddress: ChecksumAddress;
+  readonly uri: string;
+  readonly encryptingKey: PublicKey;
+};
 
-interface GetUrsulasRequest {
-  quantity: number;
-  exclude_ursulas?: ChecksumAddress[];
-  include_ursulas?: ChecksumAddress[];
-}
+type GetUrsulasRequest = {
+  readonly quantity: number;
+  readonly exclude_ursulas?: readonly ChecksumAddress[];
+  readonly include_ursulas?: readonly ChecksumAddress[];
+};
 
-interface UrsulaResponse {
-  checksum_address: ChecksumAddress;
-  uri: string;
-  encrypting_key: HexEncodedBytes;
-}
+type UrsulaResponse = {
+  readonly checksum_address: ChecksumAddress;
+  readonly uri: string;
+  readonly encrypting_key: HexEncodedBytes;
+};
 
-export interface GetUrsulasResponse {
-  result: {
-    ursulas: UrsulaResponse[];
+export type GetUrsulasResponse = {
+  readonly result: {
+    readonly ursulas: readonly UrsulaResponse[];
   };
-  version: string;
-}
+  readonly version: string;
+};
 
-interface PostRetrieveCFragsRequest {
-  treasure_map: Base64EncodedBytes;
-  retrieval_kits: Base64EncodedBytes[];
-  alice_verifying_key: HexEncodedBytes;
-  bob_encrypting_key: HexEncodedBytes;
-  bob_verifying_key: HexEncodedBytes;
-}
+type PostRetrieveCFragsRequest = {
+  readonly treasure_map: Base64EncodedBytes;
+  readonly retrieval_kits: readonly Base64EncodedBytes[];
+  readonly alice_verifying_key: HexEncodedBytes;
+  readonly bob_encrypting_key: HexEncodedBytes;
+  readonly bob_verifying_key: HexEncodedBytes;
+};
 
-interface PostRetrieveCFragsResult {
-  result: {
-    retrieval_results: {
-      cfrags: {
-        [address: string]: string;
+type PostRetrieveCFragsResult = {
+  readonly result: {
+    readonly retrieval_results: readonly {
+      readonly cfrags: {
+        readonly [address: string]: string;
       };
     }[];
   };
-  version: string;
-}
+  readonly version: string;
+};
 
 export type RetrieveCFragsResponse = Record<ChecksumAddress, CapsuleFrag>;
 
@@ -61,9 +61,9 @@ export class Porter {
 
   public async getUrsulas(
     quantity: number,
-    excludeUrsulas?: ChecksumAddress[],
-    includeUrsulas?: ChecksumAddress[]
-  ): Promise<Ursula[]> {
+    excludeUrsulas?: readonly ChecksumAddress[],
+    includeUrsulas?: readonly ChecksumAddress[]
+  ): Promise<readonly Ursula[]> {
     const params: GetUrsulasRequest = {
       quantity,
       exclude_ursulas: excludeUrsulas,
@@ -87,11 +87,11 @@ export class Porter {
 
   public async retrieveCFrags(
     treasureMap: TreasureMap,
-    retrievalKits: RetrievalKit[],
+    retrievalKits: readonly RetrievalKit[],
     aliceVerifyingKey: PublicKey,
     bobEncryptingKey: PublicKey,
     bobVerifyingKey: PublicKey
-  ): Promise<RetrieveCFragsResponse[]> {
+  ): Promise<readonly RetrieveCFragsResponse[]> {
     const data: PostRetrieveCFragsRequest = {
       treasure_map: toBase64(treasureMap.toBytes()),
       retrieval_kits: retrievalKits.map((rk) => toBase64(rk.toBytes())),

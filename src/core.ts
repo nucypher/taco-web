@@ -1,16 +1,14 @@
 import {
-  Capsule,
   MessageKit as CoreMessageKit,
   RetrievalKit as CoreRetrievalKit,
   PublicKey,
-  SecretKey,
 } from '@nucypher/nucypher-core';
 
 import { ConditionSet } from './policies/conditions';
 import { toBytes } from './utils';
 
 export class ConditionsIntegrator {
-  static delimiter = 188;
+  static readonly delimiter = 188;
   public readonly outputBytes: Uint8Array;
 
   constructor(nativeBytes: Uint8Array, conditions?: ConditionSet) {
@@ -25,7 +23,7 @@ export class ConditionsIntegrator {
     ]);
   }
 
-  public toBase64 = () => {
+  public readonly toBase64 = () => {
     return Buffer.from(this.outputBytes).toString('base64');
   };
 
@@ -60,7 +58,7 @@ export class MessageKit extends CoreMessageKit {
     this.conditions = decryptionConditions;
   }
 
-  public toBytes = () => {
+  public readonly toBytes = () => {
     const mkBytes = super.toBytes();
     return new ConditionsIntegrator(mkBytes, this.conditions).outputBytes;
   };
@@ -68,8 +66,8 @@ export class MessageKit extends CoreMessageKit {
 
 export class RetrievalKit extends CoreRetrievalKit {
   constructor(
-    public coreInstance: CoreRetrievalKit,
-    public conditions?: ConditionSet
+    public readonly coreInstance: CoreRetrievalKit,
+    public readonly conditions?: ConditionSet
   ) {
     super();
   }
@@ -91,7 +89,7 @@ export class RetrievalKit extends CoreRetrievalKit {
     return new RetrievalKit(coreInstance, conditions);
   }
 
-  public toBytes = () => {
+  public readonly toBytes = () => {
     const superBytes = this.coreInstance.toBytes();
     return new ConditionsIntegrator(superBytes, this.conditions).outputBytes;
   };

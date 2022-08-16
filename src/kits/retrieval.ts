@@ -13,7 +13,7 @@ export class RetrievalResult {
     return new RetrievalResult();
   }
 
-  public get addresses(): ChecksumAddress[] {
+  public get addresses(): readonly ChecksumAddress[] {
     return Object.keys(this.cFrags);
   }
 

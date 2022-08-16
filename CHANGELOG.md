@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.7.9-alpha.0](https://github.com/nucypher/nucypher-ts/compare/v0.7.8...v0.7.9-alpha.0) (2022-08-16)
+
+
+### Bug Fixes
+
+* **test:** skip a flow failining because of compatibility issues ([5a27252](https://github.com/nucypher/nucypher-ts/commit/5a272529998fadf535d8ebc2577678f15571098a))
+
 ### [0.7.8](https://github.com/nucypher/nucypher-ts/compare/v0.7.6...v0.7.8) (2022-08-16)
 
 ### [0.7.7](https://github.com/nucypher/nucypher-ts/compare/v0.7.6...v0.7.7) (2022-08-16)

@@ -1,7 +1,9 @@
 import Joi, { ValidationError } from 'joi';
 
+import { Web3Provider } from '../web3';
+
 export class Operator {
-  static readonly LOGICAL_OPERATORS: ReadonlyArray<string> = ['and', 'or'];
+  static readonly LOGICAL_OPERATORS: ReadonlyArray<string> = [ 'and', 'or' ];
 
   constructor(public readonly operator: string) {
     if (!Operator.LOGICAL_OPERATORS.includes(operator)) {

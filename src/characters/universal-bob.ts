@@ -1,3 +1,4 @@
+import { sha256 } from '@ethersproject/sha2';
 import {
   EncryptedTreasureMap,
   MessageKit,
@@ -10,6 +11,7 @@ import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
 import { zip } from '../utils';
+import { Web3Provider } from '../web3';
 
 import { Porter } from './porter';
 
@@ -28,9 +30,6 @@ export class tDecDecrypter {
   ) {
     this.porter = new Porter(porterUri);
     this.keyring = new Keyring(secretKey);
-    this.policyEncryptingKey = policyEncryptingKey;
-    this.encryptedTreasureMap = encryptedTreasureMap;
-    this.publisherVerifyingKey = publisherVerifyingKey;
     this.verifyingKey = new Keyring(verifyingKey);
   }
 
@@ -46,9 +45,25 @@ export class tDecDecrypter {
     return this.keyring.decrypt(messageKit);
   }
 
-  public async retrieveAndDecrypt(
+  private async signMessageKits(
+    web3Provider: Web3Provider,
     messageKits: readonly MessageKit[]
+  ): Promise<string> {
+    let mkBytes = new Uint8Array();
+    for (const mk of messageKits) {
+      mkBytes = Buffer.concat([mkBytes, mk.toBytes()]);
+    }
+    const mkHash = sha256(mkBytes);
+    return web3Provider.signer.signMessage(mkHash);
+  }
+
+  public async retrieveAndDecrypt(
+    messageKits: readonly MessageKit[],
+    web3Provider: Web3Provider
   ): Promise<readonly Uint8Array[]> {
+    // TODO: What do I do with this signature?
+    const signedMessageKits = this.signMessageKits(web3Provider, messageKits);
+
     const policyMessageKits = await this.retrieve(messageKits);
 
     policyMessageKits.forEach((mk) => {

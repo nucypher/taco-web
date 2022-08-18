@@ -40,6 +40,7 @@ describe('condition set', () => {
   });
   const or = new Operator('or');
   const conditions = new ConditionSet([genuineUndead, or, gnomePals]);
+
   it('should validate', async () => {
     expect(conditions.validate()).toEqual(true);
   });
@@ -49,6 +50,7 @@ describe('conditions set to/from json', () => {
   const json =
     '[{"chain":"ethereum","method":"ownerOf","parameters":[3591],"standardContractType":"ERC721","returnValueTest":{"comparator":"==","value":":userAddress"},"contractAddress":"0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77"}]';
   const conditionset = ConditionSet.fromJSON(json);
+
   it('should be a ConditionSet', async () => {
     expect(conditionset.conditions[0].toObj().contractAddress).toEqual(
       '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'

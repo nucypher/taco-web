@@ -8,6 +8,7 @@ import {
 import { ConditionsIntegrator } from '../../src/core';
 import { Conditions, ConditionSet } from '../../src/policies/conditions';
 import { toBytes } from '../../src/utils';
+import { Web3Provider } from '../../src/web3';
 import {
   mockEncryptTreasureMap,
   mockGenerateKFrags,
@@ -96,9 +97,14 @@ describe('threshold decryption', () => {
       encryptedMessageKit.capsule
     );
 
-    const bobPlaintext = await decrypter.retrieveAndDecrypt([
-      encryptedMessageKit,
-    ]);
+    const rawWeb3Provider = mockWeb3Provider(
+      SecretKey.random().toSecretBytes()
+    );
+    const web3Provider = Web3Provider.fromEthersWeb3Provider(rawWeb3Provider);
+    const bobPlaintext = await decrypter.retrieveAndDecrypt(
+      [encryptedMessageKit],
+      web3Provider
+    );
 
     expect(getUrsulasSpy2).toHaveBeenCalled();
     expect(retrieveCFragsSpy).toHaveBeenCalled();

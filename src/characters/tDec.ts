@@ -12,7 +12,7 @@ import { fromHexString } from '../utils';
 import { Alice } from './alice';
 import { Bob } from './bob';
 import { Enrico } from './enrico';
-import { tDecDecrypter } from './universal_bob';
+import { tDecDecrypter } from './universal-bob';
 
 async function getTDecConfig(
   configLabel: string

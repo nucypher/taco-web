@@ -1,6 +1,6 @@
 import Joi, { ValidationError } from 'joi';
 
-class Operator {
+export class Operator {
   static readonly VALID_OPERATORS: ReadonlyArray<string> = ['and', 'or'];
 
   constructor(public readonly operator: string) {
@@ -19,7 +19,7 @@ class Operator {
   }
 }
 
-class ConditionSet {
+export class ConditionSet {
   constructor(
     public readonly conditions: ReadonlyArray<Condition | Operator>
   ) {}
@@ -81,7 +81,7 @@ class ConditionSet {
   }
 }
 
-class Condition {
+export class Condition {
   defaults = {};
   state = {};
 
@@ -160,8 +160,6 @@ class ERC721Ownership extends ContractCondition {
   };
 }
 
-const Conditions = {
+export const Conditions = {
   ERC721Ownership,
 };
-
-export { Operator, ConditionSet, Conditions };

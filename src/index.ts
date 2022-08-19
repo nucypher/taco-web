@@ -1,7 +1,7 @@
 export { Alice } from './characters/alice';
 export { Bob, RemoteBob } from './characters/bob';
 export { Enrico } from './characters/enrico';
-export { tDecDecrypter } from './characters/universal_bob';
+export { tDecDecrypter } from './characters/universal-bob';
 export {
   generateTDecEntities,
   makeTDecDecrypter,
@@ -16,6 +16,7 @@ export { Porter } from './characters/porter';
 export { Keyring } from './keyring';
 export { Configuration, defaultConfiguration } from './config';
 export { RevocationKit } from './kits/revocation';
+export { ConditionSet } from './policies/conditions';
 
 export {
   PublicKey,

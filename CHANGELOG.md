@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.7.9-alpha.1](https://github.com/nucypher/nucypher-ts/compare/v0.7.4...v0.7.9-alpha.1) (2022-08-19)
+
+
+### Features
+
+* expose ConditionSet type ([7f28169](https://github.com/nucypher/nucypher-ts/commit/7f281699e730f3eed5ca283a7f954f8ed9308490))
+
+
+### Bug Fixes
+
+* **test:** add mocks to tdec test suite ([fe72c0f](https://github.com/nucypher/nucypher-ts/commit/fe72c0f2a4e3f0dd42cb2595c7badb9a69fee527))
+* **test:** skip a flow failining because of compatibility issues ([d86f10b](https://github.com/nucypher/nucypher-ts/commit/d86f10b863d2b76f71584c5fe8e3550bd1ed3da6))
+
 ### [0.7.9-alpha.0](https://github.com/nucypher/nucypher-ts/compare/v0.7.8...v0.7.9-alpha.0) (2022-08-16)
 
 ### [0.7.4](https://github.com/nucypher/nucypher-ts/compare/v0.7.3...v0.7.4) (2022-08-10)

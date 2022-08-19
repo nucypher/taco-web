@@ -103,7 +103,8 @@ describe('threshold decryption', () => {
     const web3Provider = Web3Provider.fromEthersWeb3Provider(rawWeb3Provider);
     const bobPlaintext = await decrypter.retrieveAndDecrypt(
       [encryptedMessageKit],
-      web3Provider
+      web3Provider,
+      reconstituted,
     );
 
     expect(getUrsulasSpy2).toHaveBeenCalled();

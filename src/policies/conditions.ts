@@ -82,6 +82,21 @@ export class ConditionSet {
 }
 
 export class Condition {
+  // TODO: Shared types, move them somewhere?
+  public readonly COMPARATOR_OPERATORS = ['==', '>', '<', '>=', '<=']; // TODO: Is "!=" supported?
+  public readonly SUPPORTED_CHAINS = [
+    'ethereum',
+    // 'polygon', 'mumbai'
+  ];
+
+  protected makeReturnValueTest = () =>
+    Joi.object({
+      comparator: Joi.string()
+        .valid(...this.COMPARATOR_OPERATORS)
+        .required(),
+      value: Joi.string().required(),
+    });
+
   defaults = {};
   state = {};
 
@@ -111,39 +126,83 @@ export class Condition {
   }
 }
 
-class RPCcondition extends Condition {
+// A helper method for making complex Joi types
+const makeGuard = (
+  schema: Joi.StringSchema | Joi.ArraySchema,
+  types: Record<string, string[]>,
+  parent: string
+) => {
+  Object.entries(types).forEach(([key, value]) => {
+    schema = schema.when(parent, {
+      is: key,
+      then: value,
+    });
+  });
+  return schema;
+};
+
+class TimelockCondition extends Condition {
   readonly schema = Joi.object({
-    chain: Joi.string().required(),
+    returnValueTest: this.makeReturnValueTest(),
+  });
+}
 
-    method: Joi.string().valid('balanceOf', 'eth_getBalance').required(),
+class RpcCondition extends Condition {
+  public readonly RPC_METHODS = ['eth_getBalance', 'balanceOf'];
+  public readonly PARAMETERS_PER_METHOD: Record<string, string[]> = {
+    // TODO: Are these supposed to be defined by using context interface?
+    balanceOf: ['address'],
+    eth_getBalance: ['address'],
+  };
 
-    parameters: Joi.array(),
-
-    returnValueTest: Joi.object({
-      comparator: Joi.string().valid('==', '>', '<', '<=', '>=').required(),
-      value: Joi.string(),
-    }),
+  readonly schema = Joi.object({
+    chain: Joi.string()
+      .valid(...this.SUPPORTED_CHAINS)
+      .required(),
+    method: Joi.string()
+      .valid(...this.RPC_METHODS)
+      .required(),
+    parameters: Joi.array().required(),
+    returnValueTest: this.makeReturnValueTest(),
   });
 }
 
 class ContractCondition extends Condition {
-  readonly schema = Joi.object({
-    contractAddress: Joi.string().pattern(new RegExp('^0x[a-fA-F0-9]{40}$')),
+  public readonly STANDARD_CONTRACT_TYPES = ['erc20', 'erc721', 'erc1155'];
+  public readonly METHODS_PER_CONTRACT_TYPE: Record<string, string[]> = {
+    erc20: ['balanceOf'],
+    erc721: ['balanceOf', 'ownerOf'],
+    erc1155: ['balanceOf'],
+  };
+  public readonly PARAMETERS_PER_METHOD: Record<string, string[]> = {
+    // TODO: Defined using context interface?
+    balanceOf: ['address'],
+    ownerOf: ['address'],
+  };
 
-    chain: Joi.string().required(),
+  private makeMethod = () =>
+    makeGuard(
+      Joi.string(),
+      this.METHODS_PER_CONTRACT_TYPE,
+      'standardContractType'
+    );
+  private makeParameters = () =>
+    makeGuard(Joi.array(), this.PARAMETERS_PER_METHOD, 'method');
 
-    standardContractType: Joi.string(),
-
-    functionAbi: Joi.string(),
-
-    method: Joi.string(),
-
-    parameters: Joi.array(),
-
-    returnValueTest: Joi.object({
-      comparator: Joi.string().valid('==', '>', '<', '<=', '>=').required(),
-      value: Joi.string(),
-    }),
+  public readonly schema = Joi.object({
+    contractAddress: Joi.string()
+      .pattern(new RegExp('^0x[a-fA-F0-9]{40}$'))
+      .required(),
+    chain: Joi.string()
+      .valid(...this.SUPPORTED_CHAINS)
+      .required(),
+    standardContractType: Joi.string()
+      .valid(...this.STANDARD_CONTRACT_TYPES)
+      .required(),
+    functionAbi: Joi.string(), // TODO: Should it be required? When?
+    method: this.makeMethod().required(),
+    parameters: Joi.array().required(),
+    returnValueTest: this.makeReturnValueTest(),
   });
 }
 
@@ -152,7 +211,7 @@ class ERC721Ownership extends ContractCondition {
     chain: 'ethereum',
     method: 'ownerOf',
     parameters: [],
-    standardContractType: 'ERC721',
+    standardContractType: 'erc721',
     returnValueTest: {
       comparator: '==',
       value: ':userAddress',
@@ -162,4 +221,7 @@ class ERC721Ownership extends ContractCondition {
 
 export const Conditions = {
   ERC721Ownership,
+  ContractCondition,
+  TimelockCondition,
+  RpcCondition,
 };

@@ -32,7 +32,7 @@ export async function generateTDecEntities(
   endDate: Date,
   porterUri: string,
   aliceSecretKey: SecretKey = SecretKey.random()
-): Promise<readonly [Enrico, tDecDecrypter, EnactedPolicy]> {
+): Promise<readonly [Enrico, tDecDecrypter, EnactedPolicy, any]> {
   // const configuration = defaultConfiguration(chainId);
   const configuration = { porterUri };
   const bobSecretKey = SecretKey.random();
@@ -63,7 +63,29 @@ export async function generateTDecEntities(
     bobSecretKey,
     bobSecretKey
   );
-  return [encrypter, decrypter, policy];
+
+  const config_json = {"policy_encrypting_key": policy.policyKey,
+                "encrypted_treasure_map": policy.encryptedTreasureMap,
+                "alice_verifying_key": godAlice.verifyingKey,
+                "bob_secret_key": bobSecretKey}
+  return [encrypter, decrypter, policy, config_json];
+}
+
+export async function TDecEntitiesFromConfig(
+  config_json: any,
+  porterUri: string
+): Promise<readonly [Enrico, tDecDecrypter]> {
+  const encrypter = new Enrico(config_json["policy_encrypting_key"], config_json["alice_verifying_key"]);
+
+  const decrypter = new tDecDecrypter(
+    porterUri,
+    config_json["policy_encrypting_key"],
+    config_json["encrypted_treasure_map"],
+    config_json["alice_verifying_key"],
+    config_json["bob_secret_key"],
+    config_json["bob_secret_key"]
+  );
+  return [encrypter, decrypter]
 }
 
 export async function makeTDecDecrypter(

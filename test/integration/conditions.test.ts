@@ -1,20 +1,6 @@
 import { Operator } from '../../src/policies/conditions';
 import { Conditions, ConditionSet } from '../../src/policies/conditions';
 
-const TEST_CONDITIONS = {
-  ERC20_balance: {
-    contractAddress: '0xadd9d957170DF6f33982001E4C22eCcDd5539118',
-    standardContractType: 'ERC20',
-    chain: 'ethereum',
-    method: 'balanceOf',
-    parameters: [':userAddress'],
-    returnValueTest: {
-      comparator: '>',
-      value: '0',
-    },
-  },
-};
-
 describe('operator', () => {
   it('should validate Operator operator validation', async () => {
     const op = new Operator('or');
@@ -26,8 +12,8 @@ describe('operator', () => {
 });
 
 describe('conditions schema', () => {
-  const contractcondition = new Conditions.ERC721Ownership();
-  let result = contractcondition.validate({
+  const condition = new Conditions.ERC721Ownership();
+  let result = condition.validate({
     contractAddress: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
   });
 
@@ -38,10 +24,10 @@ describe('conditions schema', () => {
     );
   });
 
-  result = contractcondition.validate({ chain: 'mumbai' });
+  result = condition.validate({ chain: 'ethereum' });
   it('should update the value of "chain"', async () => {
     expect(result.error).toEqual(undefined);
-    expect(result.value.chain).toEqual('mumbai');
+    expect(result.value.chain).toEqual('ethereum');
   });
 });
 

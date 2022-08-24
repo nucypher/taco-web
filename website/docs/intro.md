@@ -3,46 +3,50 @@ slug: /
 sidebar_position: 1
 ---
 
-# Tutorial Introduction
+# Getting Started
 
-Let's discover **Docusaurus in less than 5 minutes**.
+`nucypher-ts` is a typescript library to allow developers to interact with core Nucypher functionality within the browser.
+It is in active development, so please be aware that things may change!
 
-## Getting Started
+If you have any questions, don't hesitate to create an issue on [Github](https://github.com/nucypher/nucypher-ts), or come and say hello in our [Discord](https://discord.gg/RwjHbgA7uQ).
 
-Get started by **creating a new site**.
 
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
+## Installation
 
-### What you'll need
-
-- [Node.js](https://nodejs.org/en/download/) version 16.14 or above:
-  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
-
-## Generate a new site
-
-Generate a new Docusaurus site using the **classic template**.
-
-The classic template will automatically be added to your project after you run the command:
-
-```bash
-npm init docusaurus@latest my-website classic
+Install into your project with:
+```
+yarn install @nucypher/nucypher-ts
 ```
 
-You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
+## Basic Usage
 
-The command also installs all necessary dependencies you need to run Docusaurus.
+You can quickly start using Threshold Decryption in the browser.
+This requires an active connection to the Ethereum network, in this example we will use the [MetaMask Provider](https://docs.metamask.io/guide/ethereum-provider.html).
 
-## Start your site
+```js
+import detectEthereumProvider from '@metamask/detect-provider';
+import generateTDecEntities from '@nucypher/nucypher-ts'
 
-Run the development server:
+const provider = await detectEthereumProvider();
+const [encrypter, decrypter, _, _] =
+      await generateTDecEntities(
+        3, // threshold
+        5, // shares
+        provider, // eth provider, here we use metamask
+        'example', // label your configuration
+        new Date(), // start date
+        new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // end date (in 30 days)
+        'https://porter-ibex.nucypher.community'
+      );
 
-```bash
-cd my-website
-npm run start
+const plaintext = 'plaintext-message';
+const encryptedMessage = encrypter.encryptMessage(plaintext);
+
+const decryptedMessage = await decrypter.retrieveAndDecrypt([
+      encryptedMessage
+    ]);
 ```
 
-The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
+## Contribution
 
-The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
-
-Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
+Please see our [Contribution Guide](./contributing.md)

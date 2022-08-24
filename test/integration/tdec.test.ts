@@ -1,7 +1,10 @@
 import { SecretKey, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 
 import { Ursula } from '../../src/characters/porter';
-import { generateTDecEntities, TDecEntitiesFromConfig } from '../../src/characters/tDec';
+import {
+  generateTDecEntities,
+  TDecEntitiesFromConfig,
+} from '../../src/characters/tDec';
 import { ConditionsIntegrator } from '../../src/core';
 import { Conditions, ConditionSet } from '../../src/policies/conditions';
 import { toBytes } from '../../src/utils';
@@ -17,6 +20,10 @@ import {
 } from '../utils';
 
 describe('threshold decryption', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   const plaintext = toBytes('plaintext-message');
 
   it('encrypts and decrypts reencrypted message from dynamic config', async () => {
@@ -36,16 +43,17 @@ describe('threshold decryption', () => {
     const makeTreasureMapSpy = mockMakeTreasureMap();
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
-    const [encrypter, decrypter, policy, config_json] = await generateTDecEntities(
-      threshold,
-      shares,
-      provider,
-      label,
-      startDate,
-      endDate,
-      'https://porter-ibex.nucypher.community',
-      aliceSecretKey
-    );
+    const [encrypter, decrypter, policy, config_json] =
+      await generateTDecEntities(
+        threshold,
+        shares,
+        provider,
+        label,
+        startDate,
+        endDate,
+        'https://porter-ibex.nucypher.community',
+        aliceSecretKey
+      );
 
     expect(policy.label).toBe(label);
     expect(getUrsulasSpy).toHaveBeenCalled();
@@ -97,7 +105,7 @@ describe('threshold decryption', () => {
     expect(bobPlaintext[0]).toEqual(plaintext);
   });
 
-  it('encrypts and decrypts reencrypted message from dynamic config 2', async () => {
+  it('encrypts and decrypts reencrypted message from json config', async () => {
     const threshold = 3;
     const shares = 5;
     const label = 'test';
@@ -114,16 +122,17 @@ describe('threshold decryption', () => {
     const makeTreasureMapSpy = mockMakeTreasureMap();
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
-    const [encrypter, decrypter, policy, config_json] = await generateTDecEntities(
-      threshold,
-      shares,
-      provider,
-      label,
-      startDate,
-      endDate,
-      'https://porter-ibex.nucypher.community',
-      aliceSecretKey
-    );
+    const [encrypter, decrypter, policy, config_json] =
+      await generateTDecEntities(
+        threshold,
+        shares,
+        provider,
+        label,
+        startDate,
+        endDate,
+        'https://porter-ibex.nucypher.community',
+        aliceSecretKey
+      );
 
     expect(policy.label).toBe(label);
     expect(getUrsulasSpy).toHaveBeenCalled();
@@ -166,7 +175,12 @@ describe('threshold decryption', () => {
       encryptedMessageKit.capsule
     );
 
-    const bobPlaintext = await decrypter.retrieveAndDecrypt([
+    const [jsonEncrypter, jsonDecrypter] = await TDecEntitiesFromConfig(
+      config_json,
+      'https://porter-ibex.nucypher.community'
+    );
+
+    const bobPlaintext = await jsonDecrypter.retrieveAndDecrypt([
       encryptedMessageKit,
     ]);
 
@@ -174,5 +188,4 @@ describe('threshold decryption', () => {
     expect(retrieveCFragsSpy).toHaveBeenCalled();
     expect(bobPlaintext[0]).toEqual(plaintext);
   });
-
 });

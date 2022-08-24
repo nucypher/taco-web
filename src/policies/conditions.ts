@@ -1,10 +1,10 @@
 import Joi, { ValidationError } from 'joi';
 
 export class Operator {
-  static readonly VALID_OPERATORS: ReadonlyArray<string> = ['and', 'or'];
+  static readonly LOGICAL_OPERATORS: ReadonlyArray<string> = ['and', 'or'];
 
   constructor(public readonly operator: string) {
-    if (!Operator.VALID_OPERATORS.includes(operator)) {
+    if (!Operator.LOGICAL_OPERATORS.includes(operator)) {
       throw `"${operator}" is not a valid operator`;
     }
     this.operator = operator;
@@ -24,7 +24,7 @@ export class ConditionSet {
     public readonly conditions: ReadonlyArray<Condition | Operator>
   ) {}
 
-  validate() {
+  public validate() {
     if (this.conditions.length % 2 === 0) {
       throw new Error(
         'conditions must be odd length, ever other element being an operator'
@@ -43,13 +43,13 @@ export class ConditionSet {
     return true;
   }
 
-  toList() {
+  public toList() {
     return this.conditions.map((cnd) => {
       return cnd.toObj();
     });
   }
 
-  static fromList(list: ReadonlyArray<Record<string, string>>) {
+  public static fromList(list: ReadonlyArray<Record<string, string>>) {
     return new ConditionSet(
       list.map((ele: Record<string, string>) => {
         if ('operator' in ele) return Operator.fromObj(ele);
@@ -83,8 +83,8 @@ export class ConditionSet {
 
 export class Condition {
   // TODO: Shared types, move them somewhere?
-  public readonly COMPARATOR_OPERATORS = ['==', '>', '<', '>=', '<=']; // TODO: Is "!=" supported?
-  public readonly SUPPORTED_CHAINS = [
+  public static readonly COMPARATOR_OPERATORS = ['==', '>', '<', '>=', '<=']; // TODO: Is "!=" supported?
+  public static readonly SUPPORTED_CHAINS = [
     'ethereum',
     // 'polygon', 'mumbai'
   ];
@@ -92,7 +92,7 @@ export class Condition {
   protected makeReturnValueTest = () =>
     Joi.object({
       comparator: Joi.string()
-        .valid(...this.COMPARATOR_OPERATORS)
+        .valid(...Condition.COMPARATOR_OPERATORS)
         .required(),
       value: Joi.string().required(),
     });
@@ -142,25 +142,22 @@ const makeGuard = (
 };
 
 class TimelockCondition extends Condition {
+  public static readonly CONDITION_TYPE = 'timelock';
   readonly schema = Joi.object({
     returnValueTest: this.makeReturnValueTest(),
   });
 }
 
 class RpcCondition extends Condition {
-  public readonly RPC_METHODS = ['eth_getBalance', 'balanceOf'];
-  public readonly PARAMETERS_PER_METHOD: Record<string, string[]> = {
-    // TODO: Are these supposed to be defined by using context interface?
-    balanceOf: ['address'],
-    eth_getBalance: ['address'],
-  };
+  public static readonly CONDITION_TYPE = 'rpc';
+  public static readonly RPC_METHODS = ['eth_getBalance', 'balanceOf'];
 
   readonly schema = Joi.object({
     chain: Joi.string()
-      .valid(...this.SUPPORTED_CHAINS)
+      .valid(...Condition.SUPPORTED_CHAINS)
       .required(),
     method: Joi.string()
-      .valid(...this.RPC_METHODS)
+      .valid(...RpcCondition.RPC_METHODS)
       .required(),
     parameters: Joi.array().required(),
     returnValueTest: this.makeReturnValueTest(),
@@ -168,14 +165,18 @@ class RpcCondition extends Condition {
 }
 
 class ContractCondition extends Condition {
-  public readonly STANDARD_CONTRACT_TYPES = ['erc20', 'erc721', 'erc1155'];
-  public readonly METHODS_PER_CONTRACT_TYPE: Record<string, string[]> = {
-    erc20: ['balanceOf'],
-    erc721: ['balanceOf', 'ownerOf'],
-    erc1155: ['balanceOf'],
+  public static readonly CONDITION_TYPE = 'evm';
+  public static readonly STANDARD_CONTRACT_TYPES = [
+    'ERC20',
+    'ERC721',
+    'ERC1155',
+  ];
+  public static readonly METHODS_PER_CONTRACT_TYPE: Record<string, string[]> = {
+    ERC20: ['balanceOf'],
+    ERC721: ['balanceOf', 'ownerOf'],
+    ERC1155: ['balanceOf'],
   };
-  public readonly PARAMETERS_PER_METHOD: Record<string, string[]> = {
-    // TODO: Defined using context interface?
+  public static readonly PARAMETERS_PER_METHOD: Record<string, string[]> = {
     balanceOf: ['address'],
     ownerOf: ['address'],
   };
@@ -183,21 +184,19 @@ class ContractCondition extends Condition {
   private makeMethod = () =>
     makeGuard(
       Joi.string(),
-      this.METHODS_PER_CONTRACT_TYPE,
+      ContractCondition.METHODS_PER_CONTRACT_TYPE,
       'standardContractType'
     );
-  private makeParameters = () =>
-    makeGuard(Joi.array(), this.PARAMETERS_PER_METHOD, 'method');
 
   public readonly schema = Joi.object({
     contractAddress: Joi.string()
       .pattern(new RegExp('^0x[a-fA-F0-9]{40}$'))
       .required(),
     chain: Joi.string()
-      .valid(...this.SUPPORTED_CHAINS)
+      .valid(...Condition.SUPPORTED_CHAINS)
       .required(),
     standardContractType: Joi.string()
-      .valid(...this.STANDARD_CONTRACT_TYPES)
+      .valid(...ContractCondition.STANDARD_CONTRACT_TYPES)
       .required(),
     functionAbi: Joi.string(), // TODO: Should it be required? When?
     method: this.makeMethod().required(),
@@ -211,7 +210,7 @@ class ERC721Ownership extends ContractCondition {
     chain: 'ethereum',
     method: 'ownerOf',
     parameters: [],
-    standardContractType: 'erc721',
+    standardContractType: 'ERC721',
     returnValueTest: {
       comparator: '==',
       value: ':userAddress',
@@ -224,4 +223,6 @@ export const Conditions = {
   ContractCondition,
   TimelockCondition,
   RpcCondition,
+  Condition,
+  Operator,
 };

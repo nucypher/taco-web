@@ -69,6 +69,7 @@ export const mockWeb3Provider = (
   const fakeSignerWithProvider = {
     ...new Wallet(secretKeyBytes),
     provider,
+    _signTypedData: () => Promise.resolve('fake-typed-signature'),
   } as unknown as ethers.providers.JsonRpcSigner;
   const fakeProvider = {
     ...provider,

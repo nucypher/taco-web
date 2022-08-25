@@ -3,6 +3,7 @@ import axios, { AxiosResponse } from 'axios';
 import qs from 'qs';
 
 import { RetrievalKit } from '../core';
+import { ConditionContext } from '../policies/conditions';
 import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from '../types';
 import { fromBase64, fromHexString, toBase64, toHexString } from '../utils';
 
@@ -37,6 +38,7 @@ type PostRetrieveCFragsRequest = {
   readonly alice_verifying_key: HexEncodedBytes;
   readonly bob_encrypting_key: HexEncodedBytes;
   readonly bob_verifying_key: HexEncodedBytes;
+  readonly context?: Record<string, unknown>;
 };
 
 type PostRetrieveCFragsResult = {
@@ -90,15 +92,19 @@ export class Porter {
     retrievalKits: readonly RetrievalKit[],
     aliceVerifyingKey: PublicKey,
     bobEncryptingKey: PublicKey,
-    bobVerifyingKey: PublicKey
+    bobVerifyingKey: PublicKey,
+    conditionsContext?: ConditionContext
   ): Promise<readonly RetrieveCFragsResponse[]> {
-    const data: PostRetrieveCFragsRequest = {
+    let data: PostRetrieveCFragsRequest = {
       treasure_map: toBase64(treasureMap.toBytes()),
       retrieval_kits: retrievalKits.map((rk) => toBase64(rk.toBytes())),
       alice_verifying_key: toHexString(aliceVerifyingKey.toBytes()),
       bob_encrypting_key: toHexString(bobEncryptingKey.toBytes()),
       bob_verifying_key: toHexString(bobVerifyingKey.toBytes()),
     };
+    if (conditionsContext) {
+      data = { ...data, context: conditionsContext.toRecord() };
+    }
     const resp: AxiosResponse<PostRetrieveCFragsResult> = await axios.post(
       `${this.porterUri}/retrieve_cfrags`,
       data

@@ -1,4 +1,3 @@
-import { sha256 } from '@ethersproject/sha2';
 import {
   EncryptedTreasureMap,
   MessageKit,
@@ -6,14 +5,12 @@ import {
   SecretKey,
   Signer,
 } from '@nucypher/nucypher-core';
-import { utils as ethersUtils } from 'ethers';
 
 import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
-import { ConditionSet } from '../policies/conditions';
+import { ConditionContext } from '../policies/conditions';
 import { zip } from '../utils';
-import { Web3Provider } from '../web3';
 
 import { Porter } from './porter';
 
@@ -47,58 +44,14 @@ export class tDecDecrypter {
     return this.keyring.decrypt(messageKit);
   }
 
-  private async authWithSignature(
-    web3Provider: Web3Provider,
-    messageKits: readonly MessageKit[],
-    condition: ConditionSet,
-  ): Promise<string> {
-
-    let mkBytes = new Uint8Array();
-    for (const mk of messageKits) {
-      mkBytes = Buffer.concat([mkBytes, mk.toBytes()]);
-    }
-    const mkHash = sha256(mkBytes);
-
-    const salt = ethersUtils.randomBytes(32);
-    const typedData = {
-      types: {
-        EIP712Domain: [
-          { name: "name", type: "string" },
-          { name: "version", type: "string" },
-          { name: "chainId", type: "uint256" },
-          { name: "salt", type: "bytes32" },
-        ],
-        Condition: [
-          { name: "address", type: "address" },
-          { name: "condition", type: "string" },
-          { name: "messageKitsHash", type: "bytes32" },
-        ]
-      },
-      domain: {
-        name: 'tDec',
-        version: '1',
-        chainId: 1,
-        salt,
-      },
-      message: {
-        address: web3Provider.signer._address,
-        condition: condition.toJSON(),
-        messageKitsHash: mkHash,
-      }
-    }
-
-    return web3Provider.signer._signTypedData(typedData.domain, typedData.types, typedData.message);
-  }
-
   public async retrieveAndDecrypt(
     messageKits: readonly MessageKit[],
-    web3Provider: Web3Provider,
-    condition: ConditionSet,
+    conditionContext: ConditionContext
   ): Promise<readonly Uint8Array[]> {
-    // TODO: What do I do with this signature?
-    const signature = this.authWithSignature(web3Provider, messageKits, condition);
-
-    const policyMessageKits = await this.retrieve(messageKits);
+    const policyMessageKits = await this.retrieve(
+      messageKits,
+      conditionContext
+    );
 
     policyMessageKits.forEach((mk) => {
       if (!mk.isDecryptableByReceiver()) {
@@ -112,7 +65,8 @@ export class tDecDecrypter {
   }
 
   public async retrieve(
-    messageKits: readonly MessageKit[]
+    messageKits: readonly MessageKit[],
+    conditionContext: ConditionContext
   ): Promise<readonly PolicyMessageKit[]> {
     const treasureMap = this.encryptedTreasureMap.decrypt(
       this.keyring.secretKey,
@@ -133,7 +87,8 @@ export class tDecDecrypter {
       retrievalKits,
       this.publisherVerifyingKey,
       this.decryptingKey,
-      this.verifyingKey.publicKey
+      this.verifyingKey.publicKey,
+      conditionContext
     );
 
     return zip(policyMessageKits, retrieveCFragsResponses).map((pair) => {

@@ -1,10 +1,10 @@
 import Joi, { ValidationError } from 'joi';
 
 export class Operator {
-  static readonly VALID_OPERATORS: ReadonlyArray<string> = ['and', 'or'];
+  static readonly LOGICAL_OPERATORS: ReadonlyArray<string> = ['and', 'or'];
 
   constructor(public readonly operator: string) {
-    if (!Operator.VALID_OPERATORS.includes(operator)) {
+    if (!Operator.LOGICAL_OPERATORS.includes(operator)) {
       throw `"${operator}" is not a valid operator`;
     }
     this.operator = operator;
@@ -24,7 +24,7 @@ export class ConditionSet {
     public readonly conditions: ReadonlyArray<Condition | Operator>
   ) {}
 
-  validate() {
+  public validate() {
     if (this.conditions.length % 2 === 0) {
       throw new Error(
         'conditions must be odd length, ever other element being an operator'
@@ -43,13 +43,13 @@ export class ConditionSet {
     return true;
   }
 
-  toList() {
+  public toList() {
     return this.conditions.map((cnd) => {
       return cnd.toObj();
     });
   }
 
-  static fromList(list: ReadonlyArray<Record<string, string>>) {
+  public static fromList(list: ReadonlyArray<Record<string, string>>) {
     return new ConditionSet(
       list.map((ele: Record<string, string>) => {
         if ('operator' in ele) return Operator.fromObj(ele);
@@ -82,6 +82,21 @@ export class ConditionSet {
 }
 
 export class Condition {
+  // TODO: Shared types, move them somewhere?
+  public static readonly COMPARATOR_OPERATORS = ['==', '>', '<', '>=', '<=']; // TODO: Is "!=" supported?
+  public static readonly SUPPORTED_CHAINS = [
+    'ethereum',
+    // 'polygon', 'mumbai'
+  ];
+
+  protected makeReturnValueTest = () =>
+    Joi.object({
+      comparator: Joi.string()
+        .valid(...Condition.COMPARATOR_OPERATORS)
+        .required(),
+      value: Joi.string().required(),
+    });
+
   defaults = {};
   state = {};
 
@@ -111,39 +126,82 @@ export class Condition {
   }
 }
 
-class RPCcondition extends Condition {
+// A helper method for making complex Joi types
+const makeGuard = (
+  schema: Joi.StringSchema | Joi.ArraySchema,
+  types: Record<string, string[]>,
+  parent: string
+) => {
+  Object.entries(types).forEach(([key, value]) => {
+    schema = schema.when(parent, {
+      is: key,
+      then: value,
+    });
+  });
+  return schema;
+};
+
+class TimelockCondition extends Condition {
+  public static readonly CONDITION_TYPE = 'timelock';
   readonly schema = Joi.object({
-    chain: Joi.string().required(),
+    returnValueTest: this.makeReturnValueTest(),
+  });
+}
 
-    method: Joi.string().valid('balanceOf', 'eth_getBalance').required(),
+class RpcCondition extends Condition {
+  public static readonly CONDITION_TYPE = 'rpc';
+  public static readonly RPC_METHODS = ['eth_getBalance', 'balanceOf'];
 
-    parameters: Joi.array(),
-
-    returnValueTest: Joi.object({
-      comparator: Joi.string().valid('==', '>', '<', '<=', '>=').required(),
-      value: Joi.string(),
-    }),
+  readonly schema = Joi.object({
+    chain: Joi.string()
+      .valid(...Condition.SUPPORTED_CHAINS)
+      .required(),
+    method: Joi.string()
+      .valid(...RpcCondition.RPC_METHODS)
+      .required(),
+    parameters: Joi.array().required(),
+    returnValueTest: this.makeReturnValueTest(),
   });
 }
 
 class ContractCondition extends Condition {
-  readonly schema = Joi.object({
-    contractAddress: Joi.string().pattern(new RegExp('^0x[a-fA-F0-9]{40}$')),
+  public static readonly CONDITION_TYPE = 'evm';
+  public static readonly STANDARD_CONTRACT_TYPES = [
+    'ERC20',
+    'ERC721',
+    'ERC1155',
+  ];
+  public static readonly METHODS_PER_CONTRACT_TYPE: Record<string, string[]> = {
+    ERC20: ['balanceOf'],
+    ERC721: ['balanceOf', 'ownerOf'],
+    ERC1155: ['balanceOf'],
+  };
+  public static readonly PARAMETERS_PER_METHOD: Record<string, string[]> = {
+    balanceOf: ['address'],
+    ownerOf: ['address'],
+  };
 
-    chain: Joi.string().required(),
+  private makeMethod = () =>
+    makeGuard(
+      Joi.string(),
+      ContractCondition.METHODS_PER_CONTRACT_TYPE,
+      'standardContractType'
+    );
 
-    standardContractType: Joi.string(),
-
-    functionAbi: Joi.string(),
-
-    method: Joi.string(),
-
-    parameters: Joi.array(),
-
-    returnValueTest: Joi.object({
-      comparator: Joi.string().valid('==', '>', '<', '<=', '>=').required(),
-      value: Joi.string(),
-    }),
+  public readonly schema = Joi.object({
+    contractAddress: Joi.string()
+      .pattern(new RegExp('^0x[a-fA-F0-9]{40}$'))
+      .required(),
+    chain: Joi.string()
+      .valid(...Condition.SUPPORTED_CHAINS)
+      .required(),
+    standardContractType: Joi.string()
+      .valid(...ContractCondition.STANDARD_CONTRACT_TYPES)
+      .required(),
+    functionAbi: Joi.string(), // TODO: Should it be required? When?
+    method: this.makeMethod().required(),
+    parameters: Joi.array().required(),
+    returnValueTest: this.makeReturnValueTest(),
   });
 }
 
@@ -162,4 +220,9 @@ class ERC721Ownership extends ContractCondition {
 
 export const Conditions = {
   ERC721Ownership,
+  ContractCondition,
+  TimelockCondition,
+  RpcCondition,
+  Condition,
+  Operator,
 };

@@ -71,31 +71,31 @@ export async function generateTDecEntities(
     bobSecretKey
   );
 
-  const config_json = {
+  const tDecConfig = {
     policyEncryptingKey: policy.policyKey,
     encryptedTreasureMap: policy.encryptedTreasureMap,
     aliceVerifyingKey: godAlice.verifyingKey,
     bobSecretKey: bobSecretKey,
   };
-  return [encrypter, decrypter, policy, config_json];
+  return [encrypter, decrypter, policy, tDecConfig];
 }
 
 export async function TDecEntitiesFromConfig(
-  config_json: TDecConfig,
+  tDecConfig: TDecConfig,
   porterUri: string
 ): Promise<readonly [Enrico, tDecDecrypter]> {
   const encrypter = new Enrico(
-    config_json.policyEncryptingKey,
-    config_json.aliceVerifyingKey
+    tDecConfig.policyEncryptingKey,
+    tDecConfig.aliceVerifyingKey
   );
 
   const decrypter = new tDecDecrypter(
     porterUri,
-    config_json.policyEncryptingKey,
-    config_json.encryptedTreasureMap,
-    config_json.aliceVerifyingKey,
-    config_json.bobSecretKey,
-    config_json.bobSecretKey
+    tDecConfig.policyEncryptingKey,
+    tDecConfig.encryptedTreasureMap,
+    tDecConfig.aliceVerifyingKey,
+    tDecConfig.bobSecretKey,
+    tDecConfig.bobSecretKey
   );
   return [encrypter, decrypter];
 }

@@ -21,21 +21,23 @@ import {
 } from '../utils';
 
 describe('threshold decryption', () => {
+  const threshold = 3;
+  const shares = 5;
+  const label = 'test';
+  const startDate = new Date();
+  const endDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30); // In 30 days
+  const aliceSecretKey = SecretKey.random();
+  const aliceProvider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
+  const plaintext = toBytes('plaintext-message');
+  const bobProvider = Web3Provider.fromEthersWeb3Provider(
+    mockWeb3Provider(SecretKey.random().toSecretBytes())
+  );
+
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  const plaintext = toBytes('plaintext-message');
-
   it('encrypts and decrypts reencrypted message from dynamic config', async () => {
-    const threshold = 3;
-    const shares = 5;
-    const label = 'test';
-    const startDate = new Date();
-    const endDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30); // In 30 days
-    const aliceSecretKey = SecretKey.random();
-    const provider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
-
     // Setup mocks for `generateTDecEntities`
     const mockedUrsulas = mockUrsulas().slice(0, shares);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
@@ -44,11 +46,11 @@ describe('threshold decryption', () => {
     const makeTreasureMapSpy = mockMakeTreasureMap();
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
-    const [encrypter, decrypter, policy, config_json] =
+    const [encrypter, decrypter, policy, tDecConfig] =
       await generateTDecEntities(
         threshold,
         shares,
-        provider,
+        aliceProvider,
         label,
         startDate,
         endDate,
@@ -75,14 +77,13 @@ describe('threshold decryption', () => {
 
     const bytes = encryptedMessageKit.toBytes();
     expect(bytes).toContain(188); // the ESC delimter
-    const conditionbytes = ConditionsIntegrator.parse(bytes).conditionsBytes;
+    const conditionBytes = ConditionsIntegrator.parse(bytes).conditionsBytes;
 
-    if (conditionbytes) {
-      const reconstituted = ConditionSet.fromBytes(conditionbytes);
-      expect(reconstituted.toList()[0].contractAddress).toEqual(
-        ownsBufficornNFT.value.contractAddress
-      );
-    }
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const recoveredConditions = ConditionSet.fromBytes(conditionBytes!);
+    expect(recoveredConditions.toList()[0].contractAddress).toEqual(
+      ownsBufficornNFT.value.contractAddress
+    );
 
     // Setup mocks for `retrieveAndDecrypt`
     const getUrsulasSpy2 = mockGetUrsulas(mockedUrsulas);
@@ -97,14 +98,12 @@ describe('threshold decryption', () => {
       encryptedMessageKit.capsule
     );
 
-    const rawWeb3Provider = mockWeb3Provider(
-      SecretKey.random().toSecretBytes()
+    const conditionContext = await recoveredConditions.buildContext(
+      bobProvider
     );
-    const web3Provider = Web3Provider.fromEthersWeb3Provider(rawWeb3Provider);
     const bobPlaintext = await decrypter.retrieveAndDecrypt(
       [encryptedMessageKit],
-      web3Provider,
-      reconstituted,
+      conditionContext
     );
 
     expect(getUrsulasSpy2).toHaveBeenCalled();
@@ -113,14 +112,6 @@ describe('threshold decryption', () => {
   });
 
   it('encrypts and decrypts reencrypted message from json config', async () => {
-    const threshold = 3;
-    const shares = 5;
-    const label = 'test';
-    const startDate = new Date();
-    const endDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30); // In 30 days
-    const aliceSecretKey = SecretKey.random();
-    const provider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
-
     // Setup mocks for `generateTDecEntities`
     const mockedUrsulas = mockUrsulas().slice(0, shares);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
@@ -129,11 +120,11 @@ describe('threshold decryption', () => {
     const makeTreasureMapSpy = mockMakeTreasureMap();
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
-    const [encrypter, decrypter, policy, config_json] =
+    const [encrypter, decrypter, policy, tDecConfig] =
       await generateTDecEntities(
         threshold,
         shares,
-        provider,
+        aliceProvider,
         label,
         startDate,
         endDate,
@@ -157,17 +148,15 @@ describe('threshold decryption', () => {
     encrypter.conditions = conditions;
 
     const encryptedMessageKit = encrypter.encryptMessage(plaintext);
-
     const bytes = encryptedMessageKit.toBytes();
     expect(bytes).toContain(188); // the ESC delimter
-    const conditionbytes = ConditionsIntegrator.parse(bytes).conditionsBytes;
+    const conditionBytes = ConditionsIntegrator.parse(bytes).conditionsBytes;
 
-    if (conditionbytes) {
-      const reconstituted = ConditionSet.fromBytes(conditionbytes);
-      expect(reconstituted.toList()[0].contractAddress).toEqual(
-        ownsBufficornNFT.value.contractAddress
-      );
-    }
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const recoveredConditions = ConditionSet.fromBytes(conditionBytes!);
+    expect(recoveredConditions.toList()[0].contractAddress).toEqual(
+      ownsBufficornNFT.value.contractAddress
+    );
 
     // Setup mocks for `retrieveAndDecrypt`
     const getUrsulasSpy2 = mockGetUrsulas(mockedUrsulas);
@@ -183,14 +172,16 @@ describe('threshold decryption', () => {
     );
 
     const [jsonEncrypter, jsonDecrypter] = await TDecEntitiesFromConfig(
-      config_json,
+      tDecConfig,
       'https://porter-ibex.nucypher.community'
     );
-
-    const bobPlaintext = await jsonDecrypter.retrieveAndDecrypt([
-      encryptedMessageKit,
-    ]);
-
+    const conditionContext = await recoveredConditions.buildContext(
+      bobProvider
+    );
+    const bobPlaintext = await jsonDecrypter.retrieveAndDecrypt(
+      [encryptedMessageKit],
+      conditionContext
+    );
     expect(getUrsulasSpy2).toHaveBeenCalled();
     expect(retrieveCFragsSpy).toHaveBeenCalled();
     expect(bobPlaintext[0]).toEqual(plaintext);

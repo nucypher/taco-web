@@ -14,6 +14,13 @@ import { Bob } from './bob';
 import { Enrico } from './enrico';
 import { tDecDecrypter } from './universal-bob';
 
+interface TDecConfig {
+  policyEncryptingKey: PublicKey;
+  encryptedTreasureMap: EncryptedTreasureMap;
+  aliceVerifyingKey: PublicKey;
+  bobSecretKey: SecretKey;
+}
+
 async function getTDecConfig(
   configLabel: string
 ): Promise<Record<string, string>> {
@@ -32,7 +39,7 @@ export async function generateTDecEntities(
   endDate: Date,
   porterUri: string,
   aliceSecretKey: SecretKey = SecretKey.random()
-): Promise<readonly [Enrico, tDecDecrypter, EnactedPolicy]> {
+): Promise<readonly [Enrico, tDecDecrypter, EnactedPolicy, TDecConfig]> {
   // const configuration = defaultConfiguration(chainId);
   const configuration = { porterUri };
   const bobSecretKey = SecretKey.random();
@@ -63,7 +70,34 @@ export async function generateTDecEntities(
     bobSecretKey,
     bobSecretKey
   );
-  return [encrypter, decrypter, policy];
+
+  const config_json = {
+    policyEncryptingKey: policy.policyKey,
+    encryptedTreasureMap: policy.encryptedTreasureMap,
+    aliceVerifyingKey: godAlice.verifyingKey,
+    bobSecretKey: bobSecretKey,
+  };
+  return [encrypter, decrypter, policy, config_json];
+}
+
+export async function TDecEntitiesFromConfig(
+  config_json: TDecConfig,
+  porterUri: string
+): Promise<readonly [Enrico, tDecDecrypter]> {
+  const encrypter = new Enrico(
+    config_json.policyEncryptingKey,
+    config_json.aliceVerifyingKey
+  );
+
+  const decrypter = new tDecDecrypter(
+    porterUri,
+    config_json.policyEncryptingKey,
+    config_json.encryptedTreasureMap,
+    config_json.aliceVerifyingKey,
+    config_json.bobSecretKey,
+    config_json.bobSecretKey
+  );
+  return [encrypter, decrypter];
 }
 
 export async function makeTDecDecrypter(

@@ -21,7 +21,7 @@ export class tDecDecrypter {
   constructor(
     porterUri: string,
     private readonly policyEncryptingKey: PublicKey,
-    private readonly encryptedTreasureMap: EncryptedTreasureMap,
+    readonly encryptedTreasureMap: EncryptedTreasureMap,
     private readonly publisherVerifyingKey: PublicKey,
     secretKey: SecretKey,
     verifyingKey: SecretKey

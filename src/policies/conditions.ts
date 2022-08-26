@@ -278,7 +278,7 @@ export class ConditionContext {
   ) {}
 
   public static async authWithSignature(
-    web3Provider: Web3Provider,
+    provider: Web3Provider,
     condition: ConditionSet
   ): Promise<string> {
     const conditionJson = condition.toJson();
@@ -286,6 +286,12 @@ export class ConditionContext {
     const conditionsHash = sha256(conditionBytes);
 
     const salt = ethersUtils.randomBytes(32);
+
+    // Ensure freshness of the signature
+    const blockNumber = await provider.provider.getBlockNumber();
+    const block = await provider.provider.getBlock(blockNumber);
+    const blockHash = block.hash;
+
     const typedData = {
       types: {
         EIP712Domain: [
@@ -298,6 +304,8 @@ export class ConditionContext {
           { name: 'address', type: 'address' },
           { name: 'condition', type: 'string' },
           { name: 'conditionsHash', type: 'bytes32' },
+          { name: 'blockNumber', type: 'uint256' },
+          { name: 'blockHash', type: 'bytes32' },
         ],
       },
       domain: {
@@ -307,13 +315,15 @@ export class ConditionContext {
         salt,
       },
       message: {
-        address: web3Provider.signer._address,
+        address: provider.signer._address,
         condition: condition.toJson(),
         conditionsHash,
+        blockNumber,
+        blockHash,
       },
     };
 
-    return web3Provider.signer._signTypedData(
+    return provider.signer._signTypedData(
       typedData.domain,
       typedData.types,
       typedData.message
@@ -322,6 +332,15 @@ export class ConditionContext {
 
   public toRecord = (): Record<string, unknown> => {
     return { parameters: this.parameters, signature: this.signature };
+  };
+
+  public toBytes = (): Uint8Array => {
+    return this.parameters
+      .map(toBytes)
+      .reduce(
+        (prev, next) => new Uint8Array([...prev, ...next]),
+        new Uint8Array()
+      );
   };
 }
 

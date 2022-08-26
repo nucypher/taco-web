@@ -103,7 +103,7 @@ export class Porter {
       bob_verifying_key: toHexString(bobVerifyingKey.toBytes()),
     };
     if (conditionsContext) {
-      data = { ...data, context: conditionsContext.toRecord() };
+      data = { ...data, context: await conditionsContext.toRecord() };
     }
     const resp: AxiosResponse<PostRetrieveCFragsResult> = await axios.post(
       `${this.porterUri}/retrieve_cfrags`,

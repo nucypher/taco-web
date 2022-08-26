@@ -98,9 +98,7 @@ describe('threshold decryption', () => {
       encryptedMessageKit.capsule
     );
 
-    const conditionContext = await recoveredConditions.buildContext(
-      bobProvider
-    );
+    const conditionContext = recoveredConditions.buildContext(bobProvider);
     const bobPlaintext = await decrypter.retrieveAndDecrypt(
       [encryptedMessageKit],
       conditionContext
@@ -175,13 +173,13 @@ describe('threshold decryption', () => {
       tDecConfig,
       'https://porter-ibex.nucypher.community'
     );
-    const conditionContext = await recoveredConditions.buildContext(
-      bobProvider
-    );
+
+    const conditionContext = recoveredConditions.buildContext(bobProvider);
     const bobPlaintext = await jsonDecrypter.retrieveAndDecrypt(
       [encryptedMessageKit],
       conditionContext
     );
+
     expect(getUrsulasSpy2).toHaveBeenCalled();
     expect(retrieveCFragsSpy).toHaveBeenCalled();
     expect(bobPlaintext[0]).toEqual(plaintext);

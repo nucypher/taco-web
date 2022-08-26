@@ -85,30 +85,8 @@ export class ConditionSet {
     return ConditionSet.fromList(JSON.parse(json));
   }
 
-  public async buildContext(
-    web3Provider: Web3Provider
-  ): Promise<ConditionContext> {
-    const parameters = this.conditions
-      .map((conditionOrOperator) => {
-        if (
-          conditionOrOperator instanceof Condition &&
-          'makeContext' in conditionOrOperator
-        ) {
-          const condition = conditionOrOperator as ContextProvider;
-          return condition.getContext();
-        }
-        return null;
-      })
-      .filter(
-        (maybeResult: unknown | undefined) => !!maybeResult
-      ) as string[][];
-    const flatParams = parameters.flat();
-
-    const signature = await ConditionContext.authWithSignature(
-      web3Provider,
-      this
-    );
-    return new ConditionContext(flatParams, signature);
+  public buildContext(provider: Web3Provider): ConditionContext {
+    return new ConditionContext(this, provider);
   }
 }
 
@@ -272,26 +250,59 @@ export interface ContextProvider {
 }
 
 export class ConditionContext {
+  private conditionsSignature?: string;
+  private walletSignature?: string;
+  private addressForSignature?: string;
+
   constructor(
-    public readonly parameters: string[],
-    public readonly signature: string
+    private readonly conditionSet: ConditionSet,
+    public readonly provider: Web3Provider
   ) {}
 
-  public static async authWithSignature(
-    provider: Web3Provider,
-    condition: ConditionSet
-  ): Promise<string> {
-    const conditionJson = condition.toJson();
-    const conditionBytes = toBytes(conditionJson);
-    const conditionsHash = sha256(conditionBytes);
+  private get parameters() {
+    const parameters = this.conditionSet.conditions
+      .map((conditionOrOperator) => {
+        if (
+          conditionOrOperator instanceof Condition &&
+          'makeContext' in conditionOrOperator
+        ) {
+          const condition = conditionOrOperator as ContextProvider;
+          return condition.getContext();
+        }
+        return null;
+      })
+      .filter(
+        (maybeResult: unknown | undefined) => !!maybeResult
+      ) as string[][];
+    return parameters.flat();
+  }
 
-    const salt = ethersUtils.randomBytes(32);
+  private isNewWallet(): boolean {
+    return this.provider.signer._address !== this.addressForSignature;
+  }
 
+  private updateAddress() {
+    this.addressForSignature = this.provider.signer._address;
+  }
+
+  public async getOrCreateConditionsSignature(): Promise<string> {
+    // TODO: Should we also take into the account the freshness of on-chain data?
+    // Example: If I check for NFT ownership and the NFT is transferred, the signature should be invalidated.
+    // How long should we keep the signature valid? Well, as long as the network deems it valid. But how long is that?
+    if (!this.conditionsSignature || this.isNewWallet()) {
+      this.conditionsSignature = await this.createConditionsSignature();
+      this.updateAddress();
+    }
+    return this.conditionsSignature;
+  }
+
+  private async createConditionsSignature(): Promise<string> {
     // Ensure freshness of the signature
-    const blockNumber = await provider.provider.getBlockNumber();
-    const block = await provider.provider.getBlock(blockNumber);
-    const blockHash = block.hash;
+    const { blockNumber, blockHash } = await this.getBlockData();
 
+    const conditions = this.conditionSet.toJson();
+
+    // TODO: Refactor `typeData` into a helper method
     const typedData = {
       types: {
         EIP712Domain: [
@@ -302,8 +313,60 @@ export class ConditionContext {
         ],
         Condition: [
           { name: 'address', type: 'address' },
-          { name: 'condition', type: 'string' },
-          { name: 'conditionsHash', type: 'bytes32' },
+          { name: 'conditions', type: 'string' },
+          { name: 'blockNumber', type: 'uint256' },
+          { name: 'blockHash', type: 'bytes32' },
+        ],
+      },
+      domain: {
+        name: 'tDec',
+        version: '1',
+        chainId: 1,
+        salt: ethersUtils.randomBytes(32),
+      },
+      message: {
+        address: this.provider.signer._address,
+        conditions,
+        blockNumber,
+        blockHash,
+      },
+    };
+
+    return this.provider.signer._signTypedData(
+      typedData.domain,
+      typedData.types,
+      typedData.message
+    );
+  }
+
+  public async getOrCreateWalletSignature(): Promise<string> {
+    if (!this.walletSignature || this.isNewWallet()) {
+      this.walletSignature = await this.createWalletSignature();
+      this.updateAddress();
+    }
+    return this.walletSignature;
+  }
+
+  private async createWalletSignature(): Promise<string> {
+    // Ensure freshness of the signature
+    const { blockNumber, blockHash } = await this.getBlockData();
+
+    const address = this.provider.signer._address;
+    const signatureText = `I'm an owner of address ${address} as of block number ${blockNumber}`; // TODO: Update this text to a more dramatic one
+
+    const salt = ethersUtils.randomBytes(32);
+
+    const typedData = {
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'salt', type: 'bytes32' },
+        ],
+        Wallet: [
+          { name: 'address', type: 'address' },
+          { name: 'signatureText', type: 'string' },
           { name: 'blockNumber', type: 'uint256' },
           { name: 'blockHash', type: 'bytes32' },
         ],
@@ -315,26 +378,37 @@ export class ConditionContext {
         salt,
       },
       message: {
-        address: provider.signer._address,
-        condition: condition.toJson(),
-        conditionsHash,
+        address,
+        signatureText,
         blockNumber,
         blockHash,
       },
     };
 
-    return provider.signer._signTypedData(
+    return this.provider.signer._signTypedData(
       typedData.domain,
       typedData.types,
       typedData.message
     );
   }
 
-  public toRecord = (): Record<string, unknown> => {
-    return { parameters: this.parameters, signature: this.signature };
+  private async getBlockData() {
+    const blockNumber = await this.provider.provider.getBlockNumber();
+    const block = await this.provider.provider.getBlock(blockNumber);
+    const blockHash = block.hash;
+    return { blockNumber, blockHash };
+  }
+
+  public toRecord = async (): Promise<Record<string, unknown>> => {
+    return {
+      parameters: this.parameters,
+      // TODO: Which signature to use? `walletSignature` or `conditionsSignature`?
+      signature: await this.getOrCreateWalletSignature(),
+    };
   };
 
   public toBytes = (): Uint8Array => {
+    // TODO: Make sure this implementation matches nucypher-core
     return this.parameters
       .map(toBytes)
       .reduce(

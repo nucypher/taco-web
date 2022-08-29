@@ -35,6 +35,16 @@ Prepare a new release
 yarn run prepare-release
 ```
 
+## Documentation
+
+To launch a local development version of the documentation:
+
+```bash
+cd website
+yarn run start
+```
+This will launch a local server, available at `http://localhost:3000`.
+
 ## Publishing
 
 Publish a new release on NPM.

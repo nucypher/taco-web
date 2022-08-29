@@ -1,5 +1,4 @@
 import { utils as ethersUtils } from 'ethers';
-import { sha256 } from 'ethers/lib/utils';
 import Joi, { ValidationError } from 'joi';
 
 import { toBytes } from '../utils';
@@ -109,13 +108,14 @@ export class Condition {
     this.validate(data);
   }
 
-  protected makeReturnValueTest = () =>
-    Joi.object({
+  protected makeReturnValueTest() {
+    return Joi.object({
       comparator: Joi.string()
         .valid(...Condition.COMPARATOR_OPERATORS)
         .required(),
       value: Joi.string().required(),
     });
+  }
 
   public toObj(): Record<string, unknown> {
     return this.validate().value;

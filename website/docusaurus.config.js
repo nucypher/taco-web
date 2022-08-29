@@ -8,7 +8,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const config = {
   title: 'Nucypher TS',
   tagline: 'Interact with Nucypher via the browser',
-  url: 'https://jamescampbell.org.uk',
+  url: 'https://nucypher.github.iog/',
   baseUrl: '/nucypher-ts/',
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
@@ -16,7 +16,7 @@ const config = {
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'theref', // Usually your GitHub org/user name.
+  organizationName: 'nucypher', // Usually your GitHub org/user name.
   projectName: 'nucyphyer-ts', // Usually your repo name.
   trailingSlash: false,
 

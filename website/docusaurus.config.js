@@ -61,6 +61,12 @@ const config = {
             label: 'Documentation',
           },
           {
+            type: 'docsVersionDropdown',
+            position: 'left',
+            dropdownItemsAfter: [{to: '/versions', label: 'All versions'}],
+            dropdownActiveClassDisabled: true,
+          },
+          {
             href: 'https://github.com/nucypher/nucypher-ts',
             label: 'GitHub',
             position: 'right',

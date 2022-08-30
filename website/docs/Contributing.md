@@ -45,6 +45,12 @@ yarn run start
 ```
 This will launch a local server, available at `http://localhost:3000`.
 
+To release a new version of the documentations:
+
+```bash
+yarn run docusaurus docs:version 1.1.0
+```
+
 ## Publishing
 
 Publish a new release on NPM.

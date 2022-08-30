@@ -1,9 +1,9 @@
 ---
 slug: Contributing.md
-sidebar_position: 2
+sidebar_position: 5
 ---
 
-## Contribution Guide
+# Contribution Guide
 
 Download, install, build, and test with:
 

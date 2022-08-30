@@ -91,6 +91,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           # Build output to publish to the `gh-pages` branch:
-          publish_dir: ./website/build
-          user_name: theref
-          user_email: james.campbell@tanti.org.uk
+          publish_dir: ./website/buildk

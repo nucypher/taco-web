@@ -7,7 +7,7 @@ sidebar_position: 2
 Several types of access conditions can be defined:
 - EVM - on chain state, eg NFT ownership, ETH balance, tx status, contract function call
 - RPC - ethereum RPC calls as defined in the [Official API](https://ethereum.org/en/developers/docs/apis/json-rpc/#json-rpc-methods)
-- Timelock - time based conditions
+- Timelock - time based conditions, eg Block Time, Block Height, UTC Time
 
 ## EVM Conditions
 Here is an example EVM condition for ownership of a specific ERC721 token (NFT):
@@ -145,3 +145,22 @@ const customABICondition = {
 
 ## RPC Conditions
 
+Here will will query the ETH balance of the users address using the RPC call [`eth_getBalance`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getbalance)
+```js
+const ETHBalance = {
+    contractAddress: "",
+    standardContractType: "",
+    chain:  "ethereum",
+    method: "eth_getBalance",
+    parameters: [
+      ":userAddress",
+      "latest"
+    ],
+    returnValueTest: {
+      comparator: ">=",
+      value: "10000000000000"
+    }
+  }
+```
+
+## Time Conditions

@@ -49,4 +49,4 @@ const decryptedMessage = await decrypter.retrieveAndDecrypt([
 
 ## Contribution
 
-Please see our [Contribution Guide](./contributing.md)
+Please see our [Contribution Guide](./Contributing.md)

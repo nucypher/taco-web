@@ -1,14 +1,13 @@
 import { SecretKey, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 
+import { Conditions, ConditionSet } from '../../src';
 import { Ursula } from '../../src/characters/porter';
 import {
   generateTDecEntities,
   TDecEntitiesFromConfig,
 } from '../../src/characters/tDec';
 import { ConditionsIntegrator } from '../../src/core';
-import { Conditions, ConditionSet } from '../../src/policies/conditions';
 import { toBytes } from '../../src/utils';
-import { Web3Provider } from '../../src/web3';
 import {
   mockEncryptTreasureMap,
   mockGenerateKFrags,
@@ -29,9 +28,7 @@ describe('threshold decryption', () => {
   const aliceSecretKey = SecretKey.random();
   const aliceProvider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
   const plaintext = toBytes('plaintext-message');
-  const bobProvider = Web3Provider.fromEthersWeb3Provider(
-    mockWeb3Provider(SecretKey.random().toSecretBytes())
-  );
+  const bobProvider = mockWeb3Provider(SecretKey.random().toSecretBytes());
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -147,7 +144,7 @@ describe('threshold decryption', () => {
 
     const encryptedMessageKit = encrypter.encryptMessage(plaintext);
     const bytes = encryptedMessageKit.toBytes();
-    expect(bytes).toContain(188); // the ESC delimter
+    expect(bytes).toContain(188); // the ESC delimiter
     const conditionBytes = ConditionsIntegrator.parse(bytes).conditionsBytes;
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

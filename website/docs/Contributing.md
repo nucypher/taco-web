@@ -1,6 +1,6 @@
 ---
 slug: Contributing.md
-sidebar_position: 5
+sidebar_position: 50
 ---
 
 # Contribution Guide

@@ -1,4 +1,4 @@
-import { utils as ethersUtils } from 'ethers';
+import { ethers, utils as ethersUtils } from 'ethers';
 import Joi, { ValidationError } from 'joi';
 
 import { toBytes } from '../utils';
@@ -84,8 +84,11 @@ export class ConditionSet {
     return ConditionSet.fromList(JSON.parse(json));
   }
 
-  public buildContext(provider: Web3Provider): ConditionContext {
-    return new ConditionContext(this, provider);
+  public buildContext(
+    provider: ethers.providers.Web3Provider
+  ): ConditionContext {
+    const web3Provider = Web3Provider.fromEthersWeb3Provider(provider);
+    return new ConditionContext(this, web3Provider);
   }
 }
 
@@ -256,7 +259,7 @@ export class ConditionContext {
 
   constructor(
     private readonly conditionSet: ConditionSet,
-    public readonly provider: Web3Provider
+    private readonly web3Provider: Web3Provider
   ) {}
 
   private get parameters() {
@@ -277,19 +280,21 @@ export class ConditionContext {
     return parameters.flat();
   }
 
-  private isNewWallet(): boolean {
-    return this.provider.signer._address !== this.addressForSignature;
+  private async isNewWallet(): Promise<boolean> {
+    return (
+      (await this.web3Provider.signer.getAddress()) !== this.addressForSignature
+    );
   }
 
-  private updateAddress() {
-    this.addressForSignature = this.provider.signer._address;
+  private async updateAddress(): Promise<void> {
+    this.addressForSignature = await this.web3Provider.signer.getAddress();
   }
 
   public async getOrCreateConditionsSignature(): Promise<string> {
     // TODO: Should we also take into the account the freshness of on-chain data?
     // Example: If I check for NFT ownership and the NFT is transferred, the signature should be invalidated.
     // How long should we keep the signature valid? Well, as long as the network deems it valid. But how long is that?
-    if (!this.conditionsSignature || this.isNewWallet()) {
+    if (!this.conditionsSignature || (await this.isNewWallet())) {
       this.conditionsSignature = await this.createConditionsSignature();
       this.updateAddress();
     }
@@ -298,7 +303,7 @@ export class ConditionContext {
 
   private async createConditionsSignature(): Promise<string> {
     // Ensure freshness of the signature
-    const { blockNumber, blockHash } = await this.getBlockData();
+    const { blockNumber, blockHash, chainId } = await this.getChainData();
 
     const conditions = this.conditionSet.toJson();
 
@@ -321,18 +326,18 @@ export class ConditionContext {
       domain: {
         name: 'tDec',
         version: '1',
-        chainId: 1,
+        chainId,
         salt: ethersUtils.randomBytes(32),
       },
       message: {
-        address: this.provider.signer._address,
+        address: await this.web3Provider.signer.getAddress(),
         conditions,
         blockNumber,
         blockHash,
       },
     };
 
-    return this.provider.signer._signTypedData(
+    return this.web3Provider.signer._signTypedData(
       typedData.domain,
       typedData.types,
       typedData.message
@@ -340,7 +345,7 @@ export class ConditionContext {
   }
 
   public async getOrCreateWalletSignature(): Promise<string> {
-    if (!this.walletSignature || this.isNewWallet()) {
+    if (!this.walletSignature || (await this.isNewWallet())) {
       this.walletSignature = await this.createWalletSignature();
       this.updateAddress();
     }
@@ -349,21 +354,15 @@ export class ConditionContext {
 
   private async createWalletSignature(): Promise<string> {
     // Ensure freshness of the signature
-    const { blockNumber, blockHash } = await this.getBlockData();
+    const { blockNumber, blockHash, chainId } = await this.getChainData();
 
-    const address = this.provider.signer._address;
+    const address = await this.web3Provider.signer.getAddress();
     const signatureText = `I'm an owner of address ${address} as of block number ${blockNumber}`; // TODO: Update this text to a more dramatic one
 
     const salt = ethersUtils.randomBytes(32);
 
     const typedData = {
       types: {
-        EIP712Domain: [
-          { name: 'name', type: 'string' },
-          { name: 'version', type: 'string' },
-          { name: 'chainId', type: 'uint256' },
-          { name: 'salt', type: 'bytes32' },
-        ],
         Wallet: [
           { name: 'address', type: 'address' },
           { name: 'signatureText', type: 'string' },
@@ -374,7 +373,7 @@ export class ConditionContext {
       domain: {
         name: 'tDec',
         version: '1',
-        chainId: 1,
+        chainId,
         salt,
       },
       message: {
@@ -385,26 +384,27 @@ export class ConditionContext {
       },
     };
 
-    return this.provider.signer._signTypedData(
+    return this.web3Provider.signer._signTypedData(
       typedData.domain,
       typedData.types,
       typedData.message
     );
   }
 
-  private async getBlockData() {
-    const blockNumber = await this.provider.provider.getBlockNumber();
-    const block = await this.provider.provider.getBlock(blockNumber);
-    const blockHash = block.hash;
-    return { blockNumber, blockHash };
+  private async getChainData() {
+    const blockNumber = await this.web3Provider.provider.getBlockNumber();
+    const blockHash = (await this.web3Provider.provider.getBlock(blockNumber))
+      .hash;
+    const chainId = (await this.web3Provider.provider.getNetwork()).chainId;
+    return { blockNumber, blockHash, chainId };
   }
 
-  public toRecord = async (): Promise<Record<string, unknown>> => {
-    return {
-      parameters: this.parameters,
+  public toJson = async (): Promise<string> => {
+    const payload = {
       // TODO: Which signature to use? `walletSignature` or `conditionsSignature`?
       signature: await this.getOrCreateWalletSignature(),
     };
+    return JSON.stringify(payload);
   };
 
   public toBytes = (): Uint8Array => {

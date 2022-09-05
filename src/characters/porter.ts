@@ -38,7 +38,7 @@ type PostRetrieveCFragsRequest = {
   readonly alice_verifying_key: HexEncodedBytes;
   readonly bob_encrypting_key: HexEncodedBytes;
   readonly bob_verifying_key: HexEncodedBytes;
-  readonly context?: Record<string, unknown>;
+  readonly context?: string;
 };
 
 type PostRetrieveCFragsResult = {
@@ -55,10 +55,10 @@ type PostRetrieveCFragsResult = {
 export type RetrieveCFragsResponse = Record<ChecksumAddress, CapsuleFrag>;
 
 export class Porter {
-  private readonly porterUri: URL;
+  private readonly porterUrl: URL;
 
   constructor(porterUri: string) {
-    this.porterUri = new URL(porterUri);
+    this.porterUrl = new URL(porterUri);
   }
 
   public async getUrsulas(
@@ -72,7 +72,7 @@ export class Porter {
       include_ursulas: includeUrsulas,
     };
     const resp: AxiosResponse<GetUrsulasResponse> = await axios.get(
-      `${this.porterUri}/get_ursulas`,
+      new URL('/get_ursulas', this.porterUrl).toString(),
       {
         params,
         paramsSerializer: (params) => {
@@ -95,18 +95,16 @@ export class Porter {
     bobVerifyingKey: PublicKey,
     conditionsContext?: ConditionContext
   ): Promise<readonly RetrieveCFragsResponse[]> {
-    let data: PostRetrieveCFragsRequest = {
+    const data: PostRetrieveCFragsRequest = {
       treasure_map: toBase64(treasureMap.toBytes()),
       retrieval_kits: retrievalKits.map((rk) => toBase64(rk.toBytes())),
       alice_verifying_key: toHexString(aliceVerifyingKey.toBytes()),
       bob_encrypting_key: toHexString(bobEncryptingKey.toBytes()),
       bob_verifying_key: toHexString(bobVerifyingKey.toBytes()),
+      context: conditionsContext ? await conditionsContext.toJson() : undefined,
     };
-    if (conditionsContext) {
-      data = { ...data, context: await conditionsContext.toRecord() };
-    }
     const resp: AxiosResponse<PostRetrieveCFragsResult> = await axios.post(
-      `${this.porterUri}/retrieve_cfrags`,
+      new URL('/retrieve_cfrags', this.porterUrl).toString(),
       data
     );
     return resp.data.result.retrieval_results

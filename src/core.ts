@@ -48,14 +48,14 @@ export class MessageKit extends CoreMessageKit {
   constructor(
     policyEncryptingKey: PublicKey,
     plaintext: Uint8Array,
-    decryptionConditions?: ConditionSet
+    conditions?: ConditionSet
   ) {
     super(
       policyEncryptingKey,
       plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext)
     );
 
-    this.conditions = decryptionConditions;
+    this.conditions = conditions;
   }
 
   public readonly toBytes = () => {
@@ -77,7 +77,7 @@ export class RetrievalKit extends CoreRetrievalKit {
       messageKit.toBytes()
     );
 
-    const messagekit = MessageKit.fromBytes(messagekitBytes);
+    const messagekit = CoreMessageKit.fromBytes(messagekitBytes);
 
     const conditions =
       conditionsBytes !== undefined && conditionsBytes.length

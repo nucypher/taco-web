@@ -44,7 +44,7 @@ const [encrypter, decrypter, policy, configuration] =
 
 ## Rebuilding Threshold Decryption objects from configuration json
 
-The `configuration` variable is just a json object containing everything required to reconstruct the `encrypter` and `decrypter`.
+The `configuration` variable returned by `generateTDecEntities` is just a json object containing everything required to reconstruct the `encrypter` and `decrypter`.
 ```js
 >>> console.log(configuration)
 {

@@ -254,7 +254,7 @@ export interface ContextProvider {
 
 export class ConditionContext {
   private conditionsSignature?: string;
-  private walletSignature?: string;
+  private walletSignature?: Record<string, string>;
   private addressForSignature?: string;
 
   constructor(
@@ -280,76 +280,44 @@ export class ConditionContext {
     return parameters.flat();
   }
 
-  private async isNewWallet(): Promise<boolean> {
-    return (
-      (await this.web3Provider.signer.getAddress()) !== this.addressForSignature
-    );
-  }
-
   private async updateAddress(): Promise<void> {
     this.addressForSignature = await this.web3Provider.signer.getAddress();
   }
 
-  public async getOrCreateConditionsSignature(): Promise<string> {
-    // TODO: Should we also take into the account the freshness of on-chain data?
-    // Example: If I check for NFT ownership and the NFT is transferred, the signature should be invalidated.
-    // How long should we keep the signature valid? Well, as long as the network deems it valid. But how long is that?
-    if (!this.conditionsSignature || (await this.isNewWallet())) {
-      this.conditionsSignature = await this.createConditionsSignature();
-      this.updateAddress();
-    }
-    return this.conditionsSignature;
-  }
-
-  private async createConditionsSignature(): Promise<string> {
-    // Ensure freshness of the signature
-    const { blockNumber, blockHash, chainId } = await this.getChainData();
-
-    const conditions = this.conditionSet.toJson();
-
-    // TODO: Refactor `typeData` into a helper method
-    const typedData = {
-      types: {
-        EIP712Domain: [
-          { name: 'name', type: 'string' },
-          { name: 'version', type: 'string' },
-          { name: 'chainId', type: 'uint256' },
-          { name: 'salt', type: 'bytes32' },
-        ],
-        Condition: [
-          { name: 'address', type: 'address' },
-          { name: 'conditions', type: 'string' },
-          { name: 'blockNumber', type: 'uint256' },
-          { name: 'blockHash', type: 'bytes32' },
-        ],
-      },
-      domain: {
-        name: 'tDec',
-        version: '1',
-        chainId,
-        salt: ethersUtils.randomBytes(32),
-      },
-      message: {
-        address: await this.web3Provider.signer.getAddress(),
-        conditions,
-        blockNumber,
-        blockHash,
-      },
-    };
-
-    return this.web3Provider.signer._signTypedData(
-      typedData.domain,
-      typedData.types,
-      typedData.message
-    );
-  }
-
   public async getOrCreateWalletSignature(): Promise<string> {
-    if (!this.walletSignature || (await this.isNewWallet())) {
-      this.walletSignature = await this.createWalletSignature();
-      this.updateAddress();
+    const address = await this.web3Provider.signer.getAddress();
+    const storageKey = `wallet-signature-${address}`;
+
+    // If we have a signature in localStorage, return it
+    const isLocalStorage = typeof localStorage !== 'undefined';
+    if (isLocalStorage) {
+      const maybeSignature = localStorage.getItem(storageKey);
+      if (maybeSignature) {
+        return maybeSignature;
+      }
     }
-    return this.walletSignature;
+
+    // If not, try returning from memory
+    const maybeSignature = this.walletSignature?.[address];
+    if (maybeSignature) {
+      if (isLocalStorage) {
+        localStorage.setItem(storageKey, maybeSignature);
+      }
+      return maybeSignature;
+    }
+
+    // If at this point we didin't return, we need to create a new signature
+    const signature = await this.createWalletSignature();
+
+    // Persist where you can
+    if (isLocalStorage) {
+      localStorage.setItem(storageKey, signature);
+    }
+    if (!this.walletSignature) {
+      this.walletSignature = {};
+    }
+    this.walletSignature[address] = signature;
+    return signature;
   }
 
   private async createWalletSignature(): Promise<string> {

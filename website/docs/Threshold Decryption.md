@@ -31,14 +31,21 @@ import generateTDecEntities from '@nucypher/nucypher-ts'
 
 const provider = await detectEthereumProvider();
 const [encrypter, decrypter, policy, configuration] =
+const threshold = 3;
+const shares = 5;
+const label = 'example';
+const startDate = new Date();
+const endDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30); // 30 days
+const porterUrl =  'https://porter-ibex.nucypher.community';
+
   await generateTDecEntities(
-    3, // threshold
-    5, // shares
-    provider, // eth provider, here we use metamask
-    'example', // label your configuration
-    new Date(), // start date
-    new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // end date (in 30 days)
-    'https://porter-ibex.nucypher.community'
+    threshold,
+    shares,
+    provider,
+    label,
+    startDate,
+    endDate,
+    porterUrl
   );
 ```
 

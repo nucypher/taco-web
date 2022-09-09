@@ -1,5 +1,9 @@
+import { SecretKey } from '@nucypher/nucypher-core';
+
+import { ConditionContext, Conditions, ConditionSet } from '../../src';
 import { Operator } from '../../src/policies/conditions';
-import { Conditions, ConditionSet } from '../../src/policies/conditions';
+import { Web3Provider } from '../../src/web3';
+import { mockWeb3Provider } from '../utils';
 
 describe('operator', () => {
   it('should validate Operator operator validation', async () => {
@@ -56,5 +60,135 @@ describe('conditions set to/from json', () => {
       '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'
     );
     expect(conditionset.toJson()).toEqual(json);
+  });
+});
+
+// TODO: Test negative cases where schema validation fails
+describe('conditions types', () => {
+  const returnValueTest = {
+    comparator: '>',
+    value: '100',
+  };
+
+  it('timelock', async () => {
+    const timelockCondition = {
+      returnValueTest,
+    };
+    const timelock = new Conditions.TimelockCondition(timelockCondition);
+    expect(timelock.toObj()).toEqual({
+      returnValueTest,
+      method: 'timelock',
+    });
+  });
+
+  it('rpc', async () => {
+    const rpcCondition = {
+      chain: 'ethereum',
+      method: 'eth_getBalance',
+      parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
+      returnValueTest,
+    };
+    const rpc = new Conditions.RpcCondition(rpcCondition);
+    expect(rpc.toObj()).toEqual(rpcCondition);
+  });
+
+  it('evm', async () => {
+    const evmCondition = {
+      contractAddress: '0x0000000000000000000000000000000000000000',
+      chain: 'ethereum',
+      standardContractType: 'ERC20',
+      functionAbi: 'missing',
+      method: 'balanceOf',
+      parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
+      returnValueTest,
+    };
+    const evm = new Conditions.EvmCondition(evmCondition);
+    expect(evm.toObj()).toEqual(evmCondition);
+  });
+});
+
+describe('produce context parameters from conditions', () => {
+  describe('from rpc condition', () => {
+    const methods = Conditions.RpcCondition.RPC_METHODS;
+    methods.forEach((method) => {
+      const contextParams =
+        Conditions.RpcCondition.CONTEXT_PARAMETERS_PER_METHOD[method];
+      if (!contextParams) {
+        return;
+      }
+      contextParams.forEach((contextParam) => {
+        it(`produces context parameter ${contextParam} for method ${method}`, () => {
+          const rpcCondition = new Conditions.RpcCondition({
+            chain: 'ethereum',
+            method,
+            parameters: [contextParam],
+            returnValueTest: {
+              comparator: '==',
+              value: contextParam,
+            },
+          });
+          const producedContextParam = rpcCondition.getContextParameters();
+          expect(producedContextParam).toEqual([contextParam]);
+        });
+      });
+    });
+  });
+
+  describe('from evm condition', () => {
+    Conditions.EvmCondition.STANDARD_CONTRACT_TYPES.forEach((contractType) => {
+      const methods =
+        Conditions.EvmCondition.METHODS_PER_CONTRACT_TYPE[contractType];
+      if (!methods) {
+        return;
+      }
+      methods.forEach((method) => {
+        const contextParams =
+          Conditions.EvmCondition.CONTEXT_PARAMETERS_PER_METHOD[method];
+        if (!contextParams) {
+          return;
+        }
+        contextParams.forEach((contextParam) => {
+          it(`produces context parameter ${contextParam} for method ${method}`, () => {
+            const evmCondition = new Conditions.EvmCondition({
+              contractAddress: '0x0000000000000000000000000000000000000000',
+              chain: 'ethereum',
+              standardContractType: 'ERC20',
+              functionAbi: 'missing',
+              method: 'balanceOf',
+              parameters: [contextParam],
+              returnValueTest: {
+                comparator: '==',
+                value: contextParam,
+              },
+            });
+            const producedContextParam = evmCondition.getContextParameters();
+            expect(producedContextParam).toEqual([contextParam]);
+          });
+        });
+      });
+    });
+  });
+});
+
+describe('condition context', () => {
+  it('should serialize to JSON with context params', async () => {
+    const provider = mockWeb3Provider(SecretKey.random().toSecretBytes());
+    const web3Provider = Web3Provider.fromEthersWeb3Provider(provider);
+    jest;
+
+    const rpcCondition = new Conditions.RpcCondition({
+      chain: 'ethereum',
+      method: 'eth_getBalance',
+      parameters: [':userAddress'],
+      returnValueTest: {
+        comparator: '==',
+        value: ':userAddress',
+      },
+    });
+    const conditionSet = new ConditionSet([rpcCondition]);
+
+    const conditionContext = new ConditionContext(conditionSet, web3Provider);
+    const asJson = await conditionContext.toJson();
+    expect(asJson).toBeDefined();
   });
 });

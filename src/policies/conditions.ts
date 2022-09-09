@@ -1,7 +1,6 @@
 import { ethers, utils as ethersUtils } from 'ethers';
 import Joi, { ValidationError } from 'joi';
 
-import { toBytes } from '../utils';
 import { Web3Provider } from '../web3';
 
 export class Operator {
@@ -103,7 +102,6 @@ export class Condition {
   readonly schema = Joi.object({});
   public readonly defaults = {};
   public state = {};
-
   public error: ValidationError | undefined;
   public value: Record<string, unknown> = {};
 
@@ -125,12 +123,16 @@ export class Condition {
   }
 
   public static fromObj(obj: Record<string, string>) {
-    return new ContractCondition(obj);
+    return new EvmCondition(obj);
   }
 
   public validate(data: Record<string, unknown> = {}) {
     this.state = Object.assign(this.defaults, this.state, data);
     const { error, value } = this.schema.validate(this.state);
+    // TODO: Always throws on error
+    // if (error) {
+    //   throw new Error(error.message);
+    // }
     this.error = error;
     this.value = value;
     return { error, value };
@@ -138,6 +140,7 @@ export class Condition {
 }
 
 // A helper method for making complex Joi types
+// It says "allow these `types` when `parent` value is given"
 const makeGuard = (
   schema: Joi.StringSchema | Joi.ArraySchema,
   types: Record<string, string[]>,
@@ -155,14 +158,29 @@ const makeGuard = (
 class TimelockCondition extends Condition {
   public static readonly CONDITION_TYPE = 'timelock';
 
+  defaults = {
+    method: 'timelock',
+  };
+
   public readonly schema = Joi.object({
     returnValueTest: this.makeReturnValueTest(),
   });
 }
 
-class RpcCondition extends Condition implements ContextProvider {
+class RpcCondition extends Condition implements ContextParametersProvider {
   public static readonly CONDITION_TYPE = 'rpc';
   public static readonly RPC_METHODS = ['eth_getBalance', 'balanceOf'];
+  public static readonly PARAMETERS_PER_METHOD: Record<string, string[]> = {
+    eth_getBalance: ['address'],
+    balanceOf: ['address'],
+  };
+  public static readonly CONTEXT_PARAMETERS_PER_METHOD: Record<
+    string,
+    string[]
+  > = {
+    eth_getBalance: [':userAddress'],
+    ownerOf: [':userAddress'],
+  };
 
   public readonly schema = Joi.object({
     chain: Joi.string()
@@ -175,15 +193,18 @@ class RpcCondition extends Condition implements ContextProvider {
     returnValueTest: this.makeReturnValueTest(),
   });
 
-  public getContext = (): string[] => {
+  public getContextParameters = (): string[] => {
+    // TODO: Context parameters are actually in returnTest?
+    // TODO: Sketch an API in tests before doing ant serious work
     const asObject = this.toObj();
-    // TODO: Check whether parameters are actually addresses?
-    const maybeParameters = (asObject['parameters'] ?? []) as string[];
-    return maybeParameters;
+    const method = asObject['method'] as string;
+    const parameters = (asObject['parameters'] ?? []) as string[];
+    const context = RpcCondition.CONTEXT_PARAMETERS_PER_METHOD[method];
+    return parameters.filter((p) => context.includes(p));
   };
 }
 
-class ContractCondition extends Condition implements ContextProvider {
+class EvmCondition extends Condition implements ContextParametersProvider {
   public static readonly CONDITION_TYPE = 'evm';
   public static readonly STANDARD_CONTRACT_TYPES = [
     'ERC20',
@@ -199,15 +220,18 @@ class ContractCondition extends Condition implements ContextProvider {
     balanceOf: ['address'],
     ownerOf: ['address'],
   };
-  private readonly CONTEXT_PROVIDER_PER_METHOD: Record<string, string[]> = {
-    balanceOf: ['address'],
-    ownerOf: ['address'],
+  public static readonly CONTEXT_PARAMETERS_PER_METHOD: Record<
+    string,
+    string[]
+  > = {
+    balanceOf: [':userAddress'],
+    ownerOf: [':userAddress'],
   };
 
   private makeMethod = () =>
     makeGuard(
       Joi.string(),
-      ContractCondition.METHODS_PER_CONTRACT_TYPE,
+      EvmCondition.METHODS_PER_CONTRACT_TYPE,
       'standardContractType'
     );
 
@@ -219,23 +243,24 @@ class ContractCondition extends Condition implements ContextProvider {
       .valid(...Condition.SUPPORTED_CHAINS)
       .required(),
     standardContractType: Joi.string()
-      .valid(...ContractCondition.STANDARD_CONTRACT_TYPES)
+      .valid(...EvmCondition.STANDARD_CONTRACT_TYPES)
       .required(),
-    functionAbi: Joi.string(), // TODO: Should it be required? When?
+    functionAbi: Joi.string(), // TODO: Should it be required? When? Where do I get it?
     method: this.makeMethod().required(),
     parameters: Joi.array().required(),
     returnValueTest: this.makeReturnValueTest(),
   });
 
-  public getContext = (): string[] => {
+  public getContextParameters = (): string[] => {
     const asObject = this.toObj();
-    // TODO: Check whether parameters are actually addresses?
-    const maybeParameters = (asObject['parameters'] ?? []) as string[];
-    return maybeParameters;
+    const method = asObject['method'] as string;
+    const parameters = (asObject['parameters'] ?? []) as string[];
+    const context = EvmCondition.CONTEXT_PARAMETERS_PER_METHOD[method];
+    return parameters.filter((p) => context.includes(p));
   };
 }
 
-class ERC721Ownership extends ContractCondition {
+class ERC721Ownership extends EvmCondition {
   readonly defaults = {
     chain: 'ethereum',
     method: 'ownerOf',
@@ -248,29 +273,28 @@ class ERC721Ownership extends ContractCondition {
   };
 }
 
-export interface ContextProvider {
-  getContext: () => string[];
+export interface ContextParametersProvider {
+  getContextParameters: () => string[];
 }
 
 export class ConditionContext {
-  private conditionsSignature?: string;
   private walletSignature?: Record<string, string>;
-  private addressForSignature?: string;
 
   constructor(
     private readonly conditionSet: ConditionSet,
     private readonly web3Provider: Web3Provider
   ) {}
 
-  private get parameters() {
+  private get contextParameters() {
     const parameters = this.conditionSet.conditions
       .map((conditionOrOperator) => {
+        // TODO: This is a bit of a hack
         if (
           conditionOrOperator instanceof Condition &&
-          'makeContext' in conditionOrOperator
+          'getContextParameters' in conditionOrOperator
         ) {
-          const condition = conditionOrOperator as ContextProvider;
-          return condition.getContext();
+          const condition = conditionOrOperator as ContextParametersProvider;
+          return condition.getContextParameters();
         }
         return null;
       })
@@ -278,10 +302,6 @@ export class ConditionContext {
         (maybeResult: unknown | undefined) => !!maybeResult
       ) as string[][];
     return parameters.flat();
-  }
-
-  private async updateAddress(): Promise<void> {
-    this.addressForSignature = await this.web3Provider.signer.getAddress();
   }
 
   public async getOrCreateWalletSignature(): Promise<string> {
@@ -306,7 +326,7 @@ export class ConditionContext {
       return maybeSignature;
     }
 
-    // If at this point we didin't return, we need to create a new signature
+    // If at this point we didn't return, we need to create a new signature
     const signature = await this.createWalletSignature();
 
     // Persist where you can
@@ -368,27 +388,23 @@ export class ConditionContext {
   }
 
   public toJson = async (): Promise<string> => {
-    const payload = {
-      // TODO: Which signature to use? `walletSignature` or `conditionsSignature`?
-      signature: await this.getOrCreateWalletSignature(),
-    };
-    return JSON.stringify(payload);
-  };
-
-  public toBytes = (): Uint8Array => {
-    // TODO: Make sure this implementation matches nucypher-core
-    return this.parameters
-      .map(toBytes)
-      .reduce(
-        (prev, next) => new Uint8Array([...prev, ...next]),
-        new Uint8Array()
-      );
+    const payload = await Promise.all(
+      this.contextParameters.map(async (parameter) => {
+        if (parameter === ':userAddress') {
+          const signature = await this.getOrCreateWalletSignature();
+          return [parameter, { signature }];
+        } else {
+          throw new Error(`Unknown context parameter ${parameter}`);
+        }
+      })
+    );
+    return JSON.stringify(Object.fromEntries(payload));
   };
 }
 
 export const Conditions = {
   ERC721Ownership,
-  ContractCondition,
+  EvmCondition,
   TimelockCondition,
   RpcCondition,
   Condition,

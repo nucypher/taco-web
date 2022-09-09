@@ -5,7 +5,6 @@ import {
 } from '@nucypher/nucypher-core';
 
 import { ConditionSet } from './policies/conditions';
-import { toBytes } from './utils';
 
 export class ConditionsIntegrator {
   static readonly delimiter = 188;
@@ -50,11 +49,7 @@ export class MessageKit extends CoreMessageKit {
     plaintext: Uint8Array,
     conditions?: ConditionSet
   ) {
-    super(
-      policyEncryptingKey,
-      plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext)
-    );
-
+    super(policyEncryptingKey, plaintext);
     this.conditions = conditions;
   }
 

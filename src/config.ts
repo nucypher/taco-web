@@ -15,7 +15,7 @@ const CONFIGS: { readonly [key in ChainId]: Configuration } = {
 
 export const defaultConfiguration = (chainId: number): Configuration => {
   if (!Object.values(ChainId).includes(chainId)) {
-    throw new Error(`No default confituration found for chainId: ${chainId}`);
+    throw new Error(`No default configuration found for chainId: ${chainId}`);
   }
   return CONFIGS[chainId as ChainId];
 };

@@ -1,7 +1,6 @@
 import { CapsuleFrag, reencrypt } from '@nucypher/nucypher-core';
 
-import { Enrico } from '../../src';
-import { MessageKit, RetrievalKit } from '../../src/core';
+import { Enrico, MessageKit } from '../../src';
 import { PolicyMessageKit } from '../../src/kits/message';
 import { RetrievalResult } from '../../src/kits/retrieval';
 import {

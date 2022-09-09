@@ -1,7 +1,12 @@
-import { SecretKey } from '@nucypher/nucypher-core';
+import {
+  MessageKit as CoreMessageKit,
+  SecretKey,
+} from '@nucypher/nucypher-core';
 
 import { ConditionContext, Conditions, ConditionSet } from '../../src';
+import { ConditionsIntegrator, MessageKit } from '../../src/core';
 import { Operator } from '../../src/policies/conditions';
+import { toBytes } from '../../src/utils';
 import { Web3Provider } from '../../src/web3';
 import { mockWeb3Provider } from '../utils';
 
@@ -174,7 +179,6 @@ describe('condition context', () => {
   it('should serialize to JSON with context params', async () => {
     const provider = mockWeb3Provider(SecretKey.random().toSecretBytes());
     const web3Provider = Web3Provider.fromEthersWeb3Provider(provider);
-    jest;
 
     const rpcCondition = new Conditions.RpcCondition({
       chain: 'ethereum',
@@ -190,5 +194,50 @@ describe('condition context', () => {
     const conditionContext = new ConditionContext(conditionSet, web3Provider);
     const asJson = await conditionContext.toJson();
     expect(asJson).toBeDefined();
+  });
+});
+
+describe('condition integrator', () => {
+  it('should properly splice bytes', () => {
+    const rpcCondition = new Conditions.RpcCondition({
+      chain: 'ethereum',
+      method: 'eth_getBalance',
+      parameters: [':userAddress'],
+      returnValueTest: {
+        comparator: '==',
+        value: ':userAddress',
+      },
+    });
+    const evmCondition = new Conditions.EvmCondition({
+      contractAddress: '0x0000000000000000000000000000000000000000',
+      chain: 'ethereum',
+      standardContractType: 'ERC20',
+      functionAbi: 'missing',
+      method: 'balanceOf',
+      parameters: [':userAddress'],
+      returnValueTest: {
+        comparator: '==',
+        value: ':userAddress',
+      },
+    });
+    const conditionSet = new ConditionSet([
+      rpcCondition,
+      Operator.OR(),
+      evmCondition,
+    ]);
+    const messageKit = new CoreMessageKit(
+      SecretKey.random().publicKey(),
+      toBytes(`fake-plaintext`)
+    );
+    const conditionsIntegratorBytes = new ConditionsIntegrator(
+      messageKit.toBytes(),
+      conditionSet
+    ).outputBytes;
+    const { messagekitBytes, conditionsBytes } = ConditionsIntegrator.parse(
+      conditionsIntegratorBytes
+    );
+
+    expect(messagekitBytes).toEqual(messageKit.toBytes());
+    expect(conditionsBytes).toEqual(toBytes(conditionSet.toBase64()));
   });
 });

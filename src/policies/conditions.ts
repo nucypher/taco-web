@@ -20,6 +20,14 @@ export class Operator {
   static fromObj(obj: Record<string, string>) {
     return new Operator(obj.operator);
   }
+
+  public static AND() {
+    return new Operator('and');
+  }
+
+  public static OR() {
+    return new Operator('or');
+  }
 }
 
 export class ConditionSet {

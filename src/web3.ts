@@ -35,3 +35,21 @@ export const toCanonicalAddress = (address: string): Uint8Array => {
     : address;
   return fromHexString(nonPrefixed);
 };
+
+export interface Eip712TypedData {
+  types: {
+    Wallet: { name: string; type: string }[];
+  };
+  domain: {
+    salt: Uint8Array;
+    chainId: number;
+    name: string;
+    version: string;
+  };
+  message: {
+    blockHash: string;
+    address: string;
+    blockNumber: number;
+    signatureText: string;
+  };
+}

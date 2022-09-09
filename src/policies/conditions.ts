@@ -1,7 +1,7 @@
 import { ethers, utils as ethersUtils } from 'ethers';
 import Joi, { ValidationError } from 'joi';
 
-import { Web3Provider } from '../web3';
+import { Eip712TypedData, Web3Provider } from '../web3';
 
 export class Operator {
   static readonly LOGICAL_OPERATORS: ReadonlyArray<string> = ['and', 'or'];
@@ -278,6 +278,7 @@ class ERC721Ownership extends EvmCondition {
       comparator: '==',
       value: ':userAddress',
     },
+    functionAbi: '', // TODO: Add ERC721 ABI
   };
 }
 
@@ -312,7 +313,10 @@ export class ConditionContext {
     return parameters.flat();
   }
 
-  public async getOrCreateWalletSignature(): Promise<string> {
+  public async getOrCreateWalletSignature(): Promise<{
+    signature: string;
+    typedData: Eip712TypedData;
+  }> {
     const address = await this.web3Provider.signer.getAddress();
     const storageKey = `wallet-signature-${address}`;
 
@@ -321,7 +325,7 @@ export class ConditionContext {
     if (isLocalStorage) {
       const maybeSignature = localStorage.getItem(storageKey);
       if (maybeSignature) {
-        return maybeSignature;
+        return JSON.parse(maybeSignature);
       }
     }
 
@@ -331,24 +335,27 @@ export class ConditionContext {
       if (isLocalStorage) {
         localStorage.setItem(storageKey, maybeSignature);
       }
-      return maybeSignature;
+      return JSON.parse(maybeSignature);
     }
 
     // If at this point we didn't return, we need to create a new signature
-    const signature = await this.createWalletSignature();
+    const typedSignature = await this.createWalletSignature();
 
     // Persist where you can
     if (isLocalStorage) {
-      localStorage.setItem(storageKey, signature);
+      localStorage.setItem(storageKey, JSON.stringify(typedSignature));
     }
     if (!this.walletSignature) {
       this.walletSignature = {};
     }
-    this.walletSignature[address] = signature;
-    return signature;
+    this.walletSignature[address] = JSON.stringify(typedSignature);
+    return typedSignature;
   }
 
-  private async createWalletSignature(): Promise<string> {
+  private async createWalletSignature(): Promise<{
+    signature: string;
+    typedData: Eip712TypedData;
+  }> {
     // Ensure freshness of the signature
     const { blockNumber, blockHash, chainId } = await this.getChainData();
 
@@ -357,7 +364,7 @@ export class ConditionContext {
 
     const salt = ethersUtils.randomBytes(32);
 
-    const typedData = {
+    const typedData: Eip712TypedData = {
       types: {
         Wallet: [
           { name: 'address', type: 'address' },
@@ -380,11 +387,12 @@ export class ConditionContext {
       },
     };
 
-    return this.web3Provider.signer._signTypedData(
+    const signature = await this.web3Provider.signer._signTypedData(
       typedData.domain,
       typedData.types,
       typedData.message
     );
+    return { signature, typedData };
   }
 
   private async getChainData() {
@@ -400,7 +408,7 @@ export class ConditionContext {
       this.contextParameters.map(async (parameter) => {
         if (parameter === ':userAddress') {
           const signature = await this.getOrCreateWalletSignature();
-          return [parameter, { signature }];
+          return [parameter, signature];
         } else {
           throw new Error(`Unknown context parameter ${parameter}`);
         }

@@ -3,10 +3,11 @@ slug: Threshold Decryption.md
 sidebar_position: 16
 ---
 
-Decentralized threshold cryptography involves splitting a key into many parts (shares) and distributing those among authorized network members.
-A certain number (threshold) of members who have the corresponding parts of the keys will be needed in order to reconstruct the original secret.
-We refer to the threshold and shares as `m` and `n` and the overall configuration as `m-of-n`
-Ie. in a `3-of-5` scheme 3 out of the original 5 decentralized members are required to reconstruct the secret.
+Threshold Decryption (TDec) is a programmable access control service, in which decryption rights are typically based on the verified fulfillment of predefined conditions. Access conditions can be EVM-based (e.g. does the designated recipient own this NFT), RPC-driven (e.g. did the designated recipient commence active mining before this block) or time-based (e.g. has a preset period of time elapsed, after which the recipient's requests will be ignored). These conditions are also composable and can be combined in any logical sequence or decision tree.  
+
+TDec involves splitting the secret (a decryption key) into multiples shares and distributing those among authorized and collateralized node operators (stakers in the Threshold network). A minimum number – a threshold – of those operators holding the key shares must be online and actively participate in order to reconstruct the original secret.
+
+We refer to the _threshold_ and _shares_ as `m` and `n` and the overall configuration as `m-of-n`. Ie. in a `3-of-5` scheme, 3 out of 5 node operators are required to reconstruct the secret.
 
 ## Creating Threshold Decryption objects
 

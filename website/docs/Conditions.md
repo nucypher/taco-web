@@ -22,7 +22,7 @@ const ERC721Conditions = {
       "5954"
     ],
     returnValueTest: {
-      comparator: "=",
+      comparator: "==",
       value: ":userAddress"
     }
   }

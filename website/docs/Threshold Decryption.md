@@ -3,15 +3,20 @@ slug: Threshold Decryption.md
 sidebar_position: 16
 ---
 
-Threshold Decryption (TDec) is a programmable access control service, in which decryption rights are typically based on the verified fulfillment of predefined conditions. Access conditions can be EVM-based (e.g. does the designated recipient own this NFT), RPC-driven (e.g. did the designated recipient commence active mining before this block) or time-based (e.g. has a preset period of time elapsed, after which the recipient's requests will be ignored). These conditions are also composable and can be combined in any logical sequence or decision tree.  
+Threshold Decryption (TDec) is a programmable access control service, in which decryption rights are typically based on the verified fulfillment of predefined conditions.
+Access conditions can be EVM-based (e.g. does the designated recipient own this NFT), RPC-driven (e.g. did the designated recipient commence active mining before this block) or time-based (e.g. has a preset period of time elapsed, after which the recipient's requests will be ignored).
+These conditions are also composable and can be combined in any logical sequence or decision tree.  
 
-TDec involves splitting the secret (a decryption key) into multiples shares and distributing those among authorized and collateralized node operators (stakers in the Threshold network). A minimum number – a threshold – of those operators holding the key shares must be online and actively participate in order to reconstruct the original secret.
+TDec involves splitting the secret (a decryption key) into multiples shares and distributing those among authorized and collateralized node operators (stakers in the Threshold network).
+A minimum number – a threshold – of those operators holding the key shares must be online and actively participate in partial decryptions that can subsequently be combined by the requester to reconstruct the original plaintext data.
 
-We refer to the _threshold_ and _shares_ as `m` and `n` and the overall configuration as `m-of-n`. Ie. in a `3-of-5` scheme, 3 out of 5 node operators are required to reconstruct the secret.
+We refer to the _threshold_ and _shares_ as `m` and `n` and the overall configuration as `m-of-n`.
+Ie. in a `3-of-5` scheme, 3 out of 5 node operators are required to reconstruct the original plaintext data.
 
 ## Creating Threshold Decryption objects
 
-`nucypher-ts` provides a simple builder function, `generateTDecEntities`. This function takes several parameters that define the the policy (e.g. `m` and `n`), returns objects for encrypting/decrypting data, and stores the configuration for later use.
+`nucypher-ts` provides a simple builder function, `generateTDecEntities`.
+This function takes several parameters that define the the policy (e.g. `m` and `n`), returns objects for encrypting/decrypting data, and stores the configuration for later use.
 
 
 Besides passing in `m` (threshold) and `n` (shares) as defined above, we must also specify the following: 
@@ -21,7 +26,8 @@ Besides passing in `m` (threshold) and `n` (shares) as defined above, we must al
 - `endDate` - when access ceases
 - `porterUri` - a connection to the [Porter](Glossary.md#porter) service
 
-If a Bring-Your-Own-Key setup is desired/required, the optional parameter `aliceSecretKey` can added as an additional builder function argument. In this case the resulting `encrypter` is constructed from the provided secret key, rather than being generated at runtime. 
+If a Bring-Your-Own-Key setup is desired/required, the optional parameter `aliceSecretKey` can added as an additional builder function argument.
+In this case the resulting `encrypter` is constructed from the provided secret key, rather than being generated at runtime. 
 
 ```js
 import detectEthereumProvider from '@metamask/detect-provider';
@@ -49,7 +55,8 @@ const porterUrl =  'https://porter-ibex.nucypher.community';
 
 ## Rebuilding Threshold Decryption objects from configuration json
 
-The `configuration` variable returned by `generateTDecEntities` is a JSON object containing everything required to reconstruct the `encrypter` and `decrypter`. This can be stored wherever is convenient, and can be used by adopting applications for greater persistence and redundancy.  
+The `configuration` variable returned by `generateTDecEntities` is a JSON object containing everything required to reconstruct the `encrypter` and `decrypter`.
+This can be stored wherever is convenient, and can be used by adopting applications for greater persistence and redundancy.  
 ```js
 >>> console.log(configuration)
 {

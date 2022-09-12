@@ -11,8 +11,7 @@ We refer to the _threshold_ and _shares_ as `m` and `n` and the overall configur
 
 ## Creating Threshold Decryption objects
 
-`nucypher-ts` provides a simple builder function, `generateTDecEntities`.
-This function takes several parameter that define the the policy, and returns objects for encrypting/decrypting data, and storing the policy configuration for later use.
+`nucypher-ts` provides a simple builder function, `generateTDecEntities`. This function takes several parameters that define the the policy (e.g. `m` and `n`), returns objects for encrypting/decrypting data, and stores the configuration for later use.
 
 
 We must pass in the `threshold` and `shares` as defined above.

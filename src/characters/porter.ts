@@ -95,13 +95,16 @@ export class Porter {
     bobVerifyingKey: PublicKey,
     conditionsContext?: ConditionContext
   ): Promise<readonly RetrieveCFragsResponse[]> {
+    const context = conditionsContext
+      ? await conditionsContext.toJson()
+      : undefined;
     const data: PostRetrieveCFragsRequest = {
       treasure_map: toBase64(treasureMap.toBytes()),
       retrieval_kits: retrievalKits.map((rk) => toBase64(rk.toBytes())),
       alice_verifying_key: toHexString(aliceVerifyingKey.toBytes()),
       bob_encrypting_key: toHexString(bobEncryptingKey.toBytes()),
       bob_verifying_key: toHexString(bobVerifyingKey.toBytes()),
-      context: conditionsContext ? await conditionsContext.toJson() : undefined,
+      context,
     };
     const resp: AxiosResponse<PostRetrieveCFragsResult> = await axios.post(
       new URL('/retrieve_cfrags', this.porterUrl).toString(),

@@ -145,6 +145,32 @@ export class Condition {
     this.value = value;
     return { error, value };
   }
+
+  public getContextParameters(): string[] {
+    // Check all the places where context parameters may be hiding
+    const asObject = this.toObj();
+    let paramsToCheck: string[] = [];
+    const method = asObject['method'] as string;
+    if (method) {
+      const contextParams = RpcCondition.CONTEXT_PARAMETERS_PER_METHOD[method];
+      paramsToCheck = [...(contextParams ?? [])];
+    }
+    const returnValueTest = asObject['returnValueTest'] as Record<
+      string,
+      string
+    >;
+    if (returnValueTest) {
+      paramsToCheck.push(returnValueTest['value']);
+    }
+    paramsToCheck = [
+      ...paramsToCheck,
+      ...((asObject['parameters'] as string[]) ?? []),
+    ];
+    const withoutDuplicates = new Set(
+      paramsToCheck.filter((p) => paramsToCheck.includes(p))
+    );
+    return [...withoutDuplicates];
+  }
 }
 
 // A helper method for making complex Joi types
@@ -175,7 +201,7 @@ class TimelockCondition extends Condition {
   });
 }
 
-class RpcCondition extends Condition implements ContextParametersProvider {
+class RpcCondition extends Condition {
   public static readonly CONDITION_TYPE = 'rpc';
   public static readonly RPC_METHODS = ['eth_getBalance', 'balanceOf'];
   public static readonly PARAMETERS_PER_METHOD: Record<string, string[]> = {
@@ -220,7 +246,7 @@ class RpcCondition extends Condition implements ContextParametersProvider {
   };
 }
 
-class EvmCondition extends Condition implements ContextParametersProvider {
+class EvmCondition extends Condition {
   public static readonly CONDITION_TYPE = 'evm';
   public static readonly STANDARD_CONTRACT_TYPES = [
     'ERC20',
@@ -266,24 +292,6 @@ class EvmCondition extends Condition implements ContextParametersProvider {
     parameters: Joi.array().required(),
     returnValueTest: this.makeReturnValueTest(),
   });
-
-  public getContextParameters = (): string[] => {
-    // TODO: Context parameters are actually in returnTest?
-    // TODO: Sketch an API in tests before doing ant serious work
-    const asObject = this.toObj();
-
-    const method = asObject['method'] as string;
-    const parameters = (asObject['parameters'] ?? []) as string[];
-
-    const context = RpcCondition.CONTEXT_PARAMETERS_PER_METHOD[method];
-    const returnValueTest = asObject['returnValueTest'] as Record<
-      string,
-      string
-    >;
-
-    const maybeParams = [...(context ?? []), returnValueTest['value']];
-    return parameters.filter((p) => maybeParams.includes(p));
-  };
 }
 
 class ERC721Ownership extends EvmCondition {
@@ -300,10 +308,6 @@ class ERC721Ownership extends EvmCondition {
   };
 }
 
-export interface ContextParametersProvider {
-  getContextParameters: () => string[];
-}
-
 export class ConditionContext {
   private walletSignature?: Record<string, string>;
 
@@ -315,12 +319,8 @@ export class ConditionContext {
   private get contextParameters() {
     const parameters = this.conditionSet.conditions
       .map((conditionOrOperator) => {
-        // TODO: This is a bit of a hack
-        if (
-          conditionOrOperator instanceof Condition &&
-          'getContextParameters' in conditionOrOperator
-        ) {
-          const condition = conditionOrOperator as ContextParametersProvider;
+        if (conditionOrOperator instanceof Condition) {
+          const condition = conditionOrOperator as Condition;
           return condition.getContextParameters();
         }
         return null;
@@ -328,6 +328,7 @@ export class ConditionContext {
       .filter(
         (maybeResult: unknown | undefined) => !!maybeResult
       ) as string[][];
+    console.log({ parameters });
     return parameters.flat();
   }
 
@@ -422,17 +423,17 @@ export class ConditionContext {
   }
 
   public toJson = async (): Promise<string> => {
-    const payload = await Promise.all(
-      this.contextParameters.map(async (parameter) => {
-        if (parameter === ':userAddress') {
-          const signature = await this.getOrCreateWalletSignature();
-          return [parameter, signature];
-        } else {
-          throw new Error(`Unknown context parameter ${parameter}`);
-        }
-      })
+    const userAddressParam = this.contextParameters.find(
+      (p) => p === ':userAddress'
     );
-    return JSON.stringify(Object.fromEntries(payload));
+    console.log({ userAddressParam });
+    if (!userAddressParam) {
+      return JSON.stringify({});
+    }
+    const signature = await this.getOrCreateWalletSignature();
+    const payload = { ':userAddress': signature };
+    console.log({ signature });
+    return JSON.stringify(payload);
   };
 }
 

@@ -14,13 +14,12 @@ We refer to the _threshold_ and _shares_ as `m` and `n` and the overall configur
 `nucypher-ts` provides a simple builder function, `generateTDecEntities`. This function takes several parameters that define the the policy (e.g. `m` and `n`), returns objects for encrypting/decrypting data, and stores the configuration for later use.
 
 
-We must pass in the `threshold` and `shares` as defined above.
-We must also include:
-- `provider` - lets us interface with the ETH blockchain for validating the user and making rpc requests
-- `label` - to reference this configuration
-- `startDate` - when is the policy valid from
-- `endDate` - when is the policy valid until
-- `porterUri` - a connection to [Porter](Glossary.md#porter)
+Besides passing in `m` (threshold) and `n` (shares) as defined above, we must also specify the following: 
+- `provider` - to interface with the ETH blockchain (validating the user and making RPC requests) 
+- `label` - a reference for this particular configuration
+- `startDate` - when access commences, on fulfillment of other conditions
+- `endDate` - when access ceases
+- `porterUri` - a connection to the [Porter](Glossary.md#porter) service
 
 There is an optional parameter, `aliceSecretKey`.
 If this is provided, the resulting `encrypter` is constructed from the secret key provided, rather than one being created at runtime.

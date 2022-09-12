@@ -4,7 +4,7 @@ import {
 } from '@nucypher/nucypher-core';
 
 import { ConditionContext, Conditions, ConditionSet } from '../../src';
-import { ConditionsIntegrator, MessageKit } from '../../src/core';
+import { ConditionsIntegrator } from '../../src/core';
 import { Operator } from '../../src/policies/conditions';
 import { toBytes } from '../../src/utils';
 import { Web3Provider } from '../../src/web3';

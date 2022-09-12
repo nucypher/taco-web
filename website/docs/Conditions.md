@@ -46,7 +46,7 @@ const ERC721Conditions = {
     contractAddress: "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D",
     standardContractType: "ERC721",
     chain:  "ethereum",
-    method: "blanceOf",
+    method: "balanceOf",
     parameters: [
       ":userAddress"
     ],

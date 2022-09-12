@@ -11,15 +11,15 @@ export class ConditionsIntegrator {
   public readonly outputBytes: Uint8Array;
 
   constructor(nativeBytes: Uint8Array, conditions?: ConditionSet) {
-    const conditionBytes = Buffer.from(conditions ? conditions.toBase64() : []);
+    this.outputBytes = Uint8Array.from([...nativeBytes]);
 
-    this.outputBytes = Uint8Array.from([
-      ...nativeBytes,
-      ...Uint8Array.from(
-        conditionBytes.length ? [ConditionsIntegrator.delimiter] : []
-      ),
-      ...conditionBytes,
-    ]);
+    if (conditions) {
+      this.outputBytes = Uint8Array.from([
+        ...this.outputBytes,
+        ...Uint8Array.from([ConditionsIntegrator.delimiter]),
+        ...conditions.toBuffer(),
+      ]);
+    }
   }
 
   public readonly toBase64 = () => {

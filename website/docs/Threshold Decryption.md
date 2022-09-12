@@ -50,7 +50,7 @@ const porterUrl =  'https://porter-ibex.nucypher.community';
 
 ## Rebuilding Threshold Decryption objects from configuration json
 
-The `configuration` variable returned by `generateTDecEntities` is just a json object containing everything required to reconstruct the `encrypter` and `decrypter`.
+The `configuration` variable returned by `generateTDecEntities` is a JSON object containing everything required to reconstruct the `encrypter` and `decrypter`. This can be stored wherever is convenient, and can be used by adopting applications for greater persistence and redundancy.  
 ```js
 >>> console.log(configuration)
 {

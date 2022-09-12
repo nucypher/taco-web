@@ -328,7 +328,6 @@ export class ConditionContext {
       .filter(
         (maybeResult: unknown | undefined) => !!maybeResult
       ) as string[][];
-    console.log({ parameters });
     return parameters.flat();
   }
 
@@ -426,13 +425,11 @@ export class ConditionContext {
     const userAddressParam = this.contextParameters.find(
       (p) => p === ':userAddress'
     );
-    console.log({ userAddressParam });
     if (!userAddressParam) {
       return JSON.stringify({});
     }
     const signature = await this.getOrCreateWalletSignature();
     const payload = { ':userAddress': signature };
-    console.log({ signature });
     return JSON.stringify(payload);
   };
 }

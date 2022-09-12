@@ -64,7 +64,7 @@ const ERC20Conditions = {
     contractAddress: "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5",
     standardContractType: "ERC20",
     chain:  "ethereum",
-    method: "blanceOf",
+    method: "balanceOf",
     parameters: [
       ":userAddress"
     ],

@@ -20,6 +20,7 @@ export {
   Conditions,
   ConditionSet,
   ConditionContext,
+  Operator,
 } from './policies/conditions';
 
 export {

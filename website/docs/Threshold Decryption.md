@@ -69,5 +69,5 @@ const [newEncrypter, newDecrypter] = await TDecEntitiesFromConfig(
 );
 ```
 
-This allows us to create our encrypting/decrypting objects and store the configuration for use at a later time or in a different application.
+This allows us to create our encrypting/decrypting objects and store the configuration for use at a later time, in a different application, or with a new/returning end-user.
 For example we may want to encrypt data in a secure backend but allow users to access it (assuming [Conditions](Conditions.md) are met) from a decentralized frontend.

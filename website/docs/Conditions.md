@@ -78,7 +78,7 @@ const ERC20Conditions = {
 ### Ownership of at least one ERC1155 token from a batch of ids
 Batching can be applied to ERC721 tokens as well.
 ```js
-const ERC115Conditions = {
+const ERC1155Conditions = {
     contractAddress: "0x54F456B544abFb785694400bcb1D85629B2D437f",
     standardContractType: "ERC1155",
     chain:  "ethereum",

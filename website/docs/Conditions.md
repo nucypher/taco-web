@@ -145,7 +145,7 @@ const customABICondition = {
 
 ## RPC Conditions
 
-Here will will query the ETH balance of the users address using the RPC call [`eth_getBalance`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getbalance)
+Here we will query the ETH balance of the user's address using the RPC call [`eth_getBalance`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getbalance)
 ```js
 const ETHBalance = {
     contractAddress: "",

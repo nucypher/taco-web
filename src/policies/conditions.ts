@@ -205,10 +205,18 @@ class RpcCondition extends Condition implements ContextParametersProvider {
     // TODO: Context parameters are actually in returnTest?
     // TODO: Sketch an API in tests before doing ant serious work
     const asObject = this.toObj();
+
     const method = asObject['method'] as string;
     const parameters = (asObject['parameters'] ?? []) as string[];
+
     const context = RpcCondition.CONTEXT_PARAMETERS_PER_METHOD[method];
-    return parameters.filter((p) => context.includes(p));
+    const returnValueTest = asObject['returnValueTest'] as Record<
+      string,
+      string
+    >;
+
+    const maybeParams = [...(context ?? []), returnValueTest['value']];
+    return parameters.filter((p) => maybeParams.includes(p));
   };
 }
 
@@ -260,11 +268,21 @@ class EvmCondition extends Condition implements ContextParametersProvider {
   });
 
   public getContextParameters = (): string[] => {
+    // TODO: Context parameters are actually in returnTest?
+    // TODO: Sketch an API in tests before doing ant serious work
     const asObject = this.toObj();
+
     const method = asObject['method'] as string;
     const parameters = (asObject['parameters'] ?? []) as string[];
-    const context = EvmCondition.CONTEXT_PARAMETERS_PER_METHOD[method];
-    return parameters.filter((p) => context.includes(p));
+
+    const context = RpcCondition.CONTEXT_PARAMETERS_PER_METHOD[method];
+    const returnValueTest = asObject['returnValueTest'] as Record<
+      string,
+      string
+    >;
+
+    const maybeParams = [...(context ?? []), returnValueTest['value']];
+    return parameters.filter((p) => maybeParams.includes(p));
   };
 }
 

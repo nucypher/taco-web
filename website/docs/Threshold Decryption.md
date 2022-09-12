@@ -21,8 +21,7 @@ Besides passing in `m` (threshold) and `n` (shares) as defined above, we must al
 - `endDate` - when access ceases
 - `porterUri` - a connection to the [Porter](Glossary.md#porter) service
 
-There is an optional parameter, `aliceSecretKey`.
-If this is provided, the resulting `encrypter` is constructed from the secret key provided, rather than one being created at runtime.
+If a Bring-Your-Own-Key setup is desired/required, the optional parameter `aliceSecretKey` can added as an additional builder function argument. In this case the resulting `encrypter` is constructed from the provided secret key, rather than being generated at runtime. 
 
 ```js
 import detectEthereumProvider from '@metamask/detect-provider';

@@ -253,7 +253,7 @@ class EvmCondition extends Condition implements ContextParametersProvider {
     standardContractType: Joi.string()
       .valid(...EvmCondition.STANDARD_CONTRACT_TYPES)
       .required(),
-    functionAbi: Joi.string(), // TODO: Should it be required? When? Where do I get it?
+    functionAbi: Joi.string().optional(), // TODO: Should it be required? When? Where do I get it?
     method: this.makeMethod().required(),
     parameters: Joi.array().required(),
     returnValueTest: this.makeReturnValueTest(),
@@ -278,7 +278,7 @@ class ERC721Ownership extends EvmCondition {
       comparator: '==',
       value: ':userAddress',
     },
-    functionAbi: '', // TODO: Add ERC721 ABI
+    // functionAbi: '', // TODO: Add ERC721 ABI
   };
 }
 

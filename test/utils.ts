@@ -69,12 +69,14 @@ export const mockWeb3Provider = (
   const fakeSignerWithProvider = {
     ...new Wallet(secretKeyBytes),
     provider,
+    _signTypedData: () => Promise.resolve('fake-typed-signature'),
+    getAddress: () =>
+      Promise.resolve('0x0000000000000000000000000000000000000000'),
   } as unknown as ethers.providers.JsonRpcSigner;
-  const fakeProvider = {
+  return {
     ...provider,
     getSigner: () => fakeSignerWithProvider,
   } as unknown as ethers.providers.Web3Provider;
-  return fakeProvider;
 };
 
 export const mockUrsulas = (): readonly Ursula[] => {

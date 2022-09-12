@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 import { ChecksumAddress } from './types';
 import { fromHexString } from './utils';
 
+// TODO: Remove this abstraction and use ethers directly?
 export class Web3Provider {
   private constructor(
     private readonly web3Provider: ethers.providers.Web3Provider
@@ -34,3 +35,21 @@ export const toCanonicalAddress = (address: string): Uint8Array => {
     : address;
   return fromHexString(nonPrefixed);
 };
+
+export interface Eip712TypedData {
+  types: {
+    Wallet: { name: string; type: string }[];
+  };
+  domain: {
+    salt: Uint8Array;
+    chainId: number;
+    name: string;
+    version: string;
+  };
+  message: {
+    blockHash: string;
+    address: string;
+    blockNumber: number;
+    signatureText: string;
+  };
+}

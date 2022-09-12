@@ -1,4 +1,7 @@
+import { ethers, utils as ethersUtils } from 'ethers';
 import Joi, { ValidationError } from 'joi';
+
+import { Eip712TypedData, Web3Provider } from '../web3';
 
 export class Operator {
   static readonly LOGICAL_OPERATORS: ReadonlyArray<string> = ['and', 'or'];
@@ -16,6 +19,14 @@ export class Operator {
 
   static fromObj(obj: Record<string, string>) {
     return new Operator(obj.operator);
+  }
+
+  public static AND() {
+    return new Operator('and');
+  }
+
+  public static OR() {
+    return new Operator('or');
   }
 }
 
@@ -58,26 +69,33 @@ export class ConditionSet {
     );
   }
 
-  toJSON() {
+  public toJson() {
     return JSON.stringify(this.toList());
   }
 
-  toBase64() {
+  public toBase64() {
     return this.toBuffer().toString('base64');
   }
 
-  toBuffer() {
-    return Buffer.from(this.toJSON());
+  public toBuffer() {
+    return Buffer.from(this.toJson());
   }
 
-  static fromBytes(bytes: Uint8Array) {
+  public static fromBytes(bytes: Uint8Array) {
     const decoded = Buffer.from(Buffer.from(bytes).toString('ascii'), 'base64');
     const list = JSON.parse(String.fromCharCode(...decoded));
     return ConditionSet.fromList(list);
   }
 
-  static fromJSON(json: string) {
+  public static fromJSON(json: string) {
     return ConditionSet.fromList(JSON.parse(json));
+  }
+
+  public buildContext(
+    provider: ethers.providers.Web3Provider
+  ): ConditionContext {
+    const web3Provider = Web3Provider.fromEthersWeb3Provider(provider);
+    return new ConditionContext(this, web3Provider);
   }
 }
 
@@ -89,44 +107,74 @@ export class Condition {
     // 'polygon', 'mumbai'
   ];
 
-  protected makeReturnValueTest = () =>
-    Joi.object({
+  readonly schema = Joi.object({});
+  public readonly defaults = {};
+  public state = {};
+  public error: ValidationError | undefined;
+  public value: Record<string, unknown> = {};
+
+  constructor(data: Record<string, unknown> = {}) {
+    this.validate(data);
+  }
+
+  protected makeReturnValueTest() {
+    return Joi.object({
       comparator: Joi.string()
         .valid(...Condition.COMPARATOR_OPERATORS)
         .required(),
       value: Joi.string().required(),
     });
+  }
 
-  defaults = {};
-  state = {};
-
-  error: ValidationError | undefined;
-  value: Record<string, unknown> = {};
-
-  toObj() {
+  public toObj(): Record<string, unknown> {
     return this.validate().value;
   }
 
-  static fromObj(obj: Record<string, string>) {
-    return new ContractCondition(obj);
+  public static fromObj(obj: Record<string, string>) {
+    return new EvmCondition(obj);
   }
 
-  readonly schema = Joi.object({});
-
-  validate(data: Record<string, unknown> = {}) {
+  public validate(data: Record<string, unknown> = {}) {
     this.state = Object.assign(this.defaults, this.state, data);
     const { error, value } = this.schema.validate(this.state);
+    // TODO: Always throws on error
+    // if (error) {
+    //   throw new Error(error.message);
+    // }
     this.error = error;
     this.value = value;
     return { error, value };
   }
 
-  constructor(data: Record<string, unknown> = {}) {
-    this.validate(data);
+  public getContextParameters(): string[] {
+    // Check all the places where context parameters may be hiding
+    const asObject = this.toObj();
+    let paramsToCheck: string[] = [];
+    const method = asObject['method'] as string;
+    if (method) {
+      const contextParams = RpcCondition.CONTEXT_PARAMETERS_PER_METHOD[method];
+      paramsToCheck = [...(contextParams ?? [])];
+    }
+    const returnValueTest = asObject['returnValueTest'] as Record<
+      string,
+      string
+    >;
+    if (returnValueTest) {
+      paramsToCheck.push(returnValueTest['value']);
+    }
+    paramsToCheck = [
+      ...paramsToCheck,
+      ...((asObject['parameters'] as string[]) ?? []),
+    ];
+    const withoutDuplicates = new Set(
+      paramsToCheck.filter((p) => paramsToCheck.includes(p))
+    );
+    return [...withoutDuplicates];
   }
 }
 
 // A helper method for making complex Joi types
+// It says "allow these `types` when `parent` value is given"
 const makeGuard = (
   schema: Joi.StringSchema | Joi.ArraySchema,
   types: Record<string, string[]>,
@@ -143,7 +191,12 @@ const makeGuard = (
 
 class TimelockCondition extends Condition {
   public static readonly CONDITION_TYPE = 'timelock';
-  readonly schema = Joi.object({
+
+  defaults = {
+    method: 'timelock',
+  };
+
+  public readonly schema = Joi.object({
     returnValueTest: this.makeReturnValueTest(),
   });
 }
@@ -151,8 +204,19 @@ class TimelockCondition extends Condition {
 class RpcCondition extends Condition {
   public static readonly CONDITION_TYPE = 'rpc';
   public static readonly RPC_METHODS = ['eth_getBalance', 'balanceOf'];
+  public static readonly PARAMETERS_PER_METHOD: Record<string, string[]> = {
+    eth_getBalance: ['address'],
+    balanceOf: ['address'],
+  };
+  public static readonly CONTEXT_PARAMETERS_PER_METHOD: Record<
+    string,
+    string[]
+  > = {
+    eth_getBalance: [':userAddress'],
+    ownerOf: [':userAddress'],
+  };
 
-  readonly schema = Joi.object({
+  public readonly schema = Joi.object({
     chain: Joi.string()
       .valid(...Condition.SUPPORTED_CHAINS)
       .required(),
@@ -162,9 +226,27 @@ class RpcCondition extends Condition {
     parameters: Joi.array().required(),
     returnValueTest: this.makeReturnValueTest(),
   });
+
+  public getContextParameters = (): string[] => {
+    // TODO: Context parameters are actually in returnTest?
+    // TODO: Sketch an API in tests before doing ant serious work
+    const asObject = this.toObj();
+
+    const method = asObject['method'] as string;
+    const parameters = (asObject['parameters'] ?? []) as string[];
+
+    const context = RpcCondition.CONTEXT_PARAMETERS_PER_METHOD[method];
+    const returnValueTest = asObject['returnValueTest'] as Record<
+      string,
+      string
+    >;
+
+    const maybeParams = [...(context ?? []), returnValueTest['value']];
+    return parameters.filter((p) => maybeParams.includes(p));
+  };
 }
 
-class ContractCondition extends Condition {
+class EvmCondition extends Condition {
   public static readonly CONDITION_TYPE = 'evm';
   public static readonly STANDARD_CONTRACT_TYPES = [
     'ERC20',
@@ -180,11 +262,18 @@ class ContractCondition extends Condition {
     balanceOf: ['address'],
     ownerOf: ['address'],
   };
+  public static readonly CONTEXT_PARAMETERS_PER_METHOD: Record<
+    string,
+    string[]
+  > = {
+    balanceOf: [':userAddress'],
+    ownerOf: [':userAddress'],
+  };
 
   private makeMethod = () =>
     makeGuard(
       Joi.string(),
-      ContractCondition.METHODS_PER_CONTRACT_TYPE,
+      EvmCondition.METHODS_PER_CONTRACT_TYPE,
       'standardContractType'
     );
 
@@ -196,16 +285,16 @@ class ContractCondition extends Condition {
       .valid(...Condition.SUPPORTED_CHAINS)
       .required(),
     standardContractType: Joi.string()
-      .valid(...ContractCondition.STANDARD_CONTRACT_TYPES)
+      .valid(...EvmCondition.STANDARD_CONTRACT_TYPES)
       .required(),
-    functionAbi: Joi.string(), // TODO: Should it be required? When?
+    functionAbi: Joi.string().optional(), // TODO: Should it be required? When? Where do I get it?
     method: this.makeMethod().required(),
     parameters: Joi.array().required(),
     returnValueTest: this.makeReturnValueTest(),
   });
 }
 
-class ERC721Ownership extends ContractCondition {
+class ERC721Ownership extends EvmCondition {
   readonly defaults = {
     chain: 'ethereum',
     method: 'ownerOf',
@@ -215,12 +304,142 @@ class ERC721Ownership extends ContractCondition {
       comparator: '==',
       value: ':userAddress',
     },
+    // functionAbi: '', // TODO: Add ERC721 ABI
+  };
+}
+
+export class ConditionContext {
+  private walletSignature?: Record<string, string>;
+
+  constructor(
+    private readonly conditionSet: ConditionSet,
+    private readonly web3Provider: Web3Provider
+  ) {}
+
+  private get contextParameters() {
+    const parameters = this.conditionSet.conditions
+      .map((conditionOrOperator) => {
+        if (conditionOrOperator instanceof Condition) {
+          const condition = conditionOrOperator as Condition;
+          return condition.getContextParameters();
+        }
+        return null;
+      })
+      .filter(
+        (maybeResult: unknown | undefined) => !!maybeResult
+      ) as string[][];
+    console.log({ parameters });
+    return parameters.flat();
+  }
+
+  public async getOrCreateWalletSignature(): Promise<{
+    signature: string;
+    typedData: Eip712TypedData;
+  }> {
+    const address = await this.web3Provider.signer.getAddress();
+    const storageKey = `wallet-signature-${address}`;
+
+    // If we have a signature in localStorage, return it
+    const isLocalStorage = typeof localStorage !== 'undefined';
+    if (isLocalStorage) {
+      const maybeSignature = localStorage.getItem(storageKey);
+      if (maybeSignature) {
+        return JSON.parse(maybeSignature);
+      }
+    }
+
+    // If not, try returning from memory
+    const maybeSignature = this.walletSignature?.[address];
+    if (maybeSignature) {
+      if (isLocalStorage) {
+        localStorage.setItem(storageKey, maybeSignature);
+      }
+      return JSON.parse(maybeSignature);
+    }
+
+    // If at this point we didn't return, we need to create a new signature
+    const typedSignature = await this.createWalletSignature();
+
+    // Persist where you can
+    if (isLocalStorage) {
+      localStorage.setItem(storageKey, JSON.stringify(typedSignature));
+    }
+    if (!this.walletSignature) {
+      this.walletSignature = {};
+    }
+    this.walletSignature[address] = JSON.stringify(typedSignature);
+    return typedSignature;
+  }
+
+  private async createWalletSignature(): Promise<{
+    signature: string;
+    typedData: Eip712TypedData;
+  }> {
+    // Ensure freshness of the signature
+    const { blockNumber, blockHash, chainId } = await this.getChainData();
+
+    const address = await this.web3Provider.signer.getAddress();
+    const signatureText = `I'm an owner of address ${address} as of block number ${blockNumber}`; // TODO: Update this text to a more dramatic one
+
+    const salt = ethersUtils.randomBytes(32);
+
+    const typedData: Eip712TypedData = {
+      types: {
+        Wallet: [
+          { name: 'address', type: 'address' },
+          { name: 'signatureText', type: 'string' },
+          { name: 'blockNumber', type: 'uint256' },
+          { name: 'blockHash', type: 'bytes32' },
+        ],
+      },
+      domain: {
+        name: 'tDec',
+        version: '1',
+        chainId,
+        salt,
+      },
+      message: {
+        address,
+        signatureText,
+        blockNumber,
+        blockHash,
+      },
+    };
+
+    const signature = await this.web3Provider.signer._signTypedData(
+      typedData.domain,
+      typedData.types,
+      typedData.message
+    );
+    return { signature, typedData };
+  }
+
+  private async getChainData() {
+    const blockNumber = await this.web3Provider.provider.getBlockNumber();
+    const blockHash = (await this.web3Provider.provider.getBlock(blockNumber))
+      .hash;
+    const chainId = (await this.web3Provider.provider.getNetwork()).chainId;
+    return { blockNumber, blockHash, chainId };
+  }
+
+  public toJson = async (): Promise<string> => {
+    const userAddressParam = this.contextParameters.find(
+      (p) => p === ':userAddress'
+    );
+    console.log({ userAddressParam });
+    if (!userAddressParam) {
+      return JSON.stringify({});
+    }
+    const signature = await this.getOrCreateWalletSignature();
+    const payload = { ':userAddress': signature };
+    console.log({ signature });
+    return JSON.stringify(payload);
   };
 }
 
 export const Conditions = {
   ERC721Ownership,
-  ContractCondition,
+  EvmCondition,
   TimelockCondition,
   RpcCondition,
   Condition,

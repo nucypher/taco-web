@@ -3,6 +3,7 @@ import axios, { AxiosResponse } from 'axios';
 import qs from 'qs';
 
 import { RetrievalKit } from '../core';
+import { ConditionContext } from '../policies/conditions';
 import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from '../types';
 import { fromBase64, fromHexString, toBase64, toHexString } from '../utils';
 
@@ -37,6 +38,7 @@ type PostRetrieveCFragsRequest = {
   readonly alice_verifying_key: HexEncodedBytes;
   readonly bob_encrypting_key: HexEncodedBytes;
   readonly bob_verifying_key: HexEncodedBytes;
+  readonly context?: string;
 };
 
 type PostRetrieveCFragsResult = {
@@ -53,10 +55,10 @@ type PostRetrieveCFragsResult = {
 export type RetrieveCFragsResponse = Record<ChecksumAddress, CapsuleFrag>;
 
 export class Porter {
-  private readonly porterUri: URL;
+  private readonly porterUrl: URL;
 
   constructor(porterUri: string) {
-    this.porterUri = new URL(porterUri);
+    this.porterUrl = new URL(porterUri);
   }
 
   public async getUrsulas(
@@ -70,7 +72,7 @@ export class Porter {
       include_ursulas: includeUrsulas,
     };
     const resp: AxiosResponse<GetUrsulasResponse> = await axios.get(
-      `${this.porterUri}/get_ursulas`,
+      new URL('/get_ursulas', this.porterUrl).toString(),
       {
         params,
         paramsSerializer: (params) => {
@@ -90,17 +92,22 @@ export class Porter {
     retrievalKits: readonly RetrievalKit[],
     aliceVerifyingKey: PublicKey,
     bobEncryptingKey: PublicKey,
-    bobVerifyingKey: PublicKey
+    bobVerifyingKey: PublicKey,
+    conditionsContext?: ConditionContext
   ): Promise<readonly RetrieveCFragsResponse[]> {
+    const context = conditionsContext
+      ? await conditionsContext.toJson()
+      : undefined;
     const data: PostRetrieveCFragsRequest = {
       treasure_map: toBase64(treasureMap.toBytes()),
       retrieval_kits: retrievalKits.map((rk) => toBase64(rk.toBytes())),
       alice_verifying_key: toHexString(aliceVerifyingKey.toBytes()),
       bob_encrypting_key: toHexString(bobEncryptingKey.toBytes()),
       bob_verifying_key: toHexString(bobVerifyingKey.toBytes()),
+      context,
     };
     const resp: AxiosResponse<PostRetrieveCFragsResult> = await axios.post(
-      `${this.porterUri}/retrieve_cfrags`,
+      new URL('/retrieve_cfrags', this.porterUrl).toString(),
       data
     );
     return resp.data.result.retrieval_results

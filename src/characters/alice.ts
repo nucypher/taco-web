@@ -44,6 +44,7 @@ export class Alice {
   public static fromSecretKey(
     config: Configuration,
     secretKey: SecretKey,
+    // TODO: Avoid using ethers types in interfaces directly
     web3Provider: ethers.providers.Web3Provider
   ): Alice {
     const web3 = Web3Provider.fromEthersWeb3Provider(web3Provider);

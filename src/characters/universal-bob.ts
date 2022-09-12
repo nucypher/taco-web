@@ -1,14 +1,15 @@
 import {
   EncryptedTreasureMap,
-  MessageKit,
   PublicKey,
   SecretKey,
   Signer,
 } from '@nucypher/nucypher-core';
 
+import { MessageKit } from '../core';
 import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
+import { ConditionContext } from '../policies/conditions';
 import { zip } from '../utils';
 
 import { Porter } from './porter';
@@ -28,9 +29,6 @@ export class tDecDecrypter {
   ) {
     this.porter = new Porter(porterUri);
     this.keyring = new Keyring(secretKey);
-    this.policyEncryptingKey = policyEncryptingKey;
-    this.encryptedTreasureMap = encryptedTreasureMap;
-    this.publisherVerifyingKey = publisherVerifyingKey;
     this.verifyingKey = new Keyring(verifyingKey);
   }
 
@@ -47,9 +45,13 @@ export class tDecDecrypter {
   }
 
   public async retrieveAndDecrypt(
-    messageKits: readonly MessageKit[]
+    messageKits: readonly MessageKit[],
+    conditionContext: ConditionContext
   ): Promise<readonly Uint8Array[]> {
-    const policyMessageKits = await this.retrieve(messageKits);
+    const policyMessageKits = await this.retrieve(
+      messageKits,
+      conditionContext
+    );
 
     policyMessageKits.forEach((mk) => {
       if (!mk.isDecryptableByReceiver()) {
@@ -63,7 +65,8 @@ export class tDecDecrypter {
   }
 
   public async retrieve(
-    messageKits: readonly MessageKit[]
+    messageKits: readonly MessageKit[],
+    conditionContext: ConditionContext
   ): Promise<readonly PolicyMessageKit[]> {
     const treasureMap = this.encryptedTreasureMap.decrypt(
       this.keyring.secretKey,
@@ -84,7 +87,8 @@ export class tDecDecrypter {
       retrievalKits,
       this.publisherVerifyingKey,
       this.decryptingKey,
-      this.verifyingKey.publicKey
+      this.verifyingKey.publicKey,
+      conditionContext
     );
 
     return zip(policyMessageKits, retrieveCFragsResponses).map((pair) => {

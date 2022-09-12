@@ -5,7 +5,6 @@ import {
 } from '@nucypher/nucypher-core';
 
 import { ConditionSet } from './policies/conditions';
-import { toBytes } from './utils';
 
 export class ConditionsIntegrator {
   static readonly delimiter = 188;
@@ -48,14 +47,10 @@ export class MessageKit extends CoreMessageKit {
   constructor(
     policyEncryptingKey: PublicKey,
     plaintext: Uint8Array,
-    decryptionConditions?: ConditionSet
+    conditions?: ConditionSet
   ) {
-    super(
-      policyEncryptingKey,
-      plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext)
-    );
-
-    this.conditions = decryptionConditions;
+    super(policyEncryptingKey, plaintext);
+    this.conditions = conditions;
   }
 
   public readonly toBytes = () => {
@@ -77,7 +72,7 @@ export class RetrievalKit extends CoreRetrievalKit {
       messageKit.toBytes()
     );
 
-    const messagekit = MessageKit.fromBytes(messagekitBytes);
+    const messagekit = CoreMessageKit.fromBytes(messagekitBytes);
 
     const conditions =
       conditionsBytes !== undefined && conditionsBytes.length

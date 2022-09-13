@@ -14,7 +14,7 @@ The PRE Application nodes do not store or handle an application’s data; instea
 Management of encrypted secrets and public keys tends to be highly domain-specific - the surrounding architecture will vary greatly depending on the throughput, sensitivity, and sharing cadence of application secrets.
 
 In all cases, the PRE Application must be integrated with a storage and transport layer in order to function properly.
-Along with the transport of ciphertexts, a nucypher application also needs to include channels for Alice and Bob to discover each other’s public keys, and provide policy encrypting information to Bob and Enrico.
+Along with the transport of ciphertexts, applications will need to include channels for Alice and Bob to discover each other’s public keys, and provide policy encrypting information to Bob and Enrico.
 
 :::
 

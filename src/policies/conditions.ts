@@ -376,6 +376,7 @@ export class ConditionContext {
   private async createWalletSignature(): Promise<{
     signature: string;
     typedData: Eip712TypedData;
+    address: string;
   }> {
     // Ensure freshness of the signature
     const { blockNumber, blockHash, chainId } = await this.getChainData();
@@ -413,7 +414,7 @@ export class ConditionContext {
       typedData.types,
       typedData.message
     );
-    return { signature, typedData };
+    return { signature, typedData, address };
   }
 
   private async getChainData() {

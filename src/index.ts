@@ -21,6 +21,7 @@ export {
   ConditionSet,
   ConditionContext,
   Operator,
+  Condition,
 } from './policies/conditions';
 
 export {
@@ -30,6 +31,5 @@ export {
   HRAC,
   TreasureMapBuilder,
   Signer,
+  MessageKit,
 } from '@nucypher/nucypher-core';
-
-export { MessageKit } from './core';

@@ -1,6 +1,5 @@
-import { PublicKey, SecretKey } from '@nucypher/nucypher-core';
+import { MessageKit, PublicKey, SecretKey } from '@nucypher/nucypher-core';
 
-import { MessageKit } from '../core';
 import { ConditionSet } from '../policies/conditions';
 import { toBytes } from '../utils';
 
@@ -23,7 +22,7 @@ export class Enrico {
     return new MessageKit(
       this.policyEncryptingKey,
       plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext),
-      this.conditions
+      this.conditions?.toBuffer()
     );
   }
 }

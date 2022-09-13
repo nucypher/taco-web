@@ -6,7 +6,6 @@ import {
   generateTDecEntities,
   TDecEntitiesFromConfig,
 } from '../../src/characters/tDec';
-import { ConditionsIntegrator } from '../../src/core';
 import { toBytes } from '../../src/utils';
 import {
   mockEncryptTreasureMap,
@@ -72,16 +71,6 @@ describe('threshold decryption', () => {
 
     const encryptedMessageKit = encrypter.encryptMessage(plaintext);
 
-    const bytes = encryptedMessageKit.toBytes();
-    expect(bytes).toContain(188); // the ESC delimter
-    const conditionBytes = ConditionsIntegrator.parse(bytes).conditionsBytes;
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const recoveredConditions = ConditionSet.fromBytes(conditionBytes!);
-    expect(recoveredConditions.toList()[0].contractAddress).toEqual(
-      ownsBufficornNFT.value.contractAddress
-    );
-
     // Setup mocks for `retrieveAndDecrypt`
     const getUrsulasSpy2 = mockGetUrsulas(mockedUrsulas);
     const ursulaAddresses = (
@@ -95,7 +84,7 @@ describe('threshold decryption', () => {
       encryptedMessageKit.capsule
     );
 
-    const conditionContext = recoveredConditions.buildContext(bobProvider);
+    const conditionContext = conditions.buildContext(bobProvider);
     const bobPlaintext = await decrypter.retrieveAndDecrypt(
       [encryptedMessageKit],
       conditionContext
@@ -143,15 +132,6 @@ describe('threshold decryption', () => {
     encrypter.conditions = conditions;
 
     const encryptedMessageKit = encrypter.encryptMessage(plaintext);
-    const bytes = encryptedMessageKit.toBytes();
-    expect(bytes).toContain(188); // the ESC delimiter
-    const conditionBytes = ConditionsIntegrator.parse(bytes).conditionsBytes;
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const recoveredConditions = ConditionSet.fromBytes(conditionBytes!);
-    expect(recoveredConditions.toList()[0].contractAddress).toEqual(
-      ownsBufficornNFT.value.contractAddress
-    );
 
     // Setup mocks for `retrieveAndDecrypt`
     const getUrsulasSpy2 = mockGetUrsulas(mockedUrsulas);
@@ -171,7 +151,7 @@ describe('threshold decryption', () => {
       'https://porter-ibex.nucypher.community'
     );
 
-    const conditionContext = recoveredConditions.buildContext(bobProvider);
+    const conditionContext = conditions.buildContext(bobProvider);
     const bobPlaintext = await jsonDecrypter.retrieveAndDecrypt(
       [encryptedMessageKit],
       conditionContext

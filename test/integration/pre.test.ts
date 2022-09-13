@@ -52,9 +52,7 @@ describe('proxy reencryption', () => {
       shares
     );
 
-    const policyEncryptingKey = await alice.getPolicyEncryptingKeyFromLabel(
-      label
-    );
+    const policyEncryptingKey = alice.getPolicyEncryptingKeyFromLabel(label);
     const enrico = new Enrico(policyEncryptingKey);
     const encryptedMessage = enrico.encryptMessage(plaintext);
 
@@ -84,9 +82,7 @@ describe('proxy reencryption', () => {
       shares
     );
 
-    const policyEncryptingKey = await alice.getPolicyEncryptingKeyFromLabel(
-      label
-    );
+    const policyEncryptingKey = alice.getPolicyEncryptingKeyFromLabel(label);
 
     const genuineUndead = new Conditions.ERC721Ownership({
       contractAddress: '0x209e639a0EC166Ac7a1A4bA41968fa967dB30221',
@@ -99,8 +95,6 @@ describe('proxy reencryption', () => {
 
     const enrico = new Enrico(policyEncryptingKey, undefined, conditions);
     const encryptedMessage = enrico.encryptMessage(plaintext);
-
-    expect(encryptedMessage.toBytes()).toContain(188);
 
     const ursulaAddresses = ursulas.map((ursula) => ursula.checksumAddress);
     const reencrypted = verifiedKFrags.map((kFrag) =>

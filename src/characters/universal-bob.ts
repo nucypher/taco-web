@@ -1,11 +1,11 @@
 import {
   EncryptedTreasureMap,
+  MessageKit,
   PublicKey,
   SecretKey,
   Signer,
 } from '@nucypher/nucypher-core';
 
-import { MessageKit } from '../core';
 import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';

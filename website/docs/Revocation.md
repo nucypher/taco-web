@@ -62,7 +62,7 @@ const revocationCondition = {
     chain:  "ethereum",
     returnValueTest: {
       key: "",
-      comparator: "=",
+      comparator: "==",
       value: false
     }
   }

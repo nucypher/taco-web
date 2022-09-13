@@ -11,7 +11,7 @@ TDec involves splitting the secret (a decryption key) into multiples shares and 
 A minimum number – a threshold – of those operators holding the key shares must be online and actively participate in partial decryptions that can subsequently be combined by the requester to reconstruct the original plaintext data.
 
 We refer to the _threshold_ and _shares_ as `m` and `n` and the overall configuration as `m-of-n`.
-Ie. in a `3-of-5` scheme, 3 out of 5 node operators are required to reconstruct the original plaintext data.
+I.e. in a `3-of-5` scheme, 3 out of 5 node operators are required to reconstruct the original plaintext data.
 
 ## Creating Threshold Decryption objects
 

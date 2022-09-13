@@ -70,7 +70,9 @@ export class ConditionSet {
   }
 
   public toJson() {
-    return JSON.stringify(this.toList());
+    // TODO: Remove this workaround and make sure the condition itself is setting the correct type
+    const numberToStringReplacer = (key: unknown, value: unknown) => typeof value === 'number' ? value.toString() : value;
+    return JSON.stringify(this.toList(), numberToStringReplacer);
   }
 
   public toBase64() {

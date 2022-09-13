@@ -85,7 +85,7 @@ describe('enrico', () => {
     expect(bytesEqual(decrypted, plaintextBytes)).toBeTruthy();
   });
 
-  it('erico generates a message kit with conditions', async () => {
+  it('enrico generates a message kit with conditions', async () => {
     const label = 'fake-label';
     const message = 'fake-message';
     const alice = mockAlice();
@@ -101,9 +101,6 @@ describe('enrico', () => {
 
     const enrico = new Enrico(policyKey, undefined, conditions);
     const encrypted = enrico.encryptMessage(toBytes(message));
-
-    const bytes = encrypted.toBytes();
-    expect(bytes).toContain(188); // the ESC delimter
 
     const aliceKeyring = (alice as any).keyring;
     const aliceSk = await aliceKeyring.getSecretKeyFromLabel(label);

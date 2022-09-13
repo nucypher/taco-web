@@ -311,6 +311,12 @@ class ERC721Ownership extends EvmCondition {
   };
 }
 
+interface TypedSignature {
+  signature: string;
+  typedData: Eip712TypedData;
+  address: string;
+}
+
 export class ConditionContext {
   private walletSignature?: Record<string, string>;
 
@@ -334,10 +340,7 @@ export class ConditionContext {
     return parameters.flat();
   }
 
-  public async getOrCreateWalletSignature(): Promise<{
-    signature: string;
-    typedData: Eip712TypedData;
-  }> {
+  public async getOrCreateWalletSignature(): Promise<TypedSignature> {
     const address = await this.web3Provider.signer.getAddress();
     const storageKey = `wallet-signature-${address}`;
 
@@ -373,11 +376,7 @@ export class ConditionContext {
     return typedSignature;
   }
 
-  private async createWalletSignature(): Promise<{
-    signature: string;
-    typedData: Eip712TypedData;
-    address: string;
-  }> {
+  private async createWalletSignature(): Promise<TypedSignature> {
     // Ensure freshness of the signature
     const { blockNumber, blockHash, chainId } = await this.getChainData();
 
@@ -432,8 +431,8 @@ export class ConditionContext {
     if (!userAddressParam) {
       return JSON.stringify({});
     }
-    const signature = await this.getOrCreateWalletSignature();
-    const payload = { ':userAddress': signature };
+    const typedSignature = await this.getOrCreateWalletSignature();
+    const payload = { ':userAddress': typedSignature };
     return JSON.stringify(payload);
   };
 }

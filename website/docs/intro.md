@@ -6,7 +6,12 @@ sidebar_position: 10
 # Getting Started
 
 `nucypher-ts` is a typescript library to allow developers to interact with core Nucypher functionality within the browser.
-It is in active development, so please be aware that things may change!
+
+:::caution
+
+`nucypher-ts` is in active development, so please be aware that things may change!
+
+:::
 
 If you have any questions, don't hesitate to create an issue on [Github](https://github.com/nucypher/nucypher-ts), or come and say hello in our [Discord](https://discord.gg/threshold).
 

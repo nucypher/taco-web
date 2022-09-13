@@ -52,7 +52,7 @@ describe('condition set', () => {
 
 describe('conditions set to/from json', () => {
   const json =
-    '[{"chain":"ethereum","method":"ownerOf","parameters":[3591],"standardContractType":"ERC721","returnValueTest":{"comparator":"==","value":":userAddress"},"contractAddress":"0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77"}]';
+    '[{"chain":"ethereum","method":"ownerOf","parameters":["3591"],"standardContractType":"ERC721","returnValueTest":{"comparator":"==","value":":userAddress"},"contractAddress":"0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77"}]';
   const conditionset = ConditionSet.fromJSON(json);
 
   it('should be a ConditionSet', async () => {

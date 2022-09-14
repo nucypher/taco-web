@@ -1,7 +1,11 @@
 import { ethers, utils as ethersUtils } from 'ethers';
 import Joi, { ValidationError } from 'joi';
 
-import { Eip712TypedData, Web3Provider } from '../web3';
+import {
+  Eip712TypedData,
+  Eip712TypedDataWithDomain,
+  Web3Provider,
+} from '../web3';
 
 export class Operator {
   static readonly LOGICAL_OPERATORS: ReadonlyArray<string> = ['and', 'or'];
@@ -407,13 +411,33 @@ export class ConditionContext {
         blockHash,
       },
     };
-
     const signature = await this.web3Provider.signer._signTypedData(
       typedData.domain,
       typedData.types,
       typedData.message
     );
-    return { signature, typedData, address };
+
+    const typedDataWithDomain: Eip712TypedDataWithDomain = {
+      ...typedData,
+      types: {
+        ...typedData.types,
+        EIP712Domain: [
+          {
+            name: 'name',
+            type: 'string',
+          },
+          {
+            name: 'version',
+            type: 'string',
+          },
+          {
+            name: 'chainId',
+            type: 'uint256',
+          },
+        ],
+      },
+    };
+    return { signature, typedData: typedDataWithDomain, address };
   }
 
   private async getChainData() {

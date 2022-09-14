@@ -53,3 +53,10 @@ export interface Eip712TypedData {
     signatureText: string;
   };
 }
+
+export interface Eip712TypedDataWithDomain extends Eip712TypedData {
+  types: {
+    EIP712Domain: { name: string; type: string }[];
+    Wallet: { name: string; type: string }[];
+  };
+}

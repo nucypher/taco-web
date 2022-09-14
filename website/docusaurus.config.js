@@ -47,6 +47,17 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      algolia: {
+        // The application ID provided by Algolia
+        appId: 'YZ4ISSA71K',
+  
+        // Public API key: it is safe to commit it
+        apiKey: 'ec449ad3e540f4188163f3484f6f07d1',
+        externalUrlRegex: 'external\\.com|domain\\.com',
+  
+        indexName: 'nucypher-ts',
+        searchPagePath: false,
+        },
       navbar: {
         title: 'Nucypher-ts',
         logo: {

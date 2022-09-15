@@ -1,11 +1,7 @@
 import { ethers, utils as ethersUtils } from 'ethers';
 import Joi, { ValidationError } from 'joi';
 
-import {
-  Eip712TypedData,
-  Eip712TypedDataWithDomain,
-  Web3Provider,
-} from '../web3';
+import { Eip712TypedData, FormattedTypedData, Web3Provider } from '../web3';
 
 export class Operator {
   static readonly LOGICAL_OPERATORS: ReadonlyArray<string> = ['and', 'or'];
@@ -387,7 +383,7 @@ export class ConditionContext {
     const address = await this.web3Provider.signer.getAddress();
     const signatureText = `I'm an owner of address ${address} as of block number ${blockNumber}`; // TODO: Update this text to a more dramatic one
 
-    const salt = ethersUtils.randomBytes(32);
+    const salt = ethersUtils.hexlify(ethersUtils.randomBytes(32));
 
     const typedData: Eip712TypedData = {
       types: {
@@ -417,8 +413,9 @@ export class ConditionContext {
       typedData.message
     );
 
-    const typedDataWithDomain: Eip712TypedDataWithDomain = {
+    const formattedTypedData: FormattedTypedData = {
       ...typedData,
+      primaryType: 'Wallet',
       types: {
         ...typedData.types,
         EIP712Domain: [
@@ -434,10 +431,14 @@ export class ConditionContext {
             name: 'chainId',
             type: 'uint256',
           },
+          {
+            name: 'salt',
+            type: 'bytes32',
+          },
         ],
       },
     };
-    return { signature, typedData: typedDataWithDomain, address };
+    return { signature, typedData: formattedTypedData, address };
   }
 
   private async getChainData() {

@@ -41,7 +41,7 @@ export interface Eip712TypedData {
     Wallet: { name: string; type: string }[];
   };
   domain: {
-    salt: Uint8Array;
+    salt: string;
     chainId: number;
     name: string;
     version: string;
@@ -54,7 +54,8 @@ export interface Eip712TypedData {
   };
 }
 
-export interface Eip712TypedDataWithDomain extends Eip712TypedData {
+export interface FormattedTypedData extends Eip712TypedData {
+  primaryType: 'Wallet';
   types: {
     EIP712Domain: { name: string; type: string }[];
     Wallet: { name: string; type: string }[];

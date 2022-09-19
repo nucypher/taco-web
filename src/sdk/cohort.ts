@@ -18,15 +18,18 @@ interface CohortParameters {
 interface CohortJSON {
     ursulaAddresses: ChecksumAddress[];
     threshold: number;
+    porterUri: string;
 }
 
 export class Cohort {
     constructor(
         public readonly ursulaAddresses: ChecksumAddress[],
         public readonly threshold: number,
+        public readonly porterUri: string
     ) {
         this.ursulaAddresses = ursulaAddresses;
         this.threshold = threshold;
+        this.porterUri = porterUri;
     }
 
     public static async create({
@@ -49,17 +52,18 @@ export class Cohort {
             exclude,
             include);
         const ursulaAddresses = ursulas.map((ursula) => ursula.checksumAddress);
-        return new Cohort(ursulaAddresses, threshold);
+        return new Cohort(ursulaAddresses, threshold, porterUri);
     }
   
-    public static fromJson({ursulaAddresses, threshold}: CohortJSON) {
-        return new Cohort(ursulaAddresses, threshold);
+    public static fromJson({ursulaAddresses, threshold, porterUri}: CohortJSON) {
+        return new Cohort(ursulaAddresses, threshold, porterUri);
     }
 
     public toJson() {
         const config = {
             ursulaAddresses: this.ursulaAddresses,
-            threshold: this.threshold
+            threshold: this.threshold,
+            porterUri: this.porterUri
         }
         return config
     }

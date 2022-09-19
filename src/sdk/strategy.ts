@@ -24,7 +24,4 @@ export class Strategy {
     public get decrypter(): any {
         return this.decrypter;
     }
-
-
-
 }

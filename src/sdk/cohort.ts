@@ -1,5 +1,3 @@
-import { Porter } from './porter';
-
 export class Cohort {
   
     constructor() {

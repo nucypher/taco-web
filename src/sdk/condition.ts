@@ -1,4 +1,4 @@
-export class Strategy {
+export class Condition {
   
     constructor() {
     }

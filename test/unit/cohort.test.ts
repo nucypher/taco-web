@@ -10,6 +10,10 @@ describe('Cohort', () => {
         })).rejects.toThrow('Shares is 0 and Include is an empty array');
     });
 
+    it('blank test', () => {
+      const mockedUrsulas = mockUrsulas().slice(0, 5);
+    });
+
     it('can create Cohort from list of ursulas', async () => {
       const mockedUrsulas = mockUrsulas().slice(0, 5);
       const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);

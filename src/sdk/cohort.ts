@@ -15,6 +15,11 @@ interface CohortParameters {
     exclude?: ChecksumAddress[];
 }
 
+interface CohortJSON {
+    ursulaAddresses: ChecksumAddress[];
+    threshold: number;
+}
+
 export class Cohort {
     constructor(
         public readonly ursulaAddresses: ChecksumAddress[],
@@ -47,8 +52,16 @@ export class Cohort {
         return new Cohort(ursulaAddresses, threshold);
     }
   
-    public static fromJson() {}
+    public static fromJson({ursulaAddresses, threshold}: CohortJSON) {
+        return new Cohort(ursulaAddresses, threshold);
+    }
 
-    public static toJson() {}
+    public toJson() {
+        const config = {
+            ursulaAddresses: this.ursulaAddresses,
+            threshold: this.threshold
+        }
+        return config
+    }
 
 }

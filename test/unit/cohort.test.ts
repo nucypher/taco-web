@@ -25,7 +25,7 @@ describe('Cohort', () => {
     expect(getUrsulasSpy).toHaveBeenCalled();
   });
 
-  it('can export to JSON', async () => {
+  it('can export to Object', async () => {
     const mockedUrsulas = mockUrsulas().slice(0, 5);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const includeUrsulas = ['test string'];
@@ -35,7 +35,7 @@ describe('Cohort', () => {
       threshold: 5,
       include: includeUrsulas,
     });
-    const config = testCohort.toJson();
+    const config = testCohort.toObj();
     const expectedConfig = {
       ursulaAddresses: [
         '0x5cf1703a1c99a4b42eb056535840e93118177232',
@@ -50,7 +50,7 @@ describe('Cohort', () => {
     expect(config).toEqual(expectedConfig);
   });
 
-  it('can import from JSON', async () => {
+  it('can import from Object', async () => {
     const mockedUrsulas = mockUrsulas().slice(0, 5);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
 
@@ -66,9 +66,44 @@ describe('Cohort', () => {
       porterUri: 'https://porter-ibex.nucypher.community',
     };
 
-    const testCohort = Cohort.fromJson(config);
+    const testCohort = Cohort.fromObj(config);
     expect(testCohort.ursulaAddresses).toEqual(config.ursulaAddresses);
     expect(testCohort.threshold).toEqual(config.threshold);
     expect(testCohort.porterUri).toEqual(config.porterUri);
+  });
+
+  it('can export to JSON', async () => {
+    const mockedUrsulas = mockUrsulas().slice(0, 3);
+    const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
+    const includeUrsulas = ['test string'];
+
+    const testCohort = await Cohort.create({
+      porterUri: 'https://porter-ibex.nucypher.community',
+      threshold: 3,
+      include: includeUrsulas,
+    });
+    const configJSON = testCohort.toJSON();
+    const expectedJSON =
+      '{"ursulaAddresses":["0x5cf1703a1c99a4b42eb056535840e93118177232","0x7fff551249d223f723557a96a0e1a469c79cc934","0x9c7c824239d3159327024459ad69bb215859bd25"],"threshold":"3","porterUri":"https://porter-ibex.nucypher.community"}';
+    expect(configJSON).toEqual(expectedJSON);
+  });
+
+  it('can import from JSON', async () => {
+    const mockedUrsulas = mockUrsulas().slice(0, 3);
+    const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
+
+    const configJSON =
+      '{"ursulaAddresses":["0x5cf1703a1c99a4b42eb056535840e93118177232","0x7fff551249d223f723557a96a0e1a469c79cc934","0x9c7c824239d3159327024459ad69bb215859bd25"],"threshold":"3","porterUri":"https://porter-ibex.nucypher.community"}';
+    const testCohort = Cohort.fromJSON(configJSON);
+    const expectedUrsulas = [
+      '0x5cf1703a1c99a4b42eb056535840e93118177232',
+      '0x7fff551249d223f723557a96a0e1a469c79cc934',
+      '0x9c7c824239d3159327024459ad69bb215859bd25',
+    ];
+    expect(testCohort.ursulaAddresses).toEqual(expectedUrsulas);
+    expect(testCohort.threshold).toEqual(3);
+    expect(testCohort.porterUri).toEqual(
+      'https://porter-ibex.nucypher.community'
+    );
   });
 });

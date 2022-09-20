@@ -53,15 +53,22 @@ export class Cohort {
     return new Cohort(ursulaAddresses, threshold, porterUri);
   }
 
-  public static fromJson({
-    ursulaAddresses,
-    threshold,
-    porterUri,
-  }: CohortJSON) {
-    return new Cohort(ursulaAddresses, threshold, porterUri);
+  public toJSON() {
+    const numberToStringReplacer = (key: unknown, value: unknown) =>
+      typeof value === 'number' ? value.toString() : value;
+    return JSON.stringify(this.toObj(), numberToStringReplacer);
   }
 
-  public toJson() {
+  public static fromJSON(json: string) {
+    const config = JSON.parse(json);
+    return Cohort.fromObj(config);
+  }
+
+  public static fromObj({ ursulaAddresses, threshold, porterUri }: CohortJSON) {
+    return new Cohort(ursulaAddresses, Number(threshold), porterUri);
+  }
+
+  public toObj() {
     const config = {
       ursulaAddresses: this.ursulaAddresses,
       threshold: this.threshold,

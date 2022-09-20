@@ -1,16 +1,25 @@
 export class ConditionSet {
-  
-    constructor() {
-    }
+  constructor() {
+    throw new Error('Method not implemented.');
+  }
 
-    public static and() {}
+  public static and() {
+    throw new Error('Method not implemented.');
+  }
 
-    public static or() {}
+  public static or() {
+    throw new Error('Method not implemented.');
+  }
 
-    public static addContext() {}
-  
-    public static fromJson() {}
+  public static addContext() {
+    throw new Error('Method not implemented.');
+  }
 
-    public static toJson() {}
+  public static fromJson() {
+    throw new Error('Method not implemented.');
+  }
 
+  public static toJson() {
+    throw new Error('Method not implemented.');
+  }
 }

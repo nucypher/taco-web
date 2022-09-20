@@ -1,19 +1,13 @@
-import {
-    SecretKey,
-  } from '@nucypher/nucypher-core';
+import { SecretKey } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { Cohort } from './cohort';
 import { Alice } from '../characters/alice';
 
+import { Cohort } from './cohort';
+
 export class Strategy {
-  
-  constructor(
-    cohort: Cohort,
-    startDate: Date,
-    endDate: Date,
-    alice: Alice
-  ) {
+  constructor(cohort: Cohort, startDate: Date, endDate: Date, alice: Alice) {
+    throw new Error('Method not implemented.');
   }
 
   public static create(
@@ -28,38 +22,45 @@ export class Strategy {
     if (dkgAlice == true) {
       throw new TypeError('DKG Alice is not yet implemented');
     }
-    if (typeof(aliceSecretKey) == 'undefined') {
-      aliceSecretKey = SecretKey.random()
+    if (typeof aliceSecretKey == 'undefined') {
+      aliceSecretKey = SecretKey.random();
     }
 
     const configuration = { porterUri };
     const alice = Alice.fromSecretKey(configuration, aliceSecretKey, provider);
 
-    return new Strategy(
-      cohort,
-      startDate,
-      endDate,
-      alice
-      )
-    }
+    return new Strategy(cohort, startDate, endDate, alice);
+  }
 
-  public static fromJson() {}
+  public static fromJson() {
+    throw new Error('Method not implemented.');
+  }
 
-  public static toJson() {}
+  public static toJson() {
+    throw new Error('Method not implemented.');
+  }
 
-  public static deploy() {}
+  public static deploy() {
+    throw new Error('Method not implemented.');
+  }
 
-  public static update() {}
+  public static update() {
+    throw new Error('Method not implemented.');
+  }
 
-  public static revoke() {}
+  public static revoke() {
+    throw new Error('Method not implemented.');
+  }
 
-  public static attachConditions() {}
+  public static attachConditions() {
+    throw new Error('Method not implemented.');
+  }
 
   public get encrypter(): any {
-      return this.encrypter;
+    return this.encrypter;
   }
 
   public get decrypter(): any {
-      return this.decrypter;
+    return this.decrypter;
   }
 }

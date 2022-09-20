@@ -74,7 +74,7 @@ export class Porter {
       include_ursulas: includeUrsulas,
     };
     const resp: AxiosResponse<GetUrsulasResponse> = await axios.get(
-      `${this.porterUri}/get_ursulas`,
+      new URL('/get_ursulas', this.porterUri).toString(),
       {
         params,
         paramsSerializer: (params) => {
@@ -104,7 +104,7 @@ export class Porter {
       bob_verifying_key: toHexString(bobVerifyingKey.toBytes()),
     };
     const resp: AxiosResponse<PostRetrieveCFragsResult> = await axios.post(
-      `${this.porterUri}/retrieve_cfrags`,
+      new URL('/retrieve_cfrags', this.porterUri).toString(),
       data
     );
     return resp.data.result.retrieval_results

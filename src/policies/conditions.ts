@@ -381,7 +381,7 @@ export class ConditionContext {
     const { blockNumber, blockHash, chainId } = await this.getChainData();
 
     const address = await this.web3Provider.signer.getAddress();
-    const signatureText = `I'm an owner of address ${address} as of block number ${blockNumber}`; // TODO: Update this text to a more dramatic one
+    const signatureText = `I'm the owner of address ${address} as of block number ${blockNumber}`; // TODO: Update this text to a more dramatic one
 
     const salt = ethersUtils.hexlify(ethersUtils.randomBytes(32));
 

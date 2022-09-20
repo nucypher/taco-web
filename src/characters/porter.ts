@@ -50,6 +50,9 @@ type PostRetrieveCFragsResult = {
     readonly retrieval_results: readonly {
       readonly cfrags: {
         readonly [address: string]: string;
+      },
+      readonly errors: {
+        readonly [key: string]: string | Record<string, unknown>;
       };
     }[];
   };
@@ -114,6 +117,13 @@ export class Porter {
       new URL('/retrieve_cfrags', this.porterUrl).toString(),
       data
     );
+
+    resp.data.result.retrieval_results
+    .forEach((error: unknown) => {
+      // TODO: Handle errors from Porter
+      throw new Error(`${error}`);
+    });
+
     return resp.data.result.retrieval_results
       .map((result) => result.cfrags)
       .map((cFrags) => {

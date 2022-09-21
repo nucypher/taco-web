@@ -55,9 +55,7 @@ export class Cohort {
   }
 
   public toJSON() {
-    const numberToStringReplacer = (key: unknown, value: unknown) =>
-      typeof value === 'number' ? value.toString() : value;
-    return JSON.stringify(this.toObj(), numberToStringReplacer);
+    return JSON.stringify(this.toObj());
   }
 
   public static fromJSON(json: string) {
@@ -66,7 +64,7 @@ export class Cohort {
   }
 
   public static fromObj({ ursulaAddresses, threshold, porterUri }: CohortJSON) {
-    return new Cohort(ursulaAddresses, Number(threshold), porterUri);
+    return new Cohort(ursulaAddresses, threshold, porterUri);
   }
 
   public toObj() {

@@ -65,11 +65,10 @@ export class Cohort {
   }
 
   public toObj() {
-    const config = {
+    return {
       ursulaAddresses: this.ursulaAddresses,
       threshold: this.threshold,
       porterUri: this.porterUri,
     };
-    return config;
   }
 }

@@ -27,11 +27,7 @@ export class Cohort {
     public readonly ursulaAddresses: ChecksumAddress[],
     public readonly threshold: number,
     public readonly porterUri: string
-  ) {
-    this.ursulaAddresses = ursulaAddresses;
-    this.threshold = threshold;
-    this.porterUri = porterUri;
-  }
+  ) {}
 
   public static async create({
     porterUri,

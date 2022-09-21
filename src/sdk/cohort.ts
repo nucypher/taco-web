@@ -49,6 +49,10 @@ export class Cohort {
     return new Cohort(ursulaAddresses, threshold, porterUri);
   }
 
+  public get shares(): number {
+    return this.ursulaAddresses.length;
+  }
+
   public toJSON() {
     const numberToStringReplacer = (key: unknown, value: unknown) =>
       typeof value === 'number' ? value.toString() : value;

@@ -64,13 +64,15 @@ export class Strategy {
   }
 
   public async deploy(label: string) {
+    const { threshold, shares } = this.cohort; // shares can be defined on Cohort as a getter method
+    const { bob, startDate, endDate } = this;
     const policyParams = {
-      bob: this.bob,
+      bob,
       label,
-      threshold: this.cohort.threshold,
-      shares: this.cohort.ursulaAddresses.length,
-      startDate: this.startDate,
-      endDate: this.endDate,
+      threshold,
+      shares,
+      startDate,
+      endDate,
     };
     this.policy = await this.alice.grant(
       policyParams,

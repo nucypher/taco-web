@@ -15,13 +15,13 @@ type CohortParameters = {
   shares?: number;
   include?: ChecksumAddress[];
   exclude?: ChecksumAddress[];
-}
+};
 
 type CohortJSON = {
   ursulaAddresses: ChecksumAddress[];
   threshold: number;
   porterUri: string;
-}
+};
 
 export class Cohort {
   private constructor(

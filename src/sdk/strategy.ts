@@ -1,11 +1,11 @@
 import { SecretKey } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { EnactedPolicy } from '../policies/policy';
 import { Alice } from '../characters/alice';
 import { Bob } from '../characters/bob';
 import { Enrico } from '../characters/enrico';
 import { tDecDecrypter } from '../characters/universal-bob';
+import { EnactedPolicy } from '../policies/policy';
 
 import { Cohort } from './cohort';
 
@@ -20,7 +20,7 @@ export class Strategy {
     public deployed: boolean,
     public policy?: EnactedPolicy,
     public encrypter?: Enrico,
-    public decrypter?: tDecDecrypter,
+    public decrypter?: tDecDecrypter
   ) {}
 
   public static create(

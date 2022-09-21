@@ -8,7 +8,7 @@ export type Ursula = {
   readonly uri: string;
   readonly encryptingKey: PublicKey;
 };
-interface CohortParameters {
+type CohortParameters {
   porterUri: string;
   threshold: number;
   shares?: number;

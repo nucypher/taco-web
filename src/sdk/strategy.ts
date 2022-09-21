@@ -10,7 +10,7 @@ import { tDecDecrypter } from '../characters/universal-bob';
 import { Cohort } from './cohort';
 
 export class Strategy {
-  constructor(
+  private constructor(
     public cohort: Cohort,
     public startDate: Date,
     public endDate: Date,

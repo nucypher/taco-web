@@ -23,7 +23,7 @@ interface CohortJSON {
 }
 
 export class Cohort {
-  constructor(
+  private constructor(
     public readonly ursulaAddresses: ChecksumAddress[],
     public readonly threshold: number,
     public readonly porterUri: string

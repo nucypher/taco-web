@@ -8,7 +8,8 @@ export type Ursula = {
   readonly uri: string;
   readonly encryptingKey: PublicKey;
 };
-type CohortParameters {
+
+type CohortParameters = {
   porterUri: string;
   threshold: number;
   shares?: number;
@@ -16,7 +17,7 @@ type CohortParameters {
   exclude?: ChecksumAddress[];
 }
 
-interface CohortJSON {
+type CohortJSON = {
   ursulaAddresses: ChecksumAddress[];
   threshold: number;
   porterUri: string;

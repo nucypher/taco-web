@@ -35,7 +35,7 @@ export class Strategy {
     if (dkgAlice == true) {
       throw new TypeError('DKG Alice is not yet implemented');
     }
-    if (typeof aliceSecretKey == 'undefined') {
+    if (!aliceSecretKey) {
       aliceSecretKey = SecretKey.random();
     }
 

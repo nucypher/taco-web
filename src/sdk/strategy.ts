@@ -10,9 +10,6 @@ import { tDecDecrypter } from '../characters/universal-bob';
 import { Cohort } from './cohort';
 
 export class Strategy {
-  public policy?: EnactedPolicy;
-  public encrypter?: Enrico;
-  public decrypter?: tDecDecrypter;
   constructor(
     public cohort: Cohort,
     public startDate: Date,
@@ -20,7 +17,10 @@ export class Strategy {
     private alice: Alice,
     private bob: Bob,
     private bobSecretKey: SecretKey,
-    public deployed: boolean
+    public deployed: boolean,
+    public policy?: EnactedPolicy,
+    public encrypter?: Enrico,
+    public decrypter?: tDecDecrypter,
   ) {}
 
   public static create(

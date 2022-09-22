@@ -60,7 +60,11 @@ export class tDecDecrypter {
           const ursulasWithErrors = Object.entries(mk.errors).map(
             ([address, error]) => `${address} - ${error}`
           );
-          throw Error(`${errorMsg} Some Ursulas have failed with errors:\n${ursulasWithErrors.join('\n')}`);
+          throw Error(
+            `${errorMsg} Some Ursulas have failed with errors:\n${ursulasWithErrors.join(
+              '\n'
+            )}`
+          );
         } else {
           throw Error(errorMsg);
         }

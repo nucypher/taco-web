@@ -35,41 +35,14 @@ describe('Cohort', () => {
       threshold: 5,
       include: includeUrsulas,
     });
-    const config = testCohort.toObj();
-    const expectedConfig = {
-      ursulaAddresses: [
-        '0x5cf1703a1c99a4b42eb056535840e93118177232',
-        '0x7fff551249d223f723557a96a0e1a469c79cc934',
-        '0x9c7c824239d3159327024459ad69bb215859bd25',
-        '0x9919c9f5cbbaa42cb3bea153e14e16f85fea5b5d',
-        '0xfbeb3368735b3f0a65d1f1e02bf1d188bb5f5be6',
-      ],
-      threshold: 5,
-      porterUri: 'https://porter-ibex.nucypher.community',
-    };
-    expect(config).toEqual(expectedConfig);
-  });
-
-  it('can import from Object', async () => {
-    const mockedUrsulas = mockUrsulas().slice(0, 5);
-    const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
-
-    const config = {
-      ursulaAddresses: [
-        '0x5cf1703a1c99a4b42eb056535840e93118177232',
-        '0x7fff551249d223f723557a96a0e1a469c79cc934',
-        '0x9c7c824239d3159327024459ad69bb215859bd25',
-        '0x9919c9f5cbbaa42cb3bea153e14e16f85fea5b5d',
-        '0xfbeb3368735b3f0a65d1f1e02bf1d188bb5f5be6',
-      ],
-      threshold: 5,
-      porterUri: 'https://porter-ibex.nucypher.community',
-    };
-
-    const testCohort = Cohort.fromObj(config);
-    expect(testCohort.ursulaAddresses).toEqual(config.ursulaAddresses);
-    expect(testCohort.threshold).toEqual(config.threshold);
-    expect(testCohort.porterUri).toEqual(config.porterUri);
+    const ursulaAddresses = [
+      '0x5cf1703a1c99a4b42eb056535840e93118177232',
+      '0x7fff551249d223f723557a96a0e1a469c79cc934',
+      '0x9c7c824239d3159327024459ad69bb215859bd25',
+      '0x9919c9f5cbbaa42cb3bea153e14e16f85fea5b5d',
+      '0xfbeb3368735b3f0a65d1f1e02bf1d188bb5f5be6',
+    ];
+    expect(testCohort.ursulaAddresses).toEqual(ursulaAddresses);
   });
 
   it('can export to JSON', async () => {

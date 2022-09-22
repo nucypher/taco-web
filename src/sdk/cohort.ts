@@ -63,11 +63,15 @@ export class Cohort {
     return Cohort.fromObj(config);
   }
 
-  public static fromObj({ ursulaAddresses, threshold, porterUri }: CohortJSON) {
+  private static fromObj({
+    ursulaAddresses,
+    threshold,
+    porterUri,
+  }: CohortJSON) {
     return new Cohort(ursulaAddresses, threshold, porterUri);
   }
 
-  public toObj() {
+  private toObj() {
     return {
       ursulaAddresses: this.ursulaAddresses,
       threshold: this.threshold,

@@ -16,6 +16,7 @@ export { Porter } from './characters/porter';
 export { Keyring } from './keyring';
 export { Configuration, defaultConfiguration } from './config';
 export { RevocationKit } from './kits/revocation';
+export { PolicyMessageKit } from './kits/message';
 export {
   Conditions,
   ConditionSet,

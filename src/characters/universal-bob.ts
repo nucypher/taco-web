@@ -56,9 +56,11 @@ export class tDecDecrypter {
     policyMessageKits.forEach((mk: PolicyMessageKit) => {
       if (!mk.isDecryptableByReceiver()) {
         const errorMsg = `Not enough cFrags retrieved to open capsule ${mk.capsule}.`;
-        const errors = Object.values(mk.errors);
-        if (errors.length > 0) {
-          throw Error(`${errorMsg} Errors:\n${errors.join('\n')}`);
+        if (Object.values(mk.errors).length > 0) {
+          const ursulasWithErrors = Object.entries(mk.errors).map(
+            ([address, error]) => `${address} - ${error}`
+          );
+          throw Error(`${errorMsg} Some Ursulas have failed with errors:\n${ursulasWithErrors.join('\n')}`);
         } else {
           throw Error(errorMsg);
         }

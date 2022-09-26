@@ -70,10 +70,7 @@ export class ConditionSet {
   }
 
   public toJson() {
-    // TODO: Remove this workaround and make sure the condition itself is setting the correct type
-    const numberToStringReplacer = (key: unknown, value: unknown) =>
-      typeof value === 'number' ? value.toString() : value;
-    return JSON.stringify(this.toList(), numberToStringReplacer);
+    return JSON.stringify(this.toList());
   }
 
   public toBase64() {
@@ -153,11 +150,15 @@ export class Condition {
     // Check all the places where context parameters may be hiding
     const asObject = this.toObj();
     let paramsToCheck: string[] = [];
+
+    // They may hiding in the method parameters
     const method = asObject['method'] as string;
     if (method) {
       const contextParams = RpcCondition.CONTEXT_PARAMETERS_PER_METHOD[method];
       paramsToCheck = [...(contextParams ?? [])];
     }
+
+    // Or in the ReturnValue test
     const returnValueTest = asObject['returnValueTest'] as Record<
       string,
       string
@@ -165,6 +166,8 @@ export class Condition {
     if (returnValueTest) {
       paramsToCheck.push(returnValueTest['value']);
     }
+
+    // Merge & deduplicate
     paramsToCheck = [
       ...paramsToCheck,
       ...((asObject['parameters'] as string[]) ?? []),
@@ -216,7 +219,7 @@ class RpcCondition extends Condition {
     string[]
   > = {
     eth_getBalance: [':userAddress'],
-    ownerOf: [':userAddress'],
+    balanceOf: [':userAddress'],
   };
 
   public readonly schema = Joi.object({
@@ -258,12 +261,12 @@ class EvmCondition extends Condition {
   ];
   public static readonly METHODS_PER_CONTRACT_TYPE: Record<string, string[]> = {
     ERC20: ['balanceOf'],
-    ERC721: ['balanceOf', 'ownerOf'],
+    ERC721: ['ownerOf'],
     ERC1155: ['balanceOf'],
   };
   public static readonly PARAMETERS_PER_METHOD: Record<string, string[]> = {
     balanceOf: ['address'],
-    ownerOf: ['address'],
+    ownerOf: ['tokenId'],
   };
   public static readonly CONTEXT_PARAMETERS_PER_METHOD: Record<
     string,
@@ -379,10 +382,8 @@ export class ConditionContext {
   private async createWalletSignature(): Promise<TypedSignature> {
     // Ensure freshness of the signature
     const { blockNumber, blockHash, chainId } = await this.getChainData();
-
     const address = await this.web3Provider.signer.getAddress();
     const signatureText = `I'm the owner of address ${address} as of block number ${blockNumber}`; // TODO: Update this text to a more dramatic one
-
     const salt = ethersUtils.hexlify(ethersUtils.randomBytes(32));
 
     const typedData: Eip712TypedData = {

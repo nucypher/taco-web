@@ -81,11 +81,21 @@ export class Bob {
       encryptedTreasureMap
     );
 
-    policyMessageKits.forEach((mk) => {
+    policyMessageKits.forEach((mk: PolicyMessageKit) => {
       if (!mk.isDecryptableByReceiver()) {
-        throw Error(
-          `Not enough cFrags retrieved to open capsule ${mk.capsule}. Was the policy revoked?`
-        );
+        const errorMsg = `Not enough cFrags retrieved to open capsule ${mk.capsule}.`;
+        if (Object.values(mk.errors).length > 0) {
+          const ursulasWithErrors = Object.entries(mk.errors).map(
+            ([address, error]) => `${address} - ${error}`
+          );
+          throw Error(
+            `${errorMsg} Some Ursulas have failed with errors:\n${ursulasWithErrors.join(
+              '\n'
+            )}`
+          );
+        } else {
+          throw Error(errorMsg);
+        }
       }
     });
 
@@ -121,9 +131,9 @@ export class Bob {
     );
 
     return zip(policyMessageKits, retrieveCFragsResponses).map((pair) => {
-      const [messageKit, cFragResponse] = pair;
-      const results = Object.keys(cFragResponse).map((address) => {
-        const verified = cFragResponse[address].verify(
+      const [messageKit, { cFrags, errors }] = pair;
+      const vcFrags = Object.keys(cFrags).map((address) => {
+        const verified = cFrags[address].verify(
           messageKit.capsule,
           publisherVerifyingKey,
           policyEncryptingKey,
@@ -131,7 +141,10 @@ export class Bob {
         );
         return [address, verified];
       });
-      const retrievalResult = new RetrievalResult(Object.fromEntries(results));
+      const retrievalResult = new RetrievalResult(
+        Object.fromEntries(vcFrags),
+        errors
+      );
       return messageKit.withResult(retrievalResult);
     });
   }

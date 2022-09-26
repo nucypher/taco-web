@@ -155,9 +155,8 @@ export const mockCFragResponse = (
   const reencrypted = verifiedKFrags
     .map((kFrag) => reencrypt(capsule, kFrag))
     .map((cFrag) => CapsuleFrag.fromBytes(cFrag.toBytes()));
-  const result = Object.fromEntries(zip(ursulas, reencrypted));
-  // We return one result per capsule, so just one result
-  return [result];
+  const cFrags = Object.fromEntries(zip(ursulas, reencrypted));
+  return [{ cFrags, errors: {} }];
 };
 
 export const mockRetrieveCFragsRequest = (

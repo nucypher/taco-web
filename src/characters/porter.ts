@@ -51,12 +51,18 @@ type PostRetrieveCFragsResult = {
       readonly cfrags: {
         readonly [address: string]: string;
       };
+      readonly errors: {
+        readonly [key: string]: string;
+      };
     }[];
   };
   readonly version: string;
 };
 
-export type RetrieveCFragsResponse = Record<ChecksumAddress, CapsuleFrag>;
+export type RetrieveCFragsResponse = {
+  cFrags: Record<ChecksumAddress, CapsuleFrag>;
+  errors: Record<ChecksumAddress, string>;
+};
 
 export class Porter {
   private readonly porterUrl: URL;
@@ -114,14 +120,14 @@ export class Porter {
       new URL('/retrieve_cfrags', this.porterUrl).toString(),
       data
     );
-    return resp.data.result.retrieval_results
-      .map((result) => result.cfrags)
-      .map((cFrags) => {
-        const parsed = Object.keys(cFrags).map((address) => [
-          address,
-          CapsuleFrag.fromBytes(fromBase64(cFrags[address])),
-        ]);
-        return Object.fromEntries(parsed);
-      });
+
+    return resp.data.result.retrieval_results.map(({ cfrags, errors }) => {
+      const parsed = Object.keys(cfrags).map((address) => [
+        address,
+        CapsuleFrag.fromBytes(fromBase64(cfrags[address])),
+      ]);
+      const cFrags = Object.fromEntries(parsed);
+      return { cFrags, errors };
+    });
   }
 }

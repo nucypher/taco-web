@@ -1,23 +1,11 @@
-import { PublicKey } from '@nucypher/nucypher-core';
-
 import { Porter } from '../characters/porter';
 import { ChecksumAddress } from '../types';
 
-export type Ursula = {
-  readonly checksumAddress: ChecksumAddress;
-  readonly uri: string;
-  readonly encryptingKey: PublicKey;
+export type CohortConfiguration = {
+  readonly threshold: number;
+  readonly shares: number;
+  readonly porterUri: string;
 };
-
-type Immutable<T> = {
-    readonly [K in keyof T]: Immutable<T[K]>;
-}
-
-export type CohortConfiguration = Immutable<{
-  threshold: number;
-  shares: number;
-  porterUri: string;
-}>;
 
 type CohortJSON = {
   ursulaAddresses: ChecksumAddress[];
@@ -29,16 +17,20 @@ type CohortJSON = {
 export class Cohort {
   private constructor(
     public ursulaAddresses: ChecksumAddress[],
-    public readonly configuration: CohortConfiguration,
+    public readonly configuration: CohortConfiguration
   ) {}
 
   public static async create(
     configuration: CohortConfiguration,
     include = [],
     exclude = []
-    ) {
+  ) {
     const porter = new Porter(configuration.porterUri);
-    const ursulas = await porter.getUrsulas(configuration.shares, exclude, include);
+    const ursulas = await porter.getUrsulas(
+      configuration.shares,
+      exclude,
+      include
+    );
     const ursulaAddresses = ursulas.map((ursula) => ursula.checksumAddress);
     return new Cohort(ursulaAddresses, configuration);
   }
@@ -63,10 +55,10 @@ export class Cohort {
     porterUri,
   }: CohortJSON) {
     const config = {
-        threshold: threshold,
-        shares: shares,
-        porterUri: porterUri
-    }
+      threshold: threshold,
+      shares: shares,
+      porterUri: porterUri,
+    };
     return new Cohort(ursulaAddresses, config);
   }
 

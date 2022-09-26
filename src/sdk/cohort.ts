@@ -9,45 +9,38 @@ export type Ursula = {
   readonly encryptingKey: PublicKey;
 };
 
-type CohortParameters = {
-  porterUri: string;
+type Immutable<T> = {
+    readonly [K in keyof T]: Immutable<T[K]>;
+}
+
+export type CohortConfiguration = Immutable<{
   threshold: number;
-  shares?: number;
-  include?: ChecksumAddress[];
-  exclude?: ChecksumAddress[];
-};
+  shares: number;
+  porterUri: string;
+}>;
 
 type CohortJSON = {
   ursulaAddresses: ChecksumAddress[];
   threshold: number;
+  shares: number;
   porterUri: string;
 };
 
 export class Cohort {
   private constructor(
-    public readonly ursulaAddresses: ChecksumAddress[],
-    public readonly threshold: number,
-    public readonly porterUri: string
+    public ursulaAddresses: ChecksumAddress[],
+    public readonly configuration: CohortConfiguration,
   ) {}
 
-  public static async create({
-    porterUri,
-    threshold,
-    shares = 0,
+  public static async create(
+    configuration: CohortConfiguration,
     include = [],
-    exclude = [],
-  }: CohortParameters) {
-    if (shares == 0 && include.length == 0) {
-      throw new TypeError('Shares is 0 and Include is an empty array');
-    }
-    if (shares == 0 && include.length > 0) {
-      shares = include.length;
-    }
-
-    const porter = new Porter(porterUri);
-    const ursulas = await porter.getUrsulas(shares, exclude, include);
+    exclude = []
+    ) {
+    const porter = new Porter(configuration.porterUri);
+    const ursulas = await porter.getUrsulas(configuration.shares, exclude, include);
     const ursulaAddresses = ursulas.map((ursula) => ursula.checksumAddress);
-    return new Cohort(ursulaAddresses, threshold, porterUri);
+    return new Cohort(ursulaAddresses, configuration);
   }
 
   public get shares(): number {
@@ -66,16 +59,23 @@ export class Cohort {
   private static fromObj({
     ursulaAddresses,
     threshold,
+    shares,
     porterUri,
   }: CohortJSON) {
-    return new Cohort(ursulaAddresses, threshold, porterUri);
+    const config = {
+        threshold: threshold,
+        shares: shares,
+        porterUri: porterUri
+    }
+    return new Cohort(ursulaAddresses, config);
   }
 
   private toObj() {
     return {
       ursulaAddresses: this.ursulaAddresses,
-      threshold: this.threshold,
-      porterUri: this.porterUri,
+      threshold: this.configuration.threshold,
+      shares: this.configuration.shares,
+      porterUri: this.configuration.porterUri,
     };
   }
 }

@@ -261,10 +261,7 @@ class EvmCondition extends Condition {
   ];
   public static readonly METHODS_PER_CONTRACT_TYPE: Record<string, string[]> = {
     ERC20: ['balanceOf'],
-    ERC721: [
-      'balanceOf',
-      // 'ownerOf', // TODO: Enable after updating Ursulas
-    ],
+    ERC721: ['balanceOf', 'ownerOf'],
     ERC1155: ['balanceOf'],
   };
   public static readonly PARAMETERS_PER_METHOD: Record<string, string[]> = {

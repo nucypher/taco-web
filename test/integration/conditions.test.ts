@@ -16,7 +16,7 @@ describe('operator', () => {
 });
 
 describe('conditions schema', () => {
-  const condition = new Conditions.ERC721Ownership();
+  const condition = new Conditions.ERC721Balance();
   let result = condition.validate({
     contractAddress: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
   });
@@ -36,10 +36,10 @@ describe('conditions schema', () => {
 });
 
 describe('condition set', () => {
-  const genuineUndead = new Conditions.ERC721Ownership({
+  const genuineUndead = new Conditions.ERC721Balance({
     contractAddress: '0x209e639a0EC166Ac7a1A4bA41968fa967dB30221',
   });
-  const gnomePals = new Conditions.ERC721Ownership({
+  const gnomePals = new Conditions.ERC721Balance({
     contractAddress: '0x5dB11d7356aa4C0E85Aa5b255eC2B5F81De6d4dA',
   });
   const or = new Operator('or');

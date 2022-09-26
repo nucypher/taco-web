@@ -257,11 +257,14 @@ class EvmCondition extends Condition {
   public static readonly STANDARD_CONTRACT_TYPES = [
     'ERC20',
     'ERC721',
-    'ERC1155',
+    // 'ERC1155', // TODO: Enable after updating Ursulas
   ];
   public static readonly METHODS_PER_CONTRACT_TYPE: Record<string, string[]> = {
     ERC20: ['balanceOf'],
-    ERC721: ['ownerOf'],
+    ERC721: [
+      'balanceOf',
+      // 'ownerOf', // TODO: Enable after updating Ursulas
+    ],
     ERC1155: ['balanceOf'],
   };
   public static readonly PARAMETERS_PER_METHOD: Record<string, string[]> = {
@@ -309,6 +312,20 @@ class ERC721Ownership extends EvmCondition {
     returnValueTest: {
       comparator: '==',
       value: ':userAddress',
+    },
+    // functionAbi: '', // TODO: Add ERC721 ABI
+  };
+}
+
+class ERC721Balance extends EvmCondition {
+  readonly defaults = {
+    chain: 'ethereum',
+    method: 'balanceOf',
+    parameters: [':userAddress'],
+    standardContractType: 'ERC721',
+    returnValueTest: {
+      comparator: '>',
+      value: '0',
     },
     // functionAbi: '', // TODO: Add ERC721 ABI
   };
@@ -465,6 +482,7 @@ export class ConditionContext {
 
 export const Conditions = {
   ERC721Ownership,
+  ERC721Balance,
   EvmCondition,
   TimelockCondition,
   RpcCondition,

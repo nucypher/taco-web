@@ -149,15 +149,8 @@ export class DeployedStrategy {
 }
 
 export class RevokedStrategy {
-  private constructor(
-    public cohort: Cohort,
-    public startDate: Date,
-    public endDate: Date,
-    private alice: Alice,
-    private bob: Bob,
-    private bobSecretKey: SecretKey,
-    public deployed: boolean,
-    private conditionSet: ConditionSet,
+  constructor(
+    public label: string,
     public policy: EnactedPolicy,
     public encrypter: Enrico,
     public decrypter: tDecDecrypter

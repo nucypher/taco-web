@@ -12,13 +12,13 @@ import { Cohort } from './cohort';
 
 export class Strategy {
   private constructor(
-    public cohort: Cohort,
-    public startDate: Date,
-    public endDate: Date,
-    private alice: Alice,
-    private bob: Bob,
-    private bobSecretKey: SecretKey,
-    private conditionSet?: ConditionSet
+    public readonly cohort: Cohort,
+    public readonly startDate: Date,
+    public readonly endDate: Date,
+    private readonly alice: Alice,
+    private readonly bob: Bob,
+    private readonly bobSecretKey: SecretKey,
+    private readonly conditionSet?: ConditionSet
   ) {}
 
   public static create(
@@ -90,10 +90,6 @@ export class Strategy {
   }
 
   public static toJson() {
-    throw new Error('Method not implemented.');
-  }
-
-  public static attachConditions() {
     throw new Error('Method not implemented.');
   }
 }

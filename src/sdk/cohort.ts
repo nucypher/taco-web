@@ -62,7 +62,7 @@ export class Cohort {
     return new Cohort(ursulaAddresses, config);
   }
 
-  private toObj() {
+  private toObj(): CohortJSON {
     return {
       ursulaAddresses: this.ursulaAddresses,
       threshold: this.configuration.threshold,

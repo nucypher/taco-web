@@ -18,11 +18,7 @@ export class Strategy {
     private alice: Alice,
     private bob: Bob,
     private bobSecretKey: SecretKey,
-    public deployed: boolean,
-    private conditionSet?: ConditionSet,
-    public policy?: EnactedPolicy,
-    public encrypter?: Enrico,
-    public decrypter?: tDecDecrypter
+    private conditionSet?: ConditionSet
   ) {}
 
   public static create(
@@ -54,9 +50,39 @@ export class Strategy {
       alice,
       bob,
       bobSecretKey,
-      false,
       conditionSet
     );
+  }
+
+  public async deploy(label: string): Promise<DeployedStrategy> {
+    const policyParams = {
+      bob: this.bob,
+      label,
+      threshold: this.cohort.configuration.threshold,
+      shares: this.cohort.configuration.shares,
+      startDate: this.startDate,
+      endDate: this.endDate,
+    };
+    const policy = await this.alice.grant(
+      policyParams,
+      this.cohort.ursulaAddresses
+      // excludeUrsulas
+    );
+    const encrypter = new Enrico(
+      policy.policyKey,
+      this.alice.verifyingKey,
+      this.conditionSet
+    );
+
+    const decrypter = new tDecDecrypter(
+      this.cohort.configuration.porterUri,
+      policy.policyKey,
+      policy.encryptedTreasureMap,
+      this.alice.verifyingKey,
+      this.bobSecretKey,
+      this.bobSecretKey
+    );
+    return new DeployedStrategy(label, policy, encrypter, decrypter);
   }
 
   public static fromJson() {
@@ -70,4 +96,33 @@ export class Strategy {
   public static attachConditions() {
     throw new Error('Method not implemented.');
   }
+}
+
+export class DeployedStrategy {
+  constructor(
+    public label: string,
+    public policy: EnactedPolicy,
+    public encrypter: Enrico,
+    public decrypter: tDecDecrypter
+  ) {}
+
+  public static revoke(): RevokedStrategy {
+    throw new Error('Method not implemented.');
+  }
+}
+
+export class RevokedStrategy {
+  private constructor(
+    public cohort: Cohort,
+    public startDate: Date,
+    public endDate: Date,
+    private alice: Alice,
+    private bob: Bob,
+    private bobSecretKey: SecretKey,
+    public deployed: boolean,
+    private conditionSet: ConditionSet,
+    public policy: EnactedPolicy,
+    public encrypter: Enrico,
+    public decrypter: tDecDecrypter
+  ) {}
 }

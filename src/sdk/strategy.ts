@@ -34,6 +34,7 @@ export class Strategy {
     endDate: Date,
     conditionSet?: ConditionSet,
     aliceSecretKey?: SecretKey,
+    bobSecretKey?: SecretKey,
     dkgAlice?: boolean
   ) {
     if (dkgAlice == true) {
@@ -43,7 +44,9 @@ export class Strategy {
       aliceSecretKey = SecretKey.random();
     }
 
-    const bobSecretKey = SecretKey.random();
+    if (!bobSecretKey) {
+      bobSecretKey = SecretKey.random();
+    }
     return new Strategy(
       cohort,
       startDate,

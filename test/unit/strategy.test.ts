@@ -1,6 +1,6 @@
 import { SecretKey, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 
-import { Cohort, Conditions, ConditionSet, Strategy } from '../../src';
+import { Cohort, Conditions, ConditionSet, DeployedStrategy, Strategy } from '../../src';
 import { Ursula } from '../../src/characters/porter';
 import {
   mockEncryptTreasureMap,
@@ -13,14 +13,16 @@ import {
   mockWeb3Provider,
 } from '../utils';
 
+import { aliceSecretKeyBytes, bobSecretKeyBytes, DeployedStrategyJSON, strategyJSON } from './testVariables';
+
 describe('Strategy', () => {
   const cohortConfig = {
     threshold: 2,
     shares: 3,
     porterUri: 'https://porter-ibex.nucypher.community',
   };
-  const aliceSecretKey = SecretKey.random();
-  const bobSecretKey = SecretKey.random();
+  const aliceSecretKey = SecretKey.fromBytes(aliceSecretKeyBytes);
+  const bobSecretKey = SecretKey.fromBytes(bobSecretKeyBytes);
   const startDate = new Date(900000000000);
   const endDate = new Date(900000100000);
   const aliceProvider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
@@ -60,17 +62,13 @@ describe('Strategy', () => {
     );
 
     const configJSON = testStrategy.toJSON();
-    const expectedJSON =
-      '{"cohort":{"ursulaAddresses":["0x5cf1703a1c99a4b42eb056535840e93118177232","0x7fff551249d223f723557a96a0e1a469c79cc934","0x9c7c824239d3159327024459ad69bb215859bd25"],"threshold":2,"shares":3,"porterUri":"https://porter-ibex.nucypher.community"},"startDate":"1998-07-09T16:00:00.000Z","endDate":"1998-07-09T16:01:40.000Z","aliceSecretKey":{"ptr":1179612},"bobSecretKey":{"ptr":1179568}}';
-    expect(configJSON).toEqual(expectedJSON);
+    expect(configJSON).toEqual(strategyJSON);
   });
 
   it('can import from JSON', async () => {
     const mockedUrsulas = mockUrsulas().slice(0, 3);
 
-    const configJSON =
-      '{"cohort":{"ursulaAddresses":["0x5cf1703a1c99a4b42eb056535840e93118177232","0x7fff551249d223f723557a96a0e1a469c79cc934","0x9c7c824239d3159327024459ad69bb215859bd25"],"threshold":2,"shares":3,"porterUri":"https://porter-ibex.nucypher.community"},"startDate":"1998-07-09T16:00:00.000Z","endDate":"1998-07-09T16:01:40.000Z","aliceSecretKey":{"ptr":1179612},"bobSecretKey":{"ptr":1179084}}';
-    const testStrategy = Strategy.fromJSON(configJSON);
+    const testStrategy = Strategy.fromJSON(strategyJSON);
     const expectedUrsulas = [
       '0x5cf1703a1c99a4b42eb056535840e93118177232',
       '0x7fff551249d223f723557a96a0e1a469c79cc934',
@@ -113,8 +111,40 @@ describe('Deployed Strategy', () => {
     porterUri: 'https://porter-ibex.nucypher.community',
   };
   const aliceSecretKey = SecretKey.random();
+  const bobSecretKey = SecretKey.random();
   const aliceProvider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
   const bobProvider = mockWeb3Provider(SecretKey.random().toSecretBytes());
+
+  it('can export to JSON', async () => {
+    const mockedUrsulas = mockUrsulas().slice(0, 3);
+    const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
+    const generateKFragsSpy = mockGenerateKFrags();
+    const publishToBlockchainSpy = mockPublishToBlockchain();
+    const makeTreasureMapSpy = mockMakeTreasureMap();
+    const encryptTreasureMapSpy = mockEncryptTreasureMap();
+
+    const testCohort = await Cohort.create(cohortConfig);
+    const testStrategy = Strategy.create(
+      testCohort,
+      new Date(1000000000000),
+      new Date(2100000000000),
+      undefined,
+      aliceSecretKey,
+      bobSecretKey
+
+    );
+    const testDeployed = await testStrategy.deploy('test', aliceProvider);
+    const configJSON = testDeployed.toJSON();
+    console.log(configJSON)
+    expect(configJSON).toEqual(DeployedStrategyJSON);
+  });
+
+  it('can import from JSON', async () => {
+
+    const testDeployed = DeployedStrategy.fromJSON(aliceProvider, DeployedStrategyJSON);
+    const configJSON = testDeployed.toJSON();
+    expect(configJSON).toEqual(DeployedStrategyJSON);
+  });
 
   it('can encrypt and decrypt', async () => {
     const mockedUrsulas = mockUrsulas().slice(0, 3);

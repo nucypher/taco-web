@@ -14,9 +14,17 @@ type StrategyJSON = {
   cohort: CohortJSON;
   startDate: Date;
   endDate: Date;
-  aliceSecretKey: SecretKey;
-  bobSecretKey: SecretKey;
+  aliceSecretKeyBytes: Uint8Array;
+  bobSecretKeyBytes: Uint8Array;
   conditionSet?: ConditionSet;
+};
+
+type DeployedStrategyJSON = {
+  policy: EnactedPolicy,
+  cohortConfig: CohortJSON,
+  aliceSecretKeyBytes: Uint8Array,
+  bobSecretKeyBytes: Uint8Array,
+  conditionSet?: ConditionSet
 };
 export class Strategy {
   private constructor(
@@ -96,7 +104,16 @@ export class Strategy {
       this.bobSecretKey,
       this.bobSecretKey
     );
-    return new DeployedStrategy(label, policy, encrypter, decrypter);
+    return new DeployedStrategy(
+      label,
+      this.cohort,
+      policy,
+      encrypter,
+      decrypter,
+      this.aliceSecretKey,
+      this.bobSecretKey,
+      this.conditionSet
+    );
   }
 
   public static fromJSON(json: string) {
@@ -112,27 +129,27 @@ export class Strategy {
     cohort,
     startDate,
     endDate,
-    aliceSecretKey,
-    bobSecretKey,
+    aliceSecretKeyBytes,
+    bobSecretKeyBytes,
     conditionSet,
   }: StrategyJSON) {
     return new Strategy(
       Cohort.fromObj(cohort),
       startDate,
       endDate,
-      aliceSecretKey,
-      bobSecretKey,
+      SecretKey.fromBytes(aliceSecretKeyBytes),
+      SecretKey.fromBytes(bobSecretKeyBytes),
       conditionSet
     );
   }
 
-  private toObj(): StrategyJSON {
+  public toObj(): StrategyJSON {
     return {
       cohort: this.cohort.toObj(),
       startDate: this.startDate,
       endDate: this.endDate,
-      aliceSecretKey: this.aliceSecretKey,
-      bobSecretKey: this.bobSecretKey,
+      aliceSecretKeyBytes: this.aliceSecretKey.toSecretBytes(),
+      bobSecretKeyBytes: this.bobSecretKey.toSecretBytes(),
       conditionSet: this.conditionSet,
     };
   }
@@ -141,13 +158,78 @@ export class Strategy {
 export class DeployedStrategy {
   constructor(
     public label: string,
+    public cohort: Cohort,
     public policy: EnactedPolicy,
     public encrypter: Enrico,
-    public decrypter: tDecDecrypter
+    public decrypter: tDecDecrypter,
+    private aliceSecretKey: SecretKey,
+    private bobSecretKey: SecretKey,
+    public conditionSet?: ConditionSet
   ) {}
 
   public static revoke(): RevokedStrategy {
     throw new Error('Method not implemented.');
+  }
+
+  public static fromJSON(provider: ethers.providers.Web3Provider, json: string) {
+    const config = JSON.parse(json);
+    return DeployedStrategy.fromObj(provider, config);
+  }
+
+  public toJSON() {
+    return JSON.stringify(this.toObj());
+  }
+
+  private static fromObj(
+    provider: ethers.providers.Web3Provider,
+    {
+    policy,
+    cohortConfig,
+    aliceSecretKeyBytes,
+    bobSecretKeyBytes,
+    conditionSet}: DeployedStrategyJSON
+  ) {
+    const aliceSecretKey = SecretKey.fromBytes(aliceSecretKeyBytes);
+    const bobSecretKey = SecretKey.fromBytes(bobSecretKeyBytes);
+    const label = policy.label;
+    const cohort = Cohort.fromObj(cohortConfig);
+    const porterUri = cohort.configuration.porterUri;
+    const configuration = { porterUri };
+    const alice = Alice.fromSecretKey(configuration, aliceSecretKey, provider);
+    const encrypter = new Enrico(
+      policy.policyKey,
+      alice.verifyingKey,
+      conditionSet
+    );
+
+    const decrypter = new tDecDecrypter(
+      cohort.configuration.porterUri,
+      policy.policyKey,
+      policy.encryptedTreasureMap,
+      alice.verifyingKey,
+      bobSecretKey,
+      bobSecretKey
+    );
+    return new DeployedStrategy(
+      label,
+      cohort,
+      policy,
+      encrypter,
+      decrypter,
+      aliceSecretKey,
+      bobSecretKey,
+      conditionSet
+    );
+  }
+
+  private toObj(): DeployedStrategyJSON {
+    return {
+      policy: this.policy,
+      cohortConfig: this.cohort.toObj(),
+      aliceSecretKeyBytes: this.aliceSecretKey.toSecretBytes(),
+      bobSecretKeyBytes: this.bobSecretKey.toSecretBytes(),
+      conditionSet: this.conditionSet
+    };
   }
 }
 

@@ -7,7 +7,7 @@ export type CohortConfiguration = {
   readonly porterUri: string;
 };
 
-type CohortJSON = {
+export type CohortJSON = {
   ursulaAddresses: ChecksumAddress[];
   threshold: number;
   shares: number;
@@ -48,7 +48,7 @@ export class Cohort {
     return Cohort.fromObj(config);
   }
 
-  private static fromObj({
+  public static fromObj({
     ursulaAddresses,
     threshold,
     shares,
@@ -62,7 +62,7 @@ export class Cohort {
     return new Cohort(ursulaAddresses, config);
   }
 
-  private toObj(): CohortJSON {
+  public toObj(): CohortJSON {
     return {
       ursulaAddresses: this.ursulaAddresses,
       threshold: this.configuration.threshold,

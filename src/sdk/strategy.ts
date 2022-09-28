@@ -8,10 +8,10 @@ import { tDecDecrypter } from '../characters/universal-bob';
 import { ConditionSet } from '../policies/conditions';
 import { EnactedPolicy } from '../policies/policy';
 
-import { Cohort } from './cohort';
+import { Cohort, CohortJSON } from './cohort';
 
 type StrategyJSON = {
-  cohort: Cohort;
+  cohort: CohortJSON;
   startDate: Date;
   endDate: Date;
   aliceSecretKey: SecretKey;
@@ -114,7 +114,7 @@ export class Strategy {
     conditionSet,
   }: StrategyJSON) {
     return new Strategy(
-      cohort,
+      Cohort.fromObj(cohort),
       startDate,
       endDate,
       aliceSecretKey,
@@ -125,7 +125,7 @@ export class Strategy {
 
   private toObj(): StrategyJSON {
     return {
-      cohort: this.cohort,
+      cohort: this.cohort.toObj(),
       startDate: this.startDate,
       endDate: this.endDate,
       aliceSecretKey: this.aliceSecretKey,

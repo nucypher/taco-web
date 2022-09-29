@@ -1,7 +1,7 @@
 import { SecretKey } from '@nucypher/nucypher-core';
 
 import { ConditionContext, Conditions, ConditionSet } from '../../src';
-import { Operator } from '../../src/policies/conditions';
+import { Operator } from '../../src';
 import { Web3Provider } from '../../src/web3';
 import { mockWeb3Provider } from '../utils';
 
@@ -97,13 +97,29 @@ describe('conditions types', () => {
       contractAddress: '0x0000000000000000000000000000000000000000',
       chain: 'ethereum',
       standardContractType: 'ERC20',
-      functionAbi: 'missing',
       method: 'balanceOf',
       parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
       returnValueTest,
     };
     const evm = new Conditions.EvmCondition(evmCondition);
     expect(evm.toObj()).toEqual(evmCondition);
+  });
+
+  it('malformed evm', async () => {
+    const badEvmCondition = {
+      // Intentionally removing `contractAddress`
+      // contractAddress: '0x0000000000000000000000000000000000000000',
+      chain: 'ethereum',
+      standardContractType: 'ERC20',
+      method: 'balanceOf',
+      parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
+      returnValueTest,
+    };
+    const badCondition = new Conditions.EvmCondition(badEvmCondition);
+    expect(() => badCondition.toObj()).toThrow('"contractAddress" is required');
+
+    const { error } = badCondition.validate(badEvmCondition);
+    expect(error?.message).toEqual('"contractAddress" is required');
   });
 });
 
@@ -153,7 +169,6 @@ describe('produce context parameters from conditions', () => {
               contractAddress: '0x0000000000000000000000000000000000000000',
               chain: 'ethereum',
               standardContractType: 'ERC20',
-              functionAbi: 'missing',
               method: 'balanceOf',
               parameters: [contextParam],
               returnValueTest: {

@@ -121,10 +121,11 @@ describe('Deployed Strategy', () => {
     shares: 3,
     porterUri: 'https://porter-ibex.nucypher.community',
   };
-  const aliceSecretKey = SecretKey.random();
-  const bobSecretKey = SecretKey.random();
+  const aliceSecretKey = SecretKey.fromBytes(aliceSecretKeyBytes);
+  const bobSecretKey = SecretKey.fromBytes(bobSecretKeyBytes);
   const aliceProvider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
   const bobProvider = mockWeb3Provider(SecretKey.random().toSecretBytes());
+
 
   it('can export to JSON', async () => {
     const mockedUrsulas = mockUrsulas().slice(0, 3);
@@ -145,15 +146,16 @@ describe('Deployed Strategy', () => {
     );
     const testDeployed = await testStrategy.deploy('test', aliceProvider);
     const configJSON = testDeployed.toJSON();
+    console.log(configJSON)
     expect(configJSON).toEqual(DeployedStrategyJSON);
   });
 
   it('can import from JSON', async () => {
-    const testDeployed = DeployedStrategy.fromJSON(
+    const importedStrategy = DeployedStrategy.fromJSON(
       aliceProvider,
       DeployedStrategyJSON
     );
-    const configJSON = testDeployed.toJSON();
+    const configJSON = importedStrategy.toJSON();
     expect(configJSON).toEqual(DeployedStrategyJSON);
   });
 

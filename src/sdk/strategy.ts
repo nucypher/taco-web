@@ -139,7 +139,6 @@ export class Strategy {
       value: string | number | Uint8Array
     ) => {
       if (value instanceof Uint8Array) {
-        console.log(`converting to base64: ${key}`);
         return `base64:${toBase64(value)}`;
       }
       return value;
@@ -202,7 +201,16 @@ export class DeployedStrategy {
   }
 
   public toJSON() {
-    return JSON.stringify(this.toObj());
+    const u8ToBase64Replacer = (
+      key: string,
+      value: string | number | Uint8Array
+    ) => {
+      if (value instanceof Uint8Array) {
+        return `base64:${toBase64(value)}`;
+      }
+      return value;
+    };
+    return JSON.stringify(this.toObj(), u8ToBase64Replacer);
   }
 
   private static fromObj(

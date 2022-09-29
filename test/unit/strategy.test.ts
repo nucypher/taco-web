@@ -38,6 +38,10 @@ describe('Strategy', () => {
   const endDate = new Date(900000100000);
   const aliceProvider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('can create Strategy from configuration', async () => {
     const mockedUrsulas = mockUrsulas().slice(0, 3);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
@@ -192,8 +196,8 @@ describe('Deployed Strategy', () => {
 
     const plaintext = 'this is a secret';
     const conditions = new ConditionSet([ownsNFT]);
-    const encryptedMessageKit = encrypter.encryptMessage(plaintext, conditions);
-
+    encrypter.conditions = conditions;
+    const encryptedMessageKit = encrypter.encryptMessage(plaintext);
     // Setup mocks for `retrieveAndDecrypt`
     const getUrsulasSpy2 = mockGetUrsulas(mockedUrsulas);
     const ursulaAddresses = (
@@ -215,6 +219,6 @@ describe('Deployed Strategy', () => {
 
     expect(getUrsulasSpy2).toHaveBeenCalled();
     expect(retrieveCFragsSpy).toHaveBeenCalled();
-    expect(decryptedMessage).toEqual(plaintext);
+    expect(decryptedMessage[0]).toEqual(plaintext);
   });
 });

@@ -130,7 +130,6 @@ describe('Deployed Strategy', () => {
   const aliceProvider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
   const bobProvider = mockWeb3Provider(SecretKey.random().toSecretBytes());
 
-
   it('can export to JSON', async () => {
     const mockedUrsulas = mockUrsulas().slice(0, 3);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);

@@ -240,7 +240,7 @@ export class DeployedStrategy {
       size: policy.size,
       startTimestamp: policy.startTimestamp,
       endTimestamp: policy.endTimestamp,
-      txHash: policy.txHash
+      txHash: policy.txHash,
     };
     const aliceSecretKey = SecretKey.fromBytes(aliceSecretKeyBytes);
     const bobSecretKey = SecretKey.fromBytes(bobSecretKeyBytes);

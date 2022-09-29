@@ -28,6 +28,7 @@ export {
 export { Cohort } from './sdk/cohort';
 export { DeployedStrategy, RevokedStrategy, Strategy } from './sdk/strategy';
 
+
 export {
   PublicKey,
   SecretKey,

@@ -146,7 +146,6 @@ describe('Deployed Strategy', () => {
     );
     const testDeployed = await testStrategy.deploy('test', aliceProvider);
     const configJSON = testDeployed.toJSON();
-    console.log(configJSON)
     expect(configJSON).toEqual(DeployedStrategyJSON);
   });
 

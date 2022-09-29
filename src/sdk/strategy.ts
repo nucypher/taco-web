@@ -124,7 +124,6 @@ export class Strategy {
       value: string | number | Uint8Array
     ) => {
       if (typeof value === 'string' && value.startsWith('base64:')) {
-        console.log(`converting from base64: ${key}`);
         return fromBase64(value.split('base64:')[1]);
       }
       return value;
@@ -196,7 +195,16 @@ export class DeployedStrategy {
     provider: ethers.providers.Web3Provider,
     json: string
   ) {
-    const config = JSON.parse(json);
+    const base64ToU8Receiver = (
+      key: string,
+      value: string | number | Uint8Array
+    ) => {
+      if (typeof value === 'string' && value.startsWith('base64:')) {
+        return fromBase64(value.split('base64:')[1]);
+      }
+      return value;
+    };
+    const config = JSON.parse(json, base64ToU8Receiver);
     return DeployedStrategy.fromObj(provider, config);
   }
 
@@ -223,23 +231,34 @@ export class DeployedStrategy {
       conditionSet,
     }: DeployedStrategyJSON
   ) {
+    const newPolicy = {
+      id: policy.id,
+      label: policy.label,
+      policyKey: policy.policyKey,
+      encryptedTreasureMap: policy.encryptedTreasureMap,
+      aliceVerifyingKey: new Uint8Array(policy.aliceVerifyingKey),
+      size: policy.size,
+      startTimestamp: policy.startTimestamp,
+      endTimestamp: policy.endTimestamp,
+      txHash: policy.txHash
+    };
     const aliceSecretKey = SecretKey.fromBytes(aliceSecretKeyBytes);
     const bobSecretKey = SecretKey.fromBytes(bobSecretKeyBytes);
-    const label = policy.label;
+    const label = newPolicy.label;
     const cohort = Cohort.fromObj(cohortConfig);
     const porterUri = cohort.configuration.porterUri;
     const configuration = { porterUri };
     const alice = Alice.fromSecretKey(configuration, aliceSecretKey, provider);
     const encrypter = new Enrico(
-      policy.policyKey,
+      newPolicy.policyKey,
       alice.verifyingKey,
       conditionSet
     );
 
     const decrypter = new tDecDecrypter(
       cohort.configuration.porterUri,
-      policy.policyKey,
-      policy.encryptedTreasureMap,
+      newPolicy.policyKey,
+      newPolicy.encryptedTreasureMap,
       alice.verifyingKey,
       bobSecretKey,
       bobSecretKey
@@ -247,7 +266,7 @@ export class DeployedStrategy {
     return new DeployedStrategy(
       label,
       cohort,
-      policy,
+      newPolicy,
       encrypter,
       decrypter,
       aliceSecretKey,

@@ -7,6 +7,7 @@ import { Enrico } from '../characters/enrico';
 import { tDecDecrypter } from '../characters/universal-bob';
 import { ConditionSet } from '../policies/conditions';
 import { EnactedPolicy } from '../policies/policy';
+import { fromBase64, toBase64 } from '../utils';
 
 import { Cohort, CohortJSON } from './cohort';
 
@@ -20,12 +21,13 @@ type StrategyJSON = {
 };
 
 type DeployedStrategyJSON = {
-  policy: EnactedPolicy,
-  cohortConfig: CohortJSON,
-  aliceSecretKeyBytes: Uint8Array,
-  bobSecretKeyBytes: Uint8Array,
-  conditionSet?: ConditionSet
+  policy: EnactedPolicy;
+  cohortConfig: CohortJSON;
+  aliceSecretKeyBytes: Uint8Array;
+  bobSecretKeyBytes: Uint8Array;
+  conditionSet?: ConditionSet;
 };
+
 export class Strategy {
   private constructor(
     public readonly cohort: Cohort,
@@ -117,12 +119,32 @@ export class Strategy {
   }
 
   public static fromJSON(json: string) {
-    const config = JSON.parse(json);
+    const base64ToU8Receiver = (
+      key: string,
+      value: string | number | Uint8Array
+    ) => {
+      if (typeof value === 'string' && value.startsWith('base64:')) {
+        console.log(`converting from base64: ${key}`);
+        return fromBase64(value.split('base64:')[1]);
+      }
+      return value;
+    };
+    const config = JSON.parse(json, base64ToU8Receiver);
     return Strategy.fromObj(config);
   }
 
   public toJSON() {
-    return JSON.stringify(this.toObj());
+    const u8ToBase64Replacer = (
+      key: string,
+      value: string | number | Uint8Array
+    ) => {
+      if (value instanceof Uint8Array) {
+        console.log(`converting to base64: ${key}`);
+        return `base64:${toBase64(value)}`;
+      }
+      return value;
+    };
+    return JSON.stringify(this.toObj(), u8ToBase64Replacer);
   }
 
   private static fromObj({
@@ -171,7 +193,10 @@ export class DeployedStrategy {
     throw new Error('Method not implemented.');
   }
 
-  public static fromJSON(provider: ethers.providers.Web3Provider, json: string) {
+  public static fromJSON(
+    provider: ethers.providers.Web3Provider,
+    json: string
+  ) {
     const config = JSON.parse(json);
     return DeployedStrategy.fromObj(provider, config);
   }
@@ -183,11 +208,12 @@ export class DeployedStrategy {
   private static fromObj(
     provider: ethers.providers.Web3Provider,
     {
-    policy,
-    cohortConfig,
-    aliceSecretKeyBytes,
-    bobSecretKeyBytes,
-    conditionSet}: DeployedStrategyJSON
+      policy,
+      cohortConfig,
+      aliceSecretKeyBytes,
+      bobSecretKeyBytes,
+      conditionSet,
+    }: DeployedStrategyJSON
   ) {
     const aliceSecretKey = SecretKey.fromBytes(aliceSecretKeyBytes);
     const bobSecretKey = SecretKey.fromBytes(bobSecretKeyBytes);
@@ -228,7 +254,7 @@ export class DeployedStrategy {
       cohortConfig: this.cohort.toObj(),
       aliceSecretKeyBytes: this.aliceSecretKey.toSecretBytes(),
       bobSecretKeyBytes: this.bobSecretKey.toSecretBytes(),
-      conditionSet: this.conditionSet
+      conditionSet: this.conditionSet,
     };
   }
 }

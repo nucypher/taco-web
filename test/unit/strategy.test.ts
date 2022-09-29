@@ -1,6 +1,12 @@
 import { SecretKey, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 
-import { Cohort, Conditions, ConditionSet, DeployedStrategy, Strategy } from '../../src';
+import {
+  Cohort,
+  Conditions,
+  ConditionSet,
+  DeployedStrategy,
+  Strategy,
+} from '../../src';
 import { Ursula } from '../../src/characters/porter';
 import {
   mockEncryptTreasureMap,
@@ -13,7 +19,12 @@ import {
   mockWeb3Provider,
 } from '../utils';
 
-import { aliceSecretKeyBytes, bobSecretKeyBytes, DeployedStrategyJSON, strategyJSON } from './testVariables';
+import {
+  aliceSecretKeyBytes,
+  bobSecretKeyBytes,
+  DeployedStrategyJSON,
+  strategyJSON,
+} from './testVariables';
 
 describe('Strategy', () => {
   const cohortConfig = {
@@ -131,17 +142,17 @@ describe('Deployed Strategy', () => {
       undefined,
       aliceSecretKey,
       bobSecretKey
-
     );
     const testDeployed = await testStrategy.deploy('test', aliceProvider);
     const configJSON = testDeployed.toJSON();
-    console.log(configJSON)
     expect(configJSON).toEqual(DeployedStrategyJSON);
   });
 
   it('can import from JSON', async () => {
-
-    const testDeployed = DeployedStrategy.fromJSON(aliceProvider, DeployedStrategyJSON);
+    const testDeployed = DeployedStrategy.fromJSON(
+      aliceProvider,
+      DeployedStrategyJSON
+    );
     const configJSON = testDeployed.toJSON();
     expect(configJSON).toEqual(DeployedStrategyJSON);
   });

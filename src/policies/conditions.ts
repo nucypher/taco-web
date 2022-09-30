@@ -109,21 +109,20 @@ export class Condition {
     '!=',
   ];
   public static readonly SUPPORTED_CHAINS = [
-    'ethereum',
-    'rinkeby',
-    // 'polygon',
-    // 'mumbai'
+    // 'Rinkeby',
+    'Rinkeby',
+    // 'Polygon',
+    // 'Mumbai'
   ];
 
-  readonly schema = Joi.object();
+  public readonly schema = Joi.object();
   public readonly defaults = {};
-  public state = {};
-  public error: ValidationError | undefined;
-  public value: Record<string, unknown> = {};
+  private validationError?: ValidationError;
 
-  constructor(data: Record<string, unknown> = {}) {
-    const { value } = this.validate(data);
-    this.state = value;
+  constructor(private readonly value: Record<string, unknown> = {}) {}
+
+  public get error(): string | undefined {
+    return this.validationError?.message;
   }
 
   protected makeReturnValueTest() {
@@ -143,16 +142,13 @@ export class Condition {
     return value;
   }
 
-  public static fromObj(obj: Record<string, string>) {
+  public static fromObj(obj: Record<string, unknown>) {
     return new Condition(obj);
   }
 
   public validate(data: Record<string, unknown> = {}) {
-    this.state = Object.assign(this.defaults, this.state, data);
-    const { error, value } = this.schema.validate(this.state);
-    this.error = error;
-    this.value = value;
-    return { error, value };
+    const newValue = Object.assign(this.defaults, this.value, data);
+    return this.schema.validate(newValue);
   }
 
   public getContextParameters(): string[] {
@@ -311,7 +307,7 @@ class EvmCondition extends Condition {
 
 class ERC721Ownership extends EvmCondition {
   readonly defaults = {
-    chain: 'ethereum',
+    chain: 'Rinkeby',
     method: 'ownerOf',
     parameters: [],
     standardContractType: 'ERC721',
@@ -324,7 +320,7 @@ class ERC721Ownership extends EvmCondition {
 
 class ERC721Balance extends EvmCondition {
   readonly defaults = {
-    chain: 'ethereum',
+    chain: 'Rinkeby',
     method: 'balanceOf',
     parameters: [':userAddress'],
     standardContractType: 'ERC721',

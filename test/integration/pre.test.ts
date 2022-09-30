@@ -1,13 +1,14 @@
 import { CapsuleFrag, reencrypt } from '@nucypher/nucypher-core';
 
-import { Enrico, MessageKit } from '../../src';
-import { PolicyMessageKit } from '../../src/kits/message';
-import { RetrievalResult } from '../../src/kits/retrieval';
 import {
   Conditions,
   ConditionSet,
+  Enrico,
+  MessageKit,
   Operator,
-} from '../../src/policies/conditions';
+  PolicyMessageKit,
+} from '../../src';
+import { RetrievalResult } from '../../src/kits/retrieval';
 import { toBytes, zip } from '../../src/utils';
 import { mockAlice, mockBob, mockUrsulas, reencryptKFrags } from '../utils';
 

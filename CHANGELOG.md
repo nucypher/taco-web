@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.7.9-alpha.18](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.17...v0.7.9-alpha.18) (2022-09-30)
+
 ### [0.7.9-alpha.17](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.16...v0.7.9-alpha.17) (2022-09-26)
 
 ### [0.7.9-alpha.16](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.15...v0.7.9-alpha.16) (2022-09-26)

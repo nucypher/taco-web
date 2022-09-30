@@ -8,6 +8,7 @@ import {
   Strategy,
 } from '../../src';
 import { Ursula } from '../../src/characters/porter';
+import { toBytes } from '../../src/utils';
 import {
   mockEncryptTreasureMap,
   mockGenerateKFrags,
@@ -127,10 +128,13 @@ describe('Deployed Strategy', () => {
   };
   const aliceSecretKey = SecretKey.fromBytes(aliceSecretKeyBytes);
   const bobSecretKey = SecretKey.fromBytes(bobSecretKeyBytes);
-  const aliceProvider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
-  const bobProvider = mockWeb3Provider(SecretKey.random().toSecretBytes());
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
   it('can export to JSON', async () => {
+    const aliceProvider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
     const mockedUrsulas = mockUrsulas().slice(0, 3);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const generateKFragsSpy = mockGenerateKFrags();
@@ -153,6 +157,7 @@ describe('Deployed Strategy', () => {
   });
 
   it('can import from JSON', async () => {
+    const aliceProvider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
     const importedStrategy = DeployedStrategy.fromJSON(
       aliceProvider,
       DeployedStrategyJSON
@@ -162,6 +167,8 @@ describe('Deployed Strategy', () => {
   });
 
   it('can encrypt and decrypt', async () => {
+    const aliceProvider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
+    const bobProvider = mockWeb3Provider(SecretKey.random().toSecretBytes());
     const mockedUrsulas = mockUrsulas().slice(0, 3);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const generateKFragsSpy = mockGenerateKFrags();
@@ -218,6 +225,6 @@ describe('Deployed Strategy', () => {
 
     expect(getUrsulasSpy2).toHaveBeenCalled();
     expect(retrieveCFragsSpy).toHaveBeenCalled();
-    expect(decryptedMessage[0]).toEqual(plaintext);
+    expect(decryptedMessage[0]).toEqual(toBytes(plaintext));
   });
 });

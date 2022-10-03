@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.8.2](https://github.com/nucypher/nucypher-ts/compare/v0.8.1...v0.8.2) (2022-10-03)
+
+
+### Bug Fixes
+
+* force dependency resolution for nucypher-core ([2329a22](https://github.com/nucypher/nucypher-ts/commit/2329a22834cff5bc74eebfc9027e0e8ced77cb38))
+
 ### [0.8.1](https://github.com/nucypher/nucypher-ts/compare/v0.7.4...v0.8.1) (2022-09-20)
 
 

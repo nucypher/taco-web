@@ -5,7 +5,6 @@ import { Block } from '@ethersproject/providers';
 import {
   Capsule,
   CapsuleFrag,
-  CapsuleWithFrags,
   reencrypt,
   SecretKey,
   VerifiedCapsuleFrag,
@@ -196,15 +195,7 @@ export const reencryptKFrags = (
   if (!kFrags) {
     throw new Error('Pass at least one kFrag.');
   }
-  let capsuleWithFrags: CapsuleWithFrags;
-  const verifiedCFrags = kFrags.map((kFrag) => {
-    const cFrag = reencrypt(capsule, kFrag);
-    capsuleWithFrags = capsuleWithFrags
-      ? capsuleWithFrags.withCFrag(cFrag)
-      : capsule.withCFrag(cFrag);
-    return cFrag;
-  });
-  return { capsuleWithFrags: capsuleWithFrags!, verifiedCFrags };
+  return kFrags.map((kFrag) => reencrypt(capsule, kFrag));
 };
 
 export const mockMakeTreasureMap = () => {

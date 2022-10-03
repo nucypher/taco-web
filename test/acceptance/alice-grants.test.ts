@@ -128,7 +128,7 @@ describe.skip('story: alice shares message with bob through policy', () => {
     );
     expect(bytesEqual(bobVerifyingKey_.toBytes(), bob.verifyingKey.toBytes()));
 
-    const { verifiedCFrags } = reencryptKFrags(
+    const verifiedCFrags = reencryptKFrags(
       verifiedKFrags,
       encryptedMessage.capsule
     );

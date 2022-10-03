@@ -1,6 +1,5 @@
 ---
 slug: Conditions.md
-sidebar_position: 20
 ---
 
 # Conditions

@@ -1,0 +1,6 @@
+---
+slug: cohort
+---
+
+# Cohort
+

@@ -1,6 +1,5 @@
 ---
-slug: SDK
-sidebar_position: 20
+slug: sdk
 ---
 
 # SDK

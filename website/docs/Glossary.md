@@ -1,6 +1,5 @@
 ---
 slug: Glossary.md
-sidebar_position: 90
 ---
 
 #### Re-Encryption Key

@@ -27,13 +27,24 @@ const sidebars = {
   // ],
   tutorialSidebar: {
     "Getting Started": [
-      "Introduction"
+      "Introduction",
+      "DCD",
+      "PRE"
     ],
     "How-to Guides": [
-      "RevocationSmartContract"
+      "ReUsableCohort",
+      "RevocationSmartContract",
+      "Contributing"
     ],
     "Reference": [
-      "SDK"
+      {
+        "SDK": [
+          "Cohort",
+          "Conditions",
+          "Strategy"
+        ]
+      },
+      "Glossary"
     ]
   },
 };

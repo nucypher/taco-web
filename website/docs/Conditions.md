@@ -1,5 +1,5 @@
 ---
-slug: Conditions.md
+slug: conditions
 ---
 
 # Conditions

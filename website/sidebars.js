@@ -29,6 +29,7 @@ const sidebars = {
         "SDK": [
           "Cohort",
           "Conditions",
+          "ConditionSet",
           "Strategy"
         ]
       },

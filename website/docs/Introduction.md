@@ -3,7 +3,7 @@ slug: /
 sidebar_position: 10
 ---
 
-# Getting Started
+# Introduction
 
 `nucypher-ts` is a typescript library to allow developers to interact with core Nucypher functionality within the browser.
 
@@ -29,27 +29,7 @@ You can quickly start using Threshold Decryption in the browser.
 This requires an active connection to the Ethereum network, in this example we will use the [MetaMask Provider](https://docs.metamask.io/guide/ethereum-provider.html).
 
 ```js
-import detectEthereumProvider from '@metamask/detect-provider';
-import generateTDecEntities from '@nucypher/nucypher-ts'
 
-const provider = await detectEthereumProvider();
-const [encrypter, decrypter, _, _] =
-  await generateTDecEntities(
-    3, // threshold
-    5, // shares
-    provider, // eth provider, here we use metamask
-    'example', // label your configuration
-    new Date(), // start date
-    new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // end date (in 30 days)
-    'https://porter-ibex.nucypher.community'
-  );
-
-const plaintext = 'plaintext-message';
-const encryptedMessage = encrypter.encryptMessage(plaintext);
-
-const decryptedMessage = await decrypter.retrieveAndDecrypt([
-      encryptedMessage
-    ]);
 ```
 
 ## Contribution

@@ -4,15 +4,29 @@ slug: conditions
 
 # Conditions
 Several types of access conditions can be defined:
-- EVM - on-chain state, eg NFT ownership, ETH balance, tx status, contract function call
-- RPC - Ethereum RPC calls as defined in the [Official API]
-- Timelock - time-based conditions, eg Block Time, Block Height, UTC Time
 
-## EVM Conditions
-Here is an example EVM condition for ownership of a specific ERC721 token (NFT):
+- EVM - on-chain state, eg NFT ownership, ETH balance, tx status, contract function call
+- RPC - ethereum RPC calls as defined in the [Official API](https://ethereum.org/en/developers/docs/apis/json-rpc/#json-rpc-methods)
+- Timelock - time-based conditions, eg Block Height
+
+We provide many helper objects to streamline the creation of common conditions.
+An expressive API also allows much more granular control of conditions, and we will provide examples of both methods wherever possible.
+
+## `Conditions.ERC721Ownership`
+`Conditions.ERC721Ownership` is a shortcut for building conditions that test for ownership of a specific ERC721 token (NFT):
 
 ```js
-const ERC721Conditions = {
+const NFTOwnership = new Conditions.ERC721Ownership({
+    contractAddress: '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D',
+    parameters: [5954],
+});
+```
+
+If we want to be more verbose we can use `Conditions.Condition`.
+The above and below examples are completely equivalent:
+
+```js
+const NFTOwnershipConfig = {
     contractAddress: "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D",
     standardContractType: "ERC721",
     chain:  "ethereum",
@@ -25,23 +39,19 @@ const ERC721Conditions = {
       value: ":userAddress"
     }
   }
+const NFTOwnership = new Conditions.Condition(NFTOwnershipConfig)
 ```
-
-- `contractAddress` is the public address of the contract we'd like to query.
-- `standardContractType` can take values from `ERC20, ERC721` and `ERC1155`. Alternatively, an ABI can be passed through if a nonstandard contract is being used.
-- `chain` currently only `ethereum` is supported, please [Contact Us](https://discord.gg/RwjHbgA7uQ) if you require non-Ethereum-based conditions.
-- `method` the contract method that will be called.
-`parameters` are the parameters that will be passed to the contract's `method`.
-- `returnValueTest` defines how the return value of the contract call should be evaluated.
-
-In the above example, we query the `ownerOf` method of an `ERC721` token contract which is located at `0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D`.
-We are testing whether the `ownerOf` of token number `5954`` is the current user.
-The symbol `:userAddress` is how we define the current user, who will have to authenticate themselves by signing a message using a tool such as MetaMask.
-
-### Ownership of any token in an ERC721 collection (NFT Collection)
+## `Conditions.ERC721Balance`
+`Conditions.ERC721Balance` is a shortcut for building conditions that test for ownership of at least one ERC721 token (NFT) within a collection.
 
 ```js
-const ERC721Conditions = {
+const NFTBalance = new Conditions.ERC721Balance({
+    contractAddress: '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D',
+});
+```
+Alternatively:
+```js
+const NFTBalanceConfig = {
     contractAddress: "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D",
     standardContractType: "ERC721",
     chain:  "ethereum",
@@ -54,10 +64,89 @@ const ERC721Conditions = {
       value: "0"
     }
   }
+
+const NFTBalance = new Conditions.Condition(NFTBalanceConfig)
 ```
 
-### Own at least one ERC20 Token
-Here we're checking whether the user owns any `T` Threshold Network token
+## `Conditions.TimelockCondition`
+`Conditions.TimelockCondition` is a shortcut for building conditions that test against block height.
+
+```js
+const timelock = Conditions.TimelockCondition({
+  returnValueTest: {
+    comparator: '>',
+    value: '100'
+  }
+});
+```
+
+or:
+
+```js
+const timelockConfig = {
+    contractAddress: "",
+    standardContractType: "",
+    chain:  "ethereum",
+    method: "timelock",
+    returnValueTest: {
+      comparator: ">",
+      value: "100"
+    }
+  }
+const timelock = Conditions.Condition(timelockConfig);
+```
+
+## `Conditions.RpcCondition`
+`Conditions.RpcCondition` is a shortcut for building conditions that test against standard [RPC calls](https://ethereum.org/en/developers/docs/apis/json-rpc/)
+
+```js
+const const rpc = new Conditions.RpcCondition({
+  chain: 'ethereum',
+  method: 'eth_getBalance',
+  parameters: [
+      ":userAddress",
+      "latest"
+    ],
+  returnValueTest: {
+    comparator: ">=",
+    value: "10000000000000"
+  }
+});
+```
+or:
+```js
+const rpcConfig = {
+    contractAddress: "",
+    standardContractType: "",
+    chain:  "ethereum",
+    method: "eth_getBalance",
+    parameters: [
+      ":userAddress",
+      "latest"
+    ],
+    returnValueTest: {
+      comparator: ">=",
+      value: "10000000000000"
+    }
+  }
+const rpc = Conditions.Condition(rpcConfig);
+```
+
+
+## `Conditions.Condition`
+`Conditions.Condition` provides full control over the configuration of a Condition.
+It  takes parameters:
+
+- `contractAddress` is the public address of the contract we'd like to query.
+- `standardContractType` can take values from `ERC20, ERC721` and `ERC1155`. Alternatively, an ABI can be passed through if a non standard contract is being used.
+- `chain` currently only `ethereum` is supported, please [Contact Us](https://discord.gg/RwjHbgA7uQ) if you require non ethereum based conditions.
+- `method` the contract method that will be called.
+- `parameters` the parameters that will be passed to the contract's `method`.
+- `returnValueTest` defines how the return value of the contract call should be evaluated.
+
+
+### Non Zero balance of ERC20 Token
+Here we're checking whether the user owns any `T` Threshold Network token:
 ```js
 const ERC20Conditions = {
     contractAddress: "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5",
@@ -73,7 +162,6 @@ const ERC20Conditions = {
     }
   }
 ```
-
 ### Ownership of at least one ERC1155 token from a batch of ids
 Batching can be applied to ERC721 tokens as well.
 ```js
@@ -141,25 +229,3 @@ const customABICondition = {
     }
   }
 ```
-
-## RPC Conditions
-
-Here we will query the ETH balance of the user's address using the RPC call [`eth_getBalance`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getbalance)
-```js
-const ETHBalance = {
-    contractAddress: "",
-    standardContractType: "",
-    chain:  "ethereum",
-    method: "eth_getBalance",
-    parameters: [
-      ":userAddress",
-      "latest"
-    ],
-    returnValueTest: {
-      comparator: ">=",
-      value: "10000000000000"
-    }
-  }
-```
-
-## Time Conditions

@@ -43,7 +43,7 @@ import { Conditions } from '@nucypher/nucypher-ts'
 
 const NFTOwnership = new Conditions.ERC721Balance({
     contractAddress: '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D',
-    chain: 'rinkeby',
+    chain: 'Rinkeby', // Ibex uses Rinkeby testnet
     parameters: [
       "5954"
     ],

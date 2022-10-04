@@ -5,7 +5,7 @@ slug: cbd
 # Condition Based Decryption
 
 Condition Based Decryption (CBD) is a programmable access control service, in which decryption rights are based on the verified fulfillment of predefined conditions.
-Access conditions can be EVM-based (e.g. does the designated recipient own this NFT), RPC-driven (e.g. did the designated recipient commence active mining before this block) or time-based (e.g. has a preset period of time elapsed, after which the recipient's requests will be ignored).
+Access conditions can be EVM-based (e.g. does the requester own this NFT?), RPC-driven (e.g. has the requester sent more than N transactions?) or time-based (e.g. has a preset period of time elapsed, after which the recipient's requests will be ignored).
 These conditions are also composable and can be combined in any logical sequence or decision tree.  
 
 CBD involves splitting the secret (a decryption key) into multiples _shares_ and distributing those among authorized and collateralized node operators ([Stakers](https://threshold.network/earn/staker) in the Threshold network).

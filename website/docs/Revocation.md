@@ -6,14 +6,14 @@ sidebar_position: 30
 :::caution
 
 Revocation is under active development and is not currently considered stable.
-If you need Revocation immidiately, we suggest using a [Custom Revocation Contract](#custom-revocation-contract).
+If you need Revocation immediately, we suggest using a [Custom Revocation Contract](#custom-revocation-contract).
 
 :::
 
 ## Custom Revocation Contract
 
 It is possible to implement Revocation using [Conditions](Conditions.md) that rely on a function call to a [Custom Smart Contract](Conditions.md#function-call-of-non-standard-contract).
-This allows the handling of revocation to be decentralised and transparent.
+This allows the handling of revocation to be decentralized and transparent.
 Here is an example of the smart contract (not suitable for production):
 
 ```js
@@ -67,6 +67,6 @@ const revocationCondition = {
     }
   }
 ```
-The condition we have defined calls the `isRevoked` function of the smart contract and passes the users address.
+The condition we have defined calls the `isRevoked` function of the smart contract and passes the user's address.
 If the call returns `false` (**not** revoked, ie granted), then decryption will occur.
 If the call returns `true` (**is** revoked), then decryption will fail.

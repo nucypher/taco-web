@@ -5,7 +5,7 @@ slug: cbd
 # Condition Based Decryption
 
 Condition Based Decryption (CBD) is a programmable access control service, in which decryption rights are based on the verified fulfillment of predefined conditions.
-Access conditions can be EVM-based (e.g. does the requester own this NFT?), RPC-driven (e.g. has the requester sent more than N transactions?) or time-based (e.g. has a preset period of time elapsed, after which the recipient's requests will be ignored).
+Access conditions can be EVM-based (e.g. does the requester own this NFT?), RPC-driven (e.g. has the requester sent more than N transactions?) or time-based (e.g. has a preset period elapsed, after which the recipient's requests will be ignored).
 These conditions are also composable and can be combined in any logical sequence or decision tree.  
 
 CBD involves splitting a joint secret (a decryption key) into multiples _shares_ and distributing those among authorized and collateralized node operators ([Stakers](https://threshold.network/earn/staker) in the Threshold network).
@@ -31,12 +31,12 @@ const newCohort = await Cohort.create(config);
 
 We also provide `porterUri`.
 [Porter](./Glossary.md#porter) is a service that helps us interact with nodes.
-In this case we are using an `ibex` porter which means we're on a testnet.
+In this case, we are using an `ibex` porter which means we're on a testnet.
 
 ## Create a Condition
 
 Condition Based Decryption obviously also needs some [Conditions](./conditions).
-In this tutorial we will check that the user owns a specific ERC721 NFT.
+In this tutorial, we will check that the user owns a specific ERC721 NFT.
 
 ```js
 import { Conditions } from '@nucypher/nucypher-ts'
@@ -49,7 +49,7 @@ const NFTOwnership = new Conditions.ERC721Balance({
     ],
 });
 ```
-It is possible to compose multiple Conditions into a [ConditionSet](./condition_set), but for now we will only use one:
+It is possible to compose multiple Conditions into a [ConditionSet](./condition_set), but for now, we will only use one:
 
 ```js
 import { Conditions, ConditionSet } from '@nucypher/nucypher-ts'

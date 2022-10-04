@@ -101,7 +101,14 @@ export class ConditionSet {
 
 export class Condition {
   // TODO: Shared types, move them somewhere?
-  public static readonly COMPARATOR_OPERATORS = ['==', '>', '<', '>=', '<=', '!=']; // TODO: Is "!=" supported?
+  public static readonly COMPARATOR_OPERATORS = [
+    '==',
+    '>',
+    '<',
+    '>=',
+    '<=',
+    '!=',
+  ]; // TODO: Is "!=" supported?
   public static readonly SUPPORTED_CHAINS = [
     'ethereum',
     // 'polygon', 'mumbai'

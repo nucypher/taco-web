@@ -102,5 +102,5 @@ const decryptedMessage = await decrypter.retrieveAndDecrypt(
 );
 ```
 
-At decryption time, the user will be asked to verify their address by signing a message in MetaMask.
+At decryption time, the requester will be asked to verify their address by signing a message in MetaMask.
 Assuming they pass the conditions, the message will be decrypted successfully.

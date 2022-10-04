@@ -65,10 +65,10 @@ We combine our Cohort, Conditions, and any other extra parameters into a [Strate
 import { Strategy } from '@nucypher/nucypher-ts'
 
 const newStrategy = Strategy.create(
-      cohort: newCohort,
-      startDate: new Date(),
-      endDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
-      conditionSet: conditions
+      newCohort,
+      new Date(),
+      new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
+      conditions
 );
 ```
 
@@ -83,9 +83,15 @@ This means both a funded wallet is required and also a connection to the blockch
 
 ```js
 import detectEthereumProvider from '@metamask/detect-provider';
+import providers from 'ethers';
 
-const provider = await detectEthereumProvider();
-const newDeployed = await newStrategy.deploy('test', provider);
+const MMprovider = await detectEthereumProvider();
+const rinkeby = providers.providers.getNetwork('Rinkeby');
+
+if (MMprovider) {
+    const web3Provider = new providers.providers.Web3Provider(MMprovider, rinkeby);
+    const newDeployed = await newStrategy.deploy('test', web3Provider);
+};
 ```
 
 Our encrypter and decrypter objects are available by:

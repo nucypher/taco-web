@@ -77,7 +77,7 @@ Finally, we can deploy this Strategy to the Threshold Network, and begin using C
 :::note
 
 Deploying a Strategy requires writing to the blockchain.
-This means both a funded wallet is required and also a connection to the blockain via a `provider` (eg. MetaMask).
+This means both a funded wallet is required and also a connection to the blockchain via a `provider` (eg. MetaMask).
 
 :::
 

@@ -189,7 +189,7 @@ We need to provide the `contractAddress`, `functionName`, `functionParams`, and 
 
 ```js
 const customABICondition = {
-    contractAddress: "00x01B67b1194C75264d06F808A921228a95C765dd7",
+    contractAddress: "0x01B67b1194C75264d06F808A921228a95C765dd7",
     functionName: "stakes",
     functionParams: [":userAddress"],
     functionAbi: {

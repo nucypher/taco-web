@@ -30,7 +30,7 @@ const newCohort = await Cohort.create(config);
 ```
 
 We also provide `porterUri`.
-[Porter](./Glossary.md#porter) is a service that helps us interact with nodes.
+[Porter](./Glossary.md#porter) is a web-based service that interacts with nodes on the network on behalf of applications.
 In this case, we are using an `ibex` porter which means we're on a testnet.
 
 ## Create a Condition

@@ -100,21 +100,29 @@ export class ConditionSet {
 }
 
 export class Condition {
-  // TODO: Shared types, move them somewhere?
-  public static readonly COMPARATOR_OPERATORS = ['==', '>', '<', '>=', '<=']; // TODO: Is "!=" supported?
+  public static readonly COMPARATOR_OPERATORS = [
+    '==',
+    '>',
+    '<',
+    '>=',
+    '<=',
+    '!=',
+  ];
   public static readonly SUPPORTED_CHAINS = [
-    'ethereum',
-    // 'polygon', 'mumbai'
+    // 'Rinkeby',
+    'Rinkeby',
+    // 'Polygon',
+    // 'Mumbai'
   ];
 
-  readonly schema = Joi.object({});
+  public readonly schema = Joi.object();
   public readonly defaults = {};
-  public state = {};
-  public error: ValidationError | undefined;
-  public value: Record<string, unknown> = {};
+  private validationError?: ValidationError;
 
-  constructor(data: Record<string, unknown> = {}) {
-    this.validate(data);
+  constructor(private readonly value: Record<string, unknown> = {}) {}
+
+  public get error(): string | undefined {
+    return this.validationError?.message;
   }
 
   protected makeReturnValueTest() {
@@ -127,23 +135,20 @@ export class Condition {
   }
 
   public toObj(): Record<string, unknown> {
-    return this.validate().value;
+    const { error, value } = this.validate();
+    if (error) {
+      throw Error(error.message);
+    }
+    return value;
   }
 
-  public static fromObj(obj: Record<string, string>) {
-    return new EvmCondition(obj);
+  public static fromObj(obj: Record<string, unknown>) {
+    return new Condition(obj);
   }
 
   public validate(data: Record<string, unknown> = {}) {
-    this.state = Object.assign(this.defaults, this.state, data);
-    const { error, value } = this.schema.validate(this.state);
-    // TODO: Always throws on error
-    // if (error) {
-    //   throw new Error(error.message);
-    // }
-    this.error = error;
-    this.value = value;
-    return { error, value };
+    const newValue = Object.assign(this.defaults, this.value, data);
+    return this.schema.validate(newValue);
   }
 
   public getContextParameters(): string[] {
@@ -151,7 +156,7 @@ export class Condition {
     const asObject = this.toObj();
     let paramsToCheck: string[] = [];
 
-    // They may hiding in the method parameters
+    // They may be hiding in the method parameters
     const method = asObject['method'] as string;
     if (method) {
       const contextParams = RpcCondition.CONTEXT_PARAMETERS_PER_METHOD[method];
@@ -167,7 +172,7 @@ export class Condition {
       paramsToCheck.push(returnValueTest['value']);
     }
 
-    // Merge & deduplicate
+    // Merge & deduplicate found context parameters
     paramsToCheck = [
       ...paramsToCheck,
       ...((asObject['parameters'] as string[]) ?? []),
@@ -204,6 +209,7 @@ class TimelockCondition extends Condition {
 
   public readonly schema = Joi.object({
     returnValueTest: this.makeReturnValueTest(),
+    method: 'timelock',
   });
 }
 
@@ -234,8 +240,6 @@ class RpcCondition extends Condition {
   });
 
   public getContextParameters = (): string[] => {
-    // TODO: Context parameters are actually in returnTest?
-    // TODO: Sketch an API in tests before doing ant serious work
     const asObject = this.toObj();
 
     const method = asObject['method'] as string;
@@ -293,7 +297,8 @@ class EvmCondition extends Condition {
     standardContractType: Joi.string()
       .valid(...EvmCondition.STANDARD_CONTRACT_TYPES)
       .required(),
-    functionAbi: Joi.string().optional(), // TODO: Should it be required? When? Where do I get it?
+    // TODO: Support custom function ABIs
+    // functionAbi: Joi.string().optional(),
     method: this.makeMethod().required(),
     parameters: Joi.array().required(),
     returnValueTest: this.makeReturnValueTest(),
@@ -302,7 +307,7 @@ class EvmCondition extends Condition {
 
 class ERC721Ownership extends EvmCondition {
   readonly defaults = {
-    chain: 'ethereum',
+    chain: 'Rinkeby',
     method: 'ownerOf',
     parameters: [],
     standardContractType: 'ERC721',
@@ -310,13 +315,12 @@ class ERC721Ownership extends EvmCondition {
       comparator: '==',
       value: ':userAddress',
     },
-    // functionAbi: '', // TODO: Add ERC721 ABI
   };
 }
 
 class ERC721Balance extends EvmCondition {
   readonly defaults = {
-    chain: 'ethereum',
+    chain: 'Rinkeby',
     method: 'balanceOf',
     parameters: [':userAddress'],
     standardContractType: 'ERC721',
@@ -324,7 +328,6 @@ class ERC721Balance extends EvmCondition {
       comparator: '>',
       value: '0',
     },
-    // functionAbi: '', // TODO: Add ERC721 ABI
   };
 }
 
@@ -397,7 +400,7 @@ export class ConditionContext {
     // Ensure freshness of the signature
     const { blockNumber, blockHash, chainId } = await this.getChainData();
     const address = await this.web3Provider.signer.getAddress();
-    const signatureText = `I'm the owner of address ${address} as of block number ${blockNumber}`; // TODO: Update this text to a more dramatic one
+    const signatureText = `I'm the owner of address ${address} as of block number ${blockNumber}`;
     const salt = ethersUtils.hexlify(ethersUtils.randomBytes(32));
 
     const typedData: Eip712TypedData = {

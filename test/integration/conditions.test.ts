@@ -1,7 +1,11 @@
 import { SecretKey } from '@nucypher/nucypher-core';
 
-import { ConditionContext, Conditions, ConditionSet } from '../../src';
-import { Operator } from '../../src/policies/conditions';
+import {
+  ConditionContext,
+  Conditions,
+  ConditionSet,
+  Operator,
+} from '../../src';
 import { Web3Provider } from '../../src/web3';
 import { mockWeb3Provider } from '../utils';
 
@@ -28,10 +32,10 @@ describe('conditions schema', () => {
     );
   });
 
-  result = condition.validate({ chain: 'ethereum' });
+  result = condition.validate({ chain: 'Rinkeby' });
   it('should update the value of "chain"', async () => {
     expect(result.error).toEqual(undefined);
-    expect(result.value.chain).toEqual('ethereum');
+    expect(result.value.chain).toEqual('Rinkeby');
   });
 });
 
@@ -52,14 +56,14 @@ describe('condition set', () => {
 
 describe('conditions set to/from json', () => {
   const json =
-    '[{"chain":"ethereum","method":"ownerOf","parameters":["3591"],"standardContractType":"ERC721","returnValueTest":{"comparator":"==","value":":userAddress"},"contractAddress":"0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77"}]';
-  const conditionset = ConditionSet.fromJSON(json);
+    '[{"chain":"Rinkeby","method":"ownerOf","parameters":["3591"],"standardContractType":"ERC721","returnValueTest":{"comparator":"==","value":":userAddress"},"contractAddress":"0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77"}]';
+  const conditionSet = ConditionSet.fromJSON(json);
 
   it('should be a ConditionSet', async () => {
-    expect(conditionset.conditions[0].toObj().contractAddress).toEqual(
+    expect(conditionSet.conditions[0].toObj().contractAddress).toEqual(
       '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'
     );
-    expect(conditionset.toJson()).toEqual(json);
+    expect(conditionSet.toJson()).toEqual(json);
   });
 });
 
@@ -83,7 +87,7 @@ describe('conditions types', () => {
 
   it('rpc', async () => {
     const rpcCondition = {
-      chain: 'ethereum',
+      chain: 'Rinkeby',
       method: 'eth_getBalance',
       parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
       returnValueTest,
@@ -95,15 +99,31 @@ describe('conditions types', () => {
   it('evm', async () => {
     const evmCondition = {
       contractAddress: '0x0000000000000000000000000000000000000000',
-      chain: 'ethereum',
+      chain: 'Rinkeby',
       standardContractType: 'ERC20',
-      functionAbi: 'missing',
       method: 'balanceOf',
       parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
       returnValueTest,
     };
     const evm = new Conditions.EvmCondition(evmCondition);
     expect(evm.toObj()).toEqual(evmCondition);
+  });
+
+  it('malformed evm', async () => {
+    const badEvmCondition = {
+      // Intentionally removing `contractAddress`
+      // contractAddress: '0x0000000000000000000000000000000000000000',
+      chain: 'Rinkeby',
+      standardContractType: 'ERC20',
+      method: 'balanceOf',
+      parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
+      returnValueTest,
+    };
+    const badCondition = new Conditions.EvmCondition(badEvmCondition);
+    expect(() => badCondition.toObj()).toThrow('"contractAddress" is required');
+
+    const { error } = badCondition.validate(badEvmCondition);
+    expect(error?.message).toEqual('"contractAddress" is required');
   });
 });
 
@@ -119,7 +139,7 @@ describe('produce context parameters from conditions', () => {
       contextParams.forEach((contextParam) => {
         it(`produces context parameter ${contextParam} for method ${method}`, () => {
           const rpcCondition = new Conditions.RpcCondition({
-            chain: 'ethereum',
+            chain: 'Rinkeby',
             method,
             parameters: [contextParam],
             returnValueTest: {
@@ -151,9 +171,8 @@ describe('produce context parameters from conditions', () => {
           it(`produces context parameter ${contextParam} for method ${method}`, () => {
             const evmCondition = new Conditions.EvmCondition({
               contractAddress: '0x0000000000000000000000000000000000000000',
-              chain: 'ethereum',
+              chain: 'Rinkeby',
               standardContractType: 'ERC20',
-              functionAbi: 'missing',
               method: 'balanceOf',
               parameters: [contextParam],
               returnValueTest: {
@@ -176,7 +195,7 @@ describe('condition context', () => {
     const web3Provider = Web3Provider.fromEthersWeb3Provider(provider);
 
     const rpcCondition = new Conditions.RpcCondition({
-      chain: 'ethereum',
+      chain: 'Rinkeby',
       method: 'eth_getBalance',
       parameters: [':userAddress'],
       returnValueTest: {

@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Enrico } from '../../src';
-import { PolicyMessageKit } from '../../src/kits/message';
+import { Conditions, ConditionSet, Enrico, PolicyMessageKit } from '../../src';
 import { RetrievalResult } from '../../src/kits/retrieval';
-import { Conditions, ConditionSet } from '../../src/policies/conditions';
 import { toBytes } from '../../src/utils';
 import {
   bytesEqual,
@@ -92,7 +90,7 @@ describe('enrico', () => {
 
     const policyKey = alice.getPolicyEncryptingKeyFromLabel(label);
 
-    const ownsBufficornNFT = new Conditions.ERC721Ownership({
+    const ownsBufficornNFT = Conditions.ERC721Ownership.fromObj({
       contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
       parameters: [3591],
     });

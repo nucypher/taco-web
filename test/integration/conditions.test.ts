@@ -10,7 +10,7 @@ import { Web3Provider } from '../../src/web3';
 import { mockWeb3Provider } from '../utils';
 
 describe('operator', () => {
-  it('should validate Operator operator validation', async () => {
+  it('should validate Operator', async () => {
     const op = new Operator('or');
     expect(op.operator).toEqual('or');
     expect(() => {

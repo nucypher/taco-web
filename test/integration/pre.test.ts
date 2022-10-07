@@ -91,8 +91,11 @@ describe('proxy reencryption', () => {
     const gnomePals = new Conditions.ERC721Ownership({
       contractAddress: '0x5dB11d7356aa4C0E85Aa5b255eC2B5F81De6d4dA',
     });
-    const or = new Operator('or');
-    const conditions = new ConditionSet([genuineUndead, or, gnomePals]);
+    const conditions = new ConditionSet([
+      genuineUndead,
+      Operator.OR(),
+      gnomePals,
+    ]);
 
     const enrico = new Enrico(policyEncryptingKey, undefined, conditions);
     const encryptedMessage = enrico.encryptMessage(plaintext);

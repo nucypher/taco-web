@@ -6,7 +6,7 @@ import { Eip712TypedData, FormattedTypedData, Web3Provider } from '../web3';
 export class Operator {
   static readonly LOGICAL_OPERATORS: ReadonlyArray<string> = ['and', 'or'];
 
-  private constructor(public readonly operator: string) {
+  public constructor(public readonly operator: string) {
     if (!Operator.LOGICAL_OPERATORS.includes(operator)) {
       throw `"${operator}" is not a valid operator`;
     }

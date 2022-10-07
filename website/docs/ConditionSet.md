@@ -15,8 +15,11 @@ const genuineUndead = new Conditions.ERC721Balance({
 const gnomePals = new Conditions.ERC721Balance({
   contractAddress: '0x5dB11d7356aa4C0E85Aa5b255eC2B5F81De6d4dA',
 });
-const or = new Operator.OR();
-const NFTConditionSet = new ConditionSet([genuineUndead, or, gnomePals]);
+const NFTConditionSet = new ConditionSet([
+  genuineUndead,
+  Operator.OR(),
+  gnomePals,
+]);
 ```
 
 If we wanted to store this Condition Set for later use we could export it to JSON:

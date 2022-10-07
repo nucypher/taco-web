@@ -15,10 +15,10 @@ sidebar_position: 10
 
 If you have any questions, don't hesitate to create an issue on [Github](https://github.com/nucypher/nucypher-ts), or come and say hello on our [Discord](https://discord.gg/threshold)](https://discord.gg/threshold).
 
-
 ## Installation
 
 Install into your project with:
+
 ```
 yarn install @nucypher/nucypher-ts
 ```

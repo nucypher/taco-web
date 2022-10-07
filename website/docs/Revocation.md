@@ -37,36 +37,37 @@ And the associated Condition:
 
 ```js
 const revocationCondition = {
-    contractAddress: "DEPLOYED_CONTRACT_ADDRESS",
-    functionName: "isRevoked",
-    functionParams: [":userAddress"],
-    functionAbi: {
-        inputs: [
-        {
-            internalType: "address",
-            name: "",
-            type: "address"
-        }
-        ],
-        name: "isRevoked",
-        outputs: [
-        {
-            internalType: "bool",
-            name: "",
-            type: "bool"
-        }
-        ],
-        stateMutability: "view",
-        type: "function"
-    },
-    chain:  "ethereum",
-    returnValueTest: {
-      key: "",
-      comparator: "==",
-      value: false
-    }
-  }
+  contractAddress: 'DEPLOYED_CONTRACT_ADDRESS',
+  functionName: 'isRevoked',
+  functionParams: [':userAddress'],
+  functionAbi: {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    name: 'isRevoked',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  chain: 'ethereum',
+  returnValueTest: {
+    key: '',
+    comparator: '==',
+    value: false,
+  },
+};
 ```
+
 The condition we have defined calls the `isRevoked` function of the smart contract and passes the user's address.
 If the call returns `false` (**not** revoked, ie granted), then decryption will occur.
 If the call returns `true` (**is** revoked), then decryption will fail.

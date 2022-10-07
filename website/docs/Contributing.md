@@ -42,6 +42,7 @@ To launch a local development version of the documentation:
 cd website
 yarn run start
 ```
+
 This will launch a local server, available at `http://localhost:3000`.
 
 To release a new version of the documentation:

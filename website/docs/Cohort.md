@@ -6,16 +6,16 @@ slug: cohort
 
 ## `Cohort.create`
 
-When creating a new cohort, the configuration __must__ include `threshold`, `shares`, and `porterUri`.
+When creating a new cohort, the configuration **must** include `threshold`, `shares`, and `porterUri`.
 We also make available the parameters `include` and `exclude` which can be used to filter particular Nodes.
 
 ```js
 const config = {
-    threshold: 3,
-    shares: 5,
-    porterUri: 'https://porter-ibex.nucypher.community',
+  threshold: 3,
+  shares: 5,
+  porterUri: 'https://porter-ibex.nucypher.community',
 };
-const newCohort = await Cohort.create(config, include=[], exclude=[]);
+const newCohort = await Cohort.create(config, (include = []), (exclude = []));
 ```
 
 ## `Cohort.toJSON`

@@ -25,7 +25,7 @@ yarn install @nucypher/nucypher-ts
 
 ## Basic Usage
 
-You can quickly start using Threshold Decryption in the browser.
+You can quickly start using Threshold Access Control in the browser.
 This requires an active connection to the Ethereum network, in this example, we will use the [MetaMask Provider](https://docs.metamask.io/guide/ethereum-provider.html).
 
 ```js

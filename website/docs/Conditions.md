@@ -139,9 +139,10 @@ It  takes parameters:
 
 - `contractAddress` is the public address of the contract we'd like to query.
 - `standardContractType` can take values from `ERC20, ERC721` and `ERC1155`. Alternatively, an ABI can be passed through if a non standard contract is being used.
-- `chain` currently only `ethereum` is supported, please [Contact Us](https://discord.gg/RwjHbgA7uQ) if you require non ethereum based conditions.
+- `functionAbi` is the ABI of the function we'd like to call. This is optional if the contract is a standard `ERC20`, `ERC721` or `ERC1155`.
+- `chain` - currently only `ethereum` is supported, please [Contact Us](https://discord.gg/RwjHbgA7uQ) if you require non-Ethereum based conditions.
 - `method` the contract method that will be called.
-- `parameters` the parameters that will be passed to the contract's `method`.
+- `parameters` are the parameters that will be passed to the contract's `method`.
 - `returnValueTest` defines how the return value of the contract call should be evaluated.
 
 

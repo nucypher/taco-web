@@ -2,10 +2,10 @@
 slug: cbd
 ---
 
-# Condition Based Decryption
+# Condition-Based Decryption
 
-Condition Based Decryption (CBD) is a programmable access control service, in which decryption rights are based on the verified fulfillment of predefined conditions.
-Access conditions can be EVM-based (e.g. does the requester own this NFT?), RPC-driven (e.g. does the requester  have at least X amount of a given token in their wallet?) or time-based (e.g. has a preset period elapsed, after which the recipient's requests will be ignored?).
+Condition-Based Decryption (CBD) is a programmable access control service, in which decryption rights are based on the verified fulfillment of predefined conditions.
+Access conditions can be EVM-based (e.g. does the requester own this NFT?), RPC-driven (e.g. does the requester have at least X amount of a given token in their wallet?) or time-based (e.g. has a preset period elapsed, after which the recipient's requests will be ignored?).
 These conditions are also composable and can be combined in any logical sequence or decision tree.  
 
 CBD involves splitting a joint secret (a decryption key) into multiples _shares_ and distributing those among authorized and collateralized node operators ([Stakers](https://threshold.network/earn/staker) in the Threshold network).
@@ -35,13 +35,13 @@ In this case, we are using an `ibex` porter which means we're on a testnet.
 
 ## Create a Condition
 
-Condition Based Decryption obviously also needs some [Conditions](./conditions).
+Condition-Based Decryption also needs some [Conditions](./conditions).
 In this tutorial, we will check that the user owns a specific ERC721 NFT.
 
 ```js
 import { Conditions } from '@nucypher/nucypher-ts'
 
-const NFTOwnership = new Conditions.ERC721Balance({
+const NFTOwnership = new Conditions.ERC721Ownership({
     contractAddress: '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D',
     chain: 'Rinkeby', // Ibex uses Rinkeby testnet
     parameters: [
@@ -72,7 +72,7 @@ const newStrategy = Strategy.create(
 );
 ```
 
-Finally, we can deploy this Strategy to the Threshold Network, and begin using Condition Based Decryption:
+Finally, we can deploy this Strategy to the Threshold Network, and begin using Condition-Based Decryption:
 
 :::note
 

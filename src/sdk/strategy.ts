@@ -7,7 +7,13 @@ import { Enrico } from '../characters/enrico';
 import { tDecDecrypter } from '../characters/universal-bob';
 import { ConditionSet } from '../policies/conditions';
 import { EnactedPolicy } from '../policies/policy';
-import { fromBase64, toBase64 } from '../utils';
+import {
+  base64ToU8Receiver,
+  fromBase64,
+  toBase64,
+  u8ToBase64Replacer,
+} from '../utils';
+import { Web3Provider } from '../web3';
 
 import { Cohort, CohortJSON } from './cohort';
 
@@ -53,7 +59,6 @@ export class Strategy {
     if (!aliceSecretKey) {
       aliceSecretKey = SecretKey.random();
     }
-
     if (!bobSecretKey) {
       bobSecretKey = SecretKey.random();
     }
@@ -87,11 +92,7 @@ export class Strategy {
       startDate: this.startDate,
       endDate: this.endDate,
     };
-    const policy = await alice.grant(
-      policyParams,
-      this.cohort.ursulaAddresses
-      // excludeUrsulas
-    );
+    const policy = await alice.grant(policyParams, this.cohort.ursulaAddresses);
     const encrypter = new Enrico(
       policy.policyKey,
       alice.verifyingKey,
@@ -187,7 +188,7 @@ export class DeployedStrategy {
     public conditionSet?: ConditionSet
   ) {}
 
-  public static revoke(): RevokedStrategy {
+  public revoke(provider: ethers.providers.Web3Provider): RevokedStrategy {
     throw new Error('Method not implemented.');
   }
 
@@ -195,29 +196,11 @@ export class DeployedStrategy {
     provider: ethers.providers.Web3Provider,
     json: string
   ) {
-    const base64ToU8Receiver = (
-      key: string,
-      value: string | number | Uint8Array
-    ) => {
-      if (typeof value === 'string' && value.startsWith('base64:')) {
-        return fromBase64(value.split('base64:')[1]);
-      }
-      return value;
-    };
     const config = JSON.parse(json, base64ToU8Receiver);
     return DeployedStrategy.fromObj(provider, config);
   }
 
   public toJSON() {
-    const u8ToBase64Replacer = (
-      key: string,
-      value: string | number | Uint8Array
-    ) => {
-      if (value instanceof Uint8Array) {
-        return `base64:${toBase64(value)}`;
-      }
-      return value;
-    };
     return JSON.stringify(this.toObj(), u8ToBase64Replacer);
   }
 

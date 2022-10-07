@@ -4,7 +4,7 @@ slug: condition_set
 
 # Condition Set
 
-[Conditions](./conditions) can be combined into Condition Sets use `AND` and `OR` operators.
+[Conditions](./conditions) can be combined into Condition Sets using `AND` and `OR` operators.
 
 The below example shows how to authenticate that a requester owns an NFT in one of two different collections.
 
@@ -15,7 +15,7 @@ const genuineUndead = new Conditions.ERC721Balance({
 const gnomePals = new Conditions.ERC721Balance({
     contractAddress: '0x5dB11d7356aa4C0E85Aa5b255eC2B5F81De6d4dA',
 });
-const or = new Operator('or');
+const or = new Operator.OR;
 const NFTConditionSet = new ConditionSet([genuineUndead, or, gnomePals]);
 ```
 

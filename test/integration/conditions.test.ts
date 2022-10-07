@@ -46,7 +46,11 @@ describe('condition set', () => {
   const gnomePals = new Conditions.ERC721Balance({
     contractAddress: '0x5dB11d7356aa4C0E85Aa5b255eC2B5F81De6d4dA',
   });
-  const conditions = new ConditionSet([genuineUndead, Conditions.OR, gnomePals]);
+  const conditions = new ConditionSet([
+    genuineUndead,
+    Conditions.OR,
+    gnomePals,
+  ]);
 
   it('should validate', async () => {
     expect(conditions.validate()).toEqual(true);

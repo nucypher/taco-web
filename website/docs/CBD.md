@@ -43,9 +43,11 @@ In this tutorial, we will check that the user owns a specific ERC721 NFT.
 import { Conditions } from '@nucypher/nucypher-ts';
 
 const NFTOwnership = new Conditions.ERC721Ownership({
-  contractAddress: '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D',
-  chain: 'Rinkeby', // Ibex uses Rinkeby testnet
-  parameters: ['5954'],
+    contractAddress: '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D',
+    chain: 'Rinkeby', // Ibex uses Rinkeby testnet
+    parameters: [
+      "5954"
+    ],
 });
 ```
 

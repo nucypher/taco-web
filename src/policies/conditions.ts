@@ -481,6 +481,9 @@ export class ConditionContext {
   };
 }
 
+const OR = new Operator('or');
+const AND = new Operator('and');
+
 export const Conditions = {
   ERC721Ownership,
   ERC721Balance,
@@ -488,5 +491,6 @@ export const Conditions = {
   TimelockCondition,
   RpcCondition,
   Condition,
-  Operator,
+  OR,
+  AND,
 };

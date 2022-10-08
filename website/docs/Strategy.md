@@ -33,7 +33,7 @@ const newCohort = await Cohort.create(config);
 const newStrategy = Strategy.create(
   newCohort,
   new Date(),
-  new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
+  new Date(Date.now() + 1000 * 60 * 60 * 24 * 30) // 30 days
 );
 ```
 
@@ -87,9 +87,9 @@ The syntax is the same whether the strategy has been deployed or not.
 import { DeployedStrategy } from '@nucypher/nucypher-ts';
 
 const configJSON = newDeployed.toJSON();
-console.log(configJSON)
+console.log(configJSON);
 /*
 LARGE JSON OBJECT
 */
-const importedStrategy = DeployedStrategy.fromJSON(configJSON)
+const importedStrategy = DeployedStrategy.fromJSON(configJSON);
 ```

@@ -22,8 +22,8 @@ export class Cohort {
 
   public static async create(
     configuration: CohortConfiguration,
-    include = [],
-    exclude = []
+    include: string[] = [],
+    exclude: string[] = []
   ) {
     const porter = new Porter(configuration.porterUri);
     const ursulas = await porter.getUrsulas(

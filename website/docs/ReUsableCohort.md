@@ -5,7 +5,7 @@ slug: reusable_cohort
 # Create Security Optionality With Re-usable Cohorts
 
 Providing configurable security to your users is easy with re-usable [Cohorts](./cohort).
-Below we define 3 Cohort; small, medium, and large.
+Below we define 3 cohorts; small, medium, and large.
 `smallCohort`, `mediumCohort`, and `largeCohort` can then be re-used by multiple [Strategies](./strategy).
 
 ```js

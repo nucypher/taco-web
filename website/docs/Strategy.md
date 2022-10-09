@@ -61,7 +61,7 @@ if (MMprovider) {
 `Strategy.deploy` takes 2 parameters:
 
 - `label` - this is a string that the network uses to identify the strategy
-- `provider` - deploying a Strategy requires writing to a smart contract, so a connection to a wallet is required via a Web3 provider
+- `provider` - deploying a Strategy requires writing to the smart contract, so a connection to a wallet is required via a Web3 provider
 
 Deploying a strategy returns a new `DeployedStrategy` object.
 This object grants us access to the `encrypter` and `decrypter` which can then be used throughout an application.

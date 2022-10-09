@@ -14,7 +14,7 @@ If you need Revocation immediately, we suggest using a [Custom Revocation Contra
 
 It is possible to implement Revocation using [Conditions](Conditions.md) that rely on a function call to a [Custom Smart Contract](Conditions.md#function-call-of-non-standard-contract).
 This allows the handling of revocation to be decentralized and transparent.
-Here is an example of the smart contract (not suitable for production):
+Here is an example of a smart contract (not suitable for production):
 
 ```js
 pragma solidity 0.8.7;

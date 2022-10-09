@@ -5,7 +5,7 @@ sidebar_position: 10
 
 # Introduction
 
-`nucypher-ts` is a typescript library to allow developers to interact with core Nucypher functionality within the browser.
+`nucypher-ts` is a TypeScript library to allow developers to interact with core NuCypher functionality within the browser.
 
 :::caution
 
@@ -20,7 +20,7 @@ If you have any questions, don't hesitate to create an issue on [Github](https:/
 Install into your project with:
 
 ```
-yarn install @nucypher/nucypher-ts
+yarn add @nucypher/nucypher-ts
 ```
 
 ## Basic Usage

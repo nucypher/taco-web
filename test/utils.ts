@@ -171,12 +171,6 @@ export const mockRetrieveCFragsRequest = (
     });
 };
 
-export const mockRetrieveCFragsRequestThrows = () => {
-  return jest
-    .spyOn(Porter.prototype, 'retrieveCFrags')
-    .mockRejectedValue(new Error('fake-reencryption-request-failed-error'));
-};
-
 export const mockGenerateKFrags = () => {
   return jest.spyOn(Alice.prototype as any, 'generateKFrags');
 };
@@ -188,10 +182,7 @@ export const mockEncryptTreasureMap = () => {
 export const reencryptKFrags = (
   kFrags: readonly VerifiedKeyFrag[],
   capsule: Capsule
-): {
-  readonly capsuleWithFrags: CapsuleWithFrags;
-  readonly verifiedCFrags: readonly VerifiedCapsuleFrag[];
-} => {
+): VerifiedCapsuleFrag[] => {
   if (!kFrags) {
     throw new Error('Pass at least one kFrag.');
   }

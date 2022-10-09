@@ -54,13 +54,14 @@ describe('enrico', () => {
     expect(delegatingKey.toBytes()).toEqual(policyEncryptingKey.toBytes());
 
     // Bob can decrypt re-encrypted ciphertext
-    const verifiedCFrags  = reencryptKFrags(
-      verifiedKFrags,
-      encrypted.capsule
-    );
+    const verifiedCFrags = reencryptKFrags(verifiedKFrags, encrypted.capsule);
     const bobSk = (bob as any).keyring.secretKey;
 
-    const plaintextBob = encrypted.decryptReencrypted(bobSk, policyEncryptingKey, verifiedCFrags);
+    const plaintextBob = encrypted.decryptReencrypted(
+      bobSk,
+      policyEncryptingKey,
+      verifiedCFrags
+    );
     expect(fromBytes(plaintextBob).endsWith(plaintext)).toBeTruthy();
 
     // Bob can decrypt ciphertext and verify origin of the message

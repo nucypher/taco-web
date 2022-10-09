@@ -30,7 +30,7 @@ describe('proxy reencryption', () => {
       shares
     );
 
-    const  verifiedCFrags  = reencryptKFrags(verifiedKFrags, capsule);
+    const verifiedCFrags = reencryptKFrags(verifiedKFrags, capsule);
     const cFrags = verifiedCFrags.map((verifiedCFrag) =>
       CapsuleFrag.fromBytes(verifiedCFrag.toBytes())
     );

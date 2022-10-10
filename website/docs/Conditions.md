@@ -189,39 +189,29 @@ const ERC1155Conditions = {
 
 ### Function call of nonstandard Contract
 
-In this example, we will check that the user is staking `T` Threshold Token.
+In this example, we will check that the user is able to vote in the `T` Threshold DAO.
 The Threshold staking contract is located at [`0x01B67b1194C75264d06F808A921228a95C765dd7`](https://etherscan.io/address/0x01b67b1194c75264d06f808a921228a95c765dd7#readProxyContract).
-The function we wish to call is `stakes` which takes an `address` as its parameter.
+The function we wish to call is `getVotes` which takes an `address` as its parameter.
 We need to provide the `contractAddress`, `functionName`, `functionParams`, and `functionAbi` when defining the condition.
 
 ```js
 const customABICondition = {
   contractAddress: '0x01B67b1194C75264d06F808A921228a95C765dd7',
-  functionName: 'stakes',
+  functionName: 'getVotes',
   functionParams: [':userAddress'],
   functionAbi: {
     inputs: [
       {
         internalType: 'address',
-        name: 'stakingProvider',
+        name: 'account',
         type: 'address',
       },
     ],
-    name: 'stakes',
+    name: 'getVotes',
     outputs: [
       {
         internalType: 'uint96',
-        name: 'tStake',
-        type: 'uint96',
-      },
-      {
-        internalType: 'uint96',
-        name: 'keepInTStake',
-        type: 'uint96',
-      },
-      {
-        internalType: 'uint96',
-        name: 'nuInTStake',
+        name: '',
         type: 'uint96',
       },
     ],
@@ -230,7 +220,6 @@ const customABICondition = {
   },
   chain: 'ethereum',
   returnValueTest: {
-    key: 'tStake',
     comparator: '>',
     value: '0',
   },

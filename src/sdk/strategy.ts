@@ -50,12 +50,8 @@ export class Strategy {
     endDate: Date,
     conditionSet?: ConditionSet,
     aliceSecretKey?: SecretKey,
-    bobSecretKey?: SecretKey,
-    dkgAlice?: boolean
+    bobSecretKey?: SecretKey
   ) {
-    if (dkgAlice == true) {
-      throw new TypeError('DKG Alice is not yet implemented');
-    }
     if (!aliceSecretKey) {
       aliceSecretKey = SecretKey.random();
     }

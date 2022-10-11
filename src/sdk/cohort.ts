@@ -29,7 +29,7 @@ export class Cohort {
     const ursulas = await porter.getUrsulas(
       configuration.shares,
       exclude,
-      include
+      include.splice(0, configuration.shares)
     );
     const ursulaAddresses = ursulas.map((ursula) => ursula.checksumAddress);
     return new Cohort(ursulaAddresses, configuration);

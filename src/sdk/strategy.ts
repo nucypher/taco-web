@@ -19,8 +19,6 @@ import { Cohort, CohortJSON } from './cohort';
 
 type StrategyJSON = {
   cohort: CohortJSON;
-  startDate: Date;
-  endDate: Date;
   aliceSecretKeyBytes: Uint8Array;
   bobSecretKeyBytes: Uint8Array;
   conditionSet?: ConditionSet;
@@ -37,8 +35,6 @@ type DeployedStrategyJSON = {
 export class Strategy {
   private constructor(
     public readonly cohort: Cohort,
-    public readonly startDate: Date,
-    public readonly endDate: Date,
     private readonly aliceSecretKey: SecretKey,
     private readonly bobSecretKey: SecretKey,
     private readonly conditionSet?: ConditionSet
@@ -46,8 +42,6 @@ export class Strategy {
 
   public static create(
     cohort: Cohort,
-    startDate: Date,
-    endDate: Date,
     conditionSet?: ConditionSet,
     aliceSecretKey?: SecretKey,
     bobSecretKey?: SecretKey
@@ -58,14 +52,7 @@ export class Strategy {
     if (!bobSecretKey) {
       bobSecretKey = SecretKey.random();
     }
-    return new Strategy(
-      cohort,
-      startDate,
-      endDate,
-      aliceSecretKey,
-      bobSecretKey,
-      conditionSet
-    );
+    return new Strategy(cohort, aliceSecretKey, bobSecretKey, conditionSet);
   }
 
   public async deploy(
@@ -85,8 +72,8 @@ export class Strategy {
       label,
       threshold: this.cohort.configuration.threshold,
       shares: this.cohort.configuration.shares,
-      startDate: this.startDate,
-      endDate: this.endDate,
+      startDate: new Date(Date.now()),
+      endDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
     };
     const policy = await alice.grant(policyParams, this.cohort.ursulaAddresses);
     const encrypter = new Enrico(
@@ -144,16 +131,12 @@ export class Strategy {
 
   private static fromObj({
     cohort,
-    startDate,
-    endDate,
     aliceSecretKeyBytes,
     bobSecretKeyBytes,
     conditionSet,
   }: StrategyJSON) {
     return new Strategy(
       Cohort.fromObj(cohort),
-      startDate,
-      endDate,
       SecretKey.fromBytes(aliceSecretKeyBytes),
       SecretKey.fromBytes(bobSecretKeyBytes),
       conditionSet
@@ -163,8 +146,6 @@ export class Strategy {
   public toObj(): StrategyJSON {
     return {
       cohort: this.cohort.toObj(),
-      startDate: this.startDate,
-      endDate: this.endDate,
       aliceSecretKeyBytes: this.aliceSecretKey.toSecretBytes(),
       bobSecretKeyBytes: this.bobSecretKey.toSecretBytes(),
       conditionSet: this.conditionSet,

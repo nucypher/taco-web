@@ -35,9 +35,8 @@ describe('Strategy', () => {
   };
   const aliceSecretKey = SecretKey.fromBytes(aliceSecretKeyBytes);
   const bobSecretKey = SecretKey.fromBytes(bobSecretKeyBytes);
-  const startDate = new Date(900000000000);
-  const endDate = new Date(900000100000);
   const aliceProvider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
+  Date.now = jest.fn(() => 1487076708000);
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -48,13 +47,7 @@ describe('Strategy', () => {
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
 
     const testCohort = await Cohort.create(cohortConfig);
-    const testStrategy = Strategy.create(
-      testCohort,
-      startDate,
-      endDate,
-      undefined,
-      aliceSecretKey
-    );
+    const testStrategy = Strategy.create(testCohort, undefined, aliceSecretKey);
 
     const expectedUrsulas = [
       '0x5cf1703a1c99a4b42eb056535840e93118177232',
@@ -70,8 +63,6 @@ describe('Strategy', () => {
     const testCohort = await Cohort.create(cohortConfig);
     const testStrategy = Strategy.create(
       testCohort,
-      startDate,
-      endDate,
       undefined,
       aliceSecretKey,
       bobSecretKey
@@ -102,13 +93,7 @@ describe('Strategy', () => {
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
     const testCohort = await Cohort.create(cohortConfig);
-    const testStrategy = Strategy.create(
-      testCohort,
-      new Date(),
-      new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
-      undefined,
-      aliceSecretKey
-    );
+    const testStrategy = Strategy.create(testCohort, undefined, aliceSecretKey);
     const testDeployed = await testStrategy.deploy('test', aliceProvider);
     expect(getUrsulasSpy).toHaveBeenCalled();
     expect(generateKFragsSpy).toHaveBeenCalled();
@@ -145,8 +130,6 @@ describe('Deployed Strategy', () => {
     const testCohort = await Cohort.create(cohortConfig);
     const testStrategy = Strategy.create(
       testCohort,
-      new Date(1000000000000),
-      new Date(2100000000000),
       undefined,
       aliceSecretKey,
       bobSecretKey
@@ -177,13 +160,7 @@ describe('Deployed Strategy', () => {
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
     const testCohort = await Cohort.create(cohortConfig);
-    const testStrategy = Strategy.create(
-      testCohort,
-      new Date(),
-      new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
-      undefined,
-      aliceSecretKey
-    );
+    const testStrategy = Strategy.create(testCohort, undefined, aliceSecretKey);
     const testDeployed = await testStrategy.deploy('test', aliceProvider);
 
     expect(getUrsulasSpy).toHaveBeenCalled();

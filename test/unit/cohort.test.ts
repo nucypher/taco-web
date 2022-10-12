@@ -9,7 +9,7 @@ describe('Cohort', () => {
     const config = {
       threshold: 2,
       shares: 3,
-      porterUri: 'https://porter-ibex.nucypher.community',
+      porterUri: 'https://_this.should.crash',
     };
     const testCohort = await Cohort.create(config);
 
@@ -28,12 +28,13 @@ describe('Cohort', () => {
     const config = {
       threshold: 2,
       shares: 3,
-      porterUri: 'https://porter-ibex.nucypher.community',
+      porterUri: 'https://_this.should.crash',
     };
     const testCohort = await Cohort.create(config);
     const configJSON = testCohort.toJSON();
     const expectedJSON =
-      '{"ursulaAddresses":["0x5cf1703a1c99a4b42eb056535840e93118177232","0x7fff551249d223f723557a96a0e1a469c79cc934","0x9c7c824239d3159327024459ad69bb215859bd25"],"threshold":2,"shares":3,"porterUri":"https://porter-ibex.nucypher.community"}';
+      '{"ursulaAddresses":["0x5cf1703a1c99a4b42eb056535840e93118177232","0x7fff551249d223f723557a96a0e1a469c79cc934","0x9c7c824239d3159327024459ad69bb215859bd25"],"threshold":2,"shares":3,"porterUri":"https://_this.should.crash"}';
+    expect(getUrsulasSpy).toHaveBeenCalled();
     expect(configJSON).toEqual(expectedJSON);
   });
 
@@ -42,7 +43,7 @@ describe('Cohort', () => {
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
 
     const configJSON =
-      '{"ursulaAddresses":["0x5cf1703a1c99a4b42eb056535840e93118177232","0x7fff551249d223f723557a96a0e1a469c79cc934","0x9c7c824239d3159327024459ad69bb215859bd25"],"threshold":2,"shares":3,"porterUri":"https://porter-ibex.nucypher.community"}';
+      '{"ursulaAddresses":["0x5cf1703a1c99a4b42eb056535840e93118177232","0x7fff551249d223f723557a96a0e1a469c79cc934","0x9c7c824239d3159327024459ad69bb215859bd25"],"threshold":2,"shares":3,"porterUri":"https://_this.should.crash"}';
     const testCohort = Cohort.fromJSON(configJSON);
     const expectedUrsulas = [
       '0x5cf1703a1c99a4b42eb056535840e93118177232',
@@ -52,8 +53,9 @@ describe('Cohort', () => {
     const expectedConfiguration = {
       threshold: 2,
       shares: 3,
-      porterUri: 'https://porter-ibex.nucypher.community',
+      porterUri: 'https://_this.should.crash',
     };
+    expect(getUrsulasSpy).toHaveBeenCalled();
     expect(testCohort.ursulaAddresses).toEqual(expectedUrsulas);
     expect(testCohort.configuration).toEqual(expectedConfiguration);
   });

@@ -30,6 +30,15 @@ export type EnactedPolicy = {
 
 type IPreEnactedPolicy = Omit<EnactedPolicy, 'txHash'>;
 
+export type EnactedPolicyJSON = Omit<
+  EnactedPolicy,
+  'policyKey' | 'encryptedTreasureMap' | 'id'
+> & {
+  policyKey: Uint8Array;
+  id: Uint8Array;
+  encryptedTreasureMap: Uint8Array;
+};
+
 export class PreEnactedPolicy implements IPreEnactedPolicy {
   constructor(
     public readonly id: HRAC,

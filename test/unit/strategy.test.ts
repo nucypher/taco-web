@@ -1,4 +1,8 @@
-import { SecretKey, VerifiedKeyFrag } from '@nucypher/nucypher-core';
+import {
+  EncryptedTreasureMap,
+  SecretKey,
+  VerifiedKeyFrag,
+} from '@nucypher/nucypher-core';
 
 import {
   Cohort,
@@ -8,7 +12,7 @@ import {
   Strategy,
 } from '../../src';
 import { Ursula } from '../../src/characters/porter';
-import { toBytes } from '../../src/utils';
+import { fromBase64, toBytes } from '../../src/utils';
 import {
   mockEncryptTreasureMap,
   mockGenerateKFrags,
@@ -23,7 +27,8 @@ import {
 import {
   aliceSecretKeyBytes,
   bobSecretKeyBytes,
-  DeployedStrategyJSON,
+  deployedStrategyJSON,
+  encryptedTreasureMapBase64,
   strategyJSON,
 } from './testVariables';
 
@@ -31,7 +36,7 @@ describe('Strategy', () => {
   const cohortConfig = {
     threshold: 2,
     shares: 3,
-    porterUri: 'https://porter-ibex.nucypher.community',
+    porterUri: 'https://_this.should.crash',
   };
   const aliceSecretKey = SecretKey.fromBytes(aliceSecretKeyBytes);
   const bobSecretKey = SecretKey.fromBytes(bobSecretKeyBytes);
@@ -47,7 +52,12 @@ describe('Strategy', () => {
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
 
     const testCohort = await Cohort.create(cohortConfig);
-    const testStrategy = Strategy.create(testCohort, undefined, aliceSecretKey);
+    const testStrategy = Strategy.create(
+      testCohort,
+      undefined,
+      aliceSecretKey,
+      bobSecretKey
+    );
 
     const expectedUrsulas = [
       '0x5cf1703a1c99a4b42eb056535840e93118177232',
@@ -59,7 +69,6 @@ describe('Strategy', () => {
   });
 
   it('can export to JSON', async () => {
-    const mockedUrsulas = mockUrsulas().slice(0, 3);
     const testCohort = await Cohort.create(cohortConfig);
     const testStrategy = Strategy.create(
       testCohort,
@@ -73,8 +82,6 @@ describe('Strategy', () => {
   });
 
   it('can import from JSON', async () => {
-    const mockedUrsulas = mockUrsulas().slice(0, 3);
-
     const testStrategy = Strategy.fromJSON(strategyJSON);
     const expectedUrsulas = [
       '0x5cf1703a1c99a4b42eb056535840e93118177232',
@@ -109,7 +116,7 @@ describe('Deployed Strategy', () => {
   const cohortConfig = {
     threshold: 2,
     shares: 3,
-    porterUri: 'https://porter-ibex.nucypher.community',
+    porterUri: 'https://_this.should.crash',
   };
   const aliceSecretKey = SecretKey.fromBytes(aliceSecretKeyBytes);
   const bobSecretKey = SecretKey.fromBytes(bobSecretKeyBytes);
@@ -125,7 +132,9 @@ describe('Deployed Strategy', () => {
     const generateKFragsSpy = mockGenerateKFrags();
     const publishToBlockchainSpy = mockPublishToBlockchain();
     const makeTreasureMapSpy = mockMakeTreasureMap();
-    const encryptTreasureMapSpy = mockEncryptTreasureMap();
+    const encryptTreasureMapSpy = mockEncryptTreasureMap(
+      EncryptedTreasureMap.fromBytes(fromBase64(encryptedTreasureMapBase64))
+    );
 
     const testCohort = await Cohort.create(cohortConfig);
     const testStrategy = Strategy.create(
@@ -135,23 +144,29 @@ describe('Deployed Strategy', () => {
       bobSecretKey
     );
     const testDeployed = await testStrategy.deploy('test', aliceProvider);
+    expect(getUrsulasSpy).toHaveBeenCalled();
+    expect(generateKFragsSpy).toHaveBeenCalled();
+    expect(publishToBlockchainSpy).toHaveBeenCalled();
+    expect(makeTreasureMapSpy).toHaveBeenCalled();
+    expect(encryptTreasureMapSpy).toHaveBeenCalled();
+
     const configJSON = testDeployed.toJSON();
-    expect(configJSON).toEqual(DeployedStrategyJSON);
+    expect(configJSON).toEqual(deployedStrategyJSON);
   });
 
   it('can import from JSON', async () => {
     const aliceProvider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
     const importedStrategy = DeployedStrategy.fromJSON(
       aliceProvider,
-      DeployedStrategyJSON
+      deployedStrategyJSON
     );
     const configJSON = importedStrategy.toJSON();
-    expect(configJSON).toEqual(DeployedStrategyJSON);
+    expect(configJSON).toEqual(deployedStrategyJSON);
   });
 
   it('can encrypt and decrypt', async () => {
     const aliceProvider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
-    const bobProvider = mockWeb3Provider(SecretKey.random().toSecretBytes());
+    const bobProvider = mockWeb3Provider(bobSecretKey.toSecretBytes());
     const mockedUrsulas = mockUrsulas().slice(0, 3);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const generateKFragsSpy = mockGenerateKFrags();
@@ -160,7 +175,12 @@ describe('Deployed Strategy', () => {
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
     const testCohort = await Cohort.create(cohortConfig);
-    const testStrategy = Strategy.create(testCohort, undefined, aliceSecretKey);
+    const testStrategy = Strategy.create(
+      testCohort,
+      undefined,
+      aliceSecretKey,
+      bobSecretKey
+    );
     const testDeployed = await testStrategy.deploy('test', aliceProvider);
 
     expect(getUrsulasSpy).toHaveBeenCalled();
@@ -199,7 +219,6 @@ describe('Deployed Strategy', () => {
       [encryptedMessageKit],
       conditionContext
     );
-
     expect(getUrsulasSpy2).toHaveBeenCalled();
     expect(retrieveCFragsSpy).toHaveBeenCalled();
     expect(decryptedMessage[0]).toEqual(toBytes(plaintext));

@@ -6,6 +6,7 @@ import {
   Capsule,
   CapsuleFrag,
   CapsuleWithFrags,
+  EncryptedTreasureMap,
   reencrypt,
   SecretKey,
   VerifiedCapsuleFrag,
@@ -23,7 +24,7 @@ import {
 } from '../src/characters/porter';
 import { BlockchainPolicy, PreEnactedPolicy } from '../src/policies/policy';
 import { ChecksumAddress } from '../src/types';
-import { toBytes, toHexString, zip } from '../src/utils';
+import { fromBase64, toBytes, toHexString, zip } from '../src/utils';
 
 export const fromBytes = (bytes: Uint8Array): string =>
   new TextDecoder().decode(bytes);
@@ -182,8 +183,15 @@ export const mockGenerateKFrags = () => {
   return jest.spyOn(Alice.prototype as any, 'generateKFrags');
 };
 
-export const mockEncryptTreasureMap = () => {
-  return jest.spyOn(BlockchainPolicy.prototype as any, 'encryptTreasureMap');
+export const mockEncryptTreasureMap = (withValue?: EncryptedTreasureMap) => {
+  const spy = jest.spyOn(
+    BlockchainPolicy.prototype as any,
+    'encryptTreasureMap'
+  );
+  if (withValue) {
+    return spy.mockImplementation(() => withValue);
+  }
+  return spy;
 };
 
 export const reencryptKFrags = (

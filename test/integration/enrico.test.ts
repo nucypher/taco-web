@@ -105,4 +105,36 @@ describe('enrico', () => {
     const alicePlaintext = encrypted.decrypt(aliceSk);
     expect(alicePlaintext).toEqual(alicePlaintext);
   });
+
+  it('can overwrite conditions at encryption time', async () => {
+    const label = 'fake-label';
+    const message = 'fake-message';
+    const alice = mockAlice();
+
+    const policyKey = alice.getPolicyEncryptingKeyFromLabel(label);
+
+    const ownsBufficornNFT = new Conditions.ERC721Ownership({
+      contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
+      parameters: [3591],
+    });
+
+    const ownsNonsenseNFT = new Conditions.ERC721Ownership({
+      contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
+      parameters: [6969],
+    });
+
+    const conditions = new ConditionSet([ownsBufficornNFT]);
+    const updatedConditions = new ConditionSet([ownsNonsenseNFT]);
+
+    const enrico = new Enrico(policyKey, undefined, conditions);
+    const encrypted = enrico.encryptMessage(
+      toBytes(message),
+      updatedConditions
+    );
+
+    const aliceKeyring = (alice as any).keyring;
+    const aliceSk = await aliceKeyring.getSecretKeyFromLabel(label);
+    const alicePlaintext = encrypted.decrypt(aliceSk);
+    expect(alicePlaintext).toEqual(alicePlaintext);
+  });
 });

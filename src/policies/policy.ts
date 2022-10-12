@@ -11,7 +11,7 @@ import { SubscriptionManagerAgent } from '../agents/subscription-manager';
 import { Alice } from '../characters/alice';
 import { RemoteBob } from '../characters/bob';
 import { Ursula } from '../characters/porter';
-import { RevocationKit } from '../kits/revocation';
+// import { RevocationKit } from '../kits/revocation';
 import { toBytes, toEpoch, zip } from '../utils';
 import { toCanonicalAddress } from '../web3';
 
@@ -20,7 +20,7 @@ export type EnactedPolicy = {
   readonly label: string;
   readonly policyKey: PublicKey;
   readonly encryptedTreasureMap: EncryptedTreasureMap;
-  readonly revocationKit: RevocationKit;
+  // readonly revocationKit: RevocationKit;
   readonly aliceVerifyingKey: Uint8Array;
   readonly size: number;
   readonly startTimestamp: Date;
@@ -36,7 +36,7 @@ export class PreEnactedPolicy implements IPreEnactedPolicy {
     public readonly label: string,
     public readonly policyKey: PublicKey,
     public readonly encryptedTreasureMap: EncryptedTreasureMap,
-    public readonly revocationKit: RevocationKit,
+    // public readonly revocationKit: RevocationKit,
     public readonly aliceVerifyingKey: Uint8Array,
     public readonly size: number,
     public readonly startTimestamp: Date,
@@ -114,14 +114,14 @@ export class BlockchainPolicy {
   ): Promise<PreEnactedPolicy> {
     const treasureMap = this.makeTreasureMap(ursulas, this.verifiedKFrags);
     const encryptedTreasureMap = this.encryptTreasureMap(treasureMap);
-    const revocationKit = new RevocationKit(treasureMap, this.publisher.signer);
+    // const revocationKit = new RevocationKit(treasureMap, this.publisher.signer);
 
     return new PreEnactedPolicy(
       this.hrac,
       this.label,
       this.delegatingKey,
       encryptedTreasureMap,
-      revocationKit,
+      // revocationKit,
       this.publisher.verifyingKey.toBytes(),
       this.shares,
       this.startDate,

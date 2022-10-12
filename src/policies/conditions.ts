@@ -6,7 +6,7 @@ import { Eip712TypedData, FormattedTypedData, Web3Provider } from '../web3';
 export class Operator {
   static readonly LOGICAL_OPERATORS: ReadonlyArray<string> = ['and', 'or'];
 
-  constructor(public readonly operator: string) {
+  public constructor(public readonly operator: string) {
     if (!Operator.LOGICAL_OPERATORS.includes(operator)) {
       throw `"${operator}" is not a valid operator`;
     }
@@ -108,6 +108,7 @@ export class Condition {
     '<=',
     '!=',
   ];
+
   public static readonly SUPPORTED_CHAINS = [
     // 'Rinkeby',
     'Rinkeby',
@@ -480,6 +481,9 @@ export class ConditionContext {
   };
 }
 
+const OR = new Operator('or');
+const AND = new Operator('and');
+
 export const Conditions = {
   ERC721Ownership,
   ERC721Balance,
@@ -487,5 +491,6 @@ export const Conditions = {
   TimelockCondition,
   RpcCondition,
   Condition,
-  Operator,
+  OR,
+  AND,
 };

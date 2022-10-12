@@ -10,7 +10,7 @@ import { Web3Provider } from '../../src/web3';
 import { mockWeb3Provider } from '../utils';
 
 describe('operator', () => {
-  it('should validate Operator operator validation', async () => {
+  it('should validate Operator', async () => {
     const op = new Operator('or');
     expect(op.operator).toEqual('or');
     expect(() => {
@@ -46,8 +46,11 @@ describe('condition set', () => {
   const gnomePals = new Conditions.ERC721Balance({
     contractAddress: '0x5dB11d7356aa4C0E85Aa5b255eC2B5F81De6d4dA',
   });
-  const or = new Operator('or');
-  const conditions = new ConditionSet([genuineUndead, or, gnomePals]);
+  const conditions = new ConditionSet([
+    genuineUndead,
+    Conditions.OR,
+    gnomePals,
+  ]);
 
   it('should validate', async () => {
     expect(conditions.validate()).toEqual(true);

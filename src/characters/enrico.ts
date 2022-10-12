@@ -18,11 +18,17 @@ export class Enrico {
     this.conditions = conditions;
   }
 
-  public encryptMessage(plaintext: Uint8Array | string): MessageKit {
+  public encryptMessage(
+    plaintext: Uint8Array | string,
+    currentConditions?: ConditionSet
+  ): MessageKit {
+    if (!currentConditions) {
+      currentConditions = this.conditions;
+    }
     return new MessageKit(
       this.policyEncryptingKey,
       plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext),
-      this.conditions?.toBuffer()
+      currentConditions?.toBuffer()
     );
   }
 }

@@ -1,4 +1,9 @@
-import { SecretKey } from '@nucypher/nucypher-core';
+import {
+  EncryptedTreasureMap,
+  HRAC,
+  PublicKey,
+  SecretKey,
+} from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
 import { Alice } from '../characters/alice';
@@ -6,14 +11,8 @@ import { Bob } from '../characters/bob';
 import { Enrico } from '../characters/enrico';
 import { tDecDecrypter } from '../characters/universal-bob';
 import { ConditionSet } from '../policies/conditions';
-import { EnactedPolicy } from '../policies/policy';
-import {
-  base64ToU8Receiver,
-  fromBase64,
-  toBase64,
-  u8ToBase64Replacer,
-} from '../utils';
-import { Web3Provider } from '../web3';
+import { EnactedPolicy, EnactedPolicyJSON } from '../policies/policy';
+import { base64ToU8Receiver, u8ToBase64Replacer } from '../utils';
 
 import { Cohort, CohortJSON } from './cohort';
 
@@ -25,7 +24,7 @@ type StrategyJSON = {
 };
 
 type DeployedStrategyJSON = {
-  policy: EnactedPolicy;
+  policy: EnactedPolicyJSON;
   cohortConfig: CohortJSON;
   aliceSecretKeyBytes: Uint8Array;
   bobSecretKeyBytes: Uint8Array;
@@ -68,7 +67,7 @@ export class Strategy {
     );
     const bob = new Bob(configuration, this.bobSecretKey);
     const policyParams = {
-      bob: bob,
+      bob,
       label,
       threshold: this.cohort.configuration.threshold,
       shares: this.cohort.configuration.shares,
@@ -103,29 +102,11 @@ export class Strategy {
   }
 
   public static fromJSON(json: string) {
-    const base64ToU8Receiver = (
-      key: string,
-      value: string | number | Uint8Array
-    ) => {
-      if (typeof value === 'string' && value.startsWith('base64:')) {
-        return fromBase64(value.split('base64:')[1]);
-      }
-      return value;
-    };
     const config = JSON.parse(json, base64ToU8Receiver);
     return Strategy.fromObj(config);
   }
 
   public toJSON() {
-    const u8ToBase64Replacer = (
-      key: string,
-      value: string | number | Uint8Array
-    ) => {
-      if (value instanceof Uint8Array) {
-        return `base64:${toBase64(value)}`;
-      }
-      return value;
-    };
     return JSON.stringify(this.toObj(), u8ToBase64Replacer);
   }
 
@@ -191,11 +172,16 @@ export class DeployedStrategy {
       conditionSet,
     }: DeployedStrategyJSON
   ) {
+    const id = HRAC.fromBytes(policy.id);
+    const policyKey = PublicKey.fromBytes(policy.policyKey);
+    const encryptedTreasureMap = EncryptedTreasureMap.fromBytes(
+      policy.encryptedTreasureMap
+    );
     const newPolicy = {
-      id: policy.id,
+      id,
       label: policy.label,
-      policyKey: policy.policyKey,
-      encryptedTreasureMap: policy.encryptedTreasureMap,
+      policyKey,
+      encryptedTreasureMap,
       aliceVerifyingKey: new Uint8Array(policy.aliceVerifyingKey),
       size: policy.size,
       startTimestamp: policy.startTimestamp,
@@ -217,8 +203,8 @@ export class DeployedStrategy {
 
     const decrypter = new tDecDecrypter(
       cohort.configuration.porterUri,
-      newPolicy.policyKey,
-      newPolicy.encryptedTreasureMap,
+      policyKey,
+      encryptedTreasureMap,
       alice.verifyingKey,
       bobSecretKey,
       bobSecretKey
@@ -236,8 +222,14 @@ export class DeployedStrategy {
   }
 
   private toObj(): DeployedStrategyJSON {
+    const policy = {
+      ...this.policy,
+      id: this.policy.id.toBytes(),
+      policyKey: this.policy.policyKey.toBytes(),
+      encryptedTreasureMap: this.policy.encryptedTreasureMap.toBytes(),
+    };
     return {
-      policy: this.policy,
+      policy,
       cohortConfig: this.cohort.toObj(),
       aliceSecretKeyBytes: this.aliceSecretKey.toSecretBytes(),
       bobSecretKeyBytes: this.bobSecretKey.toSecretBytes(),

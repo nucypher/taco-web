@@ -86,7 +86,6 @@ export class Strategy {
       policy.policyKey,
       policy.encryptedTreasureMap,
       alice.verifyingKey,
-      this.bobSecretKey,
       this.bobSecretKey
     );
     return new DeployedStrategy(
@@ -206,7 +205,6 @@ export class DeployedStrategy {
       policyKey,
       encryptedTreasureMap,
       alice.verifyingKey,
-      bobSecretKey,
       bobSecretKey
     );
     return new DeployedStrategy(
@@ -237,6 +235,7 @@ export class DeployedStrategy {
     };
   }
 }
+
 
 export class RevokedStrategy {
   constructor(

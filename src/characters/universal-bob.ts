@@ -17,7 +17,7 @@ import { Porter } from './porter';
 export class tDecDecrypter {
   private readonly porter: Porter;
   private readonly keyring: Keyring;
-  private readonly verifyingKey: Keyring;
+  // private readonly verifyingKey: Keyring;
 
   constructor(
     porterUri: string,
@@ -25,11 +25,11 @@ export class tDecDecrypter {
     readonly encryptedTreasureMap: EncryptedTreasureMap,
     private readonly publisherVerifyingKey: PublicKey,
     secretKey: SecretKey,
-    verifyingKey: SecretKey
+    // verifyingKey: SecretKey
   ) {
     this.porter = new Porter(porterUri);
     this.keyring = new Keyring(secretKey);
-    this.verifyingKey = new Keyring(verifyingKey);
+    // this.verifyingKey = new Keyring(verifyingKey);
   }
 
   public get decryptingKey(): PublicKey {
@@ -97,7 +97,7 @@ export class tDecDecrypter {
       retrievalKits,
       this.publisherVerifyingKey,
       this.decryptingKey,
-      this.verifyingKey.publicKey,
+      this.keyring.publicKey,
       conditionContext
     );
 

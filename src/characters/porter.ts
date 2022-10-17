@@ -65,7 +65,7 @@ export type RetrieveCFragsResponse = {
 };
 
 export class Porter {
-  private readonly porterUrl: URL;
+  readonly porterUrl: URL;
 
   constructor(porterUri: string) {
     this.porterUrl = new URL(porterUri);

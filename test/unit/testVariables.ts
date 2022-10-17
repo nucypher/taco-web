@@ -16,3 +16,6 @@ export const bobSecretKeyBytes = new Uint8Array([
   116, 235, 55, 52, 105, 173, 92, 147, 29, 141, 83, 26, 93, 253, 255, 155, 147,
   229, 2, 106, 176, 205, 33, 168, 23, 213, 233, 200, 238, 11, 193, 153,
 ]);
+
+export const decrypterJSON =
+  '{"porterUri":"https://_this.should.crash/","policyEncryptingKey":{"ptr":1146760},"encryptedTreasureMap":{"ptr":1244780},"publisherVerifyingKey":{"ptr":1146568},"bobSecretKeyBytes":"base64:dOs3NGmtXJMdjVMaXf3/m5PlAmqwzSGoF9XpyO4LwZk="}';

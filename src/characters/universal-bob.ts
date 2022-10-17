@@ -10,9 +10,17 @@ import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
 import { ConditionContext } from '../policies/conditions';
-import { zip } from '../utils';
+import { base64ToU8Receiver, u8ToBase64Replacer, zip } from '../utils';
 
 import { Porter } from './porter';
+
+type decrypterJSON = {
+  porterUri: string;
+  policyEncryptingKey: PublicKey;
+  encryptedTreasureMap: EncryptedTreasureMap;
+  publisherVerifyingKey: PublicKey;
+  bobSecretKeyBytes: Uint8Array;
+};
 
 export class tDecDecrypter {
   private readonly porter: Porter;
@@ -24,7 +32,7 @@ export class tDecDecrypter {
     private readonly policyEncryptingKey: PublicKey,
     readonly encryptedTreasureMap: EncryptedTreasureMap,
     private readonly publisherVerifyingKey: PublicKey,
-    secretKey: SecretKey,
+    secretKey: SecretKey
     // verifyingKey: SecretKey
   ) {
     this.porter = new Porter(porterUri);
@@ -118,5 +126,40 @@ export class tDecDecrypter {
       );
       return messageKit.withResult(retrievalResult);
     });
+  }
+
+  public toObj(): decrypterJSON {
+    return {
+      porterUri: this.porter.porterUrl.toString(),
+      policyEncryptingKey: this.policyEncryptingKey,
+      encryptedTreasureMap: this.encryptedTreasureMap,
+      publisherVerifyingKey: this.publisherVerifyingKey,
+      bobSecretKeyBytes: this.keyring.secretKey.toSecretBytes(),
+    };
+  }
+
+  public toJSON(): string {
+    return JSON.stringify(this.toObj(), u8ToBase64Replacer);
+  }
+
+  private static fromObj({
+    porterUri,
+    policyEncryptingKey,
+    encryptedTreasureMap,
+    publisherVerifyingKey,
+    bobSecretKeyBytes,
+  }: decrypterJSON) {
+    return new tDecDecrypter(
+      porterUri,
+      policyEncryptingKey,
+      encryptedTreasureMap,
+      publisherVerifyingKey,
+      SecretKey.fromBytes(bobSecretKeyBytes)
+    );
+  }
+
+  public static fromJSON(json: string) {
+    const config = JSON.parse(json, base64ToU8Receiver);
+    return tDecDecrypter.fromObj(config);
   }
 }

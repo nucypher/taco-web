@@ -236,7 +236,6 @@ export class DeployedStrategy {
   }
 }
 
-
 export class RevokedStrategy {
   constructor(
     public label: string,

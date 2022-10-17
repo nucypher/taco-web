@@ -145,10 +145,6 @@ export class DeployedStrategy {
     public conditionSet?: ConditionSet
   ) {}
 
-  public revoke(provider: ethers.providers.Web3Provider): RevokedStrategy {
-    throw new Error('Method not implemented.');
-  }
-
   public static fromJSON(
     provider: ethers.providers.Web3Provider,
     json: string

@@ -16,9 +16,9 @@ import { Porter } from './porter';
 
 type decrypterJSON = {
   porterUri: string;
-  policyEncryptingKey: PublicKey;
-  encryptedTreasureMap: EncryptedTreasureMap;
-  publisherVerifyingKey: PublicKey;
+  policyEncryptingKeyBytes: Uint8Array;
+  encryptedTreasureMapBytes: Uint8Array;
+  publisherVerifyingKeyBytes: Uint8Array;
   bobSecretKeyBytes: Uint8Array;
 };
 
@@ -131,9 +131,9 @@ export class tDecDecrypter {
   public toObj(): decrypterJSON {
     return {
       porterUri: this.porter.porterUrl.toString(),
-      policyEncryptingKey: this.policyEncryptingKey,
-      encryptedTreasureMap: this.encryptedTreasureMap,
-      publisherVerifyingKey: this.publisherVerifyingKey,
+      policyEncryptingKeyBytes: this.policyEncryptingKey.toBytes(),
+      encryptedTreasureMapBytes: this.encryptedTreasureMap.toBytes(),
+      publisherVerifyingKeyBytes: this.publisherVerifyingKey.toBytes(),
       bobSecretKeyBytes: this.keyring.secretKey.toSecretBytes(),
     };
   }
@@ -144,16 +144,16 @@ export class tDecDecrypter {
 
   private static fromObj({
     porterUri,
-    policyEncryptingKey,
-    encryptedTreasureMap,
-    publisherVerifyingKey,
+    policyEncryptingKeyBytes,
+    encryptedTreasureMapBytes,
+    publisherVerifyingKeyBytes,
     bobSecretKeyBytes,
   }: decrypterJSON) {
     return new tDecDecrypter(
       porterUri,
-      policyEncryptingKey,
-      encryptedTreasureMap,
-      publisherVerifyingKey,
+      PublicKey.fromBytes(policyEncryptingKeyBytes),
+      EncryptedTreasureMap.fromBytes(encryptedTreasureMapBytes),
+      PublicKey.fromBytes(publisherVerifyingKeyBytes),
       SecretKey.fromBytes(bobSecretKeyBytes)
     );
   }

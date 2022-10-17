@@ -26,7 +26,6 @@ type StrategyJSON = {
 type DeployedStrategyJSON = {
   policy: EnactedPolicyJSON;
   cohortConfig: CohortJSON;
-  aliceSecretKeyBytes: Uint8Array;
   bobSecretKeyBytes: Uint8Array;
   conditionSet?: ConditionSet;
 };
@@ -94,7 +93,6 @@ export class Strategy {
       policy,
       encrypter,
       decrypter,
-      this.aliceSecretKey,
       this.bobSecretKey,
       this.conditionSet
     );
@@ -140,7 +138,6 @@ export class DeployedStrategy {
     public policy: EnactedPolicy,
     public encrypter: Enrico,
     public decrypter: tDecDecrypter,
-    private aliceSecretKey: SecretKey,
     private bobSecretKey: SecretKey,
     public conditionSet?: ConditionSet
   ) {}
@@ -162,7 +159,6 @@ export class DeployedStrategy {
     {
       policy,
       cohortConfig,
-      aliceSecretKeyBytes,
       bobSecretKeyBytes,
       conditionSet,
     }: DeployedStrategyJSON
@@ -172,27 +168,24 @@ export class DeployedStrategy {
     const encryptedTreasureMap = EncryptedTreasureMap.fromBytes(
       policy.encryptedTreasureMap
     );
+    const aliceVerifyingKey = PublicKey.fromBytes(policy.aliceVerifyingKey);
     const newPolicy = {
       id,
       label: policy.label,
       policyKey,
       encryptedTreasureMap,
-      aliceVerifyingKey: new Uint8Array(policy.aliceVerifyingKey),
+      aliceVerifyingKey: aliceVerifyingKey.toBytes(),
       size: policy.size,
       startTimestamp: policy.startTimestamp,
       endTimestamp: policy.endTimestamp,
       txHash: policy.txHash,
     };
-    const aliceSecretKey = SecretKey.fromBytes(aliceSecretKeyBytes);
     const bobSecretKey = SecretKey.fromBytes(bobSecretKeyBytes);
     const label = newPolicy.label;
     const cohort = Cohort.fromObj(cohortConfig);
-    const porterUri = cohort.configuration.porterUri;
-    const configuration = { porterUri };
-    const alice = Alice.fromSecretKey(configuration, aliceSecretKey, provider);
     const encrypter = new Enrico(
       newPolicy.policyKey,
-      alice.verifyingKey,
+      aliceVerifyingKey,
       conditionSet
     );
 
@@ -200,7 +193,7 @@ export class DeployedStrategy {
       cohort.configuration.porterUri,
       policyKey,
       encryptedTreasureMap,
-      alice.verifyingKey,
+      aliceVerifyingKey,
       bobSecretKey
     );
     return new DeployedStrategy(
@@ -209,7 +202,6 @@ export class DeployedStrategy {
       newPolicy,
       encrypter,
       decrypter,
-      aliceSecretKey,
       bobSecretKey,
       conditionSet
     );
@@ -225,7 +217,6 @@ export class DeployedStrategy {
     return {
       policy,
       cohortConfig: this.cohort.toObj(),
-      aliceSecretKeyBytes: this.aliceSecretKey.toSecretBytes(),
       bobSecretKeyBytes: this.bobSecretKey.toSecretBytes(),
       conditionSet: this.conditionSet,
     };

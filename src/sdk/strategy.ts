@@ -76,7 +76,7 @@ export class Strategy {
     const policy = await alice.grant(policyParams, this.cohort.ursulaAddresses);
     const encrypter = new Enrico(
       policy.policyKey,
-      alice.verifyingKey,
+      undefined,
       this.conditionSet
     );
 
@@ -183,11 +183,7 @@ export class DeployedStrategy {
     const bobSecretKey = SecretKey.fromBytes(bobSecretKeyBytes);
     const label = newPolicy.label;
     const cohort = Cohort.fromObj(cohortConfig);
-    const encrypter = new Enrico(
-      newPolicy.policyKey,
-      aliceVerifyingKey,
-      conditionSet
-    );
+    const encrypter = new Enrico(newPolicy.policyKey, undefined, conditionSet);
 
     const decrypter = new tDecDecrypter(
       cohort.configuration.porterUri,

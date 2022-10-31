@@ -10,6 +10,7 @@ import {
   ConditionSet,
   DeployedStrategy,
   Strategy,
+  tDecDecrypter,
 } from '../../src';
 import { Ursula } from '../../src/characters/porter';
 import { fromBase64, toBytes } from '../../src/utils';
@@ -27,6 +28,7 @@ import {
 import {
   aliceSecretKeyBytes,
   bobSecretKeyBytes,
+  decrypterJSON,
   deployedStrategyJSON,
   encryptedTreasureMapBase64,
   strategyJSON,
@@ -222,5 +224,26 @@ describe('Deployed Strategy', () => {
     expect(getUrsulasSpy2).toHaveBeenCalled();
     expect(retrieveCFragsSpy).toHaveBeenCalled();
     expect(decryptedMessage[0]).toEqual(toBytes(plaintext));
+  });
+});
+
+describe('tDecDecrypter', () => {
+  const aliceSecretKey = SecretKey.fromBytes(aliceSecretKeyBytes);
+  const aliceProvider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
+  const importedStrategy = DeployedStrategy.fromJSON(
+    aliceProvider,
+    deployedStrategyJSON
+  );
+
+  it('can export to JSON', () => {
+    const decrypter = importedStrategy.decrypter;
+    const configJSON = decrypter.toJSON();
+    expect(configJSON).toEqual(decrypterJSON);
+  });
+
+  it('can import from JSON', () => {
+    const decrypter = tDecDecrypter.fromJSON(decrypterJSON);
+    const configJSON = decrypter.toJSON();
+    expect(configJSON).toEqual(decrypterJSON);
   });
 });

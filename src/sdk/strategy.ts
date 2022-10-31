@@ -26,7 +26,6 @@ type StrategyJSON = {
 type DeployedStrategyJSON = {
   policy: EnactedPolicyJSON;
   cohortConfig: CohortJSON;
-  aliceSecretKeyBytes: Uint8Array;
   bobSecretKeyBytes: Uint8Array;
   conditionSet?: ConditionSet;
 };
@@ -77,7 +76,7 @@ export class Strategy {
     const policy = await alice.grant(policyParams, this.cohort.ursulaAddresses);
     const encrypter = new Enrico(
       policy.policyKey,
-      alice.verifyingKey,
+      undefined,
       this.conditionSet
     );
 
@@ -86,7 +85,6 @@ export class Strategy {
       policy.policyKey,
       policy.encryptedTreasureMap,
       alice.verifyingKey,
-      this.bobSecretKey,
       this.bobSecretKey
     );
     return new DeployedStrategy(
@@ -95,7 +93,6 @@ export class Strategy {
       policy,
       encrypter,
       decrypter,
-      this.aliceSecretKey,
       this.bobSecretKey,
       this.conditionSet
     );
@@ -141,14 +138,9 @@ export class DeployedStrategy {
     public policy: EnactedPolicy,
     public encrypter: Enrico,
     public decrypter: tDecDecrypter,
-    private aliceSecretKey: SecretKey,
     private bobSecretKey: SecretKey,
     public conditionSet?: ConditionSet
   ) {}
-
-  public revoke(provider: ethers.providers.Web3Provider): RevokedStrategy {
-    throw new Error('Method not implemented.');
-  }
 
   public static fromJSON(
     provider: ethers.providers.Web3Provider,
@@ -167,7 +159,6 @@ export class DeployedStrategy {
     {
       policy,
       cohortConfig,
-      aliceSecretKeyBytes,
       bobSecretKeyBytes,
       conditionSet,
     }: DeployedStrategyJSON
@@ -177,36 +168,28 @@ export class DeployedStrategy {
     const encryptedTreasureMap = EncryptedTreasureMap.fromBytes(
       policy.encryptedTreasureMap
     );
+    const aliceVerifyingKey = PublicKey.fromBytes(policy.aliceVerifyingKey);
     const newPolicy = {
       id,
       label: policy.label,
       policyKey,
       encryptedTreasureMap,
-      aliceVerifyingKey: new Uint8Array(policy.aliceVerifyingKey),
+      aliceVerifyingKey: aliceVerifyingKey.toBytes(),
       size: policy.size,
       startTimestamp: policy.startTimestamp,
       endTimestamp: policy.endTimestamp,
       txHash: policy.txHash,
     };
-    const aliceSecretKey = SecretKey.fromBytes(aliceSecretKeyBytes);
     const bobSecretKey = SecretKey.fromBytes(bobSecretKeyBytes);
     const label = newPolicy.label;
     const cohort = Cohort.fromObj(cohortConfig);
-    const porterUri = cohort.configuration.porterUri;
-    const configuration = { porterUri };
-    const alice = Alice.fromSecretKey(configuration, aliceSecretKey, provider);
-    const encrypter = new Enrico(
-      newPolicy.policyKey,
-      alice.verifyingKey,
-      conditionSet
-    );
+    const encrypter = new Enrico(newPolicy.policyKey, undefined, conditionSet);
 
     const decrypter = new tDecDecrypter(
       cohort.configuration.porterUri,
       policyKey,
       encryptedTreasureMap,
-      alice.verifyingKey,
-      bobSecretKey,
+      aliceVerifyingKey,
       bobSecretKey
     );
     return new DeployedStrategy(
@@ -215,7 +198,6 @@ export class DeployedStrategy {
       newPolicy,
       encrypter,
       decrypter,
-      aliceSecretKey,
       bobSecretKey,
       conditionSet
     );
@@ -231,7 +213,6 @@ export class DeployedStrategy {
     return {
       policy,
       cohortConfig: this.cohort.toObj(),
-      aliceSecretKeyBytes: this.aliceSecretKey.toSecretBytes(),
       bobSecretKeyBytes: this.bobSecretKey.toSecretBytes(),
       conditionSet: this.conditionSet,
     };

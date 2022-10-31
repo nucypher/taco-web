@@ -10,26 +10,34 @@ import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
 import { ConditionContext } from '../policies/conditions';
-import { zip } from '../utils';
+import { base64ToU8Receiver, u8ToBase64Replacer, zip } from '../utils';
 
 import { Porter } from './porter';
+
+type decrypterJSON = {
+  porterUri: string;
+  policyEncryptingKeyBytes: Uint8Array;
+  encryptedTreasureMapBytes: Uint8Array;
+  publisherVerifyingKeyBytes: Uint8Array;
+  bobSecretKeyBytes: Uint8Array;
+};
 
 export class tDecDecrypter {
   private readonly porter: Porter;
   private readonly keyring: Keyring;
-  private readonly verifyingKey: Keyring;
+  // private readonly verifyingKey: Keyring;
 
   constructor(
     porterUri: string,
     private readonly policyEncryptingKey: PublicKey,
     readonly encryptedTreasureMap: EncryptedTreasureMap,
     private readonly publisherVerifyingKey: PublicKey,
-    secretKey: SecretKey,
-    verifyingKey: SecretKey
+    secretKey: SecretKey
+    // verifyingKey: SecretKey
   ) {
     this.porter = new Porter(porterUri);
     this.keyring = new Keyring(secretKey);
-    this.verifyingKey = new Keyring(verifyingKey);
+    // this.verifyingKey = new Keyring(verifyingKey);
   }
 
   public get decryptingKey(): PublicKey {
@@ -97,7 +105,7 @@ export class tDecDecrypter {
       retrievalKits,
       this.publisherVerifyingKey,
       this.decryptingKey,
-      this.verifyingKey.publicKey,
+      this.keyring.publicKey,
       conditionContext
     );
 
@@ -118,5 +126,40 @@ export class tDecDecrypter {
       );
       return messageKit.withResult(retrievalResult);
     });
+  }
+
+  public toObj(): decrypterJSON {
+    return {
+      porterUri: this.porter.porterUrl.toString(),
+      policyEncryptingKeyBytes: this.policyEncryptingKey.toBytes(),
+      encryptedTreasureMapBytes: this.encryptedTreasureMap.toBytes(),
+      publisherVerifyingKeyBytes: this.publisherVerifyingKey.toBytes(),
+      bobSecretKeyBytes: this.keyring.secretKey.toSecretBytes(),
+    };
+  }
+
+  public toJSON(): string {
+    return JSON.stringify(this.toObj(), u8ToBase64Replacer);
+  }
+
+  private static fromObj({
+    porterUri,
+    policyEncryptingKeyBytes,
+    encryptedTreasureMapBytes,
+    publisherVerifyingKeyBytes,
+    bobSecretKeyBytes,
+  }: decrypterJSON) {
+    return new tDecDecrypter(
+      porterUri,
+      PublicKey.fromBytes(policyEncryptingKeyBytes),
+      EncryptedTreasureMap.fromBytes(encryptedTreasureMapBytes),
+      PublicKey.fromBytes(publisherVerifyingKeyBytes),
+      SecretKey.fromBytes(bobSecretKeyBytes)
+    );
+  }
+
+  public static fromJSON(json: string) {
+    const config = JSON.parse(json, base64ToU8Receiver);
+    return tDecDecrypter.fromObj(config);
   }
 }

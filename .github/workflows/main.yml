@@ -28,6 +28,9 @@ jobs:
       - name: Build
         run: yarn build
 
+      - name: Check
+        run: yarn run package-check
+
   build_examples:
     name: Build project examples
 

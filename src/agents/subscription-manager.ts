@@ -1,5 +1,9 @@
-import { BigNumber, ContractTransaction, ethers } from 'ethers';
-import { hexlify } from 'ethers/lib/utils';
+import {
+  BigNumber,
+  ContractTransaction,
+  ethers,
+  utils as ethersUtils,
+} from 'ethers';
 
 import {
   SubscriptionManager,
@@ -28,7 +32,7 @@ export class SubscriptionManagerAgent {
       value: valueInWei.toString(),
     };
     const estimatedGas = await SubscriptionManager.estimateGas.createPolicy(
-      hexlify(policyId),
+      ethersUtils.hexlify(policyId),
       ownerAddress,
       size,
       startTimestamp,
@@ -36,7 +40,7 @@ export class SubscriptionManagerAgent {
       overrides
     );
     const tx = await SubscriptionManager.createPolicy(
-      hexlify(policyId),
+      ethersUtils.hexlify(policyId),
       ownerAddress,
       size,
       startTimestamp,

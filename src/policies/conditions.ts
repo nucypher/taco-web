@@ -1,3 +1,4 @@
+import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { ethers, utils as ethersUtils } from 'ethers';
 import Joi, { ValidationError } from 'joi';
 
@@ -73,22 +74,12 @@ export class ConditionSet {
     return JSON.stringify(this.toList());
   }
 
-  public toBase64() {
-    return this.toBuffer().toString('base64');
-  }
-
-  public toBuffer() {
-    return Buffer.from(this.toJson());
-  }
-
-  public static fromBytes(bytes: Uint8Array) {
-    const decoded = Buffer.from(Buffer.from(bytes).toString('ascii'), 'base64');
-    const list = JSON.parse(String.fromCharCode(...decoded));
-    return ConditionSet.fromList(list);
-  }
-
   public static fromJSON(json: string) {
     return ConditionSet.fromList(JSON.parse(json));
+  }
+
+  public toWASMConditions() {
+    return new WASMConditions(this.toJson());
   }
 
   public buildContext(

@@ -1,9 +1,9 @@
 import {
+  Address,
   EncryptedTreasureMap,
   HRAC,
   PublicKey,
   TreasureMap,
-  TreasureMapBuilder,
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
 
@@ -142,17 +142,22 @@ export class BlockchainPolicy {
     ursulas: readonly Ursula[],
     verifiedKFrags: readonly VerifiedKeyFrag[]
   ): TreasureMap {
-    const builder = new TreasureMapBuilder(
+
+    const assigned_kfrags: [Address, [PublicKey, VerifiedKeyFrag]][] = [];
+    zip(ursulas, verifiedKFrags).forEach(([ursula, kFrag]) => {
+      const ursulaAddress = new Address(toCanonicalAddress(ursula.checksumAddress));
+      const ursulaPublicKey = PublicKey.fromBytes(ursula.encryptingKey.toBytes());
+      assigned_kfrags.push([ursulaAddress, [ursulaPublicKey, kFrag]]);
+    });
+    const tmap = new TreasureMap(
       this.publisher.signer,
       this.hrac,
       this.delegatingKey,
+      assigned_kfrags,
       this.threshold
-    );
-    zip(ursulas, verifiedKFrags).forEach(([ursula, kFrag]) => {
-      const ursulaAddress = toCanonicalAddress(ursula.checksumAddress);
-      builder.addKfrag(ursulaAddress, ursula.encryptingKey, kFrag);
-    });
-    return builder.build();
+      );
+
+    return tmap;
   }
 
   private encryptTreasureMap(treasureMap: TreasureMap): EncryptedTreasureMap {

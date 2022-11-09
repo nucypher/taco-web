@@ -142,12 +142,12 @@ export class BlockchainPolicy {
     ursulas: readonly Ursula[],
     verifiedKFrags: readonly VerifiedKeyFrag[]
   ): TreasureMap {
-
     const assigned_kfrags: [Address, [PublicKey, VerifiedKeyFrag]][] = [];
     zip(ursulas, verifiedKFrags).forEach(([ursula, kFrag]) => {
-      const ursulaAddress = new Address(toCanonicalAddress(ursula.checksumAddress));
-      const ursulaPublicKey = PublicKey.fromBytes(ursula.encryptingKey.toBytes());
-      assigned_kfrags.push([ursulaAddress, [ursulaPublicKey, kFrag]]);
+      const ursulaAddress = new Address(
+        toCanonicalAddress(ursula.checksumAddress)
+      );
+      assigned_kfrags.push([ursulaAddress, [ursula.encryptingKey, kFrag]]);
     });
     const tmap = new TreasureMap(
       this.publisher.signer,
@@ -155,7 +155,7 @@ export class BlockchainPolicy {
       this.delegatingKey,
       assigned_kfrags,
       this.threshold
-      );
+    );
 
     return tmap;
   }

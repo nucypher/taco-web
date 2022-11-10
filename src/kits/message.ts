@@ -44,12 +44,11 @@ export class PolicyMessageKit {
       throw Error('Failed to attach any capsule fragments.');
     }
 
-    let mk = this.messageKit.withCFrag(cFrags[0]);
-    cFrags.slice(1).map((cFrag) => {
-      mk = mk.withCFrag(cFrag);
-    });
-
-    return mk.decryptReencrypted(secretKey, policyEncryptingKey);
+    return this.messageKit.decryptReencrypted(
+      secretKey,
+      policyEncryptingKey,
+      cFrags
+    );
   }
 
   public asRetrievalKit(): RetrievalKit {

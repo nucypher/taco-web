@@ -22,7 +22,7 @@ describe('proxy reencryption', () => {
   const bob = mockBob();
 
   it('verifies capsule frags', async () => {
-    const { capsule } = new MessageKit(bob.decryptingKey, plaintext);
+    const { capsule } = new MessageKit(bob.decryptingKey, plaintext, null);
     const { delegatingKey, verifiedKFrags } = alice.generateKFrags(
       bob,
       label,

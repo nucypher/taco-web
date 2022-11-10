@@ -33,7 +33,7 @@ export class Enrico {
     return new MessageKit(
       this.policyEncryptingKey,
       plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext),
-      currentConditions?.toBuffer()
+      currentConditions ? currentConditions.toWASMConditions() : null
     );
   }
 }

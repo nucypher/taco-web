@@ -149,15 +149,13 @@ export class BlockchainPolicy {
       );
       assigned_kfrags.push([ursulaAddress, [ursula.encryptingKey, kFrag]]);
     });
-    const tmap = new TreasureMap(
+    return new TreasureMap(
       this.publisher.signer,
       this.hrac,
       this.delegatingKey,
       assigned_kfrags,
       this.threshold
     );
-
-    return tmap;
   }
 
   private encryptTreasureMap(treasureMap: TreasureMap): EncryptedTreasureMap {

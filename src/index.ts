@@ -29,5 +29,6 @@ export {
   EncryptedTreasureMap,
   HRAC,
   Signer,
+  TreasureMap,
   MessageKit,
 } from '@nucypher/nucypher-core';

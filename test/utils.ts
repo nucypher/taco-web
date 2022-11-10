@@ -202,10 +202,7 @@ export const reencryptKFrags = (
   if (!kFrags) {
     throw new Error('Pass at least one kFrag.');
   }
-  const verifiedCFrags = kFrags.map((kFrag) => {
-    const vFrag = reencrypt(capsule, kFrag);
-    return vFrag;
-  });
+  const verifiedCFrags = kFrags.map((kFrag) => reencrypt(capsule, kFrag));
   return { verifiedCFrags };
 };
 

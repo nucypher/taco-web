@@ -23,7 +23,7 @@ import {
 } from '../src/characters/porter';
 import { BlockchainPolicy, PreEnactedPolicy } from '../src/policies/policy';
 import { ChecksumAddress } from '../src/types';
-import { fromBase64, toBytes, toHexString, zip } from '../src/utils';
+import { toBytes, toHexString, zip } from '../src/utils';
 
 export const fromBytes = (bytes: Uint8Array): string =>
   new TextDecoder().decode(bytes);

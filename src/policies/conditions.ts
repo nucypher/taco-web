@@ -101,10 +101,10 @@ export class Condition {
   ];
 
   public static readonly SUPPORTED_CHAINS = [
-    'Ethereum Mainnet',
-    'Görli',
-    'Polygon Mainnet',
-    'Mumbai',
+    1,     // ethereum/mainnet
+    5,     // ethereum/goerli
+    137,   // polygon/mainnet
+    80001  // polygon/mumbai
   ];
 
   public readonly schema = Joi.object();
@@ -299,7 +299,7 @@ class EvmCondition extends Condition {
 
 class ERC721Ownership extends EvmCondition {
   readonly defaults = {
-    chain: 'Görli',
+    chain: 5,  // TODO: make this value configurable
     method: 'ownerOf',
     parameters: [],
     standardContractType: 'ERC721',
@@ -312,7 +312,7 @@ class ERC721Ownership extends EvmCondition {
 
 class ERC721Balance extends EvmCondition {
   readonly defaults = {
-    chain: 'Görli',
+    chain: 5,  // TODO: make this value configurable
     method: 'balanceOf',
     parameters: [':userAddress'],
     standardContractType: 'ERC721',

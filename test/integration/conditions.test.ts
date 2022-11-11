@@ -32,10 +32,10 @@ describe('conditions schema', () => {
     );
   });
 
-  result = condition.validate({ chain: 'Görli' });
+  result = condition.validate({ chain: 5 });
   it('should update the value of "chain"', async () => {
     expect(result.error).toEqual(undefined);
-    expect(result.value.chain).toEqual('Görli');
+    expect(result.value.chain).toEqual(5);
   });
 });
 
@@ -59,7 +59,7 @@ describe('condition set', () => {
 
 describe('conditions set to/from json', () => {
   const json =
-    '[{"chain":"Görli","method":"ownerOf","parameters":["3591"],"standardContractType":"ERC721","returnValueTest":{"comparator":"==","value":":userAddress"},"contractAddress":"0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77"}]';
+    '[{"chain":5,"method":"ownerOf","parameters":["3591"],"standardContractType":"ERC721","returnValueTest":{"comparator":"==","value":":userAddress"},"contractAddress":"0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77"}]';
   const conditionSet = ConditionSet.fromJSON(json);
 
   it('should be a ConditionSet', async () => {
@@ -90,7 +90,7 @@ describe('conditions types', () => {
 
   it('rpc', async () => {
     const rpcCondition = {
-      chain: 'Görli',
+      chain: 5,
       method: 'eth_getBalance',
       parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
       returnValueTest,
@@ -102,7 +102,7 @@ describe('conditions types', () => {
   it('evm', async () => {
     const evmCondition = {
       contractAddress: '0x0000000000000000000000000000000000000000',
-      chain: 'Görli',
+      chain: 5,
       standardContractType: 'ERC20',
       method: 'balanceOf',
       parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
@@ -116,7 +116,7 @@ describe('conditions types', () => {
     const badEvmCondition = {
       // Intentionally removing `contractAddress`
       // contractAddress: '0x0000000000000000000000000000000000000000',
-      chain: 'Görli',
+      chain: 5,
       standardContractType: 'ERC20',
       method: 'balanceOf',
       parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
@@ -142,7 +142,7 @@ describe('produce context parameters from conditions', () => {
       contextParams.forEach((contextParam) => {
         it(`produces context parameter ${contextParam} for method ${method}`, () => {
           const rpcCondition = new Conditions.RpcCondition({
-            chain: 'Görli',
+            chain: 5,
             method,
             parameters: [contextParam],
             returnValueTest: {
@@ -174,7 +174,7 @@ describe('produce context parameters from conditions', () => {
           it(`produces context parameter ${contextParam} for method ${method}`, () => {
             const evmCondition = new Conditions.EvmCondition({
               contractAddress: '0x0000000000000000000000000000000000000000',
-              chain: 'Görli',
+              chain: 5,
               standardContractType: 'ERC20',
               method: 'balanceOf',
               parameters: [contextParam],
@@ -198,7 +198,7 @@ describe('condition context', () => {
     const web3Provider = Web3Provider.fromEthersWeb3Provider(provider);
 
     const rpcCondition = new Conditions.RpcCondition({
-      chain: 'Görli',
+      chain: 5,
       method: 'eth_getBalance',
       parameters: [':userAddress'],
       returnValueTest: {

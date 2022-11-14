@@ -1,7 +1,13 @@
 import { CapsuleFrag, reencrypt } from '@nucypher/nucypher-core';
 
-import { Enrico, MessageKit } from '../../src';
-import { PolicyMessageKit } from '../../src/kits/message';
+import {
+  Conditions,
+  ConditionSet,
+  Enrico,
+  MessageKit,
+  Operator,
+  PolicyMessageKit,
+} from '../../src';
 import { RetrievalResult } from '../../src/kits/retrieval';
 import { toBytes, zip } from '../../src/utils';
 import { mockAlice, mockBob, mockUrsulas, reencryptKFrags } from '../utils';
@@ -16,25 +22,25 @@ describe('proxy reencryption', () => {
   const bob = mockBob();
 
   it('verifies capsule frags', async () => {
-    const { capsule } = new MessageKit(bob.decryptingKey, plaintext);
+    const { capsule } = new MessageKit(bob.decryptingKey, plaintext, null);
     const { delegatingKey, verifiedKFrags } = alice.generateKFrags(
       bob,
       label,
       threshold,
-      shares,
+      shares
     );
 
     const { verifiedCFrags } = reencryptKFrags(verifiedKFrags, capsule);
     const cFrags = verifiedCFrags.map((verifiedCFrag) =>
-      CapsuleFrag.fromBytes(verifiedCFrag.toBytes()),
+      CapsuleFrag.fromBytes(verifiedCFrag.toBytes())
     );
     const areVerified = cFrags.every((cFrag) =>
       cFrag.verify(
         capsule,
         alice.verifyingKey,
         delegatingKey,
-        bob.decryptingKey,
-      ),
+        bob.decryptingKey
+      )
     );
     expect(areVerified).toBeTruthy();
   });
@@ -44,26 +50,67 @@ describe('proxy reencryption', () => {
       bob,
       label,
       threshold,
-      shares,
+      shares
     );
 
-    const policyEncryptingKey = await alice.getPolicyEncryptingKeyFromLabel(
-      label,
-    );
+    const policyEncryptingKey = alice.getPolicyEncryptingKeyFromLabel(label);
     const enrico = new Enrico(policyEncryptingKey);
     const encryptedMessage = enrico.encryptMessage(plaintext);
 
     const ursulaAddresses = ursulas.map((ursula) => ursula.checksumAddress);
     const reencrypted = verifiedKFrags.map((kFrag) =>
-      reencrypt(encryptedMessage.capsule, kFrag),
+      reencrypt(encryptedMessage.capsule, kFrag)
     );
     const results = new RetrievalResult(
-      Object.fromEntries(zip(ursulaAddresses, reencrypted)),
+      Object.fromEntries(zip(ursulaAddresses, reencrypted))
     );
     const policyMessageKit = PolicyMessageKit.fromMessageKit(
       encryptedMessage,
       policyEncryptingKey,
+      threshold
+    ).withResult(results);
+    expect(policyMessageKit.isDecryptableByReceiver()).toBeTruthy();
+
+    const bobPlaintext = bob.decrypt(policyMessageKit);
+    expect(bobPlaintext).toEqual(plaintext);
+  });
+
+  it('encrypts and decrypts reencrypted message with conditions', async () => {
+    const { verifiedKFrags } = alice.generateKFrags(
+      bob,
+      label,
       threshold,
+      shares
+    );
+
+    const policyEncryptingKey = alice.getPolicyEncryptingKeyFromLabel(label);
+
+    const genuineUndead = new Conditions.ERC721Ownership({
+      contractAddress: '0x209e639a0EC166Ac7a1A4bA41968fa967dB30221',
+    });
+    const gnomePals = new Conditions.ERC721Ownership({
+      contractAddress: '0x5dB11d7356aa4C0E85Aa5b255eC2B5F81De6d4dA',
+    });
+    const conditions = new ConditionSet([
+      genuineUndead,
+      Operator.OR(),
+      gnomePals,
+    ]);
+
+    const enrico = new Enrico(policyEncryptingKey, undefined, conditions);
+    const encryptedMessage = enrico.encryptMessage(plaintext);
+
+    const ursulaAddresses = ursulas.map((ursula) => ursula.checksumAddress);
+    const reencrypted = verifiedKFrags.map((kFrag) =>
+      reencrypt(encryptedMessage.capsule, kFrag)
+    );
+    const results = new RetrievalResult(
+      Object.fromEntries(zip(ursulaAddresses, reencrypted))
+    );
+    const policyMessageKit = PolicyMessageKit.fromMessageKit(
+      encryptedMessage,
+      policyEncryptingKey,
+      threshold
     ).withResult(results);
     expect(policyMessageKit.isDecryptableByReceiver()).toBeTruthy();
 

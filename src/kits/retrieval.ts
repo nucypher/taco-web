@@ -3,17 +3,16 @@ import { VerifiedCapsuleFrag } from '@nucypher/nucypher-core';
 import { ChecksumAddress } from '../types';
 
 export class RetrievalResult {
-  public readonly cFrags: Record<ChecksumAddress, VerifiedCapsuleFrag>;
-
-  constructor(cFrags?: Record<ChecksumAddress, VerifiedCapsuleFrag>) {
-    this.cFrags = cFrags ? cFrags : {};
-  }
+  constructor(
+    public readonly cFrags: Record<ChecksumAddress, VerifiedCapsuleFrag> = {},
+    public readonly errors: Record<ChecksumAddress, string> = {}
+  ) {}
 
   public static empty(): RetrievalResult {
     return new RetrievalResult();
   }
 
-  public get addresses(): ChecksumAddress[] {
+  public get addresses(): readonly ChecksumAddress[] {
     return Object.keys(this.cFrags);
   }
 

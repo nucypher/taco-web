@@ -1,9 +1,9 @@
 import {
+  Address,
   EncryptedTreasureMap,
   HRAC,
   PublicKey,
   TreasureMap,
-  TreasureMapBuilder,
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
 
@@ -11,24 +11,33 @@ import { SubscriptionManagerAgent } from '../agents/subscription-manager';
 import { Alice } from '../characters/alice';
 import { RemoteBob } from '../characters/bob';
 import { Ursula } from '../characters/porter';
-import { RevocationKit } from '../kits/revocation';
+// import { RevocationKit } from '../kits/revocation';
 import { toBytes, toEpoch, zip } from '../utils';
 import { toCanonicalAddress } from '../web3';
 
-export interface EnactedPolicy {
-  id: HRAC;
-  label: string;
-  policyKey: PublicKey;
-  encryptedTreasureMap: EncryptedTreasureMap;
-  revocationKit: RevocationKit;
-  aliceVerifyingKey: Uint8Array;
-  size: number;
-  startTimestamp: Date;
-  endTimestamp: Date;
-  txHash: string;
-}
+export type EnactedPolicy = {
+  readonly id: HRAC;
+  readonly label: string;
+  readonly policyKey: PublicKey;
+  readonly encryptedTreasureMap: EncryptedTreasureMap;
+  // readonly revocationKit: RevocationKit;
+  readonly aliceVerifyingKey: Uint8Array;
+  readonly size: number;
+  readonly startTimestamp: Date;
+  readonly endTimestamp: Date;
+  readonly txHash: string;
+};
 
 type IPreEnactedPolicy = Omit<EnactedPolicy, 'txHash'>;
+
+export type EnactedPolicyJSON = Omit<
+  EnactedPolicy,
+  'policyKey' | 'encryptedTreasureMap' | 'id'
+> & {
+  policyKey: Uint8Array;
+  id: Uint8Array;
+  encryptedTreasureMap: Uint8Array;
+};
 
 export class PreEnactedPolicy implements IPreEnactedPolicy {
   constructor(
@@ -36,7 +45,7 @@ export class PreEnactedPolicy implements IPreEnactedPolicy {
     public readonly label: string,
     public readonly policyKey: PublicKey,
     public readonly encryptedTreasureMap: EncryptedTreasureMap,
-    public readonly revocationKit: RevocationKit,
+    // public readonly revocationKit: RevocationKit,
     public readonly aliceVerifyingKey: Uint8Array,
     public readonly size: number,
     public readonly startTimestamp: Date,
@@ -74,14 +83,14 @@ export class PreEnactedPolicy implements IPreEnactedPolicy {
   }
 }
 
-export interface BlockchainPolicyParameters {
-  bob: RemoteBob;
-  label: string;
-  threshold: number;
-  shares: number;
-  startDate: Date;
-  endDate: Date;
-}
+export type BlockchainPolicyParameters = {
+  readonly bob: RemoteBob;
+  readonly label: string;
+  readonly threshold: number;
+  readonly shares: number;
+  readonly startDate: Date;
+  readonly endDate: Date;
+};
 
 export class BlockchainPolicy {
   public readonly hrac: HRAC;
@@ -89,9 +98,9 @@ export class BlockchainPolicy {
   constructor(
     private readonly publisher: Alice,
     private readonly label: string,
-    private bob: RemoteBob,
-    private verifiedKFrags: VerifiedKeyFrag[],
-    private delegatingKey: PublicKey,
+    private readonly bob: RemoteBob,
+    private readonly verifiedKFrags: readonly VerifiedKeyFrag[],
+    private readonly delegatingKey: PublicKey,
     private readonly threshold: number,
     private readonly shares: number,
     private readonly startDate: Date,
@@ -104,24 +113,24 @@ export class BlockchainPolicy {
     );
   }
 
-  public async enact(ursulas: Ursula[]): Promise<EnactedPolicy> {
+  public async enact(ursulas: readonly Ursula[]): Promise<EnactedPolicy> {
     const preEnacted = await this.generatePreEnactedPolicy(ursulas);
     return await preEnacted.enact(this.publisher);
   }
 
   public async generatePreEnactedPolicy(
-    ursulas: Ursula[]
+    ursulas: readonly Ursula[]
   ): Promise<PreEnactedPolicy> {
     const treasureMap = this.makeTreasureMap(ursulas, this.verifiedKFrags);
     const encryptedTreasureMap = this.encryptTreasureMap(treasureMap);
-    const revocationKit = new RevocationKit(treasureMap, this.publisher.signer);
+    // const revocationKit = new RevocationKit(treasureMap, this.publisher.signer);
 
     return new PreEnactedPolicy(
       this.hrac,
       this.label,
       this.delegatingKey,
       encryptedTreasureMap,
-      revocationKit,
+      // revocationKit,
       this.publisher.verifyingKey.toBytes(),
       this.shares,
       this.startDate,
@@ -130,20 +139,23 @@ export class BlockchainPolicy {
   }
 
   private makeTreasureMap(
-    ursulas: Ursula[],
-    verifiedKFrags: VerifiedKeyFrag[]
+    ursulas: readonly Ursula[],
+    verifiedKFrags: readonly VerifiedKeyFrag[]
   ): TreasureMap {
-    const builder = new TreasureMapBuilder(
+    const assigned_kfrags: [Address, [PublicKey, VerifiedKeyFrag]][] = [];
+    zip(ursulas, verifiedKFrags).forEach(([ursula, kFrag]) => {
+      const ursulaAddress = new Address(
+        toCanonicalAddress(ursula.checksumAddress)
+      );
+      assigned_kfrags.push([ursulaAddress, [ursula.encryptingKey, kFrag]]);
+    });
+    return new TreasureMap(
       this.publisher.signer,
       this.hrac,
       this.delegatingKey,
+      assigned_kfrags,
       this.threshold
     );
-    zip(ursulas, verifiedKFrags).forEach(([ursula, kFrag]) => {
-      const ursulaAddress = toCanonicalAddress(ursula.checksumAddress);
-      builder.addKfrag(ursulaAddress, ursula.encryptingKey, kFrag);
-    });
-    return builder.build();
   }
 
   private encryptTreasureMap(treasureMap: TreasureMap): EncryptedTreasureMap {

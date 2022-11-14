@@ -1,7 +1,7 @@
 {
   "name": "@nucypher/nucypher-ts",
   "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
-  "version": "0.8.2",
+  "version": "0.9.0-alpha.0",
   "license": "GPL-3.0-only",
   "repository": {
     "type": "git",
@@ -13,17 +13,28 @@
   "engines": {
     "node": ">=12"
   },
+  "exports": {
+    ".": {
+      "require": "./build/main/src/index.js",
+      "import": "./build/module/src/index.js"
+    }
+  },
+  "keywords": [
+    "pre",
+    "threshold",
+    "access control"
+  ],
   "scripts": {
     "build": "run-p build:*",
     "build:main": "tsc -p tsconfig.json",
     "build:module": "tsc -p tsconfig.module.json",
     "fix": "run-s fix:*",
-    "fix:prettier": "prettier \"src/**/*.ts\" --write",
-    "fix:lint": "eslint src --ext .ts --fix",
+    "fix:prettier": "prettier \"src/**/*.ts\" \"test/**/*.ts\" --write",
+    "fix:lint": "eslint src test --ext .ts --fix",
     "test": "run-s build test:*",
-    "test:lint": "eslint src --ext .ts",
+    "test:lint": "eslint src test --ext .ts",
     "test:exports": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
-    "test:prettier": "prettier \"src/**/*.ts\" --list-different",
+    "test:prettier": "prettier \"src/**/*.ts\" \"test/**/*.ts\" --list-different",
     "test:unit": "jest",
     "watch:build": "tsc -p tsconfig.json -w",
     "watch:test": "jest --watch",
@@ -33,21 +44,25 @@
     "doc:json": "typedoc src/ --exclude **/*.spec.ts --mode file --json build/docs/typedoc.json",
     "doc:publish": "gh-pages -m \"[ci skip] Updates\" -d build/docs",
     "version": "standard-version",
+    "version:alpha": "standard-version --prerelease alpha",
     "reset-hard": "git clean -dfx && git reset --hard && yarn",
     "prepare-release": "run-s reset-hard test doc:html version doc:publish",
+    "prepare-release:alpha": "run-s reset-hard test version:alpha ",
     "typechain": "typechain --target=ethers-v5 \"abi/**/*.json\"",
-    "npm-publish": "npm publish --access=public",
     "prebuild": "yarn typechain"
   },
   "dependencies": {
-    "@nucypher/nucypher-core": "==0.4.0-alpha.0",
+    "@nucypher/nucypher-core": "0.4.0",
     "axios": "^0.21.1",
     "ethers": "^5.4.1",
+    "joi": "^17.6.0",
     "js-sha3": "^0.8.0",
     "qs": "^6.10.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.18.10",
     "@babel/preset-env": "^7.15.6",
+    "@skypack/package-check": "^0.2.2",
     "@typechain/ethers-v5": "^9.0.0",
     "@types/jest": "^26.0.24",
     "@types/qs": "^6.9.7",

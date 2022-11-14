@@ -12,14 +12,12 @@
   "plugins": [
     "import",
     "eslint-comments"
-    // "functional" // TODO: Enable before release
   ],
   "extends": [
     "eslint:recommended",
     "plugin:eslint-comments/recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:import/typescript",
-    // "plugin:functional/lite", // TODO: Enable before release
     "prettier",
     "prettier/@typescript-eslint"
   ],
@@ -29,12 +27,6 @@
     "WebAssembly": true
   },
   "rules": {
-    // TODO: Enable before release
-    "@typescript-eslint/no-unused-vars": "off",
-    "@typescript-eslint/no-non-null-assertion": "off",
-    "@typescript-eslint/no-explicit-any": "off",
-    "eslint-comments/no-unused-disable": "off",
-    // ---
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "eslint-comments/disable-enable-pair": [
       "error",
@@ -42,7 +34,6 @@
         "allowWholeFile": true
       }
     ],
-    // "eslint-comments/no-unused-disable": "error", // TODO: Enable before release
     "import/order": [
       "error",
       {

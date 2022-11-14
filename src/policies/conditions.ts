@@ -221,7 +221,7 @@ class RpcCondition extends Condition {
   };
 
   public readonly schema = Joi.object({
-    chain: Joi.string()
+    chain: Joi.number()
       .valid(...Condition.SUPPORTED_CHAINS)
       .required(),
     method: Joi.string()

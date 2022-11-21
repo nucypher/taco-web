@@ -15,68 +15,29 @@ export const toBase64 = (bytes: Uint8Array): string =>
 export const fromBase64 = (str: string): Uint8Array =>
   Buffer.from(str, 'base64');
 
-const periodToEpoch = (period: number, secondsPerPeriod: number): number =>
-  period * secondsPerPeriod * 1000;
-
-const epochToPeriod = (epoch: number, secondsPerPeriod: number): number =>
-  Math.floor(epoch / secondsPerPeriod);
-
-const dateToPeriod = (date: Date, secondsPerPeriod: number): number =>
-  epochToPeriod(date.getTime() * 1000, secondsPerPeriod);
-
-/**
- * Returns the Date object at a given period, future, or past.
- * If startOfPeriod, the Date object represents the first second of said period.
- * @param period
- * @param secondsPerPeriod
- * @param startOfPeriod
- */
-export const dateAtPeriod = (
-  period: number,
-  secondsPerPeriod: number,
-  startOfPeriod: boolean
-): Date => {
-  if (startOfPeriod) {
-    const atStartOfPeriod = periodToEpoch(period, secondsPerPeriod);
-    return new Date(atStartOfPeriod);
-  }
-  const now = new Date(Date.now());
-  const currentPeriod = dateToPeriod(now, secondsPerPeriod);
-  const deltaPeriods = period - currentPeriod;
-  return new Date(now.getTime() - secondsPerPeriod * deltaPeriods * 1000);
-};
-
-/**
- * Takes a future Date object and calculates the duration from now, returning in number of periods
- * @param futureDate
- * @param secondsPerPeriod
- * @param now
- * @returns
- */
-export const calculatePeriodDuration = (
-  futureDate: Date,
-  secondsPerPeriod: number,
-  now?: Date
-): number => {
-  if (!now) {
-    now = new Date(Date.now());
-  }
-  const futurePeriod = dateToPeriod(futureDate, secondsPerPeriod);
-  const currentPeriod = dateToPeriod(now, secondsPerPeriod);
-  return futurePeriod - currentPeriod;
-};
-
-export const mergeWithoutUndefined = (
-  A: Record<string, any>,
-  B: Record<string, any>
+export const base64ToU8Receiver = (
+  key: string,
+  value: string | number | Uint8Array
 ) => {
-  const res: Record<string, any> = {};
-  Object.keys({ ...A, ...B }).map((key) => {
-    res[key] = B[key] || A[key];
-  });
-  return res;
+  if (typeof value === 'string' && value.startsWith('base64:')) {
+    return fromBase64(value.split('base64:')[1]);
+  }
+  return value;
 };
 
-export const zip = (a: Array<any>, b: Array<any>) => a.map((k, i) => [k, b[i]]);
+export const u8ToBase64Replacer = (
+  key: string,
+  value: string | number | Uint8Array
+) => {
+  if (value instanceof Uint8Array) {
+    return `base64:${toBase64(value)}`;
+  }
+  return value;
+};
+
+export const zip = <T, Z>(
+  a: ReadonlyArray<T>,
+  b: ReadonlyArray<Z>
+): ReadonlyArray<readonly [a: T, b: Z]> => a.map((k, i) => [k, b[i]]);
 
 export const toEpoch = (date: Date) => (date.getTime() / 1000) | 0;

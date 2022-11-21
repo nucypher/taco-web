@@ -6,50 +6,41 @@ import {
   Signer,
 } from '@nucypher/nucypher-core';
 
-import { Configuration } from '../config';
 import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
-import { zip } from '../utils';
+import { ConditionContext } from '../policies/conditions';
+import { base64ToU8Receiver, u8ToBase64Replacer, zip } from '../utils';
 
 import { Porter } from './porter';
 
-export class RemoteBob {
-  private constructor(
-    public readonly decryptingKey: PublicKey,
-    public readonly verifyingKey: PublicKey
-  ) {}
+type decrypterJSON = {
+  porterUri: string;
+  policyEncryptingKeyBytes: Uint8Array;
+  encryptedTreasureMapBytes: Uint8Array;
+  publisherVerifyingKeyBytes: Uint8Array;
+  bobSecretKeyBytes: Uint8Array;
+};
 
-  public static fromKeys(
-    decryptingKey: PublicKey | Uint8Array,
-    verifyingKey: PublicKey | Uint8Array
-  ): RemoteBob {
-    const dk =
-      decryptingKey instanceof PublicKey
-        ? decryptingKey
-        : PublicKey.fromBytes(decryptingKey);
-    const vk =
-      verifyingKey instanceof PublicKey
-        ? verifyingKey
-        : PublicKey.fromBytes(verifyingKey);
-    return new RemoteBob(dk, vk);
-  }
-}
-
-export class Bob {
+export class tDecDecrypter {
   private readonly porter: Porter;
   private readonly keyring: Keyring;
+  // private readonly verifyingKey: Keyring;
 
-  constructor(config: Configuration, secretKey: SecretKey) {
-    this.porter = new Porter(config.porterUri);
+  constructor(
+    porterUri: string,
+    private readonly policyEncryptingKey: PublicKey,
+    readonly encryptedTreasureMap: EncryptedTreasureMap,
+    private readonly publisherVerifyingKey: PublicKey,
+    secretKey: SecretKey
+    // verifyingKey: SecretKey
+  ) {
+    this.porter = new Porter(porterUri);
     this.keyring = new Keyring(secretKey);
+    // this.verifyingKey = new Keyring(verifyingKey);
   }
 
   public get decryptingKey(): PublicKey {
-    return this.keyring.publicKey;
-  }
-
-  public get verifyingKey(): PublicKey {
     return this.keyring.publicKey;
   }
 
@@ -57,28 +48,17 @@ export class Bob {
     return this.keyring.signer;
   }
 
-  public static fromSecretKey(
-    config: Configuration,
-    secretKey: SecretKey
-  ): Bob {
-    return new Bob(config, secretKey);
-  }
-
   public decrypt(messageKit: MessageKit | PolicyMessageKit): Uint8Array {
     return this.keyring.decrypt(messageKit);
   }
 
   public async retrieveAndDecrypt(
-    policyEncryptingKey: PublicKey,
-    publisherVerifyingKey: PublicKey,
     messageKits: readonly MessageKit[],
-    encryptedTreasureMap: EncryptedTreasureMap
+    conditionContext: ConditionContext
   ): Promise<readonly Uint8Array[]> {
     const policyMessageKits = await this.retrieve(
-      policyEncryptingKey,
-      publisherVerifyingKey,
       messageKits,
-      encryptedTreasureMap
+      conditionContext
     );
 
     policyMessageKits.forEach((mk: PolicyMessageKit) => {
@@ -103,20 +83,18 @@ export class Bob {
   }
 
   public async retrieve(
-    policyEncryptingKey: PublicKey,
-    publisherVerifyingKey: PublicKey,
     messageKits: readonly MessageKit[],
-    encryptedTreasureMap: EncryptedTreasureMap
+    conditionContext: ConditionContext
   ): Promise<readonly PolicyMessageKit[]> {
-    const treasureMap = encryptedTreasureMap.decrypt(
+    const treasureMap = this.encryptedTreasureMap.decrypt(
       this.keyring.secretKey,
-      publisherVerifyingKey
+      this.publisherVerifyingKey
     );
 
     const policyMessageKits = messageKits.map((mk) =>
       PolicyMessageKit.fromMessageKit(
         mk,
-        policyEncryptingKey,
+        this.policyEncryptingKey,
         treasureMap.threshold
       )
     );
@@ -125,9 +103,10 @@ export class Bob {
     const retrieveCFragsResponses = await this.porter.retrieveCFrags(
       treasureMap,
       retrievalKits,
-      publisherVerifyingKey,
+      this.publisherVerifyingKey,
       this.decryptingKey,
-      this.verifyingKey
+      this.keyring.publicKey,
+      conditionContext
     );
 
     return zip(policyMessageKits, retrieveCFragsResponses).map((pair) => {
@@ -135,8 +114,8 @@ export class Bob {
       const vcFrags = Object.keys(cFrags).map((address) => {
         const verified = cFrags[address].verify(
           messageKit.capsule,
-          publisherVerifyingKey,
-          policyEncryptingKey,
+          this.publisherVerifyingKey,
+          this.policyEncryptingKey,
           this.decryptingKey
         );
         return [address, verified];
@@ -147,5 +126,40 @@ export class Bob {
       );
       return messageKit.withResult(retrievalResult);
     });
+  }
+
+  public toObj(): decrypterJSON {
+    return {
+      porterUri: this.porter.porterUrl.toString(),
+      policyEncryptingKeyBytes: this.policyEncryptingKey.toBytes(),
+      encryptedTreasureMapBytes: this.encryptedTreasureMap.toBytes(),
+      publisherVerifyingKeyBytes: this.publisherVerifyingKey.toBytes(),
+      bobSecretKeyBytes: this.keyring.secretKey.toSecretBytes(),
+    };
+  }
+
+  public toJSON(): string {
+    return JSON.stringify(this.toObj(), u8ToBase64Replacer);
+  }
+
+  private static fromObj({
+    porterUri,
+    policyEncryptingKeyBytes,
+    encryptedTreasureMapBytes,
+    publisherVerifyingKeyBytes,
+    bobSecretKeyBytes,
+  }: decrypterJSON) {
+    return new tDecDecrypter(
+      porterUri,
+      PublicKey.fromBytes(policyEncryptingKeyBytes),
+      EncryptedTreasureMap.fromBytes(encryptedTreasureMapBytes),
+      PublicKey.fromBytes(publisherVerifyingKeyBytes),
+      SecretKey.fromBytes(bobSecretKeyBytes)
+    );
+  }
+
+  public static fromJSON(json: string) {
+    const config = JSON.parse(json, base64ToU8Receiver);
+    return tDecDecrypter.fromObj(config);
   }
 }

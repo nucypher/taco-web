@@ -7,74 +7,82 @@ import {
 import axios, { AxiosResponse } from 'axios';
 import qs from 'qs';
 
+import { ConditionContext } from '../policies/conditions';
 import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from '../types';
 import { fromBase64, fromHexString, toBase64, toHexString } from '../utils';
 
-export interface Ursula {
-  checksumAddress: ChecksumAddress;
-  uri: string;
-  encryptingKey: PublicKey;
-}
+export type Ursula = {
+  readonly checksumAddress: ChecksumAddress;
+  readonly uri: string;
+  readonly encryptingKey: PublicKey;
+};
 
-interface GetUrsulasRequest {
-  quantity: number;
-  exclude_ursulas?: ChecksumAddress[];
-  include_ursulas?: ChecksumAddress[];
-}
+type GetUrsulasRequest = {
+  readonly quantity: number;
+  readonly exclude_ursulas?: readonly ChecksumAddress[];
+  readonly include_ursulas?: readonly ChecksumAddress[];
+};
 
-interface UrsulaResponse {
-  checksum_address: ChecksumAddress;
-  uri: string;
-  encrypting_key: HexEncodedBytes;
-}
+type UrsulaResponse = {
+  readonly checksum_address: ChecksumAddress;
+  readonly uri: string;
+  readonly encrypting_key: HexEncodedBytes;
+};
 
-export interface GetUrsulasResponse {
-  result: {
-    ursulas: UrsulaResponse[];
+export type GetUrsulasResponse = {
+  readonly result: {
+    readonly ursulas: readonly UrsulaResponse[];
   };
-  version: string;
-}
+  readonly version: string;
+};
 
-interface PostRetrieveCFragsRequest {
-  treasure_map: Base64EncodedBytes;
-  retrieval_kits: Base64EncodedBytes[];
-  alice_verifying_key: HexEncodedBytes;
-  bob_encrypting_key: HexEncodedBytes;
-  bob_verifying_key: HexEncodedBytes;
-}
+type PostRetrieveCFragsRequest = {
+  readonly treasure_map: Base64EncodedBytes;
+  readonly retrieval_kits: readonly Base64EncodedBytes[];
+  readonly alice_verifying_key: HexEncodedBytes;
+  readonly bob_encrypting_key: HexEncodedBytes;
+  readonly bob_verifying_key: HexEncodedBytes;
+  readonly context?: string;
+};
 
-interface PostRetrieveCFragsResult {
-  result: {
-    retrieval_results: {
-      cfrags: {
-        [address: string]: string;
+type PostRetrieveCFragsResult = {
+  readonly result: {
+    readonly retrieval_results: readonly {
+      readonly cfrags: {
+        readonly [address: string]: string;
+      };
+      readonly errors: {
+        readonly [key: string]: string;
       };
     }[];
   };
-  version: string;
-}
+  readonly version: string;
+};
 
-export type RetrieveCFragsResponse = Record<ChecksumAddress, CapsuleFrag>;
+export type RetrieveCFragsResponse = {
+  cFrags: Record<ChecksumAddress, CapsuleFrag>;
+  errors: Record<ChecksumAddress, string>;
+};
 
 export class Porter {
-  private readonly porterUri: URL;
+  readonly porterUrl: URL;
 
   constructor(porterUri: string) {
-    this.porterUri = new URL(porterUri);
+    this.porterUrl = new URL(porterUri);
   }
 
   public async getUrsulas(
     quantity: number,
-    excludeUrsulas?: ChecksumAddress[],
-    includeUrsulas?: ChecksumAddress[]
-  ): Promise<Ursula[]> {
+    excludeUrsulas?: readonly ChecksumAddress[],
+    includeUrsulas?: readonly ChecksumAddress[]
+  ): Promise<readonly Ursula[]> {
     const params: GetUrsulasRequest = {
       quantity,
       exclude_ursulas: excludeUrsulas,
       include_ursulas: includeUrsulas,
     };
     const resp: AxiosResponse<GetUrsulasResponse> = await axios.get(
-      new URL('/get_ursulas', this.porterUri).toString(),
+      new URL('/get_ursulas', this.porterUrl).toString(),
       {
         params,
         paramsSerializer: (params) => {
@@ -91,30 +99,35 @@ export class Porter {
 
   public async retrieveCFrags(
     treasureMap: TreasureMap,
-    retrievalKits: RetrievalKit[],
+    retrievalKits: readonly RetrievalKit[],
     aliceVerifyingKey: PublicKey,
     bobEncryptingKey: PublicKey,
-    bobVerifyingKey: PublicKey
-  ): Promise<RetrieveCFragsResponse[]> {
+    bobVerifyingKey: PublicKey,
+    conditionsContext?: ConditionContext
+  ): Promise<readonly RetrieveCFragsResponse[]> {
+    const context = conditionsContext
+      ? await conditionsContext.toJson()
+      : undefined;
     const data: PostRetrieveCFragsRequest = {
       treasure_map: toBase64(treasureMap.toBytes()),
       retrieval_kits: retrievalKits.map((rk) => toBase64(rk.toBytes())),
       alice_verifying_key: toHexString(aliceVerifyingKey.toBytes()),
       bob_encrypting_key: toHexString(bobEncryptingKey.toBytes()),
       bob_verifying_key: toHexString(bobVerifyingKey.toBytes()),
+      context,
     };
     const resp: AxiosResponse<PostRetrieveCFragsResult> = await axios.post(
-      new URL('/retrieve_cfrags', this.porterUri).toString(),
+      new URL('/retrieve_cfrags', this.porterUrl).toString(),
       data
     );
-    return resp.data.result.retrieval_results
-      .map((result) => result.cfrags)
-      .map((cFrags) => {
-        const parsed = Object.keys(cFrags).map((address) => [
-          address,
-          CapsuleFrag.fromBytes(fromBase64(cFrags[address])),
-        ]);
-        return Object.fromEntries(parsed);
-      });
+
+    return resp.data.result.retrieval_results.map(({ cfrags, errors }) => {
+      const parsed = Object.keys(cfrags).map((address) => [
+        address,
+        CapsuleFrag.fromBytes(fromBase64(cfrags[address])),
+      ]);
+      const cFrags = Object.fromEntries(parsed);
+      return { cFrags, errors };
+    });
   }
 }

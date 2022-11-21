@@ -6,14 +6,16 @@ import {
   SecretKey,
 } from '@nucypher/nucypher-core';
 
+import { ChecksumAddress } from '../types';
+
 import { RetrievalResult } from './retrieval';
 
 export class PolicyMessageKit {
   constructor(
-    public policyEncryptingKey: PublicKey,
-    private threshold: number,
-    private result: RetrievalResult,
-    private messageKit: MessageKit
+    public readonly policyEncryptingKey: PublicKey,
+    private readonly threshold: number,
+    private readonly result: RetrievalResult,
+    private readonly messageKit: MessageKit
   ) {}
 
   public static fromMessageKit(
@@ -39,15 +41,14 @@ export class PolicyMessageKit {
   ): Uint8Array {
     const cFrags = Object.values(this.result.cFrags);
     if (!cFrags) {
-      throw 'Failed to attach any capsule fragments.';
+      throw Error('Failed to attach any capsule fragments.');
     }
 
-    let mk = this.messageKit.withCFrag(cFrags[0]);
-    cFrags.slice(1).map((cFrag) => {
-      mk = mk.withCFrag(cFrag);
-    });
-
-    return mk.decryptReencrypted(secretKey, policyEncryptingKey);
+    return this.messageKit.decryptReencrypted(
+      secretKey,
+      policyEncryptingKey,
+      cFrags
+    );
   }
 
   public asRetrievalKit(): RetrievalKit {
@@ -59,6 +60,10 @@ export class PolicyMessageKit {
       !!this.result.cFrags &&
       Object.keys(this.result.cFrags).length >= this.threshold
     );
+  }
+
+  public get errors(): Record<ChecksumAddress, string> {
+    return this.result.errors;
   }
 
   public toBytes(): Uint8Array {

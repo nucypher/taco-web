@@ -2,20 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [0.8.2](https://github.com/nucypher/nucypher-ts/compare/v0.8.1...v0.8.2) (2022-10-03)
+### [0.9.0-alpha.0](https://github.com/nucypher/nucypher-ts/compare/v0.8.1...v0.8.2) (2022-11-14)
 
+### [0.8.2](https://github.com/nucypher/nucypher-ts/compare/v0.8.1...v0.8.2) (2022-10-03)
 
 ### Bug Fixes
 
 * force dependency resolution for nucypher-core ([2329a22](https://github.com/nucypher/nucypher-ts/commit/2329a22834cff5bc74eebfc9027e0e8ced77cb38))
 
 ### [0.8.1](https://github.com/nucypher/nucypher-ts/compare/v0.7.4...v0.8.1) (2022-09-20)
-
-
-### Features
-
-* update nucypher-core to 0.4.0-alpha.0 ([99ed65b](https://github.com/nucypher/nucypher-ts/commit/99ed65b284d262f8efe737c1bef0343d6d8ca92d))
-
 
 ### Bug Fixes
 
@@ -32,6 +27,58 @@ All notable changes to this project will be documented in this file. See [standa
 ### Bug Fixes
 
 * escaping porter url ([5a9e68c](https://github.com/nucypher/nucypher-ts/commit/5a9e68c35f0c48d7333a9a57f1c1988982827267))
+
+### [0.7.9-alpha.26](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.25...v0.7.9-alpha.26) (2022-11-14)
+
+### [0.7.9-alpha.25](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.24...v0.7.9-alpha.25) (2022-11-11)
+
+### [0.7.9-alpha.24](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.23...v0.7.9-alpha.24) (2022-11-09)
+
+### [0.7.9-alpha.23](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.22...v0.7.9-alpha.23) (2022-11-07)
+
+### [0.7.9-alpha.22](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.21...v0.7.9-alpha.22) (2022-11-07)
+
+### [0.7.9-alpha.21](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.18...v0.7.9-alpha.21) (2022-11-05)
+
+### [0.7.9-alpha.20](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.18...v0.7.9-alpha.20) (2022-10-11)
+
+### [0.7.9-alpha.18](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.17...v0.7.9-alpha.18) (2022-09-30)
+
+### [0.7.9-alpha.17](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.16...v0.7.9-alpha.17) (2022-09-26)
+
+### [0.7.9-alpha.16](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.15...v0.7.9-alpha.16) (2022-09-26)
+
+### [0.7.9-alpha.15](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.14...v0.7.9-alpha.15) (2022-09-23)
+
+### [0.7.9-alpha.14](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.12...v0.7.9-alpha.14) (2022-09-22)
+
+### [0.7.9-alpha.13](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.12...v0.7.9-alpha.13) (2022-09-22)
+
+### [0.7.9-alpha.12](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.11...v0.7.9-alpha.12) (2022-09-15)
+
+### [0.7.9-alpha.11](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.10...v0.7.9-alpha.11) (2022-09-15)
+
+### [0.7.9-alpha.10](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.9...v0.7.9-alpha.10) (2022-09-14)
+
+### [0.7.9-alpha.9](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.8...v0.7.9-alpha.9) (2022-09-13)
+
+### [0.7.9-alpha.8](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.7...v0.7.9-alpha.8) (2022-09-13)
+
+### [0.7.9-alpha.7](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.6...v0.7.9-alpha.7) (2022-09-13)
+
+### [0.7.9-alpha.6](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.5...v0.7.9-alpha.6) (2022-09-13)
+
+### [0.7.9-alpha.5](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.4...v0.7.9-alpha.5) (2022-09-12)
+
+### [0.7.9-alpha.4](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.3...v0.7.9-alpha.4) (2022-09-12)
+
+### [0.7.9-alpha.3](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.2...v0.7.9-alpha.3) (2022-09-12)
+
+### [0.7.9-alpha.2](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.1...v0.7.9-alpha.2) (2022-08-25)
+
+### [0.7.9-alpha.1](https://github.com/nucypher/nucypher-ts/compare/v0.7.4...v0.7.9-alpha.1) (2022-08-19)
+
+### [0.7.9-alpha.0](https://github.com/nucypher/nucypher-ts/compare/v0.7.8...v0.7.9-alpha.0) (2022-08-16)
 
 ### [0.7.4](https://github.com/nucypher/nucypher-ts/compare/v0.7.3...v0.7.4) (2022-08-10)
 

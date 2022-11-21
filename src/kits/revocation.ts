@@ -1,9 +1,10 @@
 import { RevocationOrder, Signer, TreasureMap } from '@nucypher/nucypher-core';
 
 export class RevocationKit {
-  public revocationOrders: RevocationOrder[];
+  public revocationOrder: RevocationOrder | null;
 
+  // ideally underlying rust should throw an error if the treasure map is not signed by the signer
   constructor(treasureMap: TreasureMap, signer: Signer) {
-    this.revocationOrders = treasureMap.makeRevocationOrders(signer);
+    this.revocationOrder = treasureMap.makeRevocationOrders(signer);
   }
 }

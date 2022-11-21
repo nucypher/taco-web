@@ -35,10 +35,10 @@ describe('story: alice1 creates a policy but alice2 enacts it', () => {
     };
 
     const preEnactedPolicy = await alice1.generatePreEnactedPolicy(
-      policyParams,
+      policyParams
     );
     expect(preEnactedPolicy.aliceVerifyingKey).toEqual(
-      alice1.verifyingKey.toBytes(),
+      alice1.verifyingKey.toBytes()
     );
     expect(preEnactedPolicy.label).toBe(label);
 

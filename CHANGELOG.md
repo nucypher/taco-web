@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.9.0-alpha.0](https://github.com/nucypher/nucypher-ts/compare/v0.8.1...v0.8.2) (2022-11-14)
+
+### [0.8.2](https://github.com/nucypher/nucypher-ts/compare/v0.8.1...v0.8.2) (2022-10-03)
+
+### Bug Fixes
+
+* force dependency resolution for nucypher-core ([2329a22](https://github.com/nucypher/nucypher-ts/commit/2329a22834cff5bc74eebfc9027e0e8ced77cb38))
+
+### [0.8.1](https://github.com/nucypher/nucypher-ts/compare/v0.7.4...v0.8.1) (2022-09-20)
+
+### Bug Fixes
+
+* escaping porter url ([5a9e68c](https://github.com/nucypher/nucypher-ts/commit/5a9e68c35f0c48d7333a9a57f1c1988982827267))
+
+## [0.8.0](https://github.com/nucypher/nucypher-ts/compare/v0.7.4...v0.8.0) (2022-09-20)
+
+
+### Features
+
+* update nucypher-core to 0.4.0-alpha.0 ([99ed65b](https://github.com/nucypher/nucypher-ts/commit/99ed65b284d262f8efe737c1bef0343d6d8ca92d))
+
+
+### Bug Fixes
+
+* escaping porter url ([5a9e68c](https://github.com/nucypher/nucypher-ts/commit/5a9e68c35f0c48d7333a9a57f1c1988982827267))
+
 ### [0.7.9-alpha.26](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.25...v0.7.9-alpha.26) (2022-11-14)
 
 ### [0.7.9-alpha.25](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.24...v0.7.9-alpha.25) (2022-11-11)
@@ -15,17 +41,6 @@ All notable changes to this project will be documented in this file. See [standa
 ### [0.7.9-alpha.21](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.18...v0.7.9-alpha.21) (2022-11-05)
 
 ### [0.7.9-alpha.20](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.18...v0.7.9-alpha.20) (2022-10-11)
-
-
-### Features
-
-* expose ConditionSet type ([92e688f](https://github.com/nucypher/nucypher-ts/commit/92e688f694f64a562e21a573e82ab1a2f575ce0e))
-
-
-### Bug Fixes
-
-* **test:** add mocks to tdec test suite ([04331f9](https://github.com/nucypher/nucypher-ts/commit/04331f95f4128cc4f74bb126b43c145f0e236b19))
-* **test:** skip a flow failining because of compatibility issues ([052743c](https://github.com/nucypher/nucypher-ts/commit/052743c60c4168d7873466640f9fddb8d5296d6c))
 
 ### [0.7.9-alpha.18](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.17...v0.7.9-alpha.18) (2022-09-30)
 
@@ -62,17 +77,6 @@ All notable changes to this project will be documented in this file. See [standa
 ### [0.7.9-alpha.2](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.1...v0.7.9-alpha.2) (2022-08-25)
 
 ### [0.7.9-alpha.1](https://github.com/nucypher/nucypher-ts/compare/v0.7.4...v0.7.9-alpha.1) (2022-08-19)
-
-
-### Features
-
-* expose ConditionSet type ([7f28169](https://github.com/nucypher/nucypher-ts/commit/7f281699e730f3eed5ca283a7f954f8ed9308490))
-
-
-### Bug Fixes
-
-* **test:** add mocks to tdec test suite ([fe72c0f](https://github.com/nucypher/nucypher-ts/commit/fe72c0f2a4e3f0dd42cb2595c7badb9a69fee527))
-* **test:** skip a flow failining because of compatibility issues ([d86f10b](https://github.com/nucypher/nucypher-ts/commit/d86f10b863d2b76f71584c5fe8e3550bd1ed3da6))
 
 ### [0.7.9-alpha.0](https://github.com/nucypher/nucypher-ts/compare/v0.7.8...v0.7.9-alpha.0) (2022-08-16)
 

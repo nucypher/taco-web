@@ -90,7 +90,7 @@ The equivalent decrypter can be created by:
 import { makeTDecDecrypter } from '@nucypher/nucypher-ts'
 
 // you can specify your own porter url here
-const decrypter = await makeTDecDecrypter("ibex-2-of-3", "https://porter-ibex.nucypher.community")
+const decrypter = await makeTDecDecrypter("ibex-2-of-3", "https://porter-tapir.nucypher.community")
 ```
 
 Please note, the schemes for the encrypter and decrypter **must** match.

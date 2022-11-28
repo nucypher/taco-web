@@ -8,13 +8,13 @@
 > SDK does not support policy revocation.
 >
 > We expect breaking changes.
-# Get Started with TAC
+# Get Started with Threshold Access Control
 
-The following interactive tutorial is a quick way for developers to familiarize themselves with the Threshold Access Control service. Before jumping into the following, we recommend reading this introduction to [Conditions Based decryption](https://docs.threshold.network/fundamentals/threshold-access-control/conditions-based-decryption-cbd) and its key concepts. CBD is the primary technology underpinning Threshold Access Control and directly enables data sharing predicated on the fulfillment of predefined conditions.
+The following interactive tutorial is a quick way for developers to familiarize themselves with the Threshold Access Control (TAC) service. Before jumping in, we recommend reading this introduction to [Conditions-Based Decryption](https://docs.threshold.network/fundamentals/threshold-access-control/conditions-based-decryption-cbd) (CBD) and its key concepts. CBD is one of two technologies underpinning Threshold Access Control and directly enables data sharing predicated on the fulfillment of predefined conditions.
 
 ## 1. Install nucypher-ts
 
-We'll kick things off by installing `nucypher-ts` – a TypeScript library for interacting with access control functionality in the browser. The APIs for leveraging most TAC functionality are contained in nucypher-ts.
+We'll kick things off by installing `nucypher-ts` – a TypeScript library for employing access control functionality in the browser. The APIs for leveraging TAC functionality are contained in nucypher-ts.
 
 ```
 yarn add @nucypher/nucypher-ts
@@ -32,12 +32,12 @@ import { Cohort } from '@nucypher/nucypher-ts';
 const config = {
   threshold: 3,
   shares: 5,
-  porterUri: 'https://porter-lynx.nucypher.community',
+  porterUri: 'https://porter-tapir.nucypher.community',
 };
 const newCohort = await Cohort.create(config);
 ```
 
-Notice that we have also provided a `porterUri`. **Porter is a web-based service that interacts with nodes on the network on behalf of applications – an "Infura for TAC".** In this example, we've chosen a `lynx` (testnet) Porter endpoint.
+Notice that we have also provided a `porterUri`. **Porter is a web-based service that interacts with nodes on the network on behalf of applications – an "Infura for TAC".** In this example, we've chosen a `tapir` (testnet) [Porter](https://github.com/nucypher/nucypher-porter) endpoint.
 
 ## 3. Create Conditions
 
@@ -48,7 +48,7 @@ import { Conditions } from '@nucypher/nucypher-ts';
 
 const NFTOwnership = new Conditions.ERC721Ownership({
   contractAddress: '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D',
-  chain: 5, // lynx uses the Goerli testnet
+  chain: 5, // tapir uses the Goerli testnet
   parameters: [5954],
 });
 ```
@@ -95,7 +95,7 @@ if (MMprovider) {
 } 
 ```
 
-> :warning: Deploying a Strategy requires writing to the blockchain. This requires a funded wallet and connection to the blockchain via a `provider`(e.g. MetaMask).
+> :warning: Deploying a Strategy requires writing to the blockchain. This requires a wallet funded with MATIC and connection to the blockchain via a `provider`(e.g. MetaMask).
 
 ## 6. Encrypt the plaintext
 

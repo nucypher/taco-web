@@ -76,7 +76,8 @@ const newStrategy = Strategy.create(
 );
 ```
 
-Next, we deploy this Strategy to the Threshold Network:
+Next, we deploy this Strategy to the Threshold Network.
+In order to make this more affordable, deployments are handled by a L2, in this case we use Polygon Mumbai:
 
 ```typescript
 import detectEthereumProvider from '@metamask/detect-provider';

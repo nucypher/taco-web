@@ -83,12 +83,12 @@ import detectEthereumProvider from '@metamask/detect-provider';
 import providers from 'ethers';
 
 const MMprovider = await detectEthereumProvider();
-const goerli = providers.providers.getNetwork('Goerli');
+const mumbai = providers.providers.getNetwork(80001);
 
 if (MMprovider) {
   const web3Provider = new providers.providers.Web3Provider(
     MMprovider,
-    goerli
+    mumbai
   );
   const newDeployed = await newStrategy.deploy('test', web3Provider);
 } 

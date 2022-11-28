@@ -123,42 +123,7 @@ At decryption time, the requester will be asked to verify their address by signi
 
 For more guidance on Cohort, Condition and Strategy object reuse and customization, check out the [References](https://docs.threshold.network/app-development/threshold-access-control-tac/references) page.
 
-
 # Contributing
 
-Install, test and build with:
-
-```bash
-yarn install
-yarn test
-yarn build
-```
-
-Install the git hooks:
-
-```bash
-npx husky install
-```
-
-Generate contract typings:
-
-```bash
-yarn typechain
-```
-
-## Publishing
-
-Publish a new release on NPM.
-
-Pay attention to output of these commands and fix your release if needed.
-
-To build and publish a release, run
-
-```bash
-yarn prepare-release
-# Or, to publish an alpha release
-yarn prepare-release:alpha
-```
-
-Follow instructions from the command output to finalize the process.
-
+If you would like to get involved with the development of `nucypher-ts`, please see our [Contributing Guide](https://docs.threshold.network/app-development/contribution-guide).
+Alternatively, you can join our [Discord](http://discord.gg/threshold) and say hello!

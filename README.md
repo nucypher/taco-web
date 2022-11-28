@@ -1,4 +1,13 @@
-Full Documentation can be found [here](https://docs.threshold.network/app-development/threshold-access-control-tac).
+ A TypeScript library for interacting with access control functionality in the browser.
+
+ Full Documentation can be found [here](https://docs.threshold.network/app-development/threshold-access-control-tac).
+
+> :warning: 
+> `nucypher-ts` is under [active development](https://github.com/nucypher/nucypher-ts/pulls).
+>
+> SDK does not support policy revocation.
+>
+> We expect breaking changes.
 # Get Started with TAC
 
 The following interactive tutorial is a quick way for developers to familiarize themselves with the Threshold Access Control service. Before jumping into the following, we recommend reading this introduction to [Conditions Based decryption](https://docs.threshold.network/fundamentals/threshold-access-control/conditions-based-decryption-cbd) and its key concepts. CBD is the primary technology underpinning Threshold Access Control and directly enables data sharing predicated on the fulfillment of predefined conditions.
@@ -10,10 +19,6 @@ We'll kick things off by installing `nucypher-ts` – a TypeScript library for i
 ```
 yarn add @nucypher/nucypher-ts
 ```
-
-
-> :warning: `nucypher-ts` is under [active development](https://github.com/nucypher/nucypher-ts/pulls).
-
 
 ## 2. Build a Cohort
 

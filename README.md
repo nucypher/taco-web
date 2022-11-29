@@ -128,5 +128,5 @@ For more guidance on Cohort, Condition and Strategy object reuse and customizati
 
 # Contributing
 
-If you would like to get involved with the development of `nucypher-ts`, please see our [Contributing Guide](https://docs.threshold.network/app-development/contribution-guide).
+If you would like to get involved with the development of `nucypher-ts`, please see our [Contributing Guide](CONTRIBUTING.md).
 Alternatively, you can join our [Discord](http://discord.gg/threshold) and say hello!

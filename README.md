@@ -41,7 +41,7 @@ Notice that we have also provided a `porterUri`. **[Porter](https://github.com/n
 
 ## 3. Create Conditions
 
-We will now specify the conditions on which data access will be predicated – i.e. what will the data requester need to prove in order to gain decryption rights. In this tutorial, nodes will check that the requester owns a specific ERC721 NFT:
+We will now specify the conditions on which data access will be predicated – i.e. what will the data requester need to prove in order to gain decryption rights. In this tutorial, nodes will check that the requester owns an ERC721 NFT with a token ID of 5954:
 
 ```javascript
 import { Conditions } from '@nucypher/nucypher-ts';

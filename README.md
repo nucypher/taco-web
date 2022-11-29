@@ -53,6 +53,8 @@ const NFTOwnership = new Conditions.ERC721Ownership({
 });
 ```
 
+Note that `ERC721Ownership` above serves as a wrapper function. The ERC 721 `ownerOf` contract method is what actually finds a `tokenID` and returns the owner's address, such that it can be compared with the requestor's signature. For help customizing the wrapper function, see the [References](https://docs.threshold.network/app-development/threshold-access-control-tac/references/conditions#conditions.erc721ownership) section of the full documentation. 
+
 Note that there are other Condition [types](https://docs.threshold.network/app-development/threshold-access-control-tac/references/conditions), and it is possible to compose and combine multiple Condition objects into a [_ConditionSet_](https://docs.threshold.network/app-development/threshold-access-control-tac/references/condition-set)_:_
 
 ```javascript

@@ -37,7 +37,7 @@ const config = {
 const newCohort = await Cohort.create(config);
 ```
 
-Notice that we have also provided a `porterUri`. **Porter is a web-based service that interacts with nodes on the network on behalf of applications – an "Infura for TAC".** In this example, we've chosen a `tapir` (testnet) [Porter](https://github.com/nucypher/nucypher-porter) endpoint.
+Notice that we have also provided a `porterUri`. **[Porter](https://github.com/nucypher/nucypher-porter) is a web-based service that interacts with nodes on the network on behalf of applications – an "Infura for TAC".** In this example, we've chosen a Porter endpoint for the `tapir` testnet.
 
 ## 3. Create Conditions
 

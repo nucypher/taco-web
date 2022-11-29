@@ -9,7 +9,7 @@ const CONFIGS: { readonly [key in ChainId]: Configuration } = {
     porterUri: 'https://porter.nucypher.community',
   },
   [ChainId.MUMBAI]: {
-    porterUri: 'https://porter-ibex.nucypher.community',
+    porterUri: 'https://porter-tapir.nucypher.community',
   },
 };
 

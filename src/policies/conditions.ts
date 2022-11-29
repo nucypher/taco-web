@@ -311,7 +311,6 @@ class ERC721Ownership extends EvmCondition {
 
 class ERC721Balance extends EvmCondition {
   readonly defaults = {
-    chain: 5, // TODO: make this value configurable
     method: 'balanceOf',
     parameters: [':userAddress'],
     standardContractType: 'ERC721',

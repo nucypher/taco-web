@@ -40,7 +40,9 @@ describe('conditions schema', () => {
 
   it('should validate chain id', async () => {
     result = condition.validate({ chain: 10 });
-    expect(result.error?.message).toEqual("\"chain\" must be one of [1, 5, 137, 80001]");
+    expect(result.error?.message).toEqual(
+      '"chain" must be one of [1, 5, 137, 80001]'
+    );
   });
 });
 

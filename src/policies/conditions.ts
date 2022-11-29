@@ -299,7 +299,6 @@ class EvmCondition extends Condition {
 
 class ERC721Ownership extends EvmCondition {
   readonly defaults = {
-    chain: 5, // TODO: make this value configurable
     method: 'ownerOf',
     parameters: [],
     standardContractType: 'ERC721',

@@ -116,11 +116,13 @@ describe('enrico', () => {
 
     const ownsBufficornNFT = new Conditions.ERC721Ownership({
       contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
+      chain: 5,
       parameters: [3591],
     });
 
     const ownsNonsenseNFT = new Conditions.ERC721Ownership({
       contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
+      chain: 5,
       parameters: [6969],
     });
 

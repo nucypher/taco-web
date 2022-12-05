@@ -197,6 +197,7 @@ describe('Deployed Strategy', () => {
     const ownsNFT = new Conditions.ERC721Ownership({
       contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
       parameters: [3591],
+      chain: 5,
     });
 
     const plaintext = 'this is a secret';

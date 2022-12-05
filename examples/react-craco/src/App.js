@@ -38,7 +38,7 @@ function App() {
 
   const config = {
     // Public Porter endpoint on Ibex network
-    porterUri: 'https://porter-ibex.nucypher.community',
+    porterUri: 'https://porter-tapir.nucypher.community',
   };
 
   const makeAlice = () => {

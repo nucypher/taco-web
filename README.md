@@ -17,7 +17,7 @@ This tutorial is a quick way for developers to learn about the Threshold Access 
 
 ## 1. Install `nucypher-ts`
 
-To start, we need to install the `nucypher-ts` library - A TypeScript library for using access control in the browser. To install it, run the following command:
+To start, we need to install the `nucypher-ts` library:
 
 ```
 yarn add @nucypher/nucypher-ts
@@ -25,9 +25,9 @@ yarn add @nucypher/nucypher-ts
 
 ## 2. Build a Cohort
 
-Next, we will create a Cohort based on our risk preferences. A Cohort is a group of nodes that work together to control access to data. Threshold and Shares are two parameters used to create a Cohort. For example, a 3-of-5 Cohort needs at least 3 of the 5 members to provide shares in order to access the original data.
+Next, we will create a `Cohort` based on our risk preferences. A `Cohort` is a group of nodes that work together to control access to data. Threshold and Shares are two parameters used to create a `Cohort`. For example, a 3-of-5 `Cohort` needs at least 3 of the 5 members to provide shares to access the original data.
 
-To create a Cohort, use the following code:
+To create a `Cohort`, use the following code:
 
 ```javascript
 import { Cohort } from '@nucypher/nucypher-ts';
@@ -40,7 +40,7 @@ const config = {
 const newCohort = await Cohort.create(config);
 ```
 
-In the code above, we provided a `porterUri` parameter. [Porter](https://docs.nucypher.com/en/latest/application_development/web_development.html#porter) is a web-based service that connects applications to nodes on the network. It acts as an "Infura for TAC". In this example, we used a Porter endpoint for the tapir testnet.
+In the code above, we provided a `porterUri` parameter. [Porter](https://docs.nucypher.com/en/latest/application_development/web_development.html#porter) is a web-based service that connects applications to nodes on the network. It acts as an "Infura for TAC". In this example, we used a Porter endpoint for the `tapir` testnet.
 
 ## 3. Create Conditions
 
@@ -58,7 +58,7 @@ const NFTOwnership = new Conditions.ERC721Ownership({
 
 The `ERC721Ownership` condition checks the owner of a given token ID. It can be customized by using the `ownerOf` contract method and comparing it with the requestor's signature. For more information, see the [References](https://docs.threshold.network/app-development/threshold-access-control-tac/references/conditions#conditions.erc721ownership) section of the documentation.
 
-There are other Condition [types](https://docs.threshold.network/app-development/threshold-access-control-tac/references/conditions), and it is possible combine multiple conditions into a [_ConditionSet_](https://docs.threshold.network/app-development/threshold-access-control-tac/references/condition-set)_:_
+There are other [`Condition` types](https://docs.threshold.network/app-development/threshold-access-control-tac/references/conditions), and it is possible to combine multiple conditions into a [`ConditionSet`](https://docs.threshold.network/app-development/threshold-access-control-tac/references/condition-set)_:_
 
 ```javascript
 import { Conditions, ConditionSet } from '@nucypher/nucypher-ts';
@@ -73,7 +73,7 @@ In this tutorial, we will only use a single condition.
 
 ## 5. Build a Strategy
 
-We will now combine the `Cohort`, `ConditionSet`, and any other necessary parameters into a [_Strategy_](https://docs.threshold.network/app-development/threshold-access-control-tac/references/strategy)_:_
+We will now combine the `Cohort`, `ConditionSet`, and any other necessary parameters into a [`Strategy`](https://docs.threshold.network/app-development/threshold-access-control-tac/references/strategy):
 
 ```javascript
 import { Strategy } from '@nucypher/nucypher-ts';
@@ -81,7 +81,7 @@ import { Strategy } from '@nucypher/nucypher-ts';
 const newStrategy = Strategy.create(newCohort, conditions);
 ```
 
-Next, we will deploy this Strategy to the Threshold Network. To do that, we're going to transact on Polygon Mumbai:
+Next, we will deploy this `Strategy` to the Threshold Network. To do that, we're going to transact on Polygon Mumbai:
 
 ```typescript
 import detectEthereumProvider from '@metamask/detect-provider';
@@ -96,11 +96,11 @@ if (MMprovider) {
 }
 ```
 
-:warning: Deploying a Strategy requires writing to the blockchain. This requires a wallet funded with testnet MATIC and connection to the blockchain via a `provider`(e.g. MetaMask).
+:warning: Deploying a `Strategy` requires writing to the blockchain. This requires a wallet funded with testnet MATIC and connection to the blockchain via a `provider`(e.g. MetaMask).
 
 ## 6. Encrypt the plaintext
 
-We can now encrypt data using the newly deployed Strategy. This means that future access to this data will be based on the ownership of the specified NFT. To encrypt the data, use the following code:
+We can now encrypt data using the newly deployed `Strategy`. This means that future access to this data will be based on the ownership of the specified NFT. To encrypt the data, use the following code:
 
 ```javascript
 const encrypter = newDeployed.encrypter;
@@ -123,7 +123,7 @@ const decryptedMessage = await decrypter.retrieveAndDecrypt([
 
 At decryption time, the requester will be asked to verify their address by signing a message in MetaMask. If they own the correct NFT, the message will decrypt successfully.
 
-For more information about customizing and reusing Cohort, Condition, and Strategy objects, see the [References](https://docs.threshold.network/app-development/threshold-access-control-tac/references) page in the documentation.
+For more information about customizing and reusing `Cohort`, `Condition`, and `Strategy` objects, see the [References](https://docs.threshold.network/app-development/threshold-access-control-tac/references) page in the documentation.
 
 # Contributing
 

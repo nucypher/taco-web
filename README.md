@@ -1,20 +1,23 @@
- A TypeScript library for interacting with access control functionality in the browser.
+# nucypher-ts
 
- Full Documentation can be found [here](https://docs.threshold.network/app-development/threshold-access-control-tac).
+A TypeScript library for interacting with access control functionality in the browser.
 
-> :warning: 
-> `nucypher-ts` is under [active development](https://github.com/nucypher/nucypher-ts/pulls).
->
-> SDK does not support policy revocation.
->
-> We expect breaking changes.
+Full documentation can be found [here](https://docs.threshold.network/app-development/threshold-access-control-tac).
+
+## Disclaimer
+
+:warning: `nucypher-ts` is under [active development](https://github.com/nucypher/nucypher-ts/pulls):
+
+- SDK does not support policy revocation.
+- We expect breaking changes.
+
 # Get Started with Threshold Access Control
 
-The following interactive tutorial is a quick way for developers to familiarize themselves with the Threshold Access Control (TAC) service. Before jumping in, we recommend reading this introduction to [Conditions-Based Decryption](https://docs.threshold.network/fundamentals/threshold-access-control/conditions-based-decryption-cbd) (CBD) and its key concepts. CBD is one of two technologies underpinning Threshold Access Control and directly enables data sharing predicated on the fulfillment of predefined conditions.
+This tutorial is a quick way for developers to learn about the Threshold Access Control service. We recommend reading about [Conditions-Based Decryption](https://docs.threshold.network/fundamentals/threshold-access-control/conditions-based-decryption-cbd) (CBD) before starting. CBD is a technology used in Threshold Access Control that allows for data sharing based on certain conditions.
 
-## 1. Install nucypher-ts
+## 1. Install `nucypher-ts`
 
-We'll kick things off by installing `nucypher-ts` – a TypeScript library for employing access control functionality in the browser. The APIs for leveraging TAC functionality are contained in nucypher-ts.
+To start, we need to install the `nucypher-ts` library - A TypeScript library for using access control in the browser. To install it, run the following command:
 
 ```
 yarn add @nucypher/nucypher-ts
@@ -22,9 +25,9 @@ yarn add @nucypher/nucypher-ts
 
 ## 2. Build a Cohort
 
-Next, we'll parametrize a _Cohort_ to correspond to our risk preferences. Cohort objects delineate the group of independent nodes that will collectively provide access control service to a given data sharing flow. _Threshold_ and _Shares_ are two parameters used to construct a Cohort. For example, a `3-of-5` Cohort requires responses – the delivery of shares – from a minimum of 3 out of a total of 5 Cohort members in order to reconstruct the original plaintext data.
+Next, we will create a Cohort based on our risk preferences. A Cohort is a group of nodes that work together to control access to data. Threshold and Shares are two parameters used to create a Cohort. For example, a 3-of-5 Cohort needs at least 3 of the 5 members to provide shares in order to access the original data.
 
-We generate a Cohort object by:
+To create a Cohort, use the following code:
 
 ```javascript
 import { Cohort } from '@nucypher/nucypher-ts';
@@ -37,11 +40,11 @@ const config = {
 const newCohort = await Cohort.create(config);
 ```
 
-Notice that we have also provided a `porterUri`. **[Porter](https://github.com/nucypher/nucypher-porter) is a web-based service that interacts with nodes on the network on behalf of applications – an "Infura for TAC".** In this example, we've chosen a Porter endpoint for the `tapir` testnet.
+In the code above, we provided a `porterUri` parameter. [Porter](https://docs.nucypher.com/en/latest/application_development/web_development.html#porter) is a web-based service that connects applications to nodes on the network. It acts as an "Infura for TAC". In this example, we used a Porter endpoint for the tapir testnet.
 
 ## 3. Create Conditions
 
-We will now specify the conditions on which data access will be predicated – i.e. what will the data requester need to prove in order to gain decryption rights. In this tutorial, nodes will check that the requester owns an ERC721 NFT with a token ID of 5954:
+We will now specify the conditions that must be met to access the data. In this tutorial, we will require that the requester owns an ERC721 token with a token ID of 5954.
 
 ```javascript
 import { Conditions } from '@nucypher/nucypher-ts';
@@ -53,33 +56,32 @@ const NFTOwnership = new Conditions.ERC721Ownership({
 });
 ```
 
-Note that `ERC721Ownership` above serves as a wrapper function. The ERC 721 `ownerOf` contract method is what actually finds a `tokenID` and returns the owner's address, such that it can be compared with the requestor's signature. For help customizing the wrapper function, see the [References](https://docs.threshold.network/app-development/threshold-access-control-tac/references/conditions#conditions.erc721ownership) section of the full documentation. 
+The `ERC721Ownership` condition checks the owner of a given token ID. It can be customized by using the `ownerOf` contract method and comparing it with the requestor's signature. For more information, see the [References](https://docs.threshold.network/app-development/threshold-access-control-tac/references/conditions#conditions.erc721ownership) section of the documentation.
 
-Note that there are other Condition [types](https://docs.threshold.network/app-development/threshold-access-control-tac/references/conditions), and it is possible to compose and combine multiple Condition objects into a [_ConditionSet_](https://docs.threshold.network/app-development/threshold-access-control-tac/references/condition-set)_:_
+There are other Condition [types](https://docs.threshold.network/app-development/threshold-access-control-tac/references/conditions), and it is possible combine multiple conditions into a [_ConditionSet_](https://docs.threshold.network/app-development/threshold-access-control-tac/references/condition-set)_:_
 
 ```javascript
 import { Conditions, ConditionSet } from '@nucypher/nucypher-ts';
 
-const conditions = new ConditionSet([NFTOwnership]);
+const conditions = new ConditionSet([
+  NFTOwnership,
+  // Other conditions can be added here
+]);
 ```
 
-In this tutorial, we'll only specify a single Condition to access the data.
+In this tutorial, we will only use a single condition.
 
 ## 5. Build a Strategy
 
-We now bundle the Cohort, ConditionSet, and any other extra parameters into a [_Strategy_](https://docs.threshold.network/app-development/threshold-access-control-tac/references/strategy)_:_
+We will now combine the `Cohort`, `ConditionSet`, and any other necessary parameters into a [_Strategy_](https://docs.threshold.network/app-development/threshold-access-control-tac/references/strategy)_:_
 
 ```javascript
 import { Strategy } from '@nucypher/nucypher-ts';
 
-const newStrategy = Strategy.create(
-  newCohort,
-  conditions
-);
+const newStrategy = Strategy.create(newCohort, conditions);
 ```
 
-Next, we deploy this Strategy to the Threshold Network.
-In order to make this more affordable, deployments are handled by a L2, in this case we use Polygon Mumbai:
+Next, we will deploy this Strategy to the Threshold Network. To do that, we're going to transact on Polygon Mumbai:
 
 ```typescript
 import detectEthereumProvider from '@metamask/detect-provider';
@@ -89,19 +91,16 @@ const MMprovider = await detectEthereumProvider();
 const mumbai = providers.providers.getNetwork(80001);
 
 if (MMprovider) {
-  const web3Provider = new providers.providers.Web3Provider(
-    MMprovider,
-    mumbai
-  );
+  const web3Provider = new providers.providers.Web3Provider(MMprovider, mumbai);
   const newDeployed = await newStrategy.deploy('test', web3Provider);
-} 
+}
 ```
 
-> :warning: Deploying a Strategy requires writing to the blockchain. This requires a wallet funded with MATIC and connection to the blockchain via a `provider`(e.g. MetaMask).
+:warning: Deploying a Strategy requires writing to the blockchain. This requires a wallet funded with testnet MATIC and connection to the blockchain via a `provider`(e.g. MetaMask).
 
 ## 6. Encrypt the plaintext
 
-We're now able to encrypt data to this newly deployed Strategy – which implies future access to this data will be based on ownership of the previously specified NFT, and nothing else. We'll now encrypt a plaintext using the encryptor object:
+We can now encrypt data using the newly deployed Strategy. This means that future access to this data will be based on the ownership of the specified NFT. To encrypt the data, use the following code:
 
 ```javascript
 const encrypter = newDeployed.encrypter;
@@ -112,7 +111,7 @@ const encryptedMessageKit = encrypter.encryptMessage(plaintext);
 
 ## 7. Request decryption rights
 
-Finally, we'll test the access control service by submitting a request to the network:
+Finally, we will test the access control service by requesting decryption rights:
 
 ```javascript
 const decrypter = newDeployed.decrypter;
@@ -124,9 +123,8 @@ const decryptedMessage = await decrypter.retrieveAndDecrypt([
 
 At decryption time, the requester will be asked to verify their address by signing a message in MetaMask. If they own the correct NFT, the message will decrypt successfully.
 
-For more guidance on Cohort, Condition and Strategy object reuse and customization, check out the [References](https://docs.threshold.network/app-development/threshold-access-control-tac/references) page.
+For more information about customizing and reusing Cohort, Condition, and Strategy objects, see the [References](https://docs.threshold.network/app-development/threshold-access-control-tac/references) page in the documentation.
 
 # Contributing
 
-If you would like to get involved with the development of `nucypher-ts`, please see our [Contributing Guide](CONTRIBUTING.md).
-Alternatively, you can join our [Discord](http://discord.gg/threshold) and say hello!
+If you would like to contribute to the development of `nucypher-ts`, please see our [Contributing Guide](CONTRIBUTING.md). You can also join our [Discord](http://discord.gg/threshold) and say hello!

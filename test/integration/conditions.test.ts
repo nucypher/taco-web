@@ -259,5 +259,12 @@ describe('evm condition', () => {
         '"value" contains a conflict between exclusive peers [standardContractType, functionAbi]'
       );
     });
+
+    it('rejects none', () => {
+      const evmCondition = new Conditions.EvmCondition(baseEvmCondition);
+      expect(() => evmCondition.toObj()).toThrow(
+        '"value" must contain at least one of [standardContractType, functionAbi]'
+      );
+    });
   });
 });

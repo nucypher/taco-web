@@ -71,7 +71,7 @@ const conditions = new ConditionSet([
 
 In this tutorial, we will only use a single condition.
 
-## 5. Build a Strategy
+## 4. Build a Strategy
 
 We will now combine the `Cohort`, `ConditionSet`, and any other necessary parameters into a [`Strategy`](https://docs.threshold.network/app-development/threshold-access-control-tac/references/strategy):
 
@@ -98,7 +98,7 @@ if (MMprovider) {
 
 :warning: Deploying a `Strategy` requires writing to the blockchain. This requires a wallet funded with testnet MATIC and connection to the blockchain via a `provider`(e.g. MetaMask).
 
-## 6. Encrypt the plaintext
+## 5. Encrypt the plaintext
 
 We can now encrypt data using the newly deployed `Strategy`. This means that future access to this data will be based on the ownership of the specified NFT. To encrypt the data, use the following code:
 
@@ -109,14 +109,14 @@ const plaintext = 'this is a secret';
 const encryptedMessageKit = encrypter.encryptMessage(plaintext);
 ```
 
-## 7. Request decryption rights
+## 6. Request decryption rights
 
 Finally, we will test the access control service by requesting decryption rights:
 
 ```javascript
 const decrypter = newDeployed.decrypter;
 
-const conditionContext = conditions.buildContext(bobProvider);
+const conditionContext = conditions.buildContext(web3Provider);
 const decryptedMessage = await decrypter.retrieveAndDecrypt(
   [encryptedMessageKit],
   conditionContext

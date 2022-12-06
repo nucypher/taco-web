@@ -288,13 +288,14 @@ class EvmCondition extends Condition {
       .required(),
     standardContractType: Joi.string()
       .valid(...EvmCondition.STANDARD_CONTRACT_TYPES)
-      .required(),
-    // TODO: Support custom function ABIs
-    // functionAbi: Joi.string().optional(),
+      .optional(),
+    functionAbi: Joi.object().optional(),
     method: this.makeMethod().required(),
     parameters: Joi.array().required(),
     returnValueTest: this.makeReturnValueTest(),
-  });
+  })
+    // At most one of these keys needs to be present
+    .xor('standardContractType', 'functionAbi');
 }
 
 class ERC721Ownership extends EvmCondition {

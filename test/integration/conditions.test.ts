@@ -220,3 +220,51 @@ describe('condition context', () => {
     expect(asJson).toBeDefined();
   });
 });
+
+describe('evm condition', () => {
+  describe('accepts either standardContractType or functionAbi but not both or none', () => {
+    const baseEvmCondition = {
+      contractAddress: '0x0000000000000000000000000000000000000000',
+      chain: 5,
+      method: 'balanceOf',
+      parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
+      returnValueTest: {
+        comparator: '==',
+        value: ':userAddress',
+      },
+    };
+    const standardContractType = 'ERC20';
+    const functionAbi = { fake_function_abi: true };
+
+    it('accepts standardContractType', () => {
+      const conditionJson = { ...baseEvmCondition, standardContractType };
+      const evmCondition = new Conditions.EvmCondition(conditionJson);
+      expect(evmCondition.toObj()).toEqual(conditionJson);
+    });
+
+    it('accepts functionAbi', () => {
+      const conditionJson = { ...baseEvmCondition, functionAbi };
+      const evmCondition = new Conditions.EvmCondition(conditionJson);
+      expect(evmCondition.toObj()).toEqual(conditionJson);
+    });
+
+    it('rejects both', () => {
+      const conditionJson = {
+        ...baseEvmCondition,
+        standardContractType,
+        functionAbi,
+      };
+      const evmCondition = new Conditions.EvmCondition(conditionJson);
+      expect(() => evmCondition.toObj()).toThrow(
+        '"value" contains a conflict between exclusive peers [standardContractType, functionAbi]'
+      );
+    });
+
+    it('rejects none', () => {
+      const evmCondition = new Conditions.EvmCondition(baseEvmCondition);
+      expect(() => evmCondition.toObj()).toThrow(
+        '"value" must contain at least one of [standardContractType, functionAbi]'
+      );
+    });
+  });
+});

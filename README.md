@@ -116,12 +116,14 @@ Finally, we will test the access control service by requesting decryption rights
 ```javascript
 const decrypter = newDeployed.decrypter;
 
-const decryptedMessage = await decrypter.retrieveAndDecrypt([
-  encryptedMessageKit,
-]);
+const conditionContext = conditions.buildContext(bobProvider);
+const decryptedMessage = await decrypter.retrieveAndDecrypt(
+  [encryptedMessageKit],
+  conditionContext
+);
 ```
 
-At decryption time, the requester will be asked to verify their address by signing a message in MetaMask. If they own the correct NFT, the message will decrypt successfully.
+At decryption time, the requester will be asked to verify their address by signing a message in MetaMask. This is where `conditionContext` comes into play. If they own the correct NFT, the message will decrypt successfully.
 
 For more information about customizing and reusing `Cohort`, `Condition`, and `Strategy` objects, see the [References](https://docs.threshold.network/app-development/threshold-access-control-tac/references) page in the documentation.
 

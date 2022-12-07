@@ -430,13 +430,15 @@
   resolved "https://registry.yarnpkg.com/@nucypher/nucypher-core/-/nucypher-core-0.4.0.tgz#1388abde9de61ed848959b86bc96e3d12ef97ae4"
   integrity sha512-Pu4tRCwf7lnhZSoMjp889uTIUM7bNmYEe05TOOCuMYbJKmQWe7tYKeH0+rflUBISzGtMx2+xDe2CYYTyEGkvSw==
 
-"@nucypher/nucypher-ts@../..":
-  version "0.9.0-alpha.0"
+"@nucypher/nucypher-ts@0.9.0-alpha.1":
+  version "0.9.0-alpha.1"
+  resolved "https://registry.yarnpkg.com/@nucypher/nucypher-ts/-/nucypher-ts-0.9.0-alpha.1.tgz#ec67fcf9880838430aaf81ecdc1df9cdfde9571e"
+  integrity sha512-m59qam84Py5tdSGb1bTOD3h9Cv+HIzLr7meWYi+y/640l2bTQUO4OGFS3vVaFfHAIMSCFzASfA3y05sFlEQ07Q==
   dependencies:
     "@nucypher/nucypher-core" "0.4.0"
     axios "^0.21.1"
     ethers "^5.4.1"
-    joi "^17.7.0"
+    joi "^17.6.0"
     js-sha3 "^0.8.0"
     qs "^6.10.1"
 
@@ -1739,7 +1741,7 @@ jest-worker@^27.4.5:
     merge-stream "^2.0.0"
     supports-color "^8.0.0"
 
-joi@^17.7.0:
+joi@^17.6.0:
   version "17.7.0"
   resolved "https://registry.yarnpkg.com/joi/-/joi-17.7.0.tgz#591a33b1fe1aca2bc27f290bcad9b9c1c570a6b3"
   integrity sha512-1/ugc8djfn93rTE3WRKdCzGGt/EtiYKxITMO4Wiv6q5JL1gl9ePt4kBsl1S499nbosspfctIQTpYIhSmHA3WAg==

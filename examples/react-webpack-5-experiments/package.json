@@ -11,7 +11,7 @@
   "dependencies": {
     "ethers": "^5.4.1",
     "file-loader": "^6.2.0",
-    "@nucypher/nucypher-ts": "0.9.0-alpha.1",
+    "@nucypher/nucypher-ts": "0.9.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
     "react-router-dom": "^5.2.0"

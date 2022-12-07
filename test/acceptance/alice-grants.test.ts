@@ -25,7 +25,7 @@ import {
   reencryptKFrags,
 } from '../utils';
 
-describe.skip('story: alice shares message with bob through policy', () => {
+describe('story: alice shares message with bob through policy', () => {
   const message = 'secret-message-from-alice';
   const threshold = 2;
   const shares = 3;

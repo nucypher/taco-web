@@ -77,63 +77,102 @@ describe('conditions set to/from json', () => {
   });
 });
 
-// TODO: Test negative cases where schema validation fails
-describe('conditions types', () => {
+describe('standard conditions types validation', () => {
   const returnValueTest = {
     comparator: '>',
     value: '100',
   };
 
-  it('timelock', async () => {
-    const timelockCondition = {
-      returnValueTest,
-    };
-    const timelock = new Conditions.TimelockCondition(timelockCondition);
-    expect(timelock.toObj()).toEqual({
-      returnValueTest,
-      method: 'timelock',
+  describe('works for valid conditions', () => {
+    it('timelock', () => {
+      const timelock = new Conditions.TimelockCondition({
+        returnValueTest,
+      });
+      expect(timelock.toObj()).toEqual({
+        returnValueTest,
+        method: 'timelock',
+      });
+    });
+
+    it('rpc', () => {
+      const rpcCondition = {
+        chain: 5,
+        method: 'eth_getBalance',
+        parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
+        returnValueTest,
+      };
+      const rpc = new Conditions.RpcCondition(rpcCondition);
+      expect(rpc.toObj()).toEqual(rpcCondition);
+    });
+
+    it('evm', () => {
+      const evmCondition = {
+        contractAddress: '0x0000000000000000000000000000000000000000',
+        chain: 5,
+        standardContractType: 'ERC20',
+        method: 'balanceOf',
+        parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
+        returnValueTest,
+      };
+      const evm = new Conditions.EvmCondition(evmCondition);
+      expect(evm.toObj()).toEqual(evmCondition);
     });
   });
 
-  it('rpc', async () => {
-    const rpcCondition = {
-      chain: 5,
-      method: 'eth_getBalance',
-      parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
-      returnValueTest,
-    };
-    const rpc = new Conditions.RpcCondition(rpcCondition);
-    expect(rpc.toObj()).toEqual(rpcCondition);
-  });
+  describe('fails for invalid conditions', () => {
+    it('invalid timelock', () => {
+      const badTimelockCondition = {
+        // Intentionally replacing `returnValueTest` with an invalid test
+        returnValueTest: {
+          comparator: 'not-a-comparator',
+          value: '100',
+        },
+      };
+      const badTimelock = new Conditions.TimelockCondition(
+        badTimelockCondition
+      );
+      expect(() => badTimelock.toObj()).toThrow(
+        '"returnValueTest.comparator" must be one of [==, >, <, >=, <=, !=]'
+      );
+      const { error } = badTimelock.validate(badTimelockCondition);
+      expect(error?.message).toEqual(
+        '"returnValueTest.comparator" must be one of [==, >, <, >=, <=, !=]'
+      );
+    });
 
-  it('evm', async () => {
-    const evmCondition = {
-      contractAddress: '0x0000000000000000000000000000000000000000',
-      chain: 5,
-      standardContractType: 'ERC20',
-      method: 'balanceOf',
-      parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
-      returnValueTest,
-    };
-    const evm = new Conditions.EvmCondition(evmCondition);
-    expect(evm.toObj()).toEqual(evmCondition);
-  });
+    it('invalid rpc', () => {
+      const badRpcCondition = {
+        chain: 5,
+        // Intentionally replacing `method` with an invalid method
+        method: 'fake_invalid_method',
+        parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
+        returnValueTest,
+      };
+      const badRpc = new Conditions.RpcCondition(badRpcCondition);
+      expect(() => badRpc.toObj()).toThrow(
+        '"method" must be one of [eth_getBalance, balanceOf]'
+      );
+      const { error } = badRpc.validate(badRpcCondition);
+      expect(error?.message).toEqual(
+        '"method" must be one of [eth_getBalance, balanceOf]'
+      );
+    });
 
-  it('malformed evm', async () => {
-    const badEvmCondition = {
-      // Intentionally removing `contractAddress`
-      // contractAddress: '0x0000000000000000000000000000000000000000',
-      chain: 5,
-      standardContractType: 'ERC20',
-      method: 'balanceOf',
-      parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
-      returnValueTest,
-    };
-    const badCondition = new Conditions.EvmCondition(badEvmCondition);
-    expect(() => badCondition.toObj()).toThrow('"contractAddress" is required');
-
-    const { error } = badCondition.validate(badEvmCondition);
-    expect(error?.message).toEqual('"contractAddress" is required');
+    it('invalid evm', () => {
+      const badEvmCondition = {
+        // Intentionally removing `contractAddress`
+        // contractAddress: '0x0000000000000000000000000000000000000000',
+        chain: 5,
+        standardContractType: 'ERC20',
+        method: 'balanceOf',
+        parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
+        returnValueTest,
+      };
+      const badEvm = new Conditions.EvmCondition(badEvmCondition);
+      expect(() => badEvm.toObj()).toThrow('"contractAddress" is required');
+      const { error } = badEvm.validate(badEvmCondition);
+      expect(error?.message).toEqual('"contractAddress" is required');
+    });
   });
 });
 

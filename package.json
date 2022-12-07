@@ -1,7 +1,7 @@
 {
   "name": "@nucypher/nucypher-ts",
   "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
-  "version": "0.9.0-alpha.0",
+  "version": "0.9.0",
   "license": "GPL-3.0-only",
   "repository": {
     "type": "git",
@@ -11,7 +11,7 @@
   "typings": "build/main/src/index.d.ts",
   "module": "build/module/src/index.js",
   "engines": {
-    "node": ">=12"
+    "node": ">=16"
   },
   "exports": {
     ".": {
@@ -56,7 +56,6 @@
     "axios": "^0.21.1",
     "ethers": "^5.4.1",
     "joi": "^17.7.0",
-    "js-sha3": "^0.8.0",
     "qs": "^6.10.1"
   },
   "devDependencies": {
@@ -72,7 +71,6 @@
     "eslint": "^7.8.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
-    "eslint-plugin-functional": "^3.0.2",
     "eslint-plugin-import": "^2.22.0",
     "gh-pages": "^3.1.0",
     "husky": "^6.0.0",
@@ -82,19 +80,16 @@
     "prettier": "^2.1.1",
     "standard-version": "^9.0.0",
     "ts-jest": "^27.0.3",
-    "ts-node": "^9.0.0",
     "ts-unused-exports": "^8.0.0",
-    "tsconfig-paths": "^3.9.0",
-    "tslib": "^2.2.0",
     "typechain": "^7.0.0",
     "typedoc": "^0.22.11",
     "typedoc-plugin-missing-exports": "^0.22.6",
-    "typescript": "^4.3.2"
+    "typescript": "^4.7.0"
   },
   "files": [
     "build/main",
     "build/module",
-    "!**/*.spec.*",
+    "!**/*.test.*",
     "!**/*.json",
     "CHANGELOG.md",
     "LICENSE",

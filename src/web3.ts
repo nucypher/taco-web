@@ -3,7 +3,6 @@ import { ethers } from 'ethers';
 import { ChecksumAddress } from './types';
 import { fromHexString } from './utils';
 
-// TODO: Remove this abstraction and use ethers directly?
 export class Web3Provider {
   private constructor(
     private readonly web3Provider: ethers.providers.Web3Provider

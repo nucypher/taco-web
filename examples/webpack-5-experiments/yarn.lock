@@ -347,6 +347,18 @@
     "@ethersproject/properties" "^5.6.0"
     "@ethersproject/strings" "^5.6.0"
 
+"@hapi/hoek@^9.0.0":
+  version "9.3.0"
+  resolved "https://registry.yarnpkg.com/@hapi/hoek/-/hoek-9.3.0.tgz#8368869dcb735be2e7f5cb7647de78e167a251fb"
+  integrity sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ==
+
+"@hapi/topo@^5.0.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@hapi/topo/-/topo-5.1.0.tgz#dc448e332c6c6e37a4dc02fd84ba8d44b9afb012"
+  integrity sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==
+  dependencies:
+    "@hapi/hoek" "^9.0.0"
+
 "@jridgewell/gen-mapping@^0.3.0":
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/@jridgewell/gen-mapping/-/gen-mapping-0.3.2.tgz#c1aedc61e853f2bb9f5dfe6d4442d3b565b253b9"
@@ -413,21 +425,39 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@nucypher/nucypher-core@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@nucypher/nucypher-core/-/nucypher-core-0.1.0.tgz#6a71fc079999699a3f76b9841e509b47575924c4"
-  integrity sha512-mggUpq0xKaW/LXhNKvtOm6CC5aQcujwN1YJUbXz8DrCGMhldyFa8AHDYu835PeOJ8A7F5YmhyxVJAZByrgw+Xw==
+"@nucypher/nucypher-core@0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@nucypher/nucypher-core/-/nucypher-core-0.4.0.tgz#1388abde9de61ed848959b86bc96e3d12ef97ae4"
+  integrity sha512-Pu4tRCwf7lnhZSoMjp889uTIUM7bNmYEe05TOOCuMYbJKmQWe7tYKeH0+rflUBISzGtMx2+xDe2CYYTyEGkvSw==
 
-"@nucypher/nucypher-ts@^0.7.0":
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/@nucypher/nucypher-ts/-/nucypher-ts-0.7.0.tgz#b85f5c10c83b3fda5d48c815966e0f95bec6641c"
-  integrity sha512-uglSuneu+RnnngkgWF57C3KOdIxlSWgTRco+cui2sfnRrI4+9bPdEGXfXkc1YPX4CHJcDVJmksQa+n8Na4KN2g==
+"@nucypher/nucypher-ts@0.9.0-alpha.1":
+  version "0.9.0-alpha.1"
+  resolved "https://registry.yarnpkg.com/@nucypher/nucypher-ts/-/nucypher-ts-0.9.0-alpha.1.tgz#ec67fcf9880838430aaf81ecdc1df9cdfde9571e"
+  integrity sha512-m59qam84Py5tdSGb1bTOD3h9Cv+HIzLr7meWYi+y/640l2bTQUO4OGFS3vVaFfHAIMSCFzASfA3y05sFlEQ07Q==
   dependencies:
-    "@nucypher/nucypher-core" "^0.1.0"
+    "@nucypher/nucypher-core" "0.4.0"
     axios "^0.21.1"
     ethers "^5.4.1"
+    joi "^17.6.0"
     js-sha3 "^0.8.0"
     qs "^6.10.1"
+
+"@sideway/address@^4.1.3":
+  version "4.1.4"
+  resolved "https://registry.yarnpkg.com/@sideway/address/-/address-4.1.4.tgz#03dccebc6ea47fdc226f7d3d1ad512955d4783f0"
+  integrity sha512-7vwq+rOHVWjyXxVlR76Agnvhy8I9rpzjosTESvmhNeXOXdZZB15Fl+TI9x1SiHZH5Jv2wTGduSxFDIaq0m3DUw==
+  dependencies:
+    "@hapi/hoek" "^9.0.0"
+
+"@sideway/formula@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@sideway/formula/-/formula-3.0.0.tgz#fe158aee32e6bd5de85044be615bc08478a0a13c"
+  integrity sha512-vHe7wZ4NOXVfkoRb8T5otiENVlT7a3IAiw7H5M2+GO+9CDgcVUUsX1zalAztCmwyOr2RUTGJdgB+ZvSVqmdHmg==
+
+"@sideway/pinpoint@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@sideway/pinpoint/-/pinpoint-2.0.0.tgz#cff8ffadc372ad29fd3f78277aeb29e632cc70df"
+  integrity sha512-RNiOoTPkptFtSVzQevY/yWtZwf/RxyVnPy/OcA9HBM3MlGDnBEYL5B41H0MTn0Uec8Hi+2qUtTfG2WWZBmMejQ==
 
 "@types/body-parser@*":
   version "1.19.2"
@@ -1710,6 +1740,17 @@ jest-worker@^27.4.5:
     "@types/node" "*"
     merge-stream "^2.0.0"
     supports-color "^8.0.0"
+
+joi@^17.6.0:
+  version "17.7.0"
+  resolved "https://registry.yarnpkg.com/joi/-/joi-17.7.0.tgz#591a33b1fe1aca2bc27f290bcad9b9c1c570a6b3"
+  integrity sha512-1/ugc8djfn93rTE3WRKdCzGGt/EtiYKxITMO4Wiv6q5JL1gl9ePt4kBsl1S499nbosspfctIQTpYIhSmHA3WAg==
+  dependencies:
+    "@hapi/hoek" "^9.0.0"
+    "@hapi/topo" "^5.0.0"
+    "@sideway/address" "^4.1.3"
+    "@sideway/formula" "^3.0.0"
+    "@sideway/pinpoint" "^2.0.0"
 
 js-sha3@0.8.0, js-sha3@^0.8.0:
   version "0.8.0"

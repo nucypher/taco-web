@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.9.0](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.26...v0.9.0) (2022-12-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* bump node to >=16
+
+### Features
+
+* update nucypher-core to 0.4.0-alpha.0 ([3b85b20](https://github.com/nucypher/nucypher-ts/commit/3b85b203f0c317e28c2479ae943e33e89d8745b4))
+
+
+### Bug Fixes
+
+* escaping porter url ([08b1b03](https://github.com/nucypher/nucypher-ts/commit/08b1b031babd040d6c1c3cf1993990687e1f8b0e))
+* force dependency resolution for nucypher-core ([4201b14](https://github.com/nucypher/nucypher-ts/commit/4201b14532a237deaa6a69dcf8e1510a2ded75d0))
+
+
+* bump node to >=16 ([4b7994d](https://github.com/nucypher/nucypher-ts/commit/4b7994d28eca6af3e1710d3ea3b0e174bd2f1256))
+
 ### [0.9.0-alpha.0](https://github.com/nucypher/nucypher-ts/compare/v0.8.1...v0.8.2) (2022-11-14)
 
 ### [0.8.2](https://github.com/nucypher/nucypher-ts/compare/v0.8.1...v0.8.2) (2022-10-03)

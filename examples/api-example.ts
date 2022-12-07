@@ -4,7 +4,7 @@ import { toBytes } from '../src/utils';
 import { fromBytes, mockAlice, mockBob, mockRemoteBob } from '../test/utils';
 
 /**
- * This is an abridged version of API usage example.
+ * This is an abridged version of PRE API usage example.
  * Please refer to ../test/acceptance/alice-grants.test.ts for the full example.
  */
 

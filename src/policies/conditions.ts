@@ -253,7 +253,7 @@ class EvmCondition extends Condition {
   public static readonly STANDARD_CONTRACT_TYPES = [
     'ERC20',
     'ERC721',
-    // 'ERC1155', // TODO: Enable after updating Ursulas
+    // 'ERC1155', // TODO(#131)
   ];
   public static readonly METHODS_PER_CONTRACT_TYPE: Record<string, string[]> = {
     ERC20: ['balanceOf'],

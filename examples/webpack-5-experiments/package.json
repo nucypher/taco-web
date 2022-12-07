@@ -10,7 +10,7 @@
   },
   "license": "GPL-3.0-only",
   "dependencies": {
-    "@nucypher/nucypher-ts": "^0.7.0"
+    "@nucypher/nucypher-ts": "../.."
   },
   "devDependencies": {
     "copy-webpack-plugin": "^10.2.4",

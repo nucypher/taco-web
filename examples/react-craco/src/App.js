@@ -37,7 +37,7 @@ function App() {
   };
 
   const config = {
-    // Public Porter endpoint on Ibex network
+    // Public Porter endpoint on Tapir network
     porterUri: 'https://porter-tapir.nucypher.community',
   };
 

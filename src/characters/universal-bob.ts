@@ -1,4 +1,5 @@
 import {
+  Conditions,
   EncryptedTreasureMap,
   MessageKit,
   PublicKey,
@@ -9,8 +10,9 @@ import {
 import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
-import { ConditionContext } from '../policies/conditions';
+import { ConditionSet } from '../policies/conditions';
 import { base64ToU8Receiver, u8ToBase64Replacer, zip } from '../utils';
+import { Web3Provider } from '../web3';
 
 import { Porter } from './porter';
 
@@ -54,12 +56,9 @@ export class tDecDecrypter {
 
   public async retrieveAndDecrypt(
     messageKits: readonly MessageKit[],
-    conditionContext: ConditionContext
+    provider: Web3Provider
   ): Promise<readonly Uint8Array[]> {
-    const policyMessageKits = await this.retrieve(
-      messageKits,
-      conditionContext
-    );
+    const policyMessageKits = await this.retrieve(messageKits, provider);
 
     policyMessageKits.forEach((mk: PolicyMessageKit) => {
       if (!mk.isDecryptableByReceiver()) {
@@ -84,12 +83,22 @@ export class tDecDecrypter {
 
   public async retrieve(
     messageKits: readonly MessageKit[],
-    conditionContext: ConditionContext
+    provider: Web3Provider
   ): Promise<readonly PolicyMessageKit[]> {
     const treasureMap = this.encryptedTreasureMap.decrypt(
       this.keyring.secretKey,
       this.publisherVerifyingKey
     );
+
+    // concat into single array of conditions
+    const conditions = messageKits
+      .map((mk) => mk.conditions)
+      .filter((condition): condition is Conditions => !!condition)
+      .map((condition) => JSON.parse(condition.toString()))
+      .reduce((acc: Record<string, string>[], val) => acc.concat(val), []);
+
+    const conditionContext =
+      ConditionSet.fromList(conditions).buildContext(provider);
 
     const policyMessageKits = messageKits.map((mk) =>
       PolicyMessageKit.fromMessageKit(

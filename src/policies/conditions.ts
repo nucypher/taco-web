@@ -1,5 +1,5 @@
 import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
-import { ethers, utils as ethersUtils } from 'ethers';
+import { utils as ethersUtils } from 'ethers';
 import Joi, { ValidationError } from 'joi';
 
 import { Eip712TypedData, FormattedTypedData, Web3Provider } from '../web3';
@@ -82,11 +82,8 @@ export class ConditionSet {
     return new WASMConditions(this.toJson());
   }
 
-  public buildContext(
-    provider: ethers.providers.Web3Provider
-  ): ConditionContext {
-    const web3Provider = Web3Provider.fromEthersWeb3Provider(provider);
-    return new ConditionContext(this, web3Provider);
+  public buildContext(provider: Web3Provider): ConditionContext {
+    return new ConditionContext(this.toWASMConditions(), provider);
   }
 }
 
@@ -332,24 +329,9 @@ export class ConditionContext {
   private walletSignature?: Record<string, string>;
 
   constructor(
-    private readonly conditionSet: ConditionSet,
+    private readonly conditions: WASMConditions,
     private readonly web3Provider: Web3Provider
   ) {}
-
-  private get contextParameters() {
-    const parameters = this.conditionSet.conditions
-      .map((conditionOrOperator) => {
-        if (conditionOrOperator instanceof Condition) {
-          const condition = conditionOrOperator as Condition;
-          return condition.getContextParameters();
-        }
-        return null;
-      })
-      .filter(
-        (maybeResult: unknown | undefined) => !!maybeResult
-      ) as string[][];
-    return parameters.flat();
-  }
 
   public async getOrCreateWalletSignature(): Promise<TypedSignature> {
     const address = await this.web3Provider.signer.getAddress();
@@ -459,9 +441,9 @@ export class ConditionContext {
   }
 
   public toJson = async (): Promise<string> => {
-    const userAddressParam = this.contextParameters.find(
-      (p) => p === ':userAddress'
-    );
+    const userAddressParam = this.conditions
+      .toString()
+      .includes(':userAddress');
     if (!userAddressParam) {
       return JSON.stringify({});
     }

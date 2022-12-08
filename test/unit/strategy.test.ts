@@ -14,6 +14,7 @@ import {
 } from '../../src';
 import { Ursula } from '../../src/characters/porter';
 import { fromBase64, toBytes } from '../../src/utils';
+import { Web3Provider } from '../../src/web3';
 import {
   mockEncryptTreasureMap,
   mockGenerateKFrags,
@@ -213,10 +214,9 @@ describe('Deployed Strategy', () => {
       encryptedMessageKit.capsule
     );
 
-    const conditionContext = conditions.buildContext(bobProvider);
     const decryptedMessage = await decrypter.retrieveAndDecrypt(
       [encryptedMessageKit],
-      conditionContext
+      Web3Provider.fromEthersWeb3Provider(bobProvider)
     );
     expect(getUrsulasSpy2).toHaveBeenCalled();
     expect(retrieveCFragsSpy).toHaveBeenCalled();

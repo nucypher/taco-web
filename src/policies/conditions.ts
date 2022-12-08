@@ -1,5 +1,5 @@
 import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
-import { utils as ethersUtils } from 'ethers';
+import { ethers, utils as ethersUtils } from 'ethers';
 import Joi, { ValidationError } from 'joi';
 
 import { Eip712TypedData, FormattedTypedData, Web3Provider } from '../web3';
@@ -82,8 +82,11 @@ export class ConditionSet {
     return new WASMConditions(this.toJson());
   }
 
-  public buildContext(provider: Web3Provider): ConditionContext {
-    return new ConditionContext(this.toWASMConditions(), provider);
+  public buildContext(
+    provider: ethers.providers.Web3Provider
+  ): ConditionContext {
+    const web3Provider = Web3Provider.fromEthersWeb3Provider(provider);
+    return new ConditionContext(this.toWASMConditions(), web3Provider);
   }
 }
 

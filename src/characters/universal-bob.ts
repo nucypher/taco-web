@@ -6,13 +6,13 @@ import {
   SecretKey,
   Signer,
 } from '@nucypher/nucypher-core';
+import { ethers } from 'ethers';
 
 import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
 import { ConditionSet } from '../policies/conditions';
 import { base64ToU8Receiver, u8ToBase64Replacer, zip } from '../utils';
-import { Web3Provider } from '../web3';
 
 import { Porter } from './porter';
 
@@ -56,7 +56,7 @@ export class tDecDecrypter {
 
   public async retrieveAndDecrypt(
     messageKits: readonly MessageKit[],
-    provider: Web3Provider
+    provider: ethers.providers.Web3Provider
   ): Promise<readonly Uint8Array[]> {
     const policyMessageKits = await this.retrieve(messageKits, provider);
 
@@ -83,7 +83,7 @@ export class tDecDecrypter {
 
   public async retrieve(
     messageKits: readonly MessageKit[],
-    provider: Web3Provider
+    provider: ethers.providers.Web3Provider
   ): Promise<readonly PolicyMessageKit[]> {
     const treasureMap = this.encryptedTreasureMap.decrypt(
       this.keyring.secretKey,

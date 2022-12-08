@@ -6,7 +6,6 @@ import {
   ConditionSet,
   Operator,
 } from '../../src';
-import { Web3Provider } from '../../src/web3';
 import { mockWeb3Provider } from '../utils';
 
 describe('operator', () => {
@@ -240,8 +239,7 @@ describe('produce context parameters from conditions', () => {
 
 describe('condition context', () => {
   it('should serialize to JSON with context params', async () => {
-    const provider = mockWeb3Provider(SecretKey.random().toSecretBytes());
-    const web3Provider = Web3Provider.fromEthersWeb3Provider(provider);
+    const web3Provider = mockWeb3Provider(SecretKey.random().toSecretBytes());
 
     const rpcCondition = new Conditions.RpcCondition({
       chain: 5,

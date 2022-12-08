@@ -142,27 +142,21 @@ export class DeployedStrategy {
     public conditionSet?: ConditionSet
   ) {}
 
-  public static fromJSON(
-    provider: ethers.providers.Web3Provider,
-    json: string
-  ) {
+  public static fromJSON(json: string) {
     const config = JSON.parse(json, base64ToU8Receiver);
-    return DeployedStrategy.fromObj(provider, config);
+    return DeployedStrategy.fromObj(config);
   }
 
   public toJSON() {
     return JSON.stringify(this.toObj(), u8ToBase64Replacer);
   }
 
-  private static fromObj(
-    provider: ethers.providers.Web3Provider,
-    {
-      policy,
-      cohortConfig,
-      bobSecretKeyBytes,
-      conditionSet,
-    }: DeployedStrategyJSON
-  ) {
+  private static fromObj({
+    policy,
+    cohortConfig,
+    bobSecretKeyBytes,
+    conditionSet,
+  }: DeployedStrategyJSON) {
     const id = HRAC.fromBytes(policy.id);
     const policyKey = PublicKey.fromBytes(policy.policyKey);
     const encryptedTreasureMap = EncryptedTreasureMap.fromBytes(

@@ -16,7 +16,7 @@ export const fromBase64 = (str: string): Uint8Array =>
   Buffer.from(str, 'base64');
 
 export const base64ToU8Receiver = (
-  key: string,
+  _key: string,
   value: string | number | Uint8Array
 ) => {
   if (typeof value === 'string' && value.startsWith('base64:')) {
@@ -26,7 +26,7 @@ export const base64ToU8Receiver = (
 };
 
 export const u8ToBase64Replacer = (
-  key: string,
+  _key: string,
   value: string | number | Uint8Array
 ) => {
   if (value instanceof Uint8Array) {

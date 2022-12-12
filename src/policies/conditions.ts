@@ -122,7 +122,7 @@ export class Condition {
       comparator: Joi.string()
         .valid(...Condition.COMPARATOR_OPERATORS)
         .required(),
-      value: Joi.string().required(),
+      value: Joi.alternatives(Joi.string(), Joi.number()).required(),
     });
   }
 

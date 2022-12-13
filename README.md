@@ -23,11 +23,13 @@ To learn more, follow the tutorial at Threshold Network's [docs](https://docs.th
 
 ## Examples
 
-We provide two code samples of TAC applications:
+See [`nucypher-ts/examples`](https://github.com/nucypher/nucypher-ts/tree/main/examples) to find out how to integrate `nucypher-ts` into your favorite web framework.
+
+We also provide two code samples of TAC applications:
 - [nucypher/tdec-sandbox](https://github.com/nucypher/tdec-sandbox)
 - [nucypher/tdec-nft-example](https://github.com/nucypher/tdec-nft-example)
 
-They showcase integration with React-based web application and an end-to-end flow of creating conditioned encryption, and encrypting & decrypting data.
+These examples showcase integration with React-based web application and an end-to-end flow of creating conditioned encryption, and encrypting & decrypting data.
 
 # Contributing
 

@@ -7,35 +7,47 @@ import {
   SecretKey,
   Strategy,
 } from '../../src';
-import { mockGetUrsulas, mockUrsulas, mockWeb3Provider } from '../utils';
+import {
+  mockGetUrsulas,
+  mockPublishToBlockchain,
+  mockUrsulas,
+  mockWeb3Provider,
+} from '../utils';
 
 describe('Get Started (CBD PoC)', () => {
+  beforeAll(() => {
+    jest
+      .spyOn(providers, 'Web3Provider')
+      .mockImplementation(() =>
+        mockWeb3Provider(SecretKey.random().toSecretBytes())
+      );
+  });
+
+  afterAll(() => {
+    jest.unmock('ethers');
+  });
+
   it('2. Build a Cohort', async () => {
     const mockedUrsulas = mockUrsulas().slice(0, 3);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
 
-    const expectedUrsulas = [
-      '0x5cf1703a1c99a4b42eb056535840e93118177232',
-      '0x7fff551249d223f723557a96a0e1a469c79cc934',
-      '0x9c7c824239d3159327024459ad69bb215859bd25',
-    ];
-
-    // Start of example code
+    // Start of the code example
     const config = {
       threshold: 3,
       shares: 5,
       porterUri: 'https://porter-tapir.nucypher.community',
     };
     const newCohort = await Cohort.create(config);
-    // End of example code
+    // End of the example code
 
     expect(getUrsulasSpy).toHaveBeenCalled();
-    expect(newCohort.ursulaAddresses).toEqual(expectedUrsulas);
+    const expectedAddresses = mockedUrsulas.map((u) => u.checksumAddress);
+    expect(newCohort.ursulaAddresses).toEqual(expectedAddresses);
     expect(newCohort.configuration).toEqual(config);
   });
 
   it('3. Specify default Conditions', () => {
-    // Start of example code
+    // Start of the code example
     const NFTOwnership = new Conditions.ERC721Ownership({
       contractAddress: '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D',
       chain: 5, // Tapir network uses Görli testnet
@@ -46,10 +58,9 @@ describe('Get Started (CBD PoC)', () => {
       NFTOwnership,
       // Other conditions can be added here
     ]);
-    // End of example code
+    // End of the example code
 
     const condObj = conditions.conditions[0].toObj();
-
     expect(conditions.validate()).toEqual(true);
     expect(condObj).toEqual(NFTOwnership.toObj());
     expect(condObj.parameters).toEqual([5954]);
@@ -62,6 +73,7 @@ describe('Get Started (CBD PoC)', () => {
   it('4. Build a Strategy', async () => {
     const mockedUrsulas = mockUrsulas().slice(0, 3);
     mockGetUrsulas(mockedUrsulas);
+    const publishToBlockchainSpy = mockPublishToBlockchain();
 
     const cohortConfig = {
       threshold: 2,
@@ -78,45 +90,24 @@ describe('Get Started (CBD PoC)', () => {
 
     const conditions = new ConditionSet([NFTOwnership]);
 
-    const newStrategy = Strategy.create(newCohort, conditions);
-
-    // TODO: We want to mock the Web3Provider constructor in the ethers library
-    // We want to use our existing mockWeb3Provider function
-
-    // const ethers = {
-    //   providers: {
-    //     Web3Provider: () =>
-    //       mockWeb3Provider(SecretKey.random().toSecretBytes()),
-    //   } as unknown as { new (): providers.Web3Provider },
-    // };
+    const strategy = Strategy.create(newCohort, conditions);
 
     const detectEthereumProvider = jest.fn(async () => {
       return {} as unknown as providers.ExternalProvider;
     });
 
-    // TODO: How do we mock the Web3Provider?
-    // Specifically, how do we mock the constructor? In Jest
-    // providers.Web3Provider =
-    //   mockWeb3Provider(SecretKey.random().toSecretBytes());
-
-    const getWeb3Provider = (_ethProvider: any, _mumbai: any) =>
-      mockWeb3Provider(SecretKey.random().toSecretBytes());
-
     const ethProvider = await detectEthereumProvider();
     const mumbai = providers.getNetwork(80001);
 
     if (ethProvider) {
-      const web3Provider = getWeb3Provider(ethProvider, mumbai);
-      const newDeployed = await newStrategy.deploy('test', web3Provider);
-      console.log(newDeployed);
+      const web3Provider = new providers.Web3Provider(ethProvider, mumbai);
+      const deployedStrategy = await strategy.deploy('test', web3Provider);
+      console.log(deployedStrategy);
     }
 
-    const expectedUrsulas = [
-      '0x5cf1703a1c99a4b42eb056535840e93118177232',
-      '0x7fff551249d223f723557a96a0e1a469c79cc934',
-      '0x9c7c824239d3159327024459ad69bb215859bd25',
-    ];
-
-    expect(newStrategy.cohort.ursulaAddresses).toEqual(expectedUrsulas);
+    // End of the code example
+    const expectedAddresses = mockedUrsulas.map((u) => u.checksumAddress);
+    expect(newCohort.ursulaAddresses).toEqual(expectedAddresses);
+    expect(publishToBlockchainSpy).toHaveBeenCalled();
   });
 });

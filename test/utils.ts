@@ -78,11 +78,6 @@ export const mockWeb3Provider = (
     ...provider,
     getSigner: () => fakeSignerWithProvider,
   } as unknown as ethers.providers.Web3Provider;
-  // { random garbage } // ! this is a random garbage!
-  // { random garbage }  as unknown // ! well, this is unknow type, and not web3provider
-  // { random garbage }  as Web3Provider // ! well, the defi
-  // random_type is part of all_types => all_types includes web3provider
-  // ({ random garbage }  as unknown) as ethers.providers.Web3Provider // ! now it is web3provider
 };
 
 export const mockUrsulas = (): readonly Ursula[] => {

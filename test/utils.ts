@@ -12,7 +12,7 @@ import {
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
 import axios from 'axios';
-import { ethers, Wallet } from 'ethers';
+import { ethers, providers, Wallet } from 'ethers';
 
 import { Alice, Bob, Configuration, RemoteBob } from '../src';
 import {
@@ -209,4 +209,10 @@ export const reencryptKFrags = (
 
 export const mockMakeTreasureMap = () => {
   return jest.spyOn(BlockchainPolicy.prototype as any, 'makeTreasureMap');
+};
+
+export const mockDetectEthereumProvider = () => {
+  return jest.fn(async () => {
+    return {} as unknown as providers.ExternalProvider;
+  });
 };

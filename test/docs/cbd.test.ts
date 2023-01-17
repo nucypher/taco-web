@@ -1,3 +1,4 @@
+import { MessageKit, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 import { providers } from 'ethers';
 
 import {
@@ -7,6 +8,7 @@ import {
   SecretKey,
   Strategy,
 } from '../../src';
+import { Ursula } from '../../src/characters/porter';
 import { toBytes } from '../../src/utils';
 import {
   mockDetectEthereumProvider,
@@ -15,11 +17,29 @@ import {
   mockGetUrsulas,
   mockMakeTreasureMap,
   mockPublishToBlockchain,
+  mockRetrieveCFragsRequest,
   mockUrsulas,
   mockWeb3Provider,
 } from '../utils';
 
 describe('Get Started (CBD PoC)', () => {
+  function mockRetrieveAndDecrypt(
+    makeTreasureMapSpy: jest.SpyInstance,
+    encryptedMessageKit: MessageKit
+  ) {
+    // Setup mocks for `retrieveAndDecrypt`
+    const ursulaAddresses = (
+      makeTreasureMapSpy.mock.calls[0][0] as readonly Ursula[]
+    ).map((u) => u.checksumAddress);
+    const verifiedKFrags = makeTreasureMapSpy.mock
+      .calls[0][1] as readonly VerifiedKeyFrag[];
+    return mockRetrieveCFragsRequest(
+      ursulaAddresses,
+      verifiedKFrags,
+      encryptedMessageKit.capsule
+    );
+  }
+
   it('can run the get started example', async () => {
     const detectEthereumProvider = mockDetectEthereumProvider();
     const mockedUrsulas = mockUrsulas();
@@ -90,6 +110,12 @@ describe('Get Started (CBD PoC)', () => {
       new ConditionSet([NFTBalance])
     );
 
+    // Mocking - Not a part of any code example
+    const retrieveCFragsSpy = mockRetrieveAndDecrypt(
+      makeTreasureMapSpy,
+      encryptedMessageKit
+    );
+
     // 6. Request decryption rights
     const decrypter = newDeployed.decrypter;
 
@@ -118,6 +144,7 @@ describe('Get Started (CBD PoC)', () => {
     expect(generateKFragsSpy).toHaveBeenCalled();
     expect(encryptTreasureMapSpy).toHaveBeenCalled();
     expect(makeTreasureMapSpy).toHaveBeenCalled();
+    expect(retrieveCFragsSpy).toHaveBeenCalled();
     expect(decryptedMessage[0]).toEqual(toBytes(plaintext));
   });
 });

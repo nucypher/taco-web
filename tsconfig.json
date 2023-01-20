@@ -6,7 +6,7 @@
     "outDir": "build/main",
     "rootDir": ".",
     "moduleResolution": "node",
-    "module": "esnext",
+    "module": "commonjs",
     "declaration": true,
     "inlineSourceMap": true,
     "esModuleInterop": true,

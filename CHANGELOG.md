@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.10.0-alpha.0](https://github.com/nucypher/nucypher-ts/compare/v0.9.0...v0.10.0-alpha.0) (2023-01-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* set main package entry to commonjs module
+
+### Features
+
+* expose startDate and endDate as strategy params ([56a10da](https://github.com/nucypher/nucypher-ts/commit/56a10dabcc79a6cc5c535b565da60b827277d413))
+* set main package entry to commonjs module ([214e858](https://github.com/nucypher/nucypher-ts/commit/214e85848f293257b2fcc40521a4c72db116e5aa))
+
+
+### Bug Fixes
+
+* remove unused provider parameter ([805b93c](https://github.com/nucypher/nucypher-ts/commit/805b93cd12b16bebadab07dcb45643710b6123e5))
+
 ## [0.9.0](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.26...v0.9.0) (2022-12-07)
 
 

@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.9.0-alpha.0](https://github.com/nucypher/nucypher-ts/compare/v0.8.2...v0.9.0-alpha.0) (2023-02-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* downgrade nucypher-core to 0.2.0
+
+### Features
+
+* downgrade nucypher-core to 0.2.0 ([83934f2](https://github.com/nucypher/nucypher-ts/commit/83934f27525a8b83ae0af327efc6b0372ada2e95))
+
 ### [0.8.2](https://github.com/nucypher/nucypher-ts/compare/v0.8.1...v0.8.2) (2022-10-03)
 
 

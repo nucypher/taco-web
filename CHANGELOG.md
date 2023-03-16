@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.10.0-tapir.0](https://github.com/nucypher/nucypher-ts/compare/v0.9.0...v0.10.0-tapir.0) (2023-03-16)
+
 ## [0.10.0-oryx.0](https://github.com/nucypher/nucypher-ts/compare/v0.9.0...v0.10.0-oryx.0) (2023-03-16)
 
 ## [0.9.0](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.26...v0.9.0) (2022-12-07)

@@ -21,6 +21,8 @@ type StrategyJSON = {
   aliceSecretKeyBytes: Uint8Array;
   bobSecretKeyBytes: Uint8Array;
   conditionSet?: ConditionSet;
+  startDate: Date;
+  endDate: Date;
 };
 
 type DeployedStrategyJSON = {
@@ -35,6 +37,8 @@ export class Strategy {
     public readonly cohort: Cohort,
     private readonly aliceSecretKey: SecretKey,
     private readonly bobSecretKey: SecretKey,
+    private readonly startDate: Date,
+    private readonly endDate: Date,
     private readonly conditionSet?: ConditionSet
   ) {}
 
@@ -42,7 +46,9 @@ export class Strategy {
     cohort: Cohort,
     conditionSet?: ConditionSet,
     aliceSecretKey?: SecretKey,
-    bobSecretKey?: SecretKey
+    bobSecretKey?: SecretKey,
+    startDate?: Date,
+    endDate?: Date
   ) {
     if (!aliceSecretKey) {
       aliceSecretKey = SecretKey.random();
@@ -50,7 +56,20 @@ export class Strategy {
     if (!bobSecretKey) {
       bobSecretKey = SecretKey.random();
     }
-    return new Strategy(cohort, aliceSecretKey, bobSecretKey, conditionSet);
+    if (!startDate) {
+      startDate = new Date(Date.now());
+    }
+    if (!endDate) {
+      endDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
+    }
+    return new Strategy(
+      cohort,
+      aliceSecretKey,
+      bobSecretKey,
+      startDate,
+      endDate,
+      conditionSet
+    );
   }
 
   public async deploy(
@@ -70,8 +89,8 @@ export class Strategy {
       label,
       threshold: this.cohort.configuration.threshold,
       shares: this.cohort.configuration.shares,
-      startDate: new Date(Date.now()),
-      endDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+      startDate: this.startDate,
+      endDate: this.endDate,
     };
     const policy = await alice.grant(policyParams, this.cohort.ursulaAddresses);
     const encrypter = new Enrico(
@@ -112,11 +131,15 @@ export class Strategy {
     aliceSecretKeyBytes,
     bobSecretKeyBytes,
     conditionSet,
+    startDate,
+    endDate,
   }: StrategyJSON) {
     return new Strategy(
       Cohort.fromObj(cohort),
       SecretKey.fromBytes(aliceSecretKeyBytes),
       SecretKey.fromBytes(bobSecretKeyBytes),
+      startDate,
+      endDate,
       conditionSet
     );
   }
@@ -127,6 +150,8 @@ export class Strategy {
       aliceSecretKeyBytes: this.aliceSecretKey.toSecretBytes(),
       bobSecretKeyBytes: this.bobSecretKey.toSecretBytes(),
       conditionSet: this.conditionSet,
+      startDate: this.startDate,
+      endDate: this.endDate,
     };
   }
 }
@@ -142,27 +167,21 @@ export class DeployedStrategy {
     public conditionSet?: ConditionSet
   ) {}
 
-  public static fromJSON(
-    provider: ethers.providers.Web3Provider,
-    json: string
-  ) {
+  public static fromJSON(json: string) {
     const config = JSON.parse(json, base64ToU8Receiver);
-    return DeployedStrategy.fromObj(provider, config);
+    return DeployedStrategy.fromObj(config);
   }
 
   public toJSON() {
     return JSON.stringify(this.toObj(), u8ToBase64Replacer);
   }
 
-  private static fromObj(
-    provider: ethers.providers.Web3Provider,
-    {
-      policy,
-      cohortConfig,
-      bobSecretKeyBytes,
-      conditionSet,
-    }: DeployedStrategyJSON
-  ) {
+  private static fromObj({
+    policy,
+    cohortConfig,
+    bobSecretKeyBytes,
+    conditionSet,
+  }: DeployedStrategyJSON) {
     const id = HRAC.fromBytes(policy.id);
     const policyKey = PublicKey.fromBytes(policy.policyKey);
     const encryptedTreasureMap = EncryptedTreasureMap.fromBytes(

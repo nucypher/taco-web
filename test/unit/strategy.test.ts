@@ -157,11 +157,7 @@ describe('Deployed Strategy', () => {
   });
 
   it('can import from JSON', async () => {
-    const aliceProvider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
-    const importedStrategy = DeployedStrategy.fromJSON(
-      aliceProvider,
-      deployedStrategyJSON
-    );
+    const importedStrategy = DeployedStrategy.fromJSON(deployedStrategyJSON);
     const configJSON = importedStrategy.toJSON();
     expect(configJSON).toEqual(deployedStrategyJSON);
   });
@@ -229,12 +225,7 @@ describe('Deployed Strategy', () => {
 });
 
 describe('tDecDecrypter', () => {
-  const aliceSecretKey = SecretKey.fromBytes(aliceSecretKeyBytes);
-  const aliceProvider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
-  const importedStrategy = DeployedStrategy.fromJSON(
-    aliceProvider,
-    deployedStrategyJSON
-  );
+  const importedStrategy = DeployedStrategy.fromJSON(deployedStrategyJSON);
 
   it('can export to JSON', () => {
     const decrypter = importedStrategy.decrypter;

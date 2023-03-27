@@ -9,3 +9,4 @@ example/dist
 types
 dist
 .nvmrc
+!examples/**/.env

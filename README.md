@@ -21,6 +21,14 @@ yarn add @nucypher/nucypher-ts
 
 To learn more, follow the tutorial at Threshold Network's [docs](https://docs.threshold.network/app-development/threshold-access-control-tac/get-started-with-tac).
 
+## Examples
+
+We provide two code samples of TAC applications:
+- [nucypher/tdec-sandbox](https://github.com/nucypher/tdec-sandbox)
+- [nucypher/tdec-nft-example](https://github.com/nucypher/tdec-nft-example)
+
+They showcase integration with React-based web application and an end-to-end flow of creating conditioned encryption, and encrypting & decrypting data.
+
 # Contributing
 
 If you would like to contribute to the development of `nucypher-ts`, please see our [Contributing Guide](CONTRIBUTING.md). You can also join our [Discord](http://discord.gg/threshold) and say hello!

@@ -41,6 +41,7 @@ jobs:
         os: [ubuntu-latest]
         example:
           [
+            'nodejs',
             'react-craco',
             'react-webpack-5-experiments',
             'webpack-5-experiments',

@@ -2,7 +2,7 @@ import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { ethers, utils as ethersUtils } from 'ethers';
 import Joi, { ValidationError } from 'joi';
 
-import { Eip712TypedData, FormattedTypedData, Web3Provider } from '../web3';
+import { Eip712TypedData, FormattedTypedData } from '../web3';
 
 export class Operator {
   static readonly LOGICAL_OPERATORS: ReadonlyArray<string> = ['and', 'or'];
@@ -85,8 +85,7 @@ export class ConditionSet {
   public buildContext(
     provider: ethers.providers.Web3Provider
   ): ConditionContext {
-    const web3Provider = Web3Provider.fromEthersWeb3Provider(provider);
-    return new ConditionContext(this.toWASMConditions(), web3Provider);
+    return new ConditionContext(this.toWASMConditions(), provider);
   }
 }
 
@@ -333,11 +332,11 @@ export class ConditionContext {
 
   constructor(
     private readonly conditions: WASMConditions,
-    private readonly web3Provider: Web3Provider
+    private readonly web3Provider: ethers.providers.Web3Provider
   ) {}
 
   public async getOrCreateWalletSignature(): Promise<TypedSignature> {
-    const address = await this.web3Provider.signer.getAddress();
+    const address = await this.web3Provider.getSigner().getAddress();
     const storageKey = `wallet-signature-${address}`;
 
     // If we have a signature in localStorage, return it
@@ -375,7 +374,7 @@ export class ConditionContext {
   private async createWalletSignature(): Promise<TypedSignature> {
     // Ensure freshness of the signature
     const { blockNumber, blockHash, chainId } = await this.getChainData();
-    const address = await this.web3Provider.signer.getAddress();
+    const address = await this.web3Provider.getSigner().getAddress();
     const signatureText = `I'm the owner of address ${address} as of block number ${blockNumber}`;
     const salt = ethersUtils.hexlify(ethersUtils.randomBytes(32));
 
@@ -401,11 +400,9 @@ export class ConditionContext {
         blockHash,
       },
     };
-    const signature = await this.web3Provider.signer._signTypedData(
-      typedData.domain,
-      typedData.types,
-      typedData.message
-    );
+    const signature = await this.web3Provider
+      .getSigner()
+      ._signTypedData(typedData.domain, typedData.types, typedData.message);
 
     const formattedTypedData: FormattedTypedData = {
       ...typedData,
@@ -436,10 +433,9 @@ export class ConditionContext {
   }
 
   private async getChainData() {
-    const blockNumber = await this.web3Provider.provider.getBlockNumber();
-    const blockHash = (await this.web3Provider.provider.getBlock(blockNumber))
-      .hash;
-    const chainId = (await this.web3Provider.provider.getNetwork()).chainId;
+    const blockNumber = await this.web3Provider.getBlockNumber();
+    const blockHash = (await this.web3Provider.getBlock(blockNumber)).hash;
+    const chainId = (await this.web3Provider.getNetwork()).chainId;
     return { blockNumber, blockHash, chainId };
   }
 

@@ -117,12 +117,9 @@ describe('Get Started (CBD PoC)', () => {
     );
 
     // 6. Request decryption rights
-    const decrypter = newDeployed.decrypter;
-
-    const conditionContext = conditions.buildContext(web3Provider);
-    const decryptedMessage = await decrypter.retrieveAndDecrypt(
+    const decryptedMessage = await newDeployed.decrypter.retrieveAndDecrypt(
       [encryptedMessageKit],
-      conditionContext
+      web3Provider
     );
 
     //

@@ -15,7 +15,6 @@ import {
   PreEnactedPolicy,
 } from '../policies/policy';
 import { ChecksumAddress } from '../types';
-import { Web3Provider } from '../web3';
 
 import { RemoteBob } from './bob';
 import { Porter } from './porter';
@@ -27,7 +26,7 @@ export class Alice {
   private constructor(
     config: Configuration,
     secretKey: SecretKey,
-    public readonly web3Provider: Web3Provider
+    public readonly web3Provider: ethers.providers.Web3Provider
   ) {
     this.porter = new Porter(config.porterUri);
     this.keyring = new Keyring(secretKey);
@@ -46,8 +45,7 @@ export class Alice {
     secretKey: SecretKey,
     web3Provider: ethers.providers.Web3Provider
   ): Alice {
-    const web3 = Web3Provider.fromEthersWeb3Provider(web3Provider);
-    return new Alice(config, secretKey, web3);
+    return new Alice(config, secretKey, web3Provider);
   }
 
   public getPolicyEncryptingKeyFromLabel(label: string): PublicKey {
@@ -146,8 +144,8 @@ export class Alice {
       );
     }
 
-    const blockNumber = await this.web3Provider.provider.getBlockNumber();
-    const block = await this.web3Provider.provider.getBlock(blockNumber);
+    const blockNumber = await this.web3Provider.getBlockNumber();
+    const block = await this.web3Provider.getBlock(blockNumber);
     const blockTime = new Date(block.timestamp * 1000);
     if (endDate < blockTime) {
       throw new Error(

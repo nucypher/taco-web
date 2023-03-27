@@ -63,9 +63,9 @@ export class PreEnactedPolicy implements IPreEnactedPolicy {
   private async publish(publisher: Alice): Promise<string> {
     const startTimestamp = toEpoch(this.startTimestamp);
     const endTimestamp = toEpoch(this.endTimestamp);
-    const ownerAddress = await publisher.web3Provider.getAddress();
+    const ownerAddress = await publisher.web3Provider.getSigner().getAddress();
     const value = await SubscriptionManagerAgent.getPolicyCost(
-      publisher.web3Provider.provider,
+      publisher.web3Provider,
       this.size,
       startTimestamp,
       endTimestamp

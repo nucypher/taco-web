@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-beta.1](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-beta.0...v1.0.0-beta.1) (2023-03-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* Pass provider to retireveAndDecrypt instead of ConditionContext (#135)
+* replace Web3Provider with direct usage of ethers.provider.Web3Provider
+* set main package entry to commonjs module
+
+### Features
+
+* expose startDate and endDate as strategy params ([56a10da](https://github.com/nucypher/nucypher-ts/commit/56a10dabcc79a6cc5c535b565da60b827277d413))
+* replace Web3Provider with direct usage of ethers.provider.Web3Provider ([206f08e](https://github.com/nucypher/nucypher-ts/commit/206f08e2a919aaddee2c7c08733787f3415dae71))
+* set main package entry to commonjs module ([214e858](https://github.com/nucypher/nucypher-ts/commit/214e85848f293257b2fcc40521a4c72db116e5aa))
+
+
+### Bug Fixes
+
+* remove unused provider parameter ([805b93c](https://github.com/nucypher/nucypher-ts/commit/805b93cd12b16bebadab07dcb45643710b6123e5))
+
+
+* Pass provider to retireveAndDecrypt instead of ConditionContext ([#135](https://github.com/nucypher/nucypher-ts/issues/135)) ([4fe98fc](https://github.com/nucypher/nucypher-ts/commit/4fe98fc8d158158eb14f8192376113de5f605ceb))
+
 ## [1.0.0-beta.0](https://github.com/nucypher/nucypher-ts/compare/v0.9.0...v1.0.0-beta.0) (2023-03-27)
 
 ## [0.9.0](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.26...v0.9.0) (2022-12-07)

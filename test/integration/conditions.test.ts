@@ -252,7 +252,10 @@ describe('condition context', () => {
     });
     const conditionSet = new ConditionSet([rpcCondition]);
 
-    const conditionContext = new ConditionContext(conditionSet, web3Provider);
+    const conditionContext = new ConditionContext(
+      conditionSet.toWASMConditions(),
+      web3Provider
+    );
     const asJson = await conditionContext.toJson();
     expect(asJson).toBeDefined();
   });

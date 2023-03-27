@@ -213,10 +213,9 @@ describe('Deployed Strategy', () => {
       encryptedMessageKit.capsule
     );
 
-    const conditionContext = conditions.buildContext(bobProvider);
     const decryptedMessage = await decrypter.retrieveAndDecrypt(
       [encryptedMessageKit],
-      conditionContext
+      bobProvider
     );
     expect(getUrsulasSpy2).toHaveBeenCalled();
     expect(retrieveCFragsSpy).toHaveBeenCalled();

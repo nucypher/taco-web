@@ -85,7 +85,7 @@ export class ConditionSet {
   public buildContext(
     provider: ethers.providers.Web3Provider
   ): ConditionContext {
-    return new ConditionContext(this, provider);
+    return new ConditionContext(this.toWASMConditions(), provider);
   }
 }
 
@@ -331,24 +331,9 @@ export class ConditionContext {
   private walletSignature?: Record<string, string>;
 
   constructor(
-    private readonly conditionSet: ConditionSet,
+    private readonly conditions: WASMConditions,
     private readonly web3Provider: ethers.providers.Web3Provider
   ) {}
-
-  private get contextParameters() {
-    const parameters = this.conditionSet.conditions
-      .map((conditionOrOperator) => {
-        if (conditionOrOperator instanceof Condition) {
-          const condition = conditionOrOperator as Condition;
-          return condition.getContextParameters();
-        }
-        return null;
-      })
-      .filter(
-        (maybeResult: unknown | undefined) => !!maybeResult
-      ) as string[][];
-    return parameters.flat();
-  }
 
   public async getOrCreateWalletSignature(): Promise<TypedSignature> {
     const address = await this.web3Provider.getSigner().getAddress();
@@ -455,9 +440,9 @@ export class ConditionContext {
   }
 
   public toJson = async (): Promise<string> => {
-    const userAddressParam = this.contextParameters.find(
-      (p) => p === ':userAddress'
-    );
+    const userAddressParam = this.conditions
+      .toString()
+      .includes(':userAddress');
     if (!userAddressParam) {
       return JSON.stringify({});
     }

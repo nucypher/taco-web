@@ -40,9 +40,9 @@ describe('Strategy', () => {
     shares: 3,
     porterUri: 'https://_this.should.crash',
   };
-  const aliceSecretKey = SecretKey.fromBytes(aliceSecretKeyBytes);
-  const bobSecretKey = SecretKey.fromBytes(bobSecretKeyBytes);
-  const aliceProvider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
+  const aliceSecretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);
+  const bobSecretKey = SecretKey.fromBEBytes(bobSecretKeyBytes);
+  const aliceProvider = mockWeb3Provider(aliceSecretKey.toBEBytes());
   Date.now = jest.fn(() => 1487076708000);
 
   afterEach(() => {
@@ -120,15 +120,15 @@ describe('Deployed Strategy', () => {
     shares: 3,
     porterUri: 'https://_this.should.crash',
   };
-  const aliceSecretKey = SecretKey.fromBytes(aliceSecretKeyBytes);
-  const bobSecretKey = SecretKey.fromBytes(bobSecretKeyBytes);
+  const aliceSecretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);
+  const bobSecretKey = SecretKey.fromBEBytes(bobSecretKeyBytes);
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   it('can export to JSON', async () => {
-    const aliceProvider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
+    const aliceProvider = mockWeb3Provider(aliceSecretKey.toBEBytes());
     const mockedUrsulas = mockUrsulas().slice(0, 3);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const generateKFragsSpy = mockGenerateKFrags();
@@ -163,8 +163,8 @@ describe('Deployed Strategy', () => {
   });
 
   it('can encrypt and decrypt', async () => {
-    const aliceProvider = mockWeb3Provider(aliceSecretKey.toSecretBytes());
-    const bobProvider = mockWeb3Provider(bobSecretKey.toSecretBytes());
+    const aliceProvider = mockWeb3Provider(aliceSecretKey.toBEBytes());
+    const bobProvider = mockWeb3Provider(bobSecretKey.toBEBytes());
     const mockedUrsulas = mockUrsulas().slice(0, 3);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const generateKFragsSpy = mockGenerateKFrags();
@@ -195,11 +195,10 @@ describe('Deployed Strategy', () => {
       parameters: [3591],
       chain: 5,
     });
-
     const plaintext = 'this is a secret';
-    const conditions = new ConditionSet([ownsNFT]);
-    encrypter.conditions = conditions;
+    encrypter.conditions = new ConditionSet([ownsNFT]);
     const encryptedMessageKit = encrypter.encryptMessage(plaintext);
+
     // Setup mocks for `retrieveAndDecrypt`
     const getUrsulasSpy2 = mockGetUrsulas(mockedUrsulas);
     const ursulaAddresses = (
@@ -227,8 +226,7 @@ describe('tDecDecrypter', () => {
   const importedStrategy = DeployedStrategy.fromJSON(deployedStrategyJSON);
 
   it('can export to JSON', () => {
-    const decrypter = importedStrategy.decrypter;
-    const configJSON = decrypter.toJSON();
+    const configJSON = importedStrategy.decrypter.toJSON();
     expect(configJSON).toEqual(decrypterJSON);
   });
 

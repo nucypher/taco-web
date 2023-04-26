@@ -52,7 +52,7 @@ describe('Get Started (CBD PoC)', () => {
     jest
       .spyOn(providers, 'Web3Provider')
       .mockImplementation(() =>
-        mockWeb3Provider(SecretKey.random().toSecretBytes())
+        mockWeb3Provider(SecretKey.random().toBEBytes())
       );
 
     //

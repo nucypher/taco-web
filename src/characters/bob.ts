@@ -27,11 +27,11 @@ export class RemoteBob {
     const dk =
       decryptingKey instanceof PublicKey
         ? decryptingKey
-        : PublicKey.fromBytes(decryptingKey);
+        : PublicKey.fromCompressedBytes(decryptingKey);
     const vk =
       verifyingKey instanceof PublicKey
         ? verifyingKey
-        : PublicKey.fromBytes(verifyingKey);
+        : PublicKey.fromCompressedBytes(verifyingKey);
     return new RemoteBob(dk, vk);
   }
 }

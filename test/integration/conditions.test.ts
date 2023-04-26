@@ -239,7 +239,7 @@ describe('produce context parameters from conditions', () => {
 
 describe('condition context', () => {
   it('should serialize to JSON with context params', async () => {
-    const web3Provider = mockWeb3Provider(SecretKey.random().toSecretBytes());
+    const web3Provider = mockWeb3Provider(SecretKey.random().toBEBytes());
 
     const rpcCondition = new Conditions.RpcCondition({
       chain: 5,

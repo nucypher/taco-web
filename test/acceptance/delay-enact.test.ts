@@ -38,7 +38,7 @@ describe('story: alice1 creates a policy but alice2 enacts it', () => {
       policyParams
     );
     expect(preEnactedPolicy.aliceVerifyingKey).toEqual(
-      alice1.verifyingKey.toBytes()
+      alice1.verifyingKey.toCompressedBytes()
     );
     expect(preEnactedPolicy.label).toBe(label);
 

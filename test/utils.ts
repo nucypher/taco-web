@@ -37,7 +37,7 @@ const mockConfig: Configuration = {
 };
 
 export const mockBob = (): Bob => {
-  const secretKey = SecretKey.fromBytes(
+  const secretKey = SecretKey.fromBEBytes(
     toBytes('fake-secret-key-32-bytes-bob-xxx')
   );
   return Bob.fromSecretKey(mockConfig, secretKey);
@@ -49,8 +49,8 @@ export const mockRemoteBob = (): RemoteBob => {
 };
 
 export const mockAlice = (aliceKey = 'fake-secret-key-32-bytes-alice-x') => {
-  const secretKey = SecretKey.fromBytes(toBytes(aliceKey));
-  const provider = mockWeb3Provider(secretKey.toSecretBytes());
+  const secretKey = SecretKey.fromBEBytes(toBytes(aliceKey));
+  const provider = mockWeb3Provider(secretKey.toBEBytes());
   return Alice.fromSecretKey(mockConfig, secretKey, provider);
 };
 
@@ -123,7 +123,7 @@ export const mockGetUrsulas = (ursulas: readonly Ursula[]) => {
     return {
       result: {
         ursulas: mockUrsulas.map(({ encryptingKey, uri, checksumAddress }) => ({
-          encrypting_key: toHexString(encryptingKey.toBytes()),
+          encrypting_key: toHexString(encryptingKey.toCompressedBytes()),
           uri: uri,
           checksum_address: checksumAddress,
         })),

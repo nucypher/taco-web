@@ -3419,6 +3419,11 @@ fb-watchman@^2.0.0:
   dependencies:
     bser "2.1.1"
 
+ferveo-wasm@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/ferveo-wasm/-/ferveo-wasm-0.1.0.tgz#03fa787ed1978f457d4847282d864778a3799f21"
+  integrity sha512-KcPU0QVU/GkXoDeL8mG63Mm6kKyCECmMyF4QGnPqcCSeEXVY+sno67Vk98I/1b372QWsjye/6Rm5J5HBI8icCQ==
+
 figures@^3.0.0, figures@^3.1.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/figures/-/figures-3.2.0.tgz#625c18bd293c604dc4a8ddb2febf0c88341746af"

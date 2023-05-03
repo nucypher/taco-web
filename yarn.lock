@@ -1643,10 +1643,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@nucypher/nucypher-core@^0.6.0":
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/@nucypher/nucypher-core/-/nucypher-core-0.6.0.tgz#07f60e2ba084efe3174afa7eefcb75ba58a0ba39"
-  integrity sha512-6S+x3J8vTrcXowtPl0GtprF7WgyP3lsSSG3+AYJXS17Sz9n2UeUdfWIxXrXt4bPj27w0sfgwYfXDoVhS/DP68A==
+"@nucypher/nucypher-core@^0.7.0":
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/@nucypher/nucypher-core/-/nucypher-core-0.7.0.tgz#2549364f39087a32be3abd8510baa45c1089d205"
+  integrity sha512-L8jDHIkEPgK4rPOwf7UkePGI/AHnP77TyE7iktO1G/bMGPZzsZ4YVg0Tw13T/3mPLEVjFOFZqA+h75wK3rHU6g==
 
 "@sideway/address@^4.1.3":
   version "4.1.4"

@@ -12,7 +12,7 @@ export const strategyJSON = JSON.stringify({
   aliceSecretKeyBytes: 'base64:N1K+vcukPJQkVi57P5jXca5W9CwX48VEBVV0H9CYWDU=',
   bobSecretKeyBytes: 'base64:dOs3NGmtXJMdjVMaXf3/m5PlAmqwzSGoF9XpyO4LwZk=',
   startDate: '2017-02-14T12:51:48.000Z',
-  endDate: '2017-03-16T12:51:48.000Z',
+  endDate: '2123-03-16T12:51:48.000Z',
 });
 
 export const encryptedTreasureMapBase64 =
@@ -28,7 +28,7 @@ export const deployedStrategyJSON = JSON.stringify({
     aliceVerifyingKey: 'base64:A3yU8aavNj4LJ97eFAaYpU97q70oSogzBZAlo5tj/1Kj',
     size: 3,
     startTimestamp: '2017-02-14T12:51:48.000Z',
-    endTimestamp: '2017-03-16T12:51:48.000Z',
+    endTimestamp: '2123-03-16T12:51:48.000Z',
     txHash: '0x1234567890123456789012345678901234567890',
   },
   cohortConfig: {

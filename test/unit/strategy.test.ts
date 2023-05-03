@@ -15,13 +15,13 @@ import {
 import { Ursula } from '../../src/characters/porter';
 import { fromBase64, toBytes } from '../../src/utils';
 import {
+  makeTestUrsulas,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
   mockGetUrsulas,
   mockMakeTreasureMap,
   mockPublishToBlockchain,
   mockRetrieveCFragsRequest,
-  mockUrsulas,
   mockWeb3Provider,
 } from '../utils';
 
@@ -46,11 +46,11 @@ describe('Strategy', () => {
   Date.now = jest.fn(() => 1487076708000);
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   it('can create Strategy from configuration', async () => {
-    const mockedUrsulas = mockUrsulas().slice(0, 3);
+    const mockedUrsulas = makeTestUrsulas().slice(0, 3);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
 
     const testCohort = await Cohort.create(cohortConfig);
@@ -61,26 +61,29 @@ describe('Strategy', () => {
       bobSecretKey
     );
 
-    const expectedUrsulas = [
-      '0x5cf1703a1c99a4b42eb056535840e93118177232',
-      '0x7fff551249d223f723557a96a0e1a469c79cc934',
-      '0x9c7c824239d3159327024459ad69bb215859bd25',
-    ];
+    const expectedUrsulas = mockedUrsulas.map(
+      (ursula) => ursula.checksumAddress
+    );
     expect(getUrsulasSpy).toHaveBeenCalled();
     expect(testStrategy.cohort.ursulaAddresses).toEqual(expectedUrsulas);
   });
 
   it('can export to JSON', async () => {
+    const mockedUrsulas = makeTestUrsulas().slice(0, 3);
+    const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const testCohort = await Cohort.create(cohortConfig);
     const testStrategy = Strategy.create(
       testCohort,
       undefined,
       aliceSecretKey,
-      bobSecretKey
+      bobSecretKey,
+      new Date('2017-02-14T12:51:48.000Z'),
+      new Date('2123-03-16T12:51:48.000Z')
     );
 
     const configJSON = testStrategy.toJSON();
     expect(configJSON).toEqual(strategyJSON);
+    expect(getUrsulasSpy).toHaveBeenCalled();
   });
 
   it('can import from JSON', async () => {
@@ -94,7 +97,7 @@ describe('Strategy', () => {
   });
 
   it('can deploy and return DeployedStrategy', async () => {
-    const mockedUrsulas = mockUrsulas().slice(0, 3);
+    const mockedUrsulas = makeTestUrsulas().slice(0, 3);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const generateKFragsSpy = mockGenerateKFrags();
     const publishToBlockchainSpy = mockPublishToBlockchain();
@@ -124,12 +127,12 @@ describe('Deployed Strategy', () => {
   const bobSecretKey = SecretKey.fromBEBytes(bobSecretKeyBytes);
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   it('can export to JSON', async () => {
     const aliceProvider = mockWeb3Provider(aliceSecretKey.toBEBytes());
-    const mockedUrsulas = mockUrsulas().slice(0, 3);
+    const mockedUrsulas = makeTestUrsulas().slice(0, 3);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const generateKFragsSpy = mockGenerateKFrags();
     const publishToBlockchainSpy = mockPublishToBlockchain();
@@ -143,7 +146,9 @@ describe('Deployed Strategy', () => {
       testCohort,
       undefined,
       aliceSecretKey,
-      bobSecretKey
+      bobSecretKey,
+      new Date('2017-02-14T12:51:48.000Z'),
+      new Date('2123-03-16T12:51:48.000Z')
     );
     const testDeployed = await testStrategy.deploy('test', aliceProvider);
     expect(getUrsulasSpy).toHaveBeenCalled();
@@ -165,7 +170,7 @@ describe('Deployed Strategy', () => {
   it('can encrypt and decrypt', async () => {
     const aliceProvider = mockWeb3Provider(aliceSecretKey.toBEBytes());
     const bobProvider = mockWeb3Provider(bobSecretKey.toBEBytes());
-    const mockedUrsulas = mockUrsulas().slice(0, 3);
+    const mockedUrsulas = makeTestUrsulas().slice(0, 3);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const generateKFragsSpy = mockGenerateKFrags();
     const publishToBlockchainSpy = mockPublishToBlockchain();

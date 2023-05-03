@@ -6,6 +6,7 @@ import {
   Capsule,
   CapsuleFrag,
   EncryptedTreasureMap,
+  PublicKey,
   reencrypt,
   SecretKey,
   VerifiedCapsuleFrag,
@@ -80,7 +81,7 @@ export const mockWeb3Provider = (
   } as unknown as ethers.providers.Web3Provider;
 };
 
-export const mockUrsulas = (): readonly Ursula[] => {
+export const makeTestUrsulas = (): readonly Ursula[] => {
   return [
     {
       encryptingKey: SecretKey.random().publicKey(),
@@ -148,11 +149,6 @@ export const mockCFragResponse = (
   verifiedKFrags: readonly VerifiedKeyFrag[],
   capsule: Capsule
 ): readonly RetrieveCFragsResponse[] => {
-  if (ursulas.length !== verifiedKFrags.length) {
-    throw new Error(
-      'Number of verifiedKFrags must match the number of Ursulas'
-    );
-  }
   const reencrypted = verifiedKFrags
     .map((kFrag) => reencrypt(capsule, kFrag))
     .map((cFrag) => CapsuleFrag.fromBytes(cFrag.toBytes()));
@@ -179,8 +175,15 @@ export const mockRetrieveCFragsRequestThrows = () => {
     .mockRejectedValue(new Error('fake-reencryption-request-failed-error'));
 };
 
-export const mockGenerateKFrags = () => {
-  return jest.spyOn(Alice.prototype as any, 'generateKFrags');
+export const mockGenerateKFrags = (withValue?: {
+  delegatingKey: PublicKey;
+  verifiedKFrags: VerifiedKeyFrag[];
+}) => {
+  const spy = jest.spyOn(Alice.prototype as any, 'generateKFrags');
+  if (withValue) {
+    return spy.mockImplementation(() => withValue);
+  }
+  return spy;
 };
 
 export const mockEncryptTreasureMap = (withValue?: EncryptedTreasureMap) => {

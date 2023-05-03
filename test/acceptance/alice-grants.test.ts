@@ -12,6 +12,7 @@ import { toBytes } from '../../src/utils';
 import {
   bytesEqual,
   fromBytes,
+  makeTestUrsulas,
   mockAlice,
   mockBob,
   mockEncryptTreasureMap,
@@ -21,7 +22,6 @@ import {
   mockPublishToBlockchain,
   mockRemoteBob,
   mockRetrieveCFragsRequest,
-  mockUrsulas,
   reencryptKFrags,
 } from '../utils';
 
@@ -31,7 +31,7 @@ describe('story: alice shares message with bob through policy', () => {
   const shares = 3;
   const startDate = new Date();
   const endDate = new Date(Date.now() + 60 * 1000);
-  const mockedUrsulas = mockUrsulas().slice(0, shares);
+  const mockedUrsulas = makeTestUrsulas().slice(0, shares);
 
   // Intermediate variables used for mocking
   let encryptedTreasureMap: EncryptedTreasureMap;

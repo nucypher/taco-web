@@ -11,7 +11,7 @@ import {
 } from '../../types/ethers-contracts';
 import { ChecksumAddress } from '../types';
 
-import { DEFAULT_WAIT_N_CONFIRMATIONS, getContracts } from './contracts';
+import { DEFAULT_WAIT_N_CONFIRMATIONS, getContract } from './contracts';
 
 export class SubscriptionManagerAgent {
   public static async createPolicy(
@@ -76,7 +76,10 @@ export class SubscriptionManagerAgent {
     signer?: ethers.providers.JsonRpcSigner
   ): Promise<SubscriptionManager> {
     const network = await provider.getNetwork();
-    const contractAddress = getContracts(network.chainId).SUBSCRIPTION_MANAGER;
+    const contractAddress = getContract(
+      network.chainId,
+      'SUBSCRIPTION_MANAGER'
+    );
     return SubscriptionManager__factory.connect(
       contractAddress,
       signer ?? provider

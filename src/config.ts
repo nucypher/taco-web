@@ -11,6 +11,10 @@ const CONFIGS: { readonly [key in ChainId]: Configuration } = {
   [ChainId.MUMBAI]: {
     porterUri: 'https://porter-tapir.nucypher.community',
   },
+  [ChainId.GOERLI]: {
+    // TODO: Confirm this is correct
+    porterUri: 'https://porter-tapir.nucypher.community',
+  },
 };
 
 export const defaultConfiguration = (chainId: number): Configuration => {

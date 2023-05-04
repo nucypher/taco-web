@@ -131,7 +131,7 @@ export class BlockchainPolicy {
       this.delegatingKey,
       encryptedTreasureMap,
       // revocationKit,
-      this.publisher.verifyingKey.toBytes(),
+      this.publisher.verifyingKey.toCompressedBytes(),
       this.shares,
       this.startDate,
       this.endDate

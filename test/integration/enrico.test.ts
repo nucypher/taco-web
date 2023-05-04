@@ -51,7 +51,9 @@ describe('enrico', () => {
       threshold,
       shares
     );
-    expect(delegatingKey.toBytes()).toEqual(policyEncryptingKey.toBytes());
+    expect(delegatingKey.toCompressedBytes()).toEqual(
+      policyEncryptingKey.toCompressedBytes()
+    );
 
     // Bob can decrypt re-encrypted ciphertext
     const { verifiedCFrags } = reencryptKFrags(

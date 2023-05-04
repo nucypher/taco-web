@@ -10,13 +10,13 @@ import {
 } from '../../src';
 import { RetrievalResult } from '../../src/kits/retrieval';
 import { toBytes, zip } from '../../src/utils';
-import { mockAlice, mockBob, mockUrsulas, reencryptKFrags } from '../utils';
+import { makeTestUrsulas, mockAlice, mockBob, reencryptKFrags } from '../utils';
 
 describe('proxy reencryption', () => {
   const plaintext = toBytes('plaintext-message');
   const threshold = 2;
   const shares = 3;
-  const ursulas = mockUrsulas().slice(0, shares);
+  const ursulas = makeTestUrsulas().slice(0, shares);
   const label = 'fake-data-label';
   const alice = mockAlice();
   const bob = mockBob();

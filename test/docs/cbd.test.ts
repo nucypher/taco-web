@@ -11,6 +11,7 @@ import {
 import { Ursula } from '../../src/characters/porter';
 import { toBytes } from '../../src/utils';
 import {
+  makeTestUrsulas,
   mockDetectEthereumProvider,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
@@ -18,7 +19,6 @@ import {
   mockMakeTreasureMap,
   mockPublishToBlockchain,
   mockRetrieveCFragsRequest,
-  mockUrsulas,
   mockWeb3Provider,
 } from '../utils';
 
@@ -42,7 +42,7 @@ describe('Get Started (CBD PoC)', () => {
 
   it('can run the get started example', async () => {
     const detectEthereumProvider = mockDetectEthereumProvider();
-    const mockedUrsulas = mockUrsulas();
+    const mockedUrsulas = makeTestUrsulas();
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const generateKFragsSpy = mockGenerateKFrags();
     const publishToBlockchainSpy = mockPublishToBlockchain();
@@ -52,7 +52,7 @@ describe('Get Started (CBD PoC)', () => {
     jest
       .spyOn(providers, 'Web3Provider')
       .mockImplementation(() =>
-        mockWeb3Provider(SecretKey.random().toSecretBytes())
+        mockWeb3Provider(SecretKey.random().toBEBytes())
       );
 
     //
@@ -126,7 +126,7 @@ describe('Get Started (CBD PoC)', () => {
     // End of the code example
     //
 
-    const expectedAddresses = mockUrsulas().map((u) => u.checksumAddress);
+    const expectedAddresses = makeTestUrsulas().map((u) => u.checksumAddress);
     const condObj = conditions.conditions[0].toObj();
     expect(newCohort.ursulaAddresses).toEqual(expectedAddresses);
     expect(condObj.parameters).toEqual([5954]);

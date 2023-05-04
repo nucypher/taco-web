@@ -136,8 +136,8 @@ export class Strategy {
   }: StrategyJSON) {
     return new Strategy(
       Cohort.fromObj(cohort),
-      SecretKey.fromBytes(aliceSecretKeyBytes),
-      SecretKey.fromBytes(bobSecretKeyBytes),
+      SecretKey.fromBEBytes(aliceSecretKeyBytes),
+      SecretKey.fromBEBytes(bobSecretKeyBytes),
       startDate,
       endDate,
       conditionSet
@@ -147,8 +147,8 @@ export class Strategy {
   public toObj(): StrategyJSON {
     return {
       cohort: this.cohort.toObj(),
-      aliceSecretKeyBytes: this.aliceSecretKey.toSecretBytes(),
-      bobSecretKeyBytes: this.bobSecretKey.toSecretBytes(),
+      aliceSecretKeyBytes: this.aliceSecretKey.toBEBytes(),
+      bobSecretKeyBytes: this.bobSecretKey.toBEBytes(),
       conditionSet: this.conditionSet,
       startDate: this.startDate,
       endDate: this.endDate,
@@ -183,23 +183,25 @@ export class DeployedStrategy {
     conditionSet,
   }: DeployedStrategyJSON) {
     const id = HRAC.fromBytes(policy.id);
-    const policyKey = PublicKey.fromBytes(policy.policyKey);
+    const policyKey = PublicKey.fromCompressedBytes(policy.policyKey);
     const encryptedTreasureMap = EncryptedTreasureMap.fromBytes(
       policy.encryptedTreasureMap
     );
-    const aliceVerifyingKey = PublicKey.fromBytes(policy.aliceVerifyingKey);
+    const aliceVerifyingKey = PublicKey.fromCompressedBytes(
+      policy.aliceVerifyingKey
+    );
     const newPolicy = {
       id,
       label: policy.label,
       policyKey,
       encryptedTreasureMap,
-      aliceVerifyingKey: aliceVerifyingKey.toBytes(),
+      aliceVerifyingKey: aliceVerifyingKey.toCompressedBytes(),
       size: policy.size,
       startTimestamp: policy.startTimestamp,
       endTimestamp: policy.endTimestamp,
       txHash: policy.txHash,
     };
-    const bobSecretKey = SecretKey.fromBytes(bobSecretKeyBytes);
+    const bobSecretKey = SecretKey.fromBEBytes(bobSecretKeyBytes);
     const label = newPolicy.label;
     const cohort = Cohort.fromObj(cohortConfig);
     const encrypter = new Enrico(newPolicy.policyKey, undefined, conditionSet);
@@ -226,13 +228,13 @@ export class DeployedStrategy {
     const policy = {
       ...this.policy,
       id: this.policy.id.toBytes(),
-      policyKey: this.policy.policyKey.toBytes(),
+      policyKey: this.policy.policyKey.toCompressedBytes(),
       encryptedTreasureMap: this.policy.encryptedTreasureMap.toBytes(),
     };
     return {
       policy,
       cohortConfig: this.cohort.toObj(),
-      bobSecretKeyBytes: this.bobSecretKey.toSecretBytes(),
+      bobSecretKeyBytes: this.bobSecretKey.toBEBytes(),
       conditionSet: this.conditionSet,
     };
   }

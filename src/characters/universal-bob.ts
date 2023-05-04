@@ -140,10 +140,11 @@ export class tDecDecrypter {
   public toObj(): decrypterJSON {
     return {
       porterUri: this.porter.porterUrl.toString(),
-      policyEncryptingKeyBytes: this.policyEncryptingKey.toBytes(),
+      policyEncryptingKeyBytes: this.policyEncryptingKey.toCompressedBytes(),
       encryptedTreasureMapBytes: this.encryptedTreasureMap.toBytes(),
-      publisherVerifyingKeyBytes: this.publisherVerifyingKey.toBytes(),
-      bobSecretKeyBytes: this.keyring.secretKey.toSecretBytes(),
+      publisherVerifyingKeyBytes:
+        this.publisherVerifyingKey.toCompressedBytes(),
+      bobSecretKeyBytes: this.keyring.secretKey.toBEBytes(),
     };
   }
 
@@ -160,10 +161,10 @@ export class tDecDecrypter {
   }: decrypterJSON) {
     return new tDecDecrypter(
       porterUri,
-      PublicKey.fromBytes(policyEncryptingKeyBytes),
+      PublicKey.fromCompressedBytes(policyEncryptingKeyBytes),
       EncryptedTreasureMap.fromBytes(encryptedTreasureMapBytes),
-      PublicKey.fromBytes(publisherVerifyingKeyBytes),
-      SecretKey.fromBytes(bobSecretKeyBytes)
+      PublicKey.fromCompressedBytes(publisherVerifyingKeyBytes),
+      SecretKey.fromBEBytes(bobSecretKeyBytes)
     );
   }
 

@@ -93,7 +93,9 @@ export class Porter {
     return resp.data.result.ursulas.map((u: UrsulaResponse) => ({
       checksumAddress: u.checksum_address,
       uri: u.uri,
-      encryptingKey: PublicKey.fromBytes(fromHexString(u.encrypting_key)),
+      encryptingKey: PublicKey.fromCompressedBytes(
+        fromHexString(u.encrypting_key)
+      ),
     }));
   }
 
@@ -111,9 +113,9 @@ export class Porter {
     const data: PostRetrieveCFragsRequest = {
       treasure_map: toBase64(treasureMap.toBytes()),
       retrieval_kits: retrievalKits.map((rk) => toBase64(rk.toBytes())),
-      alice_verifying_key: toHexString(aliceVerifyingKey.toBytes()),
-      bob_encrypting_key: toHexString(bobEncryptingKey.toBytes()),
-      bob_verifying_key: toHexString(bobVerifyingKey.toBytes()),
+      alice_verifying_key: toHexString(aliceVerifyingKey.toCompressedBytes()),
+      bob_encrypting_key: toHexString(bobEncryptingKey.toCompressedBytes()),
+      bob_verifying_key: toHexString(bobVerifyingKey.toCompressedBytes()),
       context,
     };
     const resp: AxiosResponse<PostRetrieveCFragsResult> = await axios.post(

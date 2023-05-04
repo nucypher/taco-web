@@ -6,6 +6,7 @@ import {
   Capsule,
   CapsuleFrag,
   EncryptedTreasureMap,
+  PublicKey,
   reencrypt,
   SecretKey,
   VerifiedCapsuleFrag,
@@ -37,7 +38,7 @@ const mockConfig: Configuration = {
 };
 
 export const mockBob = (): Bob => {
-  const secretKey = SecretKey.fromBytes(
+  const secretKey = SecretKey.fromBEBytes(
     toBytes('fake-secret-key-32-bytes-bob-xxx')
   );
   return Bob.fromSecretKey(mockConfig, secretKey);
@@ -49,8 +50,8 @@ export const mockRemoteBob = (): RemoteBob => {
 };
 
 export const mockAlice = (aliceKey = 'fake-secret-key-32-bytes-alice-x') => {
-  const secretKey = SecretKey.fromBytes(toBytes(aliceKey));
-  const provider = mockWeb3Provider(secretKey.toSecretBytes());
+  const secretKey = SecretKey.fromBEBytes(toBytes(aliceKey));
+  const provider = mockWeb3Provider(secretKey.toBEBytes());
   return Alice.fromSecretKey(mockConfig, secretKey, provider);
 };
 
@@ -80,7 +81,7 @@ export const mockWeb3Provider = (
   } as unknown as ethers.providers.Web3Provider;
 };
 
-export const mockUrsulas = (): readonly Ursula[] => {
+export const makeTestUrsulas = (): readonly Ursula[] => {
   return [
     {
       encryptingKey: SecretKey.random().publicKey(),
@@ -123,7 +124,7 @@ export const mockGetUrsulas = (ursulas: readonly Ursula[]) => {
     return {
       result: {
         ursulas: mockUrsulas.map(({ encryptingKey, uri, checksumAddress }) => ({
-          encrypting_key: toHexString(encryptingKey.toBytes()),
+          encrypting_key: toHexString(encryptingKey.toCompressedBytes()),
           uri: uri,
           checksum_address: checksumAddress,
         })),
@@ -148,11 +149,6 @@ export const mockCFragResponse = (
   verifiedKFrags: readonly VerifiedKeyFrag[],
   capsule: Capsule
 ): readonly RetrieveCFragsResponse[] => {
-  if (ursulas.length !== verifiedKFrags.length) {
-    throw new Error(
-      'Number of verifiedKFrags must match the number of Ursulas'
-    );
-  }
   const reencrypted = verifiedKFrags
     .map((kFrag) => reencrypt(capsule, kFrag))
     .map((cFrag) => CapsuleFrag.fromBytes(cFrag.toBytes()));
@@ -179,8 +175,15 @@ export const mockRetrieveCFragsRequestThrows = () => {
     .mockRejectedValue(new Error('fake-reencryption-request-failed-error'));
 };
 
-export const mockGenerateKFrags = () => {
-  return jest.spyOn(Alice.prototype as any, 'generateKFrags');
+export const mockGenerateKFrags = (withValue?: {
+  delegatingKey: PublicKey;
+  verifiedKFrags: VerifiedKeyFrag[];
+}) => {
+  const spy = jest.spyOn(Alice.prototype as any, 'generateKFrags');
+  if (withValue) {
+    return spy.mockImplementation(() => withValue);
+  }
+  return spy;
 };
 
 export const mockEncryptTreasureMap = (withValue?: EncryptedTreasureMap) => {

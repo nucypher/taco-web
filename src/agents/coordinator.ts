@@ -7,13 +7,45 @@ import {
 
 import { getContract } from './contracts';
 
-export class CoordinatorAgent {
+export interface DkgRitual {
+  id: number;
+  initiator: string;
+  dkgSize: number;
+  initTimestamp: number;
+  totalTranscripts: number;
+  totalAggregations: number;
+  aggregatedTranscriptHash: string;
+  aggregationMismatch: boolean;
+  aggregatedTranscript: string;
+  publicKey: string;
+  publicKeyHash: string;
+}
+
+export interface DkgParticipant {
+  node: string;
+  aggregated: boolean;
+  transcript: string;
+  publicKey: string;
+}
+
+export class DkgCoordinatorAgent {
   public static async getParticipants(
     provider: ethers.providers.Provider,
     ritualId: number
-  ): Promise<Coordinator.ParticipantStructOutput[]> {
+  ): Promise<DkgParticipant[]> {
     const Coordinator = await this.connectReadOnly(provider);
-    return await Coordinator.getParticipants(ritualId);
+    // TODO: Remove `as unknown` cast after regenerating the contract types: https://github.com/nucypher/nucypher-contracts/pull/77
+    return (await Coordinator.getParticipants(
+      ritualId
+    )) as unknown as DkgParticipant[];
+  }
+
+  public static async getRitual(
+    provider: ethers.providers.Provider,
+    ritualId: number
+  ): Promise<DkgRitual> {
+    const Coordinator = await this.connectReadOnly(provider);
+    return await Coordinator.rituals(ritualId);
   }
 
   private static async connectReadOnly(provider: ethers.providers.Provider) {

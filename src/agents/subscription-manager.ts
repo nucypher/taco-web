@@ -13,7 +13,7 @@ import { ChecksumAddress } from '../types';
 
 import { DEFAULT_WAIT_N_CONFIRMATIONS, getContract } from './contracts';
 
-export class SubscriptionManagerAgent {
+export class PreSubscriptionManagerAgent {
   public static async createPolicy(
     web3Provider: ethers.providers.Web3Provider,
     valueInWei: BigNumber,

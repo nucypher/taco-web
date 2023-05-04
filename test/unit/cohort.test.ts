@@ -1,9 +1,9 @@
 import { Cohort } from '../../src';
-import { makeTestUrsulas, mockGetUrsulas } from '../utils';
+import { fakeUrsulas, mockGetUrsulas } from '../utils';
 
 describe('Cohort', () => {
   it('can create Cohort from configuration', async () => {
-    const mockedUrsulas = makeTestUrsulas().slice(0, 3);
+    const mockedUrsulas = fakeUrsulas().slice(0, 3);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
 
     const config = {
@@ -23,7 +23,7 @@ describe('Cohort', () => {
   });
 
   it('can export to JSON', async () => {
-    const mockedUrsulas = makeTestUrsulas().slice(0, 3);
+    const mockedUrsulas = fakeUrsulas().slice(0, 3);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const config = {
       threshold: 2,
@@ -39,7 +39,7 @@ describe('Cohort', () => {
   });
 
   it('can import from JSON', async () => {
-    const mockedUrsulas = makeTestUrsulas().slice(0, 3);
+    const mockedUrsulas = fakeUrsulas().slice(0, 3);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
 
     const configJSON =

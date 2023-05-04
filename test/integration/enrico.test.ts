@@ -4,9 +4,9 @@ import { RetrievalResult } from '../../src/kits/retrieval';
 import { toBytes } from '../../src/utils';
 import {
   bytesEqual,
+  fakeAlice,
+  fakeBob,
   fromBytes,
-  mockAlice,
-  mockBob,
   reencryptKFrags,
 } from '../utils';
 
@@ -14,7 +14,7 @@ describe('enrico', () => {
   it('alice decrypts message encrypted by enrico', async () => {
     const label = 'fake-label';
     const message = 'fake-message';
-    const alice = mockAlice();
+    const alice = fakeAlice();
 
     const policyKey = alice.getPolicyEncryptingKeyFromLabel(label);
     const enrico = new Enrico(policyKey);
@@ -28,8 +28,8 @@ describe('enrico', () => {
 
   it('bob decrypts reencrypted message', async () => {
     const label = 'fake-label';
-    const alice = mockAlice();
-    const bob = mockBob();
+    const alice = fakeAlice();
+    const bob = fakeBob();
 
     const policyEncryptingKey = alice.getPolicyEncryptingKeyFromLabel(label);
     const enrico = new Enrico(policyEncryptingKey);
@@ -89,7 +89,7 @@ describe('enrico', () => {
   it('enrico generates a message kit with conditions', async () => {
     const label = 'fake-label';
     const message = 'fake-message';
-    const alice = mockAlice();
+    const alice = fakeAlice();
 
     const policyKey = alice.getPolicyEncryptingKeyFromLabel(label);
 
@@ -112,7 +112,7 @@ describe('enrico', () => {
   it('can overwrite conditions at encryption time', async () => {
     const label = 'fake-label';
     const message = 'fake-message';
-    const alice = mockAlice();
+    const alice = fakeAlice();
 
     const policyKey = alice.getPolicyEncryptingKeyFromLabel(label);
 

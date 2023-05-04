@@ -15,14 +15,14 @@ import {
 import { Ursula } from '../../src/characters/porter';
 import { fromBase64, toBytes } from '../../src/utils';
 import {
-  makeTestUrsulas,
+  fakeUrsulas,
+  fakeWeb3Provider,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
   mockGetUrsulas,
   mockMakeTreasureMap,
   mockPublishToBlockchain,
   mockRetrieveCFragsRequest,
-  mockWeb3Provider,
 } from '../utils';
 
 import {
@@ -42,7 +42,7 @@ describe('Strategy', () => {
   };
   const aliceSecretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);
   const bobSecretKey = SecretKey.fromBEBytes(bobSecretKeyBytes);
-  const aliceProvider = mockWeb3Provider(aliceSecretKey.toBEBytes());
+  const aliceProvider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
   Date.now = jest.fn(() => 1487076708000);
 
   afterEach(() => {
@@ -50,7 +50,7 @@ describe('Strategy', () => {
   });
 
   it('can create Strategy from configuration', async () => {
-    const mockedUrsulas = makeTestUrsulas().slice(0, 3);
+    const mockedUrsulas = fakeUrsulas().slice(0, 3);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
 
     const testCohort = await Cohort.create(cohortConfig);
@@ -69,7 +69,7 @@ describe('Strategy', () => {
   });
 
   it('can export to JSON', async () => {
-    const mockedUrsulas = makeTestUrsulas().slice(0, 3);
+    const mockedUrsulas = fakeUrsulas().slice(0, 3);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const testCohort = await Cohort.create(cohortConfig);
     const testStrategy = Strategy.create(
@@ -97,7 +97,7 @@ describe('Strategy', () => {
   });
 
   it('can deploy and return DeployedStrategy', async () => {
-    const mockedUrsulas = makeTestUrsulas().slice(0, 3);
+    const mockedUrsulas = fakeUrsulas().slice(0, 3);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const generateKFragsSpy = mockGenerateKFrags();
     const publishToBlockchainSpy = mockPublishToBlockchain();
@@ -131,8 +131,8 @@ describe('Deployed Strategy', () => {
   });
 
   it('can export to JSON', async () => {
-    const aliceProvider = mockWeb3Provider(aliceSecretKey.toBEBytes());
-    const mockedUrsulas = makeTestUrsulas().slice(0, 3);
+    const aliceProvider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
+    const mockedUrsulas = fakeUrsulas().slice(0, 3);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const generateKFragsSpy = mockGenerateKFrags();
     const publishToBlockchainSpy = mockPublishToBlockchain();
@@ -168,9 +168,9 @@ describe('Deployed Strategy', () => {
   });
 
   it('can encrypt and decrypt', async () => {
-    const aliceProvider = mockWeb3Provider(aliceSecretKey.toBEBytes());
-    const bobProvider = mockWeb3Provider(bobSecretKey.toBEBytes());
-    const mockedUrsulas = makeTestUrsulas().slice(0, 3);
+    const aliceProvider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
+    const bobProvider = fakeWeb3Provider(bobSecretKey.toBEBytes());
+    const mockedUrsulas = fakeUrsulas().slice(0, 3);
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const generateKFragsSpy = mockGenerateKFrags();
     const publishToBlockchainSpy = mockPublishToBlockchain();

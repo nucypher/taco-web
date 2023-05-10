@@ -118,6 +118,7 @@ export class Condition {
 
   protected makeReturnValueTest() {
     return Joi.object({
+      index: Joi.number().required(),
       comparator: Joi.string()
         .valid(...Condition.COMPARATOR_OPERATORS)
         .required(),
@@ -303,6 +304,7 @@ class ERC721Ownership extends EvmCondition {
     parameters: [],
     standardContractType: 'ERC721',
     returnValueTest: {
+      index: 0,
       comparator: '==',
       value: ':userAddress',
     },
@@ -315,6 +317,7 @@ class ERC721Balance extends EvmCondition {
     parameters: [':userAddress'],
     standardContractType: 'ERC721',
     returnValueTest: {
+      index: 0,
       comparator: '>',
       value: '0',
     },

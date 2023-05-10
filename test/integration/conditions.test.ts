@@ -291,7 +291,7 @@ describe('condition context', () => {
         },
       ],
     };
-    const evmCondition = new Conditions.EvmCondition({
+    const evmConditionObj = {
       chain: 5,
       functionAbi: fakeFunctionAbi,
       method: 'balanceOf',
@@ -302,7 +302,8 @@ describe('condition context', () => {
         comparator: '==',
         value: USER_ADDRESS_PARAM,
       },
-    });
+    };
+    const evmCondition = new Conditions.EvmCondition(evmConditionObj);
     const web3Provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
     const conditionSet = new ConditionSet([evmCondition]);
     const conditionContext = new ConditionContext(
@@ -310,10 +311,10 @@ describe('condition context', () => {
       web3Provider
     );
     const myCustomParam = ':customParam';
+    const customParams: Record<string, CustomContextParam> = {};
+    customParams[myCustomParam] = 1234;
 
     it('parses user-provided context parameters', async () => {
-      const customParams: Record<string, CustomContextParam> = {};
-      customParams[myCustomParam] = 1234;
       const asJson = await conditionContext
         .withCustomParams(customParams)
         .toJson();
@@ -335,6 +336,24 @@ describe('condition context', () => {
       expect(() => conditionContext.withCustomParams(badCustomParams)).toThrow(
         `Cannot use reserved parameter name ${USER_ADDRESS_PARAM} as custom parameter`
       );
+    });
+
+    it('accepts custom parameters in predefined methods', async () => {
+      const customEvmCondition = new Conditions.EvmCondition({
+        ...evmConditionObj,
+        parameters: [myCustomParam],
+      });
+      const conditionSet = new ConditionSet([customEvmCondition]);
+      const conditionContext = new ConditionContext(
+        conditionSet.toWASMConditions(),
+        web3Provider
+      );
+
+      const asJson = await conditionContext
+        .withCustomParams(customParams)
+        .toJson();
+      expect(asJson).toBeDefined();
+      expect(asJson).toContain(myCustomParam);
     });
   });
 });

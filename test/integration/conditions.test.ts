@@ -6,7 +6,12 @@ import {
   ConditionSet,
   Operator,
 } from '../../src';
+import { USER_ADDRESS_PARAM } from '../../src/policies/conditions';
 import { fakeWeb3Provider } from '../utils';
+
+const TEST_CONTRACT_ADDR = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88';
+const TEST_CONTRACT_ADDR_2 = '0x5dB11d7356aa4C0E85Aa5b255eC2B5F81De6d4dA';
+const TEST_CHAIN_ID = 5;
 
 describe('operator', () => {
   it('should validate Operator', async () => {
@@ -21,20 +26,18 @@ describe('operator', () => {
 describe('conditions schema', () => {
   const condition = new Conditions.ERC721Balance();
   let result = condition.validate({
-    contractAddress: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
+    contractAddress: TEST_CONTRACT_ADDR,
   });
 
   it('should validate', async () => {
     expect(result.error).toEqual(undefined);
-    expect(result.value.contractAddress).toEqual(
-      '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
-    );
+    expect(result.value.contractAddress).toEqual(TEST_CONTRACT_ADDR);
   });
 
-  result = condition.validate({ chain: 5 });
+  result = condition.validate({ chain: TEST_CHAIN_ID });
   it('should update the value of "chain"', async () => {
     expect(result.error).toEqual(undefined);
-    expect(result.value.chain).toEqual(5);
+    expect(result.value.chain).toEqual(TEST_CHAIN_ID);
   });
 
   it('should validate chain id', async () => {
@@ -47,10 +50,10 @@ describe('conditions schema', () => {
 
 describe('condition set', () => {
   const genuineUndead = new Conditions.ERC721Balance({
-    contractAddress: '0x209e639a0EC166Ac7a1A4bA41968fa967dB30221',
+    contractAddress: TEST_CONTRACT_ADDR,
   });
   const gnomePals = new Conditions.ERC721Balance({
-    contractAddress: '0x5dB11d7356aa4C0E85Aa5b255eC2B5F81De6d4dA',
+    contractAddress: TEST_CONTRACT_ADDR_2,
   });
   const conditions = new ConditionSet([
     genuineUndead,
@@ -64,13 +67,12 @@ describe('condition set', () => {
 });
 
 describe('conditions set to/from json', () => {
-  const json =
-    '[{"chain":5,"method":"ownerOf","parameters":["3591"],"standardContractType":"ERC721","returnValueTest":{"comparator":"==","value":":userAddress"},"contractAddress":"0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77"}]';
+  const json = `[{"chain":${TEST_CHAIN_ID},"method":"ownerOf","parameters":["3591"],"standardContractType":"ERC721","returnValueTest":{"comparator":"==","value":":userAddress"},"contractAddress":"${TEST_CONTRACT_ADDR}"}]`;
   const conditionSet = ConditionSet.fromJSON(json);
 
   it('should be a ConditionSet', async () => {
     expect(conditionSet.conditions[0].toObj().contractAddress).toEqual(
-      '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'
+      TEST_CONTRACT_ADDR
     );
     expect(conditionSet.toJson()).toEqual(json);
   });
@@ -248,11 +250,11 @@ describe('condition context', () => {
     const rpcCondition = new Conditions.RpcCondition({
       chain: 5,
       method: 'eth_getBalance',
-      parameters: [':userAddress'],
+      parameters: [USER_ADDRESS_PARAM],
       returnValueTest: {
         index: 0,
         comparator: '==',
-        value: ':userAddress',
+        value: USER_ADDRESS_PARAM,
       },
     });
     const conditionSet = new ConditionSet([rpcCondition]);
@@ -262,7 +264,64 @@ describe('condition context', () => {
       web3Provider
     );
     const asJson = await conditionContext.toJson();
-    expect(asJson).toBeDefined();
+    expect(asJson).toContain(USER_ADDRESS_PARAM);
+  });
+
+  describe('supports user-defined parameters', () => {
+    const fakeFunctionAbi = {
+      name: 'myFunction',
+      type: 'function',
+      inputs: [
+        {
+          name: 'account',
+          type: 'address',
+        },
+        {
+          name: 'myCustomParam',
+          type: 'uint256',
+        },
+      ],
+      outputs: [
+        {
+          name: 'someValue',
+          type: 'uint256',
+        },
+      ],
+    };
+    const evmCondition = new Conditions.EvmCondition({
+      chain: 5,
+      functionAbi: fakeFunctionAbi,
+      method: 'balanceOf',
+      contractAddress: '0x0000000000000000000000000000000000000000',
+      parameters: [USER_ADDRESS_PARAM, ':customParam'],
+      returnValueTest: {
+        index: 0,
+        comparator: '==',
+        value: USER_ADDRESS_PARAM,
+      },
+    });
+    const web3Provider = mockWeb3Provider(SecretKey.random().toBEBytes());
+    const conditionSet = new ConditionSet([evmCondition]);
+    const conditionContext = new ConditionContext(
+      conditionSet.toWASMConditions(),
+      web3Provider
+    );
+
+    it('parses user-provided context parameters', async () => {
+      const customParams = { ':customParam': 0 };
+      const asJson = await conditionContext
+        .withCustomParams(customParams)
+        .toJson();
+      expect(asJson).toBeDefined();
+      expect(asJson).toContain(USER_ADDRESS_PARAM);
+      expect(asJson).toContain(':customParam');
+    });
+
+    it('throws on missing custom context param', async () => {
+      await expect(conditionContext.toJson()).rejects.toThrow(
+        'Missing custom context parameter :customParam'
+      );
+    });
   });
 });
 
@@ -276,7 +335,7 @@ describe('evm condition', () => {
       returnValueTest: {
         index: 0,
         comparator: '==',
-        value: ':userAddress',
+        value: USER_ADDRESS_PARAM,
       },
     };
     const standardContractType = 'ERC20';

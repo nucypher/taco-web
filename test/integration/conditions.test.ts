@@ -300,7 +300,7 @@ describe('condition context', () => {
         value: USER_ADDRESS_PARAM,
       },
     });
-    const web3Provider = mockWeb3Provider(SecretKey.random().toBEBytes());
+    const web3Provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
     const conditionSet = new ConditionSet([evmCondition]);
     const conditionContext = new ConditionContext(
       conditionSet.toWASMConditions(),

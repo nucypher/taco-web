@@ -7,7 +7,7 @@ import {
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
 
-import { SubscriptionManagerAgent } from '../agents/subscription-manager';
+import { PreSubscriptionManagerAgent } from '../agents/subscription-manager';
 import { Alice } from '../characters/alice';
 import { RemoteBob } from '../characters/bob';
 import { Ursula } from '../characters/porter';
@@ -64,13 +64,13 @@ export class PreEnactedPolicy implements IPreEnactedPolicy {
     const startTimestamp = toEpoch(this.startTimestamp);
     const endTimestamp = toEpoch(this.endTimestamp);
     const ownerAddress = await publisher.web3Provider.getSigner().getAddress();
-    const value = await SubscriptionManagerAgent.getPolicyCost(
+    const value = await PreSubscriptionManagerAgent.getPolicyCost(
       publisher.web3Provider,
       this.size,
       startTimestamp,
       endTimestamp
     );
-    const tx = await SubscriptionManagerAgent.createPolicy(
+    const tx = await PreSubscriptionManagerAgent.createPolicy(
       publisher.web3Provider,
       value,
       this.id.toBytes(),

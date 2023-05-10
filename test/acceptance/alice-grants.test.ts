@@ -11,16 +11,16 @@ import { ChecksumAddress } from '../../src/types';
 import { toBytes } from '../../src/utils';
 import {
   bytesEqual,
+  fakeAlice,
+  fakeBob,
+  fakeRemoteBob,
+  fakeUrsulas,
   fromBytes,
-  makeTestUrsulas,
-  mockAlice,
-  mockBob,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
   mockGetUrsulas,
   mockMakeTreasureMap,
   mockPublishToBlockchain,
-  mockRemoteBob,
   mockRetrieveCFragsRequest,
   reencryptKFrags,
 } from '../utils';
@@ -31,7 +31,7 @@ describe('story: alice shares message with bob through policy', () => {
   const shares = 3;
   const startDate = new Date();
   const endDate = new Date(Date.now() + 60 * 1000);
-  const mockedUrsulas = makeTestUrsulas().slice(0, shares);
+  const mockedUrsulas = fakeUrsulas().slice(0, shares);
 
   // Intermediate variables used for mocking
   let encryptedTreasureMap: EncryptedTreasureMap;
@@ -52,8 +52,8 @@ describe('story: alice shares message with bob through policy', () => {
     const makeTreasureMapSpy = mockMakeTreasureMap();
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
-    const alice = mockAlice();
-    const bob = mockRemoteBob();
+    const alice = fakeAlice();
+    const bob = fakeRemoteBob();
     const policyParams = {
       bob,
       label,
@@ -92,7 +92,7 @@ describe('story: alice shares message with bob through policy', () => {
   });
 
   it('bob retrieves and decrypts the message', async () => {
-    const bob = mockBob();
+    const bob = fakeBob();
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const retrieveCFragsSpy = mockRetrieveCFragsRequest(
       ursulaAddresses,

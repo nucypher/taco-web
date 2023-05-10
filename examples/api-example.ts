@@ -1,7 +1,7 @@
 
 import { BlockchainPolicyParameters, Enrico } from '../src';
 import { toBytes } from '../src/utils';
-import { fromBytes, mockAlice, mockBob, mockRemoteBob } from '../test/utils';
+import { fromBytes, fakeAlice, fakeBob, fakeRemoteBob } from '../test/utils';
 
 /**
  * This is an abridged version of PRE API usage example.
@@ -10,9 +10,9 @@ import { fromBytes, mockAlice, mockBob, mockRemoteBob } from '../test/utils';
 
 async function example() {
     // Alice creates a policy and grants access to Bob
-    const alice = mockAlice();
+    const alice = fakeAlice();
     // `remoteBob` is a just a container for public keys of Bob
-    const remoteBob = mockRemoteBob();
+    const remoteBob = fakeRemoteBob();
     const policyParams: BlockchainPolicyParameters = {
         bob: remoteBob,
         label: 'fake-data-label',
@@ -29,7 +29,7 @@ async function example() {
     const encryptedMessage = enrico.encryptMessage(toBytes(message));
 
     // Bob retrieves & decrypts encrypted message
-    const bob = mockBob();
+    const bob = fakeBob();
     const retrievedMessage = await bob.retrieveAndDecrypt(
         policy.policyKey,
         alice.verifyingKey,
@@ -39,4 +39,3 @@ async function example() {
     const bobPlaintext = fromBytes(retrievedMessage[0]);
     console.log(bobPlaintext);
 }
-

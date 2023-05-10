@@ -10,16 +10,16 @@ import {
 } from '../../src';
 import { RetrievalResult } from '../../src/kits/retrieval';
 import { toBytes, zip } from '../../src/utils';
-import { makeTestUrsulas, mockAlice, mockBob, reencryptKFrags } from '../utils';
+import { fakeAlice, fakeBob, fakeUrsulas, reencryptKFrags } from '../utils';
 
 describe('proxy reencryption', () => {
   const plaintext = toBytes('plaintext-message');
   const threshold = 2;
   const shares = 3;
-  const ursulas = makeTestUrsulas().slice(0, shares);
+  const ursulas = fakeUrsulas().slice(0, shares);
   const label = 'fake-data-label';
-  const alice = mockAlice();
-  const bob = mockBob();
+  const alice = fakeAlice();
+  const bob = fakeBob();
 
   it('verifies capsule frags', async () => {
     const { capsule } = new MessageKit(bob.decryptingKey, plaintext, null);

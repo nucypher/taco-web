@@ -53,6 +53,7 @@
   },
   "dependencies": {
     "@nucypher/nucypher-core": "^0.7.0",
+    "ferveo-wasm": "^0.1.1",
     "axios": "^0.21.1",
     "ethers": "^5.4.1",
     "joi": "^17.7.0",

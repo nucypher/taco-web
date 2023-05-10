@@ -14,8 +14,25 @@ import {
 } from '@nucypher/nucypher-core';
 import axios from 'axios';
 import { ethers, providers, Wallet } from 'ethers';
+import { keccak256 } from 'ethers/lib/utils';
+import {
+  AggregatedTranscript,
+  combineDecryptionSharesPrecomputed,
+  combineDecryptionSharesSimple,
+  DecryptionSharePrecomputed,
+  DecryptionShareSimple,
+  decryptWithSharedSecret,
+  Dkg,
+  encrypt,
+  EthereumAddress,
+  Keypair,
+  Transcript,
+  Validator,
+  ValidatorMessage,
+} from 'ferveo-wasm';
 
 import { Alice, Bob, Configuration, RemoteBob } from '../src';
+import { DkgParticipant, DkgRitual } from '../src/agents/coordinator';
 import {
   GetUrsulasResponse,
   Porter,
@@ -37,25 +54,25 @@ const mockConfig: Configuration = {
   porterUri: 'https://_this_should_crash.com/',
 };
 
-export const mockBob = (): Bob => {
+export const fakeBob = (): Bob => {
   const secretKey = SecretKey.fromBEBytes(
     toBytes('fake-secret-key-32-bytes-bob-xxx')
   );
   return Bob.fromSecretKey(mockConfig, secretKey);
 };
 
-export const mockRemoteBob = (): RemoteBob => {
-  const { decryptingKey, verifyingKey } = mockBob();
+export const fakeRemoteBob = (): RemoteBob => {
+  const { decryptingKey, verifyingKey } = fakeBob();
   return RemoteBob.fromKeys(decryptingKey, verifyingKey);
 };
 
-export const mockAlice = (aliceKey = 'fake-secret-key-32-bytes-alice-x') => {
+export const fakeAlice = (aliceKey = 'fake-secret-key-32-bytes-alice-x') => {
   const secretKey = SecretKey.fromBEBytes(toBytes(aliceKey));
-  const provider = mockWeb3Provider(secretKey.toBEBytes());
+  const provider = fakeWeb3Provider(secretKey.toBEBytes());
   return Alice.fromSecretKey(mockConfig, secretKey, provider);
 };
 
-export const mockWeb3Provider = (
+export const fakeWeb3Provider = (
   secretKeyBytes: Uint8Array,
   blockNumber?: number,
   blockTimestamp?: number
@@ -66,7 +83,6 @@ export const mockWeb3Provider = (
     getBlock: () => Promise.resolve(block as Block),
     _isProvider: true,
     getNetwork: () => Promise.resolve({ name: 'mockNetwork', chainId: -1 }),
-    request: () => '',
   };
   const fakeSignerWithProvider = {
     ...new Wallet(secretKeyBytes),
@@ -81,7 +97,7 @@ export const mockWeb3Provider = (
   } as unknown as ethers.providers.Web3Provider;
 };
 
-export const makeTestUrsulas = (): readonly Ursula[] => {
+export const fakeUrsulas = (): readonly Ursula[] => {
   return [
     {
       encryptingKey: SecretKey.random().publicKey(),
@@ -118,7 +134,7 @@ export const makeTestUrsulas = (): readonly Ursula[] => {
 };
 
 export const mockGetUrsulas = (ursulas: readonly Ursula[]) => {
-  const mockPorterUrsulas = (
+  const fakePorterUrsulas = (
     mockUrsulas: readonly Ursula[]
   ): GetUrsulasResponse => {
     return {
@@ -134,7 +150,7 @@ export const mockGetUrsulas = (ursulas: readonly Ursula[]) => {
   };
 
   return jest.spyOn(axios, 'get').mockImplementation(async () => {
-    return Promise.resolve({ data: mockPorterUrsulas(ursulas) });
+    return Promise.resolve({ data: fakePorterUrsulas(ursulas) });
   });
 };
 export const mockPublishToBlockchain = () => {
@@ -144,7 +160,7 @@ export const mockPublishToBlockchain = () => {
     .mockImplementation(async () => Promise.resolve(txHash));
 };
 
-export const mockCFragResponse = (
+const fakeCFragResponse = (
   ursulas: readonly ChecksumAddress[],
   verifiedKFrags: readonly VerifiedKeyFrag[],
   capsule: Capsule
@@ -161,20 +177,13 @@ export const mockRetrieveCFragsRequest = (
   verifiedKFrags: readonly VerifiedKeyFrag[],
   capsule: Capsule
 ) => {
-  const results = mockCFragResponse(ursulas, verifiedKFrags, capsule);
+  const results = fakeCFragResponse(ursulas, verifiedKFrags, capsule);
   return jest
     .spyOn(Porter.prototype, 'retrieveCFrags')
     .mockImplementation(() => {
       return Promise.resolve(results);
     });
 };
-
-export const mockRetrieveCFragsRequestThrows = () => {
-  return jest
-    .spyOn(Porter.prototype, 'retrieveCFrags')
-    .mockRejectedValue(new Error('fake-reencryption-request-failed-error'));
-};
-
 export const mockGenerateKFrags = (withValue?: {
   delegatingKey: PublicKey;
   verifiedKFrags: VerifiedKeyFrag[];
@@ -217,5 +226,165 @@ export const mockMakeTreasureMap = () => {
 export const mockDetectEthereumProvider = () => {
   return jest.fn(async () => {
     return {} as unknown as providers.ExternalProvider;
+  });
+};
+
+const fakeDkgRitualE2e = (variant: 'precomputed' | 'simple') => {
+  if (variant !== 'precomputed' && variant !== 'simple') {
+    throw new Error(`Invalid variant: ${variant}`);
+  }
+
+  const genEthAddr = (i: number) => {
+    const ethAddr =
+      '0x' + '0'.repeat(40 - i.toString(16).length) + i.toString(16);
+    return EthereumAddress.fromString(ethAddr);
+  };
+
+  const tau = 1;
+  const sharesNum = 4;
+  const threshold = Math.floor((sharesNum * 2) / 3);
+
+  const validator_keypairs: Keypair[] = [];
+  const validators: Validator[] = [];
+  for (let i = 0; i < sharesNum; i++) {
+    const keypair = Keypair.random();
+    validator_keypairs.push(keypair);
+    const validator = new Validator(genEthAddr(i), keypair.publicKey);
+    validators.push(validator);
+  }
+
+  // Each validator holds their own DKG instance and generates a transcript every
+  // validator, including themselves
+  const messages: ValidatorMessage[] = [];
+  const transcripts: Transcript[] = [];
+  validators.forEach((sender) => {
+    const dkg = new Dkg(tau, sharesNum, threshold, validators, sender);
+    const transcript = dkg.generateTranscript();
+    transcripts.push(transcript);
+    const message = new ValidatorMessage(sender, transcript);
+    messages.push(message);
+  });
+
+  // Now that every validator holds a dkg instance and a transcript for every other validator,
+  // every validator can aggregate the transcripts
+  const dkg = new Dkg(tau, sharesNum, threshold, validators, validators[0]);
+
+  // Let's say that we've only received `threshold` transcripts
+  const receivedMessages = messages.slice(0, threshold);
+
+  const serverAggregate = dkg.aggregateTranscript(receivedMessages);
+  expect(serverAggregate.verify(sharesNum, receivedMessages)).toBe(true);
+
+  // Client can also aggregate the transcripts and verify them
+  const clientAggregate = new AggregatedTranscript(receivedMessages);
+  expect(clientAggregate.verify(sharesNum, receivedMessages)).toBe(true);
+
+  // In the meantime, the client creates a ciphertext and decryption request
+  const msg = Buffer.from('my-msg');
+  const aad = Buffer.from('my-aad');
+  const ciphertext = encrypt(msg, aad, dkg.finalKey());
+
+  // Having aggregated the transcripts, the validators can now create decryption shares
+  const decryptionShares: (
+    | DecryptionSharePrecomputed
+    | DecryptionShareSimple
+  )[] = [];
+  zip(validators, validator_keypairs).forEach(([validator, keypair]) => {
+    const dkg = new Dkg(tau, sharesNum, threshold, validators, validator);
+    const aggregate = dkg.aggregateTranscript(receivedMessages);
+    const isValid = aggregate.verify(sharesNum, receivedMessages);
+    if (!isValid) {
+      throw new Error('Transcript is invalid');
+    }
+
+    let decryptionShare;
+
+    if (variant === 'precomputed') {
+      decryptionShare = aggregate.createDecryptionSharePrecomputed(
+        dkg,
+        ciphertext,
+        aad,
+        keypair
+      );
+    } else {
+      decryptionShare = aggregate.createDecryptionShareSimple(
+        dkg,
+        ciphertext,
+        aad,
+        keypair
+      );
+    }
+    decryptionShares.push(decryptionShare);
+  });
+
+  // Now, the decryption share can be used to decrypt the ciphertext
+  // This part is in the client API
+
+  let sharedSecret;
+  if (variant === 'precomputed') {
+    sharedSecret = combineDecryptionSharesPrecomputed(decryptionShares);
+  } else {
+    sharedSecret = combineDecryptionSharesSimple(
+      decryptionShares,
+      dkg.publicParams()
+    );
+  }
+
+  // The client should have access to the public parameters of the DKG
+  const plaintext = decryptWithSharedSecret(
+    ciphertext,
+    aad,
+    sharedSecret,
+    dkg.publicParams()
+  );
+  if (!bytesEqual(plaintext, msg)) {
+    throw new Error('Decryption failed');
+  }
+
+  return {
+    tau,
+    sharesNum,
+    threshold,
+    validator_keypairs,
+    validators,
+    transcripts,
+    dkg,
+    receivedMessages,
+    msg,
+    aad,
+    ciphertext,
+    serverAggregate,
+  };
+};
+
+export const fakeDkgRitual = (ritualId: number): DkgRitual => {
+  const ritual = fakeDkgRitualE2e('precomputed');
+  return {
+    id: ritualId,
+    initiator: ritual.validators[0].address.toString(),
+    dkgSize: ritual.sharesNum,
+    initTimestamp: 0,
+    totalTranscripts: ritual.receivedMessages.length,
+    totalAggregations: ritual.sharesNum, // Assuming the ritual is finished
+    aggregatedTranscriptHash: keccak256(ritual.serverAggregate.toBytes()),
+    aggregationMismatch: false, // Assuming the ritual is correct
+    aggregatedTranscript: toHexString(ritual.serverAggregate.toBytes()),
+    publicKey: toHexString(ritual.dkg.finalKey().toBytes()),
+    publicKeyHash: keccak256(ritual.dkg.finalKey().toBytes()),
+  };
+};
+
+export const fakeDkgParticipants = (): DkgParticipant[] => {
+  const ritual = fakeDkgRitualE2e('precomputed');
+  return zip(
+    zip(ritual.validators, ritual.transcripts),
+    ritual.validator_keypairs
+  ).map(([[v, t], k]) => {
+    return {
+      node: v.address.toString(),
+      aggregated: true, // Assuming all validators already contributed to the aggregate
+      transcript: toHexString(t.toBytes()),
+      publicKey: toHexString(k.publicKey.toBytes()),
+    };
   });
 };

@@ -8,10 +8,10 @@ import {
 } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
+import { ConditionSet } from '../conditions/condition-set';
 import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
-import { ConditionSet } from '../policies/conditions';
 import { base64ToU8Receiver, u8ToBase64Replacer, zip } from '../utils';
 
 import { Porter } from './porter';

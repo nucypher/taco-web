@@ -10,7 +10,7 @@ import { Alice } from '../characters/alice';
 import { Bob } from '../characters/bob';
 import { Enrico } from '../characters/enrico';
 import { tDecDecrypter } from '../characters/universal-bob';
-import { ConditionSet } from '../policies/conditions';
+import { ConditionSet } from '../conditions/condition-set';
 import { EnactedPolicy, EnactedPolicyJSON } from '../policies/policy';
 import { base64ToU8Receiver, u8ToBase64Replacer } from '../utils';
 

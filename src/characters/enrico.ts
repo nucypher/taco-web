@@ -1,7 +1,7 @@
 import { MessageKit, PublicKey, SecretKey } from '@nucypher/nucypher-core';
 
+import { ConditionSet } from '../conditions/condition-set';
 import { Keyring } from '../keyring';
-import { ConditionSet } from '../policies/conditions';
 import { toBytes } from '../utils';
 
 export class Enrico {

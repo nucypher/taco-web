@@ -78,6 +78,7 @@ describe('conditions set to/from json', () => {
 
 describe('standard conditions types validation', () => {
   const returnValueTest = {
+    index: 0,
     comparator: '>',
     value: '100',
   };
@@ -123,6 +124,7 @@ describe('standard conditions types validation', () => {
       const badTimelockCondition = {
         // Intentionally replacing `returnValueTest` with an invalid test
         returnValueTest: {
+          index: 0,
           comparator: 'not-a-comparator',
           value: '100',
         },
@@ -191,6 +193,7 @@ describe('produce context parameters from conditions', () => {
             method,
             parameters: [contextParam],
             returnValueTest: {
+              index: 0,
               comparator: '==',
               value: contextParam,
             },
@@ -224,6 +227,7 @@ describe('produce context parameters from conditions', () => {
               method: 'balanceOf',
               parameters: [contextParam],
               returnValueTest: {
+                index: 0,
                 comparator: '==',
                 value: contextParam,
               },
@@ -246,6 +250,7 @@ describe('condition context', () => {
       method: 'eth_getBalance',
       parameters: [':userAddress'],
       returnValueTest: {
+        index: 0,
         comparator: '==',
         value: ':userAddress',
       },
@@ -269,6 +274,7 @@ describe('evm condition', () => {
       method: 'balanceOf',
       parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
       returnValueTest: {
+        index: 0,
         comparator: '==',
         value: ':userAddress',
       },

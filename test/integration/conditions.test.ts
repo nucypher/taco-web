@@ -6,7 +6,10 @@ import {
   ConditionSet,
   Operator,
 } from '../../src';
-import { USER_ADDRESS_PARAM } from '../../src/policies/conditions';
+import {
+  CustomContextParam,
+  USER_ADDRESS_PARAM,
+} from '../../src/policies/conditions';
 import { fakeWeb3Provider } from '../utils';
 
 const TEST_CONTRACT_ADDR = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88';
@@ -306,20 +309,31 @@ describe('condition context', () => {
       conditionSet.toWASMConditions(),
       web3Provider
     );
+    const myCustomParam = ':customParam';
 
     it('parses user-provided context parameters', async () => {
-      const customParams = { ':customParam': 0 };
+      const customParams: Record<string, CustomContextParam> = {};
+      customParams[myCustomParam] = 1234;
       const asJson = await conditionContext
         .withCustomParams(customParams)
         .toJson();
       expect(asJson).toBeDefined();
       expect(asJson).toContain(USER_ADDRESS_PARAM);
-      expect(asJson).toContain(':customParam');
+      expect(asJson).toContain(myCustomParam);
     });
 
     it('throws on missing custom context param', async () => {
       await expect(conditionContext.toJson()).rejects.toThrow(
-        'Missing custom context parameter :customParam'
+        `Missing custom context parameter ${myCustomParam}`
+      );
+    });
+
+    it('throws on using reserved context parameter identifiers', () => {
+      const badCustomParams: Record<string, CustomContextParam> = {};
+      badCustomParams[USER_ADDRESS_PARAM] = 'this-will-throw';
+
+      expect(() => conditionContext.withCustomParams(badCustomParams)).toThrow(
+        `Cannot use reserved parameter name ${USER_ADDRESS_PARAM} as custom parameter`
       );
     });
   });

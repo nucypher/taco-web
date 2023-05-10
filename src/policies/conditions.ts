@@ -118,7 +118,7 @@ export class Condition {
 
   protected makeReturnValueTest() {
     return Joi.object({
-      index: Joi.number().required(),
+      index: Joi.number().optional(),
       comparator: Joi.string()
         .valid(...Condition.COMPARATOR_OPERATORS)
         .required(),

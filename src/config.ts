@@ -17,7 +17,7 @@ const CONFIGS: { readonly [key in ChainId]: Configuration } = {
   },
   [ChainId.MAINNET]: {
     // TODO: Confirm this is correct
-    porterUri: 'https://porter.nucypher.community',
+    porterUri: 'https://porter.nucypher.io/',
   },
 };
 

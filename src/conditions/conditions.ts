@@ -1,20 +1,21 @@
 import Joi, { ValidationError } from 'joi';
 
+import { ChainId } from '../types';
+
+export const SUPPORTED_CHAINS = [
+  ChainId.POLYGON,
+  ChainId.MUMBAI,
+  ChainId.GOERLI,
+  ChainId.MAINNET,
+]
 export class Condition {
-  public static readonly COMPARATOR_OPERATORS = [
+  public static readonly COMPARATORS = [
     '==',
     '>',
     '<',
     '>=',
     '<=',
     '!=',
-  ];
-
-  public static readonly SUPPORTED_CHAINS = [
-    1, // ethereum/mainnet
-    5, // ethereum/goerli
-    137, // polygon/mainnet
-    80001, // polygon/mumbai
   ];
 
   public readonly schema = Joi.object();
@@ -31,7 +32,7 @@ export class Condition {
     return Joi.object({
       index: Joi.number().optional(),
       comparator: Joi.string()
-        .valid(...Condition.COMPARATOR_OPERATORS)
+        .valid(...Condition.COMPARATORS)
         .required(),
       value: Joi.alternatives(Joi.string(), Joi.number()).required(),
     });
@@ -136,7 +137,7 @@ class RpcCondition extends Condition {
 
   public readonly schema = Joi.object({
     chain: Joi.number()
-      .valid(...Condition.SUPPORTED_CHAINS)
+      .valid(...SUPPORTED_CHAINS)
       .required(),
     method: Joi.string()
       .valid(...RpcCondition.RPC_METHODS)
@@ -198,7 +199,7 @@ class EvmCondition extends Condition {
       .pattern(new RegExp('^0x[a-fA-F0-9]{40}$'))
       .required(),
     chain: Joi.string()
-      .valid(...Condition.SUPPORTED_CHAINS)
+      .valid(...SUPPORTED_CHAINS)
       .required(),
     standardContractType: Joi.string()
       .valid(...EvmCondition.STANDARD_CONTRACT_TYPES)

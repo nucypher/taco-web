@@ -34,7 +34,7 @@ const CONTRACTS: { readonly [key in ChainId]: Contracts } = {
 
 export const getContract = (
   chainId: number,
-  contract: keyof Contracts,
+  contract: keyof Contracts
 ): ChecksumAddress => {
   if (!Object.values(ChainId).includes(chainId)) {
     throw new Error(`No contracts found for chainId: ${chainId}`);

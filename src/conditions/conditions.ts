@@ -7,16 +7,9 @@ export const SUPPORTED_CHAINS = [
   ChainId.MUMBAI,
   ChainId.GOERLI,
   ChainId.MAINNET,
-]
+];
 export class Condition {
-  public static readonly COMPARATORS = [
-    '==',
-    '>',
-    '<',
-    '>=',
-    '<=',
-    '!=',
-  ];
+  public static readonly COMPARATORS = ['==', '>', '<', '>=', '<=', '!='];
 
   public readonly schema = Joi.object();
   public readonly defaults = {};

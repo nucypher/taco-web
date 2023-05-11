@@ -22,7 +22,7 @@ const GOERLI: Contracts = {
 
 const MAINNET: Contracts = {
   SUBSCRIPTION_MANAGER: undefined,
-  COORDINATOR: 'undefined',
+  COORDINATOR: undefined,
 };
 
 const CONTRACTS: { readonly [key in ChainId]: Contracts } = {

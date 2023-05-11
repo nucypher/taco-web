@@ -67,7 +67,7 @@ describe('Get Started (CBD PoC)', () => {
     };
     const newCohort = await Cohort.create(config);
 
-    // 3. Specify default predefined
+    // 3. Specify default conditions
     const NFTOwnership = new ERC721Ownership({
       contractAddress: '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D',
       chain: 5, // Tapir network uses Görli testnet
@@ -88,7 +88,7 @@ describe('Get Started (CBD PoC)', () => {
     const web3Provider = new providers.Web3Provider(MMprovider, mumbai);
     const newDeployed = await newStrategy.deploy('test', web3Provider);
 
-    // 5. Encrypt the plaintext & update predefined
+    // 5. Encrypt the plaintext & update conditions
     const NFTBalanceConfig = {
       contractAddress: '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D',
       standardContractType: 'ERC721',

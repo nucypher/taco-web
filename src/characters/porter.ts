@@ -7,7 +7,7 @@ import {
 import axios, { AxiosResponse } from 'axios';
 import qs from 'qs';
 
-import { ConditionContext } from '../conditions/condition-context';
+import { ConditionContext } from '../conditions';
 import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from '../types';
 import { fromBase64, fromHexString, toBase64, toHexString } from '../utils';
 

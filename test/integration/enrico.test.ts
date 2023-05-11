@@ -102,6 +102,7 @@ describe('enrico', () => {
     const ownsBufficornNFT = ERC721Ownership.fromObj({
       contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
       parameters: [3591],
+      chain: 5,
     });
 
     const conditions = new ConditionSet([ownsBufficornNFT]);

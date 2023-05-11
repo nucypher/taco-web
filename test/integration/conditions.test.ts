@@ -1,6 +1,7 @@
 import { SecretKey } from '@nucypher/nucypher-core';
 
 import { conditions, CustomContextParam } from '../../src';
+import { EvmConditionConfig } from '../../src/conditions/base/evm';
 import { RpcConditionConfig } from '../../src/conditions/base/rpc';
 import { USER_ADDRESS_PARAM } from '../../src/conditions/const';
 import { fakeWeb3Provider } from '../utils';
@@ -183,7 +184,7 @@ describe('produce context parameters from conditions', () => {
     methods.forEach((method) => {
       const contextParams =
         RpcConditionConfig.CONTEXT_PARAMETERS_PER_METHOD[
-          method as keyof typeof RpcConditionConfig.CONTEXT_PARAMETERS_PER_METHOD
+          method as keyof RpcConditionConfig
         ];
       if (!contextParams) {
         return;
@@ -208,14 +209,15 @@ describe('produce context parameters from conditions', () => {
   });
 
   describe('from evm condition', () => {
-    EvmCondition.STANDARD_CONTRACT_TYPES.forEach((contractType) => {
-      const methods = EvmCondition.METHODS_PER_CONTRACT_TYPE[contractType];
+    EvmConditionConfig.STANDARD_CONTRACT_TYPES.forEach((contractType) => {
+      const methods =
+        EvmConditionConfig.METHODS_PER_CONTRACT_TYPE[contractType];
       if (!methods) {
         return;
       }
       methods.forEach((method) => {
         const contextParams =
-          EvmCondition.CONTEXT_PARAMETERS_PER_METHOD[method];
+          EvmConditionConfig.CONTEXT_PARAMETERS_PER_METHOD[method];
         if (!contextParams) {
           return;
         }

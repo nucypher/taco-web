@@ -2,13 +2,13 @@ import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
 import { Condition } from './condition';
-import { ConditionContext } from './condition-context';
+import { ConditionContext } from './context';
 import { Operator } from './operator';
 
+type ConditionOrOperator = Condition | Operator;
+
 export class ConditionSet {
-  constructor(
-    public readonly conditions: ReadonlyArray<Condition | Operator>
-  ) {}
+  constructor(public readonly conditions: ReadonlyArray<ConditionOrOperator>) {}
 
   public validate() {
     if (this.conditions.length % 2 === 0) {
@@ -16,12 +16,12 @@ export class ConditionSet {
         'conditions must be odd length, ever other element being an operator'
       );
     }
-    this.conditions.forEach((cnd: Condition | Operator, index) => {
-      if (index % 2 && cnd.constructor.name !== 'Operator')
+    this.conditions.forEach((cnd: ConditionOrOperator, index) => {
+      if (index % 2 && !(cnd instanceof Operator))
         throw new Error(
           `${index} element must be an Operator; Got ${cnd.constructor.name}.`
         );
-      if (!(index % 2) && cnd.constructor.name === 'Operator')
+      if (!(index % 2) && cnd instanceof Operator)
         throw new Error(
           `${index} element must be a Condition; Got ${cnd.constructor.name}.`
         );

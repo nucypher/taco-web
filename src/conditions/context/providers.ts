@@ -1,13 +1,20 @@
 import { ethers } from 'ethers';
 import { utils as ethersUtils } from 'ethers/lib/ethers';
 
-import { Eip712TypedData, FormattedTypedData } from '../web3';
+import { Eip712TypedData, FormattedTypedData } from '../../web3';
 
 interface TypedSignature {
   signature: string;
   typedData: Eip712TypedData;
   address: string;
 }
+
+interface ChainData {
+  blockHash: string;
+  chainId: number;
+  blockNumber: number;
+}
+
 export class WalletAuthenticationProvider {
   private walletSignature?: Record<string, string>;
 
@@ -110,7 +117,7 @@ export class WalletAuthenticationProvider {
     return { signature, typedData: formattedTypedData, address };
   }
 
-  private async getChainData() {
+  private async getChainData(): Promise<ChainData> {
     const blockNumber = await this.web3Provider.getBlockNumber();
     const blockHash = (await this.web3Provider.getBlock(blockNumber)).hash;
     const chainId = (await this.web3Provider.getNetwork()).chainId;

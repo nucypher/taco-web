@@ -239,12 +239,3 @@ export class DeployedStrategy {
     };
   }
 }
-
-export class RevokedStrategy {
-  constructor(
-    public label: string,
-    public policy: EnactedPolicy,
-    public encrypter: Enrico,
-    public decrypter: tDecDecrypter
-  ) {}
-}

@@ -31,7 +31,7 @@ export { conditions, CustomContextParam };
 
 // SDK
 export { Cohort } from './sdk/cohort';
-export { DeployedStrategy, RevokedStrategy, Strategy } from './sdk/strategy';
+export { DeployedStrategy, Strategy } from './sdk/strategy';
 
 // Re-exports
 export {

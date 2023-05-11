@@ -3,10 +3,10 @@ import Joi, { ValidationError } from 'joi';
 import { ChainId } from '../types';
 
 export const SUPPORTED_CHAINS = [
+  ChainId.MAINNET,
+  ChainId.GOERLI,
   ChainId.POLYGON,
   ChainId.MUMBAI,
-  ChainId.GOERLI,
-  ChainId.MAINNET,
 ];
 export class Condition {
   public static readonly COMPARATORS = ['==', '>', '<', '>=', '<=', '!='];

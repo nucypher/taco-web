@@ -1,14 +1,17 @@
 import { SecretKey } from '@nucypher/nucypher-core';
 
-import {
-  ConditionContext,
-  Conditions,
-  ConditionSet,
-  Operator,
-} from '../../src';
-import { CustomContextParam } from '../../src/conditions/condition-context';
-import { USER_ADDRESS_PARAM } from '../../src/conditions/conditions';
+import { conditions, CustomContextParam } from '../../src';
+import { RpcConditionConfig } from '../../src/conditions/base/rpc';
+import { USER_ADDRESS_PARAM } from '../../src/conditions/const';
 import { fakeWeb3Provider } from '../utils';
+
+const {
+  predefined: { ERC721Balance },
+  base: { TimelockCondition, RpcCondition, EvmCondition },
+  Operator,
+  ConditionSet,
+  ConditionContext,
+} = conditions;
 
 const TEST_CONTRACT_ADDR = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88';
 const TEST_CONTRACT_ADDR_2 = '0x5dB11d7356aa4C0E85Aa5b255eC2B5F81De6d4dA';
@@ -25,7 +28,7 @@ describe('operator', () => {
 });
 
 describe('conditions schema', () => {
-  const condition = new Conditions.ERC721Balance();
+  const condition = new ERC721Balance();
   let result = condition.validate({
     contractAddress: TEST_CONTRACT_ADDR,
   });
@@ -50,10 +53,10 @@ describe('conditions schema', () => {
 });
 
 describe('condition set', () => {
-  const genuineUndead = new Conditions.ERC721Balance({
+  const genuineUndead = new ERC721Balance({
     contractAddress: TEST_CONTRACT_ADDR,
   });
-  const gnomePals = new Conditions.ERC721Balance({
+  const gnomePals = new ERC721Balance({
     contractAddress: TEST_CONTRACT_ADDR_2,
   });
   const conditions = new ConditionSet([genuineUndead, Operator.AND, gnomePals]);
@@ -84,7 +87,7 @@ describe('standard conditions types validation', () => {
 
   describe('works for valid conditions', () => {
     it('timelock', () => {
-      const timelock = new Conditions.TimelockCondition({
+      const timelock = new TimelockCondition({
         returnValueTest,
       });
       expect(timelock.toObj()).toEqual({
@@ -100,7 +103,7 @@ describe('standard conditions types validation', () => {
         parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
         returnValueTest,
       };
-      const rpc = new Conditions.RpcCondition(rpcCondition);
+      const rpc = new RpcCondition(rpcCondition);
       expect(rpc.toObj()).toEqual(rpcCondition);
     });
 
@@ -113,7 +116,7 @@ describe('standard conditions types validation', () => {
         parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
         returnValueTest,
       };
-      const evm = new Conditions.EvmCondition(evmCondition);
+      const evm = new EvmCondition(evmCondition);
       expect(evm.toObj()).toEqual(evmCondition);
     });
   });
@@ -128,9 +131,7 @@ describe('standard conditions types validation', () => {
           value: '100',
         },
       };
-      const badTimelock = new Conditions.TimelockCondition(
-        badTimelockCondition
-      );
+      const badTimelock = new TimelockCondition(badTimelockCondition);
       expect(() => badTimelock.toObj()).toThrow(
         '"returnValueTest.comparator" must be one of [==, >, <, >=, <=, !=]'
       );
@@ -148,7 +149,7 @@ describe('standard conditions types validation', () => {
         parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
         returnValueTest,
       };
-      const badRpc = new Conditions.RpcCondition(badRpcCondition);
+      const badRpc = new RpcCondition(badRpcCondition);
       expect(() => badRpc.toObj()).toThrow(
         '"method" must be one of [eth_getBalance, balanceOf]'
       );
@@ -168,7 +169,7 @@ describe('standard conditions types validation', () => {
         parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
         returnValueTest,
       };
-      const badEvm = new Conditions.EvmCondition(badEvmCondition);
+      const badEvm = new EvmCondition(badEvmCondition);
       expect(() => badEvm.toObj()).toThrow('"contractAddress" is required');
       const { error } = badEvm.validate(badEvmCondition);
       expect(error?.message).toEqual('"contractAddress" is required');
@@ -178,16 +179,18 @@ describe('standard conditions types validation', () => {
 
 describe('produce context parameters from conditions', () => {
   describe('from rpc condition', () => {
-    const methods = Conditions.RpcCondition.RPC_METHODS;
+    const methods = RpcConditionConfig.RPC_METHODS;
     methods.forEach((method) => {
       const contextParams =
-        Conditions.RpcCondition.CONTEXT_PARAMETERS_PER_METHOD[method];
+        RpcConditionConfig.CONTEXT_PARAMETERS_PER_METHOD[
+          method as keyof typeof RpcConditionConfig.CONTEXT_PARAMETERS_PER_METHOD
+        ];
       if (!contextParams) {
         return;
       }
       contextParams.forEach((contextParam) => {
         it(`produces context parameter ${contextParam} for method ${method}`, () => {
-          const rpcCondition = new Conditions.RpcCondition({
+          const rpcCondition = new RpcCondition({
             chain: 5,
             method,
             parameters: [contextParam],
@@ -205,21 +208,20 @@ describe('produce context parameters from conditions', () => {
   });
 
   describe('from evm condition', () => {
-    Conditions.EvmCondition.STANDARD_CONTRACT_TYPES.forEach((contractType) => {
-      const methods =
-        Conditions.EvmCondition.METHODS_PER_CONTRACT_TYPE[contractType];
+    EvmCondition.STANDARD_CONTRACT_TYPES.forEach((contractType) => {
+      const methods = EvmCondition.METHODS_PER_CONTRACT_TYPE[contractType];
       if (!methods) {
         return;
       }
       methods.forEach((method) => {
         const contextParams =
-          Conditions.EvmCondition.CONTEXT_PARAMETERS_PER_METHOD[method];
+          EvmCondition.CONTEXT_PARAMETERS_PER_METHOD[method];
         if (!contextParams) {
           return;
         }
         contextParams.forEach((contextParam) => {
           it(`produces context parameter ${contextParam} for method ${method}`, () => {
-            const evmCondition = new Conditions.EvmCondition({
+            const evmCondition = new EvmCondition({
               contractAddress: '0x0000000000000000000000000000000000000000',
               chain: 5,
               standardContractType: 'ERC20',
@@ -244,7 +246,7 @@ describe('condition context', () => {
   it('should serialize to JSON with context params', async () => {
     const web3Provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
 
-    const rpcCondition = new Conditions.RpcCondition({
+    const rpcCondition = new RpcCondition({
       chain: 5,
       method: 'eth_getBalance',
       parameters: [USER_ADDRESS_PARAM],
@@ -285,7 +287,7 @@ describe('condition context', () => {
         },
       ],
     };
-    const evmCondition = new Conditions.EvmCondition({
+    const evmCondition = new EvmCondition({
       chain: 5,
       functionAbi: fakeFunctionAbi,
       method: 'balanceOf',
@@ -351,13 +353,13 @@ describe('evm condition', () => {
 
     it('accepts standardContractType', () => {
       const conditionJson = { ...baseEvmCondition, standardContractType };
-      const evmCondition = new Conditions.EvmCondition(conditionJson);
+      const evmCondition = new EvmCondition(conditionJson);
       expect(evmCondition.toObj()).toEqual(conditionJson);
     });
 
     it('accepts functionAbi', () => {
       const conditionJson = { ...baseEvmCondition, functionAbi };
-      const evmCondition = new Conditions.EvmCondition(conditionJson);
+      const evmCondition = new EvmCondition(conditionJson);
       expect(evmCondition.toObj()).toEqual(conditionJson);
     });
 
@@ -367,14 +369,14 @@ describe('evm condition', () => {
         standardContractType,
         functionAbi,
       };
-      const evmCondition = new Conditions.EvmCondition(conditionJson);
+      const evmCondition = new EvmCondition(conditionJson);
       expect(() => evmCondition.toObj()).toThrow(
         '"value" contains a conflict between exclusive peers [standardContractType, functionAbi]'
       );
     });
 
     it('rejects none', () => {
-      const evmCondition = new Conditions.EvmCondition(baseEvmCondition);
+      const evmCondition = new EvmCondition(baseEvmCondition);
       expect(() => evmCondition.toObj()).toThrow(
         '"value" must contain at least one of [standardContractType, functionAbi]'
       );

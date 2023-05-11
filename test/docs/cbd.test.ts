@@ -1,13 +1,7 @@
 import { MessageKit, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 import { providers } from 'ethers';
 
-import {
-  Cohort,
-  Conditions,
-  ConditionSet,
-  SecretKey,
-  Strategy,
-} from '../../src';
+import { Cohort, conditions, SecretKey, Strategy } from '../../src';
 import { Ursula } from '../../src/characters/porter';
 import { toBytes } from '../../src/utils';
 import {
@@ -21,6 +15,12 @@ import {
   mockPublishToBlockchain,
   mockRetrieveCFragsRequest,
 } from '../utils';
+
+const {
+  predefined: { ERC721Ownership },
+  ConditionSet,
+  Condition,
+} = conditions;
 
 describe('Get Started (CBD PoC)', () => {
   function mockRetrieveAndDecrypt(
@@ -67,8 +67,8 @@ describe('Get Started (CBD PoC)', () => {
     };
     const newCohort = await Cohort.create(config);
 
-    // 3. Specify default Conditions
-    const NFTOwnership = new Conditions.ERC721Ownership({
+    // 3. Specify default predefined
+    const NFTOwnership = new ERC721Ownership({
       contractAddress: '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D',
       chain: 5, // Tapir network uses Görli testnet
       parameters: [5954],
@@ -88,7 +88,7 @@ describe('Get Started (CBD PoC)', () => {
     const web3Provider = new providers.Web3Provider(MMprovider, mumbai);
     const newDeployed = await newStrategy.deploy('test', web3Provider);
 
-    // 5. Encrypt the plaintext & update Conditions
+    // 5. Encrypt the plaintext & update predefined
     const NFTBalanceConfig = {
       contractAddress: '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D',
       standardContractType: 'ERC721',
@@ -100,7 +100,7 @@ describe('Get Started (CBD PoC)', () => {
         value: 3,
       },
     };
-    const NFTBalance = new Conditions.Condition(NFTBalanceConfig);
+    const NFTBalance = new Condition(NFTBalanceConfig);
 
     const encrypter = newDeployed.encrypter;
 

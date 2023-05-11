@@ -1,16 +1,15 @@
 import { CapsuleFrag, reencrypt } from '@nucypher/nucypher-core';
 
-import {
-  Conditions,
-  ConditionSet,
-  Enrico,
-  MessageKit,
-  Operator,
-  PolicyMessageKit,
-} from '../../src';
+import { conditions, Enrico, MessageKit, PolicyMessageKit } from '../../src';
 import { RetrievalResult } from '../../src/kits/retrieval';
 import { toBytes, zip } from '../../src/utils';
 import { fakeAlice, fakeBob, fakeUrsulas, reencryptKFrags } from '../utils';
+
+const {
+  predefined: { ERC721Ownership },
+  Operator,
+  ConditionSet,
+} = conditions;
 
 describe('proxy reencryption', () => {
   const plaintext = toBytes('plaintext-message');
@@ -85,21 +84,21 @@ describe('proxy reencryption', () => {
 
     const policyEncryptingKey = alice.getPolicyEncryptingKeyFromLabel(label);
 
-    const genuineUndead = new Conditions.ERC721Ownership({
+    const genuineUndead = new ERC721Ownership({
       contractAddress: '0x209e639a0EC166Ac7a1A4bA41968fa967dB30221',
       chain: 1,
     });
-    const gnomePals = new Conditions.ERC721Ownership({
+    const gnomePals = new ERC721Ownership({
       contractAddress: '0x5dB11d7356aa4C0E85Aa5b255eC2B5F81De6d4dA',
       chain: 1,
     });
-    const conditions = new ConditionSet([
+    const conditionsSet = new ConditionSet([
       genuineUndead,
       Operator.OR,
       gnomePals,
     ]);
 
-    const enrico = new Enrico(policyEncryptingKey, undefined, conditions);
+    const enrico = new Enrico(policyEncryptingKey, undefined, conditionsSet);
     const encryptedMessage = enrico.encryptMessage(plaintext);
 
     const ursulaAddresses = ursulas.map((ursula) => ursula.checksumAddress);

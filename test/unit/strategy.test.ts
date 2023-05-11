@@ -6,8 +6,7 @@ import {
 
 import {
   Cohort,
-  Conditions,
-  ConditionSet,
+  conditions,
   DeployedStrategy,
   Strategy,
   tDecDecrypter,
@@ -33,6 +32,11 @@ import {
   encryptedTreasureMapBase64,
   strategyJSON,
 } from './testVariables';
+
+const {
+  predefined: { ERC721Ownership },
+  ConditionSet,
+} = conditions;
 
 describe('Strategy', () => {
   const cohortConfig = {
@@ -195,7 +199,7 @@ describe('Deployed Strategy', () => {
     const encrypter = testDeployed.encrypter;
     const decrypter = testDeployed.decrypter;
 
-    const ownsNFT = new Conditions.ERC721Ownership({
+    const ownsNFT = new ERC721Ownership({
       contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
       parameters: [3591],
       chain: 5,

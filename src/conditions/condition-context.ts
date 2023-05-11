@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 
 import { Eip712TypedData } from '../web3';
 
-import { SPECIAL_CONTEXT_PARAMS, USER_ADDRESS_PARAM } from './conditions';
+import { USER_ADDRESS_PARAM } from './const';
 import { WalletAuthenticationProvider } from './providers';
 
 interface TypedSignature {
@@ -13,6 +13,8 @@ interface TypedSignature {
 }
 
 export type CustomContextParam = string | number | boolean;
+
+const SPECIAL_CONTEXT_PARAMS = [USER_ADDRESS_PARAM];
 
 export class ConditionContext {
   private readonly walletAuthProvider: WalletAuthenticationProvider;

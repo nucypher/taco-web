@@ -1,5 +1,6 @@
+// Disabling because we want to access Alice.keyring which is a private property
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Conditions, ConditionSet, Enrico, PolicyMessageKit } from '../../src';
+import { conditions, Enrico, PolicyMessageKit } from '../../src';
 import { RetrievalResult } from '../../src/kits/retrieval';
 import { toBytes } from '../../src/utils';
 import {
@@ -9,6 +10,11 @@ import {
   fromBytes,
   reencryptKFrags,
 } from '../utils';
+
+const {
+  predefined: { ERC721Ownership },
+  ConditionSet,
+} = conditions;
 
 describe('enrico', () => {
   it('alice decrypts message encrypted by enrico', async () => {
@@ -93,9 +99,10 @@ describe('enrico', () => {
 
     const policyKey = alice.getPolicyEncryptingKeyFromLabel(label);
 
-    const ownsBufficornNFT = Conditions.ERC721Ownership.fromObj({
+    const ownsBufficornNFT = ERC721Ownership.fromObj({
       contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
       parameters: [3591],
+      chain: 5,
     });
 
     const conditions = new ConditionSet([ownsBufficornNFT]);
@@ -116,13 +123,13 @@ describe('enrico', () => {
 
     const policyKey = alice.getPolicyEncryptingKeyFromLabel(label);
 
-    const ownsBufficornNFT = new Conditions.ERC721Ownership({
+    const ownsBufficornNFT = new ERC721Ownership({
       contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
       chain: 5,
       parameters: [3591],
     });
 
-    const ownsNonsenseNFT = new Conditions.ERC721Ownership({
+    const ownsNonsenseNFT = new ERC721Ownership({
       contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
       chain: 5,
       parameters: [6969],

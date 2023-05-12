@@ -1,9 +1,9 @@
 import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { Eip712TypedData } from '../web3';
+import { Eip712TypedData } from '../../web3';
+import { USER_ADDRESS_PARAM } from '../const';
 
-import { SPECIAL_CONTEXT_PARAMS, USER_ADDRESS_PARAM } from './conditions';
 import { WalletAuthenticationProvider } from './providers';
 
 interface TypedSignature {
@@ -13,6 +13,8 @@ interface TypedSignature {
 }
 
 export type CustomContextParam = string | number | boolean;
+
+const SPECIAL_CONTEXT_PARAMS = [USER_ADDRESS_PARAM];
 
 export class ConditionContext {
   private readonly walletAuthProvider: WalletAuthenticationProvider;
@@ -39,21 +41,22 @@ export class ConditionContext {
         await this.walletAuthProvider.getOrCreateWalletSignature();
     }
 
-    const conditions = JSON.parse(this.conditions.toString());
-    conditions.forEach((cond: { parameters: string[] }) => {
-      cond.parameters.forEach((key) => {
+    const parsedConditions = JSON.parse(this.conditions.toString());
+    for (const cond of parsedConditions) {
+      for (const key of cond.parameters) {
         if (
           !(key in this.customParameters) &&
           !SPECIAL_CONTEXT_PARAMS.includes(key)
         ) {
           throw new Error(`Missing custom context parameter ${key}`);
         }
-      });
-    });
+      }
+    }
 
-    Object.keys(this.customParameters).forEach((key) => {
+    for (const key in this.customParameters) {
       payload[key] = this.customParameters[key];
-    });
+    }
+
     return JSON.stringify(payload);
   };
 

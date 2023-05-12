@@ -1,28 +1,39 @@
+// Characters
 export { Alice } from './characters/alice';
 export { Bob, RemoteBob } from './characters/bob';
 export { Enrico } from './characters/enrico';
 export { tDecDecrypter } from './characters/universal-bob';
-export {
+export { Porter } from './characters/porter';
+
+// Policies
+export type {
   BlockchainPolicyParameters,
   EnactedPolicy,
-  PreEnactedPolicy,
 } from './policies/policy';
-export { Porter } from './characters/porter';
+export { PreEnactedPolicy } from './policies/policy';
+
+// Keyring
 export { Keyring } from './keyring';
-export { Configuration, defaultConfiguration } from './config';
+
+// Configuration
+export type { Configuration } from './config';
+export { defaultConfiguration } from './config';
+
+// Kits
 export { RevocationKit } from './kits/revocation';
 export { PolicyMessageKit } from './kits/message';
-export { Conditions, Condition } from './conditions/conditions';
-export { Operator } from './conditions/operator';
-export { ConditionSet } from './conditions/condition-set';
-export {
-  ConditionContext,
-  CustomContextParam,
-} from './conditions/condition-context';
 
+// Conditions
+import type { CustomContextParam } from './conditions';
+import * as conditions from './conditions';
+// TODO: Not sure how to re-export this type from the conditions module
+export { conditions, CustomContextParam };
+
+// SDK
 export { Cohort } from './sdk/cohort';
-export { DeployedStrategy, RevokedStrategy, Strategy } from './sdk/strategy';
+export { DeployedStrategy, Strategy } from './sdk/strategy';
 
+// Re-exports
 export {
   PublicKey,
   SecretKey,

@@ -6,10 +6,8 @@ import {
   ConditionSet,
   Operator,
 } from '../../src';
-import {
-  CustomContextParam,
-  USER_ADDRESS_PARAM,
-} from '../../src/policies/conditions';
+import { CustomContextParam } from '../../src/conditions/condition-context';
+import { USER_ADDRESS_PARAM } from '../../src/conditions/conditions';
 import { fakeWeb3Provider } from '../utils';
 
 const TEST_CONTRACT_ADDR = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88';
@@ -58,11 +56,7 @@ describe('condition set', () => {
   const gnomePals = new Conditions.ERC721Balance({
     contractAddress: TEST_CONTRACT_ADDR_2,
   });
-  const conditions = new ConditionSet([
-    genuineUndead,
-    Conditions.OR,
-    gnomePals,
-  ]);
+  const conditions = new ConditionSet([genuineUndead, Operator.AND, gnomePals]);
 
   it('should validate', async () => {
     expect(conditions.validate()).toEqual(true);

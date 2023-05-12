@@ -12,13 +12,13 @@ export { Keyring } from './keyring';
 export { Configuration, defaultConfiguration } from './config';
 export { RevocationKit } from './kits/revocation';
 export { PolicyMessageKit } from './kits/message';
+export { Conditions, Condition } from './conditions/conditions';
+export { Operator } from './conditions/operator';
+export { ConditionSet } from './conditions/condition-set';
 export {
-  Conditions,
-  ConditionSet,
   ConditionContext,
-  Operator,
-  Condition,
-} from './policies/conditions';
+  CustomContextParam,
+} from './conditions/condition-context';
 
 export { Cohort } from './sdk/cohort';
 export { DeployedStrategy, RevokedStrategy, Strategy } from './sdk/strategy';

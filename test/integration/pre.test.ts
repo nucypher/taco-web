@@ -95,7 +95,7 @@ describe('proxy reencryption', () => {
     });
     const conditions = new ConditionSet([
       genuineUndead,
-      Operator.OR(),
+      Operator.OR,
       gnomePals,
     ]);
 

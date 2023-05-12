@@ -192,6 +192,9 @@ const makeGuard = (
   return schema;
 };
 
+export const USER_ADDRESS_PARAM = ':userAddress';
+export const SPECIAL_CONTEXT_PARAMS = [USER_ADDRESS_PARAM];
+
 class TimelockCondition extends Condition {
   public static readonly CONDITION_TYPE = 'timelock';
 
@@ -216,8 +219,8 @@ class RpcCondition extends Condition {
     string,
     string[]
   > = {
-    eth_getBalance: [':userAddress'],
-    balanceOf: [':userAddress'],
+    eth_getBalance: [USER_ADDRESS_PARAM],
+    balanceOf: [USER_ADDRESS_PARAM],
   };
 
   public readonly schema = Joi.object({
@@ -258,7 +261,7 @@ class EvmCondition extends Condition {
   public static readonly METHODS_PER_CONTRACT_TYPE: Record<string, string[]> = {
     ERC20: ['balanceOf'],
     ERC721: ['balanceOf', 'ownerOf'],
-    ERC1155: ['balanceOf'],
+    // ERC1155: ['balanceOf'], // TODO(#131)
   };
   public static readonly PARAMETERS_PER_METHOD: Record<string, string[]> = {
     balanceOf: ['address'],
@@ -268,8 +271,8 @@ class EvmCondition extends Condition {
     string,
     string[]
   > = {
-    balanceOf: [':userAddress'],
-    ownerOf: [':userAddress'],
+    balanceOf: [USER_ADDRESS_PARAM],
+    ownerOf: [USER_ADDRESS_PARAM],
   };
 
   private makeMethod = () =>
@@ -306,7 +309,7 @@ class ERC721Ownership extends EvmCondition {
     returnValueTest: {
       index: 0,
       comparator: '==',
-      value: ':userAddress',
+      value: USER_ADDRESS_PARAM,
     },
   };
 }
@@ -314,7 +317,7 @@ class ERC721Ownership extends EvmCondition {
 class ERC721Balance extends EvmCondition {
   readonly defaults = {
     method: 'balanceOf',
-    parameters: [':userAddress'],
+    parameters: [USER_ADDRESS_PARAM],
     standardContractType: 'ERC721',
     returnValueTest: {
       index: 0,
@@ -330,13 +333,24 @@ interface TypedSignature {
   address: string;
 }
 
+export type CustomContextParam = string | number | boolean;
+
 export class ConditionContext {
   private walletSignature?: Record<string, string>;
 
   constructor(
     private readonly conditions: WASMConditions,
-    private readonly web3Provider: ethers.providers.Web3Provider
-  ) {}
+    private readonly web3Provider: ethers.providers.Web3Provider,
+    public readonly customParameters: Record<string, CustomContextParam> = {}
+  ) {
+    Object.keys(customParameters).forEach((key) => {
+      if (SPECIAL_CONTEXT_PARAMS.includes(key)) {
+        throw new Error(
+          `Cannot use reserved parameter name ${key} as custom parameter`
+        );
+      }
+    });
+  }
 
   public async getOrCreateWalletSignature(): Promise<TypedSignature> {
     const address = await this.web3Provider.getSigner().getAddress();
@@ -443,15 +457,33 @@ export class ConditionContext {
   }
 
   public toJson = async (): Promise<string> => {
-    const userAddressParam = this.conditions
-      .toString()
-      .includes(':userAddress');
-    if (!userAddressParam) {
-      return JSON.stringify({});
+    const payload: Record<string, CustomContextParam | TypedSignature> = {};
+    if (this.conditions.toString().includes(USER_ADDRESS_PARAM)) {
+      payload[USER_ADDRESS_PARAM] = await this.getOrCreateWalletSignature();
     }
-    const typedSignature = await this.getOrCreateWalletSignature();
-    const payload = { ':userAddress': typedSignature };
+
+    const conditions = JSON.parse(this.conditions.toString());
+    conditions.forEach((cond: { parameters: string[] }) => {
+      cond.parameters.forEach((key) => {
+        if (
+          !(key in this.customParameters) &&
+          !SPECIAL_CONTEXT_PARAMS.includes(key)
+        ) {
+          throw new Error(`Missing custom context parameter ${key}`);
+        }
+      });
+    });
+
+    Object.keys(this.customParameters).forEach((key) => {
+      payload[key] = this.customParameters[key];
+    });
     return JSON.stringify(payload);
+  };
+
+  public withCustomParams = (
+    params: Record<string, CustomContextParam>
+  ): ConditionContext => {
+    return new ConditionContext(this.conditions, this.web3Provider, params);
   };
 }
 

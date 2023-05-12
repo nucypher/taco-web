@@ -66,7 +66,7 @@ export class WalletAuthenticationProvider {
         ],
       },
       domain: {
-        name: 'tDec',
+        name: 'cbd',
         version: '1',
         chainId,
         salt,

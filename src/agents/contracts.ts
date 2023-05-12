@@ -20,10 +20,16 @@ const GOERLI: Contracts = {
   COORDINATOR: '0x2cf19429168a0943992D8e7dE534E9b802C687B6',
 };
 
+const MAINNET: Contracts = {
+  SUBSCRIPTION_MANAGER: undefined,
+  COORDINATOR: undefined,
+};
+
 const CONTRACTS: { readonly [key in ChainId]: Contracts } = {
   [ChainId.POLYGON]: POLYGON,
   [ChainId.MUMBAI]: MUMBAI,
   [ChainId.GOERLI]: GOERLI,
+  [ChainId.MAINNET]: MAINNET,
 };
 
 export const getContract = (

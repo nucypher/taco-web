@@ -1,7 +1,7 @@
 import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { Condition } from './condition';
+import { Condition } from './base/condition';
 import { ConditionContext } from './context';
 import { Operator } from './operator';
 

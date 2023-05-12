@@ -1,4 +1,4 @@
-import { ConditionInterface } from '../condition';
+import { ConditionInterface } from '../base/condition';
 
 // Disabling because mixin constructor requires any arguments
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

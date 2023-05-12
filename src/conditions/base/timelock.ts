@@ -1,6 +1,6 @@
 import Joi from 'joi';
 
-import { Condition, makeReturnValueTest } from '../condition';
+import { Condition, makeReturnValueTest } from './condition';
 
 export class TimelockCondition extends Condition {
   defaults = {

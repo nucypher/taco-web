@@ -1,12 +1,13 @@
 import Joi, { Schema } from 'joi';
 
-import { Condition, makeReturnValueTest } from '../condition';
 import {
   ETH_ADDRESS_REGEXP,
   SUPPORTED_CHAINS,
   USER_ADDRESS_PARAM,
 } from '../const';
 import { ContextParametersHandlerMixin } from '../context/mixin';
+
+import { Condition, makeReturnValueTest } from './condition';
 
 export interface RpcConditionConfig {
   CONDITION_TYPE: string;

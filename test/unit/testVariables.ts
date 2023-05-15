@@ -63,3 +63,30 @@ export const decrypterJSON = JSON.stringify({
     'base64:A3yU8aavNj4LJ97eFAaYpU97q70oSogzBZAlo5tj/1Kj',
   bobSecretKeyBytes: 'base64:dOs3NGmtXJMdjVMaXf3/m5PlAmqwzSGoF9XpyO4LwZk=',
 });
+
+export const TEST_CONTRACT_ADDR = '0x0000000000000000000000000000000000000001';
+export const TEST_CONTRACT_ADDR_2 =
+  '0x0000000000000000000000000000000000000001';
+export const TEST_CHAIN_ID = 5;
+
+export const testReturnValueTest = {
+  index: 0,
+  comparator: '>',
+  value: '100',
+};
+
+export const testRpcConditionObj = {
+  chain: TEST_CHAIN_ID,
+  method: 'eth_getBalance',
+  parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
+  returnValueTest: testReturnValueTest,
+};
+
+export const testEvmConditionObj = {
+  contractAddress: '0x0000000000000000000000000000000000000000',
+  chain: 5,
+  standardContractType: 'ERC20',
+  method: 'balanceOf',
+  parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
+  returnValueTest: testReturnValueTest,
+};

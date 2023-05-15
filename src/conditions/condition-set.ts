@@ -11,20 +11,25 @@ export class ConditionSet {
   constructor(public readonly conditions: ReadonlyArray<ConditionOrOperator>) {}
 
   public validate() {
+    // Expects [Condition, Operator, Condition, Operator, ...], where the last element is a Condition
+
     if (this.conditions.length % 2 === 0) {
       throw new Error(
-        'conditions must be odd length, ever other element being an operator'
+        'conditions must be odd length, every other element being an operator'
       );
     }
-    this.conditions.forEach((cnd: ConditionOrOperator, index) => {
-      if (index % 2 && !(cnd instanceof Operator))
+
+    this.conditions.forEach((cndOrOp: ConditionOrOperator, index) => {
+      if (index % 2 && !(cndOrOp instanceof Operator)) {
         throw new Error(
-          `${index} element must be an Operator; Got ${cnd.constructor.name}.`
+          `index ${index} must be an Operator, got ${cndOrOp.constructor.name} instead`
         );
-      if (!(index % 2) && cnd instanceof Operator)
+      }
+      if (!(index % 2) && cndOrOp instanceof Operator) {
         throw new Error(
-          `${index} element must be a Condition; Got ${cnd.constructor.name}.`
+          `index ${index} must be a Condition, got ${cndOrOp.constructor.name} instead`
         );
+      }
     });
     return true;
   }

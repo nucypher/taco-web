@@ -20,7 +20,6 @@ export type { Configuration } from './config';
 export { defaultConfiguration } from './config';
 
 // Kits
-export { RevocationKit } from './kits/revocation';
 export { PolicyMessageKit } from './kits/message';
 
 // Conditions

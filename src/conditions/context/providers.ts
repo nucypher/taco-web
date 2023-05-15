@@ -3,7 +3,7 @@ import { utils as ethersUtils } from 'ethers/lib/ethers';
 
 import { Eip712TypedData, FormattedTypedData } from '../../web3';
 
-interface TypedSignature {
+export interface TypedSignature {
   signature: string;
   typedData: Eip712TypedData;
   address: string;

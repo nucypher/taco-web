@@ -1,36 +1,28 @@
 import Joi from 'joi';
 
-import {
-  ETH_ADDRESS_REGEXP,
-  SUPPORTED_CHAINS,
-  USER_ADDRESS_PARAM,
-} from '../const';
-import { ContextParametersHandlerMixin } from '../context/mixin';
+import { ETH_ADDRESS_REGEXP, SUPPORTED_CHAINS } from '../const';
 
-import { Condition, makeReturnValueTest } from './condition';
+import { makeReturnValueTest } from './condition';
+import { RpcCondition } from './rpc';
 
 export interface EvmConditionConfig {
   CONDITION_TYPE: string;
   STANDARD_CONTRACT_TYPES: string[];
   METHODS_PER_CONTRACT_TYPE: Record<string, string[]>;
   PARAMETERS_PER_METHOD: Record<string, string[]>;
-  CONTEXT_PARAMETERS_PER_METHOD: Record<string, string[]>;
 }
 
+const METHODS_PER_CONTRACT_TYPE = {
+  ERC20: ['balanceOf'],
+  ERC721: ['balanceOf', 'ownerOf'],
+};
 export const EvmConditionConfig: EvmConditionConfig = {
-  CONDITION_TYPE: 'evm',
-  STANDARD_CONTRACT_TYPES: ['ERC20', 'ERC721'],
-  METHODS_PER_CONTRACT_TYPE: {
-    ERC20: ['balanceOf'],
-    ERC721: ['balanceOf', 'ownerOf'],
-  },
+  CONDITION_TYPE: 'evm', // TODO: How is this used? Similar to the Timelock.defaults.method?
+  STANDARD_CONTRACT_TYPES: Object.keys(METHODS_PER_CONTRACT_TYPE),
+  METHODS_PER_CONTRACT_TYPE,
   PARAMETERS_PER_METHOD: {
     balanceOf: ['address'],
     ownerOf: ['tokenId'],
-  },
-  CONTEXT_PARAMETERS_PER_METHOD: {
-    balanceOf: [USER_ADDRESS_PARAM],
-    ownerOf: [USER_ADDRESS_PARAM],
   },
 };
 
@@ -57,7 +49,7 @@ const makeMethod = () =>
     'standardContractType'
   );
 
-export class EvmConditionBase extends Condition {
+export class EvmCondition extends RpcCondition {
   public readonly schema = Joi.object({
     contractAddress: Joi.string().pattern(ETH_ADDRESS_REGEXP).required(),
     chain: Joi.string()
@@ -74,9 +66,3 @@ export class EvmConditionBase extends Condition {
     // At most one of these keys needs to be present
     .xor('standardContractType', 'functionAbi');
 }
-
-export const EvmCondition = ContextParametersHandlerMixin(EvmConditionBase);
-
-Object.defineProperty(EvmCondition.prototype, 'getContextConfig', {
-  value: () => EvmConditionConfig.CONTEXT_PARAMETERS_PER_METHOD,
-});

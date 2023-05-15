@@ -5,7 +5,6 @@ import {
   SUPPORTED_CHAINS,
   USER_ADDRESS_PARAM,
 } from '../const';
-import { ContextParametersHandlerMixin } from '../context/mixin';
 
 import { Condition, makeReturnValueTest } from './condition';
 
@@ -13,7 +12,6 @@ export interface RpcConditionConfig {
   CONDITION_TYPE: string;
   RPC_METHODS: string[];
   PARAMETERS_PER_METHOD: Record<string, string[]>;
-  CONTEXT_PARAMETERS_PER_METHOD: Record<string, string[]>;
 }
 
 export const RpcConditionConfig: RpcConditionConfig = {
@@ -23,15 +21,11 @@ export const RpcConditionConfig: RpcConditionConfig = {
     eth_getBalance: ['address'],
     balanceOf: ['address'],
   },
-  CONTEXT_PARAMETERS_PER_METHOD: {
-    eth_getBalance: [USER_ADDRESS_PARAM],
-    balanceOf: [USER_ADDRESS_PARAM],
-  },
 };
 
 export const ethAddressOrUserAddress = Joi.alternatives().try(
   Joi.string().pattern(ETH_ADDRESS_REGEXP),
-  USER_ADDRESS_PARAM
+  USER_ADDRESS_PARAM,
 );
 
 export const getAddressSchema = () =>
@@ -46,10 +40,10 @@ export const rpcMethodSchema = RpcConditionConfig.RPC_METHODS.reduce(
     }
     return acc;
   },
-  {} as Record<string, Schema>
+  {} as Record<string, Schema>,
 );
 
-export class RpcConditionBase extends Condition {
+export class RpcCondition extends Condition {
   public readonly schema = Joi.object({
     chain: Joi.number()
       .valid(...SUPPORTED_CHAINS)
@@ -66,9 +60,3 @@ export class RpcConditionBase extends Condition {
     returnValueTest: makeReturnValueTest(),
   });
 }
-
-export const RpcCondition = ContextParametersHandlerMixin(RpcConditionBase);
-
-Object.defineProperty(RpcCondition.prototype, 'getContextConfig', {
-  value: () => RpcConditionConfig.CONTEXT_PARAMETERS_PER_METHOD,
-});

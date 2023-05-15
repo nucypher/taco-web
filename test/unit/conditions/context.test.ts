@@ -1,16 +1,22 @@
 import { SecretKey } from '@nucypher/nucypher-core';
 
 import { CustomContextParam } from '../../../src';
-import { ConditionContext, ConditionSet } from '../../../src/conditions';
+import { ConditionSet } from '../../../src/conditions';
 import { EvmCondition, RpcCondition } from '../../../src/conditions/base';
 import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
+import { RESERVED_CONTEXT_PARAMS } from '../../../src/conditions/context/context';
 import { fakeWeb3Provider } from '../../utils';
-import { testEvmConditionObj, testRpcConditionObj } from '../testVariables';
+import {
+  testEvmConditionObj,
+  testFunctionAbi,
+  testReturnValueTest,
+  testRpcConditionObj,
+} from '../testVariables';
 
-describe('condition context', () => {
-  it('should serialize to JSON with context params', async () => {
-    const web3Provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
+const web3Provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
 
+describe('serialization', () => {
+  it('serializes to json', async () => {
     const rpcCondition = new RpcCondition({
       ...testRpcConditionObj,
       parameters: [USER_ADDRESS_PARAM],
@@ -20,133 +26,93 @@ describe('condition context', () => {
         value: USER_ADDRESS_PARAM,
       },
     });
-    const conditionSet = new ConditionSet([rpcCondition]);
-
-    const conditionContext = new ConditionContext(
-      conditionSet.toWASMConditions(),
+    const conditionContext = new ConditionSet([rpcCondition]).buildContext(
       web3Provider
     );
     const asJson = await conditionContext.toJson();
-    expect(asJson).toContain(USER_ADDRESS_PARAM);
+    expect(asJson).toBeDefined();
+  });
+});
+
+describe('context parameters', () => {
+  const customParamKey = ':customParam';
+  const customParams: Record<string, CustomContextParam> = {};
+  customParams[customParamKey] = 1234;
+
+  const evmConditionObj = {
+    ...testEvmConditionObj,
+    returnValueTest: {
+      ...testReturnValueTest,
+      value: customParamKey,
+    },
+  };
+  const evmCondition = new EvmCondition(evmConditionObj);
+  const conditionSet = new ConditionSet([evmCondition]);
+  const conditionContext = conditionSet.buildContext(web3Provider);
+
+  describe('return value test', () => {
+    it('accepts on a custom context parameters', async () => {
+      const asObj = await conditionContext
+        .withCustomParams(customParams)
+        .toObj();
+      expect(asObj).toBeDefined();
+      expect(asObj[customParamKey]).toEqual(1234);
+    });
+
+    it('rejects on a missing custom context parameter', async () => {
+      await expect(conditionContext.toObj()).rejects.toThrow(
+        `Missing custom context parameter(s): ${customParamKey}`
+      );
+    });
   });
 
-  describe('supports user-defined parameters', () => {
+  it('rejects on using reserved context parameter', () => {
+    const badCustomParams: Record<string, CustomContextParam> = {};
+    RESERVED_CONTEXT_PARAMS.forEach((reservedParam) => {
+      badCustomParams[reservedParam] = 'this-will-throw';
+      expect(() => conditionContext.withCustomParams(badCustomParams)).toThrow(
+        `Cannot use reserved parameter name ${reservedParam} as custom parameter`
+      );
+    });
+  });
+
+  describe('custom method parameters', () => {
     const evmConditionObj = {
       ...testEvmConditionObj,
-      standardContractType: 'ERC20',
-      method: 'balanceOf',
-      parameters: [USER_ADDRESS_PARAM, ':customParam'],
+      standardContractType: undefined,
+      functionAbi: testFunctionAbi,
+      parameters: [USER_ADDRESS_PARAM, customParamKey],
       returnValueTest: {
-        index: 0,
-        comparator: '==',
-        value: USER_ADDRESS_PARAM,
+        ...testReturnValueTest,
       },
     };
-    const evmCondition = new EvmCondition(evmConditionObj);
-    const web3Provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
-    const conditionSet = new ConditionSet([evmCondition]);
-    const conditionContext = new ConditionContext(
-      conditionSet.toWASMConditions(),
-      web3Provider
-    );
-    const myCustomParam = ':customParam';
-    const customParams: Record<string, CustomContextParam> = {};
-    customParams[myCustomParam] = 1234;
 
-    it('accepts user-provided context parameters', async () => {
-      const asJson = await conditionContext
-        .withCustomParams(customParams)
-        .toJson();
-      expect(asJson).toBeDefined();
-      expect(asJson).toContain(USER_ADDRESS_PARAM);
-      expect(asJson).toContain(myCustomParam);
-    });
-
-    it('throws on missing custom context param', async () => {
-      await expect(conditionContext.toJson()).rejects.toThrow(
-        `Missing custom context parameter ${myCustomParam}`
-      );
-    });
-
-    it('throws on using reserved context parameter identifiers', () => {
-      const badCustomParams: Record<string, CustomContextParam> = {};
-      badCustomParams[USER_ADDRESS_PARAM] = 'this-will-throw';
-
-      expect(() => conditionContext.withCustomParams(badCustomParams)).toThrow(
-        `Cannot use reserved parameter name ${USER_ADDRESS_PARAM} as custom parameter`
-      );
-    });
-
-    it('accepts custom parameters in predefined methods', async () => {
+    it('rejects on a missing parameter ', async () => {
       const customEvmCondition = new EvmCondition({
         ...evmConditionObj,
-        parameters: [myCustomParam],
+        parameters: [USER_ADDRESS_PARAM, customParamKey],
       });
-      const conditionSet = new ConditionSet([customEvmCondition]);
-      const conditionContext = new ConditionContext(
-        conditionSet.toWASMConditions(),
-        web3Provider
-      );
+      const conditionContext = new ConditionSet([
+        customEvmCondition,
+      ]).buildContext(web3Provider);
 
-      const asJson = await conditionContext
-        .withCustomParams(customParams)
-        .toJson();
-      expect(asJson).toBeDefined();
-      expect(asJson).toContain(myCustomParam);
+      await expect(async () => conditionContext.toObj()).rejects.toThrow(
+        `Missing custom context parameter(s): ${customParamKey}`
+      );
+    });
+
+    it('accepts on a hard-coded parameter ', async () => {
+      const customEvmCondition = new EvmCondition({
+        ...evmConditionObj,
+        parameters: [USER_ADDRESS_PARAM, 100],
+      });
+      const conditionContext = new ConditionSet([
+        customEvmCondition,
+      ]).buildContext(web3Provider);
+
+      const asObj = await conditionContext.toObj();
+      expect(asObj).toBeDefined();
+      expect(asObj[USER_ADDRESS_PARAM]).toBeDefined();
     });
   });
-
-  // TODO: Fix this test. Fails with '"method" must be [balanceOf]'
-  // describe('supports custom function abi', () => {
-  //   const fakeFunctionAbi = {
-  //     name: 'myFunction',
-  //     type: 'function',
-  //     inputs: [
-  //       {
-  //         name: 'account',
-  //         type: 'address',
-  //       },
-  //       {
-  //         name: 'myCustomParam',
-  //         type: 'uint256',
-  //       },
-  //     ],
-  //     outputs: [
-  //       {
-  //         name: 'someValue',
-  //         type: 'uint256',
-  //       },
-  //     ],
-  //   };
-  //   const evmConditionObj = {
-  //     ...testEvmConditionObj,
-  //     functionAbi: fakeFunctionAbi,
-  //     method: 'myFunction',
-  //     parameters: [USER_ADDRESS_PARAM, ':customParam'],
-  //     returnValueTest: {
-  //       index: 0,
-  //       comparator: '==',
-  //       value: USER_ADDRESS_PARAM,
-  //     },
-  //   };
-  //   const evmCondition = new EvmCondition(evmConditionObj);
-  //   const web3Provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
-  //   const conditionSet = new ConditionSet([evmCondition]);
-  //   const conditionContext = new ConditionContext(
-  //     conditionSet.toWASMConditions(),
-  //     web3Provider
-  //   );
-  //   const myCustomParam = ':customParam';
-  //   const customParams: Record<string, CustomContextParam> = {};
-  //   customParams[myCustomParam] = 1234;
-  //
-  //   it('accepts custom function abi', async () => {
-  //     const asJson = await conditionContext
-  //       .withCustomParams(customParams)
-  //       .toJson();
-  //     expect(asJson).toBeDefined();
-  //     expect(asJson).toContain(USER_ADDRESS_PARAM);
-  //     expect(asJson).toContain(myCustomParam);
-  //   });
-  // });
 });

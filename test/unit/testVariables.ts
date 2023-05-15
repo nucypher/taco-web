@@ -90,3 +90,24 @@ export const testEvmConditionObj = {
   parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
   returnValueTest: testReturnValueTest,
 };
+
+export const testFunctionAbi = {
+  name: 'myFunction',
+  type: 'function',
+  inputs: [
+    {
+      name: 'account',
+      type: 'address',
+    },
+    {
+      name: 'myCustomParam',
+      type: 'uint256',
+    },
+  ],
+  outputs: [
+    {
+      name: 'someValue',
+      type: 'uint256',
+    },
+  ],
+};

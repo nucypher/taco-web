@@ -5,7 +5,9 @@ export class Operator {
 
   public constructor(public readonly operator: string) {
     if (!Operator.LOGICAL_OPERATORS.includes(operator)) {
-      throw `"${operator}" is not a valid operator`;
+      throw `"${operator}" must be one of [${Operator.LOGICAL_OPERATORS.join(
+        ', '
+      )}]`;
     }
     this.operator = operator;
   }

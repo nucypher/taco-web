@@ -3,7 +3,6 @@ import { providers } from 'ethers';
 
 import { Cohort, conditions, SecretKey, Strategy } from '../../src';
 import { Ursula } from '../../src/characters/porter';
-import { EvmCondition } from '../../src/conditions/base';
 import { toBytes } from '../../src/utils';
 import {
   fakeUrsulas,
@@ -19,6 +18,7 @@ import {
 
 const {
   predefined: { ERC721Ownership },
+  base: { EvmCondition },
   ConditionSet,
 } = conditions;
 

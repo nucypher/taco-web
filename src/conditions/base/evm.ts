@@ -3,7 +3,7 @@ import Joi from 'joi';
 import { ETH_ADDRESS_REGEXP, SUPPORTED_CHAINS } from '../const';
 
 import { Condition } from './condition';
-import { ethAddressOrUserAddressSchema, makeReturnValueTest } from './schema';
+import { ethAddressOrUserAddressSchema, returnValueTestSchema } from './schema';
 
 const standardContractMethods = Joi.string().when('standardContractType', {
   switch: [
@@ -48,7 +48,7 @@ export class EvmCondition extends Condition {
     functionAbi: Joi.object().optional(),
     method: Joi.string().required(),
     parameters: Joi.array().required(),
-    returnValueTest: makeReturnValueTest(),
+    returnValueTest: returnValueTestSchema,
   })
     // At most one of these keys needs to be present
     .xor('standardContractType', 'functionAbi')

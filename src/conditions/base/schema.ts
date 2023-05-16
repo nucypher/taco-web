@@ -10,17 +10,16 @@ export interface ReturnValueTestConfig {
   value: string | number;
 }
 
-export const makeReturnValueTest =
-  (): Joi.ObjectSchema<ReturnValueTestConfig> =>
-    Joi.object({
-      index: Joi.number().optional(),
-      comparator: Joi.string()
-        .valid(...COMPARATORS)
-        .required(),
-      value: Joi.alternatives(Joi.string(), Joi.number()).required(),
-    });
+export const returnValueTestSchema: Joi.ObjectSchema<ReturnValueTestConfig> =
+  Joi.object({
+    index: Joi.number().optional(),
+    comparator: Joi.string()
+      .valid(...COMPARATORS)
+      .required(),
+    value: Joi.alternatives(Joi.string(), Joi.number()).required(),
+  });
 
-export const ethAddressOrUserAddressSchema = Joi.alternatives().try(
+export const ethAddressOrUserAddressSchema = Joi.alternatives(
   Joi.string().pattern(ETH_ADDRESS_REGEXP),
   USER_ADDRESS_PARAM
 );

@@ -95,7 +95,7 @@ describe('standard contracts', () => {
     const badConditionObj = {
       ...testEvmConditionObj,
       standardContractType: 'fake_standard_contract_type',
-      method: 'fake_method',
+      method: 'ownerOf',
     };
     const badEvmCondition = new EvmCondition(badConditionObj);
     expect(() => badEvmCondition.toObj()).toThrow(

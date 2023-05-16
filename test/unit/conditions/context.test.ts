@@ -31,6 +31,7 @@ describe('serialization', () => {
     );
     const asJson = await conditionContext.toJson();
     expect(asJson).toBeDefined();
+    expect(asJson).toContain(USER_ADDRESS_PARAM);
   });
 });
 
@@ -79,9 +80,9 @@ describe('context parameters', () => {
   describe('custom method parameters', () => {
     const evmConditionObj = {
       ...testEvmConditionObj,
-      standardContractType: undefined,
+      standardContractType: undefined, // We're going to use a custom function ABI
       functionAbi: testFunctionAbi,
-      parameters: [USER_ADDRESS_PARAM, customParamKey],
+      parameters: [USER_ADDRESS_PARAM, customParamKey], // We're going to use a custom parameter
       returnValueTest: {
         ...testReturnValueTest,
       },
@@ -101,7 +102,7 @@ describe('context parameters', () => {
       );
     });
 
-    it('accepts on a hard-coded parameter ', async () => {
+    it('accepts on a hard-coded parameter', async () => {
       const customEvmCondition = new EvmCondition({
         ...evmConditionObj,
         parameters: [USER_ADDRESS_PARAM, 100],

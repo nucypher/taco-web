@@ -8,15 +8,7 @@ import { TypedSignature, WalletAuthenticationProvider } from './providers';
 export type CustomContextParam = string | number | boolean;
 export type ContextParam = CustomContextParam | TypedSignature;
 
-const CONTEXT_PARAMS_HANDLERS = {
-  [USER_ADDRESS_PARAM]: async (
-    web3Provider: ethers.providers.Web3Provider
-  ): Promise<TypedSignature> => {
-    const provider = new WalletAuthenticationProvider(web3Provider);
-    return provider.getOrCreateWalletSignature();
-  },
-};
-export const RESERVED_CONTEXT_PARAMS = Object.keys(CONTEXT_PARAMS_HANDLERS);
+export const RESERVED_CONTEXT_PARAMS = [USER_ADDRESS_PARAM];
 export const CONTEXT_PARAM_PREFIX = ':';
 
 export class ConditionContext {

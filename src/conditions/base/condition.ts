@@ -1,24 +1,5 @@
 import Joi, { ValidationError } from 'joi';
 
-const COMPARATORS = ['==', '>', '<', '>=', '<=', '!='];
-
-export interface ReturnValueTestConfig {
-  index?: number;
-  comparator: string;
-  value: string | number;
-}
-
-export const makeReturnValueTest =
-  (): Joi.ObjectSchema<ReturnValueTestConfig> =>
-    Joi.object({
-      index: Joi.number().optional(),
-      comparator: Joi.string()
-        .valid(...COMPARATORS)
-        .required(),
-      value: Joi.alternatives(Joi.string(), Joi.number()).required(),
-    });
-
-// TODO: Consider turning this into an abstract class
 export class Condition {
   // No schema by default, i.e. no validation by default
   public readonly schema = Joi.object();

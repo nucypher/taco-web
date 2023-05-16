@@ -1,6 +1,7 @@
 import Joi from 'joi';
 
-import { Condition, makeReturnValueTest } from './condition';
+import { Condition } from './condition';
+import { makeReturnValueTest } from './schema';
 
 export class TimelockCondition extends Condition {
   // TODO: This is the only condition that uses defaults, and also the only condition that uses `method` in order

@@ -1,68 +1,79 @@
 import Joi from 'joi';
 
-import { ETH_ADDRESS_REGEXP, SUPPORTED_CHAINS } from '../const';
+import {
+  ETH_ADDRESS_REGEXP,
+  SUPPORTED_CHAINS,
+  USER_ADDRESS_PARAM,
+} from '../const';
 
-import { makeReturnValueTest } from './condition';
-import { RpcCondition } from './rpc';
+import { Condition } from './condition';
+import { makeReturnValueTest } from './schema';
 
-export interface EvmConditionConfig {
-  CONDITION_TYPE: string;
-  STANDARD_CONTRACT_TYPES: string[];
-  METHODS_PER_CONTRACT_TYPE: Record<string, string[]>;
-  PARAMETERS_PER_METHOD: Record<string, string[]>;
-}
+const standardContractMethods = Joi.string().when('standardContractType', {
+  switch: [
+    {
+      is: 'ERC20',
+      then: Joi.valid('balanceOf').required(),
+    },
+    {
+      is: 'ERC721',
+      then: Joi.valid('balanceOf', 'ownerOf').required(),
+    },
+  ],
+});
 
-const METHODS_PER_CONTRACT_TYPE = {
-  ERC20: ['balanceOf'],
-  ERC721: ['balanceOf', 'ownerOf'],
-};
-export const EvmConditionConfig: EvmConditionConfig = {
-  CONDITION_TYPE: 'evm', // TODO: How is this used? Similar to the Timelock.defaults.method?
-  STANDARD_CONTRACT_TYPES: Object.keys(METHODS_PER_CONTRACT_TYPE),
-  METHODS_PER_CONTRACT_TYPE,
-  PARAMETERS_PER_METHOD: {
-    balanceOf: ['address'],
-    ownerOf: ['tokenId'],
-  },
-};
+const standardContractParameters = Joi.when('method', {
+  switch: [
+    {
+      is: 'balanceOf',
+      then: Joi.array()
+        .length(1)
+        .items(
+          Joi.alternatives(
+            Joi.string().pattern(ETH_ADDRESS_REGEXP),
+            Joi.string().equal(USER_ADDRESS_PARAM)
+          )
+        ),
+    },
+    {
+      is: 'ownerOf',
+      then: Joi.array()
+        .length(1)
+        .items(Joi.alternatives(Joi.number().integer().positive())),
+    },
+  ],
+});
 
-// A helper method for making complex Joi types
-// It says "allow these `types` when `parent` value is given"
-const makeWhenGuard = (
-  schema: Joi.StringSchema | Joi.ArraySchema,
-  types: Record<string, string[]>,
-  parent: string
-) => {
-  Object.entries(types).forEach(([key, value]) => {
-    schema = schema.when(parent, {
-      is: key,
-      then: value,
-    });
-  });
-  return schema;
-};
-
-const makeMethod = () =>
-  makeWhenGuard(
-    Joi.string(),
-    EvmConditionConfig.METHODS_PER_CONTRACT_TYPE,
-    'standardContractType'
-  );
-
-export class EvmCondition extends RpcCondition {
+export class EvmCondition extends Condition {
   public readonly schema = Joi.object({
     contractAddress: Joi.string().pattern(ETH_ADDRESS_REGEXP).required(),
     chain: Joi.string()
       .valid(...SUPPORTED_CHAINS)
       .required(),
     standardContractType: Joi.string()
-      .valid(...EvmConditionConfig.STANDARD_CONTRACT_TYPES)
+      .valid(...['ERC20', 'ERC721'])
       .optional(),
     functionAbi: Joi.object().optional(),
-    method: makeMethod().required(),
+    method: Joi.string().required(),
     parameters: Joi.array().required(),
     returnValueTest: makeReturnValueTest(),
   })
     // At most one of these keys needs to be present
-    .xor('standardContractType', 'functionAbi');
+    .xor('standardContractType', 'functionAbi')
+    // When standardContractType is present:
+    .when('.standardContractType', {
+      is: Joi.exist(),
+      then: Joi.object({
+        method: standardContractMethods,
+        parameters: standardContractParameters,
+      }),
+    })
+    // When functionAbi is present:
+    .when('.functionAbi', {
+      is: Joi.exist(),
+      then: Joi.object({
+        method: Joi.string().required(),
+        parameters: Joi.array().required(),
+      }),
+    });
 }

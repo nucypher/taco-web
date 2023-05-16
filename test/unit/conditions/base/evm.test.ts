@@ -1,5 +1,4 @@
 import { EvmCondition } from '../../../../src/conditions/base';
-import { EvmConditionConfig } from '../../../../src/conditions/base/evm';
 import { testEvmConditionObj } from '../../testVariables';
 
 describe('validation', () => {
@@ -70,14 +69,17 @@ describe('accepts either standardContractType or functionAbi but not both or non
   });
 });
 
-describe('standard contract types and methods', () => {
-  const methods = EvmConditionConfig.METHODS_PER_CONTRACT_TYPE;
+describe('standard contracts', () => {
+  const methods: Record<string, string[]> = {
+    ERC20: ['balanceOf'],
+    ERC721: ['balanceOf', 'ownerOf'],
+  };
   const methods_per_contract_type = Object.keys(methods).map((key) =>
     methods[key].flatMap((method) => [key, method])
   );
 
   test.each(methods_per_contract_type)(
-    'accepts %s with method %s',
+    'accepts on %s with method %s',
     (standardContractType, method) => {
       const evmConditionObj = {
         ...testEvmConditionObj,
@@ -89,15 +91,40 @@ describe('standard contract types and methods', () => {
     }
   );
 
-  it('rejects non-standard contract type with method', () => {
-    const conditionObj = {
+  it('rejects on a non-standard contract type with method', () => {
+    const badConditionObj = {
       ...testEvmConditionObj,
       standardContractType: 'fake_standard_contract_type',
       method: 'fake_method',
     };
-    const badEvmCondition = new EvmCondition(conditionObj);
+    const badEvmCondition = new EvmCondition(badConditionObj);
     expect(() => badEvmCondition.toObj()).toThrow(
       '"standardContractType" must be one of [ERC20, ERC721]'
+    );
+  });
+
+  it('rejects on a standard contract type with non-method', () => {
+    const badConditionObj = {
+      ...testEvmConditionObj,
+      standardContractType: 'ERC20',
+      method: 'fake_method',
+    };
+    const badEvmCondition = new EvmCondition(badConditionObj);
+    expect(() => badEvmCondition.toObj()).toThrow(
+      '"method" must be [balanceOf]'
+    );
+  });
+
+  it('rejects on a standard contract method with bad parameters', () => {
+    const badConditionObj = {
+      ...testEvmConditionObj,
+      standardContractType: 'ERC20',
+      method: 'balanceOf',
+      parameters: ['bad-address'],
+    };
+    const badEvmCondition = new EvmCondition(badConditionObj);
+    expect(() => badEvmCondition.toObj()).toThrow(
+      '"parameters[0]" with value "bad-address" fails to match the required pattern: /^0x[a-fA-F0-9]{40}$/'
     );
   });
 });

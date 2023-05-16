@@ -6,7 +6,8 @@ import {
   USER_ADDRESS_PARAM,
 } from '../const';
 
-import { Condition, makeReturnValueTest } from './condition';
+import { Condition } from './condition';
+import { makeReturnValueTest } from './schema';
 
 export interface RpcConditionConfig {
   CONDITION_TYPE: string;
@@ -25,23 +26,28 @@ export const RpcConditionConfig: RpcConditionConfig = {
 
 export const ethAddressOrUserAddress = Joi.alternatives().try(
   Joi.string().pattern(ETH_ADDRESS_REGEXP),
-  USER_ADDRESS_PARAM,
+  USER_ADDRESS_PARAM
 );
 
 export const getAddressSchema = () =>
   Joi.array().items(ethAddressOrUserAddress).required();
 
-export const rpcMethodSchema = RpcConditionConfig.RPC_METHODS.reduce(
-  (acc, method) => {
-    if (RpcConditionConfig.PARAMETERS_PER_METHOD[method].includes('address')) {
-      acc[method] = getAddressSchema();
-    } else {
-      acc[method] = Joi.array().items(Joi.string()).required();
-    }
-    return acc;
-  },
-  {} as Record<string, Schema>,
-);
+const rpcMethodSchema = RpcConditionConfig.RPC_METHODS.reduce((acc, method) => {
+  if (RpcConditionConfig.PARAMETERS_PER_METHOD[method].includes('address')) {
+    acc[method] = getAddressSchema();
+  } else {
+    acc[method] = Joi.array().items(Joi.string()).required();
+  }
+  return acc;
+}, {} as Record<string, Schema>);
+
+const makeParameters = () =>
+  Joi.when('method', {
+    switch: RpcConditionConfig.RPC_METHODS.map((method) => ({
+      is: method,
+      then: rpcMethodSchema[method],
+    })),
+  });
 
 export class RpcCondition extends Condition {
   public readonly schema = Joi.object({
@@ -51,12 +57,7 @@ export class RpcCondition extends Condition {
     method: Joi.string()
       .valid(...RpcConditionConfig.RPC_METHODS)
       .required(),
-    parameters: Joi.when('method', {
-      switch: RpcConditionConfig.RPC_METHODS.map((method) => ({
-        is: method,
-        then: rpcMethodSchema[method],
-      })),
-    }),
+    parameters: makeParameters(),
     returnValueTest: makeReturnValueTest(),
   });
 }

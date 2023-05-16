@@ -1,13 +1,9 @@
 import Joi from 'joi';
 
-import {
-  ETH_ADDRESS_REGEXP,
-  SUPPORTED_CHAINS,
-  USER_ADDRESS_PARAM,
-} from '../const';
+import { ETH_ADDRESS_REGEXP, SUPPORTED_CHAINS } from '../const';
 
 import { Condition } from './condition';
-import { makeReturnValueTest } from './schema';
+import { ethAddressOrUserAddressSchema, makeReturnValueTest } from './schema';
 
 const standardContractMethods = Joi.string().when('standardContractType', {
   switch: [
@@ -28,12 +24,8 @@ const standardContractParameters = Joi.when('method', {
       is: 'balanceOf',
       then: Joi.array()
         .length(1)
-        .items(
-          Joi.alternatives(
-            Joi.string().pattern(ETH_ADDRESS_REGEXP),
-            Joi.string().equal(USER_ADDRESS_PARAM)
-          )
-        ),
+        .items(ethAddressOrUserAddressSchema)
+        .required(),
     },
     {
       is: 'ownerOf',

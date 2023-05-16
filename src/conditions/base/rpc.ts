@@ -1,51 +1,20 @@
-import Joi, { Schema } from 'joi';
+import Joi from 'joi';
 
-import {
-  ETH_ADDRESS_REGEXP,
-  SUPPORTED_CHAINS,
-  USER_ADDRESS_PARAM,
-} from '../const';
+import { SUPPORTED_CHAINS } from '../const';
 
 import { Condition } from './condition';
-import { makeReturnValueTest } from './schema';
+import { ethAddressOrUserAddressSchema, makeReturnValueTest } from './schema';
 
-export interface RpcConditionConfig {
-  CONDITION_TYPE: string;
-  RPC_METHODS: string[];
-  PARAMETERS_PER_METHOD: Record<string, string[]>;
-}
-
-export const RpcConditionConfig: RpcConditionConfig = {
-  CONDITION_TYPE: 'rpc',
-  RPC_METHODS: ['eth_getBalance', 'balanceOf'],
-  PARAMETERS_PER_METHOD: {
-    eth_getBalance: ['address'],
-    balanceOf: ['address'],
-  },
+const rpcMethodSchemas: Record<string, Joi.Schema> = {
+  eth_getBalance: Joi.array().items(ethAddressOrUserAddressSchema).required(),
+  balanceOf: Joi.array().items(ethAddressOrUserAddressSchema).required(),
 };
 
-export const ethAddressOrUserAddress = Joi.alternatives().try(
-  Joi.string().pattern(ETH_ADDRESS_REGEXP),
-  USER_ADDRESS_PARAM
-);
-
-export const getAddressSchema = () =>
-  Joi.array().items(ethAddressOrUserAddress).required();
-
-const rpcMethodSchema = RpcConditionConfig.RPC_METHODS.reduce((acc, method) => {
-  if (RpcConditionConfig.PARAMETERS_PER_METHOD[method].includes('address')) {
-    acc[method] = getAddressSchema();
-  } else {
-    acc[method] = Joi.array().items(Joi.string()).required();
-  }
-  return acc;
-}, {} as Record<string, Schema>);
-
 const makeParameters = () =>
-  Joi.when('method', {
-    switch: RpcConditionConfig.RPC_METHODS.map((method) => ({
+  Joi.array().when('method', {
+    switch: Object.keys(rpcMethodSchemas).map((method) => ({
       is: method,
-      then: rpcMethodSchema[method],
+      then: rpcMethodSchemas[method],
     })),
   });
 
@@ -55,7 +24,7 @@ export class RpcCondition extends Condition {
       .valid(...SUPPORTED_CHAINS)
       .required(),
     method: Joi.string()
-      .valid(...RpcConditionConfig.RPC_METHODS)
+      .valid(...Object.keys(rpcMethodSchemas))
       .required(),
     parameters: makeParameters(),
     returnValueTest: makeReturnValueTest(),

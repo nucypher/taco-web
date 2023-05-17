@@ -2,7 +2,9 @@ import {
   CapsuleFrag,
   PublicKey,
   RetrievalKit,
-  TreasureMap,
+  ThresholdDecryptionRequest,
+  ThresholdDecryptionResponse,
+  TreasureMap
 } from '@nucypher/nucypher-core';
 import axios, { AxiosResponse } from 'axios';
 import qs from 'qs';
@@ -63,6 +65,13 @@ export type RetrieveCFragsResponse = {
   cFrags: Record<ChecksumAddress, CapsuleFrag>;
   errors: Record<ChecksumAddress, string>;
 };
+
+
+type PostDecryptRequest =  Uint8Array;
+
+type PostDecryptResult = Uint8Array;
+
+
 
 export class Porter {
   readonly porterUrl: URL;
@@ -131,5 +140,16 @@ export class Porter {
       const cFrags = Object.fromEntries(parsed);
       return { cFrags, errors };
     });
+  }
+
+  public async decrypt(
+    tDecRequest: ThresholdDecryptionRequest
+  ): Promise<ThresholdDecryptionResponse> {
+    const data: PostDecryptRequest = tDecRequest.toBytes();
+    const resp: AxiosResponse<PostDecryptResult> = await axios.post(
+      new URL('/decrypt', this.porterUrl).toString(),
+      data
+    );
+    return ThresholdDecryptionResponse.fromBytes(resp.data);
   }
 }

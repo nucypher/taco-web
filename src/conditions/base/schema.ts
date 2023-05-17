@@ -16,7 +16,11 @@ export const returnValueTestSchema: Joi.ObjectSchema<ReturnValueTestConfig> =
     comparator: Joi.string()
       .valid(...COMPARATORS)
       .required(),
-    value: Joi.alternatives(Joi.string(), Joi.number()).required(),
+    value: Joi.alternatives(
+      Joi.string(),
+      Joi.number(),
+      Joi.boolean()
+    ).required(),
   });
 
 export const ethAddressOrUserAddressSchema = Joi.alternatives(

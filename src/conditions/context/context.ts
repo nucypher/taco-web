@@ -27,6 +27,11 @@ export class ConditionContext {
           `Cannot use reserved parameter name ${key} as custom parameter`
         );
       }
+      if (!key.startsWith(CONTEXT_PARAM_PREFIX)) {
+        throw new Error(
+          `Custom parameter ${key} must start with ${CONTEXT_PARAM_PREFIX}`
+        );
+      }
     });
     this.walletAuthProvider = new WalletAuthenticationProvider(web3Provider);
   }

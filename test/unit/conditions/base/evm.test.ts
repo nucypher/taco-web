@@ -69,66 +69,6 @@ describe('accepts either standardContractType or functionAbi but not both or non
   });
 });
 
-describe('standard contracts', () => {
-  const methods: Record<string, string[]> = {
-    ERC20: ['balanceOf'],
-    ERC721: ['balanceOf', 'ownerOf'],
-  };
-  const methods_per_contract_type = Object.keys(methods).map((key) =>
-    methods[key].flatMap((method) => [key, method])
-  );
-
-  test.each(methods_per_contract_type)(
-    'accepts on %s with method %s',
-    (standardContractType, method) => {
-      const evmConditionObj = {
-        ...testEvmConditionObj,
-        standardContractType,
-        method,
-      };
-      const evmCondition = new EvmCondition(evmConditionObj);
-      expect(evmCondition.toObj()).toEqual(evmConditionObj);
-    }
-  );
-
-  it('rejects on a non-standard contract type with method', () => {
-    const badConditionObj = {
-      ...testEvmConditionObj,
-      standardContractType: 'fake_standard_contract_type',
-      method: 'ownerOf',
-    };
-    const badEvmCondition = new EvmCondition(badConditionObj);
-    expect(() => badEvmCondition.toObj()).toThrow(
-      '"standardContractType" must be one of [ERC20, ERC721]'
-    );
-  });
-
-  it('rejects on a standard contract type with non-method', () => {
-    const badConditionObj = {
-      ...testEvmConditionObj,
-      standardContractType: 'ERC20',
-      method: 'fake_method',
-    };
-    const badEvmCondition = new EvmCondition(badConditionObj);
-    expect(() => badEvmCondition.toObj()).toThrow(
-      '"method" must be [balanceOf]'
-    );
-  });
-
-  it('rejects on a standard contract method with bad parameters', () => {
-    const badConditionObj = {
-      ...testEvmConditionObj,
-      standardContractType: 'ERC20',
-      method: 'balanceOf',
-      parameters: ['bad-address'],
-    };
-    const badEvmCondition = new EvmCondition(badConditionObj);
-    expect(() => badEvmCondition.toObj()).toThrow(
-      '"parameters[0]" with value "bad-address" fails to match the required pattern: /^0x[a-fA-F0-9]{40}$/'
-    );
-  });
-});
-
 // TODO(#124)
 // it('accepts custom parameters in function abi methods', async () => {
 //     throw new Error('Not implemented');

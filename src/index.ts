@@ -2,7 +2,7 @@
 export { Alice } from './characters/alice';
 export { Bob, RemoteBob } from './characters/bob';
 export { Enrico } from './characters/enrico';
-export { tDecDecrypter } from './characters/universal-bob';
+export { PreTDecDecrypter } from './characters/pre-universal-bob';
 export { Porter } from './characters/porter';
 
 // Policies
@@ -30,7 +30,7 @@ export { conditions, CustomContextParam };
 
 // SDK
 export { Cohort } from './sdk/cohort';
-export { DeployedStrategy, Strategy } from './sdk/strategy';
+export { DeployedPreStrategy, PreStrategy } from './sdk/strategy/pre-strategy';
 
 // Re-exports
 export {

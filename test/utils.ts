@@ -9,6 +9,7 @@ import {
   PublicKey,
   reencrypt,
   SecretKey,
+  ThresholdDecryptionResponse,
   VerifiedCapsuleFrag,
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
@@ -32,13 +33,14 @@ import {
 } from 'ferveo-wasm';
 
 import { Alice, Bob, Cohort, Configuration, RemoteBob } from '../src';
-import { DkgParticipant, DkgRitual } from '../src/agents/coordinator';
+import { CoordinatorRitual, DkgParticipant } from '../src/agents/coordinator';
 import {
   GetUrsulasResponse,
   Porter,
   RetrieveCFragsResponse,
   Ursula,
 } from '../src/characters/porter';
+import { DkgClient, DkgRitual, FerveoVariant } from '../src/dkg';
 import { BlockchainPolicy, PreEnactedPolicy } from '../src/policies/policy';
 import { ChecksumAddress } from '../src/types';
 import { toBytes, toHexString, zip } from '../src/utils';
@@ -229,8 +231,11 @@ export const mockDetectEthereumProvider = () => {
   });
 };
 
-const fakeDkgRitualE2e = (variant: 'precomputed' | 'simple') => {
-  if (variant !== 'precomputed' && variant !== 'simple') {
+export const fakeDkgRitualE2e = (variant: FerveoVariant) => {
+  if (
+    variant !== FerveoVariant.Simple &&
+    variant !== FerveoVariant.Precomputed
+  ) {
     throw new Error(`Invalid variant: ${variant}`);
   }
 
@@ -299,7 +304,7 @@ const fakeDkgRitualE2e = (variant: 'precomputed' | 'simple') => {
 
     let decryptionShare;
 
-    if (variant === 'precomputed') {
+    if (variant === FerveoVariant.Precomputed) {
       decryptionShare = aggregate.createDecryptionSharePrecomputed(
         dkg,
         ciphertext,
@@ -321,7 +326,7 @@ const fakeDkgRitualE2e = (variant: 'precomputed' | 'simple') => {
   // This part is in the client API
 
   let sharedSecret;
-  if (variant === 'precomputed') {
+  if (variant === FerveoVariant.Precomputed) {
     sharedSecret = combineDecryptionSharesPrecomputed(decryptionShares);
   } else {
     sharedSecret = combineDecryptionSharesSimple(
@@ -354,11 +359,12 @@ const fakeDkgRitualE2e = (variant: 'precomputed' | 'simple') => {
     aad,
     ciphertext,
     serverAggregate,
+    decryptionShares,
   };
 };
 
-export const fakeDkgRitual = (ritualId: number): DkgRitual => {
-  const ritual = fakeDkgRitualE2e('precomputed');
+export const fakeCoordinatorRitual = (ritualId: number): CoordinatorRitual => {
+  const ritual = fakeDkgRitualE2e(FerveoVariant.Precomputed);
   return {
     id: ritualId,
     initiator: ritual.validators[0].address.toString(),
@@ -375,7 +381,7 @@ export const fakeDkgRitual = (ritualId: number): DkgRitual => {
 };
 
 export const fakeDkgParticipants = (): DkgParticipant[] => {
-  const ritual = fakeDkgRitualE2e('precomputed');
+  const ritual = fakeDkgRitualE2e(FerveoVariant.Precomputed);
   return zip(
     zip(ritual.validators, ritual.transcripts),
     ritual.validator_keypairs
@@ -387,6 +393,30 @@ export const fakeDkgParticipants = (): DkgParticipant[] => {
       publicKey: toHexString(k.publicKey.toBytes()),
     };
   });
+};
+
+export const mockDecrypt = (
+  decryptionShares: (DecryptionSharePrecomputed | DecryptionShareSimple)[]
+) => {
+  const result = decryptionShares.map(
+    (share) => new ThresholdDecryptionResponse(share.toBytes())
+  );
+  return jest.spyOn(Porter.prototype, 'decrypt').mockImplementation(() => {
+    return Promise.resolve(result);
+  });
+};
+
+export const fakeDkgRitual = (variant: FerveoVariant) => {
+  const ritual = fakeDkgRitualE2e(variant);
+  return new DkgRitual(1, ritual.dkg.finalKey(), ritual.dkg.publicParams());
+};
+
+export const mockInitializeRitual = (fakeRitual: unknown) => {
+  return jest
+    .spyOn(DkgClient.prototype as any, 'initializeRitual')
+    .mockImplementation(() => {
+      return Promise.resolve(fakeRitual);
+    });
 };
 
 export const makeCohort = async (ursulas: Ursula[]) => {

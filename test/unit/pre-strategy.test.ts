@@ -6,9 +6,9 @@ import {
 
 import {
   conditions,
-  DeployedStrategy,
-  Strategy,
-  tDecDecrypter,
+  DeployedPreStrategy,
+  PreStrategy,
+  PreTDecDecrypter,
 } from '../../src';
 import { Ursula } from '../../src/characters/porter';
 import { fromBase64, toBytes } from '../../src/utils';
@@ -49,14 +49,25 @@ const ownsNFT = new ERC721Ownership({
 const conditionSet = new ConditionSet([ownsNFT]);
 const mockedUrsulas = fakeUrsulas().slice(0, 3);
 
+describe('PreStrategy', () => {
+  const cohortConfig = {
+    threshold: 2,
+    shares: 3,
+    porterUri: 'https://_this.should.crash',
+  };
+  const aliceSecretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);
+  const bobSecretKey = SecretKey.fromBEBytes(bobSecretKeyBytes);
+  const aliceProvider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
+  Date.now = jest.fn(() => 1487076708000);
+
 describe('Strategy', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  it('creates a Strategy', async () => {
+  it('creates a PreStrategy', async () => {
     const cohort = await makeCohort(mockedUrsulas);
-    const strategy = Strategy.create(
+    const strategy = PreStrategy.create(
       cohort,
       conditionSet,
       aliceSecretKey,
@@ -67,20 +78,20 @@ describe('Strategy', () => {
 
   it('serializes to plain object', async () => {
     const cohort = await makeCohort(mockedUrsulas);
-    const strategy = Strategy.create(
+    const strategy = PreStrategy.create(
       cohort,
       conditionSet,
       aliceSecretKey,
       bobSecretKey
     );
     const asObject = strategy.toObj();
-    const fromObject = Strategy.fromObj(asObject);
+    const fromObject = PreStrategy.fromObj(asObject);
     expect(fromObject.equals(strategy)).toBeTruthy();
   });
 
   it('serializes to JSON', async () => {
     const cohort = await makeCohort(mockedUrsulas);
-    const strategy = Strategy.create(
+    const strategy = PreStrategy.create(
       cohort,
       conditionSet,
       aliceSecretKey,
@@ -88,7 +99,7 @@ describe('Strategy', () => {
     );
 
     const asJson = strategy.toJSON();
-    const fromJSON = Strategy.fromJSON(asJson);
+    const fromJSON = PreStrategy.fromJSON(asJson);
     expect(fromJSON.equals(strategy)).toBeTruthy();
   });
 
@@ -100,7 +111,10 @@ describe('Strategy', () => {
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
     const cohort = await makeCohort(mockedUrsulas);
-    const strategy = Strategy.create(cohort, conditionSet, aliceSecretKey);
+    const strategy = PreStrategy.create(
+      cohort, conditionSet,
+      aliceSecretKey
+    );
     const label = 'test';
 
     const deployedStrategy = await strategy.deploy(label, aliceProvider);
@@ -115,7 +129,7 @@ describe('Strategy', () => {
   });
 });
 
-describe('Deployed Strategy', () => {
+describe('PreDeployedStrategy', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -131,7 +145,7 @@ describe('Deployed Strategy', () => {
     );
 
     const cohort = await makeCohort(mockedUrsulas);
-    const strategy = Strategy.create(
+    const strategy = PreStrategy.create(
       cohort,
       conditionSet,
       aliceSecretKey,
@@ -149,7 +163,7 @@ describe('Deployed Strategy', () => {
     expect(encryptTreasureMapSpy).toHaveBeenCalled();
 
     const asJson = deployedStrategy.toJSON();
-    const fromJson = DeployedStrategy.fromJSON(asJson);
+    const fromJson = DeployedPreStrategy.fromJSON(asJson);
     expect(fromJson.equals(deployedStrategy)).toBeTruthy();
   });
 
@@ -164,7 +178,7 @@ describe('Deployed Strategy', () => {
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
     const cohort = await makeCohort(mockedUrsulas);
-    const strategy = Strategy.create(
+    const strategy = PreStrategy.create(
       cohort,
       conditionSet,
       aliceSecretKey,
@@ -183,7 +197,7 @@ describe('Deployed Strategy', () => {
 
     const plaintext = 'this is a secret';
     encrypter.conditions = conditionSet;
-    const encryptedMessageKit = encrypter.encryptMessage(plaintext);
+    const encryptedMessageKit = encrypter.encryptMessagePre(plaintext);
 
     // Setup mocks for `retrieveAndDecrypt`
     const getUrsulasSpy2 = mockGetUrsulas(mockedUrsulas);
@@ -212,12 +226,12 @@ describe('Deployed Strategy', () => {
   });
 });
 
-describe('tDecDecrypter', () => {
-  const decrypter = DeployedStrategy.fromJSON(deployedStrategyJSON).decrypter;
+describe('pre tdec decrypter', () => {
+  const decrypter = DeployedPreStrategy.fromJSON(deployedStrategyJSON).decrypter;
 
   it('serializes to JSON', () => {
     const asJson = decrypter.toJSON();
-    const fromJson = tDecDecrypter.fromJSON(asJson);
+    const fromJson = PreTDecDecrypter.fromJSON(asJson);
     expect(fromJson.equals(decrypter)).toBeTruthy();
   });
 });

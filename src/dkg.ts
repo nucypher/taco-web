@@ -1,6 +1,8 @@
 import { ethers } from 'ethers';
 import {
   AggregatedTranscript,
+  DkgPublicKey,
+  DkgPublicParameters,
   EthereumAddress,
   PublicKey as FerveoPublicKey,
   Transcript,
@@ -11,20 +13,58 @@ import {
 import { DkgCoordinatorAgent } from './agents/coordinator';
 import { fromHexString } from './utils';
 
-export class DkgClient {
+// TOOD: Move to nucypher-core
+export enum FerveoVariant {
+  Simple = 0,
+  Precomputed = 1,
+}
+
+export interface DkgRitualJSON {
+  id: number;
+  dkgPublicKey: Uint8Array;
+  dkgPublicParams: Uint8Array;
+}
+
+export class DkgRitual {
   constructor(
-    private readonly provider: ethers.providers.Web3Provider,
-    public readonly ritualId: number
+    public readonly id: number,
+    public readonly dkgPublicKey: DkgPublicKey,
+    public readonly dkgPublicParams: DkgPublicParameters
   ) {}
 
-  public async verifyRitual(): Promise<boolean> {
-    const ritual = await DkgCoordinatorAgent.getRitual(
-      this.provider,
-      this.ritualId
+  public toObj(): DkgRitualJSON {
+    return {
+      id: this.id,
+      dkgPublicKey: this.dkgPublicKey.toBytes(),
+      dkgPublicParams: this.dkgPublicParams.toBytes(),
+    };
+  }
+
+  public static fromObj(json: DkgRitualJSON): DkgRitual {
+    return new DkgRitual(
+      json.id,
+      DkgPublicKey.fromBytes(json.dkgPublicKey),
+      DkgPublicParameters.fromBytes(json.dkgPublicParams)
     );
+  }
+}
+
+export class DkgClient {
+  constructor(private readonly provider: ethers.providers.Web3Provider) {}
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async initializeRitual(
+    _provider: ethers.providers.Web3Provider,
+    _ritualParams: unknown
+  ): Promise<DkgRitual> {
+    // TODO: Create a new DKG ritual here
+    throw new Error('Not implemented');
+  }
+  public async verifyRitual(ritualId: number): Promise<boolean> {
+    const ritual = await DkgCoordinatorAgent.getRitual(this.provider, ritualId);
     const participants = await DkgCoordinatorAgent.getParticipants(
       this.provider,
-      this.ritualId
+      ritualId
     );
 
     const validatorMessages = participants.map((p) => {

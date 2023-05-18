@@ -2,13 +2,16 @@ import { SecretKey } from '@nucypher/nucypher-core';
 
 import { DkgCoordinatorAgent } from '../../src/agents/coordinator';
 import { DkgClient } from '../../src/dkg';
-import { fakeDkgParticipants, fakeDkgRitual, fakeWeb3Provider } from '../utils';
+import {
+  fakeCoordinatorRitual,
+  fakeDkgParticipants,
+  fakeWeb3Provider,
+} from '../utils';
 
-const ritualId = 0;
-
+const ritualId = 1;
 jest.mock('../../src/agents/coordinator', () => ({
   DkgCoordinatorAgent: {
-    getRitual: () => Promise.resolve(fakeDkgRitual(ritualId)),
+    getRitual: () => Promise.resolve(fakeCoordinatorRitual(ritualId)),
     getParticipants: () => Promise.resolve(fakeDkgParticipants()),
   },
 }));
@@ -40,8 +43,8 @@ describe('DkgClient', () => {
   it('verifies the dkg ritual', async () => {
     const provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
 
-    const dkgClient = new DkgClient(provider, ritualId);
-    const isValid = await dkgClient.verifyRitual();
+    const dkgClient = new DkgClient(provider);
+    const isValid = await dkgClient.verifyRitual(ritualId);
     expect(isValid).toBeTruthy();
   });
 });

@@ -26,7 +26,7 @@ async function example() {
     // Enrico encrypts data on behalf of Alice
     const enrico = new Enrico(policy.policyKey);
     const message = 'secret-message-from-alice';
-    const encryptedMessage = enrico.encryptMessage(toBytes(message));
+    const encryptedMessage = enrico.encryptMessagePre(toBytes(message));
 
     // Bob retrieves & decrypts encrypted message
     const bob = fakeBob();

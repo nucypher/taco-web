@@ -27,6 +27,6 @@ export class RpcCondition extends Condition {
       .valid(...Object.keys(rpcMethodSchemas))
       .required(),
     parameters: makeParameters(),
-    returnValueTest: returnValueTestSchema,
+    returnValueTest: returnValueTestSchema.required(),
   });
 }

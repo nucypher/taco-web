@@ -1,9 +1,13 @@
 import Joi, { ValidationError } from 'joi';
 
+import { returnValueTestSchema } from './schema';
+
 export class Condition {
   // No schema by default, i.e. no validation by default
   public readonly schema = Joi.object();
-  public readonly defaults: Record<string, unknown> = {};
+  public readonly defaults: Record<string, unknown> = {
+    returnValueTest: returnValueTestSchema.required(),
+  };
   private validationError?: ValidationError;
 
   constructor(private readonly value: Record<string, unknown> = {}) {}

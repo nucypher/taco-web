@@ -14,6 +14,6 @@ export class TimelockCondition extends Condition {
 
   public readonly schema = Joi.object({
     method: Joi.string().valid(this.defaults.method).required(),
-    returnValueTest: returnValueTestSchema,
+    returnValueTest: returnValueTestSchema.required(),
   });
 }

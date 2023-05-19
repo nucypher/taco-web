@@ -1,11 +1,4 @@
-import {
-  Context,
-  MessageKit,
-  PublicKey,
-  SecretKey,
-  Signer,
-  ThresholdDecryptionRequest,
-} from '@nucypher/nucypher-core';
+import { Context, ThresholdDecryptionRequest } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 import {
   combineDecryptionSharesPrecomputed,
@@ -20,8 +13,6 @@ import { Ciphertext } from 'ferveo-wasm';
 
 import { ConditionSet } from '../conditions';
 import { DkgRitual, FerveoVariant } from '../dkg';
-import { Keyring } from '../keyring';
-import { PolicyMessageKit } from '../kits/message';
 import { base64ToU8Receiver, u8ToBase64Replacer } from '../utils';
 
 import { Porter } from './porter';
@@ -29,34 +20,15 @@ import { Porter } from './porter';
 type CbdTDecDecrypterJSON = {
   porterUri: string;
   encryptingKeyBytes: Uint8Array;
-  bobSecretKeyBytes: Uint8Array;
 };
 
 export class CbdTDecDecrypter {
   private readonly porter: Porter;
-  private readonly keyring: Keyring;
 
   // private readonly verifyingKey: Keyring;
 
-  constructor(
-    porterUri: string,
-    private readonly dkgPublicKey: DkgPublicKey,
-    secretKey: SecretKey
-  ) {
+  constructor(porterUri: string, private readonly dkgPublicKey: DkgPublicKey) {
     this.porter = new Porter(porterUri);
-    this.keyring = new Keyring(secretKey);
-  }
-
-  public get decryptingKey(): PublicKey {
-    return this.keyring.publicKey;
-  }
-
-  public get signer(): Signer {
-    return this.keyring.signer;
-  }
-
-  public decrypt(messageKit: MessageKit | PolicyMessageKit): Uint8Array {
-    return this.keyring.decrypt(messageKit);
   }
 
   public async retrieveAndDecrypt(
@@ -138,7 +110,6 @@ export class CbdTDecDecrypter {
     return {
       porterUri: this.porter.porterUrl.toString(),
       encryptingKeyBytes: this.dkgPublicKey.toBytes(),
-      bobSecretKeyBytes: this.keyring.secretKey.toBEBytes(),
     };
   }
 
@@ -149,12 +120,10 @@ export class CbdTDecDecrypter {
   private static fromObj({
     porterUri,
     encryptingKeyBytes,
-    bobSecretKeyBytes,
   }: CbdTDecDecrypterJSON) {
     return new CbdTDecDecrypter(
       porterUri,
-      DkgPublicKey.fromBytes(encryptingKeyBytes),
-      SecretKey.fromBEBytes(bobSecretKeyBytes)
+      DkgPublicKey.fromBytes(encryptingKeyBytes)
     );
   }
 

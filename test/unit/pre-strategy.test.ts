@@ -27,7 +27,7 @@ import {
 import {
   aliceSecretKeyBytes,
   bobSecretKeyBytes,
-  deployedStrategyJSON,
+  deployedPreStrategyJSON,
   encryptedTreasureMapBase64,
 } from './testVariables';
 
@@ -50,17 +50,6 @@ const conditionSet = new ConditionSet([ownsNFT]);
 const mockedUrsulas = fakeUrsulas().slice(0, 3);
 
 describe('PreStrategy', () => {
-  const cohortConfig = {
-    threshold: 2,
-    shares: 3,
-    porterUri: 'https://_this.should.crash',
-  };
-  const aliceSecretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);
-  const bobSecretKey = SecretKey.fromBEBytes(bobSecretKeyBytes);
-  const aliceProvider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
-  Date.now = jest.fn(() => 1487076708000);
-
-describe('Strategy', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -227,7 +216,9 @@ describe('PreDeployedStrategy', () => {
 });
 
 describe('pre tdec decrypter', () => {
-  const decrypter = DeployedPreStrategy.fromJSON(deployedStrategyJSON).decrypter;
+  const decrypter = DeployedPreStrategy.fromJSON(
+    deployedPreStrategyJSON
+  ).decrypter;
 
   it('serializes to JSON', () => {
     const asJson = decrypter.toJSON();

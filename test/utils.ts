@@ -18,6 +18,7 @@ import { ethers, providers, Wallet } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 import {
   AggregatedTranscript,
+  Ciphertext,
   combineDecryptionSharesPrecomputed,
   combineDecryptionSharesSimple,
   DecryptionSharePrecomputed,
@@ -231,7 +232,12 @@ export const mockDetectEthereumProvider = () => {
   });
 };
 
-export const fakeDkgRitualE2e = (variant: FerveoVariant) => {
+export const fakeDkgFlow = (
+  variant: FerveoVariant | FerveoVariant.Precomputed,
+  tau: number,
+  sharesNum = 4,
+  threshold = 3
+) => {
   if (
     variant !== FerveoVariant.Simple &&
     variant !== FerveoVariant.Precomputed
@@ -244,11 +250,6 @@ export const fakeDkgRitualE2e = (variant: FerveoVariant) => {
       '0x' + '0'.repeat(40 - i.toString(16).length) + i.toString(16);
     return EthereumAddress.fromString(ethAddr);
   };
-
-  const tau = 1;
-  const sharesNum = 4;
-  const threshold = Math.floor((sharesNum * 2) / 3);
-
   const validator_keypairs: Keypair[] = [];
   const validators: Validator[] = [];
   for (let i = 0; i < sharesNum; i++) {
@@ -283,12 +284,46 @@ export const fakeDkgRitualE2e = (variant: FerveoVariant) => {
   // Client can also aggregate the transcripts and verify them
   const clientAggregate = new AggregatedTranscript(receivedMessages);
   expect(clientAggregate.verify(sharesNum, receivedMessages)).toBeTruthy();
+  return {
+    tau,
+    sharesNum,
+    threshold,
+    validator_keypairs,
+    validators,
+    transcripts,
+    dkg,
+    receivedMessages,
+    serverAggregate,
+  };
+};
 
-  // In the meantime, the client creates a ciphertext and decryption request
-  const msg = Buffer.from('my-msg');
-  const aad = Buffer.from('my-aad');
-  const ciphertext = encrypt(msg, aad, dkg.finalKey());
+interface FakeDkgRitualFlow {
+  validators: Validator[];
+  validator_keypairs: Keypair[];
+  tau: number;
+  sharesNum: number;
+  threshold: number;
+  receivedMessages: ValidatorMessage[];
+  variant: FerveoVariant;
+  ciphertext: Ciphertext;
+  aad: Uint8Array;
+  dkg: Dkg;
+  message: Uint8Array;
+}
 
+export const fakeTDecFlow = ({
+  validators,
+  validator_keypairs,
+  tau,
+  sharesNum,
+  threshold,
+  receivedMessages,
+  variant,
+  ciphertext,
+  aad,
+  dkg,
+  message,
+}: FakeDkgRitualFlow) => {
   // Having aggregated the transcripts, the validators can now create decryption shares
   const decryptionShares: (
     | DecryptionSharePrecomputed
@@ -303,7 +338,6 @@ export const fakeDkgRitualE2e = (variant: FerveoVariant) => {
     }
 
     let decryptionShare;
-
     if (variant === FerveoVariant.Precomputed) {
       decryptionShare = aggregate.createDecryptionSharePrecomputed(
         dkg,
@@ -342,29 +376,41 @@ export const fakeDkgRitualE2e = (variant: FerveoVariant) => {
     sharedSecret,
     dkg.publicParams()
   );
-  if (!bytesEqual(plaintext, msg)) {
+  if (!bytesEqual(plaintext, message)) {
     throw new Error('Decryption failed');
   }
+  return { decryptionShares, sharedSecret, plaintext };
+};
+
+export const fakeDkgTDecFlowE2e = (
+  variant: FerveoVariant,
+  message = toBytes('fake-message'),
+  aad = toBytes('fake-aad'),
+  ritualId = 0
+) => {
+  const ritual = fakeDkgFlow(variant, ritualId, 4, 3);
+
+  // In the meantime, the client creates a ciphertext and decryption request
+  const ciphertext = encrypt(message, aad, ritual.dkg.finalKey());
+  const { decryptionShares } = fakeTDecFlow({
+    ...ritual,
+    variant,
+    ciphertext,
+    aad,
+    message,
+  });
 
   return {
-    tau,
-    sharesNum,
-    threshold,
-    validator_keypairs,
-    validators,
-    transcripts,
-    dkg,
-    receivedMessages,
-    msg,
+    ...ritual,
+    message,
     aad,
     ciphertext,
-    serverAggregate,
     decryptionShares,
   };
 };
 
 export const fakeCoordinatorRitual = (ritualId: number): CoordinatorRitual => {
-  const ritual = fakeDkgRitualE2e(FerveoVariant.Precomputed);
+  const ritual = fakeDkgTDecFlowE2e(FerveoVariant.Precomputed);
   return {
     id: ritualId,
     initiator: ritual.validators[0].address.toString(),
@@ -381,7 +427,7 @@ export const fakeCoordinatorRitual = (ritualId: number): CoordinatorRitual => {
 };
 
 export const fakeDkgParticipants = (): DkgParticipant[] => {
-  const ritual = fakeDkgRitualE2e(FerveoVariant.Precomputed);
+  const ritual = fakeDkgTDecFlowE2e(FerveoVariant.Precomputed);
   return zip(
     zip(ritual.validators, ritual.transcripts),
     ritual.validator_keypairs
@@ -406,8 +452,7 @@ export const mockDecrypt = (
   });
 };
 
-export const fakeDkgRitual = (variant: FerveoVariant) => {
-  const ritual = fakeDkgRitualE2e(variant);
+export const fakeDkgRitual = (ritual: { dkg: Dkg }) => {
   return new DkgRitual(1, ritual.dkg.finalKey(), ritual.dkg.publicParams());
 };
 

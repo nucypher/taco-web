@@ -1,4 +1,3 @@
-import { SecretKey } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
 import { CbdTDecDecrypter } from '../../characters/cbd-universal-bob';
@@ -10,33 +9,23 @@ import { Cohort, CohortJSON } from '../cohort';
 
 type StrategyJSON = {
   cohort: CohortJSON;
-  bobSecretKeyBytes: Uint8Array;
   conditionSet?: ConditionSet;
 };
 
 type DeployedStrategyJSON = {
   dkgRitual: DkgRitualJSON;
   cohortConfig: CohortJSON;
-  bobSecretKeyBytes: Uint8Array;
   conditionSet?: ConditionSet;
 };
 
 export class CbdStrategy {
   private constructor(
     public readonly cohort: Cohort,
-    private readonly bobSecretKey: SecretKey,
     private readonly conditionSet?: ConditionSet
   ) {}
 
-  public static create(
-    cohort: Cohort,
-    conditionSet?: ConditionSet,
-    bobSecretKey?: SecretKey
-  ) {
-    if (!bobSecretKey) {
-      bobSecretKey = SecretKey.random();
-    }
-    return new CbdStrategy(cohort, bobSecretKey, conditionSet);
+  public static create(cohort: Cohort, conditionSet?: ConditionSet) {
+    return new CbdStrategy(cohort, conditionSet);
   }
 
   public async deploy(
@@ -60,8 +49,7 @@ export class CbdStrategy {
 
     const decrypter = new CbdTDecDecrypter(
       this.cohort.configuration.porterUri,
-      dkgRitual.dkgPublicKey,
-      this.bobSecretKey
+      dkgRitual.dkgPublicKey
     );
 
     return new DeployedCbdStrategy(
@@ -69,7 +57,6 @@ export class CbdStrategy {
       dkgRitual,
       encrypter,
       decrypter,
-      this.bobSecretKey,
       this.conditionSet
     );
   }
@@ -83,22 +70,13 @@ export class CbdStrategy {
     return JSON.stringify(this.toObj(), u8ToBase64Replacer);
   }
 
-  private static fromObj({
-    cohort,
-    bobSecretKeyBytes,
-    conditionSet,
-  }: StrategyJSON) {
-    return new CbdStrategy(
-      Cohort.fromObj(cohort),
-      SecretKey.fromBEBytes(bobSecretKeyBytes),
-      conditionSet
-    );
+  private static fromObj({ cohort, conditionSet }: StrategyJSON) {
+    return new CbdStrategy(Cohort.fromObj(cohort), conditionSet);
   }
 
   public toObj(): StrategyJSON {
     return {
       cohort: this.cohort.toObj(),
-      bobSecretKeyBytes: this.bobSecretKey.toBEBytes(),
       conditionSet: this.conditionSet,
     };
   }
@@ -110,7 +88,6 @@ export class DeployedCbdStrategy {
     public dkgRitual: DkgRitual,
     public encrypter: Enrico,
     public decrypter: CbdTDecDecrypter,
-    private bobSecretKey: SecretKey,
     public conditionSet?: ConditionSet
   ) {}
 
@@ -126,34 +103,29 @@ export class DeployedCbdStrategy {
   private static fromObj({
     dkgRitual,
     cohortConfig,
-    bobSecretKeyBytes,
     conditionSet,
   }: DeployedStrategyJSON) {
     const ritual = DkgRitual.fromObj(dkgRitual);
-    const bobSecretKey = SecretKey.fromBEBytes(bobSecretKeyBytes);
     const cohort = Cohort.fromObj(cohortConfig);
     const encrypter = new Enrico(ritual.dkgPublicKey, undefined, conditionSet);
 
     const decrypter = new CbdTDecDecrypter(
       cohort.configuration.porterUri,
-      ritual.dkgPublicKey,
-      bobSecretKey
+      ritual.dkgPublicKey
     );
     return new DeployedCbdStrategy(
       cohort,
       ritual,
       encrypter,
       decrypter,
-      bobSecretKey,
       conditionSet
     );
   }
 
-  private toObj(): DeployedStrategyJSON {
+  public toObj(): DeployedStrategyJSON {
     return {
       dkgRitual: this.dkgRitual.toObj(),
       cohortConfig: this.cohort.toObj(),
-      bobSecretKeyBytes: this.bobSecretKey.toBEBytes(),
       conditionSet: this.conditionSet,
     };
   }

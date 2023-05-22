@@ -18,8 +18,8 @@ import {
 
 const {
   predefined: { ERC721Ownership },
+  base: { EvmCondition },
   ConditionSet,
-  Condition,
 } = conditions;
 
 describe('Get Started (CBD PoC)', () => {
@@ -100,7 +100,7 @@ describe('Get Started (CBD PoC)', () => {
         value: 3,
       },
     };
-    const NFTBalance = new Condition(NFTBalanceConfig);
+    const NFTBalance = new EvmCondition(NFTBalanceConfig);
 
     const encrypter = newDeployed.encrypter;
 

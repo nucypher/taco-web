@@ -87,10 +87,12 @@ describe('proxy reencryption', () => {
     const genuineUndead = new ERC721Ownership({
       contractAddress: '0x209e639a0EC166Ac7a1A4bA41968fa967dB30221',
       chain: 1,
+      parameters: [1],
     });
     const gnomePals = new ERC721Ownership({
       contractAddress: '0x5dB11d7356aa4C0E85Aa5b255eC2B5F81De6d4dA',
       chain: 1,
+      parameters: [1],
     });
     const conditionsSet = new ConditionSet([
       genuineUndead,

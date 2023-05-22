@@ -1,38 +1,13 @@
 import Joi, { ValidationError } from 'joi';
 
-export interface ConditionConfig {
-  COMPARATORS: string[];
-}
+import { returnValueTestSchema } from './schema';
 
-export interface ReturnValueTestConfig {
-  index?: number;
-  comparator: string;
-  value: string | number;
-}
-
-export const ConditionConfig: ConditionConfig = {
-  COMPARATORS: ['==', '>', '<', '>=', '<=', '!='],
-};
-
-export const makeReturnValueTest =
-  (): Joi.ObjectSchema<ReturnValueTestConfig> =>
-    Joi.object({
-      index: Joi.number().optional(),
-      comparator: Joi.string()
-        .valid(...ConditionConfig.COMPARATORS)
-        .required(),
-      value: Joi.alternatives(Joi.string(), Joi.number()).required(),
-    });
-
-export interface ConditionInterface {
-  schema: Joi.ObjectSchema;
-  defaults: unknown;
-  toObj: () => Record<string, unknown>;
-}
-
-export class Condition implements ConditionInterface {
+export class Condition {
+  // No schema by default, i.e. no validation by default
   public readonly schema = Joi.object();
-  public readonly defaults = {};
+  public readonly defaults: Record<string, unknown> = {
+    returnValueTest: returnValueTestSchema.required(),
+  };
   private validationError?: ValidationError;
 
   constructor(private readonly value: Record<string, unknown> = {}) {}

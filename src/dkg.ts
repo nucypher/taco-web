@@ -54,7 +54,9 @@ export class DkgClient {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async initializeRitual(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _provider: ethers.providers.Web3Provider,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _ritualParams: unknown
   ): Promise<DkgRitual> {
     // TODO: Create a new DKG ritual here

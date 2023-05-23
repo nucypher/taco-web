@@ -6,7 +6,6 @@ import {
   DecryptionSharePrecomputed,
   DecryptionShareSimple,
   decryptWithSharedSecret,
-  DkgPublicKey,
 } from 'ferveo-wasm';
 import { SharedSecret } from 'ferveo-wasm';
 import { Ciphertext } from 'ferveo-wasm';
@@ -19,7 +18,6 @@ import { Porter } from './porter';
 
 type CbdTDecDecrypterJSON = {
   porterUri: string;
-  encryptingKeyBytes: Uint8Array;
 };
 
 export class CbdTDecDecrypter {
@@ -27,7 +25,7 @@ export class CbdTDecDecrypter {
 
   // private readonly verifyingKey: Keyring;
 
-  constructor(porterUri: string, private readonly dkgPublicKey: DkgPublicKey) {
+  constructor(porterUri: string) {
     this.porter = new Porter(porterUri);
   }
 
@@ -109,7 +107,6 @@ export class CbdTDecDecrypter {
   public toObj(): CbdTDecDecrypterJSON {
     return {
       porterUri: this.porter.porterUrl.toString(),
-      encryptingKeyBytes: this.dkgPublicKey.toBytes(),
     };
   }
 
@@ -117,14 +114,8 @@ export class CbdTDecDecrypter {
     return JSON.stringify(this.toObj(), u8ToBase64Replacer);
   }
 
-  private static fromObj({
-    porterUri,
-    encryptingKeyBytes,
-  }: CbdTDecDecrypterJSON) {
-    return new CbdTDecDecrypter(
-      porterUri,
-      DkgPublicKey.fromBytes(encryptingKeyBytes)
-    );
+  private static fromObj({ porterUri }: CbdTDecDecrypterJSON) {
+    return new CbdTDecDecrypter(porterUri);
   }
 
   public static fromJSON(json: string) {

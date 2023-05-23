@@ -99,8 +99,6 @@ export const preDecrypterJSON = JSON.stringify({
 
 export const cbdDecrypterJSON = JSON.stringify({
   porterUri: 'https://_this.should.crash/',
-  encryptingKeyBytes:
-    'base64:MAAAAAAAAACGxOoiK8/cO6vl2gb12nlQSFgUP+Mo5OHt6vhBqlMsOzWiSuejdy2z3AxAnz2Du8k=',
 });
 
 export const TEST_CONTRACT_ADDR = '0x0000000000000000000000000000000000000001';

@@ -47,10 +47,7 @@ export class CbdStrategy {
       this.conditionSet
     );
 
-    const decrypter = new CbdTDecDecrypter(
-      this.cohort.configuration.porterUri,
-      dkgRitual.dkgPublicKey
-    );
+    const decrypter = new CbdTDecDecrypter(this.cohort.configuration.porterUri);
 
     return new DeployedCbdStrategy(
       this.cohort,
@@ -109,10 +106,7 @@ export class DeployedCbdStrategy {
     const cohort = Cohort.fromObj(cohortConfig);
     const encrypter = new Enrico(ritual.dkgPublicKey, undefined, conditionSet);
 
-    const decrypter = new CbdTDecDecrypter(
-      cohort.configuration.porterUri,
-      ritual.dkgPublicKey
-    );
+    const decrypter = new CbdTDecDecrypter(cohort.configuration.porterUri);
     return new DeployedCbdStrategy(
       cohort,
       ritual,

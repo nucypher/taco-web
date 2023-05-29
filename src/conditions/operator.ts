@@ -19,4 +19,8 @@ export class Operator {
   static fromObj(obj: Record<string, string>) {
     return new Operator(obj.operator);
   }
+
+  public equals(other: Operator): boolean {
+    return this.operator === other.operator;
+  }
 }

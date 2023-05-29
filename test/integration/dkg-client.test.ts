@@ -42,6 +42,6 @@ describe('DkgClient', () => {
 
     const dkgClient = new DkgClient(provider, ritualId);
     const isValid = await dkgClient.verifyRitual();
-    expect(isValid).toBe(true);
+    expect(isValid).toBeTruthy();
   });
 });

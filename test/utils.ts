@@ -31,7 +31,7 @@ import {
   ValidatorMessage,
 } from 'ferveo-wasm';
 
-import { Alice, Bob, Configuration, RemoteBob } from '../src';
+import { Alice, Bob, Cohort, Configuration, RemoteBob } from '../src';
 import { DkgParticipant, DkgRitual } from '../src/agents/coordinator';
 import {
   GetUrsulasResponse,
@@ -43,12 +43,12 @@ import { BlockchainPolicy, PreEnactedPolicy } from '../src/policies/policy';
 import { ChecksumAddress } from '../src/types';
 import { toBytes, toHexString, zip } from '../src/utils';
 
-export const fromBytes = (bytes: Uint8Array): string =>
-  new TextDecoder().decode(bytes);
-
 export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
   first.length === second.length &&
   first.every((value, index) => value === second[index]);
+
+export const fromBytes = (bytes: Uint8Array): string =>
+  new TextDecoder().decode(bytes);
 
 const mockConfig: Configuration = {
   porterUri: 'https://_this_should_crash.com/',
@@ -273,11 +273,11 @@ const fakeDkgRitualE2e = (variant: 'precomputed' | 'simple') => {
   const receivedMessages = messages.slice(0, threshold);
 
   const serverAggregate = dkg.aggregateTranscript(receivedMessages);
-  expect(serverAggregate.verify(sharesNum, receivedMessages)).toBe(true);
+  expect(serverAggregate.verify(sharesNum, receivedMessages)).toBeTruthy();
 
   // Client can also aggregate the transcripts and verify them
   const clientAggregate = new AggregatedTranscript(receivedMessages);
-  expect(clientAggregate.verify(sharesNum, receivedMessages)).toBe(true);
+  expect(clientAggregate.verify(sharesNum, receivedMessages)).toBeTruthy();
 
   // In the meantime, the client creates a ciphertext and decryption request
   const msg = Buffer.from('my-msg');
@@ -387,4 +387,16 @@ export const fakeDkgParticipants = (): DkgParticipant[] => {
       publicKey: toHexString(k.publicKey.toBytes()),
     };
   });
+};
+
+export const makeCohort = async (ursulas: Ursula[]) => {
+  const getUrsulasSpy = mockGetUrsulas(ursulas);
+  const config = {
+    threshold: 2,
+    shares: 3,
+    porterUri: 'https://_this.should.crash',
+  };
+  const cohort = await Cohort.create(config);
+  expect(getUrsulasSpy).toHaveBeenCalled();
+  return cohort;
 };

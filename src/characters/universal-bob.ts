@@ -8,11 +8,11 @@ import {
 } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { ConditionSet } from '../conditions/condition-set';
+import { ConditionSet } from '../conditions';
 import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
-import { base64ToU8Receiver, u8ToBase64Replacer, zip } from '../utils';
+import { base64ToU8Receiver, bytesEquals, toJson, zip } from '../utils';
 
 import { Porter } from './porter';
 
@@ -27,6 +27,7 @@ type decrypterJSON = {
 export class tDecDecrypter {
   private readonly porter: Porter;
   private readonly keyring: Keyring;
+
   // private readonly verifyingKey: Keyring;
 
   constructor(
@@ -98,7 +99,7 @@ export class tDecDecrypter {
       .reduce((acc: Record<string, string>[], val) => acc.concat(val), []);
 
     const conditionContext =
-      ConditionSet.fromList(conditions).buildContext(provider);
+      ConditionSet.fromConditionList(conditions).buildContext(provider);
 
     const policyMessageKits = messageKits.map((mk) =>
       PolicyMessageKit.fromMessageKit(
@@ -149,7 +150,7 @@ export class tDecDecrypter {
   }
 
   public toJSON(): string {
-    return JSON.stringify(this.toObj(), u8ToBase64Replacer);
+    return toJson(this.toObj());
   }
 
   private static fromObj({
@@ -171,5 +172,23 @@ export class tDecDecrypter {
   public static fromJSON(json: string) {
     const config = JSON.parse(json, base64ToU8Receiver);
     return tDecDecrypter.fromObj(config);
+  }
+
+  public equals(other: tDecDecrypter): boolean {
+    return (
+      this.porter.porterUrl.toString() === other.porter.porterUrl.toString() &&
+      bytesEquals(
+        this.policyEncryptingKey.toCompressedBytes(),
+        other.policyEncryptingKey.toCompressedBytes()
+      ) &&
+      bytesEquals(
+        this.encryptedTreasureMap.toBytes(),
+        other.encryptedTreasureMap.toBytes()
+      ) &&
+      bytesEquals(
+        this.publisherVerifyingKey.toCompressedBytes(),
+        other.publisherVerifyingKey.toCompressedBytes()
+      )
+    );
   }
 }

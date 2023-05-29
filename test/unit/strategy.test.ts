@@ -5,7 +5,6 @@ import {
 } from '@nucypher/nucypher-core';
 
 import {
-  Cohort,
   conditions,
   DeployedStrategy,
   Strategy,
@@ -16,6 +15,7 @@ import { fromBase64, toBytes } from '../../src/utils';
 import {
   fakeUrsulas,
   fakeWeb3Provider,
+  makeCohort,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
   mockGetUrsulas,
@@ -27,10 +27,8 @@ import {
 import {
   aliceSecretKeyBytes,
   bobSecretKeyBytes,
-  decrypterJSON,
   deployedStrategyJSON,
   encryptedTreasureMapBase64,
-  strategyJSON,
 } from './testVariables';
 
 const {
@@ -38,106 +36,93 @@ const {
   ConditionSet,
 } = conditions;
 
-describe('Strategy', () => {
-  const cohortConfig = {
-    threshold: 2,
-    shares: 3,
-    porterUri: 'https://_this.should.crash',
-  };
-  const aliceSecretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);
-  const bobSecretKey = SecretKey.fromBEBytes(bobSecretKeyBytes);
-  const aliceProvider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
-  Date.now = jest.fn(() => 1487076708000);
+// Shared test variables
+const aliceSecretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);
+const bobSecretKey = SecretKey.fromBEBytes(bobSecretKeyBytes);
+const aliceProvider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
+Date.now = jest.fn(() => 1487076708000);
+const ownsNFT = new ERC721Ownership({
+  contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
+  parameters: [3591],
+  chain: 5,
+});
+const conditionSet = new ConditionSet([ownsNFT]);
+const mockedUrsulas = fakeUrsulas().slice(0, 3);
 
+describe('Strategy', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  it('can create Strategy from configuration', async () => {
-    const mockedUrsulas = fakeUrsulas().slice(0, 3);
-    const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
+  it('creates a Strategy', async () => {
+    const cohort = await makeCohort(mockedUrsulas);
+    const strategy = Strategy.create(
+      cohort,
+      conditionSet,
+      aliceSecretKey,
+      bobSecretKey
+    );
+    expect(strategy.cohort).toEqual(cohort);
+  });
 
-    const testCohort = await Cohort.create(cohortConfig);
-    const testStrategy = Strategy.create(
-      testCohort,
-      undefined,
+  it('serializes to plain object', async () => {
+    const cohort = await makeCohort(mockedUrsulas);
+    const strategy = Strategy.create(
+      cohort,
+      conditionSet,
+      aliceSecretKey,
+      bobSecretKey
+    );
+    const asObject = strategy.toObj();
+    const fromObject = Strategy.fromObj(asObject);
+    expect(fromObject.equals(strategy)).toBeTruthy();
+  });
+
+  it('serializes to JSON', async () => {
+    const cohort = await makeCohort(mockedUrsulas);
+    const strategy = Strategy.create(
+      cohort,
+      conditionSet,
       aliceSecretKey,
       bobSecretKey
     );
 
-    const expectedUrsulas = mockedUrsulas.map(
-      (ursula) => ursula.checksumAddress
-    );
-    expect(getUrsulasSpy).toHaveBeenCalled();
-    expect(testStrategy.cohort.ursulaAddresses).toEqual(expectedUrsulas);
+    const asJson = strategy.toJSON();
+    const fromJSON = Strategy.fromJSON(asJson);
+    expect(fromJSON.equals(strategy)).toBeTruthy();
   });
 
-  it('can export to JSON', async () => {
+  it('deploys strategy', async () => {
     const mockedUrsulas = fakeUrsulas().slice(0, 3);
-    const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
-    const testCohort = await Cohort.create(cohortConfig);
-    const testStrategy = Strategy.create(
-      testCohort,
-      undefined,
-      aliceSecretKey,
-      bobSecretKey,
-      new Date('2017-02-14T12:51:48.000Z'),
-      new Date('2123-03-16T12:51:48.000Z')
-    );
-
-    const configJSON = testStrategy.toJSON();
-    expect(configJSON).toEqual(strategyJSON);
-    expect(getUrsulasSpy).toHaveBeenCalled();
-  });
-
-  it('can import from JSON', async () => {
-    const testStrategy = Strategy.fromJSON(strategyJSON);
-    const expectedUrsulas = [
-      '0x5cf1703a1c99a4b42eb056535840e93118177232',
-      '0x7fff551249d223f723557a96a0e1a469c79cc934',
-      '0x9c7c824239d3159327024459ad69bb215859bd25',
-    ];
-    expect(testStrategy.cohort.ursulaAddresses).toEqual(expectedUrsulas);
-  });
-
-  it('can deploy and return DeployedStrategy', async () => {
-    const mockedUrsulas = fakeUrsulas().slice(0, 3);
-    const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const generateKFragsSpy = mockGenerateKFrags();
     const publishToBlockchainSpy = mockPublishToBlockchain();
     const makeTreasureMapSpy = mockMakeTreasureMap();
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
-    const testCohort = await Cohort.create(cohortConfig);
-    const testStrategy = Strategy.create(testCohort, undefined, aliceSecretKey);
-    const testDeployed = await testStrategy.deploy('test', aliceProvider);
-    expect(getUrsulasSpy).toHaveBeenCalled();
+    const cohort = await makeCohort(mockedUrsulas);
+    const strategy = Strategy.create(cohort, conditionSet, aliceSecretKey);
+    const label = 'test';
+
+    const deployedStrategy = await strategy.deploy(label, aliceProvider);
     expect(generateKFragsSpy).toHaveBeenCalled();
     expect(publishToBlockchainSpy).toHaveBeenCalled();
     expect(encryptTreasureMapSpy).toHaveBeenCalled();
     expect(makeTreasureMapSpy).toHaveBeenCalled();
 
-    expect(testDeployed.label).toEqual('test');
+    expect(deployedStrategy.cohort).toEqual(cohort);
+    expect(deployedStrategy.conditionSet).toEqual(conditionSet);
+    expect(deployedStrategy.label).toEqual(label);
   });
 });
 
 describe('Deployed Strategy', () => {
-  const cohortConfig = {
-    threshold: 2,
-    shares: 3,
-    porterUri: 'https://_this.should.crash',
-  };
-  const aliceSecretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);
-  const bobSecretKey = SecretKey.fromBEBytes(bobSecretKeyBytes);
-
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  it('can export to JSON', async () => {
+  it('serializes to JSON', async () => {
     const aliceProvider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
     const mockedUrsulas = fakeUrsulas().slice(0, 3);
-    const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const generateKFragsSpy = mockGenerateKFrags();
     const publishToBlockchainSpy = mockPublishToBlockchain();
     const makeTreasureMapSpy = mockMakeTreasureMap();
@@ -145,33 +130,30 @@ describe('Deployed Strategy', () => {
       EncryptedTreasureMap.fromBytes(fromBase64(encryptedTreasureMapBase64))
     );
 
-    const testCohort = await Cohort.create(cohortConfig);
-    const testStrategy = Strategy.create(
-      testCohort,
-      undefined,
+    const cohort = await makeCohort(mockedUrsulas);
+    const strategy = Strategy.create(
+      cohort,
+      conditionSet,
       aliceSecretKey,
-      bobSecretKey,
-      new Date('2017-02-14T12:51:48.000Z'),
-      new Date('2123-03-16T12:51:48.000Z')
+      bobSecretKey
     );
-    const testDeployed = await testStrategy.deploy('test', aliceProvider);
-    expect(getUrsulasSpy).toHaveBeenCalled();
+
+    const strategyAsJson = strategy.toJSON();
+    const strategyFromJson = Strategy.fromJSON(strategyAsJson);
+    expect(strategyFromJson.equals(strategy)).toBeTruthy();
+
+    const deployedStrategy = await strategy.deploy('test', aliceProvider);
     expect(generateKFragsSpy).toHaveBeenCalled();
     expect(publishToBlockchainSpy).toHaveBeenCalled();
     expect(makeTreasureMapSpy).toHaveBeenCalled();
     expect(encryptTreasureMapSpy).toHaveBeenCalled();
 
-    const configJSON = testDeployed.toJSON();
-    expect(configJSON).toEqual(deployedStrategyJSON);
+    const asJson = deployedStrategy.toJSON();
+    const fromJson = DeployedStrategy.fromJSON(asJson);
+    expect(fromJson.equals(deployedStrategy)).toBeTruthy();
   });
 
-  it('can import from JSON', async () => {
-    const importedStrategy = DeployedStrategy.fromJSON(deployedStrategyJSON);
-    const configJSON = importedStrategy.toJSON();
-    expect(configJSON).toEqual(deployedStrategyJSON);
-  });
-
-  it('can encrypt and decrypt', async () => {
+  it('encrypts and decrypts', async () => {
     const aliceProvider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
     const bobProvider = fakeWeb3Provider(bobSecretKey.toBEBytes());
     const mockedUrsulas = fakeUrsulas().slice(0, 3);
@@ -181,14 +163,14 @@ describe('Deployed Strategy', () => {
     const makeTreasureMapSpy = mockMakeTreasureMap();
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
-    const testCohort = await Cohort.create(cohortConfig);
-    const testStrategy = Strategy.create(
-      testCohort,
-      undefined,
+    const cohort = await makeCohort(mockedUrsulas);
+    const strategy = Strategy.create(
+      cohort,
+      conditionSet,
       aliceSecretKey,
       bobSecretKey
     );
-    const testDeployed = await testStrategy.deploy('test', aliceProvider);
+    const deployedStrategy = await strategy.deploy('test', aliceProvider);
 
     expect(getUrsulasSpy).toHaveBeenCalled();
     expect(generateKFragsSpy).toHaveBeenCalled();
@@ -196,16 +178,11 @@ describe('Deployed Strategy', () => {
     expect(encryptTreasureMapSpy).toHaveBeenCalled();
     expect(makeTreasureMapSpy).toHaveBeenCalled();
 
-    const encrypter = testDeployed.encrypter;
-    const decrypter = testDeployed.decrypter;
+    const encrypter = deployedStrategy.encrypter;
+    const decrypter = deployedStrategy.decrypter;
 
-    const ownsNFT = new ERC721Ownership({
-      contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
-      parameters: [3591],
-      chain: 5,
-    });
     const plaintext = 'this is a secret';
-    encrypter.conditions = new ConditionSet([ownsNFT]);
+    encrypter.conditions = conditionSet;
     const encryptedMessageKit = encrypter.encryptMessage(plaintext);
 
     // Setup mocks for `retrieveAndDecrypt`
@@ -228,20 +205,19 @@ describe('Deployed Strategy', () => {
     expect(getUrsulasSpy2).toHaveBeenCalled();
     expect(retrieveCFragsSpy).toHaveBeenCalled();
     expect(decryptedMessage[0]).toEqual(toBytes(plaintext));
+
+    const serialized = deployedStrategy.toJSON();
+    const deserialized = DeployedStrategy.fromJSON(serialized);
+    expect(deserialized.equals(deployedStrategy)).toBeTruthy();
   });
 });
 
 describe('tDecDecrypter', () => {
-  const importedStrategy = DeployedStrategy.fromJSON(deployedStrategyJSON);
+  const decrypter = DeployedStrategy.fromJSON(deployedStrategyJSON).decrypter;
 
-  it('can export to JSON', () => {
-    const configJSON = importedStrategy.decrypter.toJSON();
-    expect(configJSON).toEqual(decrypterJSON);
-  });
-
-  it('can import from JSON', () => {
-    const decrypter = tDecDecrypter.fromJSON(decrypterJSON);
-    const configJSON = decrypter.toJSON();
-    expect(configJSON).toEqual(decrypterJSON);
+  it('serializes to JSON', () => {
+    const asJson = decrypter.toJSON();
+    const fromJson = tDecDecrypter.fromJSON(asJson);
+    expect(fromJson.equals(decrypter)).toBeTruthy();
   });
 });

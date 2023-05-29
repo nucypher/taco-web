@@ -14,7 +14,10 @@ describe('validation', () => {
       contractAddress: undefined,
     };
     const badEvm = new EvmCondition(badEvmCondition);
-    expect(() => badEvm.toObj()).toThrow('"contractAddress" is required');
+    expect(() => badEvm.toObj()).toThrow(
+      'Invalid condition: "contractAddress" is required'
+    );
+
     const { error } = badEvm.validate(badEvmCondition);
     expect(error?.message).toEqual('"contractAddress" is required');
   });

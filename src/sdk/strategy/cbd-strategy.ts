@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 
-import { CbdTDecDecrypter } from '../../characters/cbd-universal-bob';
+import { CbdTDecDecrypter } from '../../characters/cbd-recipient';
 import { Enrico } from '../../characters/enrico';
 import { ConditionSet } from '../../conditions';
 import { DkgClient, DkgRitual, DkgRitualJSON } from '../../dkg';

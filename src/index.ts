@@ -2,7 +2,7 @@
 export { Alice } from './characters/alice';
 export { Bob, RemoteBob } from './characters/bob';
 export { Enrico } from './characters/enrico';
-export { PreTDecDecrypter } from './characters/pre-universal-bob';
+export { PreTDecDecrypter } from './characters/pre-recipient';
 export { Porter } from './characters/porter';
 
 // Policies

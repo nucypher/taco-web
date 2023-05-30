@@ -9,7 +9,7 @@ import { ethers } from 'ethers';
 import { Alice } from '../../characters/alice';
 import { Bob } from '../../characters/bob';
 import { Enrico } from '../../characters/enrico';
-import { PreTDecDecrypter } from '../../characters/pre-universal-bob';
+import { PreTDecDecrypter } from '../../characters/pre-recipient';
 import { ConditionSet, ConditionSetJSON } from '../../conditions';
 import { EnactedPolicy, EnactedPolicyJSON } from '../../policies/policy';
 import { base64ToU8Receiver, bytesEquals, toJson } from '../../utils';

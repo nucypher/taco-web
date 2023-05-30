@@ -1,7 +1,7 @@
 import { SecretKey } from '@nucypher/nucypher-core';
 
 import { Cohort, conditions } from '../../src';
-import { CbdTDecDecrypter } from '../../src/characters/cbd-universal-bob';
+import { CbdTDecDecrypter } from '../../src/characters/cbd-recipient';
 import { FerveoVariant } from '../../src/dkg';
 import {
   CbdStrategy,

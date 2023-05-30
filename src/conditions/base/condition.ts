@@ -24,7 +24,10 @@ export class Condition {
     if (error) {
       throw `Invalid condition: ${error.message}`;
     }
-    return value;
+    return {
+      ...value,
+      _class: this.constructor.name,
+    };
   }
 
   public static fromObj<T extends Condition>(
@@ -33,6 +36,7 @@ export class Condition {
     this: new (...args: any[]) => T,
     obj: Map
   ): T {
+    delete obj._class;
     return new this(obj);
   }
 

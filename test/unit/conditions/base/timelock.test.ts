@@ -14,6 +14,7 @@ describe('validation', () => {
     expect(timelock.toObj()).toEqual({
       returnValueTest,
       method: 'timelock',
+      _class: 'TimelockCondition',
     });
   });
 

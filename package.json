@@ -53,9 +53,10 @@
   },
   "dependencies": {
     "@nucypher/nucypher-core": "^0.7.0",
-    "ferveo-wasm": "^0.1.1",
     "axios": "^0.21.1",
+    "deep-equal": "^2.2.1",
     "ethers": "^5.4.1",
+    "ferveo-wasm": "^0.1.1",
     "joi": "^17.7.0",
     "qs": "^6.10.1"
   },
@@ -64,6 +65,7 @@
     "@babel/preset-env": "^7.15.6",
     "@skypack/package-check": "^0.2.2",
     "@typechain/ethers-v5": "^9.0.0",
+    "@types/deep-equal": "^1.0.1",
     "@types/jest": "^26.0.24",
     "@types/qs": "^6.9.7",
     "@typescript-eslint/eslint-plugin": "^4.0.1",

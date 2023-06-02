@@ -28,7 +28,7 @@ describe('validation', () => {
 
     const badTimelock = new TimelockCondition(badTimelockObj);
     expect(() => badTimelock.toObj()).toThrow(
-      '"returnValueTest.comparator" must be one of [==, >, <, >=, <=, !=]'
+      'Invalid condition: "returnValueTest.comparator" must be one of [==, >, <, >=, <=, !=]'
     );
 
     const { error } = badTimelock.validate(badTimelockObj);

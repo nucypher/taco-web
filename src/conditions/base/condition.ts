@@ -1,25 +1,28 @@
-import Joi, { ValidationError } from 'joi';
+import Joi from 'joi';
 
-import { returnValueTestSchema } from './schema';
+import { objectEquals } from '../../utils';
+
+type Map = Record<string, unknown>;
 
 export class Condition {
-  // No schema by default, i.e. no validation by default
   public readonly schema = Joi.object();
-  public readonly defaults: Record<string, unknown> = {
-    returnValueTest: returnValueTestSchema.required(),
-  };
-  private validationError?: ValidationError;
+  public readonly defaults: Map = {};
 
   constructor(private readonly value: Record<string, unknown> = {}) {}
 
-  public get error(): string | undefined {
-    return this.validationError?.message;
+  public validate(override: Map = {}) {
+    const newValue = {
+      ...this.defaults,
+      ...this.value,
+      ...override,
+    };
+    return this.schema.validate(newValue);
   }
 
-  public toObj(): Record<string, unknown> {
-    const { error, value } = this.validate();
+  public toObj(): Map {
+    const { error, value } = this.validate(this.value);
     if (error) {
-      throw Error(error.message);
+      throw `Invalid condition: ${error.message}`;
     }
     return value;
   }
@@ -28,13 +31,12 @@ export class Condition {
     // We disable the eslint rule here because we have to pass args to the constructor
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this: new (...args: any[]) => T,
-    obj: Record<string, unknown>
+    obj: Map
   ): T {
     return new this(obj);
   }
 
-  public validate(data: Record<string, unknown> = {}) {
-    const newValue = Object.assign(this.defaults, this.value, data);
-    return this.schema.validate(newValue);
+  public equals(other: Condition) {
+    return objectEquals(this, other);
   }
 }

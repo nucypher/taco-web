@@ -8,7 +8,7 @@ export class TimelockCondition extends Condition {
   //   to determine the schema. I.e. the only method that used `METHOD = 'timelock'` in `nucypher/nucypher`.
   // TODO: Consider introducing a different field for this, e.g. `conditionType` or `type`. Use this field in a
   //  condition factory.
-  defaults = {
+  public readonly defaults: Record<string, unknown> = {
     method: 'timelock',
   };
 

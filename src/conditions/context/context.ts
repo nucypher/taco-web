@@ -1,6 +1,7 @@
 import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
+import { fromJson, toJson } from '../../utils';
 import { USER_ADDRESS_PARAM } from '../const';
 
 import { TypedSignature, WalletAuthenticationProvider } from './providers';
@@ -41,8 +42,8 @@ export class ConditionContext {
     const requestedParameters = new Set<string>();
 
     // Search conditions for parameters
-    const parsedConditions = JSON.parse(this.conditions.toString());
-    for (const cond of parsedConditions) {
+    const { conditions } = fromJson(this.conditions.toString());
+    for (const cond of conditions) {
       // Check return value test
       const rvt = cond.returnValueTest.value;
       if (typeof rvt === 'string' && rvt.startsWith(CONTEXT_PARAM_PREFIX)) {
@@ -92,7 +93,7 @@ export class ConditionContext {
 
   public toJson = async (): Promise<string> => {
     const parameters = await this.toObj();
-    return JSON.stringify(parameters);
+    return toJson(parameters);
   };
 
   public withCustomParams = (

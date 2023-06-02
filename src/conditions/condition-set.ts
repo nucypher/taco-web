@@ -1,11 +1,17 @@
 import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { Condition } from './base/condition';
+import { toJson } from '../utils';
+
+import { Condition } from './base';
 import { ConditionContext } from './context';
 import { Operator } from './operator';
 
 type ConditionOrOperator = Condition | Operator;
+
+export type ConditionSetJSON = {
+  conditions: ({ operator: string } | Record<string, unknown>)[];
+};
 
 export class ConditionSet {
   constructor(public readonly conditions: ReadonlyArray<ConditionOrOperator>) {}
@@ -34,13 +40,24 @@ export class ConditionSet {
     return true;
   }
 
-  public toList() {
-    return this.conditions.map((cnd) => {
+  public toObj(): ConditionSetJSON {
+    const conditions = this.conditions.map((cnd) => {
       return cnd.toObj();
     });
+    return { conditions };
   }
 
-  public static fromList(list: ReadonlyArray<Record<string, string>>) {
+  public static fromObj(obj: ConditionSetJSON): ConditionSet {
+    const conditions = obj.conditions.map((cnd) => {
+      if ('operator' in cnd) {
+        return Operator.fromObj(cnd as Record<string, string>);
+      }
+      return Condition.fromObj(cnd);
+    });
+    return new ConditionSet(conditions);
+  }
+
+  public static fromConditionList(list: ReadonlyArray<Record<string, string>>) {
     return new ConditionSet(
       list.map((ele: Record<string, string>) => {
         if ('operator' in ele) return Operator.fromObj(ele);
@@ -49,16 +66,16 @@ export class ConditionSet {
     );
   }
 
-  public toJson() {
-    return JSON.stringify(this.toList());
+  public toJson(): string {
+    return toJson(this.toObj());
   }
 
-  public static fromJSON(json: string) {
-    return ConditionSet.fromList(JSON.parse(json));
+  public static fromJSON(json: string): ConditionSet {
+    return ConditionSet.fromObj(JSON.parse(json));
   }
 
-  public toWASMConditions() {
-    return new WASMConditions(this.toJson());
+  public toWASMConditions(): WASMConditions {
+    return new WASMConditions(toJson(this.toObj()));
   }
 
   public buildContext(

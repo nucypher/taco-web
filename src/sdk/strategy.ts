@@ -10,9 +10,9 @@ import { Alice } from '../characters/alice';
 import { Bob } from '../characters/bob';
 import { Enrico } from '../characters/enrico';
 import { tDecDecrypter } from '../characters/universal-bob';
-import { ConditionSet } from '../conditions/condition-set';
+import { ConditionSet, ConditionSetJSON } from '../conditions/condition-set';
 import { EnactedPolicy, EnactedPolicyJSON } from '../policies/policy';
-import { base64ToU8Receiver, u8ToBase64Replacer } from '../utils';
+import { base64ToU8Receiver, bytesEquals, toJson } from '../utils';
 
 import { Cohort, CohortJSON } from './cohort';
 
@@ -20,7 +20,7 @@ type StrategyJSON = {
   cohort: CohortJSON;
   aliceSecretKeyBytes: Uint8Array;
   bobSecretKeyBytes: Uint8Array;
-  conditionSet?: ConditionSet;
+  conditionSet?: ConditionSetJSON;
   startDate: Date;
   endDate: Date;
 };
@@ -29,7 +29,7 @@ type DeployedStrategyJSON = {
   policy: EnactedPolicyJSON;
   cohortConfig: CohortJSON;
   bobSecretKeyBytes: Uint8Array;
-  conditionSet?: ConditionSet;
+  conditionSet?: ConditionSetJSON;
 };
 
 export class Strategy {
@@ -119,14 +119,16 @@ export class Strategy {
 
   public static fromJSON(json: string) {
     const config = JSON.parse(json, base64ToU8Receiver);
+    config.startDate = new Date(config.startDate);
+    config.endDate = new Date(config.endDate);
     return Strategy.fromObj(config);
   }
 
   public toJSON() {
-    return JSON.stringify(this.toObj(), u8ToBase64Replacer);
+    return toJson(this.toObj());
   }
 
-  private static fromObj({
+  public static fromObj({
     cohort,
     aliceSecretKeyBytes,
     bobSecretKeyBytes,
@@ -138,9 +140,9 @@ export class Strategy {
       Cohort.fromObj(cohort),
       SecretKey.fromBEBytes(aliceSecretKeyBytes),
       SecretKey.fromBEBytes(bobSecretKeyBytes),
-      startDate,
-      endDate,
-      conditionSet
+      new Date(startDate),
+      new Date(endDate),
+      conditionSet ? ConditionSet.fromObj(conditionSet) : undefined
     );
   }
 
@@ -149,10 +151,29 @@ export class Strategy {
       cohort: this.cohort.toObj(),
       aliceSecretKeyBytes: this.aliceSecretKey.toBEBytes(),
       bobSecretKeyBytes: this.bobSecretKey.toBEBytes(),
-      conditionSet: this.conditionSet,
+      conditionSet: this.conditionSet ? this.conditionSet.toObj() : undefined,
       startDate: this.startDate,
       endDate: this.endDate,
     };
+  }
+
+  public equals(other: Strategy) {
+    return (
+      this.cohort.equals(other.cohort) &&
+      // TODO: Add equality to WASM bindings
+      bytesEquals(
+        this.aliceSecretKey.toBEBytes(),
+        other.aliceSecretKey.toBEBytes()
+      ) &&
+      bytesEquals(
+        this.bobSecretKey.toBEBytes(),
+        other.bobSecretKey.toBEBytes()
+      ) &&
+      this.startDate.toString() === other.startDate.toString() &&
+      this.endDate.toString() === other.endDate.toString() &&
+      this.conditionSet?.toWASMConditions ===
+        other.conditionSet?.toWASMConditions
+    );
   }
 }
 
@@ -173,7 +194,7 @@ export class DeployedStrategy {
   }
 
   public toJSON() {
-    return JSON.stringify(this.toObj(), u8ToBase64Replacer);
+    return toJson(this.toObj());
   }
 
   private static fromObj({
@@ -204,7 +225,15 @@ export class DeployedStrategy {
     const bobSecretKey = SecretKey.fromBEBytes(bobSecretKeyBytes);
     const label = newPolicy.label;
     const cohort = Cohort.fromObj(cohortConfig);
-    const encrypter = new Enrico(newPolicy.policyKey, undefined, conditionSet);
+
+    const conditionSetOrUndefined = conditionSet
+      ? ConditionSet.fromObj(conditionSet)
+      : undefined;
+    const encrypter = new Enrico(
+      newPolicy.policyKey,
+      undefined,
+      conditionSetOrUndefined
+    );
 
     const decrypter = new tDecDecrypter(
       cohort.configuration.porterUri,
@@ -220,7 +249,7 @@ export class DeployedStrategy {
       encrypter,
       decrypter,
       bobSecretKey,
-      conditionSet
+      conditionSetOrUndefined
     );
   }
 
@@ -235,7 +264,21 @@ export class DeployedStrategy {
       policy,
       cohortConfig: this.cohort.toObj(),
       bobSecretKeyBytes: this.bobSecretKey.toBEBytes(),
-      conditionSet: this.conditionSet,
+      conditionSet: this.conditionSet?.toObj(),
     };
+  }
+
+  public equals(other: DeployedStrategy) {
+    return (
+      this.label === other.label &&
+      this.cohort.equals(other.cohort) &&
+      bytesEquals(this.policy.id.toBytes(), other.policy.id.toBytes()) &&
+      this.policy.label === other.policy.label &&
+      this.policy.policyKey.equals(other.policy.policyKey) &&
+      bytesEquals(
+        this.policy.encryptedTreasureMap.toBytes(),
+        other.policy.encryptedTreasureMap.toBytes()
+      )
+    );
   }
 }

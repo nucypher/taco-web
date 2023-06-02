@@ -16,7 +16,7 @@ describe('validation', () => {
 
     const badRpc = new RpcCondition(badRpcObj);
     expect(() => badRpc.toObj()).toThrow(
-      '"method" must be one of [eth_getBalance, balanceOf]'
+      'Invalid condition: "method" must be one of [eth_getBalance, balanceOf]'
     );
 
     const { error } = badRpc.validate(badRpcObj);

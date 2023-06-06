@@ -4,7 +4,10 @@ import { testRpcConditionObj } from '../../testVariables';
 describe('validation', () => {
   it('accepts on a valid schema', () => {
     const rpc = new RpcCondition(testRpcConditionObj);
-    expect(rpc.toObj()).toEqual(testRpcConditionObj);
+    expect(rpc.toObj()).toEqual({
+      ...testRpcConditionObj,
+      _class: 'RpcCondition',
+    });
   });
 
   it('rejects an invalid schema', () => {

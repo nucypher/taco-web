@@ -48,7 +48,10 @@ describe('validation', () => {
 describe('serialization', () => {
   it('serializes to a plain object', () => {
     const evm = new EvmCondition(testEvmConditionObj);
-    expect(evm.toObj()).toEqual(testEvmConditionObj);
+    expect(evm.toObj()).toEqual({
+      ...testEvmConditionObj,
+      _class: 'EvmCondition',
+    });
   });
 
   it('serializes predefined conditions', () => {
@@ -56,6 +59,7 @@ describe('serialization', () => {
     expect(evm.toObj()).toEqual({
       ...evm.defaults,
       ...testEvmConditionObj,
+      _class: 'ERC721Ownership',
     });
   });
 });

@@ -4,7 +4,10 @@ import { testEvmConditionObj } from '../../testVariables';
 describe('validation', () => {
   it('accepts on a valid schema', () => {
     const evm = new EvmCondition(testEvmConditionObj);
-    expect(evm.toObj()).toEqual(testEvmConditionObj);
+    expect(evm.toObj()).toEqual({
+      ...testEvmConditionObj,
+      _class: 'EvmCondition',
+    });
   });
 
   it('rejects an invalid schema', () => {
@@ -34,7 +37,10 @@ describe('accepts either standardContractType or functionAbi but not both or non
       functionAbi: undefined,
     };
     const evmCondition = new EvmCondition(conditionObj);
-    expect(evmCondition.toObj()).toEqual(conditionObj);
+    expect(evmCondition.toObj()).toEqual({
+      ...conditionObj,
+      _class: 'EvmCondition',
+    });
   });
 
   it('accepts functionAbi', () => {
@@ -44,7 +50,10 @@ describe('accepts either standardContractType or functionAbi but not both or non
       standardContractType: undefined,
     };
     const evmCondition = new EvmCondition(conditionObj);
-    expect(evmCondition.toObj()).toEqual(conditionObj);
+    expect(evmCondition.toObj()).toEqual({
+      ...conditionObj,
+      _class: 'EvmCondition',
+    });
   });
 
   it('rejects both', () => {

@@ -15,7 +15,7 @@ import { EnactedPolicy, EnactedPolicyJSON } from '../../policies/policy';
 import { base64ToU8Receiver, bytesEquals, toJSON } from '../../utils';
 import { Cohort, CohortJSON } from '../cohort';
 
-type PreStrategyJSON = {
+export type PreStrategyJSON = {
   cohort: CohortJSON;
   aliceSecretKeyBytes: Uint8Array;
   bobSecretKeyBytes: Uint8Array;
@@ -24,7 +24,7 @@ type PreStrategyJSON = {
   endDate: Date;
 };
 
-type DeployedStrategyJSON = {
+export type DeployedStrategyJSON = {
   policy: EnactedPolicyJSON;
   cohortConfig: CohortJSON;
   bobSecretKeyBytes: Uint8Array;

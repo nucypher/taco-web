@@ -7,12 +7,12 @@ import { DkgClient, DkgRitual, DkgRitualJSON } from '../../dkg';
 import { fromJSON, objectEquals, toJSON } from '../../utils';
 import { Cohort, CohortJSON } from '../cohort';
 
-type StrategyJSON = {
+export type CbdStrategyJSON = {
   cohort: CohortJSON;
   conditionSet?: ConditionSetJSON | undefined;
 };
 
-type DeployedStrategyJSON = {
+export type DeployedStrategyJSON = {
   dkgRitual: DkgRitualJSON;
   cohortConfig: CohortJSON;
   conditionSet?: ConditionSetJSON | undefined;
@@ -66,14 +66,14 @@ export class CbdStrategy {
     return toJSON(this.toObj());
   }
 
-  public static fromObj({ cohort, conditionSet }: StrategyJSON) {
+  public static fromObj({ cohort, conditionSet }: CbdStrategyJSON) {
     const maybeConditionSet = conditionSet
       ? ConditionSet.fromObj(conditionSet)
       : undefined;
     return new CbdStrategy(Cohort.fromObj(cohort), maybeConditionSet);
   }
 
-  public toObj(): StrategyJSON {
+  public toObj(): CbdStrategyJSON {
     return {
       cohort: this.cohort.toObj(),
       conditionSet: this.conditionSet?.toObj(),

@@ -1,7 +1,7 @@
 import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { toJson } from '../utils';
+import { objectEquals, toJSON } from '../utils';
 
 import { Condition } from './base';
 import { ConditionContext } from './context';
@@ -67,7 +67,7 @@ export class ConditionSet {
   }
 
   public toJson(): string {
-    return toJson(this.toObj());
+    return toJSON(this.toObj());
   }
 
   public static fromJSON(json: string): ConditionSet {
@@ -75,12 +75,16 @@ export class ConditionSet {
   }
 
   public toWASMConditions(): WASMConditions {
-    return new WASMConditions(toJson(this.toObj()));
+    return new WASMConditions(toJSON(this.toObj()));
   }
 
   public buildContext(
     provider: ethers.providers.Web3Provider
   ): ConditionContext {
     return new ConditionContext(this.toWASMConditions(), provider);
+  }
+
+  public equals(other: ConditionContext): boolean {
+    return objectEquals(this.toObj(), other.toObj());
   }
 }

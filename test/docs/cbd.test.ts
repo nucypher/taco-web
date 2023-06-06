@@ -1,7 +1,7 @@
 import { MessageKit, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 import { providers } from 'ethers';
 
-import { Cohort, conditions, SecretKey, Strategy } from '../../src';
+import { Cohort, conditions, PreStrategy, SecretKey } from '../../src';
 import { Ursula } from '../../src/characters/porter';
 import { toBytes } from '../../src/utils';
 import {
@@ -80,7 +80,7 @@ describe('Get Started (CBD PoC)', () => {
     ]);
 
     // 4. Build a Strategy
-    const newStrategy = Strategy.create(newCohort, conditions);
+    const newStrategy = PreStrategy.create(newCohort, conditions);
 
     const MMprovider = await detectEthereumProvider();
     const mumbai = providers.getNetwork(80001);
@@ -105,7 +105,7 @@ describe('Get Started (CBD PoC)', () => {
     const encrypter = newDeployed.encrypter;
 
     const plaintext = 'this is a secret';
-    const encryptedMessageKit = encrypter.encryptMessage(
+    const encryptedMessageKit = encrypter.encryptMessagePre(
       plaintext,
       new ConditionSet([NFTBalance])
     );

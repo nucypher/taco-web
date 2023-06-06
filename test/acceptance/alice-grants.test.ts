@@ -88,7 +88,7 @@ describe('story: alice shares message with bob through policy', () => {
 
   it('enrico encrypts the message', () => {
     const enrico = new Enrico(policyEncryptingKey);
-    encryptedMessage = enrico.encryptMessage(toBytes(message));
+    encryptedMessage = enrico.encryptMessagePre(toBytes(message));
   });
 
   it('bob retrieves and decrypts the message', async () => {

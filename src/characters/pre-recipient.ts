@@ -12,11 +12,11 @@ import { ConditionSet } from '../conditions';
 import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
-import { base64ToU8Receiver, bytesEquals, toJson, zip } from '../utils';
+import { base64ToU8Receiver, bytesEquals, toJSON, zip } from '../utils';
 
 import { Porter } from './porter';
 
-type decrypterJSON = {
+type PreTDecDecrypterJSON = {
   porterUri: string;
   policyEncryptingKeyBytes: Uint8Array;
   encryptedTreasureMapBytes: Uint8Array;
@@ -24,7 +24,7 @@ type decrypterJSON = {
   bobSecretKeyBytes: Uint8Array;
 };
 
-export class tDecDecrypter {
+export class PreTDecDecrypter {
   private readonly porter: Porter;
   private readonly keyring: Keyring;
 
@@ -138,7 +138,7 @@ export class tDecDecrypter {
     });
   }
 
-  public toObj(): decrypterJSON {
+  public toObj(): PreTDecDecrypterJSON {
     return {
       porterUri: this.porter.porterUrl.toString(),
       policyEncryptingKeyBytes: this.policyEncryptingKey.toCompressedBytes(),
@@ -150,17 +150,17 @@ export class tDecDecrypter {
   }
 
   public toJSON(): string {
-    return toJson(this.toObj());
+    return toJSON(this.toObj());
   }
 
-  private static fromObj({
+  public static fromObj({
     porterUri,
     policyEncryptingKeyBytes,
     encryptedTreasureMapBytes,
     publisherVerifyingKeyBytes,
     bobSecretKeyBytes,
-  }: decrypterJSON) {
-    return new tDecDecrypter(
+  }: PreTDecDecrypterJSON) {
+    return new PreTDecDecrypter(
       porterUri,
       PublicKey.fromCompressedBytes(policyEncryptingKeyBytes),
       EncryptedTreasureMap.fromBytes(encryptedTreasureMapBytes),
@@ -171,10 +171,10 @@ export class tDecDecrypter {
 
   public static fromJSON(json: string) {
     const config = JSON.parse(json, base64ToU8Receiver);
-    return tDecDecrypter.fromObj(config);
+    return PreTDecDecrypter.fromObj(config);
   }
 
-  public equals(other: tDecDecrypter): boolean {
+  public equals(other: PreTDecDecrypter): boolean {
     return (
       this.porter.porterUrl.toString() === other.porter.porterUrl.toString() &&
       bytesEquals(

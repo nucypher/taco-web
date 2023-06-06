@@ -54,7 +54,7 @@ describe('proxy reencryption', () => {
 
     const policyEncryptingKey = alice.getPolicyEncryptingKeyFromLabel(label);
     const enrico = new Enrico(policyEncryptingKey);
-    const encryptedMessage = enrico.encryptMessage(plaintext);
+    const encryptedMessage = enrico.encryptMessagePre(plaintext);
 
     const ursulaAddresses = ursulas.map((ursula) => ursula.checksumAddress);
     const reencrypted = verifiedKFrags.map((kFrag) =>
@@ -101,7 +101,7 @@ describe('proxy reencryption', () => {
     ]);
 
     const enrico = new Enrico(policyEncryptingKey, undefined, conditionsSet);
-    const encryptedMessage = enrico.encryptMessage(plaintext);
+    const encryptedMessage = enrico.encryptMessagePre(plaintext);
 
     const ursulaAddresses = ursulas.map((ursula) => ursula.checksumAddress);
     const reencrypted = verifiedKFrags.map((kFrag) =>

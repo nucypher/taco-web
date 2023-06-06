@@ -1,20 +1,21 @@
 import { MessageKit, PublicKey, SecretKey } from '@nucypher/nucypher-core';
+import { Ciphertext, DkgPublicKey, encrypt } from 'ferveo-wasm';
 
-import { ConditionSet } from '../conditions/condition-set';
+import { ConditionSet } from '../conditions';
 import { Keyring } from '../keyring';
 import { toBytes } from '../utils';
 
 export class Enrico {
-  public readonly policyEncryptingKey: PublicKey;
+  public readonly encryptingKey: PublicKey | DkgPublicKey;
   private readonly keyring: Keyring;
   public conditions?: ConditionSet;
 
   constructor(
-    policyEncryptingKey: PublicKey,
+    encryptingKey: PublicKey | DkgPublicKey,
     verifyingKey?: SecretKey,
     conditions?: ConditionSet
   ) {
-    this.policyEncryptingKey = policyEncryptingKey;
+    this.encryptingKey = encryptingKey;
     this.keyring = new Keyring(verifyingKey ?? SecretKey.random());
     this.conditions = conditions;
   }
@@ -23,17 +24,43 @@ export class Enrico {
     return this.keyring.publicKey;
   }
 
-  public encryptMessage(
+  public encryptMessagePre(
     plaintext: Uint8Array | string,
-    currentConditions?: ConditionSet
+    withConditions?: ConditionSet
   ): MessageKit {
-    if (!currentConditions) {
-      currentConditions = this.conditions;
+    if (!withConditions) {
+      withConditions = this.conditions;
     }
+
+    if (!(this.encryptingKey instanceof PublicKey)) {
+      throw new Error('Wrong key type. Use encryptMessageCbd instead.');
+    }
+
     return new MessageKit(
-      this.policyEncryptingKey,
+      this.encryptingKey,
       plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext),
-      currentConditions ? currentConditions.toWASMConditions() : null
+      withConditions ? withConditions.toWASMConditions() : null
     );
+  }
+
+  public encryptMessageCbd(
+    plaintext: Uint8Array | string,
+    withConditions?: ConditionSet
+  ): { ciphertext: Ciphertext; aad: Uint8Array } {
+    if (!withConditions) {
+      withConditions = this.conditions;
+    }
+
+    if (!(this.encryptingKey instanceof DkgPublicKey)) {
+      throw new Error('Wrong key type. Use encryptMessagePre instead.');
+    }
+
+    const aad = toBytes(withConditions?.toJson() ?? '');
+    const ciphertext = encrypt(
+      plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext),
+      aad,
+      this.encryptingKey
+    );
+    return { ciphertext, aad };
   }
 }

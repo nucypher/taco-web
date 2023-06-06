@@ -24,7 +24,7 @@ describe('enrico', () => {
 
     const policyKey = alice.getPolicyEncryptingKeyFromLabel(label);
     const enrico = new Enrico(policyKey);
-    const encrypted = enrico.encryptMessage(toBytes(message));
+    const encrypted = enrico.encryptMessagePre(toBytes(message));
 
     const aliceKeyring = (alice as any).keyring;
     const aliceSk = await aliceKeyring.getSecretKeyFromLabel(label);
@@ -42,7 +42,7 @@ describe('enrico', () => {
 
     const plaintext = 'Plaintext message';
     const plaintextBytes = toBytes(plaintext);
-    const encrypted = enrico.encryptMessage(plaintextBytes);
+    const encrypted = enrico.encryptMessagePre(plaintextBytes);
 
     // Alice can decrypt capsule she created
     const aliceSk = await (alice as any).keyring.getSecretKeyFromLabel(label);
@@ -108,7 +108,7 @@ describe('enrico', () => {
     const conditions = new ConditionSet([ownsBufficornNFT]);
 
     const enrico = new Enrico(policyKey, undefined, conditions);
-    const encrypted = enrico.encryptMessage(toBytes(message));
+    const encrypted = enrico.encryptMessagePre(toBytes(message));
 
     const aliceKeyring = (alice as any).keyring;
     const aliceSk = await aliceKeyring.getSecretKeyFromLabel(label);
@@ -139,7 +139,7 @@ describe('enrico', () => {
     const updatedConditions = new ConditionSet([ownsNonsenseNFT]);
 
     const enrico = new Enrico(policyKey, undefined, conditions);
-    const encrypted = enrico.encryptMessage(
+    const encrypted = enrico.encryptMessagePre(
       toBytes(message),
       updatedConditions
     );

@@ -73,6 +73,6 @@ export class Cohort {
   }
 
   public equals(other: Cohort): boolean {
-    return objectEquals(this, other);
+    return objectEquals(this.toObj(), other.toObj());
   }
 }

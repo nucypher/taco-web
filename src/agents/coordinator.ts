@@ -7,7 +7,7 @@ import {
 
 import { getContract } from './contracts';
 
-export interface DkgRitual {
+export interface CoordinatorRitual {
   id: number;
   initiator: string;
   dkgSize: number;
@@ -43,7 +43,7 @@ export class DkgCoordinatorAgent {
   public static async getRitual(
     provider: ethers.providers.Provider,
     ritualId: number
-  ): Promise<DkgRitual> {
+  ): Promise<CoordinatorRitual> {
     const Coordinator = await this.connectReadOnly(provider);
     return await Coordinator.rituals(ritualId);
   }

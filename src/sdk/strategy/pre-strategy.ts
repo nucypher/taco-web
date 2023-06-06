@@ -6,17 +6,16 @@ import {
 } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { Alice } from '../characters/alice';
-import { Bob } from '../characters/bob';
-import { Enrico } from '../characters/enrico';
-import { tDecDecrypter } from '../characters/universal-bob';
-import { ConditionSet, ConditionSetJSON } from '../conditions/condition-set';
-import { EnactedPolicy, EnactedPolicyJSON } from '../policies/policy';
-import { base64ToU8Receiver, bytesEquals, toJson } from '../utils';
+import { Alice } from '../../characters/alice';
+import { Bob } from '../../characters/bob';
+import { Enrico } from '../../characters/enrico';
+import { PreTDecDecrypter } from '../../characters/pre-recipient';
+import { ConditionSet, ConditionSetJSON } from '../../conditions';
+import { EnactedPolicy, EnactedPolicyJSON } from '../../policies/policy';
+import { base64ToU8Receiver, bytesEquals, toJSON } from '../../utils';
+import { Cohort, CohortJSON } from '../cohort';
 
-import { Cohort, CohortJSON } from './cohort';
-
-type StrategyJSON = {
+export type PreStrategyJSON = {
   cohort: CohortJSON;
   aliceSecretKeyBytes: Uint8Array;
   bobSecretKeyBytes: Uint8Array;
@@ -25,14 +24,14 @@ type StrategyJSON = {
   endDate: Date;
 };
 
-type DeployedStrategyJSON = {
+export type DeployedStrategyJSON = {
   policy: EnactedPolicyJSON;
   cohortConfig: CohortJSON;
   bobSecretKeyBytes: Uint8Array;
   conditionSet?: ConditionSetJSON;
 };
 
-export class Strategy {
+export class PreStrategy {
   private constructor(
     public readonly cohort: Cohort,
     private readonly aliceSecretKey: SecretKey,
@@ -62,7 +61,7 @@ export class Strategy {
     if (!endDate) {
       endDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
     }
-    return new Strategy(
+    return new PreStrategy(
       cohort,
       aliceSecretKey,
       bobSecretKey,
@@ -75,7 +74,7 @@ export class Strategy {
   public async deploy(
     label: string,
     provider: ethers.providers.Web3Provider
-  ): Promise<DeployedStrategy> {
+  ): Promise<DeployedPreStrategy> {
     const porterUri = this.cohort.configuration.porterUri;
     const configuration = { porterUri };
     const alice = Alice.fromSecretKey(
@@ -99,14 +98,14 @@ export class Strategy {
       this.conditionSet
     );
 
-    const decrypter = new tDecDecrypter(
+    const decrypter = new PreTDecDecrypter(
       this.cohort.configuration.porterUri,
       policy.policyKey,
       policy.encryptedTreasureMap,
       alice.verifyingKey,
       this.bobSecretKey
     );
-    return new DeployedStrategy(
+    return new DeployedPreStrategy(
       label,
       this.cohort,
       policy,
@@ -121,11 +120,11 @@ export class Strategy {
     const config = JSON.parse(json, base64ToU8Receiver);
     config.startDate = new Date(config.startDate);
     config.endDate = new Date(config.endDate);
-    return Strategy.fromObj(config);
+    return PreStrategy.fromObj(config);
   }
 
   public toJSON() {
-    return toJson(this.toObj());
+    return toJSON(this.toObj());
   }
 
   public static fromObj({
@@ -135,8 +134,8 @@ export class Strategy {
     conditionSet,
     startDate,
     endDate,
-  }: StrategyJSON) {
-    return new Strategy(
+  }: PreStrategyJSON) {
+    return new PreStrategy(
       Cohort.fromObj(cohort),
       SecretKey.fromBEBytes(aliceSecretKeyBytes),
       SecretKey.fromBEBytes(bobSecretKeyBytes),
@@ -146,7 +145,7 @@ export class Strategy {
     );
   }
 
-  public toObj(): StrategyJSON {
+  public toObj(): PreStrategyJSON {
     return {
       cohort: this.cohort.toObj(),
       aliceSecretKeyBytes: this.aliceSecretKey.toBEBytes(),
@@ -157,7 +156,7 @@ export class Strategy {
     };
   }
 
-  public equals(other: Strategy) {
+  public equals(other: PreStrategy) {
     return (
       this.cohort.equals(other.cohort) &&
       // TODO: Add equality to WASM bindings
@@ -177,27 +176,27 @@ export class Strategy {
   }
 }
 
-export class DeployedStrategy {
+export class DeployedPreStrategy {
   constructor(
     public label: string,
     public cohort: Cohort,
     public policy: EnactedPolicy,
     public encrypter: Enrico,
-    public decrypter: tDecDecrypter,
+    public decrypter: PreTDecDecrypter,
     private bobSecretKey: SecretKey,
     public conditionSet?: ConditionSet
   ) {}
 
   public static fromJSON(json: string) {
     const config = JSON.parse(json, base64ToU8Receiver);
-    return DeployedStrategy.fromObj(config);
+    return DeployedPreStrategy.fromObj(config);
   }
 
   public toJSON() {
-    return toJson(this.toObj());
+    return toJSON(this.toObj());
   }
 
-  private static fromObj({
+  public static fromObj({
     policy,
     cohortConfig,
     bobSecretKeyBytes,
@@ -235,14 +234,14 @@ export class DeployedStrategy {
       conditionSetOrUndefined
     );
 
-    const decrypter = new tDecDecrypter(
+    const decrypter = new PreTDecDecrypter(
       cohort.configuration.porterUri,
       policyKey,
       encryptedTreasureMap,
       aliceVerifyingKey,
       bobSecretKey
     );
-    return new DeployedStrategy(
+    return new DeployedPreStrategy(
       label,
       cohort,
       newPolicy,
@@ -253,7 +252,7 @@ export class DeployedStrategy {
     );
   }
 
-  private toObj(): DeployedStrategyJSON {
+  public toObj(): DeployedStrategyJSON {
     const policy = {
       ...this.policy,
       id: this.policy.id.toBytes(),
@@ -268,7 +267,7 @@ export class DeployedStrategy {
     };
   }
 
-  public equals(other: DeployedStrategy) {
+  public equals(other: DeployedPreStrategy) {
     return (
       this.label === other.label &&
       this.cohort.equals(other.cohort) &&

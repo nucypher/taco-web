@@ -2,20 +2,20 @@ import { ethers } from 'ethers';
 
 import { CbdTDecDecrypter } from '../../characters/cbd-recipient';
 import { Enrico } from '../../characters/enrico';
-import { ConditionSet } from '../../conditions';
+import { ConditionSet, ConditionSetJSON } from '../../conditions';
 import { DkgClient, DkgRitual, DkgRitualJSON } from '../../dkg';
-import { base64ToU8Receiver, u8ToBase64Replacer } from '../../utils';
+import { fromJSON, objectEquals, toJSON } from '../../utils';
 import { Cohort, CohortJSON } from '../cohort';
 
 type StrategyJSON = {
   cohort: CohortJSON;
-  conditionSet?: ConditionSet;
+  conditionSet?: ConditionSetJSON | undefined;
 };
 
 type DeployedStrategyJSON = {
   dkgRitual: DkgRitualJSON;
   cohortConfig: CohortJSON;
-  conditionSet?: ConditionSet;
+  conditionSet?: ConditionSetJSON | undefined;
 };
 
 export class CbdStrategy {
@@ -59,23 +59,32 @@ export class CbdStrategy {
   }
 
   public static fromJSON(json: string) {
-    const config = JSON.parse(json, base64ToU8Receiver);
-    return CbdStrategy.fromObj(config);
+    return CbdStrategy.fromObj(fromJSON(json));
   }
 
   public toJSON() {
-    return JSON.stringify(this.toObj(), u8ToBase64Replacer);
+    return toJSON(this.toObj());
   }
 
-  private static fromObj({ cohort, conditionSet }: StrategyJSON) {
-    return new CbdStrategy(Cohort.fromObj(cohort), conditionSet);
+  public static fromObj({ cohort, conditionSet }: StrategyJSON) {
+    const maybeConditionSet = conditionSet
+      ? ConditionSet.fromObj(conditionSet)
+      : undefined;
+    return new CbdStrategy(Cohort.fromObj(cohort), maybeConditionSet);
   }
 
   public toObj(): StrategyJSON {
     return {
       cohort: this.cohort.toObj(),
-      conditionSet: this.conditionSet,
+      conditionSet: this.conditionSet?.toObj(),
     };
+  }
+
+  public equals(other: CbdStrategy) {
+    return (
+      this.cohort.equals(other.cohort) &&
+      objectEquals(this.conditionSet?.toObj(), other.conditionSet?.toObj())
+    );
   }
 }
 
@@ -89,12 +98,12 @@ export class DeployedCbdStrategy {
   ) {}
 
   public static fromJSON(json: string) {
-    const config = JSON.parse(json, base64ToU8Receiver);
+    const config = fromJSON(json);
     return DeployedCbdStrategy.fromObj(config);
   }
 
   public toJSON() {
-    return JSON.stringify(this.toObj(), u8ToBase64Replacer);
+    return toJSON(this.toObj());
   }
 
   private static fromObj({
@@ -104,15 +113,21 @@ export class DeployedCbdStrategy {
   }: DeployedStrategyJSON) {
     const ritual = DkgRitual.fromObj(dkgRitual);
     const cohort = Cohort.fromObj(cohortConfig);
-    const encrypter = new Enrico(ritual.dkgPublicKey, undefined, conditionSet);
-
+    const maybeConditionSet = conditionSet
+      ? ConditionSet.fromObj(conditionSet)
+      : undefined;
+    const encrypter = new Enrico(
+      ritual.dkgPublicKey,
+      undefined,
+      maybeConditionSet
+    );
     const decrypter = new CbdTDecDecrypter(cohort.configuration.porterUri);
     return new DeployedCbdStrategy(
       cohort,
       ritual,
       encrypter,
       decrypter,
-      conditionSet
+      maybeConditionSet
     );
   }
 
@@ -120,7 +135,15 @@ export class DeployedCbdStrategy {
     return {
       dkgRitual: this.dkgRitual.toObj(),
       cohortConfig: this.cohort.toObj(),
-      conditionSet: this.conditionSet,
+      conditionSet: this.conditionSet?.toObj(),
     };
+  }
+
+  public equals(other: DeployedCbdStrategy) {
+    return (
+      this.cohort.equals(other.cohort) &&
+      objectEquals(this.conditionSet?.toObj(), other.conditionSet?.toObj()) &&
+      objectEquals(this.dkgRitual.toObj(), other.dkgRitual.toObj())
+    );
   }
 }

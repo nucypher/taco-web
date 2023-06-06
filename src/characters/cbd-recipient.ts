@@ -12,7 +12,7 @@ import { Ciphertext } from 'ferveo-wasm';
 
 import { ConditionSet } from '../conditions';
 import { DkgRitual, FerveoVariant } from '../dkg';
-import { base64ToU8Receiver, u8ToBase64Replacer } from '../utils';
+import { fromJSON, toJSON } from '../utils';
 
 import { Porter } from './porter';
 
@@ -111,15 +111,20 @@ export class CbdTDecDecrypter {
   }
 
   public toJSON(): string {
-    return JSON.stringify(this.toObj(), u8ToBase64Replacer);
+    return toJSON(this.toObj());
   }
 
-  private static fromObj({ porterUri }: CbdTDecDecrypterJSON) {
+  public static fromObj({ porterUri }: CbdTDecDecrypterJSON) {
     return new CbdTDecDecrypter(porterUri);
   }
 
   public static fromJSON(json: string) {
-    const config = JSON.parse(json, base64ToU8Receiver);
-    return CbdTDecDecrypter.fromObj(config);
+    return CbdTDecDecrypter.fromObj(fromJSON(json));
+  }
+
+  public equals(other: CbdTDecDecrypter): boolean {
+    return (
+      this.porter.porterUrl.toString() === other.porter.porterUrl.toString()
+    );
   }
 }

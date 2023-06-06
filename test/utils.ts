@@ -250,11 +250,11 @@ export const fakeDkgFlow = (
       '0x' + '0'.repeat(40 - i.toString(16).length) + i.toString(16);
     return EthereumAddress.fromString(ethAddr);
   };
-  const validator_keypairs: Keypair[] = [];
+  const validatorKeypairs: Keypair[] = [];
   const validators: Validator[] = [];
   for (let i = 0; i < sharesNum; i++) {
     const keypair = Keypair.random();
-    validator_keypairs.push(keypair);
+    validatorKeypairs.push(keypair);
     const validator = new Validator(genEthAddr(i), keypair.publicKey);
     validators.push(validator);
   }
@@ -288,7 +288,7 @@ export const fakeDkgFlow = (
     tau,
     sharesNum,
     threshold,
-    validator_keypairs,
+    validatorKeypairs,
     validators,
     transcripts,
     dkg,
@@ -299,7 +299,7 @@ export const fakeDkgFlow = (
 
 interface FakeDkgRitualFlow {
   validators: Validator[];
-  validator_keypairs: Keypair[];
+  validatorKeypairs: Keypair[];
   tau: number;
   sharesNum: number;
   threshold: number;
@@ -313,7 +313,7 @@ interface FakeDkgRitualFlow {
 
 export const fakeTDecFlow = ({
   validators,
-  validator_keypairs,
+  validatorKeypairs,
   tau,
   sharesNum,
   threshold,
@@ -329,7 +329,7 @@ export const fakeTDecFlow = ({
     | DecryptionSharePrecomputed
     | DecryptionShareSimple
   )[] = [];
-  zip(validators, validator_keypairs).forEach(([validator, keypair]) => {
+  zip(validators, validatorKeypairs).forEach(([validator, keypair]) => {
     const dkg = new Dkg(tau, sharesNum, threshold, validators, validator);
     const aggregate = dkg.aggregateTranscript(receivedMessages);
     const isValid = aggregate.verify(sharesNum, receivedMessages);
@@ -430,7 +430,7 @@ export const fakeDkgParticipants = (): DkgParticipant[] => {
   const ritual = fakeDkgTDecFlowE2e(FerveoVariant.Precomputed);
   return zip(
     zip(ritual.validators, ritual.transcripts),
-    ritual.validator_keypairs
+    ritual.validatorKeypairs
   ).map(([[v, t], k]) => {
     return {
       node: v.address.toString(),

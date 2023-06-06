@@ -12,7 +12,7 @@ import { ConditionSet } from '../conditions';
 import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
-import { base64ToU8Receiver, bytesEquals, toJson, zip } from '../utils';
+import { base64ToU8Receiver, bytesEquals, toJSON, zip } from '../utils';
 
 import { Porter } from './porter';
 
@@ -150,10 +150,10 @@ export class PreTDecDecrypter {
   }
 
   public toJSON(): string {
-    return toJson(this.toObj());
+    return toJSON(this.toObj());
   }
 
-  private static fromObj({
+  public static fromObj({
     porterUri,
     policyEncryptingKeyBytes,
     encryptedTreasureMapBytes,
@@ -174,7 +174,7 @@ export class PreTDecDecrypter {
     return PreTDecDecrypter.fromObj(config);
   }
 
-  public equals(other: tDecDecrypter): boolean {
+  public equals(other: PreTDecDecrypter): boolean {
     return (
       this.porter.porterUrl.toString() === other.porter.porterUrl.toString() &&
       bytesEquals(

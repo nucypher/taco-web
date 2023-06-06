@@ -11,7 +11,7 @@ import {
 } from 'ferveo-wasm';
 
 import { DkgCoordinatorAgent } from './agents/coordinator';
-import { fromHexString } from './utils';
+import { bytesEquals, fromHexString } from './utils';
 
 // TOOD: Move to nucypher-core
 export enum FerveoVariant {
@@ -45,6 +45,17 @@ export class DkgRitual {
       json.id,
       DkgPublicKey.fromBytes(json.dkgPublicKey),
       DkgPublicParameters.fromBytes(json.dkgPublicParams)
+    );
+  }
+
+  public equals(other: DkgRitual): boolean {
+    return (
+      this.id === other.id &&
+      bytesEquals(this.dkgPublicKey.toBytes(), other.dkgPublicKey.toBytes()) &&
+      bytesEquals(
+        this.dkgPublicParams.toBytes(),
+        other.dkgPublicParams.toBytes()
+      )
     );
   }
 }

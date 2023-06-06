@@ -12,10 +12,10 @@ import { Enrico } from '../../characters/enrico';
 import { PreTDecDecrypter } from '../../characters/pre-recipient';
 import { ConditionSet, ConditionSetJSON } from '../../conditions';
 import { EnactedPolicy, EnactedPolicyJSON } from '../../policies/policy';
-import { base64ToU8Receiver, bytesEquals, toJson } from '../../utils';
+import { base64ToU8Receiver, bytesEquals, toJSON } from '../../utils';
 import { Cohort, CohortJSON } from '../cohort';
 
-type StrategyJSON = {
+type PreStrategyJSON = {
   cohort: CohortJSON;
   aliceSecretKeyBytes: Uint8Array;
   bobSecretKeyBytes: Uint8Array;
@@ -124,7 +124,7 @@ export class PreStrategy {
   }
 
   public toJSON() {
-    return toJson(this.toObj());
+    return toJSON(this.toObj());
   }
 
   public static fromObj({
@@ -134,7 +134,7 @@ export class PreStrategy {
     conditionSet,
     startDate,
     endDate,
-  }: StrategyJSON) {
+  }: PreStrategyJSON) {
     return new PreStrategy(
       Cohort.fromObj(cohort),
       SecretKey.fromBEBytes(aliceSecretKeyBytes),
@@ -145,7 +145,7 @@ export class PreStrategy {
     );
   }
 
-  public toObj(): StrategyJSON {
+  public toObj(): PreStrategyJSON {
     return {
       cohort: this.cohort.toObj(),
       aliceSecretKeyBytes: this.aliceSecretKey.toBEBytes(),
@@ -156,7 +156,7 @@ export class PreStrategy {
     };
   }
 
-  public equals(other: Strategy) {
+  public equals(other: PreStrategy) {
     return (
       this.cohort.equals(other.cohort) &&
       // TODO: Add equality to WASM bindings
@@ -193,10 +193,10 @@ export class DeployedPreStrategy {
   }
 
   public toJSON() {
-    return toJson(this.toObj());
+    return toJSON(this.toObj());
   }
 
-  private static fromObj({
+  public static fromObj({
     policy,
     cohortConfig,
     bobSecretKeyBytes,
@@ -252,7 +252,7 @@ export class DeployedPreStrategy {
     );
   }
 
-  private toObj(): DeployedStrategyJSON {
+  public toObj(): DeployedStrategyJSON {
     const policy = {
       ...this.policy,
       id: this.policy.id.toBytes(),
@@ -267,7 +267,7 @@ export class DeployedPreStrategy {
     };
   }
 
-  public equals(other: DeployedStrategy) {
+  public equals(other: DeployedPreStrategy) {
     return (
       this.label === other.label &&
       this.cohort.equals(other.cohort) &&

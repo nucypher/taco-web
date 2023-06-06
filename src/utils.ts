@@ -49,10 +49,10 @@ const sortedSerializingReplacer = (_key: string, value: unknown): unknown => {
   return sortedReplacer(_key, serializedValue);
 };
 
-export const toJson = (obj: unknown) =>
+export const toJSON = (obj: unknown) =>
   JSON.stringify(obj, sortedSerializingReplacer);
 
-export const fromJson = (json: string) => JSON.parse(json, base64ToU8Receiver);
+export const fromJSON = (json: string) => JSON.parse(json, base64ToU8Receiver);
 
 export const zip = <T, Z>(
   a: ReadonlyArray<T>,
@@ -65,5 +65,5 @@ export const bytesEquals = (first: Uint8Array, second: Uint8Array): boolean =>
   first.length === second.length &&
   first.every((value, index) => value === second[index]);
 
-export const objectEquals = (a: unknown, b: unknown): boolean =>
-  deepEqual(a, b, { strict: true });
+export const objectEquals = (a: unknown, b: unknown, strict = true): boolean =>
+  deepEqual(a, b, { strict });

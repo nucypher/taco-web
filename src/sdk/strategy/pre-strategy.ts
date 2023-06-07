@@ -24,7 +24,7 @@ export type PreStrategyJSON = {
   endDate: Date;
 };
 
-export type DeployedStrategyJSON = {
+export type DeployedPreStrategyJSON = {
   policy: EnactedPolicyJSON;
   cohortConfig: CohortJSON;
   bobSecretKeyBytes: Uint8Array;
@@ -157,6 +157,10 @@ export class PreStrategy {
   }
 
   public equals(other: PreStrategy) {
+    const conditionSetEquals =
+      this.conditionSet && other.conditionSet
+        ? this.conditionSet.equals(other.conditionSet)
+        : false;
     return (
       this.cohort.equals(other.cohort) &&
       // TODO: Add equality to WASM bindings
@@ -168,10 +172,9 @@ export class PreStrategy {
         this.bobSecretKey.toBEBytes(),
         other.bobSecretKey.toBEBytes()
       ) &&
+      conditionSetEquals &&
       this.startDate.toString() === other.startDate.toString() &&
-      this.endDate.toString() === other.endDate.toString() &&
-      this.conditionSet?.toWASMConditions ===
-        other.conditionSet?.toWASMConditions
+      this.endDate.toString() === other.endDate.toString()
     );
   }
 }
@@ -201,7 +204,7 @@ export class DeployedPreStrategy {
     cohortConfig,
     bobSecretKeyBytes,
     conditionSet,
-  }: DeployedStrategyJSON) {
+  }: DeployedPreStrategyJSON) {
     const id = HRAC.fromBytes(policy.id);
     const policyKey = PublicKey.fromCompressedBytes(policy.policyKey);
     const encryptedTreasureMap = EncryptedTreasureMap.fromBytes(
@@ -252,7 +255,7 @@ export class DeployedPreStrategy {
     );
   }
 
-  public toObj(): DeployedStrategyJSON {
+  public toObj(): DeployedPreStrategyJSON {
     const policy = {
       ...this.policy,
       id: this.policy.id.toBytes(),
@@ -268,6 +271,10 @@ export class DeployedPreStrategy {
   }
 
   public equals(other: DeployedPreStrategy) {
+    const conditionSetEquals =
+      this.conditionSet && other.conditionSet
+        ? this.conditionSet.equals(other.conditionSet)
+        : false;
     return (
       this.label === other.label &&
       this.cohort.equals(other.cohort) &&
@@ -277,7 +284,8 @@ export class DeployedPreStrategy {
       bytesEquals(
         this.policy.encryptedTreasureMap.toBytes(),
         other.policy.encryptedTreasureMap.toBytes()
-      )
+      ) &&
+      conditionSetEquals
     );
   }
 }

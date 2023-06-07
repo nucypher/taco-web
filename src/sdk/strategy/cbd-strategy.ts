@@ -81,10 +81,11 @@ export class CbdStrategy {
   }
 
   public equals(other: CbdStrategy) {
-    return (
-      this.cohort.equals(other.cohort) &&
-      objectEquals(this.conditionSet?.toObj(), other.conditionSet?.toObj())
-    );
+    const conditionSetEquals =
+      this.conditionSet && other.conditionSet
+        ? this.conditionSet.equals(other.conditionSet)
+        : false;
+    return this.cohort.equals(other.cohort) && conditionSetEquals;
   }
 }
 
@@ -140,9 +141,13 @@ export class DeployedCbdStrategy {
   }
 
   public equals(other: DeployedCbdStrategy) {
+    const conditionSetEquals =
+      this.conditionSet && other.conditionSet
+        ? this.conditionSet.equals(other.conditionSet)
+        : false;
     return (
       this.cohort.equals(other.cohort) &&
-      objectEquals(this.conditionSet?.toObj(), other.conditionSet?.toObj()) &&
+      conditionSetEquals &&
       objectEquals(this.dkgRitual.toObj(), other.dkgRitual.toObj())
     );
   }

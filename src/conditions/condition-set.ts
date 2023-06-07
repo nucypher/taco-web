@@ -1,7 +1,8 @@
 import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
+import deepEqual from 'deep-equal';
 import { ethers } from 'ethers';
 
-import { objectEquals, toJSON } from '../utils';
+import { toJSON } from '../utils';
 
 import { Condition } from './base';
 import { ConditionContext } from './context';
@@ -41,9 +42,7 @@ export class ConditionSet {
   }
 
   public toObj(): ConditionSetJSON {
-    const conditions = this.conditions.map((cnd) => {
-      return cnd.toObj();
-    });
+    const conditions = this.conditions.map((cnd) => cnd.toObj());
     return { conditions };
   }
 
@@ -84,7 +83,19 @@ export class ConditionSet {
     return new ConditionContext(this.toWASMConditions(), provider);
   }
 
-  public equals(other: ConditionContext): boolean {
-    return objectEquals(this.toObj(), other.toObj());
+  public equals(other: ConditionSet): boolean {
+    // TODO: This is a hack to make the equals method work for Condition
+    // TODO: Implement proper casting from Conditon to _class type
+    const thisConditions = this.conditions.map((cnd) => {
+      const asObj = cnd.toObj();
+      delete asObj._class;
+      return asObj;
+    });
+    const otherConditions = other.conditions.map((cnd) => {
+      const asObj = cnd.toObj();
+      delete asObj._class;
+      return asObj;
+    });
+    return deepEqual(thisConditions, otherConditions);
   }
 }

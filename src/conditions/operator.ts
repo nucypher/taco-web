@@ -12,11 +12,11 @@ export class Operator {
     this.operator = operator;
   }
 
-  toObj() {
+  public toObj() {
     return { operator: this.operator };
   }
 
-  static fromObj(obj: Record<string, string>) {
+  public static fromObj(obj: Record<string, string>) {
     return new Operator(obj.operator);
   }
 

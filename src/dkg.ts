@@ -1,14 +1,14 @@
-import { ethers } from 'ethers';
 import {
   AggregatedTranscript,
   DkgPublicKey,
   DkgPublicParameters,
   EthereumAddress,
-  PublicKey as FerveoPublicKey,
+  FerveoPublicKey,
   Transcript,
   Validator,
   ValidatorMessage,
-} from 'ferveo-wasm';
+} from '@nucypher/nucypher-core';
+import { ethers } from 'ethers';
 
 import { DkgCoordinatorAgent } from './agents/coordinator';
 import { bytesEquals, fromHexString } from './utils';

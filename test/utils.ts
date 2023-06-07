@@ -6,6 +6,7 @@ import {
   Capsule,
   CapsuleFrag,
   EncryptedTreasureMap,
+  ferveoEncrypt,
   PublicKey,
   reencrypt,
   SecretKey,
@@ -13,9 +14,6 @@ import {
   VerifiedCapsuleFrag,
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
-import axios from 'axios';
-import { ethers, providers, Wallet } from 'ethers';
-import { keccak256 } from 'ethers/lib/utils';
 import {
   AggregatedTranscript,
   Ciphertext,
@@ -25,13 +23,15 @@ import {
   DecryptionShareSimple,
   decryptWithSharedSecret,
   Dkg,
-  encrypt,
   EthereumAddress,
   Keypair,
   Transcript,
   Validator,
   ValidatorMessage,
-} from 'ferveo-wasm';
+} from '@nucypher/nucypher-core';
+import axios from 'axios';
+import { ethers, providers, Wallet } from 'ethers';
+import { keccak256 } from 'ethers/lib/utils';
 
 import { Alice, Bob, Cohort, Configuration, RemoteBob } from '../src';
 import { CoordinatorRitual, DkgParticipant } from '../src/agents/coordinator';
@@ -363,10 +363,7 @@ export const fakeTDecFlow = ({
   if (variant === FerveoVariant.Precomputed) {
     sharedSecret = combineDecryptionSharesPrecomputed(decryptionShares);
   } else {
-    sharedSecret = combineDecryptionSharesSimple(
-      decryptionShares,
-      dkg.publicParams()
-    );
+    sharedSecret = combineDecryptionSharesSimple(decryptionShares);
   }
 
   // The client should have access to the public parameters of the DKG
@@ -391,7 +388,7 @@ export const fakeDkgTDecFlowE2e = (
   const ritual = fakeDkgFlow(variant, ritualId, 4, 3);
 
   // In the meantime, the client creates a ciphertext and decryption request
-  const ciphertext = encrypt(message, aad, ritual.dkg.finalKey());
+  const ciphertext = ferveoEncrypt(message, aad, ritual.dkg.publicKey());
   const { decryptionShares } = fakeTDecFlow({
     ...ritual,
     variant,
@@ -421,8 +418,8 @@ export const fakeCoordinatorRitual = (ritualId: number): CoordinatorRitual => {
     aggregatedTranscriptHash: keccak256(ritual.serverAggregate.toBytes()),
     aggregationMismatch: false, // Assuming the ritual is correct
     aggregatedTranscript: toHexString(ritual.serverAggregate.toBytes()),
-    publicKey: toHexString(ritual.dkg.finalKey().toBytes()),
-    publicKeyHash: keccak256(ritual.dkg.finalKey().toBytes()),
+    publicKey: toHexString(ritual.dkg.publicKey().toBytes()),
+    publicKeyHash: keccak256(ritual.dkg.publicKey().toBytes()),
   };
 };
 
@@ -442,10 +439,11 @@ export const fakeDkgParticipants = (): DkgParticipant[] => {
 };
 
 export const mockDecrypt = (
+  ritualId: number,
   decryptionShares: (DecryptionSharePrecomputed | DecryptionShareSimple)[]
 ) => {
   const result = decryptionShares.map(
-    (share) => new ThresholdDecryptionResponse(share.toBytes())
+    (share) => new ThresholdDecryptionResponse(ritualId, share.toBytes())
   );
   return jest.spyOn(Porter.prototype, 'decrypt').mockImplementation(() => {
     return Promise.resolve(result);
@@ -453,7 +451,7 @@ export const mockDecrypt = (
 };
 
 export const fakeDkgRitual = (ritual: { dkg: Dkg }) => {
-  return new DkgRitual(1, ritual.dkg.finalKey(), ritual.dkg.publicParams());
+  return new DkgRitual(1, ritual.dkg.publicKey(), ritual.dkg.publicParams());
 };
 
 export const mockInitializeRitual = (fakeRitual: unknown) => {

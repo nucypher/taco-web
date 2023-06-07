@@ -1,5 +1,11 @@
-import { MessageKit, PublicKey, SecretKey } from '@nucypher/nucypher-core';
-import { Ciphertext, DkgPublicKey, encrypt } from 'ferveo-wasm';
+import {
+  Ciphertext,
+  DkgPublicKey,
+  ferveoEncrypt,
+  MessageKit,
+  PublicKey,
+  SecretKey,
+} from '@nucypher/nucypher-core';
 
 import { ConditionSet } from '../conditions';
 import { Keyring } from '../keyring';
@@ -56,7 +62,7 @@ export class Enrico {
     }
 
     const aad = toBytes(withConditions?.toJson() ?? '');
-    const ciphertext = encrypt(
+    const ciphertext = ferveoEncrypt(
       plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext),
       aad,
       this.encryptingKey

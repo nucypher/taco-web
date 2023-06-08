@@ -1,14 +1,15 @@
-import { Context, ThresholdDecryptionRequest } from '@nucypher/nucypher-core';
-import { ethers } from 'ethers';
 import {
+  Ciphertext,
   combineDecryptionSharesPrecomputed,
   combineDecryptionSharesSimple,
+  Context,
   DecryptionSharePrecomputed,
   DecryptionShareSimple,
   decryptWithSharedSecret,
-} from 'ferveo-wasm';
-import { SharedSecret } from 'ferveo-wasm';
-import { Ciphertext } from 'ferveo-wasm';
+  SharedSecret,
+  ThresholdDecryptionRequest,
+} from '@nucypher/nucypher-core';
+import { ethers } from 'ethers';
 
 import { ConditionSet } from '../conditions';
 import { DkgRitual, FerveoVariant } from '../dkg';
@@ -49,8 +50,7 @@ export class CbdTDecDecrypter {
     let sharedSecret: SharedSecret;
     if (variant === FerveoVariant.Simple) {
       sharedSecret = combineDecryptionSharesSimple(
-        decryptionShares as DecryptionShareSimple[],
-        dkgRitual.dkgPublicParams
+        decryptionShares as DecryptionShareSimple[]
       );
     } else if (variant === FerveoVariant.Precomputed) {
       sharedSecret = combineDecryptionSharesPrecomputed(
@@ -82,7 +82,7 @@ export class CbdTDecDecrypter {
     const tDecRequest = new ThresholdDecryptionRequest(
       ritualId,
       variant,
-      ciphertext.toBytes(),
+      ciphertext,
       conditionSet.toWASMConditions(),
       new Context(contextStr)
     );

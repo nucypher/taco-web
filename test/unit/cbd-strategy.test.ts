@@ -115,7 +115,7 @@ describe('CbdDeployedStrategy', () => {
       ciphertext,
     });
     const getUrsulasSpy2 = mockGetUrsulas(mockedUrsulas);
-    const decryptSpy = mockDecrypt(decryptionShares);
+    const decryptSpy = mockDecrypt(mockedDkg.tau, decryptionShares);
 
     const decryptedMessage =
       await deployedStrategy.decrypter.retrieveAndDecrypt(

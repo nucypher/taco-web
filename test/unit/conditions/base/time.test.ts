@@ -1,4 +1,4 @@
-import { TimelockCondition } from '../../../../src/conditions/base';
+import { TimeCondition } from '../../../../src/conditions/base';
 
 describe('validation', () => {
   const returnValueTest = {
@@ -8,31 +8,34 @@ describe('validation', () => {
   };
 
   it('accepts a valid schema', () => {
-    const timelock = new TimelockCondition({
+    const timeCondition = new TimeCondition({
       returnValueTest,
+      chain: 5,
     });
-    expect(timelock.toObj()).toEqual({
+    expect(timeCondition.toObj()).toEqual({
       returnValueTest,
-      method: 'timelock',
-      _class: 'TimelockCondition',
+      chain: 5,
+      method: 'blocktime',
+      _class: 'TimeCondition',
     });
   });
 
   it('rejects an invalid schema', () => {
-    const badTimelockObj = {
+    const badTimeObj = {
       // Intentionally replacing `returnValueTest` with an invalid test
       returnValueTest: {
         ...returnValueTest,
         comparator: 'not-a-comparator',
       },
+      chain: 5,
     };
 
-    const badTimelock = new TimelockCondition(badTimelockObj);
-    expect(() => badTimelock.toObj()).toThrow(
+    const badTimeCondition = new TimeCondition(badTimeObj);
+    expect(() => badTimeCondition.toObj()).toThrow(
       'Invalid condition: "returnValueTest.comparator" must be one of [==, >, <, >=, <=, !=]'
     );
 
-    const { error } = badTimelock.validate(badTimelockObj);
+    const { error } = badTimeCondition.validate(badTimeObj);
     expect(error?.message).toEqual(
       '"returnValueTest.comparator" must be one of [==, >, <, >=, <=, !=]'
     );

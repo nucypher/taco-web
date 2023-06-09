@@ -1,16 +1,14 @@
 import {
   Ciphertext,
-  combineDecryptionSharesPrecomputed,
-  combineDecryptionSharesSimple,
   Context,
   DecryptionSharePrecomputed,
   DecryptionShareSimple,
   decryptWithSharedSecret,
   EncryptedThresholdDecryptionRequest,
   EncryptedThresholdDecryptionResponse,
-  SessionSecretFactory,
   SessionSharedSecret,
   SessionStaticKey,
+  SessionStaticSecret,
   SharedSecret,
   ThresholdDecryptionRequest,
 } from '@nucypher/nucypher-core';
@@ -18,8 +16,8 @@ import { ethers } from 'ethers';
 
 import { DkgCoordinatorAgent, DkgParticipant } from '../agents/coordinator';
 import { ConditionSet } from '../conditions';
-import { DkgRitual, FerveoVariant } from '../dkg';
-import { fromHexString, fromJSON, toBytes, toJSON } from '../utils';
+import { combineDecryptionSharesMap, DkgRitual, variantMap } from '../dkg';
+import { fromHexString, fromJSON, toJSON } from '../utils';
 
 import { Porter } from './porter';
 
@@ -53,16 +51,10 @@ export class CbdTDecDecrypter {
       ciphertext
     );
 
-    // TODO: Replace with a factory method
     let sharedSecret: SharedSecret;
-    if (variant === FerveoVariant.Simple) {
-      sharedSecret = combineDecryptionSharesSimple(
-        decryptionShares as DecryptionShareSimple[]
-      );
-    } else if (variant === FerveoVariant.Precomputed) {
-      sharedSecret = combineDecryptionSharesPrecomputed(
-        decryptionShares as DecryptionSharePrecomputed[]
-      );
+    const combineDecryptionSharesFn = combineDecryptionSharesMap[variant];
+    if (combineDecryptionSharesFn) {
+      sharedSecret = combineDecryptionSharesFn(decryptionShares);
     } else {
       throw new Error(`Unknown variant ${variant}`);
     }
@@ -83,13 +75,11 @@ export class CbdTDecDecrypter {
     variant: number,
     ciphertext: Ciphertext
   ): Promise<DecryptionSharePrecomputed[] | DecryptionShareSimple[]> {
-    const contextStr = await conditionSet.buildContext(provider).toJson();
-
     const dkgParticipants = await DkgCoordinatorAgent.getParticipants(
       provider,
       ritualId
     );
-
+    const contextStr = await conditionSet.buildContext(provider).toJson();
     const { sharedSecrets, encryptedRequests } = this.makeDecryptionRequests(
       ritualId,
       variant,
@@ -99,44 +89,50 @@ export class CbdTDecDecrypter {
       dkgParticipants
     );
 
-    const { encryptedResponses } = await this.porter.cbdDecrypt(
+    const { encryptedResponses, errors } = await this.porter.cbdDecrypt(
       encryptedRequests,
       this.threshold
     );
-
+    // TODO: How many errors are acceptable? Less than (threshold - shares)?
+    if (Object.keys(errors).length > 0) {
+      throw new Error(
+        `CBD decryption failed with errors: ${JSON.stringify(errors)}`
+      );
+    }
     return this.makeDecryptionShares(
       encryptedResponses,
       sharedSecrets,
-      variant
+      variant,
+      ritualId
     );
   }
 
   private makeDecryptionShares(
     encryptedResponses: Record<string, EncryptedThresholdDecryptionResponse>,
     sessionSharedSecret: Record<string, SessionSharedSecret>,
-    variant: number
+    variant: number,
+    expectedRitualId: number
   ) {
     const decryptedResponses = Object.entries(encryptedResponses).map(
       ([ursula, encryptedResponse]) =>
         encryptedResponse.decrypt(sessionSharedSecret[ursula])
     );
 
-    const variants = decryptedResponses.map((resp) => resp.ritualId);
-    if (variants.some((v) => v !== variant)) {
-      throw new Error('Decryption shares are not of the same variant');
+    const ritualIds = decryptedResponses.map(({ ritualId }) => ritualId);
+    if (ritualIds.some((ritualId) => ritualId !== expectedRitualId)) {
+      throw new Error(
+        `Ritual id mismatch. Expected ${expectedRitualId}, got ${ritualIds}`
+      );
     }
 
     const decryptionShares = decryptedResponses.map(
-      (resp) => resp.decryptionShare
+      ({ decryptionShare }) => decryptionShare
     );
-    // TODO: Replace with a factory method
-    if (variant === FerveoVariant.Simple) {
+
+    const DecryptionShareType = variantMap[variant];
+    if (DecryptionShareType) {
       return decryptionShares.map((share) =>
-        DecryptionShareSimple.fromBytes(share)
-      );
-    } else if (variant === FerveoVariant.Precomputed) {
-      return decryptionShares.map((share) =>
-        DecryptionSharePrecomputed.fromBytes(share)
+        DecryptionShareType.fromBytes(share)
       );
     } else {
       throw new Error(`Unknown variant ${variant}`);
@@ -161,22 +157,22 @@ export class CbdTDecDecrypter {
       conditionSet.toWASMConditions(),
       new Context(contextStr)
     );
-    const secretFactory = SessionSecretFactory.random();
-    const label = toBytes(`${ritualId}`);
-    const requesterSecretKey = secretFactory.makeKey(label);
 
+    const ephemeralSessionKey = this.makeSessionKey();
+
+    // Compute shared secrets for each participant
     const sharedSecrets: Record<string, SessionSharedSecret> =
       Object.fromEntries(
-        dkgParticipants.map((participant) => {
+        dkgParticipants.map(({ provider, decryptionRequestStaticKey }) => {
           const decKey = SessionStaticKey.fromBytes(
-            fromHexString(participant.decryptionRequestStaticKey)
+            fromHexString(decryptionRequestStaticKey)
           );
-          const sessionSharedSecret =
-            requesterSecretKey.deriveSharedSecret(decKey);
-          return [participant.provider, sessionSharedSecret];
+          const sharedSecret = ephemeralSessionKey.deriveSharedSecret(decKey);
+          return [provider, sharedSecret];
         })
       );
 
+    // Create encrypted requests for each participant
     const encryptedRequests: Record<
       string,
       EncryptedThresholdDecryptionRequest
@@ -184,13 +180,18 @@ export class CbdTDecDecrypter {
       Object.entries(sharedSecrets).map(([provider, sessionSharedSecret]) => {
         const encryptedRequest = decryptionRequest.encrypt(
           sessionSharedSecret,
-          requesterSecretKey.publicKey()
+          ephemeralSessionKey.publicKey()
         );
         return [provider, encryptedRequest];
       })
     );
 
     return { sharedSecrets, encryptedRequests };
+  }
+
+  private makeSessionKey() {
+    // Moving to a separate function to make it easier to mock
+    return SessionStaticSecret.random();
   }
 
   public toObj(): CbdTDecDecrypterJSON {

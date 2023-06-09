@@ -1,4 +1,4 @@
-import { SecretKey } from '@nucypher/nucypher-core';
+import { SecretKey, SessionStaticSecret } from '@nucypher/nucypher-core';
 
 import { conditions } from '../../src';
 import { CbdTDecDecrypter } from '../../src/characters/cbd-recipient';
@@ -10,6 +10,7 @@ import {
 import { toBytes } from '../../src/utils';
 import {
   fakeDkgFlow,
+  fakeDkgParticipants,
   fakeDkgRitual,
   fakeTDecFlow,
   fakeUrsulas,
@@ -19,6 +20,7 @@ import {
   mockGetParticipants,
   mockGetUrsulas,
   mockInitializeRitual,
+  mockRandomSessionStaticSecret,
 } from '../utils';
 
 import { aliceSecretKeyBytes } from './testVariables';
@@ -115,13 +117,20 @@ describe('CbdDeployedStrategy', () => {
       aad,
       ciphertext,
     });
-    const getUrsulasSpy2 = mockGetUrsulas(ursulas);
-    const getParticipantsSpy = mockGetParticipants(mockedDkg.ritualId, variant);
+    const { participantSecrets, participants } = fakeDkgParticipants(
+      mockedDkg.ritualId,
+      variant
+    );
+    const requesterSessionKey = SessionStaticSecret.random();
     const decryptSpy = mockCbdDecrypt(
       mockedDkg.ritualId,
       decryptionShares,
-      ursulas.map((u) => u.checksumAddress)
+      participantSecrets,
+      requesterSessionKey.publicKey()
     );
+    const getParticipantsSpy = mockGetParticipants(participants);
+    const getUrsulasSpy = mockGetUrsulas(ursulas);
+    const sessionKeySpy = mockRandomSessionStaticSecret(requesterSessionKey);
 
     const decryptedMessage =
       await deployedStrategy.decrypter.retrieveAndDecrypt(
@@ -132,8 +141,9 @@ describe('CbdDeployedStrategy', () => {
         ciphertext,
         aad
       );
-    expect(getUrsulasSpy2).toHaveBeenCalled();
+    expect(getUrsulasSpy).toHaveBeenCalled();
     expect(getParticipantsSpy).toHaveBeenCalled();
+    expect(sessionKeySpy).toHaveBeenCalled();
     expect(decryptSpy).toHaveBeenCalled();
     expect(decryptedMessage[0]).toEqual(toBytes(message));
   });

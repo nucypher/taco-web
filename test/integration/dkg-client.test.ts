@@ -4,14 +4,15 @@ import { DkgCoordinatorAgent } from '../../src/agents/coordinator';
 import {
   fakeCoordinatorRitual,
   fakeDkgParticipants,
+  fakeRitualId,
   fakeWeb3Provider,
+  mockGetParticipants,
 } from '../utils';
 
-const ritualId = 1;
 jest.mock('../../src/agents/coordinator', () => ({
   DkgCoordinatorAgent: {
-    getRitual: () => Promise.resolve(fakeCoordinatorRitual(ritualId)),
-    getParticipants: () => Promise.resolve(fakeDkgParticipants(ritualId)),
+    getRitual: () => Promise.resolve(fakeCoordinatorRitual(fakeRitualId)),
+    getParticipants: () => Promise.resolve(fakeDkgParticipants(fakeRitualId)),
   },
 }));
 
@@ -22,18 +23,21 @@ describe('DkgCoordinatorAgent', () => {
 
   it('fetches transcripts from the coordinator', async () => {
     const provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
-    const ritual = await DkgCoordinatorAgent.getRitual(provider, ritualId);
-
+    const ritual = await DkgCoordinatorAgent.getRitual(provider, fakeRitualId);
     expect(ritual).toBeDefined();
   });
 
   it('fetches participants from the coordinator', async () => {
     const provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
+    const fakeParticipants = fakeDkgParticipants(fakeRitualId);
+    const getParticipantsSpy = mockGetParticipants(
+      fakeParticipants.participants
+    );
     const participants = await DkgCoordinatorAgent.getParticipants(
       provider,
-      ritualId
+      fakeRitualId
     );
-
+    expect(getParticipantsSpy).toHaveBeenCalled();
     expect(participants.length).toBeGreaterThan(0);
   });
 });
@@ -44,7 +48,7 @@ describe('DkgCoordinatorAgent', () => {
 //     const provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
 //
 //     const dkgClient = new DkgClient(provider);
-//     const isValid = await dkgClient.verifyRitual(ritualId);
+//     const isValid = await dkgClient.verifyRitual(fakeRitualId);
 //     expect(isValid).toBeTruthy();
 //   });
 // });

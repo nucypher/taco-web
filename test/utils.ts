@@ -12,6 +12,8 @@ import {
   reencrypt,
   SecretKey,
   SessionSecretFactory,
+  SessionStaticKey,
+  SessionStaticSecret,
   ThresholdDecryptionResponse,
   VerifiedCapsuleFrag,
   VerifiedKeyFrag,
@@ -37,6 +39,7 @@ import { keccak256 } from 'ethers/lib/utils';
 
 import { Alice, Bob, Cohort, Configuration, RemoteBob } from '../src';
 import { DkgCoordinatorAgent, DkgParticipant } from '../src/agents/coordinator';
+import { CbdTDecDecrypter } from '../src/characters/cbd-recipient';
 import {
   CbdDecryptResult,
   GetUrsulasResult,
@@ -422,29 +425,36 @@ export const fakeCoordinatorRitual = (
 export const fakeDkgParticipants = (
   ritualId: number,
   variant = FerveoVariant.Precomputed
-): DkgParticipant[] => {
+): {
+  participants: DkgParticipant[];
+  participantSecrets: Record<string, SessionStaticSecret>;
+} => {
   const ritual = fakeDkgTDecFlowE2e(variant);
-  const secretFactory = SessionSecretFactory.random();
+  const label = toBytes(`${ritualId}`);
 
-  return zip(ritual.validators, ritual.transcripts).map(([v, t]) => {
-    const label = toBytes(`${ritualId}`);
-    const decryptionRequestStaticKey = secretFactory.makeKey(label).publicKey();
+  const participantSecrets: Record<string, SessionStaticSecret> =
+    Object.fromEntries(
+      ritual.validators.map(({ address }) => {
+        const participantSecret = SessionSecretFactory.random().makeKey(label);
+        return [address.toString(), participantSecret];
+      })
+    );
+
+  const participants: DkgParticipant[] = zip(
+    Object.entries(participantSecrets),
+    ritual.transcripts
+  ).map(([[address, secret], transcript]) => {
     return {
-      provider: v.address.toString(),
+      provider: address,
       aggregated: true, // Assuming all validators already contributed to the aggregate
-      transcript: toHexString(t.toBytes()),
-      decryptionRequestStaticKey: toHexString(
-        decryptionRequestStaticKey.toBytes()
-      ),
+      transcript: toHexString(transcript.toBytes()),
+      decryptionRequestStaticKey: toHexString(secret.publicKey().toBytes()),
     } as DkgParticipant;
   });
+  return { participantSecrets, participants };
 };
 
-export const mockGetParticipants = (
-  ritualId: number,
-  variant = FerveoVariant.Precomputed
-) => {
-  const participants = fakeDkgParticipants(ritualId, variant);
+export const mockGetParticipants = (participants: DkgParticipant[]) => {
   return jest
     .spyOn(DkgCoordinatorAgent, 'getParticipants')
     .mockImplementation(() => {
@@ -455,26 +465,22 @@ export const mockGetParticipants = (
 export const mockCbdDecrypt = (
   ritualId: number,
   decryptionShares: (DecryptionSharePrecomputed | DecryptionShareSimple)[],
-  ursulas: ChecksumAddress[],
+  participantSecrets: Record<string, SessionStaticSecret>,
+  requesterPk: SessionStaticKey,
   errors: Record<string, string> = {}
 ) => {
   const encryptedResponses: Record<
     string,
     EncryptedThresholdDecryptionResponse
   > = Object.fromEntries(
-    zip(decryptionShares, ursulas).map(([share, ursula]) => {
-      const secretFactory = SessionSecretFactory.random();
-      const label = toBytes(`${ritualId}`);
-      const ursulaPublicKey = secretFactory.makeKey(label).publicKey();
-      const requesterSecretKey = secretFactory.makeKey(label);
-      const sessionSharedSecret =
-        requesterSecretKey.deriveSharedSecret(ursulaPublicKey);
-
-      const resp = new ThresholdDecryptionResponse(ritualId, share.toBytes());
-      const encryptedResp = resp.encrypt(sessionSharedSecret);
-
-      return [ursula, encryptedResp];
-    })
+    zip(decryptionShares, Object.entries(participantSecrets)).map(
+      ([share, [address, secret]]) => {
+        const resp = new ThresholdDecryptionResponse(ritualId, share.toBytes());
+        const sessionSecret = secret.deriveSharedSecret(requesterPk);
+        const encryptedResp = resp.encrypt(sessionSecret);
+        return [address, encryptedResp];
+      }
+    )
   );
 
   const result: CbdDecryptResult = {
@@ -486,8 +492,20 @@ export const mockCbdDecrypt = (
   });
 };
 
+export const mockRandomSessionStaticSecret = (secret: SessionStaticSecret) => {
+  return jest
+    .spyOn(CbdTDecDecrypter.prototype as any, 'makeSessionKey')
+    .mockImplementation(() => secret);
+};
+
+export const fakeRitualId = 0;
+
 export const fakeDkgRitual = (ritual: { dkg: Dkg }) => {
-  return new DkgRitual(1, ritual.dkg.publicKey(), ritual.dkg.publicParams());
+  return new DkgRitual(
+    fakeRitualId,
+    ritual.dkg.publicKey(),
+    ritual.dkg.publicParams()
+  );
 };
 
 export const mockInitializeRitual = (fakeRitual: unknown) => {

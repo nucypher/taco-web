@@ -1,13 +1,41 @@
-import { DkgPublicKey, DkgPublicParameters } from '@nucypher/nucypher-core';
+import {
+  combineDecryptionSharesPrecomputed,
+  combineDecryptionSharesSimple,
+  DecryptionSharePrecomputed,
+  DecryptionShareSimple,
+  DkgPublicKey,
+  DkgPublicParameters,
+  SharedSecret,
+} from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
 import { bytesEquals } from './utils';
 
-// TOOD: Move to nucypher-core
+// TODO: Expose from @nucypher/nucypher-core
 export enum FerveoVariant {
   Simple = 0,
   Precomputed = 1,
 }
+
+// TODO: Replace with a factory method
+export const variantMap: {
+  [key: number]:
+    | typeof DecryptionShareSimple
+    | typeof DecryptionSharePrecomputed;
+} = {
+  [FerveoVariant.Simple]: DecryptionShareSimple,
+  [FerveoVariant.Precomputed]: DecryptionSharePrecomputed,
+};
+
+// TODO: Replace with a factory method
+export const combineDecryptionSharesMap: {
+  [key: number]: (
+    shares: DecryptionShareSimple[] | DecryptionSharePrecomputed[]
+  ) => SharedSecret;
+} = {
+  [FerveoVariant.Simple]: combineDecryptionSharesSimple,
+  [FerveoVariant.Precomputed]: combineDecryptionSharesPrecomputed,
+};
 
 export interface DkgRitualJSON {
   id: number;

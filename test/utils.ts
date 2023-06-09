@@ -36,7 +36,7 @@ import { ethers, providers, Wallet } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 
 import { Alice, Bob, Cohort, Configuration, RemoteBob } from '../src';
-import { CoordinatorRitual, DkgParticipant } from '../src/agents/coordinator';
+import { DkgParticipant } from '../src/agents/coordinator';
 import {
   CbdDecryptResult,
   GetUrsulasResult,
@@ -409,8 +409,23 @@ export const fakeDkgTDecFlowE2e = (
   };
 };
 
-export const fakeCoordinatorRitual = (ritualId: number): CoordinatorRitual => {
+export const fakeCoordinatorRitual = (
+  ritualId: number
+): {
+  aggregationMismatch: boolean;
+  initTimestamp: number;
+  aggregatedTranscriptHash: string;
+  initiator: string;
+  dkgSize: number;
+  id: number;
+  publicKey: { word1: string; word0: string };
+  totalTranscripts: number;
+  aggregatedTranscript: string;
+  publicKeyHash: string;
+  totalAggregations: number;
+} => {
   const ritual = fakeDkgTDecFlowE2e(FerveoVariant.Precomputed);
+  const dkgPkBytes = ritual.dkg.publicKey().toBytes();
   return {
     id: ritualId,
     initiator: ritual.validators[0].address.toString(),
@@ -421,7 +436,10 @@ export const fakeCoordinatorRitual = (ritualId: number): CoordinatorRitual => {
     aggregatedTranscriptHash: keccak256(ritual.serverAggregate.toBytes()),
     aggregationMismatch: false, // Assuming the ritual is correct
     aggregatedTranscript: toHexString(ritual.serverAggregate.toBytes()),
-    publicKey: toHexString(ritual.dkg.publicKey().toBytes()),
+    publicKey: {
+      word0: toHexString(dkgPkBytes.slice(0, 32)),
+      word1: toHexString(dkgPkBytes.slice(32, 48)),
+    },
     publicKeyHash: keccak256(ritual.dkg.publicKey().toBytes()),
   };
 };

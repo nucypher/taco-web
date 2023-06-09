@@ -4,21 +4,19 @@ import {
   Coordinator,
   Coordinator__factory,
 } from '../../types/ethers-contracts';
+import { BLS12381 } from '../../types/ethers-contracts/Coordinator';
 
 import { getContract } from './contracts';
 
 export interface CoordinatorRitual {
-  id: number;
   initiator: string;
   dkgSize: number;
   initTimestamp: number;
   totalTranscripts: number;
   totalAggregations: number;
-  aggregatedTranscriptHash: string;
+  publicKey: BLS12381.G1PointStructOutput;
   aggregationMismatch: boolean;
   aggregatedTranscript: string;
-  publicKey: string;
-  publicKeyHash: string;
 }
 
 export interface DkgParticipant {

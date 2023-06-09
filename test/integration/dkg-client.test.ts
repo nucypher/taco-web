@@ -25,7 +25,7 @@ describe('DkgCoordinatorAgent', () => {
     const provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
     const ritual = await DkgCoordinatorAgent.getRitual(provider, ritualId);
 
-    expect(ritual.id).toEqual(ritualId);
+    expect(ritual).toBeDefined();
   });
 
   it('fetches participants from the coordinator', async () => {

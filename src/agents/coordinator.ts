@@ -19,12 +19,7 @@ export interface CoordinatorRitual {
   aggregatedTranscript: string;
 }
 
-export interface DkgParticipant {
-  node: string;
-  aggregated: boolean;
-  transcript: string;
-  publicKey: string;
-}
+export type DkgParticipant = Coordinator.ParticipantStructOutput;
 
 export class DkgCoordinatorAgent {
   public static async getParticipants(

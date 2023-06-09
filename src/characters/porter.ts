@@ -158,14 +158,15 @@ export class Porter {
   }
 
   public async cbdDecrypt(
-    encryptedRequest: EncryptedThresholdDecryptionRequest,
-    ursulas: Array<ChecksumAddress>,
+    encryptedRequests: Record<string, EncryptedThresholdDecryptionRequest>,
     threshold: number
   ): Promise<CbdDecryptResult> {
-    const encodedEncryptedRequest = toBase64(encryptedRequest.toBytes());
     const data: PostCbdDecryptRequest = {
       encrypted_decryption_requests: Object.fromEntries(
-        ursulas.map((ursula) => [ursula, encodedEncryptedRequest])
+        Object.entries(encryptedRequests).map(([ursula, encryptedRequest]) => [
+          ursula,
+          toBase64(encryptedRequest.toBytes()),
+        ])
       ),
       threshold,
     };

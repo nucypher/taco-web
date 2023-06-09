@@ -6,23 +6,25 @@ import {
   DecryptionSharePrecomputed,
   DecryptionShareSimple,
   decryptWithSharedSecret,
+  EncryptedThresholdDecryptionRequest,
+  EncryptedThresholdDecryptionResponse,
   SessionSecretFactory,
   SessionSharedSecret,
+  SessionStaticKey,
   SharedSecret,
   ThresholdDecryptionRequest,
 } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
+import { DkgCoordinatorAgent, DkgParticipant } from '../agents/coordinator';
 import { ConditionSet } from '../conditions';
 import { DkgRitual, FerveoVariant } from '../dkg';
-import { ChecksumAddress } from '../types';
-import { fromJSON, toBytes, toJSON } from '../utils';
+import { fromHexString, fromJSON, toBytes, toJSON } from '../utils';
 
-import { CbdDecryptResult, Porter } from './porter';
+import { Porter } from './porter';
 
 export type CbdTDecDecrypterJSON = {
   porterUri: string;
-  ursulas: Array<ChecksumAddress>;
   threshold: number;
 };
 
@@ -31,11 +33,7 @@ export class CbdTDecDecrypter {
 
   // private readonly verifyingKey: Keyring;
 
-  constructor(
-    porterUri: string,
-    private readonly ursulas: Array<ChecksumAddress>,
-    private readonly threshold: number
-  ) {
+  constructor(porterUri: string, private readonly threshold: number) {
     this.porter = new Porter(porterUri);
   }
 
@@ -87,39 +85,42 @@ export class CbdTDecDecrypter {
   ): Promise<DecryptionSharePrecomputed[] | DecryptionShareSimple[]> {
     const contextStr = await conditionSet.buildContext(provider).toJson();
 
-    // TODO: Move ThresholdDecryptionRequest creation and parsing to Porter?
-    const { sessionSharedSecret, encryptedRequest } =
-      this.makeDecryptionRequest(
-        ritualId,
-        variant,
-        ciphertext,
-        conditionSet,
-        contextStr
-      );
+    const dkgParticipants = await DkgCoordinatorAgent.getParticipants(
+      provider,
+      ritualId
+    );
 
-    const cbdDecryptResult = await this.porter.cbdDecrypt(
-      encryptedRequest,
-      this.ursulas,
+    const { sharedSecrets, encryptedRequests } = this.makeDecryptionRequests(
+      ritualId,
+      variant,
+      ciphertext,
+      conditionSet,
+      contextStr,
+      dkgParticipants
+    );
+
+    const { encryptedResponses } = await this.porter.cbdDecrypt(
+      encryptedRequests,
       this.threshold
     );
 
     return this.makeDecryptionShares(
-      cbdDecryptResult,
-      sessionSharedSecret,
+      encryptedResponses,
+      sharedSecrets,
       variant
     );
   }
 
   private makeDecryptionShares(
-    cbdDecryptResult: CbdDecryptResult,
-    sessionSharedSecret: SessionSharedSecret,
+    encryptedResponses: Record<string, EncryptedThresholdDecryptionResponse>,
+    sessionSharedSecret: Record<string, SessionSharedSecret>,
     variant: number
   ) {
-    const decryptedResponses = Object.entries(
-      cbdDecryptResult.encryptedResponses
-    ).map(([, encryptedResponse]) =>
-      encryptedResponse.decrypt(sessionSharedSecret)
+    const decryptedResponses = Object.entries(encryptedResponses).map(
+      ([ursula, encryptedResponse]) =>
+        encryptedResponse.decrypt(sessionSharedSecret[ursula])
     );
+
     const variants = decryptedResponses.map((resp) => resp.ritualId);
     if (variants.some((v) => v !== variant)) {
       throw new Error('Decryption shares are not of the same variant');
@@ -142,13 +143,17 @@ export class CbdTDecDecrypter {
     }
   }
 
-  private makeDecryptionRequest(
+  private makeDecryptionRequests(
     ritualId: number,
     variant: number,
     ciphertext: Ciphertext,
     conditionSet: ConditionSet,
-    contextStr: string
-  ) {
+    contextStr: string,
+    dkgParticipants: Array<DkgParticipant>
+  ): {
+    sharedSecrets: Record<string, SessionSharedSecret>;
+    encryptedRequests: Record<string, EncryptedThresholdDecryptionRequest>;
+  } {
     const decryptionRequest = new ThresholdDecryptionRequest(
       ritualId,
       variant,
@@ -156,25 +161,41 @@ export class CbdTDecDecrypter {
       conditionSet.toWASMConditions(),
       new Context(contextStr)
     );
-
     const secretFactory = SessionSecretFactory.random();
     const label = toBytes(`${ritualId}`);
-    const ursulaPublicKey = secretFactory.makeKey(label).publicKey();
     const requesterSecretKey = secretFactory.makeKey(label);
-    const sessionSharedSecret =
-      requesterSecretKey.deriveSharedSecret(ursulaPublicKey);
 
-    const encryptedRequest = decryptionRequest.encrypt(
-      sessionSharedSecret,
-      requesterSecretKey.publicKey()
+    const sharedSecrets: Record<string, SessionSharedSecret> =
+      Object.fromEntries(
+        dkgParticipants.map((participant) => {
+          const decKey = SessionStaticKey.fromBytes(
+            fromHexString(participant.decryptionRequestStaticKey)
+          );
+          const sessionSharedSecret =
+            requesterSecretKey.deriveSharedSecret(decKey);
+          return [participant.provider, sessionSharedSecret];
+        })
+      );
+
+    const encryptedRequests: Record<
+      string,
+      EncryptedThresholdDecryptionRequest
+    > = Object.fromEntries(
+      Object.entries(sharedSecrets).map(([provider, sessionSharedSecret]) => {
+        const encryptedRequest = decryptionRequest.encrypt(
+          sessionSharedSecret,
+          requesterSecretKey.publicKey()
+        );
+        return [provider, encryptedRequest];
+      })
     );
-    return { sessionSharedSecret, encryptedRequest };
+
+    return { sharedSecrets, encryptedRequests };
   }
 
   public toObj(): CbdTDecDecrypterJSON {
     return {
       porterUri: this.porter.porterUrl.toString(),
-      ursulas: this.ursulas,
       threshold: this.threshold,
     };
   }
@@ -183,12 +204,8 @@ export class CbdTDecDecrypter {
     return toJSON(this.toObj());
   }
 
-  public static fromObj({
-    porterUri,
-    ursulas,
-    threshold,
-  }: CbdTDecDecrypterJSON) {
-    return new CbdTDecDecrypter(porterUri, ursulas, threshold);
+  public static fromObj({ porterUri, threshold }: CbdTDecDecrypterJSON) {
+    return new CbdTDecDecrypter(porterUri, threshold);
   }
 
   public static fromJSON(json: string) {

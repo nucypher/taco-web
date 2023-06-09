@@ -10,8 +10,7 @@ export const STANDARD_CONTRACT_TYPES = ['ERC20', 'ERC721'];
 export class EvmCondition extends Condition {
   public readonly schema = Joi.object({
     contractAddress: Joi.string().pattern(ETH_ADDRESS_REGEXP).required(),
-    // TODO why is chain a string here?
-    chain: Joi.string()
+    chain: Joi.number()
       .valid(...SUPPORTED_CHAINS)
       .required(),
     standardContractType: Joi.string()

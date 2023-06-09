@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [1.0.0-beta.1](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-beta.0...v1.0.0-beta.1) (2023-03-27)
 
+### ⚠ BREAKING CHANGES
+* `TimeLockCondition` no longer supported; instead `TimeCondition` with method name `blocktime` can be used
 
 ### ⚠ BREAKING CHANGES
 

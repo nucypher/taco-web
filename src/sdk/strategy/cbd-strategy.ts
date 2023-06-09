@@ -47,7 +47,11 @@ export class CbdStrategy {
       this.conditionSet
     );
 
-    const decrypter = new CbdTDecDecrypter(this.cohort.configuration.porterUri);
+    const decrypter = new CbdTDecDecrypter(
+      this.cohort.configuration.porterUri,
+      this.cohort.ursulaAddresses,
+      this.cohort.configuration.threshold
+    );
 
     return new DeployedCbdStrategy(
       this.cohort,
@@ -122,7 +126,11 @@ export class DeployedCbdStrategy {
       undefined,
       maybeConditionSet
     );
-    const decrypter = new CbdTDecDecrypter(cohort.configuration.porterUri);
+    const decrypter = new CbdTDecDecrypter(
+      cohort.configuration.porterUri,
+      cohort.ursulaAddresses,
+      cohort.configuration.threshold
+    );
     return new DeployedCbdStrategy(
       cohort,
       ritual,

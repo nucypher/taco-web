@@ -6,6 +6,8 @@ import {
   DecryptionSharePrecomputed,
   DecryptionShareSimple,
   decryptWithSharedSecret,
+  SessionSecretFactory,
+  SessionSharedSecret,
   SharedSecret,
   ThresholdDecryptionRequest,
 } from '@nucypher/nucypher-core';
@@ -13,12 +15,15 @@ import { ethers } from 'ethers';
 
 import { ConditionSet } from '../conditions';
 import { DkgRitual, FerveoVariant } from '../dkg';
-import { fromJSON, toJSON } from '../utils';
+import { ChecksumAddress } from '../types';
+import { fromJSON, toBytes, toJSON } from '../utils';
 
-import { Porter } from './porter';
+import { CbdDecryptResult, Porter } from './porter';
 
-type CbdTDecDecrypterJSON = {
+export type CbdTDecDecrypterJSON = {
   porterUri: string;
+  ursulas: Array<ChecksumAddress>;
+  threshold: number;
 };
 
 export class CbdTDecDecrypter {
@@ -26,7 +31,11 @@ export class CbdTDecDecrypter {
 
   // private readonly verifyingKey: Keyring;
 
-  constructor(porterUri: string) {
+  constructor(
+    porterUri: string,
+    private readonly ursulas: Array<ChecksumAddress>,
+    private readonly threshold: number
+  ) {
     this.porter = new Porter(porterUri);
   }
 
@@ -79,7 +88,68 @@ export class CbdTDecDecrypter {
     const contextStr = await conditionSet.buildContext(provider).toJson();
 
     // TODO: Move ThresholdDecryptionRequest creation and parsing to Porter?
-    const tDecRequest = new ThresholdDecryptionRequest(
+    const { sessionSharedSecret, encryptedRequest } =
+      this.makeDecryptionRequest(
+        ritualId,
+        variant,
+        ciphertext,
+        conditionSet,
+        contextStr
+      );
+
+    const cbdDecryptResult = await this.porter.cbdDecrypt(
+      encryptedRequest,
+      this.ursulas,
+      this.threshold
+    );
+
+    return this.makeDecryptionShares(
+      cbdDecryptResult,
+      sessionSharedSecret,
+      variant
+    );
+  }
+
+  private makeDecryptionShares(
+    cbdDecryptResult: CbdDecryptResult,
+    sessionSharedSecret: SessionSharedSecret,
+    variant: number
+  ) {
+    const decryptedResponses = Object.entries(
+      cbdDecryptResult.encryptedResponses
+    ).map(([, encryptedResponse]) =>
+      encryptedResponse.decrypt(sessionSharedSecret)
+    );
+    const variants = decryptedResponses.map((resp) => resp.ritualId);
+    if (variants.some((v) => v !== variant)) {
+      throw new Error('Decryption shares are not of the same variant');
+    }
+
+    const decryptionShares = decryptedResponses.map(
+      (resp) => resp.decryptionShare
+    );
+    // TODO: Replace with a factory method
+    if (variant === FerveoVariant.Simple) {
+      return decryptionShares.map((share) =>
+        DecryptionShareSimple.fromBytes(share)
+      );
+    } else if (variant === FerveoVariant.Precomputed) {
+      return decryptionShares.map((share) =>
+        DecryptionSharePrecomputed.fromBytes(share)
+      );
+    } else {
+      throw new Error(`Unknown variant ${variant}`);
+    }
+  }
+
+  private makeDecryptionRequest(
+    ritualId: number,
+    variant: number,
+    ciphertext: Ciphertext,
+    conditionSet: ConditionSet,
+    contextStr: string
+  ) {
+    const decryptionRequest = new ThresholdDecryptionRequest(
       ritualId,
       variant,
       ciphertext,
@@ -87,26 +157,25 @@ export class CbdTDecDecrypter {
       new Context(contextStr)
     );
 
-    // TODO: This should return multiple responses
-    const resp = await this.porter.decrypt(tDecRequest);
+    const secretFactory = SessionSecretFactory.random();
+    const label = toBytes(`${ritualId}`);
+    const ursulaPublicKey = secretFactory.makeKey(label).publicKey();
+    const requesterSecretKey = secretFactory.makeKey(label);
+    const sessionSharedSecret =
+      requesterSecretKey.deriveSharedSecret(ursulaPublicKey);
 
-    // TODO: Replace with a factory method
-    if (variant === FerveoVariant.Simple) {
-      return resp.map((r) =>
-        DecryptionShareSimple.fromBytes(r.decryptionShare)
-      );
-    } else if (variant === FerveoVariant.Precomputed) {
-      return resp.map((r) =>
-        DecryptionSharePrecomputed.fromBytes(r.decryptionShare)
-      );
-    } else {
-      throw new Error(`Unknown variant ${variant}`);
-    }
+    const encryptedRequest = decryptionRequest.encrypt(
+      sessionSharedSecret,
+      requesterSecretKey.publicKey()
+    );
+    return { sessionSharedSecret, encryptedRequest };
   }
 
   public toObj(): CbdTDecDecrypterJSON {
     return {
       porterUri: this.porter.porterUrl.toString(),
+      ursulas: this.ursulas,
+      threshold: this.threshold,
     };
   }
 
@@ -114,8 +183,12 @@ export class CbdTDecDecrypter {
     return toJSON(this.toObj());
   }
 
-  public static fromObj({ porterUri }: CbdTDecDecrypterJSON) {
-    return new CbdTDecDecrypter(porterUri);
+  public static fromObj({
+    porterUri,
+    ursulas,
+    threshold,
+  }: CbdTDecDecrypterJSON) {
+    return new CbdTDecDecrypter(porterUri, ursulas, threshold);
   }
 
   public static fromJSON(json: string) {

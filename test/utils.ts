@@ -5,11 +5,13 @@ import { Block } from '@ethersproject/providers';
 import {
   Capsule,
   CapsuleFrag,
+  EncryptedThresholdDecryptionResponse,
   EncryptedTreasureMap,
   ferveoEncrypt,
   PublicKey,
   reencrypt,
   SecretKey,
+  SessionSecretFactory,
   ThresholdDecryptionResponse,
   VerifiedCapsuleFrag,
   VerifiedKeyFrag,
@@ -36,9 +38,10 @@ import { keccak256 } from 'ethers/lib/utils';
 import { Alice, Bob, Cohort, Configuration, RemoteBob } from '../src';
 import { CoordinatorRitual, DkgParticipant } from '../src/agents/coordinator';
 import {
-  GetUrsulasResponse,
+  CbdDecryptResult,
+  GetUrsulasResult,
   Porter,
-  RetrieveCFragsResponse,
+  RetrieveCFragsResult,
   Ursula,
 } from '../src/characters/porter';
 import { DkgClient, DkgRitual, FerveoVariant } from '../src/dkg';
@@ -139,7 +142,7 @@ export const fakeUrsulas = (): readonly Ursula[] => {
 export const mockGetUrsulas = (ursulas: readonly Ursula[]) => {
   const fakePorterUrsulas = (
     mockUrsulas: readonly Ursula[]
-  ): GetUrsulasResponse => {
+  ): GetUrsulasResult => {
     return {
       result: {
         ursulas: mockUrsulas.map(({ encryptingKey, uri, checksumAddress }) => ({
@@ -167,7 +170,7 @@ const fakeCFragResponse = (
   ursulas: readonly ChecksumAddress[],
   verifiedKFrags: readonly VerifiedKeyFrag[],
   capsule: Capsule
-): readonly RetrieveCFragsResponse[] => {
+): readonly RetrieveCFragsResult[] => {
   const reencrypted = verifiedKFrags
     .map((kFrag) => reencrypt(capsule, kFrag))
     .map((cFrag) => CapsuleFrag.fromBytes(cFrag.toBytes()));
@@ -438,14 +441,36 @@ export const fakeDkgParticipants = (): DkgParticipant[] => {
   });
 };
 
-export const mockDecrypt = (
+export const mockCbdDecrypt = (
   ritualId: number,
-  decryptionShares: (DecryptionSharePrecomputed | DecryptionShareSimple)[]
+  decryptionShares: (DecryptionSharePrecomputed | DecryptionShareSimple)[],
+  ursulas: ChecksumAddress[],
+  errors: Record<string, string> = {}
 ) => {
-  const result = decryptionShares.map(
-    (share) => new ThresholdDecryptionResponse(ritualId, share.toBytes())
+  const encryptedResponses: Record<
+    string,
+    EncryptedThresholdDecryptionResponse
+  > = Object.fromEntries(
+    zip(decryptionShares, ursulas).map(([share, ursula]) => {
+      const secretFactory = SessionSecretFactory.random();
+      const label = toBytes(`${ritualId}`);
+      const ursulaPublicKey = secretFactory.makeKey(label).publicKey();
+      const requesterSecretKey = secretFactory.makeKey(label);
+      const sessionSharedSecret =
+        requesterSecretKey.deriveSharedSecret(ursulaPublicKey);
+
+      const resp = new ThresholdDecryptionResponse(ritualId, share.toBytes());
+      const encryptedResp = resp.encrypt(sessionSharedSecret);
+
+      return [ursula, encryptedResp];
+    })
   );
-  return jest.spyOn(Porter.prototype, 'decrypt').mockImplementation(() => {
+
+  const result: CbdDecryptResult = {
+    encryptedResponses,
+    errors,
+  };
+  return jest.spyOn(Porter.prototype, 'cbdDecrypt').mockImplementation(() => {
     return Promise.resolve(result);
   });
 };

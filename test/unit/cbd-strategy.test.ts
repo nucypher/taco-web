@@ -15,7 +15,7 @@ import {
   fakeUrsulas,
   fakeWeb3Provider,
   makeCohort,
-  mockDecrypt,
+  mockCbdDecrypt,
   mockGetUrsulas,
   mockInitializeRitual,
 } from '../utils';
@@ -115,7 +115,11 @@ describe('CbdDeployedStrategy', () => {
       ciphertext,
     });
     const getUrsulasSpy2 = mockGetUrsulas(mockedUrsulas);
-    const decryptSpy = mockDecrypt(mockedDkg.tau, decryptionShares);
+    const decryptSpy = mockCbdDecrypt(
+      mockedDkg.tau,
+      decryptionShares,
+      mockedUrsulas.map((u) => u.checksumAddress)
+    );
 
     const decryptedMessage =
       await deployedStrategy.decrypter.retrieveAndDecrypt(

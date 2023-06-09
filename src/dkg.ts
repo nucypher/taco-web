@@ -17,25 +17,32 @@ export enum FerveoVariant {
   Precomputed = 1,
 }
 
-// TODO: Replace with a factory method
-export const variantMap: {
-  [key: number]:
-    | typeof DecryptionShareSimple
-    | typeof DecryptionSharePrecomputed;
-} = {
-  [FerveoVariant.Simple]: DecryptionShareSimple,
-  [FerveoVariant.Precomputed]: DecryptionSharePrecomputed,
-};
-
-// TODO: Replace with a factory method
-export const combineDecryptionSharesMap: {
-  [key: number]: (
-    shares: DecryptionShareSimple[] | DecryptionSharePrecomputed[]
-  ) => SharedSecret;
-} = {
-  [FerveoVariant.Simple]: combineDecryptionSharesSimple,
-  [FerveoVariant.Precomputed]: combineDecryptionSharesPrecomputed,
-};
+export function getVariantClass(
+  variant: FerveoVariant
+): typeof DecryptionShareSimple | typeof DecryptionSharePrecomputed {
+  switch (variant) {
+    case FerveoVariant.Simple:
+      return DecryptionShareSimple;
+    case FerveoVariant.Precomputed:
+      return DecryptionSharePrecomputed;
+    default:
+      throw new Error(`Invalid FerveoVariant: ${variant}`);
+  }
+}
+export function getCombineDecryptionSharesFunction(
+  variant: FerveoVariant
+): (
+  shares: DecryptionShareSimple[] | DecryptionSharePrecomputed[]
+) => SharedSecret {
+  switch (variant) {
+    case FerveoVariant.Simple:
+      return combineDecryptionSharesSimple;
+    case FerveoVariant.Precomputed:
+      return combineDecryptionSharesPrecomputed;
+    default:
+      throw new Error(`Invalid FerveoVariant: ${variant}`);
+  }
+}
 
 export interface DkgRitualJSON {
   id: number;
@@ -95,6 +102,7 @@ export class DkgClient {
     // TODO: Create a new DKG ritual here
     throw new Error('Not implemented');
   }
+
   // TODO: Without Validator public key in Coordinator, we cannot verify the
   //    transcript. We need to add it to the Coordinator.
   // public async verifyRitual(ritualId: number): Promise<boolean> {

@@ -9,14 +9,17 @@ import {
   SessionSharedSecret,
   SessionStaticKey,
   SessionStaticSecret,
-  SharedSecret,
   ThresholdDecryptionRequest,
 } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
 import { DkgCoordinatorAgent, DkgParticipant } from '../agents/coordinator';
 import { ConditionSet } from '../conditions';
-import { combineDecryptionSharesMap, DkgRitual, variantMap } from '../dkg';
+import {
+  DkgRitual,
+  getCombineDecryptionSharesFunction,
+  getVariantClass,
+} from '../dkg';
 import { fromHexString, fromJSON, toJSON } from '../utils';
 
 import { Porter } from './porter';
@@ -29,12 +32,11 @@ export type CbdTDecDecrypterJSON = {
 export class CbdTDecDecrypter {
   private readonly porter: Porter;
 
-  // private readonly verifyingKey: Keyring;
-
   constructor(porterUri: string, private readonly threshold: number) {
     this.porter = new Porter(porterUri);
   }
 
+  // Retrieve and decrypt ciphertext using provider and condition set
   public async retrieveAndDecrypt(
     provider: ethers.providers.Web3Provider,
     conditionSet: ConditionSet,
@@ -51,13 +53,9 @@ export class CbdTDecDecrypter {
       ciphertext
     );
 
-    let sharedSecret: SharedSecret;
-    const combineDecryptionSharesFn = combineDecryptionSharesMap[variant];
-    if (combineDecryptionSharesFn) {
-      sharedSecret = combineDecryptionSharesFn(decryptionShares);
-    } else {
-      throw new Error(`Unknown variant ${variant}`);
-    }
+    const combineDecryptionSharesFn =
+      getCombineDecryptionSharesFunction(variant);
+    const sharedSecret = combineDecryptionSharesFn(decryptionShares);
 
     const plaintext = decryptWithSharedSecret(
       ciphertext,
@@ -68,6 +66,7 @@ export class CbdTDecDecrypter {
     return [plaintext];
   }
 
+  // Retrieve decryption shares
   public async retrieve(
     provider: ethers.providers.Web3Provider,
     conditionSet: ConditionSet,
@@ -129,14 +128,10 @@ export class CbdTDecDecrypter {
       ({ decryptionShare }) => decryptionShare
     );
 
-    const DecryptionShareType = variantMap[variant];
-    if (DecryptionShareType) {
-      return decryptionShares.map((share) =>
-        DecryptionShareType.fromBytes(share)
-      );
-    } else {
-      throw new Error(`Unknown variant ${variant}`);
-    }
+    const DecryptionShareType = getVariantClass(variant);
+    return decryptionShares.map((share) =>
+      DecryptionShareType.fromBytes(share)
+    );
   }
 
   private makeDecryptionRequests(

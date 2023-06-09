@@ -160,7 +160,7 @@ export class PreStrategy {
     const conditionSetEquals =
       this.conditionSet && other.conditionSet
         ? this.conditionSet.equals(other.conditionSet)
-        : false;
+        : this.conditionSet === other.conditionSet;
     return (
       this.cohort.equals(other.cohort) &&
       // TODO: Add equality to WASM bindings
@@ -274,7 +274,7 @@ export class DeployedPreStrategy {
     const conditionSetEquals =
       this.conditionSet && other.conditionSet
         ? this.conditionSet.equals(other.conditionSet)
-        : false;
+        : this.conditionSet === other.conditionSet;
     return (
       this.label === other.label &&
       this.cohort.equals(other.cohort) &&

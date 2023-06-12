@@ -6,7 +6,7 @@ import { RpcCondition, rpcConditionSchema } from './rpc';
 
 export const STANDARD_CONTRACT_TYPES = ['ERC20', 'ERC721'];
 
-const evmMethodSchemas: Record<string, Joi.Schema> = {
+const contractMethodSchemas: Record<string, Joi.Schema> = {
   ...rpcConditionSchema,
   contractAddress: Joi.string().pattern(ETH_ADDRESS_REGEXP).required(),
   standardContractType: Joi.string()
@@ -17,8 +17,8 @@ const evmMethodSchemas: Record<string, Joi.Schema> = {
   parameters: Joi.array().required(),
 };
 
-export class EvmCondition extends RpcCondition {
-  public readonly schema = Joi.object(evmMethodSchemas)
+export class ContractCondition extends RpcCondition {
+  public readonly schema = Joi.object(contractMethodSchemas)
     // At most one of these keys needs to be present
     .xor('standardContractType', 'functionAbi');
 }

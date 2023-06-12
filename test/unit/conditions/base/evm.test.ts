@@ -1,27 +1,27 @@
-import { EvmCondition } from '../../../../src/conditions/base';
-import { testEvmConditionObj } from '../../testVariables';
+import { ContractCondition } from '../../../../src/conditions/base';
+import { testContractConditionObj } from '../../testVariables';
 
 describe('validation', () => {
   it('accepts on a valid schema', () => {
-    const evm = new EvmCondition(testEvmConditionObj);
-    expect(evm.toObj()).toEqual({
-      ...testEvmConditionObj,
-      _class: 'EvmCondition',
+    const contract = new ContractCondition(testContractConditionObj);
+    expect(contract.toObj()).toEqual({
+      ...testContractConditionObj,
+      _class: 'ContractCondition',
     });
   });
 
   it('rejects an invalid schema', () => {
-    const badEvmCondition = {
-      ...testEvmConditionObj,
+    const badContractCondition = {
+      ...testContractConditionObj,
       // Intentionally removing `contractAddress`
       contractAddress: undefined,
     };
-    const badEvm = new EvmCondition(badEvmCondition);
+    const badEvm = new ContractCondition(badContractCondition);
     expect(() => badEvm.toObj()).toThrow(
       'Invalid condition: "contractAddress" is required'
     );
 
-    const { error } = badEvm.validate(badEvmCondition);
+    const { error } = badEvm.validate(badContractCondition);
     expect(error?.message).toEqual('"contractAddress" is required');
   });
 });
@@ -32,50 +32,50 @@ describe('accepts either standardContractType or functionAbi but not both or non
 
   it('accepts standardContractType', () => {
     const conditionObj = {
-      ...testEvmConditionObj,
+      ...testContractConditionObj,
       standardContractType,
       functionAbi: undefined,
     };
-    const evmCondition = new EvmCondition(conditionObj);
-    expect(evmCondition.toObj()).toEqual({
+    const contractCondition = new ContractCondition(conditionObj);
+    expect(contractCondition.toObj()).toEqual({
       ...conditionObj,
-      _class: 'EvmCondition',
+      _class: 'ContractCondition',
     });
   });
 
   it('accepts functionAbi', () => {
     const conditionObj = {
-      ...testEvmConditionObj,
+      ...testContractConditionObj,
       functionAbi,
       standardContractType: undefined,
     };
-    const evmCondition = new EvmCondition(conditionObj);
-    expect(evmCondition.toObj()).toEqual({
+    const contractCondition = new ContractCondition(conditionObj);
+    expect(contractCondition.toObj()).toEqual({
       ...conditionObj,
-      _class: 'EvmCondition',
+      _class: 'ContractCondition',
     });
   });
 
   it('rejects both', () => {
     const conditionObj = {
-      ...testEvmConditionObj,
+      ...testContractConditionObj,
       standardContractType,
       functionAbi,
     };
-    const evmCondition = new EvmCondition(conditionObj);
-    expect(() => evmCondition.toObj()).toThrow(
+    const contractCondition = new ContractCondition(conditionObj);
+    expect(() => contractCondition.toObj()).toThrow(
       '"value" contains a conflict between exclusive peers [standardContractType, functionAbi]'
     );
   });
 
   it('rejects none', () => {
     const conditionObj = {
-      ...testEvmConditionObj,
+      ...testContractConditionObj,
       standardContractType: undefined,
       functionAbi: undefined,
     };
-    const evmCondition = new EvmCondition(conditionObj);
-    expect(() => evmCondition.toObj()).toThrow(
+    const contractCondition = new ContractCondition(conditionObj);
+    expect(() => contractCondition.toObj()).toThrow(
       '"value" must contain at least one of [standardContractType, functionAbi]'
     );
   });
@@ -108,8 +108,8 @@ describe('accepts either standardContractType or functionAbi but not both or non
 //       },
 //     ],
 //   };
-//   const evmConditionObj = {
-//     ...testEvmConditionObj,
+//   const contractConditionObj = {
+//     ...testContractConditionObj,
 //     functionAbi: fakeFunctionAbi,
 //     method: 'myFunction',
 //     parameters: [USER_ADDRESS_PARAM, ':customParam'],
@@ -119,9 +119,9 @@ describe('accepts either standardContractType or functionAbi but not both or non
 //       value: USER_ADDRESS_PARAM,
 //     },
 //   };
-//   const evmCondition = new EvmCondition(evmConditionObj);
+//   const contractCondition = new ContractCondition(contractConditionObj);
 //   const web3Provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
-//   const conditionSet = new ConditionSet([evmCondition]);
+//   const conditionSet = new ConditionSet([contractCondition]);
 //   const conditionContext = new ConditionContext(
 //     conditionSet.toWASMConditions(),
 //     web3Provider

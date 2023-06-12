@@ -26,7 +26,7 @@ export const testRpcConditionObj = {
   returnValueTest: testReturnValueTest,
 };
 
-export const testEvmConditionObj = {
+export const testContractConditionObj = {
   contractAddress: '0x0000000000000000000000000000000000000000',
   chain: 5,
   standardContractType: 'ERC20',

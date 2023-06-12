@@ -1,4 +1,4 @@
-import { EvmCondition } from '../../../../src/conditions/base';
+import { ContractCondition } from '../../../../src/conditions/base';
 import {
   ERC721Balance,
   ERC721Ownership,
@@ -7,7 +7,7 @@ import {
   TEST_CHAIN_ID,
   TEST_CONTRACT_ADDR,
   TEST_CONTRACT_ADDR_2,
-  testEvmConditionObj,
+  testContractConditionObj,
 } from '../../testVariables';
 
 describe('validation', () => {
@@ -47,18 +47,18 @@ describe('validation', () => {
 
 describe('serialization', () => {
   it('serializes to a plain object', () => {
-    const evm = new EvmCondition(testEvmConditionObj);
-    expect(evm.toObj()).toEqual({
-      ...testEvmConditionObj,
-      _class: 'EvmCondition',
+    const contract = new ContractCondition(testContractConditionObj);
+    expect(contract.toObj()).toEqual({
+      ...testContractConditionObj,
+      _class: 'ContractCondition',
     });
   });
 
   it('serializes predefined conditions', () => {
-    const evm = new ERC721Ownership(testEvmConditionObj);
-    expect(evm.toObj()).toEqual({
-      ...evm.defaults,
-      ...testEvmConditionObj,
+    const contract = new ERC721Ownership(testContractConditionObj);
+    expect(contract.toObj()).toEqual({
+      ...contract.defaults,
+      ...testContractConditionObj,
       _class: 'ERC721Ownership',
     });
   });

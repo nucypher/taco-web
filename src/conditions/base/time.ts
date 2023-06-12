@@ -7,6 +7,7 @@ const BLOCKTIME_METHOD = 'blocktime';
 const timeConditionSchema = {
   ...rpcConditionSchema,
   method: Joi.string().valid(BLOCKTIME_METHOD).required(),
+  parameters: undefined, // TimeCondition does not accept parameters
 };
 
 export class TimeCondition extends RpcCondition {

@@ -180,15 +180,19 @@ export class PreStrategy {
 }
 
 export class DeployedPreStrategy {
-  constructor(
-    public label: string,
-    public cohort: Cohort,
-    public policy: EnactedPolicy,
-    public encrypter: Enrico,
-    public decrypter: PreTDecDecrypter,
-    private bobSecretKey: SecretKey,
-    public conditionSet?: ConditionSet
+  public constructor(
+    public readonly label: string,
+    public readonly cohort: Cohort,
+    public readonly policy: EnactedPolicy,
+    public readonly encrypter: Enrico,
+    public readonly decrypter: PreTDecDecrypter,
+    private readonly bobSecretKey: SecretKey,
+    public readonly conditionSet?: ConditionSet
   ) {}
+
+  public makeEncrypter(conditionSet: ConditionSet): Enrico {
+    return new Enrico(this.policy.policyKey, undefined, conditionSet);
+  }
 
   public static fromJSON(json: string) {
     const config = JSON.parse(json, base64ToU8Receiver);

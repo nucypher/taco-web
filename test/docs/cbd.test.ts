@@ -102,10 +102,8 @@ describe('Get Started (CBD PoC)', () => {
     };
     const NFTBalance = new ContractCondition(NFTBalanceConfig);
 
-    const encrypter = newDeployed.encrypter;
-
     const plaintext = 'this is a secret';
-    const encryptedMessageKit = encrypter.encryptMessagePre(
+    const encryptedMessageKit = newDeployed.encrypter.encryptMessagePre(
       plaintext,
       new ConditionSet([NFTBalance])
     );

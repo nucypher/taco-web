@@ -93,13 +93,17 @@ export class CbdStrategy {
 }
 
 export class DeployedCbdStrategy {
-  constructor(
+  public constructor(
     public readonly cohort: Cohort,
     public readonly dkgRitual: DkgRitual,
     public readonly encrypter: Enrico,
     public readonly decrypter: CbdTDecDecrypter,
     public readonly conditionSet?: ConditionSet
   ) {}
+
+  public makeEncrypter(conditionSet: ConditionSet): Enrico {
+    return new Enrico(this.dkgRitual.dkgPublicKey, undefined, conditionSet);
+  }
 
   public static fromJSON(json: string) {
     const config = fromJSON(json);

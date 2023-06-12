@@ -40,16 +40,19 @@ export const testFunctionAbi = {
   type: 'function',
   inputs: [
     {
+      internalType: 'address',
       name: 'account',
       type: 'address',
     },
     {
+      internalType: 'uint256',
       name: 'myCustomParam',
       type: 'uint256',
     },
   ],
   outputs: [
     {
+      internalType: 'uint256',
       name: 'someValue',
       type: 'uint256',
     },

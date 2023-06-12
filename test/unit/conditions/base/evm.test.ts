@@ -1,5 +1,11 @@
+import { SecretKey } from '@nucypher/nucypher-core';
+
+import { CustomContextParam } from '../../../../build/main/src';
+import { ConditionContext, ConditionSet } from '../../../../src/conditions';
 import { ContractCondition } from '../../../../src/conditions/base';
-import { testContractConditionObj } from '../../testVariables';
+import { USER_ADDRESS_PARAM } from '../../../../src/conditions/const';
+import { fakeWeb3Provider } from '../../../utils';
+import { testContractConditionObj, testFunctionAbi } from '../../testVariables';
 
 describe('validation', () => {
   it('accepts on a valid schema', () => {
@@ -28,7 +34,6 @@ describe('validation', () => {
 
 describe('accepts either standardContractType or functionAbi but not both or none', () => {
   const standardContractType = 'ERC20';
-  const functionAbi = { fake_function_abi: true };
 
   it('accepts standardContractType', () => {
     const conditionObj = {
@@ -46,7 +51,9 @@ describe('accepts either standardContractType or functionAbi but not both or non
   it('accepts functionAbi', () => {
     const conditionObj = {
       ...testContractConditionObj,
-      functionAbi,
+      functionAbi: testFunctionAbi,
+      method: testFunctionAbi.name,
+      parameters: ['0x1234', 1234],
       standardContractType: undefined,
     };
     const contractCondition = new ContractCondition(conditionObj);
@@ -60,7 +67,9 @@ describe('accepts either standardContractType or functionAbi but not both or non
     const conditionObj = {
       ...testContractConditionObj,
       standardContractType,
-      functionAbi,
+      parameters: ['0x1234', 1234],
+      functionAbi: testFunctionAbi,
+      method: testFunctionAbi.name,
     };
     const contractCondition = new ContractCondition(conditionObj);
     expect(() => contractCondition.toObj()).toThrow(
@@ -81,61 +90,69 @@ describe('accepts either standardContractType or functionAbi but not both or non
   });
 });
 
-// TODO(#124)
-// it('accepts custom parameters in function abi methods', async () => {
-//     throw new Error('Not implemented');
-// });
+describe('supports custom function abi', () => {
+  const evmConditionObj = {
+    ...testEvmConditionObj,
+    standardContractType: undefined,
+    functionAbi: testFunctionAbi,
+    method: 'myFunction',
+    parameters: [USER_ADDRESS_PARAM, ':customParam'],
+    returnValueTest: {
+      index: 0,
+      comparator: '==',
+      value: USER_ADDRESS_PARAM,
+    },
+  };
+  const evmCondition = new EvmCondition(evmConditionObj);
+  const web3Provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
+  const conditionSet = new ConditionSet([evmCondition]);
+  const conditionContext = new ConditionContext(
+    conditionSet.toWASMConditions(),
+    web3Provider
+  );
+  const myCustomParam = ':customParam';
+  const customParams: Record<string, CustomContextParam> = {};
+  customParams[myCustomParam] = 1234;
 
-// TODO(#124)
-// describe('supports custom function abi', () => {
-//   const fakeFunctionAbi = {
-//     name: 'myFunction',
-//     type: 'function',
-//     inputs: [
-//       {
-//         name: 'account',
-//         type: 'address',
-//       },
-//       {
-//         name: 'myCustomParam',
-//         type: 'uint256',
-//       },
-//     ],
-//     outputs: [
-//       {
-//         name: 'someValue',
-//         type: 'uint256',
-//       },
-//     ],
-//   };
-//   const contractConditionObj = {
-//     ...testContractConditionObj,
-//     functionAbi: fakeFunctionAbi,
-//     method: 'myFunction',
-//     parameters: [USER_ADDRESS_PARAM, ':customParam'],
-//     returnValueTest: {
-//       index: 0,
-//       comparator: '==',
-//       value: USER_ADDRESS_PARAM,
-//     },
-//   };
-//   const contractCondition = new ContractCondition(contractConditionObj);
-//   const web3Provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
-//   const conditionSet = new ConditionSet([contractCondition]);
-//   const conditionContext = new ConditionContext(
-//     conditionSet.toWASMConditions(),
-//     web3Provider
-//   );
-//   const myCustomParam = ':customParam';
-//   const customParams: Record<string, CustomContextParam> = {};
-//   customParams[myCustomParam] = 1234;
-//
-//   it('accepts custom function abi', async () => {
-//     const asJson = await conditionContext
-//       .withCustomParams(customParams)
-//       .toJson();
-//     expect(asJson).toBeDefined();
-//     expect(asJson).toContain(USER_ADDRESS_PARAM);
-//     expect(asJson).toContain(myCustomParam);
-//   });
-// });
+  it('accepts a custom param in function abi method params', async () => {
+    const asJson = await conditionContext
+      .withCustomParams(customParams)
+      .toJson();
+    expect(asJson).toBeDefined();
+    expect(asJson).toContain(USER_ADDRESS_PARAM);
+    expect(asJson).toContain(myCustomParam);
+  });
+
+  it('rejects on functionAbi mismatch', async () => {
+    const badEvmConditionObj = {
+      ...evmConditionObj,
+      functionAbi: { bad_function_abi: 'bad_function_abi' },
+    };
+    const evmCondition = new EvmCondition(badEvmConditionObj);
+    expect(() => evmCondition.toObj()).toThrow(
+      'Invalid condition: "functionAbi.name" is required'
+    );
+  });
+
+  it('rejects on functionAbi mismatch', async () => {
+    const badEvmConditionObj = {
+      ...evmConditionObj,
+      method: 'badMethod',
+    };
+    const evmCondition = new EvmCondition(badEvmConditionObj);
+    expect(() => evmCondition.toObj()).toThrow(
+      'Invalid condition: "method" must be the same as "functionAbi.name"'
+    );
+  });
+
+  it('rejects on functionAbi mismatch', async () => {
+    const badEvmConditionObj = {
+      ...evmConditionObj,
+      parameters: [],
+    };
+    const evmCondition = new EvmCondition(badEvmConditionObj);
+    expect(() => evmCondition.toObj()).toThrow(
+      'Invalid condition: "parameters" must have the same length as "functionAbi.inputs"'
+    );
+  });
+});

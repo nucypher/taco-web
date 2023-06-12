@@ -118,8 +118,9 @@ describe('PreDeployedStrategy', () => {
       await makeDeployedPreStrategy();
 
     const plaintext = 'this is a secret';
-    const encryptedMessageKit =
-      deployedStrategy.encrypter.encryptMessagePre(plaintext);
+    const encryptedMessageKit = deployedStrategy
+      .makeEncrypter(conditionSet)
+      .encryptMessagePre(plaintext);
 
     // Setup mocks for `retrieveAndDecrypt`
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);

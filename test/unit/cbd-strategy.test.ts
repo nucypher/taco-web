@@ -104,10 +104,9 @@ describe('CbdDeployedStrategy', () => {
     const { mockedDkg, deployedStrategy } = await makeDeployedCbdStrategy();
 
     const message = 'this is a secret';
-    const { ciphertext, aad } = deployedStrategy.encrypter.encryptMessageCbd(
-      message,
-      conditionSet
-    );
+    const { ciphertext, aad } = deployedStrategy
+      .makeEncrypter(conditionSet)
+      .encryptMessageCbd(message);
 
     // Setup mocks for `retrieveAndDecrypt`
     const { decryptionShares } = fakeTDecFlow({

@@ -92,11 +92,6 @@ export class PreStrategy {
       endDate: this.endDate,
     };
     const policy = await alice.grant(policyParams, this.cohort.ursulaAddresses);
-    const encrypter = new Enrico(
-      policy.policyKey,
-      undefined,
-      this.conditionSet
-    );
 
     const decrypter = new PreTDecDecrypter(
       this.cohort.configuration.porterUri,
@@ -109,7 +104,6 @@ export class PreStrategy {
       label,
       this.cohort,
       policy,
-      encrypter,
       decrypter,
       this.bobSecretKey,
       this.conditionSet
@@ -184,7 +178,6 @@ export class DeployedPreStrategy {
     public readonly label: string,
     public readonly cohort: Cohort,
     public readonly policy: EnactedPolicy,
-    public readonly encrypter: Enrico,
     public readonly decrypter: PreTDecDecrypter,
     private readonly bobSecretKey: SecretKey,
     public readonly conditionSet?: ConditionSet
@@ -235,11 +228,6 @@ export class DeployedPreStrategy {
     const conditionSetOrUndefined = conditionSet
       ? ConditionSet.fromObj(conditionSet)
       : undefined;
-    const encrypter = new Enrico(
-      newPolicy.policyKey,
-      undefined,
-      conditionSetOrUndefined
-    );
 
     const decrypter = new PreTDecDecrypter(
       cohort.configuration.porterUri,
@@ -252,7 +240,6 @@ export class DeployedPreStrategy {
       label,
       cohort,
       newPolicy,
-      encrypter,
       decrypter,
       bobSecretKey,
       conditionSetOrUndefined

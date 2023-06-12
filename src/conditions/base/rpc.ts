@@ -18,15 +18,17 @@ const makeParameters = () =>
     })),
   });
 
+export const rpcConditionSchema = {
+  chain: Joi.number()
+    .valid(...SUPPORTED_CHAINS)
+    .required(),
+  method: Joi.string()
+    .valid(...Object.keys(rpcMethodSchemas))
+    .required(),
+  parameters: makeParameters(),
+  returnValueTest: returnValueTestSchema.required(),
+};
+
 export class RpcCondition extends Condition {
-  public readonly schema = Joi.object({
-    chain: Joi.number()
-      .valid(...SUPPORTED_CHAINS)
-      .required(),
-    method: Joi.string()
-      .valid(...Object.keys(rpcMethodSchemas))
-      .required(),
-    parameters: makeParameters(),
-    returnValueTest: returnValueTestSchema.required(),
-  });
+  public readonly schema = Joi.object(rpcConditionSchema);
 }

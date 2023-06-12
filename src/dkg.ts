@@ -104,7 +104,7 @@ export class DkgClient {
   }
 
   // TODO: Without Validator public key in Coordinator, we cannot verify the
-  //    transcript. We need to add it to the Coordinator.
+  //    transcript. We need to add it to the Coordinator (nucypher-contracts #77).
   // public async verifyRitual(ritualId: number): Promise<boolean> {
   //   const ritual = await DkgCoordinatorAgent.getRitual(this.provider, ritualId);
   //   const participants = await DkgCoordinatorAgent.getParticipants(

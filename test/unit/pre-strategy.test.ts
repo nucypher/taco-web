@@ -42,12 +42,7 @@ const mockedUrsulas = fakeUrsulas().slice(0, 3);
 
 const makePreStrategy = async () => {
   const cohort = await makeCohort(mockedUrsulas);
-  const strategy = PreStrategy.create(
-    cohort,
-    conditionSet,
-    aliceSecretKey,
-    bobSecretKey
-  );
+  const strategy = PreStrategy.create(cohort, aliceSecretKey, bobSecretKey);
   expect(strategy.cohort).toEqual(cohort);
   return strategy;
 };
@@ -66,7 +61,6 @@ const makeDeployedPreStrategy = async () => {
   expect(makeTreasureMapSpy).toHaveBeenCalled();
   expect(encryptTreasureMapSpy).toHaveBeenCalled();
 
-  expect(deployedStrategy.conditionSet).toEqual(conditionSet);
   expect(deployedStrategy.cohort).toEqual(strategy.cohort);
 
   const ursulaAddresses = (

@@ -80,7 +80,7 @@ describe('Get Started (CBD PoC)', () => {
     ]);
 
     // 4. Build a Strategy
-    const newStrategy = PreStrategy.create(newCohort, conditions);
+    const newStrategy = PreStrategy.create(newCohort);
 
     const MMprovider = await detectEthereumProvider();
     const mumbai = providers.getNetwork(80001);
@@ -133,7 +133,6 @@ describe('Get Started (CBD PoC)', () => {
     );
     expect(conditions.validate()).toEqual(true);
     expect(publishToBlockchainSpy).toHaveBeenCalled();
-    expect(newDeployed.label).toEqual('test');
     expect(getUrsulasSpy).toHaveBeenCalledTimes(2);
     expect(generateKFragsSpy).toHaveBeenCalled();
     expect(encryptTreasureMapSpy).toHaveBeenCalled();

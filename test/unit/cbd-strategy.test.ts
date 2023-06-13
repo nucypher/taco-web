@@ -44,7 +44,7 @@ const variant = FerveoVariant.Precomputed;
 
 const makeCbdStrategy = async () => {
   const cohort = await makeCohort(ursulas);
-  const strategy = CbdStrategy.create(cohort, conditionSet);
+  const strategy = CbdStrategy.create(cohort);
   expect(strategy.cohort).toEqual(cohort);
   return strategy;
 };
@@ -135,7 +135,6 @@ describe('CbdDeployedStrategy', () => {
       await deployedStrategy.decrypter.retrieveAndDecrypt(
         aliceProvider,
         conditionSet,
-        deployedStrategy.dkgRitual,
         variant,
         ciphertext,
         aad

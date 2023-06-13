@@ -1,13 +1,15 @@
 import Joi from 'joi';
 
+import { omit } from '../../utils';
+
 import { RpcCondition, rpcConditionSchema } from './rpc';
 
 const BLOCKTIME_METHOD = 'blocktime';
 
 const timeConditionSchema = {
-  ...rpcConditionSchema,
+  // TimeCondition is an RpcCondition with the method set to 'blocktime' and no parameters
+  ...omit(rpcConditionSchema, ['parameters']),
   method: Joi.string().valid(BLOCKTIME_METHOD).required(),
-  parameters: undefined, // TimeCondition does not accept parameters
 };
 
 export class TimeCondition extends RpcCondition {

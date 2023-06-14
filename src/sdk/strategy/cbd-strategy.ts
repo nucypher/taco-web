@@ -47,7 +47,10 @@ export class CbdStrategy {
       this.conditionSet
     );
 
-    const decrypter = new CbdTDecDecrypter(this.cohort.configuration.porterUri);
+    const decrypter = new CbdTDecDecrypter(
+      this.cohort.configuration.porterUri,
+      this.cohort.configuration.threshold
+    );
 
     return new DeployedCbdStrategy(
       this.cohort,
@@ -84,18 +87,18 @@ export class CbdStrategy {
     const conditionSetEquals =
       this.conditionSet && other.conditionSet
         ? this.conditionSet.equals(other.conditionSet)
-        : false;
+        : this.conditionSet === other.conditionSet;
     return this.cohort.equals(other.cohort) && conditionSetEquals;
   }
 }
 
 export class DeployedCbdStrategy {
   constructor(
-    public cohort: Cohort,
-    public dkgRitual: DkgRitual,
-    public encrypter: Enrico,
-    public decrypter: CbdTDecDecrypter,
-    public conditionSet?: ConditionSet
+    public readonly cohort: Cohort,
+    public readonly dkgRitual: DkgRitual,
+    public readonly encrypter: Enrico,
+    public readonly decrypter: CbdTDecDecrypter,
+    public readonly conditionSet?: ConditionSet
   ) {}
 
   public static fromJSON(json: string) {
@@ -122,7 +125,10 @@ export class DeployedCbdStrategy {
       undefined,
       maybeConditionSet
     );
-    const decrypter = new CbdTDecDecrypter(cohort.configuration.porterUri);
+    const decrypter = new CbdTDecDecrypter(
+      cohort.configuration.porterUri,
+      cohort.configuration.threshold
+    );
     return new DeployedCbdStrategy(
       cohort,
       ritual,

@@ -1,9 +1,9 @@
 import {
   CapsuleFrag,
+  EncryptedThresholdDecryptionRequest,
+  EncryptedThresholdDecryptionResponse,
   PublicKey,
   RetrievalKit,
-  ThresholdDecryptionRequest,
-  ThresholdDecryptionResponse,
   TreasureMap,
 } from '@nucypher/nucypher-core';
 import axios, { AxiosResponse } from 'axios';
@@ -13,6 +13,7 @@ import { ConditionContext } from '../conditions';
 import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from '../types';
 import { fromBase64, fromHexString, toBase64, toHexString } from '../utils';
 
+// /get_ursulas
 export type Ursula = {
   readonly checksumAddress: ChecksumAddress;
   readonly uri: string;
@@ -31,13 +32,14 @@ type UrsulaResponse = {
   readonly encrypting_key: HexEncodedBytes;
 };
 
-export type GetUrsulasResponse = {
+export type GetUrsulasResult = {
   readonly result: {
     readonly ursulas: readonly UrsulaResponse[];
   };
   readonly version: string;
 };
 
+// /retrieve_cfrags
 type PostRetrieveCFragsRequest = {
   readonly treasure_map: Base64EncodedBytes;
   readonly retrieval_kits: readonly Base64EncodedBytes[];
@@ -47,7 +49,7 @@ type PostRetrieveCFragsRequest = {
   readonly context?: string;
 };
 
-type PostRetrieveCFragsResult = {
+type PostRetrieveCFragsResponse = {
   readonly result: {
     readonly retrieval_results: readonly {
       readonly cfrags: {
@@ -61,14 +63,30 @@ type PostRetrieveCFragsResult = {
   readonly version: string;
 };
 
-export type RetrieveCFragsResponse = {
-  cFrags: Record<ChecksumAddress, CapsuleFrag>;
+export type RetrieveCFragsResult = {
+  readonly cFrags: Record<ChecksumAddress, CapsuleFrag>;
+  readonly errors: Record<ChecksumAddress, string>;
+};
+
+// /cbd_decrypt
+
+type PostCbdDecryptRequest = {
+  readonly threshold: number;
+  readonly encrypted_decryption_requests: Record<
+    ChecksumAddress,
+    Base64EncodedBytes
+  >;
+};
+
+type PostCbdDecryptResponse = {
+  encrypted_decryption_responses: Record<ChecksumAddress, Base64EncodedBytes>;
   errors: Record<ChecksumAddress, string>;
 };
 
-type PostDecryptRequest = Uint8Array;
-
-type PostDecryptResult = Uint8Array;
+export type CbdDecryptResult = {
+  encryptedResponses: Record<string, EncryptedThresholdDecryptionResponse>;
+  errors: Record<string, string>;
+};
 
 export class Porter {
   readonly porterUrl: URL;
@@ -87,7 +105,7 @@ export class Porter {
       exclude_ursulas: excludeUrsulas,
       include_ursulas: includeUrsulas,
     };
-    const resp: AxiosResponse<GetUrsulasResponse> = await axios.get(
+    const resp: AxiosResponse<GetUrsulasResult> = await axios.get(
       new URL('/get_ursulas', this.porterUrl).toString(),
       {
         params,
@@ -112,7 +130,7 @@ export class Porter {
     bobEncryptingKey: PublicKey,
     bobVerifyingKey: PublicKey,
     conditionsContext?: ConditionContext
-  ): Promise<readonly RetrieveCFragsResponse[]> {
+  ): Promise<readonly RetrieveCFragsResult[]> {
     const context = conditionsContext
       ? await conditionsContext.toJson()
       : undefined;
@@ -124,7 +142,7 @@ export class Porter {
       bob_verifying_key: toHexString(bobVerifyingKey.toCompressedBytes()),
       context,
     };
-    const resp: AxiosResponse<PostRetrieveCFragsResult> = await axios.post(
+    const resp: AxiosResponse<PostRetrieveCFragsResponse> = await axios.post(
       new URL('/retrieve_cfrags', this.porterUrl).toString(),
       data
     );
@@ -139,15 +157,35 @@ export class Porter {
     });
   }
 
-  public async decrypt(
-    tDecRequest: ThresholdDecryptionRequest
-  ): Promise<ThresholdDecryptionResponse[]> {
-    const data: PostDecryptRequest = tDecRequest.toBytes();
-    const resp: AxiosResponse<PostDecryptResult> = await axios.post(
-      new URL('/decrypt', this.porterUrl).toString(),
+  public async cbdDecrypt(
+    encryptedRequests: Record<string, EncryptedThresholdDecryptionRequest>,
+    threshold: number
+  ): Promise<CbdDecryptResult> {
+    const data: PostCbdDecryptRequest = {
+      encrypted_decryption_requests: Object.fromEntries(
+        Object.entries(encryptedRequests).map(([ursula, encryptedRequest]) => [
+          ursula,
+          toBase64(encryptedRequest.toBytes()),
+        ])
+      ),
+      threshold,
+    };
+    const resp: AxiosResponse<PostCbdDecryptResponse> = await axios.post(
+      new URL('/cbd_decrypt', this.porterUrl).toString(),
       data
     );
-    // TODO: In /cbd_decrypt, the response is a list of ThresholdDecryptionResponse
-    return [ThresholdDecryptionResponse.fromBytes(resp.data)];
+    const decryptionResponses = Object.entries(
+      resp.data.encrypted_decryption_responses
+    ).map(([address, encryptedResponseBase64]) => {
+      const encryptedResponse = EncryptedThresholdDecryptionResponse.fromBytes(
+        fromBase64(encryptedResponseBase64)
+      );
+      return [address, encryptedResponse];
+    });
+    const encryptedResponses: Record<
+      string,
+      EncryptedThresholdDecryptionResponse
+    > = Object.fromEntries(decryptionResponses);
+    return { encryptedResponses, errors: resp.data.errors };
   }
 }

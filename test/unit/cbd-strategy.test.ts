@@ -1,4 +1,4 @@
-import { SecretKey } from '@nucypher/nucypher-core';
+import { SecretKey, SessionStaticSecret } from '@nucypher/nucypher-core';
 
 import { conditions } from '../../src';
 import { CbdTDecDecrypter } from '../../src/characters/cbd-recipient';
@@ -10,14 +10,17 @@ import {
 import { toBytes } from '../../src/utils';
 import {
   fakeDkgFlow,
+  fakeDkgParticipants,
   fakeDkgRitual,
   fakeTDecFlow,
   fakeUrsulas,
   fakeWeb3Provider,
   makeCohort,
-  mockDecrypt,
+  mockCbdDecrypt,
+  mockGetParticipants,
   mockGetUrsulas,
   mockInitializeRitual,
+  mockRandomSessionStaticSecret,
 } from '../utils';
 
 import { aliceSecretKeyBytes } from './testVariables';
@@ -36,11 +39,11 @@ const ownsNFT = new ERC721Ownership({
   chain: 5,
 });
 const conditionSet = new ConditionSet([ownsNFT]);
-const mockedUrsulas = fakeUrsulas().slice(0, 3);
+const ursulas = fakeUrsulas().slice(0, 3);
 const variant = FerveoVariant.Precomputed;
 
 const makeCbdStrategy = async () => {
-  const cohort = await makeCohort(mockedUrsulas);
+  const cohort = await makeCohort(ursulas);
   const strategy = CbdStrategy.create(cohort, conditionSet);
   expect(strategy.cohort).toEqual(cohort);
   return strategy;
@@ -52,7 +55,7 @@ async function makeDeployedCbdStrategy() {
   const mockedDkg = fakeDkgFlow(variant, 0);
   const mockedDkgRitual = fakeDkgRitual(mockedDkg);
   const web3Provider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
-  const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
+  const getUrsulasSpy = mockGetUrsulas(ursulas);
   const initializeRitualSpy = mockInitializeRitual(mockedDkgRitual);
   const deployedStrategy = await strategy.deploy(web3Provider);
 
@@ -114,8 +117,20 @@ describe('CbdDeployedStrategy', () => {
       aad,
       ciphertext,
     });
-    const getUrsulasSpy2 = mockGetUrsulas(mockedUrsulas);
-    const decryptSpy = mockDecrypt(mockedDkg.tau, decryptionShares);
+    const { participantSecrets, participants } = fakeDkgParticipants(
+      mockedDkg.ritualId,
+      variant
+    );
+    const requesterSessionKey = SessionStaticSecret.random();
+    const decryptSpy = mockCbdDecrypt(
+      mockedDkg.ritualId,
+      decryptionShares,
+      participantSecrets,
+      requesterSessionKey.publicKey()
+    );
+    const getParticipantsSpy = mockGetParticipants(participants);
+    const getUrsulasSpy = mockGetUrsulas(ursulas);
+    const sessionKeySpy = mockRandomSessionStaticSecret(requesterSessionKey);
 
     const decryptedMessage =
       await deployedStrategy.decrypter.retrieveAndDecrypt(
@@ -126,7 +141,9 @@ describe('CbdDeployedStrategy', () => {
         ciphertext,
         aad
       );
-    expect(getUrsulasSpy2).toHaveBeenCalled();
+    expect(getUrsulasSpy).toHaveBeenCalled();
+    expect(getParticipantsSpy).toHaveBeenCalled();
+    expect(sessionKeySpy).toHaveBeenCalled();
     expect(decryptSpy).toHaveBeenCalled();
     expect(decryptedMessage[0]).toEqual(toBytes(message));
   });

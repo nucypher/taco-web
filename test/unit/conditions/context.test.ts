@@ -82,6 +82,7 @@ describe('context parameters', () => {
       ...testContractConditionObj,
       standardContractType: undefined, // We're going to use a custom function ABI
       functionAbi: testFunctionAbi,
+      method: testFunctionAbi.name,
       parameters: [USER_ADDRESS_PARAM, customParamKey], // We're going to use a custom parameter
       returnValueTest: {
         ...testReturnValueTest,

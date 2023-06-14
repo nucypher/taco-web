@@ -5,7 +5,6 @@ import {
   DecryptionShareSimple,
   decryptWithSharedSecret,
   DkgPublicParameters,
-  SharedSecret,
   EncryptedThresholdDecryptionRequest,
   EncryptedThresholdDecryptionResponse,
   SessionSharedSecret,
@@ -40,15 +39,15 @@ export class CbdTDecDecrypter {
     private readonly porter: Porter,
     private readonly ritualId: number,
     private readonly dkgPublicParams: DkgPublicParameters,
-    private readonly  threshold: number
+    private readonly threshold: number
   ) {}
 
-  public static create(porterUri: string, dkgRitual: DkgRitual, threshold: number) {
+  public static create(porterUri: string, dkgRitual: DkgRitual) {
     return new CbdTDecDecrypter(
       new Porter(porterUri),
       dkgRitual.id,
       dkgRitual.dkgPublicParams,
-      threshold,
+      dkgRitual.threshold
     );
   }
 
@@ -63,7 +62,6 @@ export class CbdTDecDecrypter {
     const decryptionShares = await this.retrieve(
       provider,
       conditionSet,
-      this.ritualId,
       variant,
       ciphertext
     );
@@ -85,17 +83,16 @@ export class CbdTDecDecrypter {
   public async retrieve(
     provider: ethers.providers.Web3Provider,
     conditionSet: ConditionSet,
-    ritualId: number,
     variant: number,
     ciphertext: Ciphertext
   ): Promise<DecryptionSharePrecomputed[] | DecryptionShareSimple[]> {
     const dkgParticipants = await DkgCoordinatorAgent.getParticipants(
       provider,
-      ritualId
+      this.ritualId
     );
     const contextStr = await conditionSet.buildContext(provider).toJson();
     const { sharedSecrets, encryptedRequests } = this.makeDecryptionRequests(
-      ritualId,
+      this.ritualId,
       variant,
       ciphertext,
       conditionSet,
@@ -117,7 +114,7 @@ export class CbdTDecDecrypter {
       encryptedResponses,
       sharedSecrets,
       variant,
-      ritualId
+      this.ritualId
     );
   }
 

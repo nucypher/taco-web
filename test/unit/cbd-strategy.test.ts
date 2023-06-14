@@ -53,7 +53,7 @@ async function makeDeployedCbdStrategy() {
   const strategy = await makeCbdStrategy();
 
   const mockedDkg = fakeDkgFlow(variant, 0);
-  const mockedDkgRitual = fakeDkgRitual(mockedDkg);
+  const mockedDkgRitual = fakeDkgRitual(mockedDkg, mockedDkg.threshold);
   const web3Provider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
   const getUrsulasSpy = mockGetUrsulas(ursulas);
   const initializeRitualSpy = mockInitializeRitual(mockedDkgRitual);

@@ -500,11 +500,12 @@ export const mockRandomSessionStaticSecret = (secret: SessionStaticSecret) => {
 
 export const fakeRitualId = 0;
 
-export const fakeDkgRitual = (ritual: { dkg: Dkg }) => {
+export const fakeDkgRitual = (ritual: { dkg: Dkg }, thresold: number) => {
   return new DkgRitual(
     fakeRitualId,
     ritual.dkg.publicKey(),
-    ritual.dkg.publicParams()
+    ritual.dkg.publicParams(),
+    thresold
   );
 };
 

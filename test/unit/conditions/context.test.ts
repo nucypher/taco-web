@@ -2,12 +2,12 @@ import { SecretKey } from '@nucypher/nucypher-core';
 
 import { CustomContextParam } from '../../../src';
 import { ConditionSet } from '../../../src/conditions';
-import { EvmCondition, RpcCondition } from '../../../src/conditions/base';
+import { ContractCondition, RpcCondition } from '../../../src/conditions/base';
 import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
 import { RESERVED_CONTEXT_PARAMS } from '../../../src/conditions/context/context';
 import { fakeWeb3Provider } from '../../utils';
 import {
-  testEvmConditionObj,
+  testContractConditionObj,
   testFunctionAbi,
   testReturnValueTest,
   testRpcConditionObj,
@@ -40,15 +40,15 @@ describe('context parameters', () => {
   const customParams: Record<string, CustomContextParam> = {};
   customParams[customParamKey] = 1234;
 
-  const evmConditionObj = {
-    ...testEvmConditionObj,
+  const contractConditionObj = {
+    ...testContractConditionObj,
     returnValueTest: {
       ...testReturnValueTest,
       value: customParamKey,
     },
   };
-  const evmCondition = new EvmCondition(evmConditionObj);
-  const conditionSet = new ConditionSet([evmCondition]);
+  const contractCondition = new ContractCondition(contractConditionObj);
+  const conditionSet = new ConditionSet([contractCondition]);
   const conditionContext = conditionSet.buildContext(web3Provider);
 
   describe('return value test', () => {
@@ -78,8 +78,8 @@ describe('context parameters', () => {
   });
 
   describe('custom method parameters', () => {
-    const evmConditionObj = {
-      ...testEvmConditionObj,
+    const contractConditionObj = {
+      ...testContractConditionObj,
       standardContractType: undefined, // We're going to use a custom function ABI
       functionAbi: testFunctionAbi,
       parameters: [USER_ADDRESS_PARAM, customParamKey], // We're going to use a custom parameter
@@ -89,12 +89,12 @@ describe('context parameters', () => {
     };
 
     it('rejects on a missing parameter ', async () => {
-      const customEvmCondition = new EvmCondition({
-        ...evmConditionObj,
+      const customContractCondition = new ContractCondition({
+        ...contractConditionObj,
         parameters: [USER_ADDRESS_PARAM, customParamKey],
       });
       const conditionContext = new ConditionSet([
-        customEvmCondition,
+        customContractCondition,
       ]).buildContext(web3Provider);
 
       await expect(async () => conditionContext.toObj()).rejects.toThrow(
@@ -103,12 +103,12 @@ describe('context parameters', () => {
     });
 
     it('accepts on a hard-coded parameter', async () => {
-      const customEvmCondition = new EvmCondition({
-        ...evmConditionObj,
+      const customContractCondition = new ContractCondition({
+        ...contractConditionObj,
         parameters: [USER_ADDRESS_PARAM, 100],
       });
       const conditionContext = new ConditionSet([
-        customEvmCondition,
+        customContractCondition,
       ]).buildContext(web3Provider);
 
       const asObj = await conditionContext.toObj();

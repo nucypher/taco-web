@@ -67,3 +67,9 @@ export const bytesEquals = (first: Uint8Array, second: Uint8Array): boolean =>
 
 export const objectEquals = (a: unknown, b: unknown, strict = true): boolean =>
   deepEqual(a, b, { strict });
+
+export const omit = (obj: Record<string, unknown>, keys: string[]) => {
+  const copy = { ...obj };
+  keys.forEach((key) => delete copy[key]);
+  return copy;
+};

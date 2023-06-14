@@ -1,7 +1,7 @@
-import { EvmCondition } from '../base';
+import { ContractCondition } from '../base';
 import { USER_ADDRESS_PARAM } from '../const';
 
-export class ERC721Ownership extends EvmCondition {
+export class ERC721Ownership extends ContractCondition {
   public readonly defaults = {
     method: 'ownerOf',
     parameters: [],
@@ -14,7 +14,7 @@ export class ERC721Ownership extends EvmCondition {
   };
 }
 
-export class ERC721Balance extends EvmCondition {
+export class ERC721Balance extends ContractCondition {
   public readonly defaults = {
     method: 'balanceOf',
     parameters: [USER_ADDRESS_PARAM],

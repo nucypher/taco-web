@@ -23,7 +23,6 @@ export type PreStrategyJSON = {
 
 export type DeployedPreStrategyJSON = {
   cohortConfig: CohortJSON;
-  bobSecretKeyBytes: Uint8Array;
   decrypterJSON: PreTDecDecrypterJSON;
   policyKeyBytes: Uint8Array;
 };
@@ -147,7 +146,6 @@ export class PreStrategy {
 export class DeployedPreStrategy {
   private constructor(
     public readonly cohort: Cohort,
-    private readonly bobSecretKey: SecretKey,
     public readonly decrypter: PreTDecDecrypter,
     public readonly policyKey: PublicKey
   ) {}
@@ -164,12 +162,7 @@ export class DeployedPreStrategy {
       policy.aliceVerifyingKey,
       policy.encryptedTreasureMap
     );
-    return new DeployedPreStrategy(
-      cohort,
-      bobSecretKey,
-      decrypter,
-      policy.policyKey
-    );
+    return new DeployedPreStrategy(cohort, decrypter, policy.policyKey);
   }
 
   public makeEncrypter(conditionSet: ConditionSet): Enrico {
@@ -187,21 +180,18 @@ export class DeployedPreStrategy {
 
   public static fromObj({
     cohortConfig,
-    bobSecretKeyBytes,
     decrypterJSON,
     policyKeyBytes,
   }: DeployedPreStrategyJSON) {
     const cohort = Cohort.fromObj(cohortConfig);
-    const bobSecretKey = SecretKey.fromBEBytes(bobSecretKeyBytes);
     const decrypter = PreTDecDecrypter.fromObj(decrypterJSON);
     const policyKey = PublicKey.fromCompressedBytes(policyKeyBytes);
-    return new DeployedPreStrategy(cohort, bobSecretKey, decrypter, policyKey);
+    return new DeployedPreStrategy(cohort, decrypter, policyKey);
   }
 
   public toObj(): DeployedPreStrategyJSON {
     return {
       cohortConfig: this.cohort.toObj(),
-      bobSecretKeyBytes: this.bobSecretKey.toBEBytes(),
       decrypterJSON: this.decrypter.toObj(),
       policyKeyBytes: this.policyKey.toCompressedBytes(),
     };
@@ -210,10 +200,6 @@ export class DeployedPreStrategy {
   public equals(other: DeployedPreStrategy) {
     return (
       this.cohort.equals(other.cohort) &&
-      bytesEquals(
-        this.bobSecretKey.toBEBytes(),
-        other.bobSecretKey.toBEBytes()
-      ) &&
       this.decrypter.equals(other.decrypter) &&
       bytesEquals(
         this.policyKey.toCompressedBytes(),

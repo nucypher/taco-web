@@ -26,7 +26,6 @@ export class Condition {
     }
     return {
       ...value,
-      _class: this.constructor.name,
     };
   }
 
@@ -36,7 +35,6 @@ export class Condition {
     this: new (...args: any[]) => T,
     obj: Map
   ): T {
-    delete obj._class;
     return new this(obj);
   }
 

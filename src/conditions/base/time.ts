@@ -4,7 +4,7 @@ import { omit } from '../../utils';
 
 import { RpcCondition, rpcConditionSchema } from './rpc';
 
-const BLOCKTIME_METHOD = 'blocktime';
+export const BLOCKTIME_METHOD = 'blocktime';
 
 export const timeConditionSchema: Record<string, Joi.Schema> = {
   // TimeCondition is an RpcCondition with the method set to 'blocktime' and no parameters

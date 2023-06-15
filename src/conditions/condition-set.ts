@@ -3,7 +3,14 @@ import { ethers } from 'ethers';
 
 import { toJSON } from '../utils';
 
-import { Condition } from './base';
+import {
+  Condition,
+  ContractCondition,
+  RpcCondition,
+  TimeCondition,
+} from './base';
+import { BLOCKTIME_METHOD } from './base/time';
+import { CompoundCondition } from './compound-condition';
 import { ConditionContext } from './context';
 
 export type ConditionSetJSON = {
@@ -15,12 +22,31 @@ export class ConditionSet {
 
   public toObj(): ConditionSetJSON {
     // TODO add version here
-    const condition_json = this.condition.toObj();
-    return { condition: condition_json };
+    const conditionData = this.condition.toObj();
+    return { condition: conditionData };
   }
 
   public static fromObj(obj: ConditionSetJSON): ConditionSet {
-    const condition = Condition.fromObj(obj.condition);
+    // version specific logic can go here
+    const underlyingConditionData = obj.condition;
+    let condition = undefined;
+    if (underlyingConditionData.operator) {
+      condition = new CompoundCondition(underlyingConditionData);
+    } else if (underlyingConditionData.method) {
+      if (underlyingConditionData.method == BLOCKTIME_METHOD) {
+        condition = new TimeCondition(underlyingConditionData);
+      } else if (underlyingConditionData.contractAddress) {
+        condition = new ContractCondition(underlyingConditionData);
+      } else if (
+        (underlyingConditionData.method as string).startsWith('eth_')
+      ) {
+        condition = new RpcCondition(underlyingConditionData);
+      }
+    }
+    if (condition == undefined) {
+      throw `Invalid condition: unrecognized condition data`;
+    }
+
     return new ConditionSet(condition);
   }
 

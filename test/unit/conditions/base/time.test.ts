@@ -16,7 +16,6 @@ describe('validation', () => {
       returnValueTest,
       chain: 5,
       method: 'blocktime',
-      _class: 'TimeCondition',
     });
   });
 

@@ -1,4 +1,5 @@
 import { CompoundCondition } from '../../../src/conditions';
+import { ERC721Ownership } from '../../../src/conditions/predefined/erc721';
 import {
   testContractConditionObj,
   testRpcConditionObj,
@@ -6,15 +7,21 @@ import {
 } from '../testVariables';
 
 describe('validate', () => {
+  const ownsBufficornNFT = ERC721Ownership.fromObj({
+    contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
+    parameters: [3591],
+    chain: 5,
+  }).toObj();
+
   it('accepts or operator', () => {
     const orCondition = new CompoundCondition({
       operator: 'or',
-      operands: [testRpcConditionObj, testTimeConditionObj],
+      operands: [ownsBufficornNFT, testTimeConditionObj],
     }).toObj();
 
     expect(orCondition.operator).toEqual('or');
     expect(orCondition.operands).toEqual([
-      testRpcConditionObj,
+      ownsBufficornNFT,
       testTimeConditionObj,
     ]);
   });
@@ -68,7 +75,7 @@ describe('validate', () => {
         testRpcConditionObj,
         {
           operator: 'or',
-          operands: [testRpcConditionObj, testTimeConditionObj],
+          operands: [ownsBufficornNFT, testContractConditionObj],
         },
       ],
     }).toObj();

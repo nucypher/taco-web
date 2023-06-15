@@ -2,20 +2,22 @@ import Joi from 'joi';
 
 import { omit } from '../../utils';
 
-import { RpcCondition, rpcConditionSchema } from './rpc';
+import { RpcCondition, rpcConditionRecord } from './rpc';
 
 export const BLOCKTIME_METHOD = 'blocktime';
 
-export const timeConditionSchema: Record<string, Joi.Schema> = {
+export const timeConditionRecord: Record<string, Joi.Schema> = {
   // TimeCondition is an RpcCondition with the method set to 'blocktime' and no parameters
-  ...omit(rpcConditionSchema, ['parameters']),
+  ...omit(rpcConditionRecord, ['parameters']),
   method: Joi.string().valid(BLOCKTIME_METHOD).required(),
 };
+
+export const timeConditionSchema = Joi.object(timeConditionRecord);
 
 export class TimeCondition extends RpcCondition {
   public readonly defaults: Record<string, unknown> = {
     method: BLOCKTIME_METHOD,
   };
 
-  public readonly schema = Joi.object(timeConditionSchema);
+  public readonly schema = timeConditionSchema;
 }

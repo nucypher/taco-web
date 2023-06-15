@@ -2,12 +2,12 @@ import Joi from 'joi';
 
 import { ETH_ADDRESS_REGEXP } from '../const';
 
-import { RpcCondition, rpcConditionSchema } from './rpc';
+import { RpcCondition, rpcConditionRecord } from './rpc';
 
 export const STANDARD_CONTRACT_TYPES = ['ERC20', 'ERC721'];
 
 const functionAbiVariable = Joi.object({
-  internalType: Joi.string().required(),
+  internalType: Joi.string(), // TODO is this needed?
   name: Joi.string().required(),
   type: Joi.string().required(),
 });
@@ -18,7 +18,7 @@ const functionAbiSchema = Joi.object({
   inputs: Joi.array().items(functionAbiVariable),
   outputs: Joi.array().items(functionAbiVariable),
   // TODO: Should we restrict this to 'view'?
-  // stateMutability: Joi.string().valid('view').required(),
+  stateMutability: Joi.string(),
 }).custom((functionAbi, helper) => {
   // Validate method name
   const method = helper.state.ancestors[0].method;
@@ -39,8 +39,8 @@ const functionAbiSchema = Joi.object({
   return functionAbi;
 });
 
-export const contractMethodSchema: Record<string, Joi.Schema> = {
-  ...rpcConditionSchema,
+export const contractConditionRecord: Record<string, Joi.Schema> = {
+  ...rpcConditionRecord,
   contractAddress: Joi.string().pattern(ETH_ADDRESS_REGEXP).required(),
   standardContractType: Joi.string()
     .valid(...STANDARD_CONTRACT_TYPES)
@@ -50,8 +50,10 @@ export const contractMethodSchema: Record<string, Joi.Schema> = {
   parameters: Joi.array().required(),
 };
 
+export const contractConditionSchema = Joi.object(contractConditionRecord)
+  // At most one of these keys needs to be present
+  .xor('standardContractType', 'functionAbi');
+
 export class ContractCondition extends RpcCondition {
-  public readonly schema = Joi.object(contractMethodSchema)
-    // At most one of these keys needs to be present
-    .xor('standardContractType', 'functionAbi');
+  public readonly schema = contractConditionSchema;
 }

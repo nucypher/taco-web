@@ -27,7 +27,23 @@ describe('validation', () => {
 
 describe('accepts either standardContractType or functionAbi but not both or none', () => {
   const standardContractType = 'ERC20';
-  const functionAbi = { fake_function_abi: true };
+  const functionAbi = {
+    inputs: [
+      {
+        name: '_owner',
+        type: 'address',
+      },
+    ],
+    name: 'balanceOf',
+    outputs: [
+      {
+        name: 'balance',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  };
 
   it('accepts standardContractType', () => {
     const conditionObj = {

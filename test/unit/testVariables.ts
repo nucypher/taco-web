@@ -67,4 +67,5 @@ export const testFunctionAbi = {
       type: 'uint256',
     },
   ],
+  stateMutability: 'view',
 };

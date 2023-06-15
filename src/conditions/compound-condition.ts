@@ -1,7 +1,7 @@
 import Joi from 'joi';
 
 import { Condition } from './base/condition';
-import { contractMethodSchema } from './base/contract';
+import { contractConditionSchema } from './base/contract';
 import { rpcConditionSchema } from './base/rpc';
 import { timeConditionSchema } from './base/time';
 
@@ -10,19 +10,16 @@ const AND_OPERATOR = 'and';
 
 const LOGICAL_OPERATORS = [AND_OPERATOR, OR_OPERATOR];
 
-export const compoundCondition = Joi.object({
+export const compoundConditionSchema = Joi.object({
   operator: Joi.string()
     .valid(...LOGICAL_OPERATORS)
     .required(),
   operands: Joi.array()
     .min(2)
     .items(
-      Joi.object(rpcConditionSchema),
-      Joi.object(timeConditionSchema),
-      Joi.object(contractMethodSchema).xor(
-        'standardContractType',
-        'functionAbi'
-      ),
+      rpcConditionSchema,
+      timeConditionSchema,
+      contractConditionSchema,
       Joi.link('#compoundCondition')
     )
     .required()
@@ -30,5 +27,5 @@ export const compoundCondition = Joi.object({
 }).id('compoundCondition');
 
 export class CompoundCondition extends Condition {
-  public readonly schema = compoundCondition;
+  public readonly schema = compoundConditionSchema;
 }

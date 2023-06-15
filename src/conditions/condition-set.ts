@@ -1,7 +1,7 @@
 import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { toJSON } from '../utils';
+import { objectEquals, toJSON } from '../utils';
 
 import {
   Condition,
@@ -69,6 +69,6 @@ export class ConditionSet {
   }
 
   public equals(other: ConditionSet): boolean {
-    return this.condition.equals(other.condition);
+    return objectEquals(this.condition.toObj(), other.condition.toObj());
   }
 }

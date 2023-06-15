@@ -18,7 +18,7 @@ const makeParameters = () =>
     })),
   });
 
-export const rpcConditionSchema = {
+export const rpcConditionSchema: Record<string, Joi.Schema> = {
   chain: Joi.number()
     .valid(...SUPPORTED_CHAINS)
     .required(),

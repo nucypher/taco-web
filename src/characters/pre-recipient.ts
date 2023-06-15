@@ -8,7 +8,7 @@ import {
 } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { ConditionSet } from '../conditions';
+import { Condition, ConditionContext } from '../conditions';
 import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
@@ -106,8 +106,11 @@ export class PreTDecDecrypter {
       .map((condition) => JSON.parse(condition.toString()))
       .reduce((acc: Record<string, string>[], val) => acc.concat(val), []);
 
-    const conditionContext =
-      ConditionSet.fromConditionList(conditions).buildContext(provider);
+    const conditionsList = conditions.map((ele: Record<string, string>) => {
+      return Condition.fromObj(ele);
+    });
+
+    const conditionContext = new ConditionContext(conditionsList, provider);
 
     const policyMessageKits = messageKits.map((mk) =>
       PolicyMessageKit.fromMessageKit(

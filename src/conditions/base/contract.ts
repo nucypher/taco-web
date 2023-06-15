@@ -39,7 +39,7 @@ const functionAbiSchema = Joi.object({
   return functionAbi;
 });
 
-const contractMethodSchemas: Record<string, Joi.Schema> = {
+export const contractMethodSchema: Record<string, Joi.Schema> = {
   ...rpcConditionSchema,
   contractAddress: Joi.string().pattern(ETH_ADDRESS_REGEXP).required(),
   standardContractType: Joi.string()
@@ -51,7 +51,7 @@ const contractMethodSchemas: Record<string, Joi.Schema> = {
 };
 
 export class ContractCondition extends RpcCondition {
-  public readonly schema = Joi.object(contractMethodSchemas)
+  public readonly schema = Joi.object(contractMethodSchema)
     // At most one of these keys needs to be present
     .xor('standardContractType', 'functionAbi');
 }

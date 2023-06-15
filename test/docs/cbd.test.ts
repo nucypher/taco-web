@@ -74,10 +74,10 @@ describe('Get Started (CBD PoC)', () => {
       parameters: [5954],
     });
 
-    const conditions = new ConditionSet([
-      NFTOwnership,
+    const conditions = new ConditionSet(
+      NFTOwnership
       // Other conditions can be added here
-    ]);
+    );
 
     // 4. Build a Strategy
     const newStrategy = PreStrategy.create(newCohort);
@@ -101,7 +101,7 @@ describe('Get Started (CBD PoC)', () => {
       },
     };
     const NFTBalance = new ContractCondition(NFTBalanceConfig);
-    const newConditions = new ConditionSet([NFTBalance]);
+    const newConditions = new ConditionSet(NFTBalance);
     const plaintext = 'this is a secret';
     const encrypter = newDeployed.makeEncrypter(newConditions);
     const encryptedMessageKit = encrypter.encryptMessagePre(plaintext);
@@ -123,14 +123,13 @@ describe('Get Started (CBD PoC)', () => {
     //
 
     const expectedAddresses = fakeUrsulas().map((u) => u.checksumAddress);
-    const condObj = conditions.conditions[0].toObj();
+    const condObj = conditions.condition.toObj();
     expect(newCohort.ursulaAddresses).toEqual(expectedAddresses);
     expect(condObj.parameters).toEqual([5954]);
     expect(condObj.chain).toEqual(5);
     expect(condObj.contractAddress).toEqual(
       '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D'
     );
-    expect(conditions.validate()).toEqual(true);
     expect(publishToBlockchainSpy).toHaveBeenCalled();
     expect(getUrsulasSpy).toHaveBeenCalledTimes(2);
     expect(generateKFragsSpy).toHaveBeenCalled();

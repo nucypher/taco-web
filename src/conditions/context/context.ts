@@ -2,6 +2,7 @@ import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
 import { fromJSON, toJSON } from '../../utils';
+import { Condition } from '../base/condition';
 import { USER_ADDRESS_PARAM } from '../const';
 
 import { TypedSignature, WalletAuthenticationProvider } from './providers';
@@ -16,7 +17,7 @@ export class ConditionContext {
   private readonly walletAuthProvider: WalletAuthenticationProvider;
 
   constructor(
-    private readonly conditions: WASMConditions,
+    private readonly conditions: ReadonlyArray<Condition>,
     // TODO: We don't always need a web3 provider, only in cases where some specific context parameters are used
     // TODO: Consider making this optional or introducing a different pattern to handle that
     private readonly web3Provider: ethers.providers.Web3Provider,
@@ -42,8 +43,11 @@ export class ConditionContext {
     const requestedParameters = new Set<string>();
 
     // Search conditions for parameters
-    const { conditions } = fromJSON(this.conditions.toString());
-    for (const cond of conditions) {
+    const conditions = this.conditions.map((cnd) => cnd.toObj());
+    const conditionsToCheck = fromJSON(
+      new WASMConditions(toJSON(conditions)).toString()
+    );
+    for (const cond of conditionsToCheck) {
       // Check return value test
       const rvt = cond.returnValueTest.value;
       if (typeof rvt === 'string' && rvt.startsWith(CONTEXT_PARAM_PREFIX)) {

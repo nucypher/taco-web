@@ -103,9 +103,8 @@ describe('Get Started (CBD PoC)', () => {
     const NFTBalance = new ContractCondition(NFTBalanceConfig);
     const newConditions = new ConditionSet([NFTBalance]);
     const plaintext = 'this is a secret';
-    const encryptedMessageKit = newDeployed
-      .makeEncrypter(newConditions)
-      .encryptMessagePre(plaintext);
+    const encrypter = newDeployed.makeEncrypter(newConditions);
+    const encryptedMessageKit = encrypter.encryptMessagePre(plaintext);
 
     // Mocking - Not a part of any code example
     const retrieveCFragsSpy = mockRetrieveAndDecrypt(

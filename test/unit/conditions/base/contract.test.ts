@@ -1,4 +1,9 @@
+import { SecretKey } from '@nucypher/nucypher-core';
+
+import { ConditionSet, CustomContextParam } from '../../../../src/conditions';
 import { ContractCondition } from '../../../../src/conditions/base';
+import { USER_ADDRESS_PARAM } from '../../../../src/conditions/const';
+import { fakeWeb3Provider } from '../../../utils';
 import { testContractConditionObj } from '../../testVariables';
 
 describe('validation', () => {
@@ -94,61 +99,53 @@ describe('accepts either standardContractType or functionAbi but not both or non
   });
 });
 
-// TODO(#124)
-// it('accepts custom parameters in function abi methods', async () => {
-//     throw new Error('Not implemented');
-// });
+describe('supports custom function abi', () => {
+  const fakeFunctionAbi = {
+    name: 'myFunction',
+    type: 'function',
+    inputs: [
+      {
+        name: 'account',
+        type: 'address',
+      },
+      {
+        name: 'myCustomParam',
+        type: 'uint256',
+      },
+    ],
+    outputs: [
+      {
+        name: 'someValue',
+        type: 'uint256',
+      },
+    ],
+  };
+  const contractConditionObj = {
+    ...testContractConditionObj,
+    standardContractType: undefined,
+    functionAbi: fakeFunctionAbi,
+    method: 'myFunction',
+    parameters: [USER_ADDRESS_PARAM, ':customParam'],
+    returnValueTest: {
+      index: 0,
+      comparator: '==',
+      value: USER_ADDRESS_PARAM,
+    },
+  };
+  const contractCondition = new ContractCondition(contractConditionObj);
+  const web3Provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
+  const conditionSet = new ConditionSet(contractCondition);
+  const conditionContext = conditionSet.buildContext(web3Provider);
+  const myCustomParam = ':customParam';
+  const customParams: Record<string, CustomContextParam> = {};
+  customParams[myCustomParam] = 1234;
 
-// TODO(#124)
-// describe('supports custom function abi', () => {
-//   const fakeFunctionAbi = {
-//     name: 'myFunction',
-//     type: 'function',
-//     inputs: [
-//       {
-//         name: 'account',
-//         type: 'address',
-//       },
-//       {
-//         name: 'myCustomParam',
-//         type: 'uint256',
-//       },
-//     ],
-//     outputs: [
-//       {
-//         name: 'someValue',
-//         type: 'uint256',
-//       },
-//     ],
-//   };
-//   const contractConditionObj = {
-//     ...testContractConditionObj,
-//     functionAbi: fakeFunctionAbi,
-//     method: 'myFunction',
-//     parameters: [USER_ADDRESS_PARAM, ':customParam'],
-//     returnValueTest: {
-//       index: 0,
-//       comparator: '==',
-//       value: USER_ADDRESS_PARAM,
-//     },
-//   };
-//   const contractCondition = new ContractCondition(contractConditionObj);
-//   const web3Provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
-//   const conditionSet = new ConditionSet([contractCondition]);
-//   const conditionContext = new ConditionContext(
-//     conditionSet.toWASMConditions(),
-//     web3Provider
-//   );
-//   const myCustomParam = ':customParam';
-//   const customParams: Record<string, CustomContextParam> = {};
-//   customParams[myCustomParam] = 1234;
-//
-//   it('accepts custom function abi', async () => {
-//     const asJson = await conditionContext
-//       .withCustomParams(customParams)
-//       .toJson();
-//     expect(asJson).toBeDefined();
-//     expect(asJson).toContain(USER_ADDRESS_PARAM);
-//     expect(asJson).toContain(myCustomParam);
-//   });
-// });
+  it('accepts custom function abi', async () => {
+    const asJson = await conditionContext
+      .withCustomParams(customParams)
+      .toJson();
+    expect(asJson).toBeDefined();
+    expect(asJson).toContain(USER_ADDRESS_PARAM);
+    expect(asJson).toContain(myCustomParam);
+  });
+});

@@ -76,37 +76,59 @@ describe('condition set', () => {
     });
   });
 
+  it('incompatible version', async () => {
+    const invalidVersion = '100.0.0';
+    expect(() => {
+      ConditionSet.fromObj({
+        version: invalidVersion,
+        condition: testTimeConditionObj,
+      });
+    }).toThrow(
+      `Version provided, ${invalidVersion}, is incompatible with current version, ${ConditionSet.VERSION}`
+    );
+  });
+
   it.each([
     // no "operator" nor "method" value
     {
-      randoKey: 'randoValue',
-      otherKey: 'otherValue',
+      version: ConditionSet.VERSION,
+      condition: {
+        randoKey: 'randoValue',
+        otherKey: 'otherValue',
+      },
     },
     // invalid "method" and no "contractAddress"
     {
-      method: 'doWhatIWant',
-      returnValueTest: {
-        index: 0,
-        comparator: '>',
-        value: '100',
+      version: ConditionSet.VERSION,
+      condition: {
+        method: 'doWhatIWant',
+        returnValueTest: {
+          index: 0,
+          comparator: '>',
+          value: '100',
+        },
+        chain: 5,
       },
-      chain: 5,
     },
     // condition with wrong method "method" and no contract address
     {
-      ...testTimeConditionObj,
-      method: 'doWhatIWant',
+      version: ConditionSet.VERSION,
+      condition: {
+        ...testTimeConditionObj,
+        method: 'doWhatIWant',
+      },
     },
     // rpc condition (no contract address) with disallowed method
     {
-      ...testRpcConditionObj,
-      method: 'isPolicyActive',
+      version: ConditionSet.VERSION,
+      condition: {
+        ...testRpcConditionObj,
+        method: 'isPolicyActive',
+      },
     },
   ])("can't determine condition type", async (invalidCondition) => {
     expect(() => {
-      ConditionSet.fromObj({
-        condition: invalidCondition,
-      });
+      ConditionSet.fromObj(invalidCondition);
     }).toThrow('unrecognized condition data');
   });
 

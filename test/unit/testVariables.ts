@@ -48,6 +48,7 @@ export const testContractConditionObj = {
 export const testFunctionAbi = {
   name: 'myFunction',
   type: 'function',
+  stateMutability: 'view',
   inputs: [
     {
       internalType: 'address',
@@ -67,5 +68,4 @@ export const testFunctionAbi = {
       type: 'uint256',
     },
   ],
-  stateMutability: 'view',
 };

@@ -7,7 +7,7 @@ import {
 import { ContractCondition } from '../../../../src/conditions/base';
 import { USER_ADDRESS_PARAM } from '../../../../src/conditions/const';
 import { fakeWeb3Provider } from '../../../utils';
-import { testContractConditionObj } from '../../testVariables';
+import { testContractConditionObj, testFunctionAbi } from '../../testVariables';
 
 describe('validation', () => {
   it('accepts on a valid schema', () => {
@@ -103,30 +103,10 @@ describe('accepts either standardContractType or functionAbi but not both or non
 });
 
 describe('supports custom function abi', () => {
-  const fakeFunctionAbi = {
-    name: 'myFunction',
-    type: 'function',
-    inputs: [
-      {
-        name: 'account',
-        type: 'address',
-      },
-      {
-        name: 'myCustomParam',
-        type: 'uint256',
-      },
-    ],
-    outputs: [
-      {
-        name: 'someValue',
-        type: 'uint256',
-      },
-    ],
-  };
   const contractConditionObj = {
     ...testContractConditionObj,
     standardContractType: undefined,
-    functionAbi: fakeFunctionAbi,
+    functionAbi: testFunctionAbi,
     method: 'myFunction',
     parameters: [USER_ADDRESS_PARAM, ':customParam'],
     returnValueTest: {

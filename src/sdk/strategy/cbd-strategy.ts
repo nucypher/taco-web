@@ -1,10 +1,15 @@
+import { DkgPublicKey } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { CbdTDecDecrypter } from '../../characters/cbd-recipient';
+import { bytesEqual } from '../../../test/utils';
+import {
+  CbdTDecDecrypter,
+  CbdTDecDecrypterJSON,
+} from '../../characters/cbd-recipient';
 import { Enrico } from '../../characters/enrico';
 import { ConditionSet, ConditionSetJSON } from '../../conditions';
-import { DkgClient, DkgRitual, DkgRitualJSON } from '../../dkg';
-import { fromJSON, objectEquals, toJSON } from '../../utils';
+import { DkgClient, DkgRitual } from '../../dkg';
+import { fromJSON, toJSON } from '../../utils';
 import { Cohort, CohortJSON } from '../cohort';
 
 export type CbdStrategyJSON = {
@@ -13,19 +18,15 @@ export type CbdStrategyJSON = {
 };
 
 export type DeployedStrategyJSON = {
-  dkgRitual: DkgRitualJSON;
-  cohortConfig: CohortJSON;
-  conditionSet?: ConditionSetJSON | undefined;
+  decrypter: CbdTDecDecrypterJSON;
+  dkgPublicKey: Uint8Array;
 };
 
 export class CbdStrategy {
-  private constructor(
-    public readonly cohort: Cohort,
-    private readonly conditionSet?: ConditionSet
-  ) {}
+  private constructor(public readonly cohort: Cohort) {}
 
-  public static create(cohort: Cohort, conditionSet?: ConditionSet) {
-    return new CbdStrategy(cohort, conditionSet);
+  public static create(cohort: Cohort) {
+    return new CbdStrategy(cohort);
   }
 
   public async deploy(
@@ -40,25 +41,7 @@ export class CbdStrategy {
       provider,
       dkgRitualParams
     );
-
-    const encrypter = new Enrico(
-      dkgRitual.dkgPublicKey,
-      undefined,
-      this.conditionSet
-    );
-
-    const decrypter = new CbdTDecDecrypter(
-      this.cohort.configuration.porterUri,
-      this.cohort.configuration.threshold
-    );
-
-    return new DeployedCbdStrategy(
-      this.cohort,
-      dkgRitual,
-      encrypter,
-      decrypter,
-      this.conditionSet
-    );
+    return DeployedCbdStrategy.create(this.cohort, dkgRitual);
   }
 
   public static fromJSON(json: string) {
@@ -69,37 +52,38 @@ export class CbdStrategy {
     return toJSON(this.toObj());
   }
 
-  public static fromObj({ cohort, conditionSet }: CbdStrategyJSON) {
-    const maybeConditionSet = conditionSet
-      ? ConditionSet.fromObj(conditionSet)
-      : undefined;
-    return new CbdStrategy(Cohort.fromObj(cohort), maybeConditionSet);
+  public static fromObj({ cohort }: CbdStrategyJSON) {
+    return new CbdStrategy(Cohort.fromObj(cohort));
   }
 
   public toObj(): CbdStrategyJSON {
     return {
       cohort: this.cohort.toObj(),
-      conditionSet: this.conditionSet?.toObj(),
     };
   }
 
   public equals(other: CbdStrategy) {
-    const conditionSetEquals =
-      this.conditionSet && other.conditionSet
-        ? this.conditionSet.equals(other.conditionSet)
-        : this.conditionSet === other.conditionSet;
-    return this.cohort.equals(other.cohort) && conditionSetEquals;
+    return this.cohort.equals(other.cohort);
   }
 }
 
 export class DeployedCbdStrategy {
-  constructor(
-    public readonly cohort: Cohort,
-    public readonly dkgRitual: DkgRitual,
-    public readonly encrypter: Enrico,
+  private constructor(
     public readonly decrypter: CbdTDecDecrypter,
-    public readonly conditionSet?: ConditionSet
+    public readonly dkgPublicKey: DkgPublicKey
   ) {}
+
+  public static create(cohort: Cohort, dkgRitual: DkgRitual) {
+    const decrypter = CbdTDecDecrypter.create(
+      cohort.configuration.porterUri,
+      dkgRitual
+    );
+    return new DeployedCbdStrategy(decrypter, dkgRitual.dkgPublicKey);
+  }
+
+  public makeEncrypter(conditionSet: ConditionSet): Enrico {
+    return new Enrico(this.dkgPublicKey, undefined, conditionSet);
+  }
 
   public static fromJSON(json: string) {
     const config = fromJSON(json);
@@ -110,51 +94,24 @@ export class DeployedCbdStrategy {
     return toJSON(this.toObj());
   }
 
-  private static fromObj({
-    dkgRitual,
-    cohortConfig,
-    conditionSet,
-  }: DeployedStrategyJSON) {
-    const ritual = DkgRitual.fromObj(dkgRitual);
-    const cohort = Cohort.fromObj(cohortConfig);
-    const maybeConditionSet = conditionSet
-      ? ConditionSet.fromObj(conditionSet)
-      : undefined;
-    const encrypter = new Enrico(
-      ritual.dkgPublicKey,
-      undefined,
-      maybeConditionSet
-    );
-    const decrypter = new CbdTDecDecrypter(
-      cohort.configuration.porterUri,
-      cohort.configuration.threshold
-    );
+  private static fromObj({ decrypter, dkgPublicKey }: DeployedStrategyJSON) {
     return new DeployedCbdStrategy(
-      cohort,
-      ritual,
-      encrypter,
-      decrypter,
-      maybeConditionSet
+      CbdTDecDecrypter.fromObj(decrypter),
+      DkgPublicKey.fromBytes(dkgPublicKey)
     );
   }
 
   public toObj(): DeployedStrategyJSON {
     return {
-      dkgRitual: this.dkgRitual.toObj(),
-      cohortConfig: this.cohort.toObj(),
-      conditionSet: this.conditionSet?.toObj(),
+      decrypter: this.decrypter.toObj(),
+      dkgPublicKey: this.dkgPublicKey.toBytes(),
     };
   }
 
   public equals(other: DeployedCbdStrategy) {
-    const conditionSetEquals =
-      this.conditionSet && other.conditionSet
-        ? this.conditionSet.equals(other.conditionSet)
-        : false;
     return (
-      this.cohort.equals(other.cohort) &&
-      conditionSetEquals &&
-      objectEquals(this.dkgRitual.toObj(), other.dkgRitual.toObj())
+      this.decrypter.equals(other.decrypter) &&
+      bytesEqual(this.dkgPublicKey.toBytes(), other.dkgPublicKey.toBytes())
     );
   }
 }

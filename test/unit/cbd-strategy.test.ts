@@ -44,7 +44,7 @@ const variant = FerveoVariant.Precomputed;
 
 const makeCbdStrategy = async () => {
   const cohort = await makeCohort(ursulas);
-  const strategy = CbdStrategy.create(cohort, conditionSet);
+  const strategy = CbdStrategy.create(cohort);
   expect(strategy.cohort).toEqual(cohort);
   return strategy;
 };
@@ -53,7 +53,7 @@ async function makeDeployedCbdStrategy() {
   const strategy = await makeCbdStrategy();
 
   const mockedDkg = fakeDkgFlow(variant, 0);
-  const mockedDkgRitual = fakeDkgRitual(mockedDkg);
+  const mockedDkgRitual = fakeDkgRitual(mockedDkg, mockedDkg.threshold);
   const web3Provider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
   const getUrsulasSpy = mockGetUrsulas(ursulas);
   const initializeRitualSpy = mockInitializeRitual(mockedDkgRitual);
@@ -104,10 +104,9 @@ describe('CbdDeployedStrategy', () => {
     const { mockedDkg, deployedStrategy } = await makeDeployedCbdStrategy();
 
     const message = 'this is a secret';
-    const { ciphertext, aad } = deployedStrategy.encrypter.encryptMessageCbd(
-      message,
-      conditionSet
-    );
+    const { ciphertext, aad } = deployedStrategy
+      .makeEncrypter(conditionSet)
+      .encryptMessageCbd(message);
 
     // Setup mocks for `retrieveAndDecrypt`
     const { decryptionShares } = fakeTDecFlow({
@@ -136,7 +135,6 @@ describe('CbdDeployedStrategy', () => {
       await deployedStrategy.decrypter.retrieveAndDecrypt(
         aliceProvider,
         conditionSet,
-        deployedStrategy.dkgRitual,
         variant,
         ciphertext,
         aad

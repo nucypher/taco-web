@@ -29,6 +29,7 @@ export function getVariantClass(
       throw new Error(`Invalid FerveoVariant: ${variant}`);
   }
 }
+
 export function getCombineDecryptionSharesFunction(
   variant: FerveoVariant
 ): (
@@ -48,13 +49,15 @@ export interface DkgRitualJSON {
   id: number;
   dkgPublicKey: Uint8Array;
   dkgPublicParams: Uint8Array;
+  threshold: number;
 }
 
 export class DkgRitual {
   constructor(
     public readonly id: number,
     public readonly dkgPublicKey: DkgPublicKey,
-    public readonly dkgPublicParams: DkgPublicParameters
+    public readonly dkgPublicParams: DkgPublicParameters,
+    public readonly threshold: number
   ) {}
 
   public toObj(): DkgRitualJSON {
@@ -62,14 +65,21 @@ export class DkgRitual {
       id: this.id,
       dkgPublicKey: this.dkgPublicKey.toBytes(),
       dkgPublicParams: this.dkgPublicParams.toBytes(),
+      threshold: this.threshold,
     };
   }
 
-  public static fromObj(json: DkgRitualJSON): DkgRitual {
+  public static fromObj({
+    id,
+    dkgPublicKey,
+    dkgPublicParams,
+    threshold,
+  }: DkgRitualJSON): DkgRitual {
     return new DkgRitual(
-      json.id,
-      DkgPublicKey.fromBytes(json.dkgPublicKey),
-      DkgPublicParameters.fromBytes(json.dkgPublicParams)
+      id,
+      DkgPublicKey.fromBytes(dkgPublicKey),
+      DkgPublicParameters.fromBytes(dkgPublicParams),
+      threshold
     );
   }
 

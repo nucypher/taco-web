@@ -64,9 +64,12 @@ describe('story: alice shares message with bob through policy', () => {
     };
     policy = await alice.grant(policyParams);
 
-    expect(policy.aliceVerifyingKey).toEqual(
-      alice.verifyingKey.toCompressedBytes()
-    );
+    expect(
+      bytesEqual(
+        policy.aliceVerifyingKey.toCompressedBytes(),
+        alice.verifyingKey.toCompressedBytes()
+      )
+    ).toBeTruthy();
     expect(policy.label).toBe(label);
     expect(getUrsulasSpy).toHaveBeenCalled();
     expect(generateKFragsSpy).toHaveBeenCalled();

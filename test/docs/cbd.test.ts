@@ -80,7 +80,7 @@ describe('Get Started (CBD PoC)', () => {
     ]);
 
     // 4. Build a Strategy
-    const newStrategy = PreStrategy.create(newCohort, conditions);
+    const newStrategy = PreStrategy.create(newCohort);
 
     const MMprovider = await detectEthereumProvider();
     const mumbai = providers.getNetwork(80001);
@@ -101,14 +101,10 @@ describe('Get Started (CBD PoC)', () => {
       },
     };
     const NFTBalance = new ContractCondition(NFTBalanceConfig);
-
-    const encrypter = newDeployed.encrypter;
-
+    const newConditions = new ConditionSet([NFTBalance]);
     const plaintext = 'this is a secret';
-    const encryptedMessageKit = encrypter.encryptMessagePre(
-      plaintext,
-      new ConditionSet([NFTBalance])
-    );
+    const encrypter = newDeployed.makeEncrypter(newConditions);
+    const encryptedMessageKit = encrypter.encryptMessagePre(plaintext);
 
     // Mocking - Not a part of any code example
     const retrieveCFragsSpy = mockRetrieveAndDecrypt(
@@ -136,7 +132,6 @@ describe('Get Started (CBD PoC)', () => {
     );
     expect(conditions.validate()).toEqual(true);
     expect(publishToBlockchainSpy).toHaveBeenCalled();
-    expect(newDeployed.label).toEqual('test');
     expect(getUrsulasSpy).toHaveBeenCalledTimes(2);
     expect(generateKFragsSpy).toHaveBeenCalled();
     expect(encryptTreasureMapSpy).toHaveBeenCalled();

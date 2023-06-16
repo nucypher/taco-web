@@ -1,17 +1,15 @@
-import {
-  EncryptedTreasureMap,
-  HRAC,
-  PublicKey,
-  SecretKey,
-} from '@nucypher/nucypher-core';
+import { PublicKey, SecretKey } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
 import { Alice } from '../../characters/alice';
 import { Bob } from '../../characters/bob';
 import { Enrico } from '../../characters/enrico';
-import { PreTDecDecrypter } from '../../characters/pre-recipient';
-import { ConditionSet, ConditionSetJSON } from '../../conditions';
-import { EnactedPolicy, EnactedPolicyJSON } from '../../policies/policy';
+import {
+  PreTDecDecrypter,
+  PreTDecDecrypterJSON,
+} from '../../characters/pre-recipient';
+import { ConditionSet } from '../../conditions';
+import { EnactedPolicy } from '../../policies/policy';
 import { base64ToU8Receiver, bytesEquals, toJSON } from '../../utils';
 import { Cohort, CohortJSON } from '../cohort';
 
@@ -19,16 +17,14 @@ export type PreStrategyJSON = {
   cohort: CohortJSON;
   aliceSecretKeyBytes: Uint8Array;
   bobSecretKeyBytes: Uint8Array;
-  conditionSet?: ConditionSetJSON;
   startDate: Date;
   endDate: Date;
 };
 
 export type DeployedPreStrategyJSON = {
-  policy: EnactedPolicyJSON;
   cohortConfig: CohortJSON;
-  bobSecretKeyBytes: Uint8Array;
-  conditionSet?: ConditionSetJSON;
+  decrypterJSON: PreTDecDecrypterJSON;
+  policyKeyBytes: Uint8Array;
 };
 
 export class PreStrategy {
@@ -37,13 +33,11 @@ export class PreStrategy {
     private readonly aliceSecretKey: SecretKey,
     private readonly bobSecretKey: SecretKey,
     private readonly startDate: Date,
-    private readonly endDate: Date,
-    private readonly conditionSet?: ConditionSet
+    private readonly endDate: Date
   ) {}
 
   public static create(
     cohort: Cohort,
-    conditionSet?: ConditionSet,
     aliceSecretKey?: SecretKey,
     bobSecretKey?: SecretKey,
     startDate?: Date,
@@ -66,8 +60,7 @@ export class PreStrategy {
       aliceSecretKey,
       bobSecretKey,
       startDate,
-      endDate,
-      conditionSet
+      endDate
     );
   }
 
@@ -92,28 +85,7 @@ export class PreStrategy {
       endDate: this.endDate,
     };
     const policy = await alice.grant(policyParams, this.cohort.ursulaAddresses);
-    const encrypter = new Enrico(
-      policy.policyKey,
-      undefined,
-      this.conditionSet
-    );
-
-    const decrypter = new PreTDecDecrypter(
-      this.cohort.configuration.porterUri,
-      policy.policyKey,
-      policy.encryptedTreasureMap,
-      alice.verifyingKey,
-      this.bobSecretKey
-    );
-    return new DeployedPreStrategy(
-      label,
-      this.cohort,
-      policy,
-      encrypter,
-      decrypter,
-      this.bobSecretKey,
-      this.conditionSet
-    );
+    return DeployedPreStrategy.create(this.cohort, policy, this.bobSecretKey);
   }
 
   public static fromJSON(json: string) {
@@ -131,7 +103,6 @@ export class PreStrategy {
     cohort,
     aliceSecretKeyBytes,
     bobSecretKeyBytes,
-    conditionSet,
     startDate,
     endDate,
   }: PreStrategyJSON) {
@@ -140,8 +111,7 @@ export class PreStrategy {
       SecretKey.fromBEBytes(aliceSecretKeyBytes),
       SecretKey.fromBEBytes(bobSecretKeyBytes),
       new Date(startDate),
-      new Date(endDate),
-      conditionSet ? ConditionSet.fromObj(conditionSet) : undefined
+      new Date(endDate)
     );
   }
 
@@ -150,17 +120,12 @@ export class PreStrategy {
       cohort: this.cohort.toObj(),
       aliceSecretKeyBytes: this.aliceSecretKey.toBEBytes(),
       bobSecretKeyBytes: this.bobSecretKey.toBEBytes(),
-      conditionSet: this.conditionSet ? this.conditionSet.toObj() : undefined,
       startDate: this.startDate,
       endDate: this.endDate,
     };
   }
 
   public equals(other: PreStrategy) {
-    const conditionSetEquals =
-      this.conditionSet && other.conditionSet
-        ? this.conditionSet.equals(other.conditionSet)
-        : this.conditionSet === other.conditionSet;
     return (
       this.cohort.equals(other.cohort) &&
       // TODO: Add equality to WASM bindings
@@ -172,7 +137,6 @@ export class PreStrategy {
         this.bobSecretKey.toBEBytes(),
         other.bobSecretKey.toBEBytes()
       ) &&
-      conditionSetEquals &&
       this.startDate.toString() === other.startDate.toString() &&
       this.endDate.toString() === other.endDate.toString()
     );
@@ -180,15 +144,30 @@ export class PreStrategy {
 }
 
 export class DeployedPreStrategy {
-  constructor(
-    public label: string,
-    public cohort: Cohort,
-    public policy: EnactedPolicy,
-    public encrypter: Enrico,
-    public decrypter: PreTDecDecrypter,
-    private bobSecretKey: SecretKey,
-    public conditionSet?: ConditionSet
+  private constructor(
+    public readonly cohort: Cohort,
+    public readonly decrypter: PreTDecDecrypter,
+    public readonly policyKey: PublicKey
   ) {}
+
+  public static create(
+    cohort: Cohort,
+    policy: EnactedPolicy,
+    bobSecretKey: SecretKey
+  ) {
+    const decrypter = PreTDecDecrypter.create(
+      cohort.configuration.porterUri,
+      bobSecretKey,
+      policy.policyKey,
+      policy.aliceVerifyingKey,
+      policy.encryptedTreasureMap
+    );
+    return new DeployedPreStrategy(cohort, decrypter, policy.policyKey);
+  }
+
+  public makeEncrypter(conditionSet: ConditionSet): Enrico {
+    return new Enrico(this.policyKey, undefined, conditionSet);
+  }
 
   public static fromJSON(json: string) {
     const config = JSON.parse(json, base64ToU8Receiver);
@@ -200,92 +179,32 @@ export class DeployedPreStrategy {
   }
 
   public static fromObj({
-    policy,
     cohortConfig,
-    bobSecretKeyBytes,
-    conditionSet,
+    decrypterJSON,
+    policyKeyBytes,
   }: DeployedPreStrategyJSON) {
-    const id = HRAC.fromBytes(policy.id);
-    const policyKey = PublicKey.fromCompressedBytes(policy.policyKey);
-    const encryptedTreasureMap = EncryptedTreasureMap.fromBytes(
-      policy.encryptedTreasureMap
-    );
-    const aliceVerifyingKey = PublicKey.fromCompressedBytes(
-      policy.aliceVerifyingKey
-    );
-    const newPolicy = {
-      id,
-      label: policy.label,
-      policyKey,
-      encryptedTreasureMap,
-      aliceVerifyingKey: aliceVerifyingKey.toCompressedBytes(),
-      size: policy.size,
-      startTimestamp: policy.startTimestamp,
-      endTimestamp: policy.endTimestamp,
-      txHash: policy.txHash,
-    };
-    const bobSecretKey = SecretKey.fromBEBytes(bobSecretKeyBytes);
-    const label = newPolicy.label;
     const cohort = Cohort.fromObj(cohortConfig);
-
-    const conditionSetOrUndefined = conditionSet
-      ? ConditionSet.fromObj(conditionSet)
-      : undefined;
-    const encrypter = new Enrico(
-      newPolicy.policyKey,
-      undefined,
-      conditionSetOrUndefined
-    );
-
-    const decrypter = new PreTDecDecrypter(
-      cohort.configuration.porterUri,
-      policyKey,
-      encryptedTreasureMap,
-      aliceVerifyingKey,
-      bobSecretKey
-    );
-    return new DeployedPreStrategy(
-      label,
-      cohort,
-      newPolicy,
-      encrypter,
-      decrypter,
-      bobSecretKey,
-      conditionSetOrUndefined
-    );
+    const decrypter = PreTDecDecrypter.fromObj(decrypterJSON);
+    const policyKey = PublicKey.fromCompressedBytes(policyKeyBytes);
+    return new DeployedPreStrategy(cohort, decrypter, policyKey);
   }
 
   public toObj(): DeployedPreStrategyJSON {
-    const policy = {
-      ...this.policy,
-      id: this.policy.id.toBytes(),
-      policyKey: this.policy.policyKey.toCompressedBytes(),
-      encryptedTreasureMap: this.policy.encryptedTreasureMap.toBytes(),
-    };
     return {
-      policy,
       cohortConfig: this.cohort.toObj(),
-      bobSecretKeyBytes: this.bobSecretKey.toBEBytes(),
-      conditionSet: this.conditionSet?.toObj(),
+      decrypterJSON: this.decrypter.toObj(),
+      policyKeyBytes: this.policyKey.toCompressedBytes(),
     };
   }
 
   public equals(other: DeployedPreStrategy) {
-    const conditionSetEquals =
-      this.conditionSet && other.conditionSet
-        ? this.conditionSet.equals(other.conditionSet)
-        : this.conditionSet === other.conditionSet;
     return (
-      this.label === other.label &&
       this.cohort.equals(other.cohort) &&
-      bytesEquals(this.policy.id.toBytes(), other.policy.id.toBytes()) &&
-      this.policy.label === other.policy.label &&
-      this.policy.policyKey.equals(other.policy.policyKey) &&
+      this.decrypter.equals(other.decrypter) &&
       bytesEquals(
-        this.policy.encryptedTreasureMap.toBytes(),
-        other.policy.encryptedTreasureMap.toBytes()
-      ) &&
-      conditionSetEquals
+        this.policyKey.toCompressedBytes(),
+        other.policyKey.toCompressedBytes()
+      )
     );
   }
 }

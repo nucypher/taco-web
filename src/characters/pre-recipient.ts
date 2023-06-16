@@ -16,7 +16,7 @@ import { base64ToU8Receiver, bytesEquals, toJSON, zip } from '../utils';
 
 import { Porter } from './porter';
 
-type PreTDecDecrypterJSON = {
+export type PreTDecDecrypterJSON = {
   porterUri: string;
   policyEncryptingKeyBytes: Uint8Array;
   encryptedTreasureMapBytes: Uint8Array;
@@ -25,22 +25,30 @@ type PreTDecDecrypterJSON = {
 };
 
 export class PreTDecDecrypter {
-  private readonly porter: Porter;
-  private readonly keyring: Keyring;
-
   // private readonly verifyingKey: Keyring;
 
   constructor(
-    porterUri: string,
+    private readonly porter: Porter,
+    private readonly keyring: Keyring,
     private readonly policyEncryptingKey: PublicKey,
-    readonly encryptedTreasureMap: EncryptedTreasureMap,
     private readonly publisherVerifyingKey: PublicKey,
-    secretKey: SecretKey
-    // verifyingKey: SecretKey
-  ) {
-    this.porter = new Porter(porterUri);
-    this.keyring = new Keyring(secretKey);
-    // this.verifyingKey = new Keyring(verifyingKey);
+    private readonly encryptedTreasureMap: EncryptedTreasureMap
+  ) {}
+
+  public static create(
+    porterUri: string,
+    secretKey: SecretKey,
+    policyEncryptingKey: PublicKey,
+    publisherVerifyingKey: PublicKey,
+    encryptedTreasureMap: EncryptedTreasureMap
+  ): PreTDecDecrypter {
+    return new PreTDecDecrypter(
+      new Porter(porterUri),
+      new Keyring(secretKey),
+      policyEncryptingKey,
+      publisherVerifyingKey,
+      encryptedTreasureMap
+    );
   }
 
   public get decryptingKey(): PublicKey {
@@ -161,11 +169,11 @@ export class PreTDecDecrypter {
     bobSecretKeyBytes,
   }: PreTDecDecrypterJSON) {
     return new PreTDecDecrypter(
-      porterUri,
+      new Porter(porterUri),
+      new Keyring(SecretKey.fromBEBytes(bobSecretKeyBytes)),
       PublicKey.fromCompressedBytes(policyEncryptingKeyBytes),
-      EncryptedTreasureMap.fromBytes(encryptedTreasureMapBytes),
       PublicKey.fromCompressedBytes(publisherVerifyingKeyBytes),
-      SecretKey.fromBEBytes(bobSecretKeyBytes)
+      EncryptedTreasureMap.fromBytes(encryptedTreasureMapBytes)
     );
   }
 

@@ -1,4 +1,5 @@
 import {
+  bytesEqual,
   fakeAlice,
   fakeRemoteBob,
   fakeUrsulas,
@@ -37,9 +38,12 @@ describe('story: alice1 creates a policy but alice2 enacts it', () => {
     const preEnactedPolicy = await alice1.generatePreEnactedPolicy(
       policyParams
     );
-    expect(preEnactedPolicy.aliceVerifyingKey).toEqual(
-      alice1.verifyingKey.toCompressedBytes()
-    );
+    expect(
+      bytesEqual(
+        preEnactedPolicy.aliceVerifyingKey.toCompressedBytes(),
+        alice1.verifyingKey.toCompressedBytes()
+      )
+    ).toBeTruthy();
     expect(preEnactedPolicy.label).toBe(label);
 
     const enacted = await preEnactedPolicy.enact(alice2);

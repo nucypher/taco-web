@@ -4,8 +4,14 @@ import {
   RpcCondition,
   TimeCondition,
 } from '../../../src/conditions/base';
+import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
 import { ERC721Balance } from '../../../src/conditions/predefined';
-import { TEST_CHAIN_ID, TEST_CONTRACT_ADDR } from '../testVariables';
+import {
+  TEST_CHAIN_ID,
+  TEST_CONTRACT_ADDR,
+  testFunctionAbi,
+  testReturnValueTest,
+} from '../testVariables';
 import {
   testContractConditionObj,
   testRpcConditionObj,
@@ -17,7 +23,26 @@ describe('condition set', () => {
     chain: TEST_CHAIN_ID,
     contractAddress: TEST_CONTRACT_ADDR,
   });
-  const contractCondition = new ContractCondition(testContractConditionObj);
+
+  const contractConditionNoAbi = new ContractCondition(
+    testContractConditionObj
+  );
+
+  const customParamKey = ':customParam';
+  const contractConditionWithAbiObj = {
+    ...testContractConditionObj,
+    standardContractType: undefined,
+    functionAbi: testFunctionAbi,
+    method: testFunctionAbi.name,
+    parameters: [USER_ADDRESS_PARAM, customParamKey],
+    returnValueTest: {
+      ...testReturnValueTest,
+    },
+  };
+  const contractConditionWithAbi = new ContractCondition(
+    contractConditionWithAbiObj
+  );
+
   const rpcCondition = new RpcCondition(testRpcConditionObj);
   const timeCondition = new TimeCondition(testTimeConditionObj);
   const compoundCondition = new CompoundCondition({
@@ -36,7 +61,8 @@ describe('condition set', () => {
   describe('serialization', () => {
     it.each([
       erc721BalanceCondition,
-      contractCondition,
+      contractConditionNoAbi,
+      contractConditionWithAbi,
       rpcCondition,
       timeCondition,
       compoundCondition,
@@ -102,13 +128,17 @@ describe('condition set', () => {
     expect(conditionSetJson).toContain(erc721BalanceConditionObj.method);
     expect(conditionSetJson).toContain('returnValueTest');
 
+    expect(conditionSetJson).not.toContain('functionAbi');
+    expect(conditionSetJson).not.toContain('operator');
+    expect(conditionSetJson).not.toContain('operands');
+
     const conditionSetFromJson = ConditionSet.fromJSON(conditionSetJson);
     expect(conditionSetFromJson).toBeDefined();
     expect(conditionSetFromJson.condition).toBeInstanceOf(ContractCondition);
   });
 
-  it('contract condition serialization', async () => {
-    const conditionSet = new ConditionSet(contractCondition);
+  it('contract condition no abi serialization', async () => {
+    const conditionSet = new ConditionSet(contractConditionNoAbi);
 
     const conditionSetJson = conditionSet.toJson();
     expect(conditionSetJson).toBeDefined();
@@ -127,7 +157,39 @@ describe('condition set', () => {
     expect(conditionSetJson).toContain('parameters');
     expect(conditionSetJson).toContain(testContractConditionObj.parameters[0]);
     expect(conditionSetJson).toContain('returnValueTest');
+    expect(conditionSetJson).not.toContain('functionAbi');
+    expect(conditionSetJson).not.toContain('operator');
+    expect(conditionSetJson).not.toContain('operands');
 
+    const conditionSetFromJson = ConditionSet.fromJSON(conditionSetJson);
+    expect(conditionSetFromJson).toBeDefined();
+    expect(conditionSetFromJson.condition).toBeInstanceOf(ContractCondition);
+  });
+
+  it('contract condition with abi serialization', async () => {
+    const conditionSet = new ConditionSet(contractConditionWithAbi);
+
+    const conditionSetJson = conditionSet.toJson();
+    expect(conditionSetJson).toBeDefined();
+    expect(conditionSetJson).toContain('chain');
+    expect(conditionSetJson).toContain(TEST_CHAIN_ID.toString());
+    expect(conditionSetJson).toContain('contractAddress');
+    expect(conditionSetJson).toContain(
+      contractConditionWithAbiObj.contractAddress
+    );
+    expect(conditionSetJson).toContain('method');
+    expect(conditionSetJson).toContain(contractConditionWithAbiObj.method);
+    expect(conditionSetJson).toContain('parameters');
+    expect(conditionSetJson).toContain(
+      contractConditionWithAbiObj.parameters[0]
+    );
+    expect(conditionSetJson).toContain(
+      contractConditionWithAbiObj.parameters[1]
+    );
+    expect(conditionSetJson).toContain('returnValueTest');
+    expect(conditionSetJson).toContain('functionAbi');
+
+    expect(conditionSetJson).not.toContain('standardContractType');
     expect(conditionSetJson).not.toContain('operator');
     expect(conditionSetJson).not.toContain('operands');
 
@@ -149,6 +211,7 @@ describe('condition set', () => {
     expect(conditionSetJson).not.toContain('parameters');
     expect(conditionSetJson).not.toContain('contractAddress');
     expect(conditionSetJson).not.toContain('standardContractType');
+    expect(conditionSetJson).not.toContain('functionAbi');
     expect(conditionSetJson).not.toContain('operator');
     expect(conditionSetJson).not.toContain('operands');
 
@@ -171,6 +234,7 @@ describe('condition set', () => {
     expect(conditionSetJson).toContain('returnValueTest');
     expect(conditionSetJson).not.toContain('contractAddress');
     expect(conditionSetJson).not.toContain('standardContractType');
+    expect(conditionSetJson).not.toContain('functionAbi');
     expect(conditionSetJson).not.toContain('operator');
     expect(conditionSetJson).not.toContain('operands');
 

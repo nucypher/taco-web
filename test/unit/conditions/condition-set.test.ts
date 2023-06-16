@@ -50,6 +50,40 @@ describe('condition set', () => {
     });
   });
 
+  it.each([
+    // no "operator" nor "method" value
+    {
+      randoKey: 'randoValue',
+      otherKey: 'otherValue',
+    },
+    // invalid "method" and no "contractAddress"
+    {
+      method: 'doWhatIWant',
+      returnValueTest: {
+        index: 0,
+        comparator: '>',
+        value: '100',
+      },
+      chain: 5,
+    },
+    // condition with wrong method "method" and no contract address
+    {
+      ...testTimeConditionObj,
+      method: 'doWhatIWant',
+    },
+    // rpc condition (no contract address) with disallowed method
+    {
+      ...testRpcConditionObj,
+      method: 'isPolicyActive',
+    },
+  ])("can't determine condition type", async (invalidCondition) => {
+    expect(() => {
+      ConditionSet.fromObj({
+        condition: invalidCondition,
+      });
+    }).toThrow('unrecognized condition data');
+  });
+
   it('erc721 condition serialization', async () => {
     const conditionSet = new ConditionSet(erc721BalanceCondition);
 

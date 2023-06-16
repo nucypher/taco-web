@@ -29,25 +29,26 @@ export class ConditionSet {
   public static fromObj(obj: ConditionSetJSON): ConditionSet {
     // version specific logic can go here
     const underlyingConditionData = obj.condition;
-    let condition = undefined;
+
     if (underlyingConditionData.operator) {
-      condition = new CompoundCondition(underlyingConditionData);
-    } else if (underlyingConditionData.method) {
-      if (underlyingConditionData.method == BLOCKTIME_METHOD) {
-        condition = new TimeCondition(underlyingConditionData);
-      } else if (underlyingConditionData.contractAddress) {
-        condition = new ContractCondition(underlyingConditionData);
-      } else if (
-        (underlyingConditionData.method as string).startsWith('eth_')
-      ) {
-        condition = new RpcCondition(underlyingConditionData);
-      }
-    }
-    if (condition == undefined) {
-      throw `Invalid condition: unrecognized condition data`;
+      return new ConditionSet(new CompoundCondition(underlyingConditionData));
     }
 
-    return new ConditionSet(condition);
+    if (underlyingConditionData.method) {
+      if (underlyingConditionData.method === BLOCKTIME_METHOD) {
+        return new ConditionSet(new TimeCondition(underlyingConditionData));
+      }
+
+      if (underlyingConditionData.contractAddress) {
+        return new ConditionSet(new ContractCondition(underlyingConditionData));
+      }
+
+      if ((underlyingConditionData.method as string).startsWith('eth_')) {
+        return new ConditionSet(new RpcCondition(underlyingConditionData));
+      }
+    }
+
+    throw new Error('Invalid condition: unrecognized condition data');
   }
 
   public toJson(): string {

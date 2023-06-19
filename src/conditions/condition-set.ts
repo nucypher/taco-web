@@ -100,6 +100,9 @@ export class ConditionSet {
   }
 
   public equals(other: ConditionSet): boolean {
-    return objectEquals(this.condition.toObj(), other.condition.toObj());
+    return (
+      this.version === other.version &&
+      objectEquals(this.condition.toObj(), other.condition.toObj())
+    );
   }
 }

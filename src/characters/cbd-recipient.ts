@@ -4,7 +4,6 @@ import {
   DecryptionSharePrecomputed,
   DecryptionShareSimple,
   decryptWithSharedSecret,
-  DkgPublicParameters,
   EncryptedThresholdDecryptionRequest,
   EncryptedThresholdDecryptionResponse,
   SessionSharedSecret,
@@ -28,7 +27,6 @@ import { Porter } from './porter';
 export type CbdTDecDecrypterJSON = {
   porterUri: string;
   ritualId: number;
-  dkgPublicParams: Uint8Array;
   threshold: number;
 };
 
@@ -38,7 +36,6 @@ export class CbdTDecDecrypter {
   private constructor(
     private readonly porter: Porter,
     private readonly ritualId: number,
-    private readonly dkgPublicParams: DkgPublicParameters,
     private readonly threshold: number
   ) {}
 
@@ -46,7 +43,6 @@ export class CbdTDecDecrypter {
     return new CbdTDecDecrypter(
       new Porter(porterUri),
       dkgRitual.id,
-      dkgRitual.dkgPublicParams,
       dkgRitual.threshold
     );
   }
@@ -58,7 +54,7 @@ export class CbdTDecDecrypter {
     variant: number,
     ciphertext: Ciphertext,
     aad: Uint8Array
-  ): Promise<readonly Uint8Array[]> {
+  ): Promise<Uint8Array> {
     const decryptionShares = await this.retrieve(
       provider,
       conditionExpr,
@@ -69,14 +65,7 @@ export class CbdTDecDecrypter {
     const combineDecryptionSharesFn =
       getCombineDecryptionSharesFunction(variant);
     const sharedSecret = combineDecryptionSharesFn(decryptionShares);
-
-    const plaintext = decryptWithSharedSecret(
-      ciphertext,
-      aad,
-      sharedSecret,
-      this.dkgPublicParams
-    );
-    return [plaintext];
+    return decryptWithSharedSecret(ciphertext, aad, sharedSecret);
   }
 
   // Retrieve decryption shares
@@ -205,7 +194,6 @@ export class CbdTDecDecrypter {
     return {
       porterUri: this.porter.porterUrl.toString(),
       ritualId: this.ritualId,
-      dkgPublicParams: this.dkgPublicParams.toBytes(),
       threshold: this.threshold,
     };
   }
@@ -217,15 +205,9 @@ export class CbdTDecDecrypter {
   public static fromObj({
     porterUri,
     ritualId,
-    dkgPublicParams,
     threshold,
   }: CbdTDecDecrypterJSON) {
-    return new CbdTDecDecrypter(
-      new Porter(porterUri),
-      ritualId,
-      DkgPublicParameters.fromBytes(dkgPublicParams),
-      threshold
-    );
+    return new CbdTDecDecrypter(new Porter(porterUri), ritualId, threshold);
   }
 
   public static fromJSON(json: string) {

@@ -28,9 +28,8 @@ export class DkgCoordinatorAgent {
   ): Promise<DkgParticipant[]> {
     const Coordinator = await this.connectReadOnly(provider);
     // TODO: Remove `as unknown` cast after regenerating the contract types: https://github.com/nucypher/nucypher-contracts/pull/77
-    return (await Coordinator.getParticipants(
-      ritualId
-    )) as unknown as DkgParticipant[];
+    const participants = await Coordinator.getParticipants(ritualId);
+    return participants as unknown as DkgParticipant[];
   }
 
   public static async getRitual(

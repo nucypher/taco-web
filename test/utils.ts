@@ -302,7 +302,6 @@ export const fakeTDecFlow = ({
   variant,
   ciphertext,
   aad,
-  dkg,
   message,
 }: FakeDkgRitualFlow) => {
   // Having aggregated the transcripts, the validators can now create decryption shares
@@ -348,12 +347,7 @@ export const fakeTDecFlow = ({
   }
 
   // The client should have access to the public parameters of the DKG
-  const plaintext = decryptWithSharedSecret(
-    ciphertext,
-    aad,
-    sharedSecret,
-    dkg.publicParams()
-  );
+  const plaintext = decryptWithSharedSecret(ciphertext, aad, sharedSecret);
   if (!bytesEqual(plaintext, message)) {
     throw new Error('Decryption failed');
   }
@@ -500,13 +494,8 @@ export const mockRandomSessionStaticSecret = (secret: SessionStaticSecret) => {
 
 export const fakeRitualId = 0;
 
-export const fakeDkgRitual = (ritual: { dkg: Dkg }, thresold: number) => {
-  return new DkgRitual(
-    fakeRitualId,
-    ritual.dkg.publicKey(),
-    ritual.dkg.publicParams(),
-    thresold
-  );
+export const fakeDkgRitual = (ritual: { dkg: Dkg }, threshold: number) => {
+  return new DkgRitual(fakeRitualId, ritual.dkg.publicKey(), threshold);
 };
 
 export const mockInitializeRitual = (fakeRitual: unknown) => {

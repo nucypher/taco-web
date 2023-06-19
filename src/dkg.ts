@@ -4,12 +4,11 @@ import {
   DecryptionSharePrecomputed,
   DecryptionShareSimple,
   DkgPublicKey,
-  DkgPublicParameters,
   SharedSecret,
 } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { bytesEquals } from './utils';
+import { bytesEquals, fromHexString } from './utils';
 
 // TODO: Expose from @nucypher/nucypher-core
 export enum FerveoVariant {
@@ -48,7 +47,6 @@ export function getCombineDecryptionSharesFunction(
 export interface DkgRitualJSON {
   id: number;
   dkgPublicKey: Uint8Array;
-  dkgPublicParams: Uint8Array;
   threshold: number;
 }
 
@@ -56,7 +54,6 @@ export class DkgRitual {
   constructor(
     public readonly id: number,
     public readonly dkgPublicKey: DkgPublicKey,
-    public readonly dkgPublicParams: DkgPublicParameters,
     public readonly threshold: number
   ) {}
 
@@ -64,7 +61,6 @@ export class DkgRitual {
     return {
       id: this.id,
       dkgPublicKey: this.dkgPublicKey.toBytes(),
-      dkgPublicParams: this.dkgPublicParams.toBytes(),
       threshold: this.threshold,
     };
   }
@@ -72,27 +68,16 @@ export class DkgRitual {
   public static fromObj({
     id,
     dkgPublicKey,
-    dkgPublicParams,
     threshold,
   }: DkgRitualJSON): DkgRitual {
-    return new DkgRitual(
-      id,
-      DkgPublicKey.fromBytes(dkgPublicKey),
-      DkgPublicParameters.fromBytes(dkgPublicParams),
-      threshold
-    );
+    return new DkgRitual(id, DkgPublicKey.fromBytes(dkgPublicKey), threshold);
   }
 
   public equals(other: DkgRitual): boolean {
     return (
       this.id === other.id &&
       // TODO: Replace with `equals` after https://github.com/nucypher/nucypher-core/issues/56 is fixed
-      bytesEquals(this.dkgPublicKey.toBytes(), other.dkgPublicKey.toBytes()) &&
-      // TODO: Replace with `equals` after https://github.com/nucypher/nucypher-core/issues/56 is fixed
-      bytesEquals(
-        this.dkgPublicParams.toBytes(),
-        other.dkgPublicParams.toBytes()
-      )
+      bytesEquals(this.dkgPublicKey.toBytes(), other.dkgPublicKey.toBytes())
     );
   }
 }
@@ -112,7 +97,19 @@ export class DkgClient {
       throw new Error('Invalid provider');
     }
     // TODO: Create a new DKG ritual here
-    throw new Error('Not implemented');
+    const pkWord1 = fromHexString(
+      '9045795411ed251bf2eecc9415552c41863502a207104ef7ab482bc2364729d9'
+    );
+    console.assert(pkWord1.length === 32);
+    const pkWord2 = fromHexString('b99e2949cee8d888663b2995fc647fcf');
+    // We need to concat two words returned by the DKG contract
+    const dkgPkBytes = new Uint8Array([...pkWord1, ...pkWord2]);
+    console.assert(dkgPkBytes.length === 48);
+
+    return {
+      id: 0,
+      dkgPublicKey: DkgPublicKey.fromBytes(dkgPkBytes),
+    } as DkgRitual;
   }
 
   // TODO: Without Validator public key in Coordinator, we cannot verify the

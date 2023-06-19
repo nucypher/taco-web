@@ -143,7 +143,7 @@ describe('CbdDeployedStrategy', () => {
     expect(getParticipantsSpy).toHaveBeenCalled();
     expect(sessionKeySpy).toHaveBeenCalled();
     expect(decryptSpy).toHaveBeenCalled();
-    expect(decryptedMessage[0]).toEqual(toBytes(message));
+    expect(decryptedMessage).toEqual(toBytes(message));
   });
 
   describe('serialization', () => {

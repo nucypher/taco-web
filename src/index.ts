@@ -28,9 +28,13 @@ import * as conditions from './conditions';
 // TODO: Not sure how to re-export this type from the conditions module
 export { conditions, CustomContextParam };
 
+// DKG
+export { FerveoVariant } from './dkg';
+
 // SDK
 export { Cohort } from './sdk/cohort';
 export { DeployedPreStrategy, PreStrategy } from './sdk/strategy/pre-strategy';
+export { DeployedCbdStrategy, CbdStrategy } from './sdk/strategy/cbd-strategy';
 
 // Re-exports
 export {
@@ -41,4 +45,5 @@ export {
   Signer,
   TreasureMap,
   MessageKit,
+  Ciphertext,
 } from '@nucypher/nucypher-core';

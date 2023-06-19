@@ -52,7 +52,7 @@
     "prebuild": "yarn typechain"
   },
   "dependencies": {
-    "@nucypher/nucypher-core": "^0.9.0",
+    "@nucypher/nucypher-core": "../nucypher-core/nucypher-core-wasm/pkg",
     "axios": "^0.21.1",
     "deep-equal": "^2.2.1",
     "ethers": "^5.4.1",

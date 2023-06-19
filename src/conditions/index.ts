@@ -3,8 +3,8 @@ import * as predefined from './predefined';
 
 export { predefined, base };
 export { Condition } from './base/condition';
-export type { ConditionSetJSON } from './condition-set';
-export { ConditionSet } from './condition-set';
+export type { ConditionExpressionJSON } from './condition-expr';
+export { ConditionExpression } from './condition-expr';
 export { CompoundCondition } from './compound-condition';
 export type { CustomContextParam } from './context';
 export { ConditionContext } from './context';

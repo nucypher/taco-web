@@ -8,7 +8,7 @@ import {
   PreTDecDecrypter,
   PreTDecDecrypterJSON,
 } from '../../characters/pre-recipient';
-import { ConditionSet } from '../../conditions';
+import { ConditionExpression } from '../../conditions';
 import { EnactedPolicy } from '../../policies/policy';
 import { base64ToU8Receiver, bytesEquals, toJSON } from '../../utils';
 import { Cohort, CohortJSON } from '../cohort';
@@ -165,8 +165,8 @@ export class DeployedPreStrategy {
     return new DeployedPreStrategy(cohort, decrypter, policy.policyKey);
   }
 
-  public makeEncrypter(conditionSet: ConditionSet): Enrico {
-    return new Enrico(this.policyKey, undefined, conditionSet);
+  public makeEncrypter(conditionExpr: ConditionExpression): Enrico {
+    return new Enrico(this.policyKey, undefined, conditionExpr);
   }
 
   public static fromJSON(json: string) {

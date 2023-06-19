@@ -13,20 +13,20 @@ import { BLOCKTIME_METHOD } from './base/time';
 import { CompoundCondition } from './compound-condition';
 import { ConditionContext } from './context';
 
-export type ConditionSetJSON = {
+export type ConditionExpressionJSON = {
   version: string;
   condition: Record<string, unknown>;
 };
 
-export class ConditionSet {
+export class ConditionExpression {
   static VERSION = '1.0.0';
 
   constructor(
     public readonly condition: Condition,
-    public readonly version: string = ConditionSet.VERSION
+    public readonly version: string = ConditionExpression.VERSION
   ) {}
 
-  public toObj(): ConditionSetJSON {
+  public toObj(): ConditionExpressionJSON {
     // TODO add version here
     const conditionData = this.condition.toObj();
     return {
@@ -35,21 +35,21 @@ export class ConditionSet {
     };
   }
 
-  public static fromObj(obj: ConditionSetJSON): ConditionSet {
+  public static fromObj(obj: ConditionExpressionJSON): ConditionExpression {
     const version = obj.version;
     // version specific logic can go here
     const receivedMajorVersion = version.split('.')[0];
-    const currentMajorVersion = ConditionSet.VERSION.split('.')[0];
+    const currentMajorVersion = ConditionExpression.VERSION.split('.')[0];
     if (receivedMajorVersion > currentMajorVersion) {
       throw new Error(
-        `Version provided, ${version}, is incompatible with current version, ${ConditionSet.VERSION}`
+        `Version provided, ${version}, is incompatible with current version, ${ConditionExpression.VERSION}`
       );
     }
 
     const underlyingConditionData = obj.condition;
 
     if (underlyingConditionData.operator) {
-      return new ConditionSet(
+      return new ConditionExpression(
         new CompoundCondition(underlyingConditionData),
         version
       );
@@ -57,21 +57,21 @@ export class ConditionSet {
 
     if (underlyingConditionData.method) {
       if (underlyingConditionData.method === BLOCKTIME_METHOD) {
-        return new ConditionSet(
+        return new ConditionExpression(
           new TimeCondition(underlyingConditionData),
           version
         );
       }
 
       if (underlyingConditionData.contractAddress) {
-        return new ConditionSet(
+        return new ConditionExpression(
           new ContractCondition(underlyingConditionData),
           version
         );
       }
 
       if ((underlyingConditionData.method as string).startsWith('eth_')) {
-        return new ConditionSet(
+        return new ConditionExpression(
           new RpcCondition(underlyingConditionData),
           version
         );
@@ -85,8 +85,8 @@ export class ConditionSet {
     return toJSON(this.toObj());
   }
 
-  public static fromJSON(json: string): ConditionSet {
-    return ConditionSet.fromObj(JSON.parse(json));
+  public static fromJSON(json: string): ConditionExpression {
+    return ConditionExpression.fromObj(JSON.parse(json));
   }
 
   public toWASMConditions(): WASMConditions {
@@ -99,7 +99,7 @@ export class ConditionSet {
     return new ConditionContext([this.condition], provider);
   }
 
-  public equals(other: ConditionSet): boolean {
+  public equals(other: ConditionExpression): boolean {
     return (
       this.version === other.version &&
       objectEquals(this.condition.toObj(), other.condition.toObj())

@@ -13,7 +13,7 @@ import {
 
 const {
   predefined: { ERC721Ownership },
-  ConditionSet,
+  ConditionExpression,
 } = conditions;
 
 describe('enrico', () => {
@@ -105,7 +105,7 @@ describe('enrico', () => {
       chain: 5,
     });
 
-    const conditions = new ConditionSet(ownsBufficornNFT);
+    const conditions = new ConditionExpression(ownsBufficornNFT);
 
     const enrico = new Enrico(policyKey, undefined, conditions);
     const encrypted = enrico.encryptMessagePre(toBytes(message));
@@ -135,8 +135,8 @@ describe('enrico', () => {
       parameters: [6969],
     });
 
-    const conditions = new ConditionSet(ownsBufficornNFT);
-    const updatedConditions = new ConditionSet(ownsNonsenseNFT);
+    const conditions = new ConditionExpression(ownsBufficornNFT);
+    const updatedConditions = new ConditionExpression(ownsNonsenseNFT);
 
     const enrico = new Enrico(policyKey, undefined, conditions);
     const encrypted = enrico.encryptMessagePre(

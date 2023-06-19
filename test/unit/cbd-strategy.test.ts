@@ -27,7 +27,7 @@ import { aliceSecretKeyBytes } from './testVariables';
 
 const {
   predefined: { ERC721Ownership },
-  ConditionSet,
+  ConditionExpression,
 } = conditions;
 
 // Shared test variables
@@ -38,7 +38,7 @@ const ownsNFT = new ERC721Ownership({
   parameters: [3591],
   chain: 5,
 });
-const conditionSet = new ConditionSet(ownsNFT);
+const conditionExpr = new ConditionExpression(ownsNFT);
 const ursulas = fakeUrsulas().slice(0, 3);
 const variant = FerveoVariant.Precomputed;
 
@@ -105,7 +105,7 @@ describe('CbdDeployedStrategy', () => {
 
     const message = 'this is a secret';
     const { ciphertext, aad } = deployedStrategy
-      .makeEncrypter(conditionSet)
+      .makeEncrypter(conditionExpr)
       .encryptMessageCbd(message);
 
     // Setup mocks for `retrieveAndDecrypt`
@@ -134,7 +134,7 @@ describe('CbdDeployedStrategy', () => {
     const decryptedMessage =
       await deployedStrategy.decrypter.retrieveAndDecrypt(
         aliceProvider,
-        conditionSet,
+        conditionExpr,
         variant,
         ciphertext,
         aad

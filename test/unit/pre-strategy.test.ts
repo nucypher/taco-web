@@ -24,7 +24,7 @@ import { aliceSecretKeyBytes, bobSecretKeyBytes } from './testVariables';
 
 const {
   predefined: { ERC721Ownership },
-  ConditionSet,
+  ConditionExpression,
 } = conditions;
 
 // Shared test variables
@@ -37,7 +37,7 @@ const ownsNFT = new ERC721Ownership({
   parameters: [3591],
   chain: 5,
 });
-const conditionSet = new ConditionSet(ownsNFT);
+const conditionExpr = new ConditionExpression(ownsNFT);
 const mockedUrsulas = fakeUrsulas().slice(0, 3);
 
 const makePreStrategy = async () => {
@@ -113,7 +113,7 @@ describe('PreDeployedStrategy', () => {
 
     const plaintext = 'this is a secret';
     const encryptedMessageKit = deployedStrategy
-      .makeEncrypter(conditionSet)
+      .makeEncrypter(conditionExpr)
       .encryptMessagePre(plaintext);
 
     // Setup mocks for `retrieveAndDecrypt`

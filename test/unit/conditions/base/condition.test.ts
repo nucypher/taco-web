@@ -50,7 +50,6 @@ describe('serialization', () => {
     const contract = new ContractCondition(testContractConditionObj);
     expect(contract.toObj()).toEqual({
       ...testContractConditionObj,
-      _class: 'ContractCondition',
     });
   });
 
@@ -59,7 +58,6 @@ describe('serialization', () => {
     expect(contract.toObj()).toEqual({
       ...contract.defaults,
       ...testContractConditionObj,
-      _class: 'ERC721Ownership',
     });
   });
 });

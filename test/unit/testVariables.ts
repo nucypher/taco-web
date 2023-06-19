@@ -19,6 +19,16 @@ export const testReturnValueTest = {
   value: '100',
 };
 
+export const testTimeConditionObj = {
+  returnValueTest: {
+    index: 0,
+    comparator: '>',
+    value: '100',
+  },
+  method: 'blocktime',
+  chain: 5,
+};
+
 export const testRpcConditionObj = {
   chain: TEST_CHAIN_ID,
   method: 'eth_getBalance',
@@ -57,4 +67,5 @@ export const testFunctionAbi = {
       type: 'uint256',
     },
   ],
+  stateMutability: 'view',
 };

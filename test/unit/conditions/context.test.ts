@@ -26,7 +26,7 @@ describe('serialization', () => {
         value: USER_ADDRESS_PARAM,
       },
     });
-    const conditionContext = new ConditionSet([rpcCondition]).buildContext(
+    const conditionContext = new ConditionSet(rpcCondition).buildContext(
       web3Provider
     );
     const asJson = await conditionContext.toJson();
@@ -48,7 +48,7 @@ describe('context parameters', () => {
     },
   };
   const contractCondition = new ContractCondition(contractConditionObj);
-  const conditionSet = new ConditionSet([contractCondition]);
+  const conditionSet = new ConditionSet(contractCondition);
   const conditionContext = conditionSet.buildContext(web3Provider);
 
   describe('return value test', () => {
@@ -94,9 +94,9 @@ describe('context parameters', () => {
         ...contractConditionObj,
         parameters: [USER_ADDRESS_PARAM, customParamKey],
       });
-      const conditionContext = new ConditionSet([
-        customContractCondition,
-      ]).buildContext(web3Provider);
+      const conditionContext = new ConditionSet(
+        customContractCondition
+      ).buildContext(web3Provider);
 
       await expect(async () => conditionContext.toObj()).rejects.toThrow(
         `Missing custom context parameter(s): ${customParamKey}`
@@ -108,9 +108,9 @@ describe('context parameters', () => {
         ...contractConditionObj,
         parameters: [USER_ADDRESS_PARAM, 100],
       });
-      const conditionContext = new ConditionSet([
-        customContractCondition,
-      ]).buildContext(web3Provider);
+      const conditionContext = new ConditionSet(
+        customContractCondition
+      ).buildContext(web3Provider);
 
       const asObj = await conditionContext.toObj();
       expect(asObj).toBeDefined();

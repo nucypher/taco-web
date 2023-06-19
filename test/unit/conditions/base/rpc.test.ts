@@ -6,7 +6,6 @@ describe('validation', () => {
     const rpc = new RpcCondition(testRpcConditionObj);
     expect(rpc.toObj()).toEqual({
       ...testRpcConditionObj,
-      _class: 'RpcCondition',
     });
   });
 

@@ -1,13 +1,13 @@
 import { CapsuleFrag, reencrypt } from '@nucypher/nucypher-core';
 
 import { conditions, Enrico, MessageKit, PolicyMessageKit } from '../../src';
+import { CompoundCondition } from '../../src/conditions';
 import { RetrievalResult } from '../../src/kits/retrieval';
 import { toBytes, zip } from '../../src/utils';
 import { fakeAlice, fakeBob, fakeUrsulas, reencryptKFrags } from '../utils';
 
 const {
   predefined: { ERC721Ownership },
-  Operator,
   ConditionSet,
 } = conditions;
 
@@ -94,11 +94,12 @@ describe('proxy reencryption', () => {
       chain: 1,
       parameters: [1],
     });
-    const conditionsSet = new ConditionSet([
-      genuineUndead,
-      Operator.OR,
-      gnomePals,
-    ]);
+    const conditionsSet = new ConditionSet(
+      new CompoundCondition({
+        operator: 'or',
+        operands: [genuineUndead.toObj(), gnomePals.toObj()],
+      })
+    );
 
     const enrico = new Enrico(policyEncryptingKey, undefined, conditionsSet);
     const encryptedMessage = enrico.encryptMessagePre(plaintext);

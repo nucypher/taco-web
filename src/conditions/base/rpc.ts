@@ -18,7 +18,7 @@ const makeParameters = () =>
     })),
   });
 
-export const rpcConditionSchema = {
+export const rpcConditionRecord = {
   chain: Joi.number()
     .valid(...SUPPORTED_CHAINS)
     .required(),
@@ -29,6 +29,8 @@ export const rpcConditionSchema = {
   returnValueTest: returnValueTestSchema.required(),
 };
 
+export const rpcConditionSchema = Joi.object(rpcConditionRecord);
+
 export class RpcCondition extends Condition {
-  public readonly schema = Joi.object(rpcConditionSchema);
+  public readonly schema = rpcConditionSchema;
 }

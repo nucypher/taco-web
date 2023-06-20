@@ -1,5 +1,6 @@
 import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
+import { SemVer } from 'semver';
 
 import { objectEquals, toJSON } from '../utils';
 
@@ -27,7 +28,6 @@ export class ConditionExpression {
   ) {}
 
   public toObj(): ConditionExpressionJSON {
-    // TODO add version here
     const conditionData = this.condition.toObj();
     return {
       version: this.version,
@@ -36,49 +36,40 @@ export class ConditionExpression {
   }
 
   public static fromObj(obj: ConditionExpressionJSON): ConditionExpression {
-    const version = obj.version;
-    // version specific logic can go here
-    const receivedMajorVersion = version.split('.')[0];
-    const currentMajorVersion = ConditionExpression.VERSION.split('.')[0];
-    if (receivedMajorVersion > currentMajorVersion) {
+    const receivedVersion = new SemVer(obj.version);
+    const currentVersion = new SemVer(ConditionExpression.VERSION);
+    if (receivedVersion.major > currentVersion.major) {
       throw new Error(
-        `Version provided, ${version}, is incompatible with current version, ${ConditionExpression.VERSION}`
+        `Version provided, ${obj.version}, is incompatible with current version, ${ConditionExpression.VERSION}`
       );
     }
 
     const underlyingConditionData = obj.condition;
+    let condition: Condition | undefined;
 
     if (underlyingConditionData.operator) {
-      return new ConditionExpression(
-        new CompoundCondition(underlyingConditionData),
-        version
+      condition = new CompoundCondition(underlyingConditionData);
+    } else if (underlyingConditionData.method) {
+      if (underlyingConditionData.method === BLOCKTIME_METHOD) {
+        condition = new TimeCondition(underlyingConditionData);
+      } else if (underlyingConditionData.contractAddress) {
+        condition = new ContractCondition(underlyingConditionData);
+      } else if (
+        (underlyingConditionData.method as string).startsWith('eth_')
+      ) {
+        condition = new RpcCondition(underlyingConditionData);
+      }
+    }
+
+    if (!condition) {
+      throw new Error(
+        `Invalid condition: unrecognized condition data ${JSON.stringify(
+          underlyingConditionData
+        )}`
       );
     }
 
-    if (underlyingConditionData.method) {
-      if (underlyingConditionData.method === BLOCKTIME_METHOD) {
-        return new ConditionExpression(
-          new TimeCondition(underlyingConditionData),
-          version
-        );
-      }
-
-      if (underlyingConditionData.contractAddress) {
-        return new ConditionExpression(
-          new ContractCondition(underlyingConditionData),
-          version
-        );
-      }
-
-      if ((underlyingConditionData.method as string).startsWith('eth_')) {
-        return new ConditionExpression(
-          new RpcCondition(underlyingConditionData),
-          version
-        );
-      }
-    }
-
-    throw new Error('Invalid condition: unrecognized condition data');
+    return new ConditionExpression(condition, obj.version);
   }
 
   public toJson(): string {

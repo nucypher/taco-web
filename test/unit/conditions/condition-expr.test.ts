@@ -196,6 +196,18 @@ describe('condition set', () => {
       );
     });
 
+    it.each(['version', 'x.y', 'x.y.z', '-1,0.0', '1.0.0.0.0.0.0'])(
+      'invalid versions',
+      async (invalidVersion) => {
+        expect(() => {
+          ConditionExpression.fromObj({
+            version: invalidVersion,
+            condition: testTimeConditionObj,
+          });
+        }).toThrow(`Invalid Version: ${invalidVersion}`);
+      }
+    );
+
     it.each([
       // no "operator" nor "method" value
       {

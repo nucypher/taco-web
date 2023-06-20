@@ -57,7 +57,8 @@
     "deep-equal": "^2.2.1",
     "ethers": "^5.4.1",
     "joi": "^17.7.0",
-    "qs": "^6.10.1"
+    "qs": "^6.10.1",
+    "semver": "^7.5.2"
   },
   "devDependencies": {
     "@babel/core": "^7.18.10",
@@ -67,6 +68,7 @@
     "@types/deep-equal": "^1.0.1",
     "@types/jest": "^26.0.24",
     "@types/qs": "^6.9.7",
+    "@types/semver": "^7.5.0",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.0.1",
     "cz-conventional-changelog": "^3.0.1",

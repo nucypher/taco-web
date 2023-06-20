@@ -62,45 +62,103 @@ describe('condition set', () => {
     ],
   });
 
-  it('equality', async () => {
+  describe('equality', () => {
     const conditionExprCurrentVersion = new ConditionExpression(rpcCondition);
-    const conditionExprSameCurrentVerstion = new ConditionExpression(
-      rpcCondition,
-      ConditionExpression.VERSION
-    );
-    // same version and condition
-    expect(
-      conditionExprCurrentVersion.equals(conditionExprSameCurrentVerstion)
-    ).toBeTruthy();
 
-    // same version but different condition
-    const conditionExprSameVersionDifferentCondition = new ConditionExpression(
-      timeCondition
-    );
-    expect(
-      conditionExprCurrentVersion.equals(
-        conditionExprSameVersionDifferentCondition
-      )
-    ).not.toBeTruthy();
+    it('same version and condition', async () => {
+      const conditionExprSameCurrentVerstion = new ConditionExpression(
+        rpcCondition,
+        ConditionExpression.VERSION
+      );
+      expect(
+        conditionExprCurrentVersion.equals(conditionExprSameCurrentVerstion)
+      ).toBeTruthy();
+    });
 
-    // different minor/patch version but same condition
-    const conditionExprOlderMinorVersion = new ConditionExpression(
-      rpcCondition,
-      '0.1.0'
-    );
-    const conditionExprOlderPatchVersion = new ConditionExpression(
-      rpcCondition,
-      '0.0.1'
-    );
-    expect(
-      conditionExprCurrentVersion.equals(conditionExprOlderMinorVersion)
-    ).not.toBeTruthy();
-    expect(
-      conditionExprCurrentVersion.equals(conditionExprOlderPatchVersion)
-    ).not.toBeTruthy();
-    expect(
-      conditionExprOlderMinorVersion.equals(conditionExprOlderPatchVersion)
-    ).not.toBeTruthy();
+    it('different minor/patch version but same condition', async () => {
+      const conditionExprOlderMinorVersion = new ConditionExpression(
+        rpcCondition,
+        '0.1.0'
+      );
+      const conditionExprOlderPatchVersion = new ConditionExpression(
+        rpcCondition,
+        '0.0.1'
+      );
+      expect(
+        conditionExprCurrentVersion.equals(conditionExprOlderMinorVersion)
+      ).not.toBeTruthy();
+      expect(
+        conditionExprCurrentVersion.equals(conditionExprOlderPatchVersion)
+      ).not.toBeTruthy();
+      expect(
+        conditionExprOlderMinorVersion.equals(conditionExprOlderPatchVersion)
+      ).not.toBeTruthy();
+    });
+
+    it('minor/patch number greater than major; still older', async () => {
+      const conditionExprOlderMinorVersion = new ConditionExpression(
+        rpcCondition,
+        '0.9.0'
+      );
+      const conditionExprOlderPatchVersion = new ConditionExpression(
+        rpcCondition,
+        '0.0.9'
+      );
+      const conditionExprOlderMinorPatchVersion = new ConditionExpression(
+        rpcCondition,
+        '0.9.9'
+      );
+      expect(
+        conditionExprCurrentVersion.equals(conditionExprOlderMinorVersion)
+      ).not.toBeTruthy();
+      expect(
+        conditionExprCurrentVersion.equals(conditionExprOlderPatchVersion)
+      ).not.toBeTruthy();
+      expect(
+        conditionExprCurrentVersion.equals(conditionExprOlderMinorPatchVersion)
+      ).not.toBeTruthy();
+      expect(
+        conditionExprOlderMinorVersion.equals(conditionExprOlderPatchVersion)
+      ).not.toBeTruthy();
+      expect(
+        conditionExprOlderMinorVersion.equals(
+          conditionExprOlderMinorPatchVersion
+        )
+      ).not.toBeTruthy();
+      expect(
+        conditionExprOlderPatchVersion.equals(
+          conditionExprOlderMinorPatchVersion
+        )
+      ).not.toBeTruthy();
+    });
+
+    it.each([
+      erc721BalanceCondition,
+      contractConditionNoAbi,
+      contractConditionWithAbi,
+      timeCondition,
+      compoundCondition,
+    ])('same version but different condition', async (condition) => {
+      const conditionExprSameVersionDifferentCondition =
+        new ConditionExpression(condition);
+      expect(
+        conditionExprCurrentVersion.equals(
+          conditionExprSameVersionDifferentCondition
+        )
+      ).not.toBeTruthy();
+    });
+
+    it('same contract condition although using erc721 helper', async () => {
+      const erc721ConditionExpr = new ConditionExpression(
+        erc721BalanceCondition
+      );
+      const erc721ConditionData = erc721BalanceCondition.toObj();
+      const sameContractCondition = new ContractCondition(erc721ConditionData);
+      const contractConditionExpr = new ConditionExpression(
+        sameContractCondition
+      );
+      expect(erc721ConditionExpr.equals(contractConditionExpr)).toBeTruthy();
+    });
   });
 
   describe('serialization / deserialization', () => {

@@ -1,3 +1,5 @@
+import { SemVer } from 'semver';
+
 import {
   CompoundCondition,
   ConditionExpression,
@@ -185,10 +187,11 @@ describe('condition set', () => {
     });
 
     it('incompatible version', async () => {
-      const invalidVersion = '100.0.0';
+      const currentVersion = new SemVer(ConditionExpression.VERSION);
+      const invalidVersion = currentVersion.inc('major');
       expect(() => {
         ConditionExpression.fromObj({
-          version: invalidVersion,
+          version: invalidVersion.version,
           condition: testTimeConditionObj,
         });
       }).toThrow(

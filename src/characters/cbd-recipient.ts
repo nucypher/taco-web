@@ -15,7 +15,7 @@ import {
 import { ethers } from 'ethers';
 
 import { DkgCoordinatorAgent, DkgParticipant } from '../agents/coordinator';
-import { ConditionSet } from '../conditions';
+import { ConditionExpression } from '../conditions';
 import {
   DkgRitual,
   getCombineDecryptionSharesFunction,
@@ -54,14 +54,14 @@ export class CbdTDecDecrypter {
   // Retrieve and decrypt ciphertext using provider and condition set
   public async retrieveAndDecrypt(
     provider: ethers.providers.Web3Provider,
-    conditionSet: ConditionSet,
+    conditionExpr: ConditionExpression,
     variant: number,
     ciphertext: Ciphertext,
     aad: Uint8Array
   ): Promise<readonly Uint8Array[]> {
     const decryptionShares = await this.retrieve(
       provider,
-      conditionSet,
+      conditionExpr,
       variant,
       ciphertext
     );
@@ -82,7 +82,7 @@ export class CbdTDecDecrypter {
   // Retrieve decryption shares
   public async retrieve(
     provider: ethers.providers.Web3Provider,
-    conditionSet: ConditionSet,
+    conditionExpr: ConditionExpression,
     variant: number,
     ciphertext: Ciphertext
   ): Promise<DecryptionSharePrecomputed[] | DecryptionShareSimple[]> {
@@ -90,12 +90,12 @@ export class CbdTDecDecrypter {
       provider,
       this.ritualId
     );
-    const contextStr = await conditionSet.buildContext(provider).toJson();
+    const contextStr = await conditionExpr.buildContext(provider).toJson();
     const { sharedSecrets, encryptedRequests } = this.makeDecryptionRequests(
       this.ritualId,
       variant,
       ciphertext,
-      conditionSet,
+      conditionExpr,
       contextStr,
       dkgParticipants
     );
@@ -150,7 +150,7 @@ export class CbdTDecDecrypter {
     ritualId: number,
     variant: number,
     ciphertext: Ciphertext,
-    conditionSet: ConditionSet,
+    conditionExpr: ConditionExpression,
     contextStr: string,
     dkgParticipants: Array<DkgParticipant>
   ): {
@@ -161,7 +161,7 @@ export class CbdTDecDecrypter {
       ritualId,
       variant,
       ciphertext,
-      conditionSet.toWASMConditions(),
+      conditionExpr.toWASMConditions(),
       new Context(contextStr)
     );
 

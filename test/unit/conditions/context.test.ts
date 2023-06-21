@@ -1,7 +1,7 @@
 import { SecretKey } from '@nucypher/nucypher-core';
 
 import { CustomContextParam } from '../../../src';
-import { ConditionSet } from '../../../src/conditions';
+import { ConditionExpression } from '../../../src/conditions';
 import { ContractCondition, RpcCondition } from '../../../src/conditions/base';
 import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
 import { RESERVED_CONTEXT_PARAMS } from '../../../src/conditions/context/context';
@@ -26,7 +26,7 @@ describe('serialization', () => {
         value: USER_ADDRESS_PARAM,
       },
     });
-    const conditionContext = new ConditionSet(rpcCondition).buildContext(
+    const conditionContext = new ConditionExpression(rpcCondition).buildContext(
       web3Provider
     );
     const asJson = await conditionContext.toJson();
@@ -48,8 +48,8 @@ describe('context parameters', () => {
     },
   };
   const contractCondition = new ContractCondition(contractConditionObj);
-  const conditionSet = new ConditionSet(contractCondition);
-  const conditionContext = conditionSet.buildContext(web3Provider);
+  const conditionExpr = new ConditionExpression(contractCondition);
+  const conditionContext = conditionExpr.buildContext(web3Provider);
 
   describe('return value test', () => {
     it('accepts on a custom context parameters', async () => {
@@ -94,7 +94,7 @@ describe('context parameters', () => {
         ...contractConditionObj,
         parameters: [USER_ADDRESS_PARAM, customParamKey],
       });
-      const conditionContext = new ConditionSet(
+      const conditionContext = new ConditionExpression(
         customContractCondition
       ).buildContext(web3Provider);
 
@@ -108,7 +108,7 @@ describe('context parameters', () => {
         ...contractConditionObj,
         parameters: [USER_ADDRESS_PARAM, 100],
       });
-      const conditionContext = new ConditionSet(
+      const conditionContext = new ConditionExpression(
         customContractCondition
       ).buildContext(web3Provider);
 

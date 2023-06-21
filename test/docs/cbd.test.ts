@@ -19,7 +19,7 @@ import {
 const {
   predefined: { ERC721Ownership },
   base: { ContractCondition },
-  ConditionSet,
+  ConditionExpression,
 } = conditions;
 
 describe('Get Started (CBD PoC)', () => {
@@ -74,7 +74,7 @@ describe('Get Started (CBD PoC)', () => {
       parameters: [5954],
     });
 
-    const conditions = new ConditionSet(
+    const conditions = new ConditionExpression(
       NFTOwnership
       // Other conditions can be added here
     );
@@ -101,7 +101,7 @@ describe('Get Started (CBD PoC)', () => {
       },
     };
     const NFTBalance = new ContractCondition(NFTBalanceConfig);
-    const newConditions = new ConditionSet(NFTBalance);
+    const newConditions = new ConditionExpression(NFTBalance);
     const plaintext = 'this is a secret';
     const encrypter = newDeployed.makeEncrypter(newConditions);
     const encryptedMessageKit = encrypter.encryptMessagePre(plaintext);

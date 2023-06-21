@@ -8,7 +8,7 @@ import { fakeAlice, fakeBob, fakeUrsulas, reencryptKFrags } from '../utils';
 
 const {
   predefined: { ERC721Ownership },
-  ConditionSet,
+  ConditionExpression,
 } = conditions;
 
 describe('proxy reencryption', () => {
@@ -94,7 +94,7 @@ describe('proxy reencryption', () => {
       chain: 1,
       parameters: [1],
     });
-    const conditionsSet = new ConditionSet(
+    const conditionsSet = new ConditionExpression(
       new CompoundCondition({
         operator: 'or',
         operands: [genuineUndead.toObj(), gnomePals.toObj()],

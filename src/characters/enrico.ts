@@ -7,19 +7,19 @@ import {
   SecretKey,
 } from '@nucypher/nucypher-core';
 
-import { ConditionSet } from '../conditions';
+import { ConditionExpression } from '../conditions';
 import { Keyring } from '../keyring';
 import { toBytes } from '../utils';
 
 export class Enrico {
   public readonly encryptingKey: PublicKey | DkgPublicKey;
   private readonly keyring: Keyring;
-  public conditions?: ConditionSet;
+  public conditions?: ConditionExpression;
 
   constructor(
     encryptingKey: PublicKey | DkgPublicKey,
     verifyingKey?: SecretKey,
-    conditions?: ConditionSet
+    conditions?: ConditionExpression
   ) {
     this.encryptingKey = encryptingKey;
     this.keyring = new Keyring(verifyingKey ?? SecretKey.random());
@@ -32,7 +32,7 @@ export class Enrico {
 
   public encryptMessagePre(
     plaintext: Uint8Array | string,
-    withConditions?: ConditionSet
+    withConditions?: ConditionExpression
   ): MessageKit {
     if (!withConditions) {
       withConditions = this.conditions;
@@ -51,7 +51,7 @@ export class Enrico {
 
   public encryptMessageCbd(
     plaintext: Uint8Array | string,
-    withConditions?: ConditionSet
+    withConditions?: ConditionExpression
   ): { ciphertext: Ciphertext; aad: Uint8Array } {
     if (!withConditions) {
       withConditions = this.conditions;

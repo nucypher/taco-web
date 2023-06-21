@@ -7,14 +7,14 @@ import {
   CbdTDecDecrypterJSON,
 } from '../../characters/cbd-recipient';
 import { Enrico } from '../../characters/enrico';
-import { ConditionSet, ConditionSetJSON } from '../../conditions';
+import { ConditionExpression, ConditionExpressionJSON } from '../../conditions';
 import { DkgClient, DkgRitual } from '../../dkg';
 import { fromJSON, toJSON } from '../../utils';
 import { Cohort, CohortJSON } from '../cohort';
 
 export type CbdStrategyJSON = {
   cohort: CohortJSON;
-  conditionSet?: ConditionSetJSON | undefined;
+  conditionExpr?: ConditionExpressionJSON | undefined;
 };
 
 export type DeployedStrategyJSON = {
@@ -81,8 +81,8 @@ export class DeployedCbdStrategy {
     return new DeployedCbdStrategy(decrypter, dkgRitual.dkgPublicKey);
   }
 
-  public makeEncrypter(conditionSet: ConditionSet): Enrico {
-    return new Enrico(this.dkgPublicKey, undefined, conditionSet);
+  public makeEncrypter(conditionExpr: ConditionExpression): Enrico {
+    return new Enrico(this.dkgPublicKey, undefined, conditionExpr);
   }
 
   public static fromJSON(json: string) {

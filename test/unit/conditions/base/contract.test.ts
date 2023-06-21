@@ -1,6 +1,9 @@
 import { SecretKey } from '@nucypher/nucypher-core';
 
-import { ConditionSet, CustomContextParam } from '../../../../src/conditions';
+import {
+  ConditionExpression,
+  CustomContextParam,
+} from '../../../../src/conditions';
 import { ContractCondition } from '../../../../src/conditions/base';
 import { USER_ADDRESS_PARAM } from '../../../../src/conditions/const';
 import { fakeWeb3Provider } from '../../../utils';
@@ -134,8 +137,8 @@ describe('supports custom function abi', () => {
   };
   const contractCondition = new ContractCondition(contractConditionObj);
   const web3Provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
-  const conditionSet = new ConditionSet(contractCondition);
-  const conditionContext = conditionSet.buildContext(web3Provider);
+  const conditionExpr = new ConditionExpression(contractCondition);
+  const conditionContext = conditionExpr.buildContext(web3Provider);
   const myCustomParam = ':customParam';
   const customParams: Record<string, CustomContextParam> = {};
   customParams[myCustomParam] = 1234;

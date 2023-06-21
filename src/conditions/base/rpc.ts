@@ -3,7 +3,10 @@ import Joi from 'joi';
 import { SUPPORTED_CHAINS } from '../const';
 
 import { Condition } from './condition';
-import { ethAddressOrUserAddressSchema, returnValueTestSchema } from './schema';
+import {
+  ethAddressOrUserAddressSchema,
+  returnValueTestSchema,
+} from './return-value';
 
 const rpcMethodSchemas: Record<string, Joi.Schema> = {
   eth_getBalance: Joi.array().items(ethAddressOrUserAddressSchema).required(),

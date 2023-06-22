@@ -86,7 +86,9 @@ export class DkgRitual {
   public equals(other: DkgRitual): boolean {
     return (
       this.id === other.id &&
+      // TODO: Replace with `equals` after https://github.com/nucypher/nucypher-core/issues/56 is fixed
       bytesEquals(this.dkgPublicKey.toBytes(), other.dkgPublicKey.toBytes()) &&
+      // TODO: Replace with `equals` after https://github.com/nucypher/nucypher-core/issues/56 is fixed
       bytesEquals(
         this.dkgPublicParams.toBytes(),
         other.dkgPublicParams.toBytes()

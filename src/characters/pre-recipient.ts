@@ -188,18 +188,13 @@ export class PreTDecDecrypter {
   public equals(other: PreTDecDecrypter): boolean {
     return (
       this.porter.porterUrl.toString() === other.porter.porterUrl.toString() &&
-      bytesEquals(
-        this.policyEncryptingKey.toCompressedBytes(),
-        other.policyEncryptingKey.toCompressedBytes()
-      ) &&
+      this.policyEncryptingKey.equals(other.policyEncryptingKey) &&
+      // TODO: Replace with `equals` after https://github.com/nucypher/nucypher-core/issues/56 is fixed
       bytesEquals(
         this.encryptedTreasureMap.toBytes(),
         other.encryptedTreasureMap.toBytes()
       ) &&
-      bytesEquals(
-        this.publisherVerifyingKey.toCompressedBytes(),
-        other.publisherVerifyingKey.toCompressedBytes()
-      )
+      this.publisherVerifyingKey.equals(other.publisherVerifyingKey)
     );
   }
 }

@@ -128,7 +128,7 @@ export class PreStrategy {
   public equals(other: PreStrategy) {
     return (
       this.cohort.equals(other.cohort) &&
-      // TODO: Add equality to WASM bindings
+      // TODO: Replace with `equals` after https://github.com/nucypher/nucypher-core/issues/56 is fixed
       bytesEquals(
         this.aliceSecretKey.toBEBytes(),
         other.aliceSecretKey.toBEBytes()
@@ -201,10 +201,7 @@ export class DeployedPreStrategy {
     return (
       this.cohort.equals(other.cohort) &&
       this.decrypter.equals(other.decrypter) &&
-      bytesEquals(
-        this.policyKey.toCompressedBytes(),
-        other.policyKey.toCompressedBytes()
-      )
+      this.policyKey.equals(other.policyKey)
     );
   }
 }

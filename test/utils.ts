@@ -216,8 +216,8 @@ export const mockDetectEthereumProvider = () => {
 export const fakeDkgFlow = (
   variant: FerveoVariant | FerveoVariant.Precomputed,
   ritualId: number,
-  sharesNum = 4,
-  threshold = 3
+  sharesNum: number,
+  threshold: number
 ) => {
   if (
     variant !== FerveoVariant.Simple &&
@@ -358,9 +358,11 @@ export const fakeDkgTDecFlowE2e = (
   variant: FerveoVariant,
   message = toBytes('fake-message'),
   aad = toBytes('fake-aad'),
-  ritualId = 0
+  ritualId = 0,
+  sharesNum = 4,
+  threshold = 4
 ) => {
-  const ritual = fakeDkgFlow(variant, ritualId, 4, 3);
+  const ritual = fakeDkgFlow(variant, ritualId, sharesNum, threshold);
 
   // In the meantime, the client creates a ciphertext and decryption request
   const ciphertext = ferveoEncrypt(message, aad, ritual.dkg.publicKey());

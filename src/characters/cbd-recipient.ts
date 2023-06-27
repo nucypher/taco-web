@@ -120,9 +120,14 @@ export class CbdTDecDecrypter {
     variant: number,
     expectedRitualId: number
   ) {
-    const decryptedResponses = Object.entries(encryptedResponses).map(
-      ([ursula, encryptedResponse]) =>
-        encryptedResponse.decrypt(sessionSharedSecret[ursula])
+    const decryptedResponses = Object.entries(sessionSharedSecret).map(
+      ([ursula, sharedSecret]) => {
+        const encryptedResponse = encryptedResponses[ursula];
+        if (!encryptedResponse) {
+          throw new Error(`Missing encrypted response from ${ursula}`);
+        }
+        return encryptedResponse.decrypt(sharedSecret);
+      }
     );
 
     const ritualIds = decryptedResponses.map(({ ritualId }) => ritualId);

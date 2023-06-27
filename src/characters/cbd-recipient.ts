@@ -98,7 +98,9 @@ export class CbdTDecDecrypter {
     );
     if (Object.keys(encryptedResponses).length < this.threshold) {
       throw new Error(
-        `CBD decryption failed with errors: ${JSON.stringify(errors)}`
+        `Threshold of responses not met; CBD decryption failed with errors: ${JSON.stringify(
+          errors
+        )}`
       );
     }
 

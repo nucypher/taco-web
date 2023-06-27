@@ -3,7 +3,7 @@ import { DkgPublicKey } from '@nucypher/nucypher-core';
 import { fromHexString } from '../../src/utils';
 
 describe('Ritual', () => {
-  it('deserializes premade dkg ritual', async () => {
+  it('deserializes pre-made dkg ritual', async () => {
     const pkWord1 = fromHexString(
       '9045795411ed251bf2eecc9415552c41863502a207104ef7ab482bc2364729d9'
     );

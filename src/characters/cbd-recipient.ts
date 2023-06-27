@@ -7,7 +7,6 @@ import {
   EncryptedThresholdDecryptionRequest,
   EncryptedThresholdDecryptionResponse,
   SessionSharedSecret,
-  SessionStaticKey,
   SessionStaticSecret,
   ThresholdDecryptionRequest,
 } from '@nucypher/nucypher-core';
@@ -17,10 +16,11 @@ import { DkgCoordinatorAgent, DkgParticipant } from '../agents/coordinator';
 import { ConditionExpression } from '../conditions';
 import {
   DkgRitual,
+  FerveoVariant,
   getCombineDecryptionSharesFunction,
   getVariantClass,
 } from '../dkg';
-import { fromHexString, fromJSON, toJSON } from '../utils';
+import { fromJSON, toJSON } from '../utils';
 
 import { Porter } from './porter';
 
@@ -47,13 +47,12 @@ export class CbdTDecDecrypter {
     );
   }
 
-  // Retrieve and decrypt ciphertext using provider and condition set
+  // Retrieve and decrypt ciphertext using provider and condition expression
   public async retrieveAndDecrypt(
     provider: ethers.providers.Web3Provider,
     conditionExpr: ConditionExpression,
-    variant: number,
-    ciphertext: Ciphertext,
-    aad: Uint8Array
+    variant: FerveoVariant,
+    ciphertext: Ciphertext
   ): Promise<Uint8Array> {
     const decryptionShares = await this.retrieve(
       provider,
@@ -65,7 +64,11 @@ export class CbdTDecDecrypter {
     const combineDecryptionSharesFn =
       getCombineDecryptionSharesFunction(variant);
     const sharedSecret = combineDecryptionSharesFn(decryptionShares);
-    return decryptWithSharedSecret(ciphertext, aad, sharedSecret);
+    return decryptWithSharedSecret(
+      ciphertext,
+      conditionExpr.asAad(),
+      sharedSecret
+    );
   }
 
   // Retrieve decryption shares
@@ -79,6 +82,8 @@ export class CbdTDecDecrypter {
       provider,
       this.ritualId
     );
+    // We only need the `threshold` participants
+    const sufficientDkgParticipants = dkgParticipants.slice(0, this.threshold);
     const contextStr = await conditionExpr.buildContext(provider).toJson();
     const { sharedSecrets, encryptedRequests } = this.makeDecryptionRequests(
       this.ritualId,
@@ -86,14 +91,16 @@ export class CbdTDecDecrypter {
       ciphertext,
       conditionExpr,
       contextStr,
-      dkgParticipants
+      sufficientDkgParticipants
     );
 
     const { encryptedResponses, errors } = await this.porter.cbdDecrypt(
       encryptedRequests,
       this.threshold
     );
+
     // TODO: How many errors are acceptable? Less than (threshold - shares)?
+    // TODO: If Porter accepts only `threshold` decryption requests, then we may not have any errors
     if (Object.keys(errors).length > 0) {
       throw new Error(
         `CBD decryption failed with errors: ${JSON.stringify(errors)}`
@@ -160,10 +167,9 @@ export class CbdTDecDecrypter {
     const sharedSecrets: Record<string, SessionSharedSecret> =
       Object.fromEntries(
         dkgParticipants.map(({ provider, decryptionRequestStaticKey }) => {
-          const decKey = SessionStaticKey.fromBytes(
-            fromHexString(decryptionRequestStaticKey)
+          const sharedSecret = ephemeralSessionKey.deriveSharedSecret(
+            decryptionRequestStaticKey
           );
-          const sharedSecret = ephemeralSessionKey.deriveSharedSecret(decKey);
           return [provider, sharedSecret];
         })
       );

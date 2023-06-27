@@ -14,6 +14,7 @@ import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from '../types';
 import { fromBase64, fromHexString, toBase64, toHexString } from '../utils';
 
 // /get_ursulas
+
 export type Ursula = {
   readonly checksumAddress: ChecksumAddress;
   readonly uri: string;
@@ -40,6 +41,7 @@ export type GetUrsulasResult = {
 };
 
 // /retrieve_cfrags
+
 type PostRetrieveCFragsRequest = {
   readonly treasure_map: Base64EncodedBytes;
   readonly retrieval_kits: readonly Base64EncodedBytes[];
@@ -79,8 +81,15 @@ type PostCbdDecryptRequest = {
 };
 
 type PostCbdDecryptResponse = {
-  encrypted_decryption_responses: Record<ChecksumAddress, Base64EncodedBytes>;
-  errors: Record<ChecksumAddress, string>;
+  result: {
+    decryption_results: {
+      encrypted_decryption_responses: Record<
+        ChecksumAddress,
+        Base64EncodedBytes
+      >;
+      errors: Record<ChecksumAddress, string>;
+    };
+  };
 };
 
 export type CbdDecryptResult = {
@@ -174,8 +183,12 @@ export class Porter {
       new URL('/cbd_decrypt', this.porterUrl).toString(),
       data
     );
+
+    const { encrypted_decryption_responses, errors } =
+      resp.data.result.decryption_results;
+
     const decryptionResponses = Object.entries(
-      resp.data.encrypted_decryption_responses
+      encrypted_decryption_responses
     ).map(([address, encryptedResponseBase64]) => {
       const encryptedResponse = EncryptedThresholdDecryptionResponse.fromBytes(
         fromBase64(encryptedResponseBase64)
@@ -186,6 +199,6 @@ export class Porter {
       string,
       EncryptedThresholdDecryptionResponse
     > = Object.fromEntries(decryptionResponses);
-    return { encryptedResponses, errors: resp.data.errors };
+    return { encryptedResponses, errors };
   }
 }

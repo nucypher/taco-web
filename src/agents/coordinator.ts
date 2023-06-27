@@ -1,3 +1,4 @@
+import { SessionStaticKey } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
 import {
@@ -5,6 +6,7 @@ import {
   Coordinator__factory,
 } from '../../types/ethers-contracts';
 import { BLS12381 } from '../../types/ethers-contracts/Coordinator';
+import { fromHexString } from '../utils';
 
 import { getContract } from './contracts';
 
@@ -19,7 +21,11 @@ export interface CoordinatorRitual {
   aggregatedTranscript: string;
 }
 
-export type DkgParticipant = Coordinator.ParticipantStructOutput;
+export type DkgParticipant = {
+  provider: string;
+  aggregated: boolean;
+  decryptionRequestStaticKey: SessionStaticKey;
+};
 
 export class DkgCoordinatorAgent {
   public static async getParticipants(
@@ -27,9 +33,17 @@ export class DkgCoordinatorAgent {
     ritualId: number
   ): Promise<DkgParticipant[]> {
     const Coordinator = await this.connectReadOnly(provider);
-    // TODO: Remove `as unknown` cast after regenerating the contract types: https://github.com/nucypher/nucypher-contracts/pull/77
     const participants = await Coordinator.getParticipants(ritualId);
-    return participants as unknown as DkgParticipant[];
+
+    return participants.map((participant) => {
+      return {
+        provider: participant.provider,
+        aggregated: participant.aggregated,
+        decryptionRequestStaticKey: SessionStaticKey.fromBytes(
+          fromHexString(participant.decryptionRequestStaticKey)
+        ),
+      };
+    });
   }
 
   public static async getRitual(
@@ -37,7 +51,7 @@ export class DkgCoordinatorAgent {
     ritualId: number
   ): Promise<CoordinatorRitual> {
     const Coordinator = await this.connectReadOnly(provider);
-    return await Coordinator.rituals(ritualId);
+    return Coordinator.rituals(ritualId);
   }
 
   private static async connectReadOnly(provider: ethers.providers.Provider) {

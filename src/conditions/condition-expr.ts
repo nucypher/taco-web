@@ -2,7 +2,7 @@ import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 import { SemVer } from 'semver';
 
-import { objectEquals, toJSON } from '../utils';
+import { objectEquals, toBytes, toJSON } from '../utils';
 
 import {
   Condition,
@@ -88,6 +88,10 @@ export class ConditionExpression {
     provider: ethers.providers.Web3Provider
   ): ConditionContext {
     return new ConditionContext([this.condition], provider);
+  }
+
+  public asAad(): Uint8Array {
+    return toBytes(this.toJson());
   }
 
   public equals(other: ConditionExpression): boolean {

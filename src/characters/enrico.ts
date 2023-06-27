@@ -57,11 +57,15 @@ export class Enrico {
       withConditions = this.conditions;
     }
 
+    if (!withConditions) {
+      throw new Error('Conditions are required for CBD encryption.');
+    }
+
     if (!(this.encryptingKey instanceof DkgPublicKey)) {
       throw new Error('Wrong key type. Use encryptMessagePre instead.');
     }
 
-    const aad = toBytes(withConditions?.toJson() ?? '');
+    const aad = withConditions.asAad();
     const ciphertext = ferveoEncrypt(
       plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext),
       aad,

@@ -8,6 +8,7 @@ import {
 } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
+import { DkgCoordinatorAgent } from './agents/coordinator';
 import { bytesEquals, fromHexString } from './utils';
 
 // TODO: Expose from @nucypher/nucypher-core
@@ -77,7 +78,8 @@ export class DkgRitual {
     return (
       this.id === other.id &&
       // TODO: Replace with `equals` after https://github.com/nucypher/nucypher-core/issues/56 is fixed
-      bytesEquals(this.dkgPublicKey.toBytes(), other.dkgPublicKey.toBytes())
+      bytesEquals(this.dkgPublicKey.toBytes(), other.dkgPublicKey.toBytes()) &&
+      this.threshold === other.threshold
     );
   }
 }
@@ -85,30 +87,22 @@ export class DkgRitual {
 export class DkgClient {
   constructor(private readonly provider: ethers.providers.Web3Provider) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async initializeRitual(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _provider: ethers.providers.Web3Provider,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _ritualParams: unknown
-  ): Promise<DkgRitual> {
-    // TODO: Remove this check after implementing this method
-    if (!this.provider._isProvider) {
-      throw new Error('Invalid provider');
-    }
-    // TODO: Create a new DKG ritual here
-    const pkWord1 = fromHexString(
-      '9045795411ed251bf2eecc9415552c41863502a207104ef7ab482bc2364729d9'
-    );
-    console.assert(pkWord1.length === 32);
-    const pkWord2 = fromHexString('b99e2949cee8d888663b2995fc647fcf');
-    // We need to concat two words returned by the DKG contract
-    const dkgPkBytes = new Uint8Array([...pkWord1, ...pkWord2]);
-    console.assert(dkgPkBytes.length === 48);
+  // TODO: Update API: Replace with getExistingRitual and support ritualId in Strategy
+  public async initializeRitual(ritualParams: {
+    shares: number;
+    threshold: number;
+  }): Promise<DkgRitual> {
+    const ritualId = 2;
+    const ritual = await DkgCoordinatorAgent.getRitual(this.provider, ritualId);
+    const dkgPkBytes = new Uint8Array([
+      ...fromHexString(ritual.publicKey.word0),
+      ...fromHexString(ritual.publicKey.word1),
+    ]);
 
     return {
-      id: 0,
+      id: ritualId,
       dkgPublicKey: DkgPublicKey.fromBytes(dkgPkBytes),
+      threshold: ritualParams.threshold,
     } as DkgRitual;
   }
 

@@ -441,8 +441,8 @@ export const fakeDkgParticipants = (
     return {
       provider: address,
       aggregated: true, // Assuming all validators already contributed to the aggregate
-      transcript: toHexString(transcript.toBytes()),
-      decryptionRequestStaticKey: toHexString(secret.publicKey().toBytes()),
+      transcript,
+      decryptionRequestStaticKey: secret.publicKey(),
     } as DkgParticipant;
   });
   return { participantSecrets, participants };

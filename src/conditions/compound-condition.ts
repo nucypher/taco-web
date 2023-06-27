@@ -1,6 +1,6 @@
 import Joi from 'joi';
 
-import { Condition } from './base/condition';
+import { Condition } from './base';
 import { contractConditionSchema } from './base/contract';
 import { rpcConditionSchema } from './base/rpc';
 import { timeConditionSchema } from './base/time';

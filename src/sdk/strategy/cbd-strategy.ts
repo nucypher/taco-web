@@ -37,10 +37,7 @@ export class CbdStrategy {
       shares: this.cohort.configuration.shares,
     };
     const dkgClient = new DkgClient(provider);
-    const dkgRitual = await dkgClient.initializeRitual(
-      provider,
-      dkgRitualParams
-    );
+    const dkgRitual = await dkgClient.initializeRitual(dkgRitualParams);
     return DeployedCbdStrategy.create(this.cohort, dkgRitual);
   }
 

@@ -1,12 +1,9 @@
 import { SecretKey, SessionStaticSecret } from '@nucypher/nucypher-core';
 
 import { conditions } from '../../src';
+import { FerveoVariant } from '../../src';
+import { CbdStrategy, DeployedCbdStrategy } from '../../src';
 import { CbdTDecDecrypter } from '../../src/characters/cbd-recipient';
-import { FerveoVariant } from '../../src/dkg';
-import {
-  CbdStrategy,
-  DeployedCbdStrategy,
-} from '../../src/sdk/strategy/cbd-strategy';
 import { toBytes } from '../../src/utils';
 import {
   fakeDkgFlow,
@@ -136,8 +133,7 @@ describe('CbdDeployedStrategy', () => {
         aliceProvider,
         conditionExpr,
         variant,
-        ciphertext,
-        aad
+        ciphertext
       );
     expect(getUrsulasSpy).toHaveBeenCalled();
     expect(getParticipantsSpy).toHaveBeenCalled();

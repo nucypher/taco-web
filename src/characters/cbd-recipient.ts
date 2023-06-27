@@ -82,8 +82,6 @@ export class CbdTDecDecrypter {
       provider,
       this.ritualId
     );
-    // We only need the `threshold` participants
-    const sufficientDkgParticipants = dkgParticipants.slice(0, this.threshold);
     const contextStr = await conditionExpr.buildContext(provider).toJson();
     const { sharedSecrets, encryptedRequests } = this.makeDecryptionRequests(
       this.ritualId,
@@ -91,7 +89,7 @@ export class CbdTDecDecrypter {
       ciphertext,
       conditionExpr,
       contextStr,
-      sufficientDkgParticipants
+      dkgParticipants
     );
 
     const { encryptedResponses, errors } = await this.porter.cbdDecrypt(
@@ -99,8 +97,6 @@ export class CbdTDecDecrypter {
       this.threshold
     );
 
-    // TODO: How many errors are acceptable? Less than (threshold - shares)?
-    // TODO: If Porter accepts only `threshold` decryption requests, then we may not have any errors
     if (Object.keys(errors).length > 0) {
       throw new Error(
         `CBD decryption failed with errors: ${JSON.stringify(errors)}`
@@ -120,14 +116,8 @@ export class CbdTDecDecrypter {
     variant: number,
     expectedRitualId: number
   ) {
-    const decryptedResponses = Object.entries(sessionSharedSecret).map(
-      ([ursula, sharedSecret]) => {
-        const encryptedResponse = encryptedResponses[ursula];
-        if (!encryptedResponse) {
-          throw new Error(`Missing encrypted response from ${ursula}`);
-        }
-        return encryptedResponse.decrypt(sharedSecret);
-      }
+    const decryptedResponses = Object.entries(encryptedResponses).map(
+      ([ursula, response]) => response.decrypt(sessionSharedSecret[ursula])
     );
 
     const ritualIds = decryptedResponses.map(({ ritualId }) => ritualId);

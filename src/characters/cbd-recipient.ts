@@ -96,12 +96,12 @@ export class CbdTDecDecrypter {
       encryptedRequests,
       this.threshold
     );
-
-    if (Object.keys(errors).length > 0) {
+    if (Object.keys(encryptedResponses).length < this.threshold) {
       throw new Error(
         `CBD decryption failed with errors: ${JSON.stringify(errors)}`
       );
     }
+
     return this.makeDecryptionShares(
       encryptedResponses,
       sharedSecrets,

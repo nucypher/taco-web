@@ -12,7 +12,7 @@ const POLYGON: Contracts = {
 
 const MUMBAI: Contracts = {
   SUBSCRIPTION_MANAGER: '0xb9015d7b35ce7c81dde38ef7136baa3b1044f313',
-  COORDINATOR: undefined,
+  COORDINATOR: '0x0f019Ade1D34399D946CF2f161386362655Dd1A4',
 };
 
 const GOERLI: Contracts = {

@@ -1,9 +1,13 @@
 import deepEqual from 'deep-equal';
 
+// TODO: Replace byte and hex manipulation with ethers.js
 export const toBytes = (str: string): Uint8Array =>
   new TextEncoder().encode(str);
 
 export const fromHexString = (hexString: string): Uint8Array => {
+  if (hexString.startsWith('0x')) {
+    hexString = hexString.slice(2);
+  }
   const matches = hexString.match(/.{1,2}/g) ?? [];
   return new Uint8Array(matches.map((byte) => parseInt(byte, 16)));
 };

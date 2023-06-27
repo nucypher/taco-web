@@ -1,12 +1,9 @@
 import { SecretKey, SessionStaticSecret } from '@nucypher/nucypher-core';
 
 import { conditions } from '../../src';
+import { FerveoVariant } from '../../src';
+import { CbdStrategy, DeployedCbdStrategy } from '../../src';
 import { CbdTDecDecrypter } from '../../src/characters/cbd-recipient';
-import { FerveoVariant } from '../../src/dkg';
-import {
-  CbdStrategy,
-  DeployedCbdStrategy,
-} from '../../src/sdk/strategy/cbd-strategy';
 import { toBytes } from '../../src/utils';
 import {
   fakeDkgFlow,
@@ -52,7 +49,7 @@ const makeCbdStrategy = async () => {
 async function makeDeployedCbdStrategy() {
   const strategy = await makeCbdStrategy();
 
-  const mockedDkg = fakeDkgFlow(variant, 0);
+  const mockedDkg = fakeDkgFlow(variant, 0, 4, 4);
   const mockedDkgRitual = fakeDkgRitual(mockedDkg, mockedDkg.threshold);
   const web3Provider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
   const getUrsulasSpy = mockGetUrsulas(ursulas);
@@ -136,14 +133,13 @@ describe('CbdDeployedStrategy', () => {
         aliceProvider,
         conditionExpr,
         variant,
-        ciphertext,
-        aad
+        ciphertext
       );
     expect(getUrsulasSpy).toHaveBeenCalled();
     expect(getParticipantsSpy).toHaveBeenCalled();
     expect(sessionKeySpy).toHaveBeenCalled();
     expect(decryptSpy).toHaveBeenCalled();
-    expect(decryptedMessage[0]).toEqual(toBytes(message));
+    expect(decryptedMessage).toEqual(toBytes(message));
   });
 
   describe('serialization', () => {

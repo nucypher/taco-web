@@ -4,11 +4,9 @@ import {
   DecryptionSharePrecomputed,
   DecryptionShareSimple,
   decryptWithSharedSecret,
-  DkgPublicParameters,
   EncryptedThresholdDecryptionRequest,
   EncryptedThresholdDecryptionResponse,
   SessionSharedSecret,
-  SessionStaticKey,
   SessionStaticSecret,
   ThresholdDecryptionRequest,
 } from '@nucypher/nucypher-core';
@@ -18,17 +16,17 @@ import { DkgCoordinatorAgent, DkgParticipant } from '../agents/coordinator';
 import { ConditionExpression } from '../conditions';
 import {
   DkgRitual,
+  FerveoVariant,
   getCombineDecryptionSharesFunction,
   getVariantClass,
 } from '../dkg';
-import { fromHexString, fromJSON, toJSON } from '../utils';
+import { fromJSON, toJSON } from '../utils';
 
 import { Porter } from './porter';
 
 export type CbdTDecDecrypterJSON = {
   porterUri: string;
   ritualId: number;
-  dkgPublicParams: Uint8Array;
   threshold: number;
 };
 
@@ -38,7 +36,6 @@ export class CbdTDecDecrypter {
   private constructor(
     private readonly porter: Porter,
     private readonly ritualId: number,
-    private readonly dkgPublicParams: DkgPublicParameters,
     private readonly threshold: number
   ) {}
 
@@ -46,19 +43,17 @@ export class CbdTDecDecrypter {
     return new CbdTDecDecrypter(
       new Porter(porterUri),
       dkgRitual.id,
-      dkgRitual.dkgPublicParams,
       dkgRitual.threshold
     );
   }
 
-  // Retrieve and decrypt ciphertext using provider and condition set
+  // Retrieve and decrypt ciphertext using provider and condition expression
   public async retrieveAndDecrypt(
     provider: ethers.providers.Web3Provider,
     conditionExpr: ConditionExpression,
-    variant: number,
-    ciphertext: Ciphertext,
-    aad: Uint8Array
-  ): Promise<readonly Uint8Array[]> {
+    variant: FerveoVariant,
+    ciphertext: Ciphertext
+  ): Promise<Uint8Array> {
     const decryptionShares = await this.retrieve(
       provider,
       conditionExpr,
@@ -69,14 +64,11 @@ export class CbdTDecDecrypter {
     const combineDecryptionSharesFn =
       getCombineDecryptionSharesFunction(variant);
     const sharedSecret = combineDecryptionSharesFn(decryptionShares);
-
-    const plaintext = decryptWithSharedSecret(
+    return decryptWithSharedSecret(
       ciphertext,
-      aad,
-      sharedSecret,
-      this.dkgPublicParams
+      conditionExpr.asAad(),
+      sharedSecret
     );
-    return [plaintext];
   }
 
   // Retrieve decryption shares
@@ -104,12 +96,14 @@ export class CbdTDecDecrypter {
       encryptedRequests,
       this.threshold
     );
-    // TODO: How many errors are acceptable? Less than (threshold - shares)?
-    if (Object.keys(errors).length > 0) {
+    if (Object.keys(encryptedResponses).length < this.threshold) {
       throw new Error(
-        `CBD decryption failed with errors: ${JSON.stringify(errors)}`
+        `Threshold of responses not met; CBD decryption failed with errors: ${JSON.stringify(
+          errors
+        )}`
       );
     }
+
     return this.makeDecryptionShares(
       encryptedResponses,
       sharedSecrets,
@@ -125,8 +119,7 @@ export class CbdTDecDecrypter {
     expectedRitualId: number
   ) {
     const decryptedResponses = Object.entries(encryptedResponses).map(
-      ([ursula, encryptedResponse]) =>
-        encryptedResponse.decrypt(sessionSharedSecret[ursula])
+      ([ursula, response]) => response.decrypt(sessionSharedSecret[ursula])
     );
 
     const ritualIds = decryptedResponses.map(({ ritualId }) => ritualId);
@@ -171,10 +164,9 @@ export class CbdTDecDecrypter {
     const sharedSecrets: Record<string, SessionSharedSecret> =
       Object.fromEntries(
         dkgParticipants.map(({ provider, decryptionRequestStaticKey }) => {
-          const decKey = SessionStaticKey.fromBytes(
-            fromHexString(decryptionRequestStaticKey)
+          const sharedSecret = ephemeralSessionKey.deriveSharedSecret(
+            decryptionRequestStaticKey
           );
-          const sharedSecret = ephemeralSessionKey.deriveSharedSecret(decKey);
           return [provider, sharedSecret];
         })
       );
@@ -205,7 +197,6 @@ export class CbdTDecDecrypter {
     return {
       porterUri: this.porter.porterUrl.toString(),
       ritualId: this.ritualId,
-      dkgPublicParams: this.dkgPublicParams.toBytes(),
       threshold: this.threshold,
     };
   }
@@ -217,15 +208,9 @@ export class CbdTDecDecrypter {
   public static fromObj({
     porterUri,
     ritualId,
-    dkgPublicParams,
     threshold,
   }: CbdTDecDecrypterJSON) {
-    return new CbdTDecDecrypter(
-      new Porter(porterUri),
-      ritualId,
-      DkgPublicParameters.fromBytes(dkgPublicParams),
-      threshold
-    );
+    return new CbdTDecDecrypter(new Porter(porterUri), ritualId, threshold);
   }
 
   public static fromJSON(json: string) {

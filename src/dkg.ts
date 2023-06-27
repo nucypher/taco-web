@@ -4,12 +4,12 @@ import {
   DecryptionSharePrecomputed,
   DecryptionShareSimple,
   DkgPublicKey,
-  DkgPublicParameters,
   SharedSecret,
 } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { bytesEquals } from './utils';
+import { DkgCoordinatorAgent } from './agents/coordinator';
+import { bytesEquals, fromHexString } from './utils';
 
 // TODO: Expose from @nucypher/nucypher-core
 export enum FerveoVariant {
@@ -48,7 +48,6 @@ export function getCombineDecryptionSharesFunction(
 export interface DkgRitualJSON {
   id: number;
   dkgPublicKey: Uint8Array;
-  dkgPublicParams: Uint8Array;
   threshold: number;
 }
 
@@ -56,7 +55,6 @@ export class DkgRitual {
   constructor(
     public readonly id: number,
     public readonly dkgPublicKey: DkgPublicKey,
-    public readonly dkgPublicParams: DkgPublicParameters,
     public readonly threshold: number
   ) {}
 
@@ -64,7 +62,6 @@ export class DkgRitual {
     return {
       id: this.id,
       dkgPublicKey: this.dkgPublicKey.toBytes(),
-      dkgPublicParams: this.dkgPublicParams.toBytes(),
       threshold: this.threshold,
     };
   }
@@ -72,15 +69,9 @@ export class DkgRitual {
   public static fromObj({
     id,
     dkgPublicKey,
-    dkgPublicParams,
     threshold,
   }: DkgRitualJSON): DkgRitual {
-    return new DkgRitual(
-      id,
-      DkgPublicKey.fromBytes(dkgPublicKey),
-      DkgPublicParameters.fromBytes(dkgPublicParams),
-      threshold
-    );
+    return new DkgRitual(id, DkgPublicKey.fromBytes(dkgPublicKey), threshold);
   }
 
   public equals(other: DkgRitual): boolean {
@@ -88,11 +79,7 @@ export class DkgRitual {
       this.id === other.id &&
       // TODO: Replace with `equals` after https://github.com/nucypher/nucypher-core/issues/56 is fixed
       bytesEquals(this.dkgPublicKey.toBytes(), other.dkgPublicKey.toBytes()) &&
-      // TODO: Replace with `equals` after https://github.com/nucypher/nucypher-core/issues/56 is fixed
-      bytesEquals(
-        this.dkgPublicParams.toBytes(),
-        other.dkgPublicParams.toBytes()
-      )
+      this.threshold === other.threshold
     );
   }
 }
@@ -100,19 +87,23 @@ export class DkgRitual {
 export class DkgClient {
   constructor(private readonly provider: ethers.providers.Web3Provider) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async initializeRitual(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _provider: ethers.providers.Web3Provider,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _ritualParams: unknown
-  ): Promise<DkgRitual> {
-    // TODO: Remove this check after implementing this method
-    if (!this.provider._isProvider) {
-      throw new Error('Invalid provider');
-    }
-    // TODO: Create a new DKG ritual here
-    throw new Error('Not implemented');
+  // TODO: Update API: Replace with getExistingRitual and support ritualId in Strategy
+  public async initializeRitual(ritualParams: {
+    shares: number;
+    threshold: number;
+  }): Promise<DkgRitual> {
+    const ritualId = 2;
+    const ritual = await DkgCoordinatorAgent.getRitual(this.provider, ritualId);
+    const dkgPkBytes = new Uint8Array([
+      ...fromHexString(ritual.publicKey.word0),
+      ...fromHexString(ritual.publicKey.word1),
+    ]);
+
+    return {
+      id: ritualId,
+      dkgPublicKey: DkgPublicKey.fromBytes(dkgPkBytes),
+      threshold: ritualParams.threshold,
+    } as DkgRitual;
   }
 
   // TODO: Without Validator public key in Coordinator, we cannot verify the

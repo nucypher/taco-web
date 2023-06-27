@@ -216,8 +216,8 @@ export const mockDetectEthereumProvider = () => {
 export const fakeDkgFlow = (
   variant: FerveoVariant | FerveoVariant.Precomputed,
   ritualId: number,
-  sharesNum = 4,
-  threshold = 3
+  sharesNum: number,
+  threshold: number
 ) => {
   if (
     variant !== FerveoVariant.Simple &&
@@ -302,7 +302,6 @@ export const fakeTDecFlow = ({
   variant,
   ciphertext,
   aad,
-  dkg,
   message,
 }: FakeDkgRitualFlow) => {
   // Having aggregated the transcripts, the validators can now create decryption shares
@@ -348,12 +347,7 @@ export const fakeTDecFlow = ({
   }
 
   // The client should have access to the public parameters of the DKG
-  const plaintext = decryptWithSharedSecret(
-    ciphertext,
-    aad,
-    sharedSecret,
-    dkg.publicParams()
-  );
+  const plaintext = decryptWithSharedSecret(ciphertext, aad, sharedSecret);
   if (!bytesEqual(plaintext, message)) {
     throw new Error('Decryption failed');
   }
@@ -364,9 +358,11 @@ export const fakeDkgTDecFlowE2e = (
   variant: FerveoVariant,
   message = toBytes('fake-message'),
   aad = toBytes('fake-aad'),
-  ritualId = 0
+  ritualId = 0,
+  sharesNum = 4,
+  threshold = 4
 ) => {
-  const ritual = fakeDkgFlow(variant, ritualId, 4, 3);
+  const ritual = fakeDkgFlow(variant, ritualId, sharesNum, threshold);
 
   // In the meantime, the client creates a ciphertext and decryption request
   const ciphertext = ferveoEncrypt(message, aad, ritual.dkg.publicKey());
@@ -447,8 +443,8 @@ export const fakeDkgParticipants = (
     return {
       provider: address,
       aggregated: true, // Assuming all validators already contributed to the aggregate
-      transcript: toHexString(transcript.toBytes()),
-      decryptionRequestStaticKey: toHexString(secret.publicKey().toBytes()),
+      transcript,
+      decryptionRequestStaticKey: secret.publicKey(),
     } as DkgParticipant;
   });
   return { participantSecrets, participants };
@@ -500,13 +496,8 @@ export const mockRandomSessionStaticSecret = (secret: SessionStaticSecret) => {
 
 export const fakeRitualId = 0;
 
-export const fakeDkgRitual = (ritual: { dkg: Dkg }, thresold: number) => {
-  return new DkgRitual(
-    fakeRitualId,
-    ritual.dkg.publicKey(),
-    ritual.dkg.publicParams(),
-    thresold
-  );
+export const fakeDkgRitual = (ritual: { dkg: Dkg }, threshold: number) => {
+  return new DkgRitual(fakeRitualId, ritual.dkg.publicKey(), threshold);
 };
 
 export const mockInitializeRitual = (fakeRitual: unknown) => {

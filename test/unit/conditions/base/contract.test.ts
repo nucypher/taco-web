@@ -7,7 +7,7 @@ import {
 import { ContractCondition } from '../../../../src/conditions/base';
 import { USER_ADDRESS_PARAM } from '../../../../src/conditions/const';
 import { fakeWeb3Provider } from '../../../utils';
-import { testContractConditionObj } from '../../testVariables';
+import { testContractConditionObj, testFunctionAbi } from '../../testVariables';
 
 describe('validation', () => {
   it('accepts on a valid schema', () => {
@@ -103,30 +103,10 @@ describe('accepts either standardContractType or functionAbi but not both or non
 });
 
 describe('supports custom function abi', () => {
-  const fakeFunctionAbi = {
-    name: 'myFunction',
-    type: 'function',
-    inputs: [
-      {
-        name: 'account',
-        type: 'address',
-      },
-      {
-        name: 'myCustomParam',
-        type: 'uint256',
-      },
-    ],
-    outputs: [
-      {
-        name: 'someValue',
-        type: 'uint256',
-      },
-    ],
-  };
   const contractConditionObj = {
     ...testContractConditionObj,
     standardContractType: undefined,
-    functionAbi: fakeFunctionAbi,
+    functionAbi: testFunctionAbi,
     method: 'myFunction',
     parameters: [USER_ADDRESS_PARAM, ':customParam'],
     returnValueTest: {
@@ -143,7 +123,7 @@ describe('supports custom function abi', () => {
   const customParams: Record<string, CustomContextParam> = {};
   customParams[myCustomParam] = 1234;
 
-  it('accepts custom function abi', async () => {
+  it('accepts custom function abi with a custom parameter', async () => {
     const asJson = await conditionContext
       .withCustomParams(customParams)
       .toJson();
@@ -151,4 +131,109 @@ describe('supports custom function abi', () => {
     expect(asJson).toContain(USER_ADDRESS_PARAM);
     expect(asJson).toContain(myCustomParam);
   });
+
+  it.each([
+    {
+      method: 'balanceOf',
+      functionAbi: {
+        name: 'balanceOf',
+        type: 'function',
+        inputs: [{ name: '_owner', type: 'address' }],
+        outputs: [{ name: 'balance', type: 'uint256' }],
+        stateMutability: 'view',
+      },
+    },
+    {
+      method: 'get',
+      functionAbi: {
+        name: 'get',
+        type: 'function',
+        inputs: [],
+        outputs: [],
+        stateMutability: 'pure',
+      },
+    },
+  ])('accepts well-formed functionAbi', ({ method, functionAbi }) => {
+    expect(() =>
+      new ContractCondition({
+        ...contractConditionObj,
+        parameters: functionAbi.inputs.map(
+          (input) => `fake_parameter_${input}`
+        ), //
+        functionAbi,
+        method,
+      }).toObj()
+    ).not.toThrow();
+  });
+
+  it.each([
+    {
+      method: '1234',
+      expectedError: '"functionAbi.name" must be a string',
+      functionAbi: {
+        name: 1234, // invalid value
+        type: 'function',
+        inputs: [{ name: '_owner', type: 'address' }],
+        outputs: [{ name: 'balance', type: 'uint256' }],
+        stateMutability: 'view',
+      },
+    },
+    {
+      method: 'transfer',
+      expectedError: '"functionAbi.inputs" must be an array',
+      functionAbi: {
+        name: 'transfer',
+        type: 'function',
+        inputs: 'invalid value', // invalid value
+        outputs: [{ name: '_status', type: 'bool' }],
+        stateMutability: 'pure',
+      },
+    },
+    {
+      method: 'get',
+      expectedError:
+        '"functionAbi.stateMutability" must be one of [view, pure]',
+      functionAbi: {
+        name: 'get',
+        type: 'function',
+        inputs: [],
+        outputs: [],
+        stateMutability: 'invalid', // invalid value
+      },
+    },
+    {
+      method: 'test',
+      expectedError: '"functionAbi.outputs" must be an array',
+      functionAbi: {
+        name: 'test',
+        type: 'function',
+        inputs: [],
+        outputs: 'invalid value', // Invalid value
+        stateMutability: 'pure',
+      },
+    },
+    {
+      method: 'calculatePow',
+      expectedError:
+        'Invalid condition: "parameters" must have the same length as "functionAbi.inputs"',
+      functionAbi: {
+        name: 'calculatePow',
+        type: 'function',
+        // 'inputs': []   // Missing inputs array
+        outputs: [{ name: 'result', type: 'uint256' }],
+        stateMutability: 'view',
+      },
+    },
+  ])(
+    'rejects malformed functionAbi',
+    ({ method, expectedError, functionAbi }) => {
+      expect(() =>
+        new ContractCondition({
+          ...contractConditionObj,
+          functionAbi,
+          method,
+        }).toObj()
+      ).toThrow(expectedError);
+    }
+  );
 });

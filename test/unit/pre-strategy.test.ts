@@ -3,8 +3,8 @@ import { SecretKey, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 import {
   conditions,
   DeployedPreStrategy,
+  PreDecrypter,
   PreStrategy,
-  PreTDecDecrypter,
 } from '../../src';
 import { Ursula } from '../../src/characters/porter';
 import { toBytes } from '../../src/utils';
@@ -54,7 +54,7 @@ const makeDeployedPreStrategy = async () => {
   const makeTreasureMapSpy = mockMakeTreasureMap();
   const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
-  const deployedStrategy = await strategy.deploy('test', aliceProvider);
+  const deployedStrategy = await strategy.deploy(aliceProvider, 'test');
 
   expect(generateKFragsSpy).toHaveBeenCalled();
   expect(publishToBlockchainSpy).toHaveBeenCalled();
@@ -155,14 +155,14 @@ describe('PreTDecDecrypter', () => {
   it('serializes to a plain object', async () => {
     const { deployedStrategy } = await makeDeployedPreStrategy();
     const asObj = deployedStrategy.decrypter.toObj();
-    const fromJson = PreTDecDecrypter.fromObj(asObj);
+    const fromJson = PreDecrypter.fromObj(asObj);
     expect(fromJson.equals(deployedStrategy.decrypter)).toBeTruthy();
   });
 
   it('serializes to JSON', async () => {
     const { deployedStrategy } = await makeDeployedPreStrategy();
     const asJson = deployedStrategy.decrypter.toJSON();
-    const fromJson = PreTDecDecrypter.fromJSON(asJson);
+    const fromJson = PreDecrypter.fromJSON(asJson);
     expect(fromJson.equals(deployedStrategy.decrypter)).toBeTruthy();
   });
 });

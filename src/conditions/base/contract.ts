@@ -40,12 +40,16 @@ const functionAbiSchema = Joi.object({
   // Now we just need to validate against the parent schema
   // Validate method name
   const method = helper.state.ancestors[0].method;
-  const abiMethodName = Object.keys(asInterface.functions).find((name) =>
-    name.startsWith(`${method}(`)
-  );
-  const functionFragment = abiMethodName
-    ? asInterface.functions[abiMethodName]
-    : null;
+
+  let functionFragment;
+  try {
+    functionFragment = asInterface.getFunction(method);
+  } catch (e) {
+    return helper.message({
+      custom: `"functionAbi" contains ambiguous "${method}"`,
+    });
+  }
+
   if (!functionFragment) {
     return helper.message({
       custom: `"functionAbi" not valid for method: "${method}"`,

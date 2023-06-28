@@ -16,7 +16,7 @@ import { base64ToU8Receiver, bytesEquals, toJSON, zip } from '../utils';
 
 import { Porter } from './porter';
 
-export type PreTDecDecrypterJSON = {
+export type PreDecrypterJSON = {
   porterUri: string;
   policyEncryptingKeyBytes: Uint8Array;
   encryptedTreasureMapBytes: Uint8Array;
@@ -24,7 +24,7 @@ export type PreTDecDecrypterJSON = {
   bobSecretKeyBytes: Uint8Array;
 };
 
-export class PreTDecDecrypter {
+export class PreDecrypter {
   // private readonly verifyingKey: Keyring;
 
   constructor(
@@ -41,8 +41,8 @@ export class PreTDecDecrypter {
     policyEncryptingKey: PublicKey,
     publisherVerifyingKey: PublicKey,
     encryptedTreasureMap: EncryptedTreasureMap
-  ): PreTDecDecrypter {
-    return new PreTDecDecrypter(
+  ): PreDecrypter {
+    return new PreDecrypter(
       new Porter(porterUri),
       new Keyring(secretKey),
       policyEncryptingKey,
@@ -149,7 +149,7 @@ export class PreTDecDecrypter {
     });
   }
 
-  public toObj(): PreTDecDecrypterJSON {
+  public toObj(): PreDecrypterJSON {
     return {
       porterUri: this.porter.porterUrl.toString(),
       policyEncryptingKeyBytes: this.policyEncryptingKey.toCompressedBytes(),
@@ -170,8 +170,8 @@ export class PreTDecDecrypter {
     encryptedTreasureMapBytes,
     publisherVerifyingKeyBytes,
     bobSecretKeyBytes,
-  }: PreTDecDecrypterJSON) {
-    return new PreTDecDecrypter(
+  }: PreDecrypterJSON) {
+    return new PreDecrypter(
       new Porter(porterUri),
       new Keyring(SecretKey.fromBEBytes(bobSecretKeyBytes)),
       PublicKey.fromCompressedBytes(policyEncryptingKeyBytes),
@@ -182,10 +182,10 @@ export class PreTDecDecrypter {
 
   public static fromJSON(json: string) {
     const config = JSON.parse(json, base64ToU8Receiver);
-    return PreTDecDecrypter.fromObj(config);
+    return PreDecrypter.fromObj(config);
   }
 
-  public equals(other: PreTDecDecrypter): boolean {
+  public equals(other: PreDecrypter): boolean {
     return (
       this.porter.porterUrl.toString() === other.porter.porterUrl.toString() &&
       this.policyEncryptingKey.equals(other.policyEncryptingKey) &&

@@ -28,13 +28,13 @@ import { fromJSON, toJSON } from '../utils';
 
 import { Porter } from './porter';
 
-export type CbdTDecDecrypterJSON = {
+export type ThresholdDecrypterJSON = {
   porterUri: string;
   ritualId: number;
   threshold: number;
 };
 
-export class CbdTDecDecrypter {
+export class ThresholdDecrypter {
   // private readonly verifyingKey: Keyring;
 
   private constructor(
@@ -44,7 +44,7 @@ export class CbdTDecDecrypter {
   ) {}
 
   public static create(porterUri: string, dkgRitual: DkgRitual) {
-    return new CbdTDecDecrypter(
+    return new ThresholdDecrypter(
       new Porter(porterUri),
       dkgRitual.id,
       dkgRitual.dkgParams.threshold
@@ -207,7 +207,7 @@ export class CbdTDecDecrypter {
     return SessionStaticSecret.random();
   }
 
-  public toObj(): CbdTDecDecrypterJSON {
+  public toObj(): ThresholdDecrypterJSON {
     return {
       porterUri: this.porter.porterUrl.toString(),
       ritualId: this.ritualId,
@@ -223,15 +223,15 @@ export class CbdTDecDecrypter {
     porterUri,
     ritualId,
     threshold,
-  }: CbdTDecDecrypterJSON) {
-    return new CbdTDecDecrypter(new Porter(porterUri), ritualId, threshold);
+  }: ThresholdDecrypterJSON) {
+    return new ThresholdDecrypter(new Porter(porterUri), ritualId, threshold);
   }
 
   public static fromJSON(json: string) {
-    return CbdTDecDecrypter.fromObj(fromJSON(json));
+    return ThresholdDecrypter.fromObj(fromJSON(json));
   }
 
-  public equals(other: CbdTDecDecrypter): boolean {
+  public equals(other: ThresholdDecrypter): boolean {
     return (
       this.porter.porterUrl.toString() === other.porter.porterUrl.toString()
     );

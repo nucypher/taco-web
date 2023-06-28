@@ -60,12 +60,9 @@ describe('Get Started (CBD PoC)', () => {
     //
 
     // 2. Build a Cohort
-    const config = {
-      threshold: 2,
-      shares: 4,
-      porterUri: 'https://porter-tapir.nucypher.community',
-    };
-    const newCohort = await Cohort.create(config);
+    const porterUri = 'https://porter-tapir.nucypher.community';
+    const numUrsulas = 5;
+    const newCohort = await Cohort.create(porterUri, numUrsulas);
 
     // 3. Specify default conditions
     const NFTOwnership = new ERC721Ownership({
@@ -86,7 +83,7 @@ describe('Get Started (CBD PoC)', () => {
     const mumbai = providers.getNetwork(80001);
 
     const web3Provider = new providers.Web3Provider(MMprovider, mumbai);
-    const newDeployed = await newStrategy.deploy('test', web3Provider);
+    const newDeployed = await newStrategy.deploy(web3Provider, 'test');
 
     // 5. Encrypt the plaintext & update conditions
     const NFTBalanceConfig = {

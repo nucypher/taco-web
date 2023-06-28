@@ -43,7 +43,7 @@ import {
   DkgParticipant,
   DkgRitualState,
 } from '../src/agents/coordinator';
-import { CbdTDecDecrypter } from '../src/characters/cbd-recipient';
+import { ThresholdDecrypter } from '../src/characters/cbd-recipient';
 import {
   CbdDecryptResult,
   GetUrsulasResult,
@@ -499,7 +499,7 @@ export const mockCbdDecrypt = (
 
 export const mockRandomSessionStaticSecret = (secret: SessionStaticSecret) => {
   return jest
-    .spyOn(CbdTDecDecrypter.prototype as any, 'makeSessionKey')
+    .spyOn(ThresholdDecrypter.prototype as any, 'makeSessionKey')
     .mockImplementation(() => secret);
 };
 
@@ -535,12 +535,9 @@ export const mockGetExistingRitual = (dkgRitual: DkgRitual) => {
 
 export const makeCohort = async (ursulas: Ursula[]) => {
   const getUrsulasSpy = mockGetUrsulas(ursulas);
-  const config = {
-    threshold: 2,
-    shares: ursulas.length,
-    porterUri: 'https://_this.should.crash',
-  };
-  const cohort = await Cohort.create(config);
+  const porterUri = 'https://_this.should.crash';
+  const numUrsulas = ursulas.length;
+  const cohort = await Cohort.create(porterUri, numUrsulas);
   expect(getUrsulasSpy).toHaveBeenCalled();
   return cohort;
 };

@@ -28,15 +28,6 @@ export type EnactedPolicy = {
 
 type IPreEnactedPolicy = Omit<EnactedPolicy, 'txHash'>;
 
-export type EnactedPolicyJSON = Omit<
-  EnactedPolicy,
-  'policyKey' | 'encryptedTreasureMap' | 'id'
-> & {
-  policyKey: Uint8Array;
-  id: Uint8Array;
-  encryptedTreasureMap: Uint8Array;
-};
-
 export class PreEnactedPolicy implements IPreEnactedPolicy {
   constructor(
     public readonly id: HRAC,
@@ -143,18 +134,18 @@ export class BlockchainPolicy {
     ursulas: readonly Ursula[],
     verifiedKFrags: readonly VerifiedKeyFrag[]
   ): TreasureMap {
-    const assigned_kfrags: [Address, [PublicKey, VerifiedKeyFrag]][] = [];
+    const assignedKFrags: [Address, [PublicKey, VerifiedKeyFrag]][] = [];
     zip(ursulas, verifiedKFrags).forEach(([ursula, kFrag]) => {
       const ursulaAddress = new Address(
         toCanonicalAddress(ursula.checksumAddress)
       );
-      assigned_kfrags.push([ursulaAddress, [ursula.encryptingKey, kFrag]]);
+      assignedKFrags.push([ursulaAddress, [ursula.encryptingKey, kFrag]]);
     });
     return new TreasureMap(
       this.publisher.signer,
       this.hrac,
       this.delegatingKey,
-      assigned_kfrags,
+      assignedKFrags,
       this.threshold
     );
   }

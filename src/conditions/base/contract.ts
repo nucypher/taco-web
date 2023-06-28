@@ -46,7 +46,7 @@ const functionAbiSchema = Joi.object({
     functionFragment = asInterface.getFunction(method);
   } catch (e) {
     return helper.message({
-      custom: `"functionAbi" contains ambiguous "${method}"`,
+      custom: `"functionAbi" has no matching function for "${method}"`,
     });
   }
 

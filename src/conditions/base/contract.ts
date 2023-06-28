@@ -25,13 +25,13 @@ const functionAbiSchema = Joi.object({
     });
   }
 
-  if (!asInterface.fragments) {
+  if (!asInterface.functions) {
     return helper.message({
       custom: '"functionAbi" is missing a function fragment',
     });
   }
 
-  if (asInterface.fragments.length > 1) {
+  if (Object.values(asInterface.functions).length !== 1) {
     return helper.message({
       custom: '"functionAbi" must contain exactly one function fragment',
     });
@@ -40,12 +40,15 @@ const functionAbiSchema = Joi.object({
   // Now we just need to validate against the parent schema
   // Validate method name
   const method = helper.state.ancestors[0].method;
-  const functionFragment = asInterface.fragments.filter(
-    (f) => f.name === method
-  )[0];
+  const abiMethodName = Object.keys(asInterface.functions).find((name) =>
+    name.startsWith(`${method}(`)
+  );
+  const functionFragment = abiMethodName
+    ? asInterface.functions[abiMethodName]
+    : null;
   if (!functionFragment) {
     return helper.message({
-      custom: '"functionAbi" does not contain the method specified as "method"',
+      custom: `"functionAbi" not valid for method: "${method}"`,
     });
   }
 

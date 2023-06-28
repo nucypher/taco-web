@@ -2,50 +2,33 @@ import { Porter } from '../characters/porter';
 import { ChecksumAddress } from '../types';
 import { objectEquals } from '../utils';
 
-export type CohortConfiguration = {
-  readonly threshold: number;
-  readonly shares: number;
-  readonly porterUri: string;
-};
-
 export type CohortJSON = {
   ursulaAddresses: ChecksumAddress[];
-  threshold: number;
-  shares: number;
   porterUri: string;
 };
 
 export class Cohort {
   private constructor(
-    public ursulaAddresses: ChecksumAddress[],
-    public readonly configuration: CohortConfiguration
+    public readonly ursulaAddresses: ChecksumAddress[],
+    public readonly porterUri: string
   ) {}
 
   public static async create(
-    configuration: CohortConfiguration,
+    porterUri: string,
+    numUrsulas: number,
     include: string[] = [],
     exclude: string[] = []
   ) {
-    if (configuration.threshold > configuration.shares) {
-      throw new Error('Threshold cannot be greater than the number of shares');
-    }
-    // TODO: Remove this limitation after `nucypher-core@0.11.0` deployment
-    const isMultipleOf2 = (n: number) => n % 2 === 0;
-    if (!isMultipleOf2(configuration.shares)) {
-      throw new Error('Number of shares must be a multiple of 2');
-    }
-
-    const porter = new Porter(configuration.porterUri);
-    const ursulas = await porter.getUrsulas(
-      configuration.shares,
-      exclude,
-      include.splice(0, configuration.shares)
-    );
+    const porter = new Porter(porterUri);
+    const ursulas = await porter.getUrsulas(numUrsulas, exclude, include);
     const ursulaAddresses = ursulas.map((ursula) => ursula.checksumAddress);
-    return new Cohort(ursulaAddresses, configuration);
+    return new Cohort(ursulaAddresses, porterUri);
   }
 
-  public get shares(): number {
+  public static fromUrsulas(ursulas: ChecksumAddress[], porterUri: string) {
+    return new Cohort(ursulas, porterUri);
+  }
+  public get numUrsulas(): number {
     return this.ursulaAddresses.length;
   }
 
@@ -58,26 +41,14 @@ export class Cohort {
     return Cohort.fromObj(config);
   }
 
-  public static fromObj({
-    ursulaAddresses,
-    threshold,
-    shares,
-    porterUri,
-  }: CohortJSON) {
-    const config = {
-      threshold: threshold,
-      shares: shares,
-      porterUri: porterUri,
-    };
-    return new Cohort(ursulaAddresses, config);
+  public static fromObj({ ursulaAddresses, porterUri }: CohortJSON) {
+    return new Cohort(ursulaAddresses, porterUri);
   }
 
   public toObj(): CohortJSON {
     return {
       ursulaAddresses: this.ursulaAddresses,
-      threshold: this.configuration.threshold,
-      shares: this.configuration.shares,
-      porterUri: this.configuration.porterUri,
+      porterUri: this.porterUri,
     };
   }
 

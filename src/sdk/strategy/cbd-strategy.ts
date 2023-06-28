@@ -3,8 +3,8 @@ import { ethers } from 'ethers';
 
 import { bytesEqual } from '../../../test/utils';
 import {
-  CbdTDecDecrypter,
-  CbdTDecDecrypterJSON,
+  ThresholdDecrypter,
+  ThresholdDecrypterJSON,
 } from '../../characters/cbd-recipient';
 import { Enrico } from '../../characters/enrico';
 import { ConditionExpression, ConditionExpressionJSON } from '../../conditions';
@@ -18,7 +18,7 @@ export type CbdStrategyJSON = {
 };
 
 export type DeployedStrategyJSON = {
-  decrypter: CbdTDecDecrypterJSON;
+  decrypter: ThresholdDecrypterJSON;
   dkgPublicKey: Uint8Array;
 };
 
@@ -45,7 +45,7 @@ export class CbdStrategy {
       throw new Error('Ritual ID is undefined');
     }
     const dkgRitual = await DkgClient.getExistingRitual(web3Provider, ritualId);
-    return DeployedCbdStrategy.create(this.cohort, dkgRitual);
+    return DeployedCbdStrategy.create(dkgRitual, this.cohort.porterUri);
   }
 
   public static fromJSON(json: string) {
@@ -73,16 +73,24 @@ export class CbdStrategy {
 
 export class DeployedCbdStrategy {
   private constructor(
-    public readonly decrypter: CbdTDecDecrypter,
+    public readonly decrypter: ThresholdDecrypter,
     public readonly dkgPublicKey: DkgPublicKey
   ) {}
 
-  public static create(cohort: Cohort, dkgRitual: DkgRitual) {
-    const decrypter = CbdTDecDecrypter.create(
-      cohort.configuration.porterUri,
-      dkgRitual
-    );
+  public static create(dkgRitual: DkgRitual, porterUri: string) {
+    const decrypter = ThresholdDecrypter.create(porterUri, dkgRitual);
     return new DeployedCbdStrategy(decrypter, dkgRitual.dkgPublicKey);
+  }
+
+  // TODO: This is analogous to create() above, is it useful?
+  public static async fromRitualId(
+    provider: ethers.providers.Web3Provider,
+    porterUri: string,
+    ritualId: number
+  ): Promise<DeployedCbdStrategy> {
+    const dkgClient = new DkgClient(provider);
+    const dkgRitual = await dkgClient.getExistingRitual(ritualId);
+    return DeployedCbdStrategy.create(dkgRitual, porterUri);
   }
 
   public makeEncrypter(conditionExpr: ConditionExpression): Enrico {
@@ -100,7 +108,7 @@ export class DeployedCbdStrategy {
 
   private static fromObj({ decrypter, dkgPublicKey }: DeployedStrategyJSON) {
     return new DeployedCbdStrategy(
-      CbdTDecDecrypter.fromObj(decrypter),
+      ThresholdDecrypter.fromObj(decrypter),
       DkgPublicKey.fromBytes(dkgPublicKey)
     );
   }

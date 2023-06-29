@@ -9,9 +9,8 @@ import {
 import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
+import { PorterClient } from '../porter';
 import { zip } from '../utils';
-
-import { Porter } from './porter';
 
 export class RemoteBob {
   private constructor(
@@ -36,11 +35,11 @@ export class RemoteBob {
 }
 
 export class Bob {
-  private readonly porter: Porter;
+  private readonly porter: PorterClient;
   private readonly keyring: Keyring;
 
   constructor(porterUri: string, secretKey: SecretKey) {
-    this.porter = new Porter(porterUri);
+    this.porter = new PorterClient(porterUri);
     this.keyring = new Keyring(secretKey);
   }
 

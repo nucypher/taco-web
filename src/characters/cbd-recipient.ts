@@ -20,9 +20,8 @@ import {
   getCombineDecryptionSharesFunction,
   getVariantClass,
 } from '../dkg';
+import { PorterClient } from '../porter';
 import { fromJSON, toJSON } from '../utils';
-
-import { Porter } from './porter';
 
 export type ThresholdDecrypterJSON = {
   porterUri: string;
@@ -34,14 +33,14 @@ export class ThresholdDecrypter {
   // private readonly verifyingKey: Keyring;
 
   private constructor(
-    private readonly porter: Porter,
+    private readonly porter: PorterClient,
     private readonly ritualId: number,
     private readonly threshold: number
   ) {}
 
   public static create(porterUri: string, dkgRitual: DkgRitual) {
     return new ThresholdDecrypter(
-      new Porter(porterUri),
+      new PorterClient(porterUri),
       dkgRitual.id,
       dkgRitual.dkgParams.threshold
     );
@@ -210,7 +209,11 @@ export class ThresholdDecrypter {
     ritualId,
     threshold,
   }: ThresholdDecrypterJSON) {
-    return new ThresholdDecrypter(new Porter(porterUri), ritualId, threshold);
+    return new ThresholdDecrypter(
+      new PorterClient(porterUri),
+      ritualId,
+      threshold
+    );
   }
 
   public static fromJSON(json: string) {

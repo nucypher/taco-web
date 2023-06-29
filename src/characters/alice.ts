@@ -13,13 +13,13 @@ import {
   EnactedPolicy,
   PreEnactedPolicy,
 } from '../policies/policy';
+import { PorterClient } from '../porter';
 import { ChecksumAddress } from '../types';
 
 import { RemoteBob } from './bob';
-import { Porter } from './porter';
 
 export class Alice {
-  private readonly porter: Porter;
+  private readonly porter: PorterClient;
   private readonly keyring: Keyring;
 
   private constructor(
@@ -27,7 +27,7 @@ export class Alice {
     secretKey: SecretKey,
     public readonly web3Provider: ethers.providers.Web3Provider
   ) {
-    this.porter = new Porter(porterUri);
+    this.porter = new PorterClient(porterUri);
     this.keyring = new Keyring(secretKey);
   }
 

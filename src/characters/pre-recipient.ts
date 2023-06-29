@@ -12,9 +12,8 @@ import { ConditionContext, ConditionExpression } from '../conditions';
 import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
+import { PorterClient } from '../porter';
 import { base64ToU8Receiver, bytesEquals, toJSON, zip } from '../utils';
-
-import { Porter } from './porter';
 
 export type PreDecrypterJSON = {
   porterUri: string;
@@ -28,7 +27,7 @@ export class PreDecrypter {
   // private readonly verifyingKey: Keyring;
 
   constructor(
-    private readonly porter: Porter,
+    private readonly porter: PorterClient,
     private readonly keyring: Keyring,
     private readonly policyEncryptingKey: PublicKey,
     private readonly publisherVerifyingKey: PublicKey,
@@ -43,7 +42,7 @@ export class PreDecrypter {
     encryptedTreasureMap: EncryptedTreasureMap
   ): PreDecrypter {
     return new PreDecrypter(
-      new Porter(porterUri),
+      new PorterClient(porterUri),
       new Keyring(secretKey),
       policyEncryptingKey,
       publisherVerifyingKey,
@@ -172,7 +171,7 @@ export class PreDecrypter {
     bobSecretKeyBytes,
   }: PreDecrypterJSON) {
     return new PreDecrypter(
-      new Porter(porterUri),
+      new PorterClient(porterUri),
       new Keyring(SecretKey.fromBEBytes(bobSecretKeyBytes)),
       PublicKey.fromCompressedBytes(policyEncryptingKeyBytes),
       PublicKey.fromCompressedBytes(publisherVerifyingKeyBytes),

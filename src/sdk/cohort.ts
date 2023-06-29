@@ -1,4 +1,4 @@
-import { Porter } from '../characters/porter';
+import { PorterClient } from '../porter';
 import { ChecksumAddress } from '../types';
 import { objectEquals } from '../utils';
 
@@ -19,7 +19,7 @@ export class Cohort {
     include: string[] = [],
     exclude: string[] = []
   ) {
-    const porter = new Porter(porterUri);
+    const porter = new PorterClient(porterUri);
     const ursulas = await porter.getUrsulas(numUrsulas, exclude, include);
     const ursulaAddresses = ursulas.map((ursula) => ursula.checksumAddress);
     return new Cohort(ursulaAddresses, porterUri);

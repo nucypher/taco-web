@@ -3,7 +3,7 @@ export { Alice } from './characters/alice';
 export { Bob, RemoteBob } from './characters/bob';
 export { Enrico } from './characters/enrico';
 export { PreDecrypter } from './characters/pre-recipient';
-export { Porter } from './characters/porter';
+export { PorterClient } from './porter';
 
 // Policies
 export type {

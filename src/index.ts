@@ -16,7 +16,7 @@ export { PreEnactedPolicy } from './policies/policy';
 export { Keyring } from './keyring';
 
 // Configuration
-export { defaultPorterUri } from './config';
+export { getPorterUri } from './config';
 
 // Kits
 export { PolicyMessageKit } from './kits/message';

@@ -1,16 +1,16 @@
-import { ChainId } from './types';
+type Network = 'mainnet' | 'tapir' | 'oryx' | 'lynx';
 
-const PORTER_URIS: { readonly [key in ChainId]: string } = {
+const PORTER_URIS: Record<Network, string> = {
   // TODO: Make sure these are correct
-  [ChainId.POLYGON]: 'https://porter.nucypher.community',
-  [ChainId.MUMBAI]: 'https://porter-tapir.nucypher.community',
-  [ChainId.GOERLI]: 'https://porter-tapir.nucypher.community',
-  [ChainId.MAINNET]: 'https://porter.nucypher.io/',
+  mainnet: 'https://porter.nucypher.community',
+  tapir: 'https://porter-tapir.nucypher.community',
+  oryx: 'https://porter-oryx.nucypher.community',
+  lynx: 'https://porter-lynx.nucypher.community',
 };
 
-export const defaultPorterUri = (chainId: number): string => {
-  if (!Object.values(ChainId).includes(chainId)) {
-    throw new Error(`No default Porter URI found for chainId: ${chainId}`);
+export const getPorterUri = (network: Network): string => {
+  if (!Object.values(PORTER_URIS).includes(network)) {
+    throw new Error(`No default Porter URI found for network: ${network}`);
   }
-  return PORTER_URIS[chainId as ChainId];
+  return PORTER_URIS[network];
 };

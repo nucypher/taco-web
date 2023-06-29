@@ -38,7 +38,11 @@ import { ethers, providers, Wallet } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 
 import { Alice, Bob, Cohort, Configuration, RemoteBob } from '../src';
-import { DkgCoordinatorAgent, DkgParticipant } from '../src/agents/coordinator';
+import {
+  DkgCoordinatorAgent,
+  DkgParticipant,
+  DkgRitualState,
+} from '../src/agents/coordinator';
 import { CbdTDecDecrypter } from '../src/characters/cbd-recipient';
 import {
   CbdDecryptResult,
@@ -501,11 +505,14 @@ export const fakeDkgRitual = (ritual: { dkg: Dkg }, threshold: number) => {
 };
 
 export const mockInitializeRitual = (fakeRitual: unknown) => {
-  return jest
-    .spyOn(DkgClient.prototype as any, 'initializeRitual')
-    .mockImplementation(() => {
-      return Promise.resolve(fakeRitual);
-    });
+  return (
+    jest
+      .spyOn(DkgClient, 'initializeRitual')
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      .mockImplementation((_web3Provider, _ritualParams) => {
+        return Promise.resolve(fakeRitual) as Promise<DkgRitual>;
+      })
+  );
 };
 
 export const makeCohort = async (ursulas: Ursula[]) => {
@@ -518,4 +525,18 @@ export const makeCohort = async (ursulas: Ursula[]) => {
   const cohort = await Cohort.create(config);
   expect(getUrsulasSpy).toHaveBeenCalled();
   return cohort;
+};
+
+export const mockGetRitualState = (state = DkgRitualState.FINALIZED) => {
+  return jest.spyOn(DkgCoordinatorAgent, 'getRitualState').mockImplementation(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (_provider, _ritualId) => Promise.resolve(state)
+  );
+};
+
+export const mockVerifyRitual = (isValid = true) => {
+  return jest.spyOn(DkgClient, 'verifyRitual').mockImplementation(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (_provider, _ritualId) => Promise.resolve(isValid)
+  );
 };

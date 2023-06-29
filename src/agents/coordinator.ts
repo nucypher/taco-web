@@ -1,4 +1,4 @@
-import { SessionStaticKey } from '@nucypher/nucypher-core';
+import { SessionStaticKey, Transcript } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
 import {
@@ -24,12 +24,23 @@ export interface CoordinatorRitual {
 export type DkgParticipant = {
   provider: string;
   aggregated: boolean;
+  // TODO: How do I get the transcript from the Coordinator?
+  transcript: Transcript;
   decryptionRequestStaticKey: SessionStaticKey;
 };
 
+export enum DkgRitualState {
+  NON_INITIATED,
+  AWAITING_TRANSCRIPTS,
+  AWAITING_AGGREGATIONS,
+  TIMEOUT,
+  INVALID,
+  FINALIZED,
+}
+
 export class DkgCoordinatorAgent {
   public static async getParticipants(
-    provider: ethers.providers.Provider,
+    provider: ethers.providers.Web3Provider,
     ritualId: number
   ): Promise<DkgParticipant[]> {
     const Coordinator = await this.connectReadOnly(provider);
@@ -39,6 +50,7 @@ export class DkgCoordinatorAgent {
       return {
         provider: participant.provider,
         aggregated: participant.aggregated,
+        transcript: Transcript.fromBytes(fromHexString(participant.transcript)),
         decryptionRequestStaticKey: SessionStaticKey.fromBytes(
           fromHexString(participant.decryptionRequestStaticKey)
         ),
@@ -47,19 +59,29 @@ export class DkgCoordinatorAgent {
   }
 
   public static async getRitual(
-    provider: ethers.providers.Provider,
+    provider: ethers.providers.Web3Provider,
     ritualId: number
   ): Promise<CoordinatorRitual> {
     const Coordinator = await this.connectReadOnly(provider);
     return Coordinator.rituals(ritualId);
   }
 
-  private static async connectReadOnly(provider: ethers.providers.Provider) {
+  public static async getRitualState(
+    provider: ethers.providers.Web3Provider,
+    ritualId: number
+  ): Promise<DkgRitualState> {
+    const Coordinator = await this.connectReadOnly(provider);
+    return await Coordinator.getRitualState(ritualId);
+  }
+
+  private static async connectReadOnly(
+    provider: ethers.providers.Web3Provider
+  ) {
     return await this.connect(provider);
   }
 
   private static async connect(
-    provider: ethers.providers.Provider,
+    provider: ethers.providers.Web3Provider,
     signer?: ethers.providers.JsonRpcSigner
   ): Promise<Coordinator> {
     const network = await provider.getNetwork();

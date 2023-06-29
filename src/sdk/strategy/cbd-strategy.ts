@@ -30,14 +30,16 @@ export class CbdStrategy {
   }
 
   public async deploy(
-    provider: ethers.providers.Web3Provider
+    web3Provider: ethers.providers.Web3Provider
   ): Promise<DeployedCbdStrategy> {
     const dkgRitualParams = {
       threshold: this.cohort.configuration.threshold,
       shares: this.cohort.configuration.shares,
     };
-    const dkgClient = new DkgClient(provider);
-    const dkgRitual = await dkgClient.initializeRitual(dkgRitualParams);
+    const dkgRitual = await DkgClient.initializeRitual(
+      web3Provider,
+      dkgRitualParams
+    );
     return DeployedCbdStrategy.create(this.cohort, dkgRitual);
   }
 

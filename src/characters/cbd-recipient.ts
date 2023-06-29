@@ -20,6 +20,7 @@ import {
 } from '../agents/coordinator';
 import { ConditionExpression } from '../conditions';
 import {
+  DkgClient,
   DkgRitual,
   getCombineDecryptionSharesFunction,
   getVariantClass,
@@ -88,6 +89,16 @@ export class ThresholdDecrypter {
     if (ritualState !== DkgRitualState.FINALIZED) {
       throw new Error(
         `Ritual with id ${this.ritualId} is not finalized. Ritual state is ${ritualState}.`
+      );
+    }
+
+    const isLocallyVerified = await DkgClient.verifyRitual(
+      web3Provider,
+      this.ritualId
+    );
+    if (!isLocallyVerified) {
+      throw new Error(
+        `Ritual with id ${this.ritualId} has failed local verification.`
       );
     }
 

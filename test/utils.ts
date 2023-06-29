@@ -546,3 +546,9 @@ export const mockGetRitualState = (state = DkgRitualState.FINALIZED) => {
     .spyOn(DkgCoordinatorAgent, 'getRitualState')
     .mockImplementation((_provider, _ritualId) => Promise.resolve(state));
 };
+
+export const mockVerifyRitual = (isValid = true) => {
+  return jest
+    .spyOn(DkgClient, 'verifyRitual')
+    .mockImplementation((_provider, _ritualId) => Promise.resolve(isValid));
+};

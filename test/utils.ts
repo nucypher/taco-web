@@ -18,6 +18,7 @@ import {
   EncryptedTreasureMap,
   EthereumAddress,
   ferveoEncrypt,
+  FerveoPublicKey,
   FerveoVariant,
   Keypair,
   PublicKey,
@@ -551,4 +552,14 @@ export const mockVerifyRitual = (isValid = true) => {
   return jest
     .spyOn(DkgClient, 'verifyRitual')
     .mockImplementation((_provider, _ritualId) => Promise.resolve(isValid));
+};
+
+export const mockGetParticipantPublicKey = (pk = fakeFerveoPublicKey()) => {
+  return jest
+    .spyOn(DkgClient, 'getParticipantPublicKey')
+    .mockImplementation((_address) => pk);
+};
+
+export const fakeFerveoPublicKey = (): FerveoPublicKey => {
+  return Keypair.random().publicKey;
 };

@@ -6,7 +6,6 @@ import {
   Signer,
 } from '@nucypher/nucypher-core';
 
-import { Configuration } from '../config';
 import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
@@ -40,8 +39,8 @@ export class Bob {
   private readonly porter: Porter;
   private readonly keyring: Keyring;
 
-  constructor(config: Configuration, secretKey: SecretKey) {
-    this.porter = new Porter(config.porterUri);
+  constructor(porterUri: string, secretKey: SecretKey) {
+    this.porter = new Porter(porterUri);
     this.keyring = new Keyring(secretKey);
   }
 
@@ -57,11 +56,8 @@ export class Bob {
     return this.keyring.signer;
   }
 
-  public static fromSecretKey(
-    config: Configuration,
-    secretKey: SecretKey
-  ): Bob {
-    return new Bob(config, secretKey);
+  public static fromSecretKey(porterUri: string, secretKey: SecretKey): Bob {
+    return new Bob(porterUri, secretKey);
   }
 
   public decrypt(messageKit: MessageKit | PolicyMessageKit): Uint8Array {

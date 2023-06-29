@@ -1,29 +1,16 @@
 import { ChainId } from './types';
 
-export type Configuration = {
-  readonly porterUri: string;
+const PORTER_URIS: { readonly [key in ChainId]: string } = {
+  // TODO: Make sure these are correct
+  [ChainId.POLYGON]: 'https://porter.nucypher.community',
+  [ChainId.MUMBAI]: 'https://porter-tapir.nucypher.community',
+  [ChainId.GOERLI]: 'https://porter-tapir.nucypher.community',
+  [ChainId.MAINNET]: 'https://porter.nucypher.io/',
 };
 
-const CONFIGS: { readonly [key in ChainId]: Configuration } = {
-  [ChainId.POLYGON]: {
-    porterUri: 'https://porter.nucypher.community',
-  },
-  [ChainId.MUMBAI]: {
-    porterUri: 'https://porter-tapir.nucypher.community',
-  },
-  [ChainId.GOERLI]: {
-    // TODO: Confirm this is correct
-    porterUri: 'https://porter-tapir.nucypher.community',
-  },
-  [ChainId.MAINNET]: {
-    // TODO: Confirm this is correct
-    porterUri: 'https://porter.nucypher.io/',
-  },
-};
-
-export const defaultConfiguration = (chainId: number): Configuration => {
+export const defaultPorterUri = (chainId: number): string => {
   if (!Object.values(ChainId).includes(chainId)) {
-    throw new Error(`No default configuration found for chainId: ${chainId}`);
+    throw new Error(`No default Porter URI found for chainId: ${chainId}`);
   }
-  return CONFIGS[chainId as ChainId];
+  return PORTER_URIS[chainId as ChainId];
 };

@@ -8,6 +8,7 @@ import {
   EncryptedThresholdDecryptionResponse,
   EncryptedTreasureMap,
   ferveoEncrypt,
+  FerveoPublicKey,
   PublicKey,
   reencrypt,
   SecretKey,
@@ -539,4 +540,15 @@ export const mockVerifyRitual = (isValid = true) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (_provider, _ritualId) => Promise.resolve(isValid)
   );
+};
+
+export const mockGetParticipantPublicKey = (pk = fakeFerveoPublicKey()) => {
+  return jest.spyOn(DkgClient, 'getParticipantPublicKey').mockImplementation(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (_address) => pk
+  );
+};
+
+export const fakeFerveoPublicKey = (): FerveoPublicKey => {
+  return Keypair.random().publicKey;
 };

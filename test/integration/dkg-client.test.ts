@@ -1,18 +1,22 @@
 import { SecretKey } from '@nucypher/nucypher-core';
 
 import { DkgCoordinatorAgent } from '../../src/agents/coordinator';
+import { DkgClient } from '../../src/dkg';
 import {
   fakeCoordinatorRitual,
   fakeDkgParticipants,
   fakeRitualId,
   fakeWeb3Provider,
+  mockGetParticipantPublicKey,
   mockGetParticipants,
+  mockVerifyRitual,
 } from '../utils';
 
 jest.mock('../../src/agents/coordinator', () => ({
   DkgCoordinatorAgent: {
     getRitual: () => Promise.resolve(fakeCoordinatorRitual(fakeRitualId)),
-    getParticipants: () => Promise.resolve(fakeDkgParticipants(fakeRitualId)),
+    getParticipants: () =>
+      Promise.resolve(fakeDkgParticipants(fakeRitualId).participants),
   },
 }));
 
@@ -42,13 +46,39 @@ describe('DkgCoordinatorAgent', () => {
   });
 });
 
-// TODO: Fix this test after the DkgClient.verifyRitual() method is implemented
-// describe('DkgClient', () => {
-//   it('verifies the dkg ritual', async () => {
-//     const provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
-//
-//     const dkgClient = new DkgClient(provider);
-//     const isValid = await dkgClient.verifyRitual(fakeRitualId);
-//     expect(isValid).toBeTruthy();
-//   });
-// });
+describe('DkgClient', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('verifies the dkg ritual', async () => {
+    const provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
+    const verifyRitualSpy = mockVerifyRitual();
+
+    const isValid = await DkgClient.verifyRitual(provider, fakeRitualId);
+    expect(isValid).toBeTruthy();
+    expect(verifyRitualSpy).toHaveBeenCalled();
+  });
+
+  it('rejects on missing participant pk', async () => {
+    const provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
+
+    await expect(async () =>
+      DkgClient.verifyRitual(provider, fakeRitualId)
+    ).rejects.toThrow(
+      'No public key for participant: 0x0000000000000000000000000000000000000000'
+    );
+  });
+
+  it('rejects on bad participant pk', async () => {
+    const provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
+    const getParticipantPublicKeysSpy = mockGetParticipantPublicKey();
+
+    await expect(async () =>
+      DkgClient.verifyRitual(provider, fakeRitualId)
+    ).rejects.toThrow(
+      "Transcript aggregate doesn't match the received PVSS instances"
+    );
+    expect(getParticipantPublicKeysSpy).toHaveBeenCalled();
+  });
+});

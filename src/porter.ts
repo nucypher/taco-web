@@ -96,7 +96,7 @@ export type CbdDecryptResult = {
   errors: Record<string, string>;
 };
 
-export class Porter {
+export class PorterClient {
   readonly porterUrl: URL;
 
   constructor(porterUri: string) {

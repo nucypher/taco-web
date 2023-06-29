@@ -45,15 +45,15 @@ import {
   DkgRitualState,
 } from '../src/agents/coordinator';
 import { ThresholdDecrypter } from '../src/characters/cbd-recipient';
+import { DkgClient, DkgRitual, FerveoVariant } from '../src/dkg';
+import { BlockchainPolicy, PreEnactedPolicy } from '../src/policies/policy';
 import {
   CbdDecryptResult,
   GetUrsulasResult,
-  Porter,
+  PorterClient,
   RetrieveCFragsResult,
   Ursula,
-} from '../src/characters/porter';
-import { DkgClient, DkgRitual } from '../src/dkg';
-import { BlockchainPolicy, PreEnactedPolicy } from '../src/policies/policy';
+} from '../src/porter';
 import { ChecksumAddress } from '../src/types';
 import { toBytes, toHexString, zip } from '../src/utils';
 
@@ -167,7 +167,7 @@ export const mockRetrieveCFragsRequest = (
 ) => {
   const results = fakeCFragResponse(ursulas, verifiedKFrags, capsule);
   return jest
-    .spyOn(Porter.prototype, 'retrieveCFrags')
+    .spyOn(PorterClient.prototype, 'retrieveCFrags')
     .mockImplementation(() => {
       return Promise.resolve(results);
     });
@@ -491,9 +491,11 @@ export const mockCbdDecrypt = (
     encryptedResponses,
     errors,
   };
-  return jest.spyOn(Porter.prototype, 'cbdDecrypt').mockImplementation(() => {
-    return Promise.resolve(result);
-  });
+  return jest
+    .spyOn(PorterClient.prototype, 'cbdDecrypt')
+    .mockImplementation(() => {
+      return Promise.resolve(result);
+    });
 };
 
 export const mockRandomSessionStaticSecret = (secret: SessionStaticSecret) => {

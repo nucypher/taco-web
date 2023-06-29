@@ -107,6 +107,7 @@ describe('story: alice shares message with bob through policy', () => {
     );
 
     const retrievedMessage = await bob.retrieveAndDecrypt(
+      fakePorterUri,
       policyEncryptingKey,
       aliceVerifyingKey,
       [encryptedMessage],

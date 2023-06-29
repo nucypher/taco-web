@@ -75,7 +75,7 @@ export class PreStrategy {
 
     const porterUri = this.cohort.porterUri;
     const alice = Alice.fromSecretKey(this.aliceSecretKey);
-    const bob = new Bob(porterUri, this.bobSecretKey);
+    const bob = new Bob(this.bobSecretKey);
     const policyParams = {
       bob,
       label,

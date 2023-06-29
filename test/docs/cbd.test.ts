@@ -2,7 +2,7 @@ import { MessageKit, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 import { providers } from 'ethers';
 
 import { Cohort, conditions, PreStrategy, SecretKey } from '../../src';
-import { Ursula } from '../../src/characters/porter';
+import { Ursula } from '../../src/porter';
 import { toBytes } from '../../src/utils';
 import {
   fakeUrsulas,

@@ -10,7 +10,7 @@ import {
 import { PreSubscriptionManagerAgent } from '../agents/subscription-manager';
 import { Alice } from '../characters/alice';
 import { RemoteBob } from '../characters/bob';
-import { Ursula } from '../characters/porter';
+import { Ursula } from '../porter';
 import { toBytes, toEpoch, zip } from '../utils';
 import { toCanonicalAddress } from '../web3';
 

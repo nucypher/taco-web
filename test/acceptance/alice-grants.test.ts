@@ -6,7 +6,7 @@ import {
 } from '@nucypher/nucypher-core';
 
 import { EnactedPolicy, Enrico, MessageKit } from '../../src';
-import { Ursula } from '../../src/characters/porter';
+import { Ursula } from '../../src/porter';
 import { ChecksumAddress } from '../../src/types';
 import { toBytes } from '../../src/utils';
 import {

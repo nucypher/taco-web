@@ -6,7 +6,7 @@ import {
   PreDecrypter,
   PreStrategy,
 } from '../../src';
-import { Ursula } from '../../src/characters/porter';
+import { Ursula } from '../../src/porter';
 import { toBytes } from '../../src/utils';
 import {
   fakeUrsulas,

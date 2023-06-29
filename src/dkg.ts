@@ -182,14 +182,6 @@ export class DkgClient {
       ritualId
     );
 
-    // TODO: Does this check make sense here? Or do we delegate it to the Coordinator contract?
-    // for (const p of participants) {
-    //   // Not every participant has submitted a transcript
-    //   if (!p.aggregated) {
-    //     return false;
-    //   }
-    // }
-
     const validatorMessages = participants.map((p) => {
       const validatorAddress = EthereumAddress.fromString(p.provider);
       // TODO: Replace with real keys

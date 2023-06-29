@@ -70,7 +70,7 @@ export const fakeBob = (): Bob => {
   const secretKey = SecretKey.fromBEBytes(
     toBytes('fake-secret-key-32-bytes-bob-xxx')
   );
-  return Bob.fromSecretKey(fakePorterUri, secretKey);
+  return Bob.fromSecretKey(secretKey);
 };
 
 export const fakeRemoteBob = (): RemoteBob => {

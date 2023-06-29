@@ -151,7 +151,7 @@ describe('PreDeployedStrategy', () => {
   });
 });
 
-describe('PreTDecDecrypter', () => {
+describe('PreDecrypter', () => {
   it('serializes to a plain object', async () => {
     const { deployedStrategy } = await makeDeployedPreStrategy();
     const asObj = deployedStrategy.decrypter.toObj();

@@ -12,9 +12,14 @@ import {
 } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { DkgCoordinatorAgent, DkgParticipant } from '../agents/coordinator';
+import {
+  DkgCoordinatorAgent,
+  DkgParticipant,
+  DkgRitualState,
+} from '../agents/coordinator';
 import { ConditionExpression } from '../conditions';
 import {
+  DkgClient,
   DkgRitual,
   FerveoVariant,
   getCombineDecryptionSharesFunction,
@@ -73,16 +78,36 @@ export class CbdTDecDecrypter {
 
   // Retrieve decryption shares
   public async retrieve(
-    provider: ethers.providers.Web3Provider,
+    web3Provider: ethers.providers.Web3Provider,
     conditionExpr: ConditionExpression,
     variant: number,
     ciphertext: Ciphertext
   ): Promise<DecryptionSharePrecomputed[] | DecryptionShareSimple[]> {
-    const dkgParticipants = await DkgCoordinatorAgent.getParticipants(
-      provider,
+    const ritualState = await DkgCoordinatorAgent.getRitualState(
+      web3Provider,
       this.ritualId
     );
-    const contextStr = await conditionExpr.buildContext(provider).toJson();
+    if (ritualState !== DkgRitualState.FINALIZED) {
+      throw new Error(
+        `Ritual with id ${this.ritualId} is not finalized. Ritual state is ${ritualState}.`
+      );
+    }
+
+    const isLocallyVerified = await DkgClient.verifyRitual(
+      web3Provider,
+      this.ritualId
+    );
+    if (!isLocallyVerified) {
+      throw new Error(
+        `Ritual with id ${this.ritualId} has failed local verification.`
+      );
+    }
+
+    const dkgParticipants = await DkgCoordinatorAgent.getParticipants(
+      web3Provider,
+      this.ritualId
+    );
+    const contextStr = await conditionExpr.buildContext(web3Provider).toJson();
     const { sharedSecrets, encryptedRequests } = this.makeDecryptionRequests(
       this.ritualId,
       variant,

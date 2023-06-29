@@ -38,7 +38,7 @@ import axios from 'axios';
 import { ethers, providers, Wallet } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 
-import { Alice, Bob, Cohort, Configuration, RemoteBob } from '../src';
+import { Alice, Bob, Cohort, RemoteBob } from '../src';
 import {
   DkgCoordinatorAgent,
   DkgParticipant,
@@ -64,15 +64,13 @@ export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
 export const fromBytes = (bytes: Uint8Array): string =>
   new TextDecoder().decode(bytes);
 
-const mockConfig: Configuration = {
-  porterUri: 'https://_this_should_crash.com/',
-};
+const porterUri = 'https://_this_should_crash.com/';
 
 export const fakeBob = (): Bob => {
   const secretKey = SecretKey.fromBEBytes(
     toBytes('fake-secret-key-32-bytes-bob-xxx')
   );
-  return Bob.fromSecretKey(mockConfig, secretKey);
+  return Bob.fromSecretKey(porterUri, secretKey);
 };
 
 export const fakeRemoteBob = (): RemoteBob => {
@@ -83,7 +81,7 @@ export const fakeRemoteBob = (): RemoteBob => {
 export const fakeAlice = (aliceKey = 'fake-secret-key-32-bytes-alice-x') => {
   const secretKey = SecretKey.fromBEBytes(toBytes(aliceKey));
   const provider = fakeWeb3Provider(secretKey.toBEBytes());
-  return Alice.fromSecretKey(mockConfig, secretKey, provider);
+  return Alice.fromSecretKey(porterUri, secretKey, provider);
 };
 
 export const fakeWeb3Provider = (

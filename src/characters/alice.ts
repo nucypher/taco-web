@@ -6,7 +6,6 @@ import {
 } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { Configuration } from '../config';
 import { Keyring } from '../keyring';
 import {
   BlockchainPolicy,
@@ -24,11 +23,11 @@ export class Alice {
   private readonly keyring: Keyring;
 
   private constructor(
-    config: Configuration,
+    porterUri: string,
     secretKey: SecretKey,
     public readonly web3Provider: ethers.providers.Web3Provider
   ) {
-    this.porter = new Porter(config.porterUri);
+    this.porter = new Porter(porterUri);
     this.keyring = new Keyring(secretKey);
   }
 
@@ -41,11 +40,11 @@ export class Alice {
   }
 
   public static fromSecretKey(
-    config: Configuration,
+    porterUri: string,
     secretKey: SecretKey,
     web3Provider: ethers.providers.Web3Provider
   ): Alice {
-    return new Alice(config, secretKey, web3Provider);
+    return new Alice(porterUri, secretKey, web3Provider);
   }
 
   public getPolicyEncryptingKeyFromLabel(label: string): PublicKey {

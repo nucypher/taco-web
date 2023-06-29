@@ -1,7 +1,13 @@
 import { MessageKit, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 import { providers } from 'ethers';
 
-import { Cohort, conditions, PreStrategy, SecretKey } from '../../src';
+import {
+  Cohort,
+  conditions,
+  getPorterUri,
+  PreStrategy,
+  SecretKey,
+} from '../../src';
 import { Ursula } from '../../src/porter';
 import { toBytes } from '../../src/utils';
 import {
@@ -60,7 +66,7 @@ describe('Get Started (CBD PoC)', () => {
     //
 
     // 2. Build a Cohort
-    const porterUri = 'https://porter-tapir.nucypher.community';
+    const porterUri = getPorterUri('tapir');
     const numUrsulas = 5;
     const newCohort = await Cohort.create(porterUri, numUrsulas);
 

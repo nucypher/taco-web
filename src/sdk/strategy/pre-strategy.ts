@@ -62,13 +62,11 @@ export class PreStrategy {
   }
 
   public async deploy(
-    provider: ethers.providers.Web3Provider,
+    web3Provider: ethers.providers.Web3Provider,
     label: string,
-    threshold?: number,
-    shares?: number
+    threshold = Math.floor(this.cohort.numUrsulas / 2) + 1,
+    shares = this.cohort.numUrsulas
   ): Promise<DeployedPreStrategy> {
-    shares = shares || this.cohort.numUrsulas;
-    threshold = threshold || Math.floor(shares / 2) + 1;
     if (shares > this.cohort.numUrsulas) {
       throw new Error(
         `Threshold ${threshold} cannot be greater than the number of Ursulas in the cohort ${this.cohort.numUrsulas}`
@@ -76,7 +74,7 @@ export class PreStrategy {
     }
 
     const porterUri = this.cohort.porterUri;
-    const alice = Alice.fromSecretKey(porterUri, this.aliceSecretKey, provider);
+    const alice = Alice.fromSecretKey(this.aliceSecretKey);
     const bob = new Bob(porterUri, this.bobSecretKey);
     const policyParams = {
       bob,
@@ -86,7 +84,12 @@ export class PreStrategy {
       startDate: this.startDate,
       endDate: this.endDate,
     };
-    const policy = await alice.grant(policyParams, this.cohort.ursulaAddresses);
+    const policy = await alice.grant(
+      web3Provider,
+      porterUri,
+      policyParams,
+      this.cohort.ursulaAddresses
+    );
     return DeployedPreStrategy.create(this.cohort, policy, this.bobSecretKey);
   }
 

@@ -63,13 +63,13 @@ export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
 export const fromBytes = (bytes: Uint8Array): string =>
   new TextDecoder().decode(bytes);
 
-const porterUri = 'https://_this_should_crash.com/';
+export const fakePorterUri = 'https://_this_should_crash.com/';
 
 export const fakeBob = (): Bob => {
   const secretKey = SecretKey.fromBEBytes(
     toBytes('fake-secret-key-32-bytes-bob-xxx')
   );
-  return Bob.fromSecretKey(porterUri, secretKey);
+  return Bob.fromSecretKey(fakePorterUri, secretKey);
 };
 
 export const fakeRemoteBob = (): RemoteBob => {
@@ -79,8 +79,7 @@ export const fakeRemoteBob = (): RemoteBob => {
 
 export const fakeAlice = (aliceKey = 'fake-secret-key-32-bytes-alice-x') => {
   const secretKey = SecretKey.fromBEBytes(toBytes(aliceKey));
-  const provider = fakeWeb3Provider(secretKey.toBEBytes());
-  return Alice.fromSecretKey(porterUri, secretKey, provider);
+  return Alice.fromSecretKey(secretKey);
 };
 
 export const fakeWeb3Provider = (

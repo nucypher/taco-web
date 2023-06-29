@@ -9,7 +9,8 @@ const PORTER_URIS: Record<Network, string> = {
 };
 
 export const getPorterUri = (network: Network): string => {
-  if (!Object.values(PORTER_URIS).includes(network)) {
+  const uri = PORTER_URIS[network];
+  if (!uri) {
     throw new Error(`No default Porter URI found for network: ${network}`);
   }
   return PORTER_URIS[network];

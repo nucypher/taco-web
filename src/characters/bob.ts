@@ -35,11 +35,9 @@ export class RemoteBob {
 }
 
 export class Bob {
-  private readonly porter: PorterClient;
   private readonly keyring: Keyring;
 
-  constructor(porterUri: string, secretKey: SecretKey) {
-    this.porter = new PorterClient(porterUri);
+  constructor(secretKey: SecretKey) {
     this.keyring = new Keyring(secretKey);
   }
 
@@ -55,8 +53,8 @@ export class Bob {
     return this.keyring.signer;
   }
 
-  public static fromSecretKey(porterUri: string, secretKey: SecretKey): Bob {
-    return new Bob(porterUri, secretKey);
+  public static fromSecretKey(secretKey: SecretKey): Bob {
+    return new Bob(secretKey);
   }
 
   public decrypt(messageKit: MessageKit | PolicyMessageKit): Uint8Array {
@@ -64,12 +62,14 @@ export class Bob {
   }
 
   public async retrieveAndDecrypt(
+    porterUri: string,
     policyEncryptingKey: PublicKey,
     publisherVerifyingKey: PublicKey,
     messageKits: readonly MessageKit[],
     encryptedTreasureMap: EncryptedTreasureMap
   ): Promise<readonly Uint8Array[]> {
     const policyMessageKits = await this.retrieve(
+      porterUri,
       policyEncryptingKey,
       publisherVerifyingKey,
       messageKits,
@@ -98,6 +98,7 @@ export class Bob {
   }
 
   public async retrieve(
+    porterUri: string,
     policyEncryptingKey: PublicKey,
     publisherVerifyingKey: PublicKey,
     messageKits: readonly MessageKit[],
@@ -117,7 +118,8 @@ export class Bob {
     );
 
     const retrievalKits = policyMessageKits.map((pk) => pk.asRetrievalKit());
-    const retrieveCFragsResponses = await this.porter.retrieveCFrags(
+    const porter = new PorterClient(porterUri);
+    const retrieveCFragsResponses = await porter.retrieveCFrags(
       treasureMap,
       retrievalKits,
       publisherVerifyingKey,

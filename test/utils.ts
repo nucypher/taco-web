@@ -44,7 +44,7 @@ import {
   DkgRitualState,
 } from '../src/agents/coordinator';
 import { ThresholdDecrypter } from '../src/characters/cbd-recipient';
-import { DkgClient, DkgRitual, FerveoVariant } from '../src/dkg';
+import { DkgClient, DkgRitual } from '../src/dkg';
 import { BlockchainPolicy, PreEnactedPolicy } from '../src/policies/policy';
 import {
   CbdDecryptResult,
@@ -69,7 +69,7 @@ export const fakeBob = (): Bob => {
   const secretKey = SecretKey.fromBEBytes(
     toBytes('fake-secret-key-32-bytes-bob-xxx')
   );
-  return Bob.fromSecretKey(fakePorterUri, secretKey);
+  return Bob.fromSecretKey(secretKey);
 };
 
 export const fakeRemoteBob = (): RemoteBob => {

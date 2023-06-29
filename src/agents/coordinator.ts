@@ -24,7 +24,6 @@ export interface CoordinatorRitual {
 export type DkgParticipant = {
   provider: string;
   aggregated: boolean;
-  // TODO: How do I get the transcript from the Coordinator?
   transcript: Transcript;
   decryptionRequestStaticKey: SessionStaticKey;
 };

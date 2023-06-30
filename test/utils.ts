@@ -1,26 +1,12 @@
-// Disabling some of the eslint rules for conveninence.
+// Disabling some of the eslint rules for convenience.
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Block } from '@ethersproject/providers';
 import {
+  AggregatedTranscript,
   Capsule,
   CapsuleFrag,
-  EncryptedThresholdDecryptionResponse,
-  EncryptedTreasureMap,
-  ferveoEncrypt,
-  FerveoPublicKey,
-  PublicKey,
-  reencrypt,
-  SecretKey,
-  SessionSecretFactory,
-  SessionStaticKey,
-  SessionStaticSecret,
-  ThresholdDecryptionResponse,
-  VerifiedCapsuleFrag,
-  VerifiedKeyFrag,
-} from '@nucypher/nucypher-core';
-import {
-  AggregatedTranscript,
   Ciphertext,
   combineDecryptionSharesPrecomputed,
   combineDecryptionSharesSimple,
@@ -28,11 +14,24 @@ import {
   DecryptionShareSimple,
   decryptWithSharedSecret,
   Dkg,
+  EncryptedThresholdDecryptionResponse,
+  EncryptedTreasureMap,
   EthereumAddress,
+  ferveoEncrypt,
+  FerveoPublicKey,
   Keypair,
+  PublicKey,
+  reencrypt,
+  SecretKey,
+  SessionSecretFactory,
+  SessionStaticKey,
+  SessionStaticSecret,
+  ThresholdDecryptionResponse,
   Transcript,
   Validator,
   ValidatorMessage,
+  VerifiedCapsuleFrag,
+  VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
 import axios from 'axios';
 import { ethers, providers, Wallet } from 'ethers';
@@ -501,19 +500,26 @@ export const mockRandomSessionStaticSecret = (secret: SessionStaticSecret) => {
 
 export const fakeRitualId = 0;
 
-export const fakeDkgRitual = (ritual: { dkg: Dkg }, threshold: number) => {
-  return new DkgRitual(fakeRitualId, ritual.dkg.publicKey(), threshold);
+export const fakeDkgRitual = (ritual: {
+  dkg: Dkg;
+  sharesNum: number;
+  threshold: number;
+}) => {
+  return new DkgRitual(
+    fakeRitualId,
+    ritual.dkg.publicKey(),
+    {
+      sharesNum: ritual.sharesNum,
+      threshold: ritual.threshold,
+    },
+    DkgRitualState.FINALIZED
+  );
 };
 
-export const mockInitializeRitual = (fakeRitual: unknown) => {
-  return (
-    jest
-      .spyOn(DkgClient, 'initializeRitual')
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      .mockImplementation((_web3Provider, _ritualParams) => {
-        return Promise.resolve(fakeRitual) as Promise<DkgRitual>;
-      })
-  );
+export const mockInitializeRitual = (dkgRitual: DkgRitual) => {
+  return jest.spyOn(DkgClient, 'initializeRitual').mockImplementation(() => {
+    return Promise.resolve(dkgRitual);
+  });
 };
 
 export const makeCohort = async (ursulas: Ursula[]) => {
@@ -529,24 +535,21 @@ export const makeCohort = async (ursulas: Ursula[]) => {
 };
 
 export const mockGetRitualState = (state = DkgRitualState.FINALIZED) => {
-  return jest.spyOn(DkgCoordinatorAgent, 'getRitualState').mockImplementation(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (_provider, _ritualId) => Promise.resolve(state)
-  );
+  return jest
+    .spyOn(DkgCoordinatorAgent, 'getRitualState')
+    .mockImplementation((_provider, _ritualId) => Promise.resolve(state));
 };
 
 export const mockVerifyRitual = (isValid = true) => {
-  return jest.spyOn(DkgClient, 'verifyRitual').mockImplementation(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (_provider, _ritualId) => Promise.resolve(isValid)
-  );
+  return jest
+    .spyOn(DkgClient, 'verifyRitual')
+    .mockImplementation((_provider, _ritualId) => Promise.resolve(isValid));
 };
 
 export const mockGetParticipantPublicKey = (pk = fakeFerveoPublicKey()) => {
-  return jest.spyOn(DkgClient, 'getParticipantPublicKey').mockImplementation(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (_address) => pk
-  );
+  return jest
+    .spyOn(DkgClient, 'getParticipantPublicKey')
+    .mockImplementation((_address) => pk);
 };
 
 export const fakeFerveoPublicKey = (): FerveoPublicKey => {

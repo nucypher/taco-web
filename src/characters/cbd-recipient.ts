@@ -48,7 +48,7 @@ export class CbdTDecDecrypter {
     return new CbdTDecDecrypter(
       new Porter(porterUri),
       dkgRitual.id,
-      dkgRitual.threshold
+      dkgRitual.dkgParams.threshold
     );
   }
 

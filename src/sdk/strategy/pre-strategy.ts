@@ -131,20 +131,20 @@ export class PreStrategy {
   }
 
   public equals(other: PreStrategy) {
-    return (
-      this.cohort.equals(other.cohort) &&
-      // TODO: Replace with `equals` after https://github.com/nucypher/nucypher-core/issues/56 is fixed
+    return [
+      this.cohort.equals(other.cohort),
+      // TODO: Replace with `equals` after https://github.com/nucypher/rust-umbral/pull/125 is released
       bytesEquals(
         this.aliceSecretKey.toBEBytes(),
         other.aliceSecretKey.toBEBytes()
-      ) &&
+      ),
       bytesEquals(
         this.bobSecretKey.toBEBytes(),
         other.bobSecretKey.toBEBytes()
-      ) &&
-      this.startDate.toString() === other.startDate.toString() &&
-      this.endDate.toString() === other.endDate.toString()
-    );
+      ),
+      this.startDate.toString() === other.startDate.toString(),
+      this.endDate.toString() === other.endDate.toString(),
+    ].every(Boolean);
   }
 }
 
@@ -203,10 +203,10 @@ export class DeployedPreStrategy {
   }
 
   public equals(other: DeployedPreStrategy) {
-    return (
-      this.cohort.equals(other.cohort) &&
-      this.decrypter.equals(other.decrypter) &&
-      this.policyKey.equals(other.policyKey)
-    );
+    return [
+      this.cohort.equals(other.cohort),
+      this.decrypter.equals(other.decrypter),
+      this.policyKey.equals(other.policyKey),
+    ].every(Boolean);
   }
 }

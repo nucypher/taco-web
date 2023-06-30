@@ -43,7 +43,7 @@ export class CbdTDecDecrypter {
     return new CbdTDecDecrypter(
       new Porter(porterUri),
       dkgRitual.id,
-      dkgRitual.threshold
+      dkgRitual.dkgParams.threshold
     );
   }
 
@@ -75,7 +75,7 @@ export class CbdTDecDecrypter {
   public async retrieve(
     provider: ethers.providers.Web3Provider,
     conditionExpr: ConditionExpression,
-    variant: number,
+    variant: FerveoVariant,
     ciphertext: Ciphertext
   ): Promise<DecryptionSharePrecomputed[] | DecryptionShareSimple[]> {
     const dkgParticipants = await DkgCoordinatorAgent.getParticipants(
@@ -141,7 +141,7 @@ export class CbdTDecDecrypter {
 
   private makeDecryptionRequests(
     ritualId: number,
-    variant: number,
+    variant: FerveoVariant,
     ciphertext: Ciphertext,
     conditionExpr: ConditionExpression,
     contextStr: string,

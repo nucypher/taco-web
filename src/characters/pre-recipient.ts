@@ -13,7 +13,7 @@ import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
 import { PorterClient } from '../porter';
-import { base64ToU8Receiver, bytesEquals, toJSON, zip } from '../utils';
+import { base64ToU8Receiver, toJSON, zip } from '../utils';
 
 export type PreDecrypterJSON = {
   porterUri: string;
@@ -185,15 +185,11 @@ export class PreDecrypter {
   }
 
   public equals(other: PreDecrypter): boolean {
-    return (
-      this.porter.porterUrl.toString() === other.porter.porterUrl.toString() &&
-      this.policyEncryptingKey.equals(other.policyEncryptingKey) &&
-      // TODO: Replace with `equals` after https://github.com/nucypher/nucypher-core/issues/56 is fixed
-      bytesEquals(
-        this.encryptedTreasureMap.toBytes(),
-        other.encryptedTreasureMap.toBytes()
-      ) &&
-      this.publisherVerifyingKey.equals(other.publisherVerifyingKey)
-    );
+    return [
+      this.porter.porterUrl.toString() === other.porter.porterUrl.toString(),
+      this.policyEncryptingKey.equals(other.policyEncryptingKey),
+      this.encryptedTreasureMap.equals(other.encryptedTreasureMap),
+      this.publisherVerifyingKey.equals(other.publisherVerifyingKey),
+    ].every(Boolean);
   }
 }

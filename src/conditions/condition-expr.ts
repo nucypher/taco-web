@@ -95,9 +95,9 @@ export class ConditionExpression {
   }
 
   public equals(other: ConditionExpression): boolean {
-    return (
-      this.version === other.version &&
-      objectEquals(this.condition.toObj(), other.condition.toObj())
-    );
+    return [
+      this.version === other.version,
+      objectEquals(this.condition.toObj(), other.condition.toObj()),
+    ].every(Boolean);
   }
 }

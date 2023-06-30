@@ -1,7 +1,6 @@
 import { DkgPublicKey } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { bytesEqual } from '../../../test/utils';
 import {
   ThresholdDecrypter,
   ThresholdDecrypterJSON,
@@ -121,9 +120,9 @@ export class DeployedCbdStrategy {
   }
 
   public equals(other: DeployedCbdStrategy) {
-    return (
-      this.decrypter.equals(other.decrypter) &&
-      bytesEqual(this.dkgPublicKey.toBytes(), other.dkgPublicKey.toBytes())
-    );
+    return [
+      this.decrypter.equals(other.decrypter),
+      this.dkgPublicKey.equals(other.dkgPublicKey),
+    ].every(Boolean);
   }
 }

@@ -15,7 +15,6 @@ import { fromBase64, fromHexString, toBase64, toHexString } from './utils';
 type Network = 'mainnet' | 'tapir' | 'oryx' | 'lynx';
 
 const PORTER_URIS: Record<Network, string> = {
-  // TODO: Make sure these are correct
   mainnet: 'https://porter.nucypher.community',
   tapir: 'https://porter-tapir.nucypher.community',
   oryx: 'https://porter-oryx.nucypher.community',

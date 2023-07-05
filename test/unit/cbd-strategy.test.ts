@@ -163,7 +163,7 @@ describe('CbdDeployedStrategy', () => {
   });
 });
 
-describe('CbdTDecDecrypter', () => {
+describe('ThresholdDecrypter', () => {
   it('serializes to a plain object', async () => {
     const { deployedStrategy } = await makeDeployedCbdStrategy();
     const configObj = deployedStrategy.decrypter.toObj();

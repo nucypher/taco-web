@@ -1,7 +1,7 @@
 {
   "name": "@nucypher/nucypher-ts",
   "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "license": "GPL-3.0-only",
   "repository": {
     "type": "git",
@@ -35,7 +35,7 @@
     "test:lint": "eslint src test --ext .ts",
     "test:exports": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
     "test:prettier": "prettier \"src/**/*.ts\" \"test/**/*.ts\" --list-different",
-    "test:unit": "jest",
+    "test:unit": "jest --detectOpenHandles --forceExit --runInBand",
     "watch:build": "tsc -p tsconfig.json -w",
     "watch:test": "jest --watch",
     "cov": "run-s build test:unit && open-cli coverage/index.html",
@@ -45,26 +45,32 @@
     "doc:publish": "gh-pages -m \"[ci skip] Updates\" -d build/docs",
     "version": "standard-version",
     "version:alpha": "standard-version --prerelease alpha",
+    "version:beta": "standard-version --prerelease beta",
     "reset-hard": "git clean -dfx && git reset --hard && yarn",
     "prepare-release": "run-s reset-hard test doc:html version doc:publish",
     "prepare-release:alpha": "run-s reset-hard test version:alpha ",
+    "prepare-release:beta": "run-s reset-hard test version:beta ",
     "typechain": "typechain --target=ethers-v5 \"abi/**/*.json\"",
     "prebuild": "yarn typechain"
   },
   "dependencies": {
-    "@nucypher/nucypher-core": "0.4.0",
+    "@nucypher/nucypher-core": "^0.10.0",
     "axios": "^0.21.1",
+    "deep-equal": "^2.2.1",
     "ethers": "^5.4.1",
     "joi": "^17.7.0",
-    "qs": "^6.10.1"
+    "qs": "^6.10.1",
+    "semver": "^7.5.2"
   },
   "devDependencies": {
     "@babel/core": "^7.18.10",
     "@babel/preset-env": "^7.15.6",
     "@skypack/package-check": "^0.2.2",
     "@typechain/ethers-v5": "^9.0.0",
+    "@types/deep-equal": "^1.0.1",
     "@types/jest": "^26.0.24",
     "@types/qs": "^6.9.7",
+    "@types/semver": "^7.5.0",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.0.1",
     "cz-conventional-changelog": "^3.0.1",

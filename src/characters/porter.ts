@@ -9,7 +9,6 @@ import {
 import axios, { AxiosResponse } from 'axios';
 import qs from 'qs';
 
-import { ConditionContext } from '../conditions';
 import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from '../types';
 import { fromBase64, fromHexString, toBase64, toHexString } from '../utils';
 
@@ -138,18 +137,15 @@ export class Porter {
     aliceVerifyingKey: PublicKey,
     bobEncryptingKey: PublicKey,
     bobVerifyingKey: PublicKey,
-    conditionsContext?: ConditionContext
+    conditionContextJSON?: string | undefined
   ): Promise<readonly RetrieveCFragsResult[]> {
-    const context = conditionsContext
-      ? await conditionsContext.toJson()
-      : undefined;
     const data: PostRetrieveCFragsRequest = {
       treasure_map: toBase64(treasureMap.toBytes()),
       retrieval_kits: retrievalKits.map((rk) => toBase64(rk.toBytes())),
       alice_verifying_key: toHexString(aliceVerifyingKey.toCompressedBytes()),
       bob_encrypting_key: toHexString(bobEncryptingKey.toCompressedBytes()),
       bob_verifying_key: toHexString(bobVerifyingKey.toCompressedBytes()),
-      context,
+      context: conditionContextJSON,
     };
     const resp: AxiosResponse<PostRetrieveCFragsResponse> = await axios.post(
       new URL('/retrieve_cfrags', this.porterUrl).toString(),

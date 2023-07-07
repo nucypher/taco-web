@@ -8,7 +8,7 @@ import {
 } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { Condition, ConditionContext } from '../conditions';
+import { ConditionContext, ConditionExpression } from '../conditions';
 import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
@@ -103,14 +103,11 @@ export class PreTDecDecrypter {
     const conditions = messageKits
       .map((mk) => mk.conditions)
       .filter((condition): condition is Conditions => !!condition)
-      .map((condition) => JSON.parse(condition.toString()))
-      .reduce((acc: Record<string, string>[], val) => acc.concat(val), []);
+      .map((condition) => ConditionExpression.fromJSON(condition.toString()))
+      .reduce((acc: ConditionExpression[], val) => acc.concat(val), [])
+      .map((condExpr: ConditionExpression) => condExpr.condition);
 
-    const conditionsList = conditions.map((ele: Record<string, string>) => {
-      return Condition.fromObj(ele);
-    });
-
-    const conditionContext = new ConditionContext(conditionsList, provider);
+    const conditionContext = new ConditionContext(conditions, provider);
 
     const policyMessageKits = messageKits.map((mk) =>
       PolicyMessageKit.fromMessageKit(
@@ -121,13 +118,16 @@ export class PreTDecDecrypter {
     );
 
     const retrievalKits = policyMessageKits.map((pk) => pk.asRetrievalKit());
+    const conditionContextJSON = conditionContext
+      ? await conditionContext.toJson()
+      : undefined;
     const retrieveCFragsResponses = await this.porter.retrieveCFrags(
       treasureMap,
       retrievalKits,
       this.publisherVerifyingKey,
       this.decryptingKey,
       this.keyring.publicKey,
-      conditionContext
+      conditionContextJSON
     );
 
     return zip(policyMessageKits, retrieveCFragsResponses).map((pair) => {

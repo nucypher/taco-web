@@ -45,9 +45,11 @@
     "doc:publish": "gh-pages -m \"[ci skip] Updates\" -d build/docs",
     "version": "standard-version",
     "version:alpha": "standard-version --prerelease alpha",
+    "version:beta": "standard-version --prerelease beta",
     "reset-hard": "git clean -dfx && git reset --hard && yarn",
     "prepare-release": "run-s reset-hard test doc:html version doc:publish",
     "prepare-release:alpha": "run-s reset-hard test version:alpha ",
+    "prepare-release:beta": "run-s reset-hard test version:beta ",
     "typechain": "typechain --target=ethers-v5 \"abi/**/*.json\"",
     "prebuild": "yarn typechain"
   },

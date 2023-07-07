@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-beta.3](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-beta.2...v1.0.0-beta.3) (2023-07-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* incorrect condition parsing leading to undefined variables in context
+
+### Bug Fixes
+
+* incorrect condition parsing leading to undefined variables in context ([298fe22](https://github.com/nucypher/nucypher-ts/commit/298fe22e25674682ac04240957129af815ae56c8))
+
 ## [1.0.0-beta.2](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-alpha.0...v1.0.0-beta.2) (2023-07-07)
 
 ## [1.0.0-alpha.0](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-beta.1...v1.0.0-alpha.0) (2023-06-27)

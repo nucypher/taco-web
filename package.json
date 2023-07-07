@@ -1,7 +1,7 @@
 {
   "name": "@nucypher/nucypher-ts",
   "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-beta.2",
   "license": "GPL-3.0-only",
   "repository": {
     "type": "git",

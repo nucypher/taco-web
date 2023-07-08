@@ -82,7 +82,7 @@ export const fakeAlice = (aliceKey = 'fake-secret-key-32-bytes-alice-x') => {
 };
 
 export const fakeWeb3Provider = (
-  secretKeyBytes: Uint8Array,
+  secretKeyBytes = SecretKey.random().toBEBytes(),
   blockNumber?: number,
   blockTimestamp?: number
 ): ethers.providers.Web3Provider => {

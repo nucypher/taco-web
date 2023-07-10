@@ -1,5 +1,6 @@
 import { Porter } from '../characters/porter';
 import { ChecksumAddress } from '../types';
+import { objectEquals } from '../utils';
 
 export type CohortConfiguration = {
   readonly threshold: number;
@@ -69,5 +70,9 @@ export class Cohort {
       shares: this.configuration.shares,
       porterUri: this.configuration.porterUri,
     };
+  }
+
+  public equals(other: Cohort): boolean {
+    return objectEquals(this.toObj(), other.toObj());
   }
 }

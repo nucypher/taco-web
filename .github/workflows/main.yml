@@ -1,5 +1,5 @@
 name: CI
-on: [push, pull_request]
+on: [ push, pull_request ]
 jobs:
   build_project:
     name: Build, lint, and test on Node ${{ matrix.node }} and ${{ matrix.os }}
@@ -7,8 +7,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node: ['16.x']
-        os: [ubuntu-latest]
+        node: [ '16.x' ]
+        os: [ ubuntu-latest ]
 
     steps:
       - name: Checkout repo
@@ -22,14 +22,28 @@ jobs:
       - name: Install deps and build (with cache)
         uses: bahmutov/npm-install@v1
 
-      - name: Test
-        run: yarn test
+      - name: Check
+        run: yarn run package-check
 
       - name: Build
         run: yarn build
 
-      - name: Check
-        run: yarn run package-check
+      - name: Test
+        run: yarn test
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          fail_ci_if_error: true
+
+      - name: Check bundle size
+        uses: sarthak-saxena/JSBundleSize@3.0.0
+        with:
+          # Skipping some commands with 'echo ok'
+          bootstrap: 'echo ok'
+          build_command: 'echo ok'
+          dist_path: 'build'
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   build_examples:
     name: Build project examples
@@ -37,8 +51,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node: ['16.x']
-        os: [ubuntu-latest]
+        node: [ '16.x' ]
+        os: [ ubuntu-latest ]
         example:
           [
             'nodejs',

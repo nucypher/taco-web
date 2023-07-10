@@ -55,7 +55,7 @@ export class Keyring {
 
   private getSecretKeyFromLabel(label: string): SecretKey {
     return SecretKeyFactory.fromSecureRandomness(
-      this.secretKey.toSecretBytes()
+      this.secretKey.toBEBytes()
     ).makeKey(toBytes(label));
   }
 

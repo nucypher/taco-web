@@ -115,10 +115,10 @@ export class DkgClient {
     web3Provider: ethers.providers.Web3Provider,
     ursulas: ChecksumAddress[],
     waitUntilEnd = false
-  ): Promise<DkgRitual> {
+  ): Promise<number | undefined> {
     const ritualId = await DkgCoordinatorAgent.initializeRitual(
       web3Provider,
-      ursulas
+      ursulas.sort()
     );
 
     if (waitUntilEnd) {
@@ -137,7 +137,7 @@ export class DkgClient {
       }
     }
 
-    return this.getExistingRitual(web3Provider, ritualId);
+    return ritualId;
   }
 
   private static waitUntilRitualEnd = async (

@@ -14,6 +14,7 @@ import {
   fakeWeb3Provider,
   makeCohort,
   mockCbdDecrypt,
+  mockGetExistingRitual,
   mockGetParticipants,
   mockGetRitualState,
   mockGetUrsulas,
@@ -38,8 +39,9 @@ const ownsNFT = new ERC721Ownership({
   chain: 5,
 });
 const conditionExpr = new ConditionExpression(ownsNFT);
-const ursulas = fakeUrsulas().slice(0, 3);
+const ursulas = fakeUrsulas();
 const variant = FerveoVariant.Precomputed;
+const ritualId = 0;
 
 const makeCbdStrategy = async () => {
   const cohort = await makeCohort(ursulas);
@@ -55,11 +57,13 @@ async function makeDeployedCbdStrategy() {
   const mockedDkgRitual = fakeDkgRitual(mockedDkg);
   const web3Provider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
   const getUrsulasSpy = mockGetUrsulas(ursulas);
-  const initializeRitualSpy = mockInitializeRitual(mockedDkgRitual);
+  const initializeRitualSpy = mockInitializeRitual(ritualId);
+  const getExistingRitualSpy = mockGetExistingRitual(mockedDkgRitual);
   const deployedStrategy = await strategy.deploy(web3Provider);
 
   expect(getUrsulasSpy).toHaveBeenCalled();
   expect(initializeRitualSpy).toHaveBeenCalled();
+  expect(getExistingRitualSpy).toHaveBeenCalled();
 
   return { mockedDkg, deployedStrategy };
 }

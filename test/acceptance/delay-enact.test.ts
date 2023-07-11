@@ -14,7 +14,7 @@ describe('story: alice1 creates a policy but alice2 enacts it', () => {
   const shares = 3;
   const startDate = new Date();
   const endDate = new Date(Date.now() + 60 * 1000); // 60s later
-  const mockedUrsulas = fakeUrsulas().slice(0, shares);
+  const mockedUrsulas = fakeUrsulas(shares);
   const label = 'fake-data-label';
 
   it('alice generates a new policy', async () => {

@@ -118,6 +118,11 @@ export class BlockchainPolicy {
   public async generatePreEnactedPolicy(
     ursulas: readonly Ursula[]
   ): Promise<PreEnactedPolicy> {
+    if (ursulas.length != this.verifiedKFrags.length) {
+      throw new Error(
+        `Number of ursulas must match number of verified kFrags: ${this.verifiedKFrags.length}`
+      );
+    }
     const treasureMap = this.makeTreasureMap(ursulas, this.verifiedKFrags);
     const encryptedTreasureMap = this.encryptTreasureMap(treasureMap);
     // const revocationKit = new RevocationKit(treasureMap, this.publisher.signer);

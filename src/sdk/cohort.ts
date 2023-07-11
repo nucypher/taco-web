@@ -26,6 +26,15 @@ export class Cohort {
     include: string[] = [],
     exclude: string[] = []
   ) {
+    if (configuration.threshold > configuration.shares) {
+      throw new Error('Threshold cannot be greater than the number of shares');
+    }
+    // TODO: Remove this limitation after `nucypher-core@0.11.0` deployment
+    const isMultipleOf2 = (n: number) => n % 2 === 0;
+    if (!isMultipleOf2(configuration.shares)) {
+      throw new Error('Number of shares must be a multiple of 2');
+    }
+
     const porter = new Porter(configuration.porterUri);
     const ursulas = await porter.getUrsulas(
       configuration.shares,

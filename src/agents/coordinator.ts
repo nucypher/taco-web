@@ -67,7 +67,7 @@ export class DkgCoordinatorAgent {
     if (!ritualStartEvent) {
       throw new Error('Ritual start event not found');
     }
-    return ritualStartEvent.args?.ritualId.toNumber();
+    return ritualStartEvent.args?.ritualId;
   }
 
   public static async getRitual(

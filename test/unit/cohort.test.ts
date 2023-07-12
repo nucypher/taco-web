@@ -2,7 +2,7 @@ import { Cohort } from '../../src';
 import { fakeUrsulas, makeCohort } from '../utils';
 
 describe('Cohort', () => {
-  const mockedUrsulas = fakeUrsulas().slice(0, 3);
+  const mockedUrsulas = fakeUrsulas();
 
   it('creates a Cohort', async () => {
     const cohort = await makeCohort(mockedUrsulas);

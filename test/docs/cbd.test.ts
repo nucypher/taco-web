@@ -61,8 +61,8 @@ describe('Get Started (CBD PoC)', () => {
 
     // 2. Build a Cohort
     const config = {
-      threshold: 3,
-      shares: 5,
+      threshold: 2,
+      shares: 4,
       porterUri: 'https://porter-tapir.nucypher.community',
     };
     const newCohort = await Cohort.create(config);

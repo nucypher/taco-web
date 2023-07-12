@@ -1,25 +1,12 @@
-// Disabling some of the eslint rules for conveninence.
+// Disabling some of the eslint rules for convenience.
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Block } from '@ethersproject/providers';
 import {
+  AggregatedTranscript,
   Capsule,
   CapsuleFrag,
-  EncryptedThresholdDecryptionResponse,
-  EncryptedTreasureMap,
-  ferveoEncrypt,
-  PublicKey,
-  reencrypt,
-  SecretKey,
-  SessionSecretFactory,
-  SessionStaticKey,
-  SessionStaticSecret,
-  ThresholdDecryptionResponse,
-  VerifiedCapsuleFrag,
-  VerifiedKeyFrag,
-} from '@nucypher/nucypher-core';
-import {
-  AggregatedTranscript,
   Ciphertext,
   combineDecryptionSharesPrecomputed,
   combineDecryptionSharesSimple,
@@ -27,18 +14,34 @@ import {
   DecryptionShareSimple,
   decryptWithSharedSecret,
   Dkg,
+  EncryptedThresholdDecryptionResponse,
+  EncryptedTreasureMap,
   EthereumAddress,
+  ferveoEncrypt,
   Keypair,
+  PublicKey,
+  reencrypt,
+  SecretKey,
+  SessionSecretFactory,
+  SessionStaticKey,
+  SessionStaticSecret,
+  ThresholdDecryptionResponse,
   Transcript,
   Validator,
   ValidatorMessage,
+  VerifiedCapsuleFrag,
+  VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
 import axios from 'axios';
 import { ethers, providers, Wallet } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 
 import { Alice, Bob, Cohort, Configuration, RemoteBob } from '../src';
-import { DkgCoordinatorAgent, DkgParticipant } from '../src/agents/coordinator';
+import {
+  DkgCoordinatorAgent,
+  DkgParticipant,
+  DkgRitualState,
+} from '../src/agents/coordinator';
 import { CbdTDecDecrypter } from '../src/characters/cbd-recipient';
 import {
   CbdDecryptResult,
@@ -110,11 +113,12 @@ const genChecksumAddress = (i: number) =>
   '0x' + '0'.repeat(40 - i.toString(16).length) + i.toString(16);
 const genEthAddr = (i: number) =>
   EthereumAddress.fromString(genChecksumAddress(i));
-export const fakeUrsulas = (): readonly Ursula[] =>
-  [0, 1, 2, 3, 4].map((i: number) => ({
+export const fakeUrsulas = (n = 4): Ursula[] =>
+  // 0...n-1
+  Array.from(Array(n).keys()).map((i: number) => ({
     encryptingKey: SecretKey.random().publicKey(),
     checksumAddress: genChecksumAddress(i).toLowerCase(),
-    uri: 'https://example.a.com:9151',
+    uri: `https://example.${i}.com:9151`,
   }));
 
 export const mockGetUrsulas = (ursulas: readonly Ursula[]) => {
@@ -496,26 +500,48 @@ export const mockRandomSessionStaticSecret = (secret: SessionStaticSecret) => {
 
 export const fakeRitualId = 0;
 
-export const fakeDkgRitual = (ritual: { dkg: Dkg }, threshold: number) => {
-  return new DkgRitual(fakeRitualId, ritual.dkg.publicKey(), threshold);
+export const fakeDkgRitual = (ritual: {
+  dkg: Dkg;
+  sharesNum: number;
+  threshold: number;
+}) => {
+  return new DkgRitual(
+    fakeRitualId,
+    ritual.dkg.publicKey(),
+    {
+      sharesNum: ritual.sharesNum,
+      threshold: ritual.threshold,
+    },
+    DkgRitualState.FINALIZED
+  );
 };
 
-export const mockInitializeRitual = (fakeRitual: unknown) => {
-  return jest
-    .spyOn(DkgClient.prototype as any, 'initializeRitual')
-    .mockImplementation(() => {
-      return Promise.resolve(fakeRitual);
-    });
+export const mockInitializeRitual = (ritualId: number) => {
+  return jest.spyOn(DkgClient, 'initializeRitual').mockImplementation(() => {
+    return Promise.resolve(ritualId);
+  });
+};
+
+export const mockGetExistingRitual = (dkgRitual: DkgRitual) => {
+  return jest.spyOn(DkgClient, 'getExistingRitual').mockImplementation(() => {
+    return Promise.resolve(dkgRitual);
+  });
 };
 
 export const makeCohort = async (ursulas: Ursula[]) => {
   const getUrsulasSpy = mockGetUrsulas(ursulas);
   const config = {
     threshold: 2,
-    shares: 3,
+    shares: ursulas.length,
     porterUri: 'https://_this.should.crash',
   };
   const cohort = await Cohort.create(config);
   expect(getUrsulasSpy).toHaveBeenCalled();
   return cohort;
+};
+
+export const mockGetRitualState = (state = DkgRitualState.FINALIZED) => {
+  return jest
+    .spyOn(DkgCoordinatorAgent, 'getRitualState')
+    .mockImplementation((_provider, _ritualId) => Promise.resolve(state));
 };

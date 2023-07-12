@@ -38,7 +38,7 @@ const ownsNFT = new ERC721Ownership({
   chain: 5,
 });
 const conditionExpr = new ConditionExpression(ownsNFT);
-const mockedUrsulas = fakeUrsulas().slice(0, 3);
+const mockedUrsulas = fakeUrsulas();
 
 const makePreStrategy = async () => {
   const cohort = await makeCohort(mockedUrsulas);

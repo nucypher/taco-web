@@ -30,14 +30,21 @@ export class CbdStrategy {
   }
 
   public async deploy(
-    provider: ethers.providers.Web3Provider
+    web3Provider: ethers.providers.Web3Provider,
+    ritualId?: number
   ): Promise<DeployedCbdStrategy> {
-    const dkgRitualParams = {
-      threshold: this.cohort.configuration.threshold,
-      shares: this.cohort.configuration.shares,
-    };
-    const dkgClient = new DkgClient(provider);
-    const dkgRitual = await dkgClient.initializeRitual(dkgRitualParams);
+    if (ritualId === undefined) {
+      ritualId = await DkgClient.initializeRitual(
+        web3Provider,
+        this.cohort.ursulaAddresses,
+        true
+      );
+    }
+    if (ritualId === undefined) {
+      // Given that we just initialized the ritual, this should never happen
+      throw new Error('Ritual ID is undefined');
+    }
+    const dkgRitual = await DkgClient.getExistingRitual(web3Provider, ritualId);
     return DeployedCbdStrategy.create(this.cohort, dkgRitual);
   }
 

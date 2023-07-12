@@ -14,10 +14,13 @@ import {
   fakeWeb3Provider,
   makeCohort,
   mockCbdDecrypt,
+  mockGetExistingRitual,
   mockGetParticipants,
+  mockGetRitualState,
   mockGetUrsulas,
   mockInitializeRitual,
   mockRandomSessionStaticSecret,
+  mockVerifyRitual,
 } from '../utils';
 
 import { aliceSecretKeyBytes } from './testVariables';
@@ -36,8 +39,9 @@ const ownsNFT = new ERC721Ownership({
   chain: 5,
 });
 const conditionExpr = new ConditionExpression(ownsNFT);
-const ursulas = fakeUrsulas().slice(0, 3);
+const ursulas = fakeUrsulas();
 const variant = FerveoVariant.Precomputed;
+const ritualId = 0;
 
 const makeCbdStrategy = async () => {
   const cohort = await makeCohort(ursulas);
@@ -50,14 +54,16 @@ async function makeDeployedCbdStrategy() {
   const strategy = await makeCbdStrategy();
 
   const mockedDkg = fakeDkgFlow(variant, 0, 4, 4);
-  const mockedDkgRitual = fakeDkgRitual(mockedDkg, mockedDkg.threshold);
+  const mockedDkgRitual = fakeDkgRitual(mockedDkg);
   const web3Provider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
   const getUrsulasSpy = mockGetUrsulas(ursulas);
-  const initializeRitualSpy = mockInitializeRitual(mockedDkgRitual);
+  const initializeRitualSpy = mockInitializeRitual(ritualId);
+  const getExistingRitualSpy = mockGetExistingRitual(mockedDkgRitual);
   const deployedStrategy = await strategy.deploy(web3Provider);
 
   expect(getUrsulasSpy).toHaveBeenCalled();
   expect(initializeRitualSpy).toHaveBeenCalled();
+  expect(getExistingRitualSpy).toHaveBeenCalled();
 
   return { mockedDkg, deployedStrategy };
 }
@@ -127,6 +133,8 @@ describe('CbdDeployedStrategy', () => {
     const getParticipantsSpy = mockGetParticipants(participants);
     const getUrsulasSpy = mockGetUrsulas(ursulas);
     const sessionKeySpy = mockRandomSessionStaticSecret(requesterSessionKey);
+    const getRitualStateSpy = mockGetRitualState();
+    const verifyRitualSpy = mockVerifyRitual();
 
     const decryptedMessage =
       await deployedStrategy.decrypter.retrieveAndDecrypt(
@@ -135,6 +143,8 @@ describe('CbdDeployedStrategy', () => {
         variant,
         ciphertext
       );
+    expect(getRitualStateSpy).toHaveBeenCalled();
+    expect(verifyRitualSpy).toHaveBeenCalled();
     expect(getUrsulasSpy).toHaveBeenCalled();
     expect(getParticipantsSpy).toHaveBeenCalled();
     expect(sessionKeySpy).toHaveBeenCalled();

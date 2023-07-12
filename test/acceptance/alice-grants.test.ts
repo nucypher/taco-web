@@ -31,7 +31,7 @@ describe('story: alice shares message with bob through policy', () => {
   const shares = 3;
   const startDate = new Date();
   const endDate = new Date(Date.now() + 60 * 1000);
-  const mockedUrsulas = fakeUrsulas().slice(0, shares);
+  const mockedUrsulas = fakeUrsulas(shares);
 
   // Intermediate variables used for mocking
   let encryptedTreasureMap: EncryptedTreasureMap;

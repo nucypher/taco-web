@@ -48,7 +48,7 @@ export class PreSubscriptionManagerAgent {
   }
 
   public static async getPolicyCost(
-    provider: ethers.providers.Provider,
+    provider: ethers.providers.Web3Provider,
     size: number,
     startTimestamp: number,
     endTimestamp: number
@@ -61,7 +61,9 @@ export class PreSubscriptionManagerAgent {
     );
   }
 
-  private static async connectReadOnly(provider: ethers.providers.Provider) {
+  private static async connectReadOnly(
+    provider: ethers.providers.Web3Provider
+  ) {
     return await this.connect(provider);
   }
 
@@ -72,7 +74,7 @@ export class PreSubscriptionManagerAgent {
   }
 
   private static async connect(
-    provider: ethers.providers.Provider,
+    provider: ethers.providers.Web3Provider,
     signer?: ethers.providers.JsonRpcSigner
   ): Promise<SubscriptionManager> {
     const network = await provider.getNetwork();

@@ -122,10 +122,13 @@ export class DkgClient {
     );
 
     if (waitUntilEnd) {
-      const isSuccessful = await DkgClient.waitUntilRitualEnd(
-        web3Provider,
-        ritualId
-      );
+      const timeout = await DkgCoordinatorAgent.getTimeout(web3Provider);
+      const isSuccessful = await Promise.race([
+        DkgClient.waitUntilRitualEnd(web3Provider, ritualId),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('`Ritual initialization timed out`')), timeout)
+        ),
+      ]);
       if (!isSuccessful) {
         const ritualState = await DkgCoordinatorAgent.getRitualState(
           web3Provider,

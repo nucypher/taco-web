@@ -80,6 +80,15 @@ export class DkgCoordinatorAgent {
     return Coordinator.rituals(ritualId);
   }
 
+  public static async getTimeout(
+    provider: ethers.providers.Web3Provider
+): Promise<number> {
+    const Coordinator = await this.connectReadOnly(provider);
+    const timeout = await Coordinator.timeout();
+    return timeout;
+}
+
+
   public static async getRitualState(
     provider: ethers.providers.Web3Provider,
     ritualId: number

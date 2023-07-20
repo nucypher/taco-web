@@ -1,6 +1,9 @@
 // Disabling because we want to access Alice.keyring which is a private property
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { DkgPublicKey } from '@nucypher/nucypher-core';
+
 import { conditions, Enrico, PolicyMessageKit } from '../../src';
+import { ThresholdMessageKit } from '../../src/characters/enrico';
 import { RetrievalResult } from '../../src/kits/retrieval';
 import { toBytes } from '../../src/utils';
 import {
@@ -148,5 +151,34 @@ describe('enrico', () => {
     const aliceSk = await aliceKeyring.getSecretKeyFromLabel(label);
     const alicePlaintext = encrypted.decrypt(aliceSk);
     expect(alicePlaintext).toEqual(alicePlaintext);
+  });
+});
+
+describe('enrico with cbd encapsulation', () => {
+  it('encapsulates a plaintext message', async () => {
+    const message = 'fake-message';
+    const encryptingKey = DkgPublicKey.random();
+    const ownsBufficornNFT = ERC721Ownership.fromObj({
+      contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
+      parameters: [3591],
+      chain: 5,
+    });
+    const conditions = new ConditionExpression(ownsBufficornNFT);
+    const enrico = new Enrico(encryptingKey, undefined, conditions);
+
+    const passphrase = "I'm a passphrase";
+    const tmk = await enrico.encapsulateCbd(message, passphrase, conditions);
+
+    const asObject = tmk.toObj();
+    const fromObject = ThresholdMessageKit.fromObj(asObject);
+    expect(fromObject.equals(tmk)).toBeTruthy();
+
+    const asJson = tmk.toJson();
+    const fromJson = ThresholdMessageKit.fromJson(asJson);
+    expect(fromJson.equals(tmk)).toBeTruthy();
+
+    const asBytes = tmk.toBytes();
+    const fromBytes = ThresholdMessageKit.fromBytes(asBytes);
+    expect(fromBytes.equals(tmk)).toBeTruthy();
   });
 });

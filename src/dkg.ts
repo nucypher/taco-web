@@ -122,25 +122,45 @@ export class DkgClient {
     );
 
     if (waitUntilEnd) {
+      const initTimestamp = await DkgCoordinatorAgent.getRitualInitTime(
+        web3Provider,
+        ritualId
+      );
       const timeout = await DkgCoordinatorAgent.getTimeout(web3Provider);
-      const bufferedTimeout = timeout * 1.1;
+      const endTime = initTimestamp + timeout;
+
+      // Wait until the current time is past the endTime
+      while (Math.floor(Date.now() / 1000) < endTime) {
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for 1 second before checking again
+      }
+
+      // Wait until current block time is also past the endTime
+      let currentBlockTime;
+      do {
+        const block = await web3Provider.getBlock('latest');
+        currentBlockTime = block.timestamp;
+        if (currentBlockTime < endTime) {
+          await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for 1 second before checking again
+        }
+      } while (currentBlockTime < endTime);
+
       try {
-        const isSuccessful = await Promise.race([
-          DkgClient.waitUntilRitualEnd(web3Provider, ritualId),
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Ritual initialization timed out')), bufferedTimeout)
-          ),
-        ]);
-        
+        const isSuccessful = await DkgClient.waitUntilRitualEnd(
+          web3Provider,
+          ritualId
+        );
+
         if (!isSuccessful) {
-          throw new Error(`Ritual initialization failed. Ritual id ${ritualId}`);
+          throw new Error(
+            `Ritual initialization failed. Ritual id ${ritualId}`
+          );
         }
       } catch (error) {
         const ritualState = await DkgCoordinatorAgent.getRitualState(
           web3Provider,
           ritualId
         );
-        
+
         throw new Error(
           `Ritual initialization failed. Ritual id ${ritualId} is in state ${ritualState}`
         );

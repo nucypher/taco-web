@@ -82,12 +82,11 @@ export class DkgCoordinatorAgent {
 
   public static async getTimeout(
     provider: ethers.providers.Web3Provider
-): Promise<number> {
+  ): Promise<number> {
     const Coordinator = await this.connectReadOnly(provider);
     const timeout = await Coordinator.timeout();
     return timeout;
-}
-
+  }
 
   public static async getRitualState(
     provider: ethers.providers.Web3Provider,
@@ -95,6 +94,15 @@ export class DkgCoordinatorAgent {
   ): Promise<DkgRitualState> {
     const Coordinator = await this.connectReadOnly(provider);
     return await Coordinator.getRitualState(ritualId);
+  }
+
+  public static async getRitualInitTime(
+    provider: ethers.providers.Web3Provider,
+    ritualId: number
+  ): Promise<number> {
+    const Coordinator = await this.connectReadOnly(provider);
+    const ritual = await Coordinator.rituals(ritualId);
+    return ritual[2];
   }
 
   public static async onRitualEndEvent(

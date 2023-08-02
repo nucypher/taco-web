@@ -127,34 +127,17 @@ export class DkgClient {
         ritualId
       );
       const timeout = await DkgCoordinatorAgent.getTimeout(web3Provider);
-      const endTime = initTimestamp + timeout;
+      const endTimestamp = initTimestamp + timeout;
 
       // Wait until the current time is past the endTime
-      while (Math.floor(Date.now() / 1000) < endTime) {
+      while (Math.floor(Date.now() / 1000) < endTimestamp) {
         await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for 1 second before checking again
       }
 
-      // Wait until current block time is also past the endTime
-      let currentBlockTime;
-      do {
-        const block = await web3Provider.getBlock('latest');
-        currentBlockTime = block.timestamp;
-        if (currentBlockTime < endTime) {
-          await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for 1 second before checking again
-        }
-      } while (currentBlockTime < endTime);
+      await this.waitForBlockTime(web3Provider, endTimestamp);
 
       try {
-        const isSuccessful = await DkgClient.waitUntilRitualEnd(
-          web3Provider,
-          ritualId
-        );
-
-        if (!isSuccessful) {
-          throw new Error(
-            `Ritual initialization failed. Ritual id ${ritualId}`
-          );
-        }
+        this.performRitual(web3Provider, ritualId);
       } catch (error) {
         const ritualState = await DkgCoordinatorAgent.getRitualState(
           web3Provider,
@@ -168,6 +151,36 @@ export class DkgClient {
     }
 
     return ritualId;
+  }
+
+  private static performRitual = async (
+    web3Provider: ethers.providers.Web3Provider,
+    ritualId: number
+    ): Promise<void> => {
+    const isSuccessful = await DkgClient.waitUntilRitualEnd(
+      web3Provider,
+      ritualId
+    );
+  
+    if (!isSuccessful) {
+      throw new Error(
+        `Ritual initialization failed. Ritual id ${ritualId}`
+      );
+    }
+  }
+
+  private static waitForBlockTime = async (
+    web3Provider: ethers.providers.Web3Provider,
+    endTimestamp: number
+  ): Promise<void> => {
+    let currentBlockTime;
+    do {
+      const block = await web3Provider.getBlock('latest');
+      currentBlockTime = block.timestamp;
+      if (currentBlockTime < endTimestamp) {
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for 1 second before checking again
+      }
+    } while (currentBlockTime < endTimestamp);
   }
 
   private static waitUntilRitualEnd = async (

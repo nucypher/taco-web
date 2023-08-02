@@ -40,7 +40,7 @@ const ownsNFT = new ERC721Ownership({
 });
 const conditionExpr = new ConditionExpression(ownsNFT);
 const ursulas = fakeUrsulas();
-const variant = FerveoVariant.Precomputed;
+const variant = FerveoVariant.precomputed;
 const ritualId = 0;
 
 const makeCbdStrategy = async () => {

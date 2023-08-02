@@ -29,7 +29,7 @@ import * as conditions from './conditions';
 export { conditions, CustomContextParam };
 
 // DKG
-export { FerveoVariant } from './dkg';
+export { FerveoVariant } from '@nucypher/nucypher-core';
 
 // SDK
 export { Cohort } from './sdk/cohort';

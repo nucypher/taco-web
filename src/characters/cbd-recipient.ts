@@ -6,6 +6,7 @@ import {
   decryptWithSharedSecret,
   EncryptedThresholdDecryptionRequest,
   EncryptedThresholdDecryptionResponse,
+  FerveoVariant,
   SessionSharedSecret,
   SessionStaticSecret,
   ThresholdDecryptionRequest,
@@ -21,7 +22,6 @@ import { ConditionExpression } from '../conditions';
 import {
   DkgClient,
   DkgRitual,
-  FerveoVariant,
   getCombineDecryptionSharesFunction,
   getVariantClass,
 } from '../dkg';
@@ -82,7 +82,7 @@ export class CbdTDecDecrypter {
   public async retrieve(
     web3Provider: ethers.providers.Web3Provider,
     conditionExpr: ConditionExpression,
-    variant: number,
+    variant: FerveoVariant,
     ciphertext: Ciphertext,
     verifyRitual = true
   ): Promise<DecryptionSharePrecomputed[] | DecryptionShareSimple[]> {
@@ -145,7 +145,7 @@ export class CbdTDecDecrypter {
   private makeDecryptionShares(
     encryptedResponses: Record<string, EncryptedThresholdDecryptionResponse>,
     sessionSharedSecret: Record<string, SessionSharedSecret>,
-    variant: number,
+    variant: FerveoVariant,
     expectedRitualId: number
   ) {
     const decryptedResponses = Object.entries(encryptedResponses).map(
@@ -171,7 +171,7 @@ export class CbdTDecDecrypter {
 
   private makeDecryptionRequests(
     ritualId: number,
-    variant: number,
+    variant: FerveoVariant,
     ciphertext: Ciphertext,
     conditionExpr: ConditionExpression,
     contextStr: string,

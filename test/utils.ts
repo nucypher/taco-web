@@ -37,22 +37,22 @@ import axios from 'axios';
 import { ethers, providers, Wallet } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 
-import { Alice, Bob, Cohort, Configuration, RemoteBob } from '../src';
+import { Alice, Bob, Cohort, RemoteBob } from '../src';
 import {
   DkgCoordinatorAgent,
   DkgParticipant,
   DkgRitualState,
 } from '../src/agents/coordinator';
-import { CbdTDecDecrypter } from '../src/characters/cbd-recipient';
+import { ThresholdDecrypter } from '../src/characters/cbd-recipient';
+import { DkgClient, DkgRitual } from '../src/dkg';
+import { BlockchainPolicy, PreEnactedPolicy } from '../src/policies/policy';
 import {
   CbdDecryptResult,
   GetUrsulasResult,
-  Porter,
+  PorterClient,
   RetrieveCFragsResult,
   Ursula,
-} from '../src/characters/porter';
-import { DkgClient, DkgRitual } from '../src/dkg';
-import { BlockchainPolicy, PreEnactedPolicy } from '../src/policies/policy';
+} from '../src/porter';
 import { ChecksumAddress } from '../src/types';
 import { toBytes, toHexString, zip } from '../src/utils';
 
@@ -63,15 +63,13 @@ export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
 export const fromBytes = (bytes: Uint8Array): string =>
   new TextDecoder().decode(bytes);
 
-const mockConfig: Configuration = {
-  porterUri: 'https://_this_should_crash.com/',
-};
+export const fakePorterUri = 'https://_this_should_crash.com/';
 
 export const fakeBob = (): Bob => {
   const secretKey = SecretKey.fromBEBytes(
     toBytes('fake-secret-key-32-bytes-bob-xxx')
   );
-  return Bob.fromSecretKey(mockConfig, secretKey);
+  return Bob.fromSecretKey(secretKey);
 };
 
 export const fakeRemoteBob = (): RemoteBob => {
@@ -81,8 +79,7 @@ export const fakeRemoteBob = (): RemoteBob => {
 
 export const fakeAlice = (aliceKey = 'fake-secret-key-32-bytes-alice-x') => {
   const secretKey = SecretKey.fromBEBytes(toBytes(aliceKey));
-  const provider = fakeWeb3Provider(secretKey.toBEBytes());
-  return Alice.fromSecretKey(mockConfig, secretKey, provider);
+  return Alice.fromSecretKey(secretKey);
 };
 
 export const fakeWeb3Provider = (
@@ -168,7 +165,7 @@ export const mockRetrieveCFragsRequest = (
 ) => {
   const results = fakeCFragResponse(ursulas, verifiedKFrags, capsule);
   return jest
-    .spyOn(Porter.prototype, 'retrieveCFrags')
+    .spyOn(PorterClient.prototype, 'retrieveCFrags')
     .mockImplementation(() => {
       return Promise.resolve(results);
     });
@@ -492,14 +489,16 @@ export const mockCbdDecrypt = (
     encryptedResponses,
     errors,
   };
-  return jest.spyOn(Porter.prototype, 'cbdDecrypt').mockImplementation(() => {
-    return Promise.resolve(result);
-  });
+  return jest
+    .spyOn(PorterClient.prototype, 'cbdDecrypt')
+    .mockImplementation(() => {
+      return Promise.resolve(result);
+    });
 };
 
 export const mockRandomSessionStaticSecret = (secret: SessionStaticSecret) => {
   return jest
-    .spyOn(CbdTDecDecrypter.prototype as any, 'makeSessionKey')
+    .spyOn(ThresholdDecrypter.prototype as any, 'makeSessionKey')
     .mockImplementation(() => secret);
 };
 
@@ -535,12 +534,9 @@ export const mockGetExistingRitual = (dkgRitual: DkgRitual) => {
 
 export const makeCohort = async (ursulas: Ursula[]) => {
   const getUrsulasSpy = mockGetUrsulas(ursulas);
-  const config = {
-    threshold: 2,
-    shares: ursulas.length,
-    porterUri: 'https://_this.should.crash',
-  };
-  const cohort = await Cohort.create(config);
+  const porterUri = 'https://_this.should.crash';
+  const numUrsulas = ursulas.length;
+  const cohort = await Cohort.create(porterUri, numUrsulas);
   expect(getUrsulasSpy).toHaveBeenCalled();
   return cohort;
 };

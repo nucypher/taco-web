@@ -6,11 +6,12 @@ import {
   TreasureMap,
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
+import { ethers } from 'ethers';
 
 import { PreSubscriptionManagerAgent } from '../agents/subscription-manager';
 import { Alice } from '../characters/alice';
 import { RemoteBob } from '../characters/bob';
-import { Ursula } from '../characters/porter';
+import { Ursula } from '../porter';
 import { toBytes, toEpoch, zip } from '../utils';
 import { toCanonicalAddress } from '../web3';
 
@@ -28,15 +29,6 @@ export type EnactedPolicy = {
 
 type IPreEnactedPolicy = Omit<EnactedPolicy, 'txHash'>;
 
-export type EnactedPolicyJSON = Omit<
-  EnactedPolicy,
-  'policyKey' | 'encryptedTreasureMap' | 'id'
-> & {
-  policyKey: Uint8Array;
-  id: Uint8Array;
-  encryptedTreasureMap: Uint8Array;
-};
-
 export class PreEnactedPolicy implements IPreEnactedPolicy {
   constructor(
     public readonly id: HRAC,
@@ -49,26 +41,30 @@ export class PreEnactedPolicy implements IPreEnactedPolicy {
     public readonly endTimestamp: Date
   ) {}
 
-  public async enact(publisher: Alice): Promise<EnactedPolicy> {
-    const txHash = await this.publish(publisher);
+  public async enact(
+    web3Provider: ethers.providers.Web3Provider
+  ): Promise<EnactedPolicy> {
+    const txHash = await this.publish(web3Provider);
     return {
       ...this,
       txHash,
     };
   }
 
-  private async publish(publisher: Alice): Promise<string> {
+  private async publish(
+    web3Provider: ethers.providers.Web3Provider
+  ): Promise<string> {
     const startTimestamp = toEpoch(this.startTimestamp);
     const endTimestamp = toEpoch(this.endTimestamp);
-    const ownerAddress = await publisher.web3Provider.getSigner().getAddress();
+    const ownerAddress = await web3Provider.getSigner().getAddress();
     const value = await PreSubscriptionManagerAgent.getPolicyCost(
-      publisher.web3Provider,
+      web3Provider,
       this.size,
       startTimestamp,
       endTimestamp
     );
     const tx = await PreSubscriptionManagerAgent.createPolicy(
-      publisher.web3Provider,
+      web3Provider,
       value,
       this.id.toBytes(),
       this.size,
@@ -110,9 +106,12 @@ export class BlockchainPolicy {
     );
   }
 
-  public async enact(ursulas: readonly Ursula[]): Promise<EnactedPolicy> {
+  public async enact(
+    web3Provider: ethers.providers.Web3Provider,
+    ursulas: readonly Ursula[]
+  ): Promise<EnactedPolicy> {
     const preEnacted = await this.generatePreEnactedPolicy(ursulas);
-    return await preEnacted.enact(this.publisher);
+    return await preEnacted.enact(web3Provider);
   }
 
   public async generatePreEnactedPolicy(
@@ -143,18 +142,18 @@ export class BlockchainPolicy {
     ursulas: readonly Ursula[],
     verifiedKFrags: readonly VerifiedKeyFrag[]
   ): TreasureMap {
-    const assigned_kfrags: [Address, [PublicKey, VerifiedKeyFrag]][] = [];
+    const assignedKFrags: [Address, [PublicKey, VerifiedKeyFrag]][] = [];
     zip(ursulas, verifiedKFrags).forEach(([ursula, kFrag]) => {
       const ursulaAddress = new Address(
         toCanonicalAddress(ursula.checksumAddress)
       );
-      assigned_kfrags.push([ursulaAddress, [ursula.encryptingKey, kFrag]]);
+      assignedKFrags.push([ursulaAddress, [ursula.encryptingKey, kFrag]]);
     });
     return new TreasureMap(
       this.publisher.signer,
       this.hrac,
       this.delegatingKey,
-      assigned_kfrags,
+      assignedKFrags,
       this.threshold
     );
   }

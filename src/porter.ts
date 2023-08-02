@@ -9,8 +9,25 @@ import {
 import axios, { AxiosResponse } from 'axios';
 import qs from 'qs';
 
-import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from '../types';
-import { fromBase64, fromHexString, toBase64, toHexString } from '../utils';
+import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from './types';
+import { fromBase64, fromHexString, toBase64, toHexString } from './utils';
+
+type Network = 'mainnet' | 'tapir' | 'oryx' | 'lynx';
+
+const PORTER_URIS: Record<Network, string> = {
+  mainnet: 'https://porter.nucypher.community',
+  tapir: 'https://porter-tapir.nucypher.community',
+  oryx: 'https://porter-oryx.nucypher.community',
+  lynx: 'https://porter-lynx.nucypher.community',
+};
+
+export const getPorterUri = (network: Network): string => {
+  const uri = PORTER_URIS[network];
+  if (!uri) {
+    throw new Error(`No default Porter URI found for network: ${network}`);
+  }
+  return PORTER_URIS[network];
+};
 
 // /get_ursulas
 
@@ -96,7 +113,7 @@ export type CbdDecryptResult = {
   errors: Record<string, string>;
 };
 
-export class Porter {
+export class PorterClient {
   readonly porterUrl: URL;
 
   constructor(porterUri: string) {

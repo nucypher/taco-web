@@ -3,7 +3,7 @@ import { SecretKey, SessionStaticSecret } from '@nucypher/nucypher-core';
 import { conditions } from '../../src';
 import { FerveoVariant } from '../../src';
 import { CbdStrategy, DeployedCbdStrategy } from '../../src';
-import { CbdTDecDecrypter } from '../../src/characters/cbd-recipient';
+import { ThresholdDecrypter } from '../../src/characters/cbd-recipient';
 import { toBytes } from '../../src/utils';
 import {
   fakeDkgFlow,
@@ -166,18 +166,18 @@ describe('CbdDeployedStrategy', () => {
   });
 });
 
-describe('CbdTDecDecrypter', () => {
+describe('ThresholdDecrypter', () => {
   it('serializes to a plain object', async () => {
     const { deployedStrategy } = await makeDeployedCbdStrategy();
     const configObj = deployedStrategy.decrypter.toObj();
-    const fromObj = CbdTDecDecrypter.fromObj(configObj);
+    const fromObj = ThresholdDecrypter.fromObj(configObj);
     expect(fromObj.equals(deployedStrategy.decrypter)).toBeTruthy();
   });
 
   it('serializes to a JSON', async () => {
     const { deployedStrategy } = await makeDeployedCbdStrategy();
     const configJSON = deployedStrategy.decrypter.toJSON();
-    const fromJSON = CbdTDecDecrypter.fromJSON(configJSON);
+    const fromJSON = ThresholdDecrypter.fromJSON(configJSON);
     expect(fromJSON.equals(deployedStrategy.decrypter)).toBeTruthy();
   });
 });

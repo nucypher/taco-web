@@ -7,7 +7,7 @@ import { Enrico } from '../../characters/enrico';
 import { PreDecrypter, PreDecrypterJSON } from '../../characters/pre-recipient';
 import { ConditionExpression } from '../../conditions';
 import { EnactedPolicy } from '../../policies/policy';
-import { base64ToU8Receiver, bytesEquals, toJSON } from '../../utils';
+import { base64ToU8Receiver, toJSON } from '../../utils';
 import { Cohort, CohortJSON } from '../cohort';
 
 export type PreStrategyJSON = {
@@ -133,15 +133,8 @@ export class PreStrategy {
   public equals(other: PreStrategy) {
     return [
       this.cohort.equals(other.cohort),
-      // TODO: Replace with `equals` after https://github.com/nucypher/rust-umbral/pull/125 is released
-      bytesEquals(
-        this.aliceSecretKey.toBEBytes(),
-        other.aliceSecretKey.toBEBytes()
-      ),
-      bytesEquals(
-        this.bobSecretKey.toBEBytes(),
-        other.bobSecretKey.toBEBytes()
-      ),
+      this.aliceSecretKey.equals(other.aliceSecretKey),
+      this.bobSecretKey.equals(other.bobSecretKey),
       this.startDate.toString() === other.startDate.toString(),
       this.endDate.toString() === other.endDate.toString(),
     ].every(Boolean);

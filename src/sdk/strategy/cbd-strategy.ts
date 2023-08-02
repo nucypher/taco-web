@@ -87,8 +87,7 @@ export class DeployedCbdStrategy {
     porterUri: string,
     ritualId: number
   ): Promise<DeployedCbdStrategy> {
-    const dkgClient = new DkgClient(provider);
-    const dkgRitual = await dkgClient.getExistingRitual(ritualId);
+    const dkgRitual = await DkgClient.getExistingRitual(provider, ritualId);
     return DeployedCbdStrategy.create(dkgRitual, porterUri);
   }
 

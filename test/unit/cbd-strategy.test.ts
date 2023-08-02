@@ -16,6 +16,7 @@ import {
   mockCbdDecrypt,
   mockGetExistingRitual,
   mockGetParticipants,
+  mockGetRitualState,
   mockGetUrsulas,
   mockInitializeRitual,
   mockRandomSessionStaticSecret,
@@ -38,7 +39,7 @@ const ownsNFT = new ERC721Ownership({
 });
 const conditionExpr = new ConditionExpression(ownsNFT);
 const ursulas = fakeUrsulas();
-const variant = FerveoVariant.Precomputed;
+const variant = FerveoVariant.precomputed;
 const ritualId = 0;
 
 const makeCbdStrategy = async () => {
@@ -131,6 +132,7 @@ describe('CbdDeployedStrategy', () => {
     const getParticipantsSpy = mockGetParticipants(participants);
     const getUrsulasSpy = mockGetUrsulas(ursulas);
     const sessionKeySpy = mockRandomSessionStaticSecret(requesterSessionKey);
+    const getRitualStateSpy = mockGetRitualState();
 
     const decryptedMessage =
       await deployedStrategy.decrypter.retrieveAndDecrypt(
@@ -142,6 +144,7 @@ describe('CbdDeployedStrategy', () => {
     expect(getUrsulasSpy).toHaveBeenCalled();
     expect(getParticipantsSpy).toHaveBeenCalled();
     expect(sessionKeySpy).toHaveBeenCalled();
+    expect(getRitualStateSpy).toHaveBeenCalled();
     expect(decryptSpy).toHaveBeenCalled();
     expect(decryptedMessage).toEqual(toBytes(message));
   });

@@ -4,6 +4,7 @@ import {
   DecryptionSharePrecomputed,
   DecryptionShareSimple,
   DkgPublicKey,
+  FerveoVariant,
   SharedSecret,
 } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
@@ -12,22 +13,15 @@ import { DkgCoordinatorAgent, DkgRitualState } from './agents/coordinator';
 import { ChecksumAddress } from './types';
 import { bytesEquals, fromHexString, objectEquals } from './utils';
 
-// TODO: Expose from @nucypher/nucypher-core
-export enum FerveoVariant {
-  Simple = 0,
-  Precomputed = 1,
-}
-
 export function getVariantClass(
   variant: FerveoVariant
 ): typeof DecryptionShareSimple | typeof DecryptionSharePrecomputed {
-  switch (variant) {
-    case FerveoVariant.Simple:
-      return DecryptionShareSimple;
-    case FerveoVariant.Precomputed:
-      return DecryptionSharePrecomputed;
-    default:
-      throw new Error(`Invalid FerveoVariant: ${variant}`);
+  if (variant.equals(FerveoVariant.simple)) {
+    return DecryptionShareSimple;
+  } else if (variant.equals(FerveoVariant.precomputed)) {
+    return DecryptionSharePrecomputed;
+  } else {
+    throw new Error(`Invalid FerveoVariant: ${variant}`);
   }
 }
 
@@ -36,13 +30,12 @@ export function getCombineDecryptionSharesFunction(
 ): (
   shares: DecryptionShareSimple[] | DecryptionSharePrecomputed[]
 ) => SharedSecret {
-  switch (variant) {
-    case FerveoVariant.Simple:
-      return combineDecryptionSharesSimple;
-    case FerveoVariant.Precomputed:
-      return combineDecryptionSharesPrecomputed;
-    default:
-      throw new Error(`Invalid FerveoVariant: ${variant}`);
+  if (variant.equals(FerveoVariant.simple)) {
+    return combineDecryptionSharesSimple;
+  } else if (variant.equals(FerveoVariant.precomputed)) {
+    return combineDecryptionSharesPrecomputed;
+  } else {
+    throw new Error(`Invalid FerveoVariant: ${variant}`);
   }
 }
 

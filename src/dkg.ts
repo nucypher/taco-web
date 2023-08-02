@@ -11,10 +11,10 @@ import { ethers } from 'ethers';
 
 import { DkgCoordinatorAgent, DkgRitualState } from './agents/coordinator';
 import { ChecksumAddress } from './types';
-import { bytesEquals, fromHexString, objectEquals } from './utils';
+import { fromHexString, objectEquals } from './utils';
 
 export function getVariantClass(
-  variant: FerveoVariant,
+  variant: FerveoVariant
 ): typeof DecryptionShareSimple | typeof DecryptionSharePrecomputed {
   if (variant.equals(FerveoVariant.simple)) {
     return DecryptionShareSimple;
@@ -26,9 +26,9 @@ export function getVariantClass(
 }
 
 export function getCombineDecryptionSharesFunction(
-  variant: FerveoVariant,
+  variant: FerveoVariant
 ): (
-  shares: DecryptionShareSimple[] | DecryptionSharePrecomputed[],
+  shares: DecryptionShareSimple[] | DecryptionSharePrecomputed[]
 ) => SharedSecret {
   if (variant.equals(FerveoVariant.simple)) {
     return combineDecryptionSharesSimple;
@@ -56,9 +56,8 @@ export class DkgRitual {
     public readonly id: number,
     public readonly dkgPublicKey: DkgPublicKey,
     public readonly dkgParams: DkgRitualParameters,
-    public readonly state: DkgRitualState,
-  ) {
-  }
+    public readonly state: DkgRitualState
+  ) {}
 
   public toObj(): DkgRitualJSON {
     return {
@@ -70,27 +69,26 @@ export class DkgRitual {
   }
 
   public static fromObj({
-                          id,
-                          dkgPublicKey,
-                          dkgParams,
-                          state,
-                        }: DkgRitualJSON): DkgRitual {
+    id,
+    dkgPublicKey,
+    dkgParams,
+    state,
+  }: DkgRitualJSON): DkgRitual {
     return new DkgRitual(
       id,
       DkgPublicKey.fromBytes(dkgPublicKey),
       dkgParams,
-      state,
+      state
     );
   }
 
   public equals(other: DkgRitual): boolean {
-    return (
-      this.id === other.id &&
-      // TODO: Replace with `equals` after https://github.com/nucypher/nucypher-core/issues/56 is fixed
-      bytesEquals(this.dkgPublicKey.toBytes(), other.dkgPublicKey.toBytes()) &&
-      objectEquals(this.dkgParams, other.dkgParams) &&
-      this.state === other.state
-    );
+    return [
+      this.id === other.id,
+      this.dkgPublicKey.equals(other.dkgPublicKey),
+      objectEquals(this.dkgParams, other.dkgParams),
+      this.state === other.state,
+    ].every(Boolean);
   }
 }
 
@@ -103,25 +101,25 @@ export class DkgClient {
   public static async initializeRitual(
     web3Provider: ethers.providers.Web3Provider,
     ursulas: ChecksumAddress[],
-    waitUntilEnd = false,
+    waitUntilEnd = false
   ): Promise<number | undefined> {
     const ritualId = await DkgCoordinatorAgent.initializeRitual(
       web3Provider,
-      ursulas.sort(),
+      ursulas.sort()
     );
 
     if (waitUntilEnd) {
       const isSuccessful = await DkgClient.waitUntilRitualEnd(
         web3Provider,
-        ritualId,
+        ritualId
       );
       if (!isSuccessful) {
         const ritualState = await DkgCoordinatorAgent.getRitualState(
           web3Provider,
-          ritualId,
+          ritualId
         );
         throw new Error(
-          `Ritual initialization failed. Ritual id ${ritualId} is in state ${ritualState}`,
+          `Ritual initialization failed. Ritual id ${ritualId} is in state ${ritualState}`
         );
       }
     }
@@ -131,7 +129,7 @@ export class DkgClient {
 
   private static waitUntilRitualEnd = async (
     web3Provider: ethers.providers.Web3Provider,
-    ritualId: number,
+    ritualId: number
   ): Promise<boolean> => {
     return new Promise((resolve, reject) => {
       const callback = (successful: boolean) => {
@@ -147,11 +145,11 @@ export class DkgClient {
 
   public static async getExistingRitual(
     web3Provider: ethers.providers.Web3Provider,
-    ritualId: number,
+    ritualId: number
   ): Promise<DkgRitual> {
     const ritualState = await DkgCoordinatorAgent.getRitualState(
       web3Provider,
-      ritualId,
+      ritualId
     );
     const ritual = await DkgCoordinatorAgent.getRitual(web3Provider, ritualId);
     const dkgPkBytes = new Uint8Array([
@@ -165,10 +163,9 @@ export class DkgClient {
         sharesNum: ritual.dkgSize,
         threshold: assumedThreshold(ritual.dkgSize),
       },
-      ritualState,
+      ritualState
     );
   }
-
 
   // TODO: Without Validator public key in Coordinator, we cannot verify the
   //    transcript. We need to add it to the Coordinator (nucypher-contracts #77).

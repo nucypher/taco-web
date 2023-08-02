@@ -44,7 +44,7 @@ import {
   DkgRitualState,
 } from '../src/agents/coordinator';
 import { ThresholdDecrypter } from '../src/characters/cbd-recipient';
-import { DkgClient, DkgRitual, FerveoVariant } from '../src/dkg';
+import { DkgClient, DkgRitual } from '../src/dkg';
 import { BlockchainPolicy, PreEnactedPolicy } from '../src/policies/policy';
 import {
   CbdDecryptResult,

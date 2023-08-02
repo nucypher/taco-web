@@ -12,11 +12,10 @@ import { ConditionContext, ConditionExpression } from '../conditions';
 import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
-import { base64ToU8Receiver, bytesEquals, toJSON, zip } from '../utils';
+import { PorterClient } from '../porter';
+import { base64ToU8Receiver, toJSON, zip } from '../utils';
 
-import { Porter } from './porter';
-
-export type PreTDecDecrypterJSON = {
+export type PreDecrypterJSON = {
   porterUri: string;
   policyEncryptingKeyBytes: Uint8Array;
   encryptedTreasureMapBytes: Uint8Array;
@@ -24,11 +23,11 @@ export type PreTDecDecrypterJSON = {
   bobSecretKeyBytes: Uint8Array;
 };
 
-export class PreTDecDecrypter {
+export class PreDecrypter {
   // private readonly verifyingKey: Keyring;
 
   constructor(
-    private readonly porter: Porter,
+    private readonly porter: PorterClient,
     private readonly keyring: Keyring,
     private readonly policyEncryptingKey: PublicKey,
     private readonly publisherVerifyingKey: PublicKey,
@@ -41,9 +40,9 @@ export class PreTDecDecrypter {
     policyEncryptingKey: PublicKey,
     publisherVerifyingKey: PublicKey,
     encryptedTreasureMap: EncryptedTreasureMap
-  ): PreTDecDecrypter {
-    return new PreTDecDecrypter(
-      new Porter(porterUri),
+  ): PreDecrypter {
+    return new PreDecrypter(
+      new PorterClient(porterUri),
       new Keyring(secretKey),
       policyEncryptingKey,
       publisherVerifyingKey,
@@ -149,7 +148,7 @@ export class PreTDecDecrypter {
     });
   }
 
-  public toObj(): PreTDecDecrypterJSON {
+  public toObj(): PreDecrypterJSON {
     return {
       porterUri: this.porter.porterUrl.toString(),
       policyEncryptingKeyBytes: this.policyEncryptingKey.toCompressedBytes(),
@@ -170,9 +169,9 @@ export class PreTDecDecrypter {
     encryptedTreasureMapBytes,
     publisherVerifyingKeyBytes,
     bobSecretKeyBytes,
-  }: PreTDecDecrypterJSON) {
-    return new PreTDecDecrypter(
-      new Porter(porterUri),
+  }: PreDecrypterJSON) {
+    return new PreDecrypter(
+      new PorterClient(porterUri),
       new Keyring(SecretKey.fromBEBytes(bobSecretKeyBytes)),
       PublicKey.fromCompressedBytes(policyEncryptingKeyBytes),
       PublicKey.fromCompressedBytes(publisherVerifyingKeyBytes),
@@ -182,19 +181,15 @@ export class PreTDecDecrypter {
 
   public static fromJSON(json: string) {
     const config = JSON.parse(json, base64ToU8Receiver);
-    return PreTDecDecrypter.fromObj(config);
+    return PreDecrypter.fromObj(config);
   }
 
-  public equals(other: PreTDecDecrypter): boolean {
-    return (
-      this.porter.porterUrl.toString() === other.porter.porterUrl.toString() &&
-      this.policyEncryptingKey.equals(other.policyEncryptingKey) &&
-      // TODO: Replace with `equals` after https://github.com/nucypher/nucypher-core/issues/56 is fixed
-      bytesEquals(
-        this.encryptedTreasureMap.toBytes(),
-        other.encryptedTreasureMap.toBytes()
-      ) &&
-      this.publisherVerifyingKey.equals(other.publisherVerifyingKey)
-    );
+  public equals(other: PreDecrypter): boolean {
+    return [
+      this.porter.porterUrl.toString() === other.porter.porterUrl.toString(),
+      this.policyEncryptingKey.equals(other.policyEncryptingKey),
+      this.encryptedTreasureMap.equals(other.encryptedTreasureMap),
+      this.publisherVerifyingKey.equals(other.publisherVerifyingKey),
+    ].every(Boolean);
   }
 }

@@ -6,15 +6,17 @@ import {
 } from '@nucypher/nucypher-core';
 
 import { EnactedPolicy, Enrico, MessageKit } from '../../src';
-import { Ursula } from '../../src/characters/porter';
+import { Ursula } from '../../src/porter';
 import { ChecksumAddress } from '../../src/types';
 import { toBytes } from '../../src/utils';
 import {
   bytesEqual,
   fakeAlice,
   fakeBob,
+  fakePorterUri,
   fakeRemoteBob,
   fakeUrsulas,
+  fakeWeb3Provider,
   fromBytes,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
@@ -32,6 +34,7 @@ describe('story: alice shares message with bob through policy', () => {
   const startDate = new Date();
   const endDate = new Date(Date.now() + 60 * 1000);
   const mockedUrsulas = fakeUrsulas(shares);
+  const web3Provider = fakeWeb3Provider();
 
   // Intermediate variables used for mocking
   let encryptedTreasureMap: EncryptedTreasureMap;
@@ -62,7 +65,7 @@ describe('story: alice shares message with bob through policy', () => {
       startDate,
       endDate,
     };
-    policy = await alice.grant(policyParams);
+    policy = await alice.grant(web3Provider, fakePorterUri, policyParams);
 
     expect(
       bytesEqual(
@@ -104,6 +107,7 @@ describe('story: alice shares message with bob through policy', () => {
     );
 
     const retrievedMessage = await bob.retrieveAndDecrypt(
+      fakePorterUri,
       policyEncryptingKey,
       aliceVerifyingKey,
       [encryptedMessage],

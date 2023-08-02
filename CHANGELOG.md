@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.2](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-alpha.1...v1.0.0-alpha.2) (2023-08-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* porter uris are based on networks, not chain ids
+* replaced configuration with raw porter uri
+
+### Features
+
+* implement local ritual verificaiton ([39241c0](https://github.com/nucypher/nucypher-ts/commit/39241c0cacc2b29bf11a5f4c88a6d53bb8ea4375))
+* porter uris are based on networks, not chain ids ([d911481](https://github.com/nucypher/nucypher-ts/commit/d911481d0f1b8f80e022b2c32de5aaa53607a2f9))
+* replaced configuration with raw porter uri ([fcd7fc0](https://github.com/nucypher/nucypher-ts/commit/fcd7fc0cb505b71a6e709ae37c1c53f9b2261f53))
+
 ## [1.0.0-alpha.1](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-alpha.0...v1.0.0-alpha.1) (2023-07-10)
 
 

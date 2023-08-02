@@ -156,18 +156,16 @@ export class DkgClient {
   private static performRitual = async (
     web3Provider: ethers.providers.Web3Provider,
     ritualId: number
-    ): Promise<void> => {
+  ): Promise<void> => {
     const isSuccessful = await DkgClient.waitUntilRitualEnd(
       web3Provider,
       ritualId
     );
-  
+
     if (!isSuccessful) {
-      throw new Error(
-        `Ritual initialization failed. Ritual id ${ritualId}`
-      );
+      throw new Error(`Ritual initialization failed. Ritual id ${ritualId}`);
     }
-  }
+  };
 
   private static waitForBlockTime = async (
     web3Provider: ethers.providers.Web3Provider,
@@ -181,7 +179,7 @@ export class DkgClient {
         await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for 1 second before checking again
       }
     } while (currentBlockTime < endTimestamp);
-  }
+  };
 
   private static waitUntilRitualEnd = async (
     web3Provider: ethers.providers.Web3Provider,

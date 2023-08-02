@@ -11,7 +11,7 @@ import { ethers } from 'ethers';
 
 import { DkgCoordinatorAgent, DkgRitualState } from './agents/coordinator';
 import { ChecksumAddress } from './types';
-import { bytesEquals, fromHexString, objectEquals } from './utils';
+import { fromHexString, objectEquals } from './utils';
 
 export function getVariantClass(
   variant: FerveoVariant
@@ -83,13 +83,12 @@ export class DkgRitual {
   }
 
   public equals(other: DkgRitual): boolean {
-    return (
-      this.id === other.id &&
-      // TODO: Replace with `equals` after https://github.com/nucypher/nucypher-core/issues/56 is fixed
-      bytesEquals(this.dkgPublicKey.toBytes(), other.dkgPublicKey.toBytes()) &&
-      objectEquals(this.dkgParams, other.dkgParams) &&
-      this.state === other.state
-    );
+    return [
+      this.id === other.id,
+      this.dkgPublicKey.equals(other.dkgPublicKey),
+      objectEquals(this.dkgParams, other.dkgParams),
+      this.state === other.state,
+    ].every(Boolean);
   }
 }
 

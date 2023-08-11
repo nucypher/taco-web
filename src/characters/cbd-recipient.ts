@@ -20,6 +20,7 @@ import {
 } from '../agents/coordinator';
 import { ConditionExpression } from '../conditions';
 import {
+  DkgClient,
   DkgRitual,
   getCombineDecryptionSharesFunction,
   getVariantClass,
@@ -55,13 +56,15 @@ export class ThresholdDecrypter {
     provider: ethers.providers.Web3Provider,
     conditionExpr: ConditionExpression,
     variant: FerveoVariant,
-    ciphertext: Ciphertext
+    ciphertext: Ciphertext,
+    verifyRitual = true
   ): Promise<Uint8Array> {
     const decryptionShares = await this.retrieve(
       provider,
       conditionExpr,
       variant,
-      ciphertext
+      ciphertext,
+      verifyRitual
     );
 
     const combineDecryptionSharesFn =
@@ -79,7 +82,8 @@ export class ThresholdDecrypter {
     web3Provider: ethers.providers.Web3Provider,
     conditionExpr: ConditionExpression,
     variant: FerveoVariant,
-    ciphertext: Ciphertext
+    ciphertext: Ciphertext,
+    verifyRitual = true
   ): Promise<DecryptionSharePrecomputed[] | DecryptionShareSimple[]> {
     const ritualState = await DkgCoordinatorAgent.getRitualState(
       web3Provider,
@@ -89,6 +93,18 @@ export class ThresholdDecrypter {
       throw new Error(
         `Ritual with id ${this.ritualId} is not finalized. Ritual state is ${ritualState}.`
       );
+    }
+
+    if (verifyRitual) {
+      const isLocallyVerified = await DkgClient.verifyRitual(
+        web3Provider,
+        this.ritualId
+      );
+      if (!isLocallyVerified) {
+        throw new Error(
+          `Ritual with id ${this.ritualId} has failed local verification.`
+        );
+      }
     }
 
     const dkgParticipants = await DkgCoordinatorAgent.getParticipants(

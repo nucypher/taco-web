@@ -20,6 +20,7 @@ import {
   mockGetUrsulas,
   mockInitializeRitual,
   mockRandomSessionStaticSecret,
+  mockVerifyRitual,
 } from '../utils';
 
 import { aliceSecretKeyBytes } from './testVariables';
@@ -133,6 +134,7 @@ describe('CbdDeployedStrategy', () => {
     const getUrsulasSpy = mockGetUrsulas(ursulas);
     const sessionKeySpy = mockRandomSessionStaticSecret(requesterSessionKey);
     const getRitualStateSpy = mockGetRitualState();
+    const verifyRitualSpy = mockVerifyRitual();
 
     const decryptedMessage =
       await deployedStrategy.decrypter.retrieveAndDecrypt(
@@ -141,6 +143,8 @@ describe('CbdDeployedStrategy', () => {
         variant,
         ciphertext
       );
+    expect(getRitualStateSpy).toHaveBeenCalled();
+    expect(verifyRitualSpy).toHaveBeenCalled();
     expect(getUrsulasSpy).toHaveBeenCalled();
     expect(getParticipantsSpy).toHaveBeenCalled();
     expect(sessionKeySpy).toHaveBeenCalled();

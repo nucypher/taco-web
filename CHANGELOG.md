@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.3](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-alpha.2...v1.0.0-alpha.3) (2023-08-11)
+
+Re-released `1.0.0-alpha.2` after fixing a bad rebase.
+
 ## [1.0.0-alpha.2](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-alpha.1...v1.0.0-alpha.2) (2023-08-02)
 
 

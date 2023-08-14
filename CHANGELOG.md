@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.5](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-alpha.4...v1.0.0-alpha.5) (2023-08-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* disable ritual initialization
+* replace variant parameter with a default simple variant
+
+### Features
+
+* disable ritual initialization ([7447664](https://github.com/nucypher/nucypher-ts/commit/7447664360ec961ada59916dc6b511f9dbad514d))
+* replace variant parameter with a default simple variant ([36fd43e](https://github.com/nucypher/nucypher-ts/commit/36fd43eda8e04f2a400099ab76a5a03f0325b850))
+
 ## [1.0.0-alpha.4](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-alpha.3...v1.0.0-alpha.4) (2023-08-11)
 
 Re-released `1.0.0-alpha.3` after fixing a bad rebase.

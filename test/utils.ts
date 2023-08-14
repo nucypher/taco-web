@@ -500,9 +500,9 @@ export const fakeDkgRitual = (ritual: { dkg: Dkg }, threshold: number) => {
   return new DkgRitual(fakeRitualId, ritual.dkg.publicKey(), threshold);
 };
 
-export const mockInitializeRitual = (fakeRitual: unknown) => {
+export const mockGetExistingRitual = (fakeRitual: unknown) => {
   return jest
-    .spyOn(DkgClient.prototype as any, 'initializeRitual')
+    .spyOn(DkgClient.prototype as any, 'getExistingRitual')
     .mockImplementation(() => {
       return Promise.resolve(fakeRitual);
     });

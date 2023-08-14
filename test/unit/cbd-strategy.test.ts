@@ -17,7 +17,6 @@ import {
   mockGetExistingRitual,
   mockGetParticipants,
   mockGetUrsulas,
-  mockInitializeRitual,
   mockRandomSessionStaticSecret,
 } from '../utils';
 
@@ -55,12 +54,10 @@ async function makeDeployedCbdStrategy() {
   const mockedDkgRitual = fakeDkgRitual(mockedDkg);
   const web3Provider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
   const getUrsulasSpy = mockGetUrsulas(ursulas);
-  const initializeRitualSpy = mockInitializeRitual(ritualId);
   const getExistingRitualSpy = mockGetExistingRitual(mockedDkgRitual);
-  const deployedStrategy = await strategy.deploy(web3Provider);
+  const deployedStrategy = await strategy.deploy(web3Provider, ritualId);
 
   expect(getUrsulasSpy).toHaveBeenCalled();
-  expect(initializeRitualSpy).toHaveBeenCalled();
   expect(getExistingRitualSpy).toHaveBeenCalled();
 
   return { mockedDkg, deployedStrategy };

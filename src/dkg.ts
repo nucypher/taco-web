@@ -1,43 +1,9 @@
-import {
-  combineDecryptionSharesPrecomputed,
-  combineDecryptionSharesSimple,
-  DecryptionSharePrecomputed,
-  DecryptionShareSimple,
-  DkgPublicKey,
-  FerveoVariant,
-  SharedSecret,
-} from '@nucypher/nucypher-core';
+import { DkgPublicKey } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
 import { DkgCoordinatorAgent, DkgRitualState } from './agents/coordinator';
 import { ChecksumAddress } from './types';
 import { fromHexString, objectEquals } from './utils';
-
-export function getVariantClass(
-  variant: FerveoVariant
-): typeof DecryptionShareSimple | typeof DecryptionSharePrecomputed {
-  if (variant.equals(FerveoVariant.simple)) {
-    return DecryptionShareSimple;
-  } else if (variant.equals(FerveoVariant.precomputed)) {
-    return DecryptionSharePrecomputed;
-  } else {
-    throw new Error(`Invalid FerveoVariant: ${variant}`);
-  }
-}
-
-export function getCombineDecryptionSharesFunction(
-  variant: FerveoVariant
-): (
-  shares: DecryptionShareSimple[] | DecryptionSharePrecomputed[]
-) => SharedSecret {
-  if (variant.equals(FerveoVariant.simple)) {
-    return combineDecryptionSharesSimple;
-  } else if (variant.equals(FerveoVariant.precomputed)) {
-    return combineDecryptionSharesPrecomputed;
-  } else {
-    throw new Error(`Invalid FerveoVariant: ${variant}`);
-  }
-}
 
 export type DkgRitualParameters = {
   sharesNum: number;

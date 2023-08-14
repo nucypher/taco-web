@@ -8,7 +8,6 @@ import {
   Capsule,
   CapsuleFrag,
   Ciphertext,
-  combineDecryptionSharesPrecomputed,
   combineDecryptionSharesSimple,
   DecryptionSharePrecomputed,
   DecryptionShareSimple,
@@ -287,7 +286,6 @@ interface FakeDkgRitualFlow {
   sharesNum: number;
   threshold: number;
   receivedMessages: ValidatorMessage[];
-  variant: FerveoVariant;
   ciphertext: Ciphertext;
   aad: Uint8Array;
   dkg: Dkg;
@@ -301,7 +299,6 @@ export const fakeTDecFlow = ({
   sharesNum,
   threshold,
   receivedMessages,
-  variant,
   ciphertext,
   aad,
   message,
@@ -319,38 +316,18 @@ export const fakeTDecFlow = ({
       throw new Error('Transcript is invalid');
     }
 
-    let decryptionShare;
-    if (variant.equals(FerveoVariant.precomputed)) {
-      decryptionShare = aggregate.createDecryptionSharePrecomputed(
-        dkg,
-        ciphertext,
-        aad,
-        keypair
-      );
-    } else if (variant.equals(FerveoVariant.simple)) {
-      decryptionShare = aggregate.createDecryptionShareSimple(
-        dkg,
-        ciphertext,
-        aad,
-        keypair
-      );
-    } else {
-      throw new Error(`Invalid variant: ${variant}`);
-    }
+    const decryptionShare = aggregate.createDecryptionShareSimple(
+      dkg,
+      ciphertext,
+      aad,
+      keypair
+    );
     decryptionShares.push(decryptionShare);
   });
 
   // Now, the decryption share can be used to decrypt the ciphertext
   // This part is in the client API
-
-  let sharedSecret;
-  if (variant.equals(FerveoVariant.precomputed)) {
-    sharedSecret = combineDecryptionSharesPrecomputed(decryptionShares);
-  } else if (variant.equals(FerveoVariant.simple)) {
-    sharedSecret = combineDecryptionSharesSimple(decryptionShares);
-  } else {
-    throw new Error(`Invalid variant: ${variant}`);
-  }
+  const sharedSecret = combineDecryptionSharesSimple(decryptionShares);
 
   // The client should have access to the public parameters of the DKG
   const plaintext = decryptWithSharedSecret(ciphertext, aad, sharedSecret);
@@ -374,7 +351,6 @@ export const fakeDkgTDecFlowE2e = (
   const ciphertext = ferveoEncrypt(message, aad, ritual.dkg.publicKey());
   const { decryptionShares } = fakeTDecFlow({
     ...ritual,
-    variant,
     ciphertext,
     aad,
     message,

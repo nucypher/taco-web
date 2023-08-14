@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-beta.4](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-beta.3...v1.0.0-beta.4) (2023-08-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* use existing rituals in strategy api
+
+### Features
+
+* use existing rituals in strategy api ([1ada5cf](https://github.com/nucypher/nucypher-ts/commit/1ada5cfff121694a5ad8c437a14e9e41b5bd977f))
+
 ## [1.0.0-beta.3](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-beta.2...v1.0.0-beta.3) (2023-07-07)
 
 

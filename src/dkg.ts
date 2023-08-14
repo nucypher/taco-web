@@ -87,23 +87,20 @@ export class DkgRitual {
 export class DkgClient {
   constructor(private readonly provider: ethers.providers.Web3Provider) {}
 
-  // TODO: Update API: Replace with getExistingRitual and support ritualId in Strategy
-  public async initializeRitual(ritualParams: {
-    shares: number;
-    threshold: number;
-  }): Promise<DkgRitual> {
-    const ritualId = 2;
+  public async getExistingRitual(
+    ritualId: number,
+    threshold: number
+  ): Promise<DkgRitual> {
     const ritual = await DkgCoordinatorAgent.getRitual(this.provider, ritualId);
     const dkgPkBytes = new Uint8Array([
       ...fromHexString(ritual.publicKey.word0),
       ...fromHexString(ritual.publicKey.word1),
     ]);
-
-    return {
-      id: ritualId,
-      dkgPublicKey: DkgPublicKey.fromBytes(dkgPkBytes),
-      threshold: ritualParams.threshold,
-    } as DkgRitual;
+    return new DkgRitual(
+      ritualId,
+      DkgPublicKey.fromBytes(dkgPkBytes),
+      threshold
+    );
   }
 
   // TODO: Without Validator public key in Coordinator, we cannot verify the

@@ -75,7 +75,7 @@ export class CbdTDecDecrypter {
   public async retrieve(
     provider: ethers.providers.Web3Provider,
     conditionExpr: ConditionExpression,
-    variant: number,
+    variant: FerveoVariant,
     ciphertext: Ciphertext
   ): Promise<DecryptionSharePrecomputed[] | DecryptionShareSimple[]> {
     const dkgParticipants = await DkgCoordinatorAgent.getParticipants(

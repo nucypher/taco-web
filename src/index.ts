@@ -33,6 +33,7 @@ export { FerveoVariant } from './dkg';
 
 // SDK
 export { Cohort } from './sdk/cohort';
+export type { CohortConfiguration } from './sdk/cohort';
 export { DeployedPreStrategy, PreStrategy } from './sdk/strategy/pre-strategy';
 export { DeployedCbdStrategy, CbdStrategy } from './sdk/strategy/cbd-strategy';
 

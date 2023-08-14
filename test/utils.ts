@@ -324,10 +324,7 @@ export const fakeTDecFlow = async ({
   thresholdMessageKit,
 }: FakeDkgRitualFlow) => {
   // Having aggregated the transcripts, the validators can now create decryption shares
-  const decryptionShares: (
-    | DecryptionSharePrecomputed
-    | DecryptionShareSimple
-  )[] = [];
+  const decryptionShares: DecryptionShareSimple[] = [];
   zip(validators, validatorKeypairs).forEach(([validator, keypair]) => {
     const dkg = new Dkg(ritualId, sharesNum, threshold, validators, validator);
     const aggregate = dkg.aggregateTranscript(receivedMessages);

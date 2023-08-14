@@ -135,6 +135,19 @@ export class DkgClient {
     );
   }
 
+  public static async getFinalizedRitual(
+    web3Provider: ethers.providers.Web3Provider,
+    ritualId: number
+  ): Promise<DkgRitual> {
+    const ritual = await DkgClient.getExistingRitual(web3Provider, ritualId);
+    if (ritual.state !== DkgRitualState.FINALIZED) {
+      throw new Error(
+        `Ritual ${ritualId} is not finalized. State: ${ritual.state}`
+      );
+    }
+    return ritual;
+  }
+
   // TODO: Without Validator public key in Coordinator, we cannot verify the
   //    transcript. We need to add it to the Coordinator (nucypher-contracts #77).
   // public async verifyRitual(ritualId: number): Promise<boolean> {

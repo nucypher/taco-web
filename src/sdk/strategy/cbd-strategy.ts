@@ -78,7 +78,11 @@ export class DeployedCbdStrategy {
   ) {}
 
   public static create(dkgRitual: DkgRitual, porterUri: string) {
-    const decrypter = ThresholdDecrypter.create(porterUri, dkgRitual);
+    const decrypter = ThresholdDecrypter.create(
+      porterUri,
+      dkgRitual.id,
+      dkgRitual.dkgParams.threshold
+    );
     return new DeployedCbdStrategy(decrypter, dkgRitual.dkgPublicKey);
   }
 

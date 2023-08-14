@@ -14,7 +14,6 @@ import { ethers } from 'ethers';
 
 import { DkgCoordinatorAgent, DkgParticipant } from '../agents/coordinator';
 import { ConditionContext } from '../conditions';
-import { DkgRitual } from '../dkg';
 import { PorterClient } from '../porter';
 import { fromJSON, objectEquals, toJSON } from '../utils';
 
@@ -31,22 +30,22 @@ export class ThresholdDecrypter {
     private readonly threshold: number
   ) {}
 
-  public static create(porterUri: string, dkgRitual: DkgRitual) {
+  public static create(porterUri: string, ritualId: number, threshold: number) {
     return new ThresholdDecrypter(
       new PorterClient(porterUri),
-      dkgRitual.id,
-      dkgRitual.dkgParams.threshold
+      ritualId,
+      threshold
     );
   }
 
   // Retrieve and decrypt ciphertext using provider and condition expression
   public async retrieveAndDecrypt(
-    provider: ethers.providers.Provider,
+    web3Provider: ethers.providers.Provider,
     thresholdMessageKit: ThresholdMessageKit,
     signer?: ethers.Signer
   ): Promise<Uint8Array> {
     const decryptionShares = await this.retrieve(
-      provider,
+      web3Provider,
       thresholdMessageKit,
       signer
     );

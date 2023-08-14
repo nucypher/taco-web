@@ -51,11 +51,11 @@ const makeCbdStrategy = async () => {
 
 async function makeDeployedCbdStrategy() {
   const strategy = await makeCbdStrategy();
-
   const mockedDkg = fakeDkgFlow(variant, 0, 4, 4);
   const mockedDkgRitual = fakeDkgRitual(mockedDkg);
   const getUrsulasSpy = mockGetUrsulas(ursulas);
   const getExistingRitualSpy = mockGetExistingRitual(mockedDkgRitual);
+
   const deployedStrategy = await strategy.deploy(aliceProvider, ritualId);
 
   expect(getUrsulasSpy).toHaveBeenCalled();

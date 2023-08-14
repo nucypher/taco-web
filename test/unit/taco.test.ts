@@ -36,7 +36,6 @@ const ownsNFT = new ERC721Ownership({
 });
 const conditionExpr = new ConditionExpression(ownsNFT);
 const variant = FerveoVariant.precomputed;
-// const ritualId = 0;
 const message = 'this is a secret';
 
 describe('taco', () => {

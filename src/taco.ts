@@ -1,4 +1,8 @@
-import { Ciphertext, ferveoEncrypt } from '@nucypher/nucypher-core';
+import {
+  Ciphertext,
+  DkgPublicKey,
+  ferveoEncrypt,
+} from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
 import { ThresholdDecrypter } from './characters/cbd-recipient';
@@ -9,7 +13,10 @@ import { toBytes } from './utils';
 export interface TacoMessageKit {
   ciphertext: Ciphertext;
   aad: Uint8Array;
+  // TODO: How do we get rid of these two fields? We need them for decrypting
+  // We ritualId in order to fetch the DKG participants and create DecryptionRequests for them
   ritualId: number;
+  // We need to know the threshold in order to create DecryptionRequests
   threshold: number;
 }
 
@@ -20,17 +27,30 @@ export const encrypt = async (
   ritualId: number
 ): Promise<TacoMessageKit> => {
   const dkgRitual = await DkgClient.getFinalizedRitual(web3Provider, ritualId);
-  const aad = conditions.asAad();
-  const ciphertext = ferveoEncrypt(
-    toBytes(message),
-    aad,
-    dkgRitual.dkgPublicKey
+  return await encryptLight(
+    message,
+    conditions,
+    dkgRitual.dkgPublicKey,
+    dkgRitual.dkgParams.threshold,
+    ritualId
   );
+};
+
+export const encryptLight = async (
+  message: string,
+  conditions: ConditionExpression,
+  dkgPublicKey: DkgPublicKey,
+  // TODO: Remove these parameters after fixing TacoMessageKit
+  threshold: number,
+  ritualId: number
+): Promise<TacoMessageKit> => {
+  const aad = conditions.asAad();
+  const ciphertext = ferveoEncrypt(toBytes(message), aad, dkgPublicKey);
   return {
     ciphertext,
     aad,
+    threshold,
     ritualId,
-    threshold: dkgRitual.dkgParams.threshold,
   };
 };
 
@@ -45,9 +65,10 @@ export const decrypt = async (
     messageKit.threshold
   );
   const condExpr = ConditionExpression.fromAad(messageKit.aad);
-  // TODO: Need web3Provider to fetch participants from Coordinator to make decryption requests.
-  //  Should we put them into the message kit instead?
-  //  Consider case where participants are changing over time. Is that an issue we should consider now?
+  // TODO: We need web3Provider to fetch participants from Coordinator to make decryption requests.
+  //  Removing this dependency is tied to release of ThresholdMessageKit
+  //  Blocked by changes to nucypher-core and nucypher:
+  //  https://github.com/nucypher/nucypher/pull/3194
   return decrypter.retrieveAndDecrypt(
     web3Provider,
     condExpr,
@@ -57,5 +78,6 @@ export const decrypt = async (
 
 export const taco = {
   encrypt,
+  encryptLight,
   decrypt,
 };

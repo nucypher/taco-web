@@ -1,39 +1,30 @@
-import Joi from 'joi';
+import { z } from 'zod';
 
-import { SUPPORTED_CHAINS } from '../const';
+import { ETH_ADDRESS_REGEXP, USER_ADDRESS_PARAM } from '../const';
 
-import { Condition } from './condition';
-import {
-  ethAddressOrUserAddressSchema,
-  returnValueTestSchema,
-} from './return-value';
+export const returnValueTestSchema = z.object({
+  index: z.number().optional(),
+  comparator: z.enum(['==', '>', '<', '>=', '<=', '!=']),
+  value: z.union([z.string(), z.number(), z.boolean()]),
+});
 
-const rpcMethodSchemas: Record<string, Joi.Schema> = {
-  eth_getBalance: Joi.array().items(ethAddressOrUserAddressSchema).required(),
-  balanceOf: Joi.array().items(ethAddressOrUserAddressSchema).required(),
-};
+export type ReturnValueTestProps = z.infer<typeof returnValueTestSchema>;
 
-const makeParameters = () =>
-  Joi.array().when('method', {
-    switch: Object.keys(rpcMethodSchemas).map((method) => ({
-      is: method,
-      then: rpcMethodSchemas[method],
-    })),
-  });
+const EthAddressOrUserAddressSchema = z.array(
+  z.union([z.string().regex(ETH_ADDRESS_REGEXP), z.literal(USER_ADDRESS_PARAM)])
+);
 
-export const rpcConditionRecord = {
-  chain: Joi.number()
-    .valid(...SUPPORTED_CHAINS)
-    .required(),
-  method: Joi.string()
-    .valid(...Object.keys(rpcMethodSchemas))
-    .required(),
-  parameters: makeParameters(),
-  returnValueTest: returnValueTestSchema.required(),
-};
+export const rpcConditionSchema = z.object({
+  conditionType: z.literal('rpc').default('rpc'),
+  chain: z.union([
+    z.literal(137),
+    z.literal(80001),
+    z.literal(5),
+    z.literal(1),
+  ]),
+  method: z.enum(['eth_getBalance', 'balanceOf']),
+  parameters: EthAddressOrUserAddressSchema,
+  returnValueTest: returnValueTestSchema,
+});
 
-export const rpcConditionSchema = Joi.object(rpcConditionRecord);
-
-export class RpcCondition extends Condition {
-  public readonly schema = rpcConditionSchema;
-}
+export type RpcConditionProps = z.infer<typeof rpcConditionSchema>;

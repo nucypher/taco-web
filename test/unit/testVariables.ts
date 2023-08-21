@@ -1,3 +1,11 @@
+import {
+  ContractConditionProps,
+  RpcConditionProps,
+  TimeConditionProps,
+} from '../../src/conditions/base';
+import { FunctionAbiProps } from '../../src/conditions/base/contract';
+import { ReturnValueTestProps } from '../../src/conditions/base/rpc';
+
 export const aliceSecretKeyBytes = new Uint8Array([
   55, 82, 190, 189, 203, 164, 60, 148, 36, 86, 46, 123, 63, 152, 215, 113, 174,
   86, 244, 44, 23, 227, 197, 68, 5, 85, 116, 31, 208, 152, 88, 53,
@@ -13,13 +21,14 @@ export const TEST_CONTRACT_ADDR_2 =
   '0x0000000000000000000000000000000000000002';
 export const TEST_CHAIN_ID = 5;
 
-export const testReturnValueTest = {
+export const testReturnValueTest: ReturnValueTestProps = {
   index: 0,
   comparator: '>',
   value: '100',
 };
 
-export const testTimeConditionObj = {
+export const testTimeConditionObj: TimeConditionProps = {
+  conditionType: 'time',
   returnValueTest: {
     index: 0,
     comparator: '>',
@@ -29,14 +38,16 @@ export const testTimeConditionObj = {
   chain: 5,
 };
 
-export const testRpcConditionObj = {
+export const testRpcConditionObj: RpcConditionProps = {
+  conditionType: 'rpc',
   chain: TEST_CHAIN_ID,
   method: 'eth_getBalance',
   parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
   returnValueTest: testReturnValueTest,
 };
 
-export const testContractConditionObj = {
+export const testContractConditionObj: ContractConditionProps = {
+  conditionType: 'contract',
   contractAddress: '0x0000000000000000000000000000000000000000',
   chain: 5,
   standardContractType: 'ERC20',
@@ -45,7 +56,7 @@ export const testContractConditionObj = {
   returnValueTest: testReturnValueTest,
 };
 
-export const testFunctionAbi = {
+export const testFunctionAbi: FunctionAbiProps = {
   name: 'myFunction',
   type: 'function',
   stateMutability: 'view',

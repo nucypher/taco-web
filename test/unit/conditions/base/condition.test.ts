@@ -11,37 +11,45 @@ import {
 } from '../../testVariables';
 
 describe('validation', () => {
-  // TODO: Consider:
-  //   Use Condition here with returnTestValue schema
-  //   Refactor returnTestValue to be the part of the Condition
-  const condition = new ERC721Balance();
+  const condition = new ERC721Balance({
+    contractAddress: TEST_CONTRACT_ADDR,
+    chain: TEST_CHAIN_ID,
+  });
 
   it('accepts a correct schema', async () => {
-    const result = condition.validate({
-      contractAddress: TEST_CONTRACT_ADDR,
-      chain: TEST_CHAIN_ID,
-    });
+    const result = condition.validate();
     expect(result.error).toBeUndefined();
-    expect(result.value.contractAddress).toEqual(TEST_CONTRACT_ADDR);
+    expect(result.data.contractAddress).toEqual(TEST_CONTRACT_ADDR);
   });
 
-  it('updates on a valid schema value', async () => {
-    const result = condition.validate({
+  it('accepts on a valid value override', async () => {
+    const validOverride = {
       chain: TEST_CHAIN_ID,
       contractAddress: TEST_CONTRACT_ADDR_2,
-    });
+    };
+    const result = condition.validate(validOverride);
     expect(result.error).toBeUndefined();
-    expect(result.value.chain).toEqual(TEST_CHAIN_ID);
+    expect(result.data).toMatchObject(validOverride);
   });
 
-  it('rejects on an invalid schema value', async () => {
-    const result = condition.validate({
+  it('rejects on an invalid value override', async () => {
+    const invalidOverride = {
       chain: -1,
       contractAddress: TEST_CONTRACT_ADDR,
+    };
+    const result = condition.validate(invalidOverride);
+    expect(result.error).toBeDefined();
+    expect(result.data).toBeUndefined();
+    expect(result.error?.format()).toMatchObject({
+      chain: {
+        _errors: [
+          'Invalid literal value, expected 137',
+          'Invalid literal value, expected 80001',
+          'Invalid literal value, expected 5',
+          'Invalid literal value, expected 1',
+        ],
+      },
     });
-    expect(result.error?.message).toEqual(
-      '"chain" must be one of [1, 5, 137, 80001]'
-    );
   });
 });
 
@@ -56,7 +64,6 @@ describe('serialization', () => {
   it('serializes predefined conditions', () => {
     const contract = new ERC721Ownership(testContractConditionObj);
     expect(contract.toObj()).toEqual({
-      ...contract.defaults,
       ...testContractConditionObj,
     });
   });

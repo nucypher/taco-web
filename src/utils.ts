@@ -65,10 +65,6 @@ export const zip = <T, Z>(
 
 export const toEpoch = (date: Date) => (date.getTime() / 1000) | 0;
 
-export const bytesEquals = (first: Uint8Array, second: Uint8Array): boolean =>
-  first.length === second.length &&
-  first.every((value, index) => value === second[index]);
-
 export const objectEquals = (a: unknown, b: unknown, strict = true): boolean =>
   deepEqual(a, b, { strict });
 

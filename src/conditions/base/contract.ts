@@ -1,87 +1,90 @@
 import { ethers } from 'ethers';
-import Joi from 'joi';
+import { z } from 'zod';
 
 import { ETH_ADDRESS_REGEXP } from '../const';
 
-import { RpcCondition, rpcConditionRecord } from './rpc';
+import { rpcConditionSchema } from './rpc';
 
-export const STANDARD_CONTRACT_TYPES = ['ERC20', 'ERC721'];
+// TODO: Consider replacing with `z.unknown`:
+//    Since Solidity types are tied to Solidity version, we may not be able to accurately represent them in Zod.
+//    Alternatively, find a TS Solidity type lib.
+const EthBaseTypes: [string, ...string[]] = [
+  'bool',
+  'string',
+  'address',
+  ...Array.from({ length: 32 }, (_v, i) => `bytes${i + 1}`), // bytes1 through bytes32
+  'bytes',
+  ...Array.from({ length: 32 }, (_v, i) => `uint${8 * (i + 1)}`), // uint8 through uint256
+  ...Array.from({ length: 32 }, (_v, i) => `int${8 * (i + 1)}`), // int8 through int256
+];
 
-const functionAbiSchema = Joi.object({
-  name: Joi.string().required(),
-  type: Joi.string().valid('function').required(),
-  inputs: Joi.array(),
-  outputs: Joi.array(),
-  stateMutability: Joi.string().valid('view', 'pure').required(),
-}).custom((functionAbi, helper) => {
-  // Is `functionABI` a valid function fragment?
-  let asInterface;
-  try {
-    asInterface = new ethers.utils.Interface([functionAbi]);
-  } catch (e: unknown) {
-    const { message } = e as Error;
-    return helper.message({
-      custom: message,
-    });
-  }
+const functionAbiVariableSchema = z
+  .object({
+    name: z.string(),
+    type: z.enum(EthBaseTypes),
+    internalType: z.enum(EthBaseTypes), // TODO: Do we need to validate this?
+  })
+  .strict();
 
-  if (!asInterface.functions) {
-    return helper.message({
-      custom: '"functionAbi" is missing a function fragment',
-    });
-  }
+const functionAbiSchema = z
+  .object({
+    name: z.string(),
+    type: z.literal('function'),
+    inputs: z.array(functionAbiVariableSchema).min(0),
+    outputs: z.array(functionAbiVariableSchema).nonempty(),
+    stateMutability: z.union([z.literal('view'), z.literal('pure')]),
+  })
+  .strict()
+  .refine(
+    (functionAbi) => {
+      let asInterface;
+      try {
+        // `stringify` here because ethers.utils.Interface doesn't accept a Zod schema
+        asInterface = new ethers.utils.Interface(JSON.stringify([functionAbi]));
+      } catch (e) {
+        return false;
+      }
 
-  if (Object.values(asInterface.functions).length !== 1) {
-    return helper.message({
-      custom: '"functionAbi" must contain exactly one function fragment',
-    });
-  }
+      const functionsInAbi = Object.values(asInterface.functions || {});
+      return functionsInAbi.length === 1;
+    },
+    {
+      message: '"functionAbi" must contain a single function definition',
+    }
+  )
+  .refine(
+    (functionAbi) => {
+      const asInterface = new ethers.utils.Interface(
+        JSON.stringify([functionAbi])
+      );
+      const nrOfInputs = asInterface.fragments[0].inputs.length;
+      return functionAbi.inputs.length === nrOfInputs;
+    },
+    {
+      message: '"parameters" must have the same length as "functionAbi.inputs"',
+    }
+  );
 
-  // Now we just need to validate against the parent schema
-  // Validate method name
-  const method = helper.state.ancestors[0].method;
+export type FunctionAbiProps = z.infer<typeof functionAbiSchema>;
 
-  let functionFragment;
-  try {
-    functionFragment = asInterface.getFunction(method);
-  } catch (e) {
-    return helper.message({
-      custom: `"functionAbi" has no matching function for "${method}"`,
-    });
-  }
+export const contractConditionSchema = rpcConditionSchema
+  .extend({
+    conditionType: z.literal('contract').default('contract'),
+    contractAddress: z.string().regex(ETH_ADDRESS_REGEXP),
+    standardContractType: z.enum(['ERC20', 'ERC721']).optional(),
+    method: z.string(),
+    functionAbi: functionAbiSchema.optional(),
+    parameters: z.array(z.unknown()),
+  })
+  // Adding this custom logic causes the return type to be ZodEffects instead of ZodObject
+  // https://github.com/colinhacks/zod/issues/2474
+  .refine(
+    // A check to see if either 'standardContractType' or 'functionAbi' is set
+    (data) => Boolean(data.standardContractType) !== Boolean(data.functionAbi),
+    {
+      message:
+        "At most one of the fields 'standardContractType' and 'functionAbi' must be defined",
+    }
+  );
 
-  if (!functionFragment) {
-    return helper.message({
-      custom: `"functionAbi" not valid for method: "${method}"`,
-    });
-  }
-
-  // Validate nr of parameters
-  const parameters = helper.state.ancestors[0].parameters;
-  if (functionFragment.inputs.length !== parameters.length) {
-    return helper.message({
-      custom: '"parameters" must have the same length as "functionAbi.inputs"',
-    });
-  }
-
-  return functionAbi;
-});
-
-export const contractConditionRecord = {
-  ...rpcConditionRecord,
-  contractAddress: Joi.string().pattern(ETH_ADDRESS_REGEXP).required(),
-  standardContractType: Joi.string()
-    .valid(...STANDARD_CONTRACT_TYPES)
-    .optional(),
-  method: Joi.string().required(),
-  functionAbi: functionAbiSchema.optional(),
-  parameters: Joi.array().required(),
-};
-
-export const contractConditionSchema = Joi.object(contractConditionRecord)
-  // At most one of these keys needs to be present
-  .xor('standardContractType', 'functionAbi');
-
-export class ContractCondition extends RpcCondition {
-  public readonly schema = contractConditionSchema;
-}
+export type ContractConditionProps = z.infer<typeof contractConditionSchema>;

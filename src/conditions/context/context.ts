@@ -2,7 +2,7 @@ import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
 import { fromJSON, toJSON } from '../../utils';
-import { Condition } from '../base';
+import { Condition } from '../condition';
 import { USER_ADDRESS_PARAM } from '../const';
 
 import { TypedSignature, WalletAuthenticationProvider } from './providers';

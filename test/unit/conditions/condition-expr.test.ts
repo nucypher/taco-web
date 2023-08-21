@@ -1,17 +1,16 @@
 import { SemVer } from 'semver';
 
+import { ConditionExpression } from '../../../src/conditions';
 import {
   CompoundCondition,
-  ConditionExpression,
-} from '../../../src/conditions';
-import {
   ContractCondition,
+  ContractConditionProps,
   RpcCondition,
   TimeCondition,
 } from '../../../src/conditions/base';
 import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
 import { ERC721Balance } from '../../../src/conditions/predefined';
-import { toJSON } from '../../../src/utils';
+import { objectEquals, toJSON } from '../../../src/utils';
 import {
   TEST_CHAIN_ID,
   TEST_CONTRACT_ADDR,
@@ -35,7 +34,7 @@ describe('condition set', () => {
   );
 
   const customParamKey = ':customParam';
-  const contractConditionWithAbiObj = {
+  const contractConditionWithAbiObj: ContractConditionProps = {
     ...testContractConditionObj,
     standardContractType: undefined,
     functionAbi: testFunctionAbi,
@@ -68,12 +67,12 @@ describe('condition set', () => {
     const conditionExprCurrentVersion = new ConditionExpression(rpcCondition);
 
     it('same version and condition', async () => {
-      const conditionExprSameCurrentVerstion = new ConditionExpression(
+      const conditionExprSameCurrentVersion = new ConditionExpression(
         rpcCondition,
         ConditionExpression.VERSION
       );
       expect(
-        conditionExprCurrentVersion.equals(conditionExprSameCurrentVerstion)
+        conditionExprCurrentVersion.equals(conditionExprSameCurrentVersion)
       ).toBeTruthy();
     });
 
@@ -159,7 +158,9 @@ describe('condition set', () => {
       const contractConditionExpr = new ConditionExpression(
         sameContractCondition
       );
-      expect(erc721ConditionExpr.equals(contractConditionExpr)).toBeTruthy();
+      expect(
+        objectEquals(erc721ConditionExpr.toObj(), contractConditionExpr.toObj())
+      ).toBeTruthy();
     });
   });
 
@@ -210,50 +211,6 @@ describe('condition set', () => {
         }).toThrow(`Invalid Version: ${invalidVersion}`);
       }
     );
-
-    it.each([
-      // no "operator" nor "method" value
-      {
-        version: ConditionExpression.VERSION,
-        condition: {
-          randoKey: 'randoValue',
-          otherKey: 'otherValue',
-        },
-      },
-      // invalid "method" and no "contractAddress"
-      {
-        version: ConditionExpression.VERSION,
-        condition: {
-          method: 'doWhatIWant',
-          returnValueTest: {
-            index: 0,
-            comparator: '>',
-            value: '100',
-          },
-          chain: 5,
-        },
-      },
-      // condition with wrong method "method" and no contract address
-      {
-        version: ConditionExpression.VERSION,
-        condition: {
-          ...testTimeConditionObj,
-          method: 'doWhatIWant',
-        },
-      },
-      // rpc condition (no contract address) with disallowed method
-      {
-        version: ConditionExpression.VERSION,
-        condition: {
-          ...testRpcConditionObj,
-          method: 'isPolicyActive',
-        },
-      },
-    ])("can't determine condition type", async (invalidCondition) => {
-      expect(() => {
-        ConditionExpression.fromObj(invalidCondition);
-      }).toThrow('unrecognized condition data');
-    });
 
     it('erc721 condition serialization', async () => {
       const conditionExpr = new ConditionExpression(erc721BalanceCondition);

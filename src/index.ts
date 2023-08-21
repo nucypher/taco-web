@@ -22,10 +22,8 @@ export { getPorterUri } from './porter';
 export { PolicyMessageKit } from './kits/message';
 
 // Conditions
-import type { CustomContextParam } from './conditions';
 import * as conditions from './conditions';
-// TODO: Not sure how to re-export this type from the conditions module
-export { conditions, CustomContextParam };
+export { conditions };
 
 // DKG
 export { FerveoVariant } from '@nucypher/nucypher-core';

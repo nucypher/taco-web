@@ -1,23 +1,15 @@
-import Joi from 'joi';
+import { z } from 'zod';
 
-import { omit } from '../../utils';
+import { rpcConditionSchema } from './rpc';
 
-import { RpcCondition, rpcConditionRecord } from './rpc';
+// TimeCondition is an RpcCondition with the method set to 'blocktime' and no parameters
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const { parameters: _, ...restShape } = rpcConditionSchema.shape;
 
-export const BLOCKTIME_METHOD = 'blocktime';
+export const timeConditionSchema = z.object({
+  ...restShape,
+  conditionType: z.literal('time').default('time'),
+  method: z.literal('blocktime').default('blocktime'),
+});
 
-export const timeConditionRecord: Record<string, Joi.Schema> = {
-  // TimeCondition is an RpcCondition with the method set to 'blocktime' and no parameters
-  ...omit(rpcConditionRecord, ['parameters']),
-  method: Joi.string().valid(BLOCKTIME_METHOD).required(),
-};
-
-export const timeConditionSchema = Joi.object(timeConditionRecord);
-
-export class TimeCondition extends RpcCondition {
-  public readonly defaults: Record<string, unknown> = {
-    method: BLOCKTIME_METHOD,
-  };
-
-  public readonly schema = timeConditionSchema;
-}
+export type TimeConditionProps = z.infer<typeof timeConditionSchema>;

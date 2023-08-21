@@ -35,7 +35,7 @@
     "test:lint": "eslint src test --ext .ts",
     "test:exports": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
     "test:prettier": "prettier \"src/**/*.ts\" \"test/**/*.ts\" --list-different",
-    "test:unit": "jest --detectOpenHandles --forceExit --runInBand",
+    "test:unit": "jest --detectOpenHandles --forceExit",
     "watch:build": "tsc -p tsconfig.json -w",
     "watch:test": "jest --watch",
     "cov": "run-s build test:unit && open-cli coverage/index.html",
@@ -56,9 +56,9 @@
     "axios": "^1.5.0",
     "deep-equal": "^2.2.1",
     "ethers": "^5.7.2",
-    "joi": "^17.10.0",
     "qs": "^6.10.1",
-    "semver": "^7.5.2"
+    "semver": "^7.5.2",
+    "zod": "^3.22.1"
   },
   "devDependencies": {
     "@babel/core": "^7.22.11",

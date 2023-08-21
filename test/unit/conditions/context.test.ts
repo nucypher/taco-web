@@ -1,5 +1,7 @@
-import { CustomContextParam } from '../../../src';
-import { ConditionExpression } from '../../../src/conditions';
+import {
+  ConditionExpression,
+  CustomContextParam,
+} from '../../../src/conditions';
 import { ContractCondition, RpcCondition } from '../../../src/conditions/base';
 import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
 import { RESERVED_CONTEXT_PARAMS } from '../../../src/conditions/context/context';

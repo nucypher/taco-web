@@ -62,7 +62,8 @@ export class PreStrategy {
   }
 
   public async deploy(
-    web3Provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer,
     label: string,
     threshold = Math.floor(this.cohort.numUrsulas / 2) + 1,
     shares = this.cohort.numUrsulas
@@ -85,7 +86,8 @@ export class PreStrategy {
       endDate: this.endDate,
     };
     const policy = await alice.grant(
-      web3Provider,
+      provider,
+      signer,
       porterUri,
       policyParams,
       this.cohort.ursulaAddresses

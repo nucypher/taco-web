@@ -63,10 +63,15 @@ export class PreDecrypter {
   }
 
   public async retrieveAndDecrypt(
-    messageKits: readonly MessageKit[],
-    provider: ethers.providers.Web3Provider
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer,
+    messageKits: readonly MessageKit[]
   ): Promise<readonly Uint8Array[]> {
-    const policyMessageKits = await this.retrieve(messageKits, provider);
+    const policyMessageKits = await this.retrieve(
+      provider,
+      signer,
+      messageKits
+    );
 
     policyMessageKits.forEach((mk: PolicyMessageKit) => {
       if (!mk.isDecryptableByReceiver()) {
@@ -90,8 +95,9 @@ export class PreDecrypter {
   }
 
   public async retrieve(
-    messageKits: readonly MessageKit[],
-    provider: ethers.providers.Web3Provider
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer,
+    messageKits: readonly MessageKit[]
   ): Promise<readonly PolicyMessageKit[]> {
     const treasureMap = this.encryptedTreasureMap.decrypt(
       this.keyring.secretKey,
@@ -106,7 +112,7 @@ export class PreDecrypter {
       .reduce((acc: ConditionExpression[], val) => acc.concat(val), [])
       .map((condExpr: ConditionExpression) => condExpr.condition);
 
-    const conditionContext = new ConditionContext(conditions, provider);
+    const conditionContext = new ConditionContext(provider, signer, conditions);
 
     const policyMessageKits = messageKits.map((mk) =>
       PolicyMessageKit.fromMessageKit(

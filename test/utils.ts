@@ -81,28 +81,45 @@ export const fakeAlice = (aliceKey = 'fake-secret-key-32-bytes-alice-x') => {
   return Alice.fromSecretKey(secretKey);
 };
 
-export const fakeWeb3Provider = (
-  secretKeyBytes = SecretKey.random().toBEBytes(),
-  blockNumber?: number,
-  blockTimestamp?: number
-): ethers.providers.Web3Provider => {
-  const block = { timestamp: blockTimestamp ?? 1000 };
-  const provider = {
-    getBlockNumber: () => Promise.resolve(blockNumber ?? 1000),
+const makeFakeProvider = (timestamp: number, blockNumber: number) => {
+  const block = { timestamp };
+  return {
+    getBlockNumber: () => Promise.resolve(blockNumber),
     getBlock: () => Promise.resolve(block as Block),
     _isProvider: true,
     getNetwork: () => Promise.resolve({ name: 'mockNetwork', chainId: -1 }),
   };
-  const fakeSignerWithProvider = {
+};
+
+export const fakeSigner = (
+  secretKeyBytes = SecretKey.random().toBEBytes(),
+  blockNumber = 1000,
+  blockTimestamp = 1000
+) => {
+  const provider = makeFakeProvider(blockNumber, blockTimestamp);
+  return {
     ...new Wallet(secretKeyBytes),
-    provider,
+    provider: provider,
     _signTypedData: () => Promise.resolve('fake-typed-signature'),
     signMessage: () => Promise.resolve('fake-signature'),
     getAddress: () =>
       Promise.resolve('0x0000000000000000000000000000000000000000'),
   } as unknown as ethers.providers.JsonRpcSigner;
+};
+
+export const fakeProvider = (
+  secretKeyBytes = SecretKey.random().toBEBytes(),
+  blockNumber = 1000,
+  blockTimestamp = 1000
+): ethers.providers.Web3Provider => {
+  const fakeProvider = makeFakeProvider(blockTimestamp, blockNumber);
+  const fakeSignerWithProvider = fakeSigner(
+    secretKeyBytes,
+    blockNumber,
+    blockTimestamp
+  );
   return {
-    ...provider,
+    ...fakeProvider,
     getSigner: () => fakeSignerWithProvider,
   } as unknown as ethers.providers.Web3Provider;
 };
@@ -497,12 +514,6 @@ export const fakeDkgRitual = (ritual: {
   );
 };
 
-export const mockInitializeRitual = (ritualId: number) => {
-  return jest.spyOn(DkgClient, 'initializeRitual').mockImplementation(() => {
-    return Promise.resolve(ritualId);
-  });
-};
-
 export const mockGetExistingRitual = (dkgRitual: DkgRitual) => {
   return jest.spyOn(DkgClient, 'getExistingRitual').mockImplementation(() => {
     return Promise.resolve(dkgRitual);
@@ -516,10 +527,4 @@ export const makeCohort = async (ursulas: Ursula[]) => {
   const cohort = await Cohort.create(porterUri, numUrsulas);
   expect(getUrsulasSpy).toHaveBeenCalled();
   return cohort;
-};
-
-export const mockGetRitualState = (state = DkgRitualState.FINALIZED) => {
-  return jest
-    .spyOn(DkgCoordinatorAgent, 'getRitualState')
-    .mockImplementation((_provider, _ritualId) => Promise.resolve(state));
 };

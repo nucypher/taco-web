@@ -45,7 +45,8 @@ export class ThresholdDecrypter {
 
   // Retrieve and decrypt ciphertext using provider and condition expression
   public async retrieveAndDecrypt(
-    provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer,
     conditionExpr: ConditionExpression,
     ciphertext: Ciphertext
   ): Promise<Uint8Array> {
@@ -53,6 +54,7 @@ export class ThresholdDecrypter {
 
     const decryptionShares = await this.retrieve(
       provider,
+      signer,
       conditionExpr,
       ciphertext,
       acp
@@ -88,7 +90,8 @@ export class ThresholdDecrypter {
 
   // Retrieve decryption shares
   public async retrieve(
-    provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer,
     conditionExpr: ConditionExpression,
     ciphertext: Ciphertext,
     acp: AccessControlPolicy
@@ -97,7 +100,9 @@ export class ThresholdDecrypter {
       provider,
       this.ritualId
     );
-    const contextStr = await conditionExpr.buildContext(provider).toJson();
+    const contextStr = await conditionExpr
+      .buildContext(provider, signer)
+      .toJson();
     const { sharedSecrets, encryptedRequests } = this.makeDecryptionRequests(
       this.ritualId,
       ciphertext,

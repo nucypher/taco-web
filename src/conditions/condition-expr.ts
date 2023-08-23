@@ -85,9 +85,10 @@ export class ConditionExpression {
   }
 
   public buildContext(
-    provider: ethers.providers.Web3Provider
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer
   ): ConditionContext {
-    return new ConditionContext([this.condition], provider);
+    return new ConditionContext(provider, signer, [this.condition]);
   }
 
   public asAad(): Uint8Array {

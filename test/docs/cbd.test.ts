@@ -11,8 +11,8 @@ import {
 import { Ursula } from '../../src/porter';
 import { toBytes } from '../../src/utils';
 import {
+  fakeProvider,
   fakeUrsulas,
-  fakeWeb3Provider,
   mockDetectEthereumProvider,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
@@ -57,9 +57,7 @@ describe('Get Started (CBD PoC)', () => {
 
     jest
       .spyOn(providers, 'Web3Provider')
-      .mockImplementation(() =>
-        fakeWeb3Provider(SecretKey.random().toBEBytes())
-      );
+      .mockImplementation(() => fakeProvider(SecretKey.random().toBEBytes()));
 
     //
     // Start of the code example
@@ -88,8 +86,9 @@ describe('Get Started (CBD PoC)', () => {
     const MMprovider = await detectEthereumProvider();
     const mumbai = providers.getNetwork(80001);
 
-    const web3Provider = new providers.Web3Provider(MMprovider, mumbai);
-    const newDeployed = await newStrategy.deploy(web3Provider, 'test');
+    const provider = new providers.Web3Provider(MMprovider, mumbai);
+    const signer = provider.getSigner();
+    const newDeployed = await newStrategy.deploy(provider, signer, 'test');
 
     // 5. Encrypt the plaintext & update conditions
     const NFTBalanceConfig = {
@@ -117,8 +116,9 @@ describe('Get Started (CBD PoC)', () => {
 
     // 6. Request decryption rights
     const decryptedMessage = await newDeployed.decrypter.retrieveAndDecrypt(
-      [encryptedMessageKit],
-      web3Provider
+      provider,
+      signer,
+      [encryptedMessageKit]
     );
 
     //

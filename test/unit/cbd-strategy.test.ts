@@ -9,9 +9,10 @@ import {
   fakeDkgFlow,
   fakeDkgParticipants,
   fakeDkgRitual,
+  fakeProvider,
+  fakeSigner,
   fakeTDecFlow,
   fakeUrsulas,
-  fakeWeb3Provider,
   makeCohort,
   mockCbdDecrypt,
   mockGetExistingRitual,
@@ -29,7 +30,8 @@ const {
 
 // Shared test variables
 const aliceSecretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);
-const aliceProvider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
+const aliceSigner = fakeSigner(aliceSecretKey.toBEBytes());
+const aliceProvider = fakeProvider(aliceSecretKey.toBEBytes());
 const ownsNFT = new ERC721Ownership({
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
   parameters: [3591],
@@ -52,7 +54,7 @@ async function makeDeployedCbdStrategy() {
 
   const mockedDkg = fakeDkgFlow(variant, 0, 4, 4);
   const mockedDkgRitual = fakeDkgRitual(mockedDkg);
-  const web3Provider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
+  const web3Provider = fakeProvider(aliceSecretKey.toBEBytes());
   const getUrsulasSpy = mockGetUrsulas(ursulas);
   const getExistingRitualSpy = mockGetExistingRitual(mockedDkgRitual);
   const deployedStrategy = await strategy.deploy(web3Provider, ritualId);
@@ -131,6 +133,7 @@ describe('CbdDeployedStrategy', () => {
     const decryptedMessage =
       await deployedStrategy.decrypter.retrieveAndDecrypt(
         aliceProvider,
+        aliceSigner,
         conditionExpr,
         ciphertext
       );

@@ -1,7 +1,14 @@
-import { ethers } from 'ethers';
 import { utils as ethersUtils } from 'ethers/lib/ethers';
+import { PublicClient, WalletClient } from 'viem';
+import {
+  getBlock,
+  getBlockNumber,
+  requestAddresses,
+  signTypedData,
+} from 'viem/actions';
 
-import { Eip712TypedData, FormattedTypedData } from '../../web3';
+import { toPublicClient } from '../../viem';
+import { Eip712TypedData } from '../../web3';
 
 export interface TypedSignature {
   signature: string;
@@ -17,11 +24,14 @@ interface ChainData {
 
 export class WalletAuthenticationProvider {
   private walletSignature?: Record<string, string>;
+  private readonly publicClient: PublicClient;
 
-  constructor(private readonly web3Provider: ethers.providers.Web3Provider) {}
+  constructor(private readonly walletClient: WalletClient) {
+    this.publicClient = toPublicClient(walletClient);
+  }
 
   public async getOrCreateWalletSignature(): Promise<TypedSignature> {
-    const address = await this.web3Provider.getSigner().getAddress();
+    const address = await this.getAddress();
     const storageKey = `wallet-signature-${address}`;
 
     // If we have a signature in localStorage, return it
@@ -59,68 +69,61 @@ export class WalletAuthenticationProvider {
   private async createWalletSignature(): Promise<TypedSignature> {
     // Ensure freshness of the signature
     const { blockNumber, blockHash, chainId } = await this.getChainData();
-    const address = await this.web3Provider.getSigner().getAddress();
+    const address = await this.getAddress();
     const signatureText = `I'm the owner of address ${address} as of block number ${blockNumber}`;
-    const salt = ethersUtils.hexlify(ethersUtils.randomBytes(32));
+    const salt = ethersUtils.hexlify(
+      ethersUtils.randomBytes(32)
+    ) as `0x${string}`;
+    const [account] = await requestAddresses(this.walletClient);
 
-    const typedData: Eip712TypedData = {
-      types: {
-        Wallet: [
-          { name: 'address', type: 'address' },
-          { name: 'signatureText', type: 'string' },
-          { name: 'blockNumber', type: 'uint256' },
-          { name: 'blockHash', type: 'bytes32' },
-        ],
-      },
-      domain: {
-        name: 'cbd',
-        version: '1',
-        chainId,
-        salt,
-      },
-      message: {
-        address,
-        signatureText,
-        blockNumber,
-        blockHash,
-      },
+    const types = {
+      Wallet: [
+        { name: 'name', type: 'string' },
+        { name: 'version', type: 'string' },
+        { name: 'chainId', type: 'uint256' },
+        { name: 'salt', type: 'bytes32' },
+      ],
     };
-    const signature = await this.web3Provider
-      .getSigner()
-      ._signTypedData(typedData.domain, typedData.types, typedData.message);
-
-    const formattedTypedData: FormattedTypedData = {
-      ...typedData,
+    const domain = {
+      name: 'cbd',
+      version: '1',
+      chainId,
+      salt,
+    };
+    const message = {
+      address,
+      signatureText,
+      blockNumber,
+      blockHash,
+    };
+    const typedData = {
+      account,
+      types,
       primaryType: 'Wallet',
-      types: {
-        ...typedData.types,
-        EIP712Domain: [
-          {
-            name: 'name',
-            type: 'string',
-          },
-          {
-            name: 'version',
-            type: 'string',
-          },
-          {
-            name: 'chainId',
-            type: 'uint256',
-          },
-          {
-            name: 'salt',
-            type: 'bytes32',
-          },
-        ],
-      },
-    };
-    return { signature, typedData: formattedTypedData, address };
+      domain,
+      message,
+    } as const;
+    const signature = await signTypedData(this.walletClient, typedData);
+
+    return { signature, typedData, address };
+  }
+
+  private async getAddress() {
+    const [address] = await requestAddresses(this.publicClient);
+    if (!address) {
+      throw new Error('No address found');
+    }
+    return address;
   }
 
   private async getChainData(): Promise<ChainData> {
-    const blockNumber = await this.web3Provider.getBlockNumber();
-    const blockHash = (await this.web3Provider.getBlock(blockNumber)).hash;
-    const chainId = (await this.web3Provider.getNetwork()).chainId;
+    const blockNumber = Number(await getBlockNumber(this.publicClient));
+    const blockHash = (await getBlock(this.publicClient)).hash;
+    const chainId = this.publicClient.chain?.id;
+    if (!chainId) {
+      // TODO: Improve, somehow
+      throw new Error('Chain ID is not set');
+    }
     return { blockNumber, blockHash, chainId };
   }
 }

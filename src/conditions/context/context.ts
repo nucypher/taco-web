@@ -1,5 +1,5 @@
 import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
-import { ethers } from 'ethers';
+import { WalletClient } from 'viem';
 
 import { fromJSON, toJSON } from '../../utils';
 import { Condition } from '../base';
@@ -20,7 +20,7 @@ export class ConditionContext {
     private readonly conditions: ReadonlyArray<Condition>,
     // TODO: We don't always need a web3 provider, only in cases where some specific context parameters are used
     // TODO: Consider making this optional or introducing a different pattern to handle that
-    private readonly web3Provider: ethers.providers.Web3Provider,
+    private readonly walletClient: WalletClient,
     public readonly customParameters: Record<string, CustomContextParam> = {}
   ) {
     Object.keys(customParameters).forEach((key) => {
@@ -35,7 +35,7 @@ export class ConditionContext {
         );
       }
     });
-    this.walletAuthProvider = new WalletAuthenticationProvider(web3Provider);
+    this.walletAuthProvider = new WalletAuthenticationProvider(walletClient);
   }
 
   public toObj = async (): Promise<Record<string, ContextParam>> => {
@@ -103,6 +103,6 @@ export class ConditionContext {
   public withCustomParams = (
     params: Record<string, CustomContextParam>
   ): ConditionContext => {
-    return new ConditionContext(this.conditions, this.web3Provider, params);
+    return new ConditionContext(this.conditions, this.walletClient, params);
   };
 }

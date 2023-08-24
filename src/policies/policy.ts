@@ -6,13 +6,14 @@ import {
   TreasureMap,
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
-import { ethers } from 'ethers';
+import { WalletClient } from 'viem';
 
 import { PreSubscriptionManagerAgent } from '../agents/subscription-manager';
 import { Alice } from '../characters/alice';
 import { RemoteBob } from '../characters/bob';
 import { Ursula } from '../porter';
 import { toBytes, toEpoch, zip } from '../utils';
+import { toPublicClient } from '../viem';
 import { toCanonicalAddress } from '../web3';
 
 export type EnactedPolicy = {
@@ -41,30 +42,30 @@ export class PreEnactedPolicy implements IPreEnactedPolicy {
     public readonly endTimestamp: Date
   ) {}
 
-  public async enact(
-    web3Provider: ethers.providers.Web3Provider
-  ): Promise<EnactedPolicy> {
-    const txHash = await this.publish(web3Provider);
+  public async enact(walletClient: WalletClient): Promise<EnactedPolicy> {
+    const txHash = await this.publish(walletClient);
     return {
       ...this,
       txHash,
     };
   }
 
-  private async publish(
-    web3Provider: ethers.providers.Web3Provider
-  ): Promise<string> {
+  private async publish(walletClient: WalletClient): Promise<string> {
     const startTimestamp = toEpoch(this.startTimestamp);
     const endTimestamp = toEpoch(this.endTimestamp);
-    const ownerAddress = await web3Provider.getSigner().getAddress();
+    const ownerAddress = await walletClient.account?.address;
+    if (!ownerAddress) {
+      throw new Error('No account set');
+    }
+    const publicClient = toPublicClient(walletClient);
     const value = await PreSubscriptionManagerAgent.getPolicyCost(
-      web3Provider,
+      publicClient,
       this.size,
       startTimestamp,
       endTimestamp
     );
     const tx = await PreSubscriptionManagerAgent.createPolicy(
-      web3Provider,
+      walletClient,
       value,
       this.id.toBytes(),
       this.size,
@@ -107,11 +108,11 @@ export class BlockchainPolicy {
   }
 
   public async enact(
-    web3Provider: ethers.providers.Web3Provider,
+    walletClient: WalletClient,
     ursulas: readonly Ursula[]
   ): Promise<EnactedPolicy> {
     const preEnacted = await this.generatePreEnactedPolicy(ursulas);
-    return await preEnacted.enact(web3Provider);
+    return await preEnacted.enact(walletClient);
   }
 
   public async generatePreEnactedPolicy(

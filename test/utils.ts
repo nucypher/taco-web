@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Block } from '@ethersproject/providers';
 import {
   AggregatedTranscript,
   Capsule,
@@ -33,8 +32,9 @@ import {
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
 import axios from 'axios';
-import { ethers, providers, Wallet } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
+import { createWalletClient, http, parseGwei } from 'viem';
+import { polygonMumbai } from 'viem/chains';
 
 import { Alice, Bob, Cohort, RemoteBob } from '../src';
 import {
@@ -54,6 +54,7 @@ import {
 } from '../src/porter';
 import { ChecksumAddress } from '../src/types';
 import { toBytes, toHexString, zip } from '../src/utils';
+import { toPublicClient } from '../src/viem';
 
 export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
   first.length === second.length &&
@@ -81,30 +82,63 @@ export const fakeAlice = (aliceKey = 'fake-secret-key-32-bytes-alice-x') => {
   return Alice.fromSecretKey(secretKey);
 };
 
-export const fakeWeb3Provider = (
-  secretKeyBytes = SecretKey.random().toBEBytes(),
-  blockNumber?: number,
-  blockTimestamp?: number
-): ethers.providers.Web3Provider => {
-  const block = { timestamp: blockTimestamp ?? 1000 };
-  const provider = {
-    getBlockNumber: () => Promise.resolve(blockNumber ?? 1000),
-    getBlock: () => Promise.resolve(block as Block),
-    _isProvider: true,
-    getNetwork: () => Promise.resolve({ name: 'mockNetwork', chainId: -1 }),
-  };
-  const fakeSignerWithProvider = {
-    ...new Wallet(secretKeyBytes),
-    provider,
-    _signTypedData: () => Promise.resolve('fake-typed-signature'),
-    getAddress: () =>
-      Promise.resolve('0x0000000000000000000000000000000000000000'),
-  } as unknown as ethers.providers.JsonRpcSigner;
-  return {
-    ...provider,
-    getSigner: () => fakeSignerWithProvider,
-  } as unknown as ethers.providers.Web3Provider;
+export const mockViemActions = {
+  ...jest.requireActual('viem/actions'), // This will keep the actual implementations of other functions in 'viem/actions'
+  getBlock: jest.fn().mockResolvedValue({
+    timestamp: 1000,
+  }),
+  getBlockNumber: jest.fn().mockResolvedValue(BigInt(1000)),
 };
+
+export const mockViem = async (
+  // secretKeyBytes = SecretKey.random().toBEBytes(),
+  blockNumber = 1000
+  // blockTimestamp = 1000
+) => {
+  // const block: GetBlockReturnType = {
+  //   timestamp: blockTimestamp,
+  //   transactions: [],
+  // };
+
+  return jest.mock('viem', async () => {
+    const _viem = await import('viem');
+    return jest.fn().mockImplementation(() => {
+      return {
+        createPublicClient: (...args: [any]) => {
+          const client = _viem.createPublicClient(...args);
+          client.getGasPrice = async () => parseGwei('0.00000042');
+          client.getBlockNumber = async () => BigInt(blockNumber ?? 1000);
+          // client.getBlock = async () => block;
+          return client;
+        },
+      };
+    });
+  });
+  // const provider = {
+  //   getBlockNumber: () => Promise.resolve(blockNumber ?? 1000),
+  //   getBlock: () => Promise.resolve(block as Block),
+  //   _isProvider: true,
+  //   getNetwork: () => Promise.resolve({ name: 'mockNetwork', chainId: -1 }),
+  // };
+  // const fakeSignerWithProvider = {
+  //   ...new Wallet(secretKeyBytes),
+  //   provider,
+  //   _signTypedData: () => Promise.resolve('fake-typed-signature'),
+  //   getAddress: () =>
+  //     Promise.resolve('0x0000000000000000000000000000000000000000'),
+  // } as unknown as ethers.providers.JsonRpcSigner;
+  // return {
+  //   ...provider,
+  //   getSigner: () => fakeSignerWithProvider,
+  // } as unknown as ethers.providers.Web3Provider;
+};
+
+export const testWalletClient = createWalletClient({
+  chain: polygonMumbai,
+  transport: http(),
+});
+
+export const testPublicClient = toPublicClient(testWalletClient);
 
 const genChecksumAddress = (i: number) =>
   '0x' + '0'.repeat(40 - i.toString(16).length) + i.toString(16);
@@ -206,12 +240,6 @@ export const reencryptKFrags = (
 
 export const mockMakeTreasureMap = () => {
   return jest.spyOn(BlockchainPolicy.prototype as any, 'makeTreasureMap');
-};
-
-export const mockDetectEthereumProvider = () => {
-  return jest.fn(async () => {
-    return {} as unknown as providers.ExternalProvider;
-  });
 };
 
 export const fakeDkgFlow = (
@@ -496,12 +524,6 @@ export const fakeDkgRitual = (ritual: {
   );
 };
 
-export const mockInitializeRitual = (ritualId: number) => {
-  return jest.spyOn(DkgClient, 'initializeRitual').mockImplementation(() => {
-    return Promise.resolve(ritualId);
-  });
-};
-
 export const mockGetExistingRitual = (dkgRitual: DkgRitual) => {
   return jest.spyOn(DkgClient, 'getExistingRitual').mockImplementation(() => {
     return Promise.resolve(dkgRitual);
@@ -515,10 +537,4 @@ export const makeCohort = async (ursulas: Ursula[]) => {
   const cohort = await Cohort.create(porterUri, numUrsulas);
   expect(getUrsulasSpy).toHaveBeenCalled();
   return cohort;
-};
-
-export const mockGetRitualState = (state = DkgRitualState.FINALIZED) => {
-  return jest
-    .spyOn(DkgCoordinatorAgent, 'getRitualState')
-    .mockImplementation((_provider, _ritualId) => Promise.resolve(state));
 };

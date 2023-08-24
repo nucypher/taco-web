@@ -26,7 +26,6 @@ export interface Eip712TypedData {
 }
 
 export interface FormattedTypedData extends Eip712TypedData {
-  primaryType: 'Wallet';
   types: {
     EIP712Domain: { name: string; type: string }[];
     Wallet: { name: string; type: string }[];

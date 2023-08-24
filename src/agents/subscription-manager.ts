@@ -1,21 +1,15 @@
-import {
-  BigNumber,
-  ContractTransaction,
-  ethers,
-  utils as ethersUtils,
-} from 'ethers';
+import { BigNumber, ContractTransaction, utils as ethersUtils } from 'ethers';
+import { PublicClient, WalletClient } from 'viem';
 
-import {
-  SubscriptionManager,
-  SubscriptionManager__factory,
-} from '../../types/ethers-contracts';
+import { SubscriptionManager__factory } from '../../types/ethers-contracts';
 import { ChecksumAddress } from '../types';
+import { publicClientToProvider, walletClientToSigner } from '../viem';
 
-import { DEFAULT_WAIT_N_CONFIRMATIONS, getContract } from './contracts';
+import { DEFAULT_WAIT_N_CONFIRMATIONS, getContractOrFail } from './contracts';
 
 export class PreSubscriptionManagerAgent {
   public static async createPolicy(
-    web3Provider: ethers.providers.Web3Provider,
+    walletClient: WalletClient,
     valueInWei: BigNumber,
     policyId: Uint8Array,
     size: number,
@@ -23,7 +17,7 @@ export class PreSubscriptionManagerAgent {
     endTimestamp: number,
     ownerAddress: ChecksumAddress
   ): Promise<ContractTransaction> {
-    const SubscriptionManager = await this.connectReadWrite(web3Provider);
+    const SubscriptionManager = await this.connectReadWrite(walletClient);
     const overrides = {
       value: valueInWei.toString(),
     };
@@ -48,12 +42,12 @@ export class PreSubscriptionManagerAgent {
   }
 
   public static async getPolicyCost(
-    provider: ethers.providers.Provider,
+    publicClient: PublicClient,
     size: number,
     startTimestamp: number,
     endTimestamp: number
   ): Promise<BigNumber> {
-    const SubscriptionManager = await this.connectReadOnly(provider);
+    const SubscriptionManager = await this.connectReadOnly(publicClient);
     return await SubscriptionManager.getPolicyCost(
       size,
       startTimestamp,
@@ -61,28 +55,25 @@ export class PreSubscriptionManagerAgent {
     );
   }
 
-  private static async connectReadOnly(provider: ethers.providers.Provider) {
-    return await this.connect(provider);
-  }
-
-  private static async connectReadWrite(
-    web3Provider: ethers.providers.Web3Provider
-  ) {
-    return await this.connect(web3Provider, web3Provider.getSigner());
-  }
-
-  private static async connect(
-    provider: ethers.providers.Provider,
-    signer?: ethers.providers.JsonRpcSigner
-  ): Promise<SubscriptionManager> {
-    const network = await provider.getNetwork();
-    const contractAddress = getContract(
-      network.chainId,
-      'SUBSCRIPTION_MANAGER'
+  private static async connectReadOnly(publicClient: PublicClient) {
+    const contractAddress = getContractOrFail(
+      'COORDINATOR',
+      publicClient.chain?.id
     );
     return SubscriptionManager__factory.connect(
       contractAddress,
-      signer ?? provider
+      publicClientToProvider(publicClient)
+    );
+  }
+
+  private static async connectReadWrite(walletClient: WalletClient) {
+    const contractAddress = getContractOrFail(
+      'COORDINATOR',
+      walletClient.chain?.id
+    );
+    return SubscriptionManager__factory.connect(
+      contractAddress,
+      walletClientToSigner(walletClient)
     );
   }
 }

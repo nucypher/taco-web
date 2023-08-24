@@ -1,11 +1,9 @@
-import { SecretKey } from '@nucypher/nucypher-core';
-
 import { CustomContextParam } from '../../../src';
 import { ConditionExpression } from '../../../src/conditions';
 import { ContractCondition, RpcCondition } from '../../../src/conditions/base';
 import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
 import { RESERVED_CONTEXT_PARAMS } from '../../../src/conditions/context/context';
-import { fakeWeb3Provider } from '../../utils';
+import { testWalletClient } from '../../utils';
 import {
   testContractConditionObj,
   testFunctionAbi,
@@ -13,7 +11,19 @@ import {
   testRpcConditionObj,
 } from '../testVariables';
 
-const web3Provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
+jest.mock('viem/actions', () => ({
+  ...jest.requireActual('viem/actions'),
+  getBlock: jest.fn().mockResolvedValue({
+    timestamp: 1000,
+  }),
+  getBlockNumber: jest.fn().mockResolvedValue(BigInt(1000)),
+  requestAddresses: jest
+    .fn()
+    .mockResolvedValue(['0x1234567890123456789012345678901234567890']),
+  signTypedData: jest
+    .fn()
+    .mockResolvedValue('0x1234567890123456789012345678901234567890'),
+}));
 
 describe('serialization', () => {
   it('serializes to json', async () => {
@@ -27,7 +37,7 @@ describe('serialization', () => {
       },
     });
     const conditionContext = new ConditionExpression(rpcCondition).buildContext(
-      web3Provider
+      testWalletClient
     );
     const asJson = await conditionContext.toJson();
     expect(asJson).toBeDefined();
@@ -49,7 +59,7 @@ describe('context parameters', () => {
   };
   const contractCondition = new ContractCondition(contractConditionObj);
   const conditionExpr = new ConditionExpression(contractCondition);
-  const conditionContext = conditionExpr.buildContext(web3Provider);
+  const conditionContext = conditionExpr.buildContext(testWalletClient);
 
   describe('return value test', () => {
     it('accepts on a custom context parameters', async () => {
@@ -96,7 +106,7 @@ describe('context parameters', () => {
       });
       const conditionContext = new ConditionExpression(
         customContractCondition
-      ).buildContext(web3Provider);
+      ).buildContext(testWalletClient);
 
       await expect(async () => conditionContext.toObj()).rejects.toThrow(
         `Missing custom context parameter(s): ${customParamKey}`
@@ -110,7 +120,7 @@ describe('context parameters', () => {
       });
       const conditionContext = new ConditionExpression(
         customContractCondition
-      ).buildContext(web3Provider);
+      ).buildContext(testWalletClient);
 
       const asObj = await conditionContext.toObj();
       expect(asObj).toBeDefined();

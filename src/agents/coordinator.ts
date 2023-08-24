@@ -1,15 +1,13 @@
 import { SessionStaticKey } from '@nucypher/nucypher-core';
-import { ethers } from 'ethers';
+import { PublicClient, WalletClient } from 'viem';
 
-import {
-  Coordinator,
-  Coordinator__factory,
-} from '../../types/ethers-contracts';
+import { Coordinator__factory } from '../../types/ethers-contracts';
 import { BLS12381 } from '../../types/ethers-contracts/Coordinator';
 import { ChecksumAddress } from '../types';
 import { fromHexString } from '../utils';
+import { publicClientToProvider, walletClientToSigner } from '../viem';
 
-import { DEFAULT_WAIT_N_CONFIRMATIONS, getContract } from './contracts';
+import { DEFAULT_WAIT_N_CONFIRMATIONS, getContractOrFail } from './contracts';
 
 export interface CoordinatorRitual {
   initiator: string;
@@ -39,10 +37,10 @@ export enum DkgRitualState {
 
 export class DkgCoordinatorAgent {
   public static async getParticipants(
-    provider: ethers.providers.Provider,
+    publicClient: PublicClient,
     ritualId: number
   ): Promise<DkgParticipant[]> {
-    const Coordinator = await this.connectReadOnly(provider);
+    const Coordinator = await this.connectReadOnly(publicClient);
     const participants = await Coordinator.getParticipants(ritualId);
 
     return participants.map((participant) => {
@@ -57,10 +55,10 @@ export class DkgCoordinatorAgent {
   }
 
   public static async initializeRitual(
-    provider: ethers.providers.Web3Provider,
+    walletClient: WalletClient,
     providers: ChecksumAddress[]
   ): Promise<number> {
-    const Coordinator = await this.connectReadWrite(provider);
+    const Coordinator = await this.connectReadWrite(walletClient);
     const tx = await Coordinator.initiateRitual(providers);
     const txReceipt = await tx.wait(DEFAULT_WAIT_N_CONFIRMATIONS);
     const [ritualStartEvent] = txReceipt.events ?? [];
@@ -71,23 +69,23 @@ export class DkgCoordinatorAgent {
   }
 
   public static async getRitual(
-    provider: ethers.providers.Provider,
+    publicClient: PublicClient,
     ritualId: number
   ): Promise<CoordinatorRitual> {
-    const Coordinator = await this.connectReadOnly(provider);
+    const Coordinator = await this.connectReadOnly(publicClient);
     return Coordinator.rituals(ritualId);
   }
 
   public static async getRitualState(
-    provider: ethers.providers.Web3Provider,
+    publicClient: PublicClient,
     ritualId: number
   ): Promise<DkgRitualState> {
-    const Coordinator = await this.connectReadOnly(provider);
+    const Coordinator = await this.connectReadOnly(publicClient);
     return await Coordinator.getRitualState(ritualId);
   }
 
   public static async onRitualEndEvent(
-    provider: ethers.providers.Web3Provider,
+    provider: PublicClient,
     ritualId: number,
     callback: (successful: boolean) => void
   ): Promise<void> {
@@ -104,22 +102,25 @@ export class DkgCoordinatorAgent {
     });
   }
 
-  private static async connectReadOnly(provider: ethers.providers.Provider) {
-    return await this.connect(provider);
+  private static async connectReadOnly(publicClient: PublicClient) {
+    const contractAddress = getContractOrFail(
+      'COORDINATOR',
+      publicClient.chain?.id
+    );
+    return Coordinator__factory.connect(
+      contractAddress,
+      publicClientToProvider(publicClient)
+    );
   }
 
-  private static async connectReadWrite(
-    web3Provider: ethers.providers.Web3Provider
-  ) {
-    return await this.connect(web3Provider, web3Provider.getSigner());
-  }
-
-  private static async connect(
-    provider: ethers.providers.Provider,
-    signer?: ethers.providers.JsonRpcSigner
-  ): Promise<Coordinator> {
-    const network = await provider.getNetwork();
-    const contractAddress = getContract(network.chainId, 'COORDINATOR');
-    return Coordinator__factory.connect(contractAddress, signer ?? provider);
+  private static async connectReadWrite(walletClient: WalletClient) {
+    const contractAddress = getContractOrFail(
+      'COORDINATOR',
+      walletClient.chain?.id
+    );
+    return Coordinator__factory.connect(
+      contractAddress,
+      walletClientToSigner(walletClient)
+    );
   }
 }

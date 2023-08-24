@@ -4,7 +4,8 @@ import {
   Signer,
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
-import { ethers } from 'ethers';
+import { PublicClient, WalletClient } from 'viem';
+import { getBlock, getBlockNumber } from 'viem/actions';
 
 import { Keyring } from '../keyring';
 import {
@@ -15,6 +16,7 @@ import {
 } from '../policies/policy';
 import { PorterClient } from '../porter';
 import { ChecksumAddress } from '../types';
+import { toPublicClient } from '../viem';
 
 import { RemoteBob } from './bob';
 
@@ -42,7 +44,7 @@ export class Alice {
   }
 
   public async grant(
-    web3Provider: ethers.providers.Web3Provider,
+    walletClient: WalletClient,
     porterUri: string,
     policyParameters: BlockchainPolicyParameters,
     includeUrsulas?: readonly ChecksumAddress[],
@@ -54,12 +56,12 @@ export class Alice {
       excludeUrsulas,
       includeUrsulas
     );
-    const policy = await this.createPolicy(web3Provider, policyParameters);
-    return await policy.enact(web3Provider, ursulas);
+    const policy = await this.createPolicy(walletClient, policyParameters);
+    return await policy.enact(walletClient, ursulas);
   }
 
   public async generatePreEnactedPolicy(
-    web3Provider: ethers.providers.Web3Provider,
+    walletClient: WalletClient,
     porterUri: string,
     policyParameters: BlockchainPolicyParameters,
     includeUrsulas?: readonly ChecksumAddress[],
@@ -71,7 +73,7 @@ export class Alice {
       excludeUrsulas,
       includeUrsulas
     );
-    const policy = await this.createPolicy(web3Provider, policyParameters);
+    const policy = await this.createPolicy(walletClient, policyParameters);
     return await policy.generatePreEnactedPolicy(ursulas);
   }
 
@@ -94,11 +96,12 @@ export class Alice {
   }
 
   private async createPolicy(
-    web3Provider: ethers.providers.Web3Provider,
+    walletClient: WalletClient,
     rawParameters: BlockchainPolicyParameters
   ): Promise<BlockchainPolicy> {
+    const publicClient = toPublicClient(walletClient);
     const { bob, label, threshold, shares, startDate, endDate } =
-      await this.validatePolicyParameters(web3Provider, rawParameters);
+      await this.validatePolicyParameters(publicClient, rawParameters);
     const { delegatingKey, verifiedKFrags } = this.generateKFrags(
       bob,
       label,
@@ -119,7 +122,7 @@ export class Alice {
   }
 
   private async validatePolicyParameters(
-    web3Provider: ethers.providers.Web3Provider,
+    publicClient: PublicClient,
     rawParams: BlockchainPolicyParameters
   ): Promise<BlockchainPolicyParameters> {
     const startDate = rawParams.startDate ?? new Date();
@@ -141,9 +144,9 @@ export class Alice {
       );
     }
 
-    const blockNumber = await web3Provider.getBlockNumber();
-    const block = await web3Provider.getBlock(blockNumber);
-    const blockTime = new Date(block.timestamp * 1000);
+    const blockNumber = await getBlockNumber(publicClient);
+    const block = await getBlock(publicClient, { blockNumber });
+    const blockTime = new Date(Number(block.timestamp) * 1000);
     if (endDate < blockTime) {
       throw new Error(
         `End date must be in the future, ${endDate} is earlier than block time ${blockTime}).`

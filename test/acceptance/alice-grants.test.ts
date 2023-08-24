@@ -16,7 +16,6 @@ import {
   fakePorterUri,
   fakeRemoteBob,
   fakeUrsulas,
-  fakeWeb3Provider,
   fromBytes,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
@@ -25,7 +24,25 @@ import {
   mockPublishToBlockchain,
   mockRetrieveCFragsRequest,
   reencryptKFrags,
+  testWalletClient,
 } from '../utils';
+
+// jest.mock('viem', () => ({
+//   ...jest.requireActual('viem'), // This will keep the actual implementations of other functions in 'viem'
+//   createPublicClient: jest.fn(() => ({
+//     getGasPrice: jest.fn().mockResolvedValue('0.00000042'),
+//     getBlockNumber: jest.fn().mockResolvedValue(BigInt(1000)),
+//     request: jest.fn().mockResolvedValue(''),
+//   })),
+// }));
+
+jest.mock('viem/actions', () => ({
+  ...jest.requireActual('viem/actions'),
+  getBlock: jest.fn().mockResolvedValue({
+    timestamp: 1000,
+  }),
+  getBlockNumber: jest.fn().mockResolvedValue(BigInt(1000)),
+}));
 
 describe('story: alice shares message with bob through policy', () => {
   const message = 'secret-message-from-alice';
@@ -34,7 +51,6 @@ describe('story: alice shares message with bob through policy', () => {
   const startDate = new Date();
   const endDate = new Date(Date.now() + 60 * 1000);
   const mockedUrsulas = fakeUrsulas(shares);
-  const web3Provider = fakeWeb3Provider();
 
   // Intermediate variables used for mocking
   let encryptedTreasureMap: EncryptedTreasureMap;
@@ -65,7 +81,7 @@ describe('story: alice shares message with bob through policy', () => {
       startDate,
       endDate,
     };
-    policy = await alice.grant(web3Provider, fakePorterUri, policyParams);
+    policy = await alice.grant(testWalletClient, fakePorterUri, policyParams);
 
     expect(
       bytesEqual(

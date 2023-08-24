@@ -1,12 +1,10 @@
-import { SecretKey } from '@nucypher/nucypher-core';
-
 import { DkgCoordinatorAgent } from '../../src/agents/coordinator';
 import {
   fakeCoordinatorRitual,
   fakeDkgParticipants,
   fakeRitualId,
-  fakeWeb3Provider,
   mockGetParticipants,
+  testPublicClient,
 } from '../utils';
 
 jest.mock('../../src/agents/coordinator', () => ({
@@ -22,19 +20,20 @@ describe('DkgCoordinatorAgent', () => {
   });
 
   it('fetches transcripts from the coordinator', async () => {
-    const provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
-    const ritual = await DkgCoordinatorAgent.getRitual(provider, fakeRitualId);
+    const ritual = await DkgCoordinatorAgent.getRitual(
+      testPublicClient,
+      fakeRitualId
+    );
     expect(ritual).toBeDefined();
   });
 
   it('fetches participants from the coordinator', async () => {
-    const provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
     const fakeParticipants = fakeDkgParticipants(fakeRitualId);
     const getParticipantsSpy = mockGetParticipants(
       fakeParticipants.participants
     );
     const participants = await DkgCoordinatorAgent.getParticipants(
-      provider,
+      testPublicClient,
       fakeRitualId
     );
     expect(getParticipantsSpy).toHaveBeenCalled();

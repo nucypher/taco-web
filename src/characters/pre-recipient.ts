@@ -6,7 +6,7 @@ import {
   SecretKey,
   Signer,
 } from '@nucypher/nucypher-core';
-import { ethers } from 'ethers';
+import { WalletClient } from 'viem';
 
 import { ConditionContext, ConditionExpression } from '../conditions';
 import { Keyring } from '../keyring';
@@ -64,9 +64,9 @@ export class PreDecrypter {
 
   public async retrieveAndDecrypt(
     messageKits: readonly MessageKit[],
-    provider: ethers.providers.Web3Provider
+    walletClient: WalletClient
   ): Promise<readonly Uint8Array[]> {
-    const policyMessageKits = await this.retrieve(messageKits, provider);
+    const policyMessageKits = await this.retrieve(messageKits, walletClient);
 
     policyMessageKits.forEach((mk: PolicyMessageKit) => {
       if (!mk.isDecryptableByReceiver()) {
@@ -91,7 +91,7 @@ export class PreDecrypter {
 
   public async retrieve(
     messageKits: readonly MessageKit[],
-    provider: ethers.providers.Web3Provider
+    walletClient: WalletClient
   ): Promise<readonly PolicyMessageKit[]> {
     const treasureMap = this.encryptedTreasureMap.decrypt(
       this.keyring.secretKey,
@@ -106,7 +106,7 @@ export class PreDecrypter {
       .reduce((acc: ConditionExpression[], val) => acc.concat(val), [])
       .map((condExpr: ConditionExpression) => condExpr.condition);
 
-    const conditionContext = new ConditionContext(conditions, provider);
+    const conditionContext = new ConditionContext(conditions, walletClient);
 
     const policyMessageKits = messageKits.map((mk) =>
       PolicyMessageKit.fromMessageKit(

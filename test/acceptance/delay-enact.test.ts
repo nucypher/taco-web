@@ -4,12 +4,20 @@ import {
   fakePorterUri,
   fakeRemoteBob,
   fakeUrsulas,
-  fakeWeb3Provider,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
   mockGetUrsulas,
   mockPublishToBlockchain,
+  testWalletClient,
 } from '../utils';
+
+jest.mock('viem/actions', () => ({
+  ...jest.requireActual('viem/actions'),
+  getBlock: jest.fn().mockResolvedValue({
+    timestamp: 1000,
+  }),
+  getBlockNumber: jest.fn().mockResolvedValue(BigInt(1000)),
+}));
 
 describe('story: alice creates a policy but someone else enacts it', () => {
   const threshold = 2;
@@ -18,7 +26,6 @@ describe('story: alice creates a policy but someone else enacts it', () => {
   const endDate = new Date(Date.now() + 60 * 1000); // 60s later
   const mockedUrsulas = fakeUrsulas(shares);
   const label = 'fake-data-label';
-  const web3Provider = fakeWeb3Provider();
 
   it('alice generates a new policy', async () => {
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
@@ -38,7 +45,7 @@ describe('story: alice creates a policy but someone else enacts it', () => {
     };
 
     const preEnactedPolicy = await alice.generatePreEnactedPolicy(
-      web3Provider,
+      testWalletClient,
       fakePorterUri,
       policyParams
     );
@@ -50,7 +57,7 @@ describe('story: alice creates a policy but someone else enacts it', () => {
     ).toBeTruthy();
     expect(preEnactedPolicy.label).toBe(label);
 
-    const enacted = await preEnactedPolicy.enact(web3Provider);
+    const enacted = await preEnactedPolicy.enact(testWalletClient);
     expect(enacted.txHash).toBeDefined();
 
     expect(getUrsulasSpy).toHaveBeenCalled();

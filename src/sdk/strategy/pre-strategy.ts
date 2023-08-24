@@ -1,5 +1,5 @@
 import { PublicKey, SecretKey } from '@nucypher/nucypher-core';
-import { ethers } from 'ethers';
+import { WalletClient } from 'viem';
 
 import { Alice } from '../../characters/alice';
 import { Bob } from '../../characters/bob';
@@ -62,7 +62,7 @@ export class PreStrategy {
   }
 
   public async deploy(
-    web3Provider: ethers.providers.Web3Provider,
+    walletClient: WalletClient,
     label: string,
     threshold = Math.floor(this.cohort.numUrsulas / 2) + 1,
     shares = this.cohort.numUrsulas
@@ -85,7 +85,7 @@ export class PreStrategy {
       endDate: this.endDate,
     };
     const policy = await alice.grant(
-      web3Provider,
+      walletClient,
       porterUri,
       policyParams,
       this.cohort.ursulaAddresses

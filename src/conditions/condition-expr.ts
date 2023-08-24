@@ -1,6 +1,6 @@
 import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
-import { ethers } from 'ethers';
 import { SemVer } from 'semver';
+import { WalletClient } from 'viem';
 
 import { objectEquals, toBytes, toJSON } from '../utils';
 
@@ -84,10 +84,8 @@ export class ConditionExpression {
     return new WASMConditions(toJSON(this.toObj()));
   }
 
-  public buildContext(
-    provider: ethers.providers.Web3Provider
-  ): ConditionContext {
-    return new ConditionContext([this.condition], provider);
+  public buildContext(walletClient: WalletClient): ConditionContext {
+    return new ConditionContext([this.condition], walletClient);
   }
 
   public asAad(): Uint8Array {

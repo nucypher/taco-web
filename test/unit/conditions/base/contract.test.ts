@@ -1,13 +1,25 @@
-import { SecretKey } from '@nucypher/nucypher-core';
-
 import {
   ConditionExpression,
   CustomContextParam,
 } from '../../../../src/conditions';
 import { ContractCondition } from '../../../../src/conditions/base';
 import { USER_ADDRESS_PARAM } from '../../../../src/conditions/const';
-import { fakeWeb3Provider } from '../../../utils';
+import { testWalletClient } from '../../../utils';
 import { testContractConditionObj, testFunctionAbi } from '../../testVariables';
+
+jest.mock('viem/actions', () => ({
+  ...jest.requireActual('viem/actions'),
+  getBlock: jest.fn().mockResolvedValue({
+    timestamp: 1000,
+  }),
+  getBlockNumber: jest.fn().mockResolvedValue(BigInt(1000)),
+  requestAddresses: jest
+    .fn()
+    .mockResolvedValue(['0x1234567890123456789012345678901234567890']),
+  signTypedData: jest
+    .fn()
+    .mockResolvedValue('0x1234567890123456789012345678901234567890'),
+}));
 
 describe('validation', () => {
   it('accepts on a valid schema', () => {
@@ -116,9 +128,8 @@ describe('supports custom function abi', () => {
     },
   };
   const contractCondition = new ContractCondition(contractConditionObj);
-  const web3Provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
   const conditionExpr = new ConditionExpression(contractCondition);
-  const conditionContext = conditionExpr.buildContext(web3Provider);
+  const conditionContext = conditionExpr.buildContext(testWalletClient);
   const myCustomParam = ':customParam';
   const customParams: Record<string, CustomContextParam> = {};
   customParams[myCustomParam] = 1234;

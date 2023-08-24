@@ -10,7 +10,6 @@ import { Ursula } from '../../src/porter';
 import { toBytes } from '../../src/utils';
 import {
   fakeUrsulas,
-  fakeWeb3Provider,
   makeCohort,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
@@ -18,6 +17,7 @@ import {
   mockMakeTreasureMap,
   mockPublishToBlockchain,
   mockRetrieveCFragsRequest,
+  testWalletClient,
 } from '../utils';
 
 import { aliceSecretKeyBytes, bobSecretKeyBytes } from './testVariables';
@@ -30,8 +30,6 @@ const {
 // Shared test variables
 const aliceSecretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);
 const bobSecretKey = SecretKey.fromBEBytes(bobSecretKeyBytes);
-const aliceProvider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
-const bobProvider = fakeWeb3Provider(bobSecretKey.toBEBytes());
 const ownsNFT = new ERC721Ownership({
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
   parameters: [3591],
@@ -54,7 +52,7 @@ const makeDeployedPreStrategy = async () => {
   const makeTreasureMapSpy = mockMakeTreasureMap();
   const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
-  const deployedStrategy = await strategy.deploy(aliceProvider, 'test');
+  const deployedStrategy = await strategy.deploy(testWalletClient, 'test');
 
   expect(generateKFragsSpy).toHaveBeenCalled();
   expect(publishToBlockchainSpy).toHaveBeenCalled();
@@ -71,6 +69,19 @@ const makeDeployedPreStrategy = async () => {
 
   return { deployedStrategy, ursulaAddresses, verifiedKFrags };
 };
+jest.mock('viem/actions', () => ({
+  ...jest.requireActual('viem/actions'),
+  getBlock: jest.fn().mockResolvedValue({
+    timestamp: 1000,
+  }),
+  getBlockNumber: jest.fn().mockResolvedValue(BigInt(1000)),
+  requestAddresses: jest
+    .fn()
+    .mockResolvedValue(['0x1234567890123456789012345678901234567890']),
+  signTypedData: jest
+    .fn()
+    .mockResolvedValue('0x1234567890123456789012345678901234567890'),
+}));
 
 describe('PreStrategy', () => {
   afterEach(() => {
@@ -127,7 +138,7 @@ describe('PreDeployedStrategy', () => {
     const decryptedMessage =
       await deployedStrategy.decrypter.retrieveAndDecrypt(
         [encryptedMessageKit],
-        bobProvider
+        testWalletClient
       );
     expect(getUrsulasSpy).toHaveBeenCalled();
     expect(retrieveCFragsSpy).toHaveBeenCalled();

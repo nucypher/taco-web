@@ -1,26 +1,27 @@
-import { SecretKey, SessionStaticSecret } from '@nucypher/nucypher-core';
+import { SessionStaticSecret } from '@nucypher/nucypher-core';
+import { createWalletClient, http } from 'viem';
+import { polygonMumbai } from 'viem/chains';
 
 import { conditions } from '../../src';
 import { FerveoVariant } from '../../src';
 import { CbdStrategy, DeployedCbdStrategy } from '../../src';
 import { ThresholdDecrypter } from '../../src/characters/cbd-recipient';
 import { toBytes } from '../../src/utils';
+import { toPublicClient } from '../../src/viem';
 import {
   fakeDkgFlow,
   fakeDkgParticipants,
   fakeDkgRitual,
   fakeTDecFlow,
   fakeUrsulas,
-  fakeWeb3Provider,
   makeCohort,
   mockCbdDecrypt,
   mockGetExistingRitual,
   mockGetParticipants,
   mockGetUrsulas,
   mockRandomSessionStaticSecret,
+  testWalletClient,
 } from '../utils';
-
-import { aliceSecretKeyBytes } from './testVariables';
 
 const {
   predefined: { ERC721Ownership },
@@ -28,8 +29,6 @@ const {
 } = conditions;
 
 // Shared test variables
-const aliceSecretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);
-const aliceProvider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
 const ownsNFT = new ERC721Ownership({
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
   parameters: [3591],
@@ -52,10 +51,14 @@ async function makeDeployedCbdStrategy() {
 
   const mockedDkg = fakeDkgFlow(variant, 0, 4, 4);
   const mockedDkgRitual = fakeDkgRitual(mockedDkg);
-  const web3Provider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
+  const walletClient = createWalletClient({
+    chain: polygonMumbai,
+    transport: http(),
+  });
+  const publicClient = toPublicClient(walletClient);
   const getUrsulasSpy = mockGetUrsulas(ursulas);
   const getExistingRitualSpy = mockGetExistingRitual(mockedDkgRitual);
-  const deployedStrategy = await strategy.deploy(web3Provider, ritualId);
+  const deployedStrategy = await strategy.deploy(publicClient, ritualId);
 
   expect(getUrsulasSpy).toHaveBeenCalled();
   expect(getExistingRitualSpy).toHaveBeenCalled();
@@ -93,6 +96,19 @@ describe('CbdStrategy', () => {
   });
 });
 
+jest.mock('viem/actions', () => ({
+  ...jest.requireActual('viem/actions'),
+  getBlock: jest.fn().mockResolvedValue({
+    timestamp: 1000,
+  }),
+  getBlockNumber: jest.fn().mockResolvedValue(BigInt(1000)),
+  requestAddresses: jest
+    .fn()
+    .mockResolvedValue(['0x1234567890123456789012345678901234567890']),
+  signTypedData: jest
+    .fn()
+    .mockResolvedValue('0x1234567890123456789012345678901234567890'),
+}));
 describe('CbdDeployedStrategy', () => {
   afterEach(() => {
     jest.restoreAllMocks();
@@ -130,7 +146,7 @@ describe('CbdDeployedStrategy', () => {
 
     const decryptedMessage =
       await deployedStrategy.decrypter.retrieveAndDecrypt(
-        aliceProvider,
+        testWalletClient,
         conditionExpr,
         ciphertext
       );

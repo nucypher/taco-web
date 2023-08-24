@@ -11,13 +11,14 @@ import {
   SessionStaticSecret,
   ThresholdDecryptionRequest,
 } from '@nucypher/nucypher-core';
-import { ethers } from 'ethers';
+import { WalletClient } from 'viem';
 
 import { DkgCoordinatorAgent, DkgParticipant } from '../agents/coordinator';
 import { ConditionExpression } from '../conditions';
 import { DkgRitual } from '../dkg';
 import { PorterClient } from '../porter';
 import { fromJSON, toJSON } from '../utils';
+import { toPublicClient } from '../viem';
 
 export type ThresholdDecrypterJSON = {
   porterUri: string;
@@ -44,12 +45,12 @@ export class ThresholdDecrypter {
 
   // Retrieve and decrypt ciphertext using provider and condition expression
   public async retrieveAndDecrypt(
-    provider: ethers.providers.Web3Provider,
+    walletClient: WalletClient,
     conditionExpr: ConditionExpression,
     ciphertext: Ciphertext
   ): Promise<Uint8Array> {
     const decryptionShares = await this.retrieve(
-      provider,
+      walletClient,
       conditionExpr,
       ciphertext
     );
@@ -64,15 +65,16 @@ export class ThresholdDecrypter {
 
   // Retrieve decryption shares
   public async retrieve(
-    provider: ethers.providers.Web3Provider,
+    walletClient: WalletClient,
     conditionExpr: ConditionExpression,
     ciphertext: Ciphertext
   ): Promise<DecryptionShareSimple[]> {
+    const publicClient = toPublicClient(walletClient);
     const dkgParticipants = await DkgCoordinatorAgent.getParticipants(
-      provider,
+      publicClient,
       this.ritualId
     );
-    const contextStr = await conditionExpr.buildContext(provider).toJson();
+    const contextStr = await conditionExpr.buildContext(walletClient).toJson();
     const { sharedSecrets, encryptedRequests } = this.makeDecryptionRequests(
       this.ritualId,
       ciphertext,

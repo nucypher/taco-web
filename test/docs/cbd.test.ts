@@ -1,19 +1,12 @@
 import { MessageKit, VerifiedKeyFrag } from '@nucypher/nucypher-core';
-import { providers } from 'ethers';
+import { createWalletClient, http } from 'viem';
+import { polygonMumbai } from 'viem/chains';
 
-import {
-  Cohort,
-  conditions,
-  getPorterUri,
-  PreStrategy,
-  SecretKey,
-} from '../../src';
+import { Cohort, conditions, getPorterUri, PreStrategy } from '../../src';
 import { Ursula } from '../../src/porter';
 import { toBytes } from '../../src/utils';
 import {
   fakeUrsulas,
-  fakeWeb3Provider,
-  mockDetectEthereumProvider,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
   mockGetUrsulas,
@@ -27,6 +20,20 @@ const {
   base: { ContractCondition },
   ConditionExpression,
 } = conditions;
+
+jest.mock('viem/actions', () => ({
+  ...jest.requireActual('viem/actions'),
+  getBlock: jest.fn().mockResolvedValue({
+    timestamp: 1000,
+  }),
+  getBlockNumber: jest.fn().mockResolvedValue(BigInt(1000)),
+  requestAddresses: jest
+    .fn()
+    .mockResolvedValue(['0x1234567890123456789012345678901234567890']),
+  signTypedData: jest
+    .fn()
+    .mockResolvedValue('0x1234567890123456789012345678901234567890'),
+}));
 
 describe('Get Started (CBD PoC)', () => {
   function mockRetrieveAndDecrypt(
@@ -47,19 +54,12 @@ describe('Get Started (CBD PoC)', () => {
   }
 
   it('can run the get started example', async () => {
-    const detectEthereumProvider = mockDetectEthereumProvider();
     const mockedUrsulas = fakeUrsulas();
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const generateKFragsSpy = mockGenerateKFrags();
     const publishToBlockchainSpy = mockPublishToBlockchain();
     const makeTreasureMapSpy = mockMakeTreasureMap();
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
-
-    jest
-      .spyOn(providers, 'Web3Provider')
-      .mockImplementation(() =>
-        fakeWeb3Provider(SecretKey.random().toBEBytes())
-      );
 
     //
     // Start of the code example
@@ -85,11 +85,11 @@ describe('Get Started (CBD PoC)', () => {
     // 4. Build a Strategy
     const newStrategy = PreStrategy.create(newCohort);
 
-    const MMprovider = await detectEthereumProvider();
-    const mumbai = providers.getNetwork(80001);
-
-    const web3Provider = new providers.Web3Provider(MMprovider, mumbai);
-    const newDeployed = await newStrategy.deploy(web3Provider, 'test');
+    const walletClient = createWalletClient({
+      chain: polygonMumbai,
+      transport: http(),
+    });
+    const newDeployed = await newStrategy.deploy(walletClient, 'test');
 
     // 5. Encrypt the plaintext & update conditions
     const NFTBalanceConfig = {
@@ -118,7 +118,7 @@ describe('Get Started (CBD PoC)', () => {
     // 6. Request decryption rights
     const decryptedMessage = await newDeployed.decrypter.retrieveAndDecrypt(
       [encryptedMessageKit],
-      web3Provider
+      walletClient
     );
 
     //

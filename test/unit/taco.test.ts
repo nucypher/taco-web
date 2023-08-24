@@ -24,7 +24,6 @@ import { aliceSecretKeyBytes } from './testVariables';
 
 const {
   predefined: { ERC721Ownership },
-  ConditionExpression,
 } = conditions;
 
 // Shared test variables
@@ -34,7 +33,6 @@ const ownsNFT = new ERC721Ownership({
   parameters: [3591],
   chain: 5,
 });
-const conditionExpr = new ConditionExpression(ownsNFT);
 const variant = FerveoVariant.precomputed;
 const message = 'this is a secret';
 
@@ -48,7 +46,7 @@ describe('taco', () => {
     const tacoMk = await taco.encrypt(
       web3Provider,
       message,
-      conditionExpr,
+      ownsNFT,
       mockedDkg.ritualId
     );
 

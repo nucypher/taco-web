@@ -6,7 +6,7 @@ import {
 import { ethers } from 'ethers';
 
 import { ThresholdDecrypter } from './characters/cbd-recipient';
-import { ConditionExpression } from './conditions';
+import { Condition, ConditionExpression } from './conditions';
 import { DkgClient } from './dkg';
 import { toBytes } from './utils';
 
@@ -23,13 +23,13 @@ export interface TacoMessageKit {
 export const encrypt = async (
   web3Provider: ethers.providers.Web3Provider,
   message: string,
-  conditions: ConditionExpression,
+  condition: Condition,
   ritualId: number
 ): Promise<TacoMessageKit> => {
   const dkgRitual = await DkgClient.getFinalizedRitual(web3Provider, ritualId);
   return await encryptLight(
     message,
-    conditions,
+    condition,
     dkgRitual.dkgPublicKey,
     dkgRitual.dkgParams.threshold,
     ritualId
@@ -38,13 +38,13 @@ export const encrypt = async (
 
 export const encryptLight = async (
   message: string,
-  conditions: ConditionExpression,
+  condition: Condition,
   dkgPublicKey: DkgPublicKey,
   // TODO: Remove these parameters after fixing TacoMessageKit
   threshold: number,
   ritualId: number
 ): Promise<TacoMessageKit> => {
-  const aad = conditions.asAad();
+  const aad = new ConditionExpression(condition).asAad();
   const ciphertext = ferveoEncrypt(toBytes(message), aad, dkgPublicKey);
   return {
     ciphertext,

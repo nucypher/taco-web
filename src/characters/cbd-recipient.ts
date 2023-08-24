@@ -1,4 +1,6 @@
 import {
+  AccessControlPolicy,
+  AuthenticatedData,
   Ciphertext,
   combineDecryptionSharesSimple,
   Context,
@@ -12,12 +14,13 @@ import {
   ThresholdDecryptionRequest,
 } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
+import { keccak256 } from 'ethers/lib/utils';
 
 import { DkgCoordinatorAgent, DkgParticipant } from '../agents/coordinator';
 import { ConditionExpression } from '../conditions';
-import { DkgRitual } from '../dkg';
+import { DkgClient, DkgRitual } from '../dkg';
 import { PorterClient } from '../porter';
-import { fromJSON, toJSON } from '../utils';
+import { fromJSON, toBytes, toJSON } from '../utils';
 
 export type ThresholdDecrypterJSON = {
   porterUri: string;
@@ -26,8 +29,6 @@ export type ThresholdDecrypterJSON = {
 };
 
 export class ThresholdDecrypter {
-  // private readonly verifyingKey: Keyring;
-
   private constructor(
     private readonly porter: PorterClient,
     private readonly ritualId: number,
@@ -48,10 +49,13 @@ export class ThresholdDecrypter {
     conditionExpr: ConditionExpression,
     ciphertext: Ciphertext
   ): Promise<Uint8Array> {
+    const acp = await this.makeAcp(provider, conditionExpr, ciphertext);
+
     const decryptionShares = await this.retrieve(
       provider,
       conditionExpr,
-      ciphertext
+      ciphertext,
+      acp
     );
 
     const sharedSecret = combineDecryptionSharesSimple(decryptionShares);
@@ -62,11 +66,32 @@ export class ThresholdDecrypter {
     );
   }
 
+  private async makeAcp(
+    provider: ethers.providers.Web3Provider,
+    conditionExpr: ConditionExpression,
+    ciphertext: Ciphertext
+  ) {
+    const dkgRitual = await DkgClient.getExistingRitual(
+      provider,
+      this.ritualId
+    );
+    const authData = new AuthenticatedData(
+      dkgRitual.dkgPublicKey,
+      conditionExpr.toWASMConditions()
+    );
+
+    const headerHash = keccak256(ciphertext.header.toBytes());
+    const authorization = await provider.getSigner().signMessage(headerHash);
+
+    return new AccessControlPolicy(authData, toBytes(authorization));
+  }
+
   // Retrieve decryption shares
   public async retrieve(
     provider: ethers.providers.Web3Provider,
     conditionExpr: ConditionExpression,
-    ciphertext: Ciphertext
+    ciphertext: Ciphertext,
+    acp: AccessControlPolicy
   ): Promise<DecryptionShareSimple[]> {
     const dkgParticipants = await DkgCoordinatorAgent.getParticipants(
       provider,
@@ -76,9 +101,9 @@ export class ThresholdDecrypter {
     const { sharedSecrets, encryptedRequests } = this.makeDecryptionRequests(
       this.ritualId,
       ciphertext,
-      conditionExpr,
       contextStr,
-      dkgParticipants
+      dkgParticipants,
+      acp
     );
 
     const { encryptedResponses, errors } = await this.porter.cbdDecrypt(
@@ -124,9 +149,9 @@ export class ThresholdDecrypter {
   private makeDecryptionRequests(
     ritualId: number,
     ciphertext: Ciphertext,
-    conditionExpr: ConditionExpression,
     contextStr: string,
-    dkgParticipants: Array<DkgParticipant>
+    dkgParticipants: Array<DkgParticipant>,
+    acp: AccessControlPolicy
   ): {
     sharedSecrets: Record<string, SessionSharedSecret>;
     encryptedRequests: Record<string, EncryptedThresholdDecryptionRequest>;
@@ -134,8 +159,8 @@ export class ThresholdDecrypter {
     const decryptionRequest = new ThresholdDecryptionRequest(
       ritualId,
       FerveoVariant.simple,
-      ciphertext,
-      conditionExpr.toWASMConditions(),
+      ciphertext.header,
+      acp,
       new Context(contextStr)
     );
 

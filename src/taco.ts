@@ -8,6 +8,7 @@ import { ethers } from 'ethers';
 import { ThresholdDecrypter } from './characters/cbd-recipient';
 import { Condition, ConditionExpression } from './conditions';
 import { DkgClient } from './dkg';
+import { getPorterUri } from './porter';
 import { toBytes } from './utils';
 
 export interface TacoMessageKit {
@@ -57,7 +58,7 @@ export const encryptLight = async (
 export const decrypt = async (
   web3Provider: ethers.providers.Web3Provider,
   messageKit: TacoMessageKit,
-  porterUri: string
+  porterUri = getPorterUri('tapir')
 ): Promise<Uint8Array> => {
   const decrypter = ThresholdDecrypter.create(
     porterUri,

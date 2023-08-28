@@ -14,6 +14,10 @@ import { toBytes } from './utils';
 export class Keyring {
   constructor(public readonly secretKey: SecretKey) {}
 
+  public static random(): Keyring {
+    return new Keyring(SecretKey.random());
+  }
+
   public get signer(): Signer {
     return new Signer(this.secretKey);
   }

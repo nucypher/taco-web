@@ -97,6 +97,7 @@ export const fakeWeb3Provider = (
     ...new Wallet(secretKeyBytes),
     provider,
     _signTypedData: () => Promise.resolve('fake-typed-signature'),
+    signMessage: () => Promise.resolve('fake-signature'),
     getAddress: () =>
       Promise.resolve('0x0000000000000000000000000000000000000000'),
   } as unknown as ethers.providers.JsonRpcSigner;
@@ -318,7 +319,7 @@ export const fakeTDecFlow = ({
 
     const decryptionShare = aggregate.createDecryptionShareSimple(
       dkg,
-      ciphertext,
+      ciphertext.header,
       aad,
       keypair
     );

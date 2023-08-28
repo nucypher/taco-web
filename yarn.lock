@@ -1669,8 +1669,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@nucypher/nucypher-core@file:../nucypher-core/nucypher-core-wasm/pkg":
-  version "0.11.0"
+"@nucypher/nucypher-core@^0.12.0":
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/@nucypher/nucypher-core/-/nucypher-core-0.12.0.tgz#0274026f3996601994e9639c06ab79c62c8f5d7c"
+  integrity sha512-hEjjnTSLNqHUiIF6U02j+M8jUOBCOt5mGG78lMHoathbak15AmYX4gkdkHTg2Ssvt5o77Cwzsn5YgGM4Haf7AQ==
 
 "@sideway/address@^4.1.3":
   version "4.1.4"

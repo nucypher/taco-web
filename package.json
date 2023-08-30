@@ -60,7 +60,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.18.10",
-    "@babel/preset-env": "^7.15.6",
+    "@babel/preset-env": "^7.22.14",
     "@skypack/package-check": "^0.2.2",
     "@typechain/ethers-v5": "^9.0.0",
     "@types/jest": "^26.0.24",

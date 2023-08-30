@@ -78,6 +78,32 @@ describe('context parameters', () => {
     });
   });
 
+  it('detects if a signer is required', () => {
+    const conditionObj = {
+      ...testContractConditionObj,
+      returnValueTest: {
+        ...testReturnValueTest,
+        value: USER_ADDRESS_PARAM,
+      },
+    };
+    const condition = new ContractCondition(conditionObj);
+    const conditionExpr = new ConditionExpression(condition);
+    const conditionContext = conditionExpr.buildContext(provider, {}, signer);
+    expect(conditionExpr.contextRequiresSigner()).toBe(true);
+    expect(conditionContext.requiresSigner()).toBe(true);
+  });
+
+  it('detects if a signer is not required', () => {
+    const condition = new RpcCondition(testRpcConditionObj);
+    const conditionExpr = new ConditionExpression(condition);
+    const conditionContext = conditionExpr.buildContext(provider, {}, signer);
+    expect(JSON.stringify(condition.toObj()).includes(USER_ADDRESS_PARAM)).toBe(
+      false
+    );
+    expect(conditionExpr.contextRequiresSigner()).toBe(false);
+    expect(conditionContext.requiresSigner()).toBe(false);
+  });
+
   describe('custom method parameters', () => {
     const contractConditionObj = {
       ...testContractConditionObj,

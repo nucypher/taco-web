@@ -97,6 +97,10 @@ export class ConditionExpression {
     );
   }
 
+  public contextRequiresSigner(): boolean {
+    return this.condition.requiresSigner();
+  }
+
   public asAad(): Uint8Array {
     return toBytes(this.toJson());
   }

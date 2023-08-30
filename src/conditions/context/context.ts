@@ -22,21 +22,21 @@ export class ConditionContext {
     public readonly customParameters: Record<string, CustomContextParam> = {},
     private readonly signer?: ethers.Signer
   ) {
-    this.validateContextParams(customParameters, signer);
-
-    if (signer) {
+    if (this.signer) {
       this.walletAuthProvider = new WalletAuthenticationProvider(
-        provider,
-        signer
+        this.provider,
+        this.signer
       );
     }
+    this.validate();
   }
 
-  private validateContextParams(
-    customParameters: Record<string, CustomContextParam> = {},
-    signer?: ethers.Signer
-  ) {
-    Object.keys(customParameters).forEach((key) => {
+  public requiresSigner(): boolean {
+    return this.conditions.some((cond) => cond.requiresSigner());
+  }
+
+  private validate() {
+    Object.keys(this.customParameters).forEach((key) => {
       if (RESERVED_CONTEXT_PARAMS.includes(key)) {
         throw new Error(
           `Cannot use reserved parameter name ${key} as custom parameter`
@@ -47,13 +47,15 @@ export class ConditionContext {
           `Custom parameter ${key} must start with ${CONTEXT_PARAM_PREFIX}`
         );
       }
-
-      if (key === USER_ADDRESS_PARAM && !signer) {
-        throw new Error(
-          `Cannot use ${USER_ADDRESS_PARAM} as custom parameter without a signer`
-        );
-      }
     });
+
+    if (this.requiresSigner() && !this.signer) {
+      throw new Error(
+        `Cannot use ${USER_ADDRESS_PARAM} as custom parameter without a signer`
+      );
+    }
+
+    return this;
   }
 
   public toObj = async (): Promise<Record<string, ContextParam>> => {

@@ -118,7 +118,7 @@ export class DkgCoordinatorAgent {
 
   private static async connect(
     provider: ethers.providers.Provider,
-    signer: ethers.Signer | undefined = undefined
+    signer?: ethers.Signer
   ): Promise<Coordinator> {
     const network = await provider.getNetwork();
     const contractAddress = getContract(network.chainId, 'COORDINATOR');

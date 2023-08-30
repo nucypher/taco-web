@@ -12,7 +12,7 @@ import {
 } from './base';
 import { BLOCKTIME_METHOD } from './base/time';
 import { CompoundCondition } from './compound-condition';
-import { ConditionContext } from './context';
+import { ConditionContext, CustomContextParam } from './context';
 
 export type ConditionExpressionJSON = {
   version: string;
@@ -86,9 +86,15 @@ export class ConditionExpression {
 
   public buildContext(
     provider: ethers.providers.Provider,
-    signer: ethers.Signer
+    customParameters: Record<string, CustomContextParam> = {},
+    signer?: ethers.Signer
   ): ConditionContext {
-    return new ConditionContext(provider, signer, [this.condition]);
+    return new ConditionContext(
+      provider,
+      [this.condition],
+      customParameters,
+      signer
+    );
   }
 
   public asAad(): Uint8Array {

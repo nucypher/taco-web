@@ -112,7 +112,12 @@ export class PreDecrypter {
       .reduce((acc: ConditionExpression[], val) => acc.concat(val), [])
       .map((condExpr: ConditionExpression) => condExpr.condition);
 
-    const conditionContext = new ConditionContext(provider, signer, conditions);
+    const conditionContext = new ConditionContext(
+      provider,
+      conditions,
+      {},
+      signer
+    );
 
     const policyMessageKits = messageKits.map((mk) =>
       PolicyMessageKit.fromMessageKit(

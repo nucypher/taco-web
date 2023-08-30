@@ -14,15 +14,27 @@ export const RESERVED_CONTEXT_PARAMS = [USER_ADDRESS_PARAM];
 export const CONTEXT_PARAM_PREFIX = ':';
 
 export class ConditionContext {
-  private readonly walletAuthProvider: WalletAuthenticationProvider;
+  private readonly walletAuthProvider?: WalletAuthenticationProvider;
 
   constructor(
-    // TODO: We don't always need a web3 provider, only in cases where some specific context parameters are used
-    // TODO: Consider making this optional or introducing a different pattern to handle that
     private readonly provider: ethers.providers.Provider,
-    private readonly signer: ethers.Signer,
     private readonly conditions: ReadonlyArray<Condition>,
-    public readonly customParameters: Record<string, CustomContextParam> = {}
+    public readonly customParameters: Record<string, CustomContextParam> = {},
+    private readonly signer?: ethers.Signer
+  ) {
+    this.validateContextParams(customParameters, signer);
+
+    if (signer) {
+      this.walletAuthProvider = new WalletAuthenticationProvider(
+        provider,
+        signer
+      );
+    }
+  }
+
+  private validateContextParams(
+    customParameters: Record<string, CustomContextParam> = {},
+    signer?: ethers.Signer
   ) {
     Object.keys(customParameters).forEach((key) => {
       if (RESERVED_CONTEXT_PARAMS.includes(key)) {
@@ -35,11 +47,13 @@ export class ConditionContext {
           `Custom parameter ${key} must start with ${CONTEXT_PARAM_PREFIX}`
         );
       }
+
+      if (key === USER_ADDRESS_PARAM && !signer) {
+        throw new Error(
+          `Cannot use ${USER_ADDRESS_PARAM} as custom parameter without a signer`
+        );
+      }
     });
-    this.walletAuthProvider = new WalletAuthenticationProvider(
-      provider,
-      signer
-    );
   }
 
   public toObj = async (): Promise<Record<string, ContextParam>> => {
@@ -74,6 +88,11 @@ export class ConditionContext {
 
     // Fill in predefined context parameters
     if (requestedParameters.has(USER_ADDRESS_PARAM)) {
+      if (!this.walletAuthProvider) {
+        throw new Error(
+          `Cannot use ${USER_ADDRESS_PARAM} as custom parameter without a signer`
+        );
+      }
       parameters[USER_ADDRESS_PARAM] =
         await this.walletAuthProvider.getOrCreateWalletSignature();
       // Remove from requested parameters
@@ -109,9 +128,9 @@ export class ConditionContext {
   ): ConditionContext => {
     return new ConditionContext(
       this.provider,
-      this.signer,
       this.conditions,
-      params
+      params,
+      this.signer
     );
   };
 }

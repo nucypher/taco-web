@@ -50,14 +50,14 @@ export class ThresholdDecrypter {
     conditionExpr: ConditionExpression,
     ciphertext: Ciphertext
   ): Promise<Uint8Array> {
-    const acp = await this.makeAcp(provider, conditionExpr, ciphertext);
+    const acp = await this.makeAcp(provider, signer, conditionExpr, ciphertext);
 
     const decryptionShares = await this.retrieve(
       provider,
-      signer,
       conditionExpr,
       ciphertext,
-      acp
+      acp,
+      signer
     );
 
     const sharedSecret = combineDecryptionSharesSimple(decryptionShares);
@@ -69,7 +69,8 @@ export class ThresholdDecrypter {
   }
 
   private async makeAcp(
-    provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer,
     conditionExpr: ConditionExpression,
     ciphertext: Ciphertext
   ) {
@@ -83,7 +84,7 @@ export class ThresholdDecrypter {
     );
 
     const headerHash = keccak256(ciphertext.header.toBytes());
-    const authorization = await provider.getSigner().signMessage(headerHash);
+    const authorization = await signer.signMessage(headerHash);
 
     return new AccessControlPolicy(authData, toBytes(authorization));
   }
@@ -91,17 +92,17 @@ export class ThresholdDecrypter {
   // Retrieve decryption shares
   public async retrieve(
     provider: ethers.providers.Provider,
-    signer: ethers.Signer,
     conditionExpr: ConditionExpression,
     ciphertext: Ciphertext,
-    acp: AccessControlPolicy
+    acp: AccessControlPolicy,
+    signer?: ethers.Signer
   ): Promise<DecryptionShareSimple[]> {
     const dkgParticipants = await DkgCoordinatorAgent.getParticipants(
       provider,
       this.ritualId
     );
     const contextStr = await conditionExpr
-      .buildContext(provider, signer)
+      .buildContext(provider, {}, signer)
       .toJson();
     const { sharedSecrets, encryptedRequests } = this.makeDecryptionRequests(
       this.ritualId,

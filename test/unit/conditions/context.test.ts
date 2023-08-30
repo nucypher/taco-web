@@ -27,6 +27,7 @@ describe('serialization', () => {
     });
     const conditionContext = new ConditionExpression(rpcCondition).buildContext(
       provider,
+      {},
       signer
     );
     const asJson = await conditionContext.toJson();
@@ -49,7 +50,7 @@ describe('context parameters', () => {
   };
   const contractCondition = new ContractCondition(contractConditionObj);
   const conditionExpr = new ConditionExpression(contractCondition);
-  const conditionContext = conditionExpr.buildContext(provider, signer);
+  const conditionContext = conditionExpr.buildContext(provider, {}, signer);
 
   describe('return value test', () => {
     it('accepts on a custom context parameters', async () => {
@@ -96,7 +97,7 @@ describe('context parameters', () => {
       });
       const conditionContext = new ConditionExpression(
         customContractCondition
-      ).buildContext(provider, signer);
+      ).buildContext(provider, {}, signer);
 
       await expect(async () => conditionContext.toObj()).rejects.toThrow(
         `Missing custom context parameter(s): ${customParamKey}`
@@ -110,7 +111,7 @@ describe('context parameters', () => {
       });
       const conditionContext = new ConditionExpression(
         customContractCondition
-      ).buildContext(provider, signer);
+      ).buildContext(provider, {}, signer);
 
       const asObj = await conditionContext.toObj();
       expect(asObj).toBeDefined();

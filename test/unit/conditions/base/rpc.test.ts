@@ -1,9 +1,13 @@
 import { RpcCondition } from '../../../../src/conditions/base';
+import { rpcConditionSchema } from '../../../../src/conditions/base/rpc';
 import { testRpcConditionObj } from '../../testVariables';
 
 describe('validation', () => {
   it('accepts on a valid schema', () => {
-    const result = new RpcCondition(testRpcConditionObj).validate();
+    const result = RpcCondition.validate(
+      rpcConditionSchema,
+      testRpcConditionObj
+    );
 
     expect(result.error).toBeUndefined();
     expect(result.data).toEqual(testRpcConditionObj);
@@ -16,7 +20,7 @@ describe('validation', () => {
       method: 'fake_invalid_method',
     } as unknown as typeof testRpcConditionObj;
 
-    const result = new RpcCondition(badRpcObj).validate();
+    const result = RpcCondition.validate(rpcConditionSchema, badRpcObj);
 
     expect(result.error).toBeDefined();
     expect(result.data).toBeUndefined();

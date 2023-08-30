@@ -4,17 +4,7 @@ import { SemVer } from 'semver';
 
 import { toBytes, toJSON } from '../utils';
 
-import {
-  CompoundCondition,
-  ContractCondition,
-  ContractConditionProps,
-  RpcCondition,
-  RpcConditionProps,
-  TimeCondition,
-  TimeConditionProps,
-} from './base';
-import { CompoundConditionProps } from './compound-condition';
-import { Condition, ConditionProps } from './condition';
+import { Condition } from './condition';
 import { ConditionContext, CustomContextParam } from './context';
 
 export type ConditionExpressionJSON = {
@@ -38,21 +28,6 @@ export class ConditionExpression {
     };
   }
 
-  private static conditionFromObject(obj: ConditionProps): Condition {
-    switch (obj.conditionType) {
-      case 'rpc':
-        return new RpcCondition(obj as RpcConditionProps);
-      case 'time':
-        return new TimeCondition(obj as TimeConditionProps);
-      case 'contract':
-        return new ContractCondition(obj as ContractConditionProps);
-      case 'compound':
-        return new CompoundCondition(obj as CompoundConditionProps);
-      default:
-        throw new Error(`Invalid conditionType: ${obj.conditionType}`);
-    }
-  }
-
   public static fromObj(obj: ConditionExpressionJSON): ConditionExpression {
     const receivedVersion = new SemVer(obj.version);
     const currentVersion = new SemVer(ConditionExpression.VERSION);
@@ -70,7 +45,7 @@ export class ConditionExpression {
       );
     }
 
-    const condition = this.conditionFromObject(obj.condition as ConditionProps);
+    const condition = Condition.fromObj(obj.condition);
     return new ConditionExpression(condition, obj.version);
   }
 

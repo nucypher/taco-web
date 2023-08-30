@@ -1,4 +1,6 @@
+import { Condition } from '../../../src/conditions';
 import { CompoundCondition } from '../../../src/conditions/base';
+import { compoundConditionSchema } from '../../../src/conditions/compound-condition';
 import {
   testContractConditionObj,
   testRpcConditionObj,
@@ -11,7 +13,7 @@ describe('validation', () => {
       operator: 'or',
       operands: [testContractConditionObj, testTimeConditionObj],
     };
-    const result = new CompoundCondition(conditionObj).validate();
+    const result = Condition.validate(compoundConditionSchema, conditionObj);
 
     expect(result.error).toBeUndefined();
     expect(result.data).toEqual({
@@ -25,7 +27,10 @@ describe('validation', () => {
       operator: 'and',
       operands: [testContractConditionObj, testTimeConditionObj],
     };
-    const result = new CompoundCondition(conditionObj).validate();
+    const result = CompoundCondition.validate(
+      compoundConditionSchema,
+      conditionObj
+    );
 
     expect(result.error).toBeUndefined();
     expect(result.data).toEqual({
@@ -35,10 +40,10 @@ describe('validation', () => {
   });
 
   it('rejects an invalid operator', () => {
-    const result = new CompoundCondition({
+    const result = CompoundCondition.validate(compoundConditionSchema, {
       operator: 'not-an-operator',
       operands: [testRpcConditionObj, testTimeConditionObj],
-    }).validate();
+    });
 
     expect(result.error).toBeDefined();
     expect(result.data).toBeUndefined();
@@ -52,10 +57,10 @@ describe('validation', () => {
   });
 
   it('rejects invalid number of operands = 0', () => {
-    const result = new CompoundCondition({
+    const result = CompoundCondition.validate(compoundConditionSchema, {
       operator: 'or',
       operands: [],
-    }).validate();
+    });
 
     expect(result.error).toBeDefined();
     expect(result.data).toBeUndefined();
@@ -67,10 +72,10 @@ describe('validation', () => {
   });
 
   it('rejects invalid number of operands = 1', () => {
-    const result = new CompoundCondition({
+    const result = CompoundCondition.validate(compoundConditionSchema, {
       operator: 'or',
       operands: [testRpcConditionObj],
-    }).validate();
+    });
     expect(result.error).toBeDefined();
     expect(result.data).toBeUndefined();
     expect(result.error?.format()).toMatchObject({
@@ -93,7 +98,10 @@ describe('validation', () => {
         },
       ],
     };
-    const result = new CompoundCondition(conditionObj).validate();
+    const result = CompoundCondition.validate(
+      compoundConditionSchema,
+      conditionObj
+    );
     expect(result.error).toBeUndefined();
     expect(result.data).toEqual({
       conditionType: 'compound',

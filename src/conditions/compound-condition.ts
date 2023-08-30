@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-import { contractConditionSchema } from './base';
-import { rpcConditionSchema } from './base';
-import { timeConditionSchema } from './base';
+import { contractConditionSchema } from './base/contract';
+import { rpcConditionSchema } from './base/rpc';
+import { timeConditionSchema } from './base/time';
 
 export const compoundConditionSchema: z.ZodSchema = z.object({
   conditionType: z.literal('compound').default('compound'),

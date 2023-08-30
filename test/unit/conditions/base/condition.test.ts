@@ -1,3 +1,4 @@
+import { Condition } from '../../../../src/conditions';
 import { ContractCondition } from '../../../../src/conditions/base';
 import {
   ERC721Balance,
@@ -6,7 +7,6 @@ import {
 import {
   TEST_CHAIN_ID,
   TEST_CONTRACT_ADDR,
-  TEST_CONTRACT_ADDR_2,
   testContractConditionObj,
 } from '../../testVariables';
 
@@ -17,39 +17,9 @@ describe('validation', () => {
   });
 
   it('accepts a correct schema', async () => {
-    const result = condition.validate();
+    const result = Condition.validate(condition.schema, condition.value);
     expect(result.error).toBeUndefined();
     expect(result.data.contractAddress).toEqual(TEST_CONTRACT_ADDR);
-  });
-
-  it('accepts on a valid value override', async () => {
-    const validOverride = {
-      chain: TEST_CHAIN_ID,
-      contractAddress: TEST_CONTRACT_ADDR_2,
-    };
-    const result = condition.validate(validOverride);
-    expect(result.error).toBeUndefined();
-    expect(result.data).toMatchObject(validOverride);
-  });
-
-  it('rejects on an invalid value override', async () => {
-    const invalidOverride = {
-      chain: -1,
-      contractAddress: TEST_CONTRACT_ADDR,
-    };
-    const result = condition.validate(invalidOverride);
-    expect(result.error).toBeDefined();
-    expect(result.data).toBeUndefined();
-    expect(result.error?.format()).toMatchObject({
-      chain: {
-        _errors: [
-          'Invalid literal value, expected 137',
-          'Invalid literal value, expected 80001',
-          'Invalid literal value, expected 5',
-          'Invalid literal value, expected 1',
-        ],
-      },
-    });
   });
 });
 

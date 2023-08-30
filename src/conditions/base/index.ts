@@ -35,9 +35,6 @@ export class TimeCondition extends Condition {
   }
 }
 
-export {
-  contractConditionSchema,
-  type ContractConditionProps,
-} from './contract';
-export { rpcConditionSchema, type RpcConditionProps } from './rpc';
-export { timeConditionSchema, type TimeConditionProps } from './time';
+export { type ContractConditionProps } from './contract';
+export { type RpcConditionProps } from './rpc';
+export { type TimeConditionProps } from './time';

@@ -6,14 +6,20 @@ import {
   ContractCondition,
   ContractConditionProps,
 } from '../../../../src/conditions/base';
-import { FunctionAbiProps } from '../../../../src/conditions/base/contract';
+import {
+  contractConditionSchema,
+  FunctionAbiProps,
+} from '../../../../src/conditions/base/contract';
 import { USER_ADDRESS_PARAM } from '../../../../src/conditions/const';
 import { fakeProvider, fakeSigner } from '../../../utils';
 import { testContractConditionObj, testFunctionAbi } from '../../testVariables';
 
 describe('validation', () => {
   it('accepts on a valid schema', () => {
-    const result = new ContractCondition(testContractConditionObj).validate();
+    const result = ContractCondition.validate(
+      contractConditionSchema,
+      testContractConditionObj
+    );
 
     expect(result.error).toBeUndefined();
     expect(result.data).toEqual(testContractConditionObj);
@@ -25,7 +31,10 @@ describe('validation', () => {
       // Intentionally removing `contractAddress`
       contractAddress: undefined,
     } as unknown as ContractConditionProps;
-    const result = new ContractCondition(badContractCondition).validate();
+    const result = ContractCondition.validate(
+      contractConditionSchema,
+      badContractCondition
+    );
 
     expect(result.error).toBeDefined();
     expect(result.data).toBeUndefined();
@@ -65,7 +74,10 @@ describe('accepts either standardContractType or functionAbi but not both or non
       standardContractType,
       functionAbi: undefined,
     } as typeof testContractConditionObj;
-    const result = new ContractCondition(conditionObj).validate();
+    const result = ContractCondition.validate(
+      contractConditionSchema,
+      conditionObj
+    );
 
     expect(result.error).toBeUndefined();
     expect(result.data).toEqual(conditionObj);
@@ -77,7 +89,10 @@ describe('accepts either standardContractType or functionAbi but not both or non
       functionAbi,
       standardContractType: undefined,
     } as typeof testContractConditionObj;
-    const result = new ContractCondition(conditionObj).validate();
+    const result = ContractCondition.validate(
+      contractConditionSchema,
+      conditionObj
+    );
 
     expect(result.error).toBeUndefined();
     expect(result.data).toEqual(conditionObj);
@@ -89,7 +104,10 @@ describe('accepts either standardContractType or functionAbi but not both or non
       standardContractType,
       functionAbi,
     } as typeof testContractConditionObj;
-    const result = new ContractCondition(conditionObj).validate();
+    const result = ContractCondition.validate(
+      contractConditionSchema,
+      conditionObj
+    );
 
     expect(result.error).toBeDefined();
     expect(result.data).toBeUndefined();
@@ -106,7 +124,10 @@ describe('accepts either standardContractType or functionAbi but not both or non
       standardContractType: undefined,
       functionAbi: undefined,
     } as typeof testContractConditionObj;
-    const result = new ContractCondition(conditionObj).validate();
+    const result = ContractCondition.validate(
+      contractConditionSchema,
+      conditionObj
+    );
 
     expect(result.error).toBeDefined();
     expect(result.data).toBeUndefined();
@@ -176,12 +197,12 @@ describe('supports custom function abi', () => {
       },
     },
   ])('accepts well-formed functionAbi', ({ method, functionAbi }) => {
-    const result = new ContractCondition({
+    const result = ContractCondition.validate(contractConditionSchema, {
       ...contractConditionObj,
       parameters: functionAbi.inputs.map((input) => `fake_parameter_${input}`), //
       functionAbi: functionAbi as FunctionAbiProps,
       method,
-    }).validate();
+    });
 
     expect(result.error).toBeUndefined();
     expect(result.data).toBeDefined();
@@ -258,11 +279,11 @@ describe('supports custom function abi', () => {
   ])(
     'rejects malformed functionAbi',
     ({ method, badField, expectedErrors, functionAbi }) => {
-      const result = new ContractCondition({
+      const result = ContractCondition.validate(contractConditionSchema, {
         ...contractConditionObj,
         functionAbi: functionAbi as unknown as FunctionAbiProps,
         method,
-      }).validate();
+      });
 
       expect(result.error).toBeDefined();
       expect(result.data).toBeUndefined();

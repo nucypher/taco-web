@@ -2,7 +2,8 @@ import {
   TimeCondition,
   TimeConditionProps,
 } from '../../../../src/conditions/base';
-import { ReturnValueTestProps } from '../../../../src/conditions/base/rpc';
+import { ReturnValueTestProps } from '../../../../src/conditions/base/shared';
+import { timeConditionSchema } from '../../../../src/conditions/base/time';
 
 describe('validation', () => {
   const returnValueTest: ReturnValueTestProps = {
@@ -18,7 +19,7 @@ describe('validation', () => {
       method: 'blocktime',
       chain: 1,
     };
-    const result = new TimeCondition(conditionObj).validate();
+    const result = TimeCondition.validate(timeConditionSchema, conditionObj);
 
     expect(result.error).toBeUndefined();
     expect(result.data).toEqual(conditionObj);
@@ -34,7 +35,7 @@ describe('validation', () => {
       },
       chain: 5,
     } as unknown as TimeConditionProps;
-    const result = new TimeCondition(badObj).validate();
+    const result = TimeCondition.validate(timeConditionSchema, badObj);
 
     expect(result.error).toBeDefined();
     expect(result.data).toBeUndefined();

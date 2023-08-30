@@ -3,40 +3,40 @@ import { z } from 'zod';
 import { objectEquals } from '../utils';
 
 import {
+  CompoundCondition,
+  ContractCondition,
   ContractConditionProps,
+  RpcCondition,
   RpcConditionProps,
+  TimeCondition,
   TimeConditionProps,
 } from './base';
 import { CompoundConditionProps } from './compound-condition';
 import { USER_ADDRESS_PARAM } from './const';
 
-// Not using discriminated union because of inconsistent Zod types
-// Some conditions have ZodEffect types because of .refine() calls
-export type ConditionProps =
-  | RpcConditionProps
-  | TimeConditionProps
-  | ContractConditionProps
-  | CompoundConditionProps;
+type ConditionSchema = z.ZodSchema;
+export type ConditionProps = z.infer<ConditionSchema>;
 
 export class Condition {
   constructor(
-    public readonly schema: z.ZodSchema,
-    public readonly value:
-      | RpcConditionProps
-      | TimeConditionProps
-      | ContractConditionProps
-      | CompoundConditionProps
-  ) {}
+    public readonly schema: ConditionSchema,
+    public readonly value: ConditionProps
+  ) {
+    const { data, error } = Condition.validate(schema, value);
+    if (error) {
+      throw new Error(`Invalid condition: ${JSON.stringify(error.issues)}`);
+    }
+    this.value = data;
+  }
 
-  public validate(override: Partial<ConditionProps> = {}): {
+  public static validate(
+    schema: ConditionSchema,
+    value: ConditionProps
+  ): {
     data?: ConditionProps;
     error?: z.ZodError;
   } {
-    const newValue = {
-      ...this.value,
-      ...override,
-    };
-    const result = this.schema.safeParse(newValue);
+    const result = schema.safeParse(value);
     if (result.success) {
       return { data: result.data };
     }
@@ -48,18 +48,30 @@ export class Condition {
   }
 
   public toObj() {
-    const { data, error } = this.validate(this.value);
+    const { data, error } = Condition.validate(this.schema, this.value);
     if (error) {
       throw new Error(`Invalid condition: ${JSON.stringify(error.issues)}`);
     }
     return data;
   }
 
-  public static fromObj<T extends Condition>(
-    this: new (...args: unknown[]) => T,
-    obj: Record<string, unknown>
-  ): T {
-    return new this(obj);
+  private static conditionFromObject(obj: ConditionProps): Condition {
+    switch (obj.conditionType) {
+      case 'rpc':
+        return new RpcCondition(obj as RpcConditionProps);
+      case 'time':
+        return new TimeCondition(obj as TimeConditionProps);
+      case 'contract':
+        return new ContractCondition(obj as ContractConditionProps);
+      case 'compound':
+        return new CompoundCondition(obj as CompoundConditionProps);
+      default:
+        throw new Error(`Invalid conditionType: ${obj.conditionType}`);
+    }
+  }
+
+  public static fromObj(obj: ConditionProps): Condition {
+    return Condition.conditionFromObject(obj);
   }
 
   public equals(other: Condition) {

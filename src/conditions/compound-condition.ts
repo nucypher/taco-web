@@ -4,8 +4,12 @@ import { contractConditionSchema } from './base/contract';
 import { rpcConditionSchema } from './base/rpc';
 import { timeConditionSchema } from './base/time';
 
+export const CompoundConditionType = 'compound';
+
 export const compoundConditionSchema: z.ZodSchema = z.object({
-  conditionType: z.literal('compound').default('compound'),
+  conditionType: z
+    .literal(CompoundConditionType)
+    .default(CompoundConditionType),
   operator: z.enum(['and', 'or']),
   operands: z
     .array(

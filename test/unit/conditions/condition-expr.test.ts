@@ -9,6 +9,7 @@ import {
   TimeCondition,
   TimeConditionProps,
 } from '../../../src/conditions/base';
+import { RpcConditionType } from '../../../src/conditions/base/rpc';
 import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
 import { ERC721Balance } from '../../../src/conditions/predefined';
 import { objectEquals, toJSON } from '../../../src/utils';
@@ -232,7 +233,7 @@ describe('condition set', () => {
     it('rejects a mismatched condition type', () => {
       const conditionObj = {
         ...testTimeConditionObj,
-        conditionType: 'rpc',
+        conditionType: RpcConditionType,
       } as unknown as TimeConditionProps;
       expect(() => {
         ConditionExpression.fromObj({

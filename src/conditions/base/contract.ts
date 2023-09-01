@@ -67,9 +67,13 @@ const functionAbiSchema = z
 
 export type FunctionAbiProps = z.infer<typeof functionAbiSchema>;
 
+export const ContractConditionType = 'contract';
+
 export const contractConditionSchema = rpcConditionSchema
   .extend({
-    conditionType: z.literal('contract').default('contract'),
+    conditionType: z
+      .literal(ContractConditionType)
+      .default(ContractConditionType),
     contractAddress: z.string().regex(ETH_ADDRESS_REGEXP),
     standardContractType: z.enum(['ERC20', 'ERC721']).optional(),
     method: z.string(),

@@ -1,6 +1,9 @@
 import { Condition } from '../../../src/conditions';
 import { CompoundCondition } from '../../../src/conditions/base';
-import { compoundConditionSchema } from '../../../src/conditions/compound-condition';
+import {
+  compoundConditionSchema,
+  CompoundConditionType,
+} from '../../../src/conditions/compound-condition';
 import {
   testContractConditionObj,
   testRpcConditionObj,
@@ -18,7 +21,7 @@ describe('validation', () => {
     expect(result.error).toBeUndefined();
     expect(result.data).toEqual({
       ...conditionObj,
-      conditionType: 'compound',
+      conditionType: CompoundConditionType,
     });
   });
 
@@ -35,7 +38,7 @@ describe('validation', () => {
     expect(result.error).toBeUndefined();
     expect(result.data).toEqual({
       ...conditionObj,
-      conditionType: 'compound',
+      conditionType: CompoundConditionType,
     });
   });
 
@@ -104,14 +107,14 @@ describe('validation', () => {
     );
     expect(result.error).toBeUndefined();
     expect(result.data).toEqual({
-      conditionType: 'compound',
+      conditionType: CompoundConditionType,
       operator: 'and',
       operands: [
         testContractConditionObj,
         testTimeConditionObj,
         testRpcConditionObj,
         {
-          conditionType: 'compound',
+          conditionType: CompoundConditionType,
           operator: 'or',
           operands: [testTimeConditionObj, testContractConditionObj],
         },

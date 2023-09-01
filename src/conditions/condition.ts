@@ -6,16 +6,39 @@ import {
   CompoundCondition,
   ContractCondition,
   ContractConditionProps,
+  ContractConditionType,
   RpcCondition,
   RpcConditionProps,
+  RpcConditionType,
   TimeCondition,
   TimeConditionProps,
+  TimeConditionType,
 } from './base';
-import { CompoundConditionProps } from './compound-condition';
+import {
+  CompoundConditionProps,
+  CompoundConditionType,
+} from './compound-condition';
 import { USER_ADDRESS_PARAM } from './const';
 
 type ConditionSchema = z.ZodSchema;
 export type ConditionProps = z.infer<ConditionSchema>;
+
+class ConditionFactory {
+  public static conditionFromProps(obj: ConditionProps): Condition {
+    switch (obj.conditionType) {
+      case RpcConditionType:
+        return new RpcCondition(obj as RpcConditionProps);
+      case TimeConditionType:
+        return new TimeCondition(obj as TimeConditionProps);
+      case ContractConditionType:
+        return new ContractCondition(obj as ContractConditionProps);
+      case CompoundConditionType:
+        return new CompoundCondition(obj as CompoundConditionProps);
+      default:
+        throw new Error(`Invalid conditionType: ${obj.conditionType}`);
+    }
+  }
+}
 
 export class Condition {
   constructor(
@@ -55,23 +78,8 @@ export class Condition {
     return data;
   }
 
-  private static conditionFromObject(obj: ConditionProps): Condition {
-    switch (obj.conditionType) {
-      case 'rpc':
-        return new RpcCondition(obj as RpcConditionProps);
-      case 'time':
-        return new TimeCondition(obj as TimeConditionProps);
-      case 'contract':
-        return new ContractCondition(obj as ContractConditionProps);
-      case 'compound':
-        return new CompoundCondition(obj as CompoundConditionProps);
-      default:
-        throw new Error(`Invalid conditionType: ${obj.conditionType}`);
-    }
-  }
-
   public static fromObj(obj: ConditionProps): Condition {
-    return Condition.conditionFromObject(obj);
+    return ConditionFactory.conditionFromProps(obj);
   }
 
   public equals(other: Condition) {

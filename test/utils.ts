@@ -7,16 +7,15 @@ import {
   AggregatedTranscript,
   Capsule,
   CapsuleFrag,
-  Ciphertext,
   combineDecryptionSharesSimple,
   DecryptionSharePrecomputed,
   DecryptionShareSimple,
-  decryptWithSharedSecret,
   Dkg,
+  DkgPublicKey,
   EncryptedThresholdDecryptionResponse,
   EncryptedTreasureMap,
+  encryptForDkg,
   EthereumAddress,
-  ferveoEncrypt,
   FerveoVariant,
   Keypair,
   PublicKey,
@@ -26,6 +25,7 @@ import {
   SessionStaticKey,
   SessionStaticSecret,
   ThresholdDecryptionResponse,
+  ThresholdMessageKit,
   Transcript,
   Validator,
   ValidatorMessage,
@@ -36,13 +36,15 @@ import axios from 'axios';
 import { ethers, providers, Wallet } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 
-import { Alice, Bob, Cohort, RemoteBob } from '../src';
+import { Alice, Bob, Cohort, Enrico, RemoteBob } from '../src';
 import {
   DkgCoordinatorAgent,
   DkgParticipant,
   DkgRitualState,
 } from '../src/agents/coordinator';
 import { ThresholdDecrypter } from '../src/characters/cbd-recipient';
+import { ConditionExpression } from '../src/conditions';
+import { ERC721Balance } from '../src/conditions/predefined';
 import { DkgClient, DkgRitual } from '../src/dkg';
 import { BlockchainPolicy, PreEnactedPolicy } from '../src/policies/policy';
 import {
@@ -54,6 +56,8 @@ import {
 } from '../src/porter';
 import { ChecksumAddress } from '../src/types';
 import { toBytes, toHexString, zip } from '../src/utils';
+
+import { TEST_CHAIN_ID, TEST_CONTRACT_ADDR } from './unit/testVariables';
 
 export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
   first.length === second.length &&
@@ -304,23 +308,31 @@ interface FakeDkgRitualFlow {
   sharesNum: number;
   threshold: number;
   receivedMessages: ValidatorMessage[];
-  ciphertext: Ciphertext;
-  aad: Uint8Array;
   dkg: Dkg;
   message: Uint8Array;
+  dkgPublicKey: DkgPublicKey;
+  conditionExpr: ConditionExpression;
+  thresholdMessageKit: ThresholdMessageKit;
 }
 
-export const fakeTDecFlow = ({
+export const fakeTDecFlow = async ({
   validators,
   validatorKeypairs,
   ritualId,
   sharesNum,
   threshold,
   receivedMessages,
-  ciphertext,
-  aad,
   message,
+  conditionExpr,
+  dkgPublicKey,
+  thresholdMessageKit,
 }: FakeDkgRitualFlow) => {
+  const [_ciphertext, authenticatedData] = encryptForDkg(
+    message,
+    dkgPublicKey,
+    conditionExpr.toWASMConditions()
+  );
+
   // Having aggregated the transcripts, the validators can now create decryption shares
   const decryptionShares: (
     | DecryptionSharePrecomputed
@@ -336,56 +348,71 @@ export const fakeTDecFlow = ({
 
     const decryptionShare = aggregate.createDecryptionShareSimple(
       dkg,
-      ciphertext.header,
-      aad,
+      thresholdMessageKit.ciphertextHeader,
+      authenticatedData.aad(),
       keypair
     );
     decryptionShares.push(decryptionShare);
   });
 
-  // Now, the decryption share can be used to decrypt the ciphertext
-  // This part is in the client API
   const sharedSecret = combineDecryptionSharesSimple(decryptionShares);
 
-  // The client should have access to the public parameters of the DKG
-  const plaintext = decryptWithSharedSecret(ciphertext, aad, sharedSecret);
+  const plaintext = thresholdMessageKit.decryptWithSharedSecret(sharedSecret);
   if (!bytesEqual(plaintext, message)) {
     throw new Error('Decryption failed');
   }
-  return { decryptionShares, sharedSecret, plaintext };
+  return {
+    authenticatedData,
+    decryptionShares,
+    plaintext,
+    sharedSecret,
+    thresholdMessageKit,
+  };
 };
 
-export const fakeDkgTDecFlowE2e = (
-  variant: FerveoVariant,
-  message = toBytes('fake-message'),
-  aad = toBytes('fake-aad'),
+const fakeConditionExpr = () => {
+  const erc721Balance = new ERC721Balance({
+    chain: TEST_CHAIN_ID,
+    contractAddress: TEST_CONTRACT_ADDR,
+  });
+  return new ConditionExpression(erc721Balance);
+};
+
+export const fakeDkgTDecFlowE2E = async (
   ritualId = 0,
+  variant: FerveoVariant = FerveoVariant.precomputed,
+  conditionExpr: ConditionExpression = fakeConditionExpr(),
+  message = toBytes('fake-message'),
   sharesNum = 4,
   threshold = 4
 ) => {
   const ritual = fakeDkgFlow(variant, ritualId, sharesNum, threshold);
-
-  // In the meantime, the client creates a ciphertext and decryption request
-  const ciphertext = ferveoEncrypt(message, aad, ritual.dkg.publicKey());
-  const { decryptionShares } = fakeTDecFlow({
-    ...ritual,
-    ciphertext,
-    aad,
+  const dkgPublicKey = ritual.dkg.publicKey();
+  const thresholdMessageKit = new Enrico(dkgPublicKey).encryptMessageCbd(
     message,
+    conditionExpr
+  );
+
+  const { decryptionShares, authenticatedData } = await fakeTDecFlow({
+    ...ritual,
+    message,
+    conditionExpr,
+    dkgPublicKey,
+    thresholdMessageKit,
   });
 
   return {
     ...ritual,
     message,
-    aad,
-    ciphertext,
     decryptionShares,
+    authenticatedData,
+    thresholdMessageKit,
   };
 };
 
-export const fakeCoordinatorRitual = (
+export const fakeCoordinatorRitual = async (
   ritualId: number
-): {
+): Promise<{
   aggregationMismatch: boolean;
   initTimestamp: number;
   aggregatedTranscriptHash: string;
@@ -397,8 +424,8 @@ export const fakeCoordinatorRitual = (
   aggregatedTranscript: string;
   publicKeyHash: string;
   totalAggregations: number;
-} => {
-  const ritual = fakeDkgTDecFlowE2e(FerveoVariant.precomputed);
+}> => {
+  const ritual = await fakeDkgTDecFlowE2E();
   const dkgPkBytes = ritual.dkg.publicKey().toBytes();
   return {
     id: ritualId,
@@ -418,14 +445,13 @@ export const fakeCoordinatorRitual = (
   };
 };
 
-export const fakeDkgParticipants = (
-  ritualId: number,
-  variant = FerveoVariant.precomputed
-): {
+export const fakeDkgParticipants = async (
+  ritualId: number
+): Promise<{
   participants: DkgParticipant[];
   participantSecrets: Record<string, SessionStaticSecret>;
-} => {
-  const ritual = fakeDkgTDecFlowE2e(variant);
+}> => {
+  const ritual = await fakeDkgTDecFlowE2E(ritualId);
   const label = toBytes(`${ritualId}`);
 
   const participantSecrets: Record<string, SessionStaticSecret> =

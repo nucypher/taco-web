@@ -1,26 +1,22 @@
 import {
-  AccessControlPolicy,
-  AuthenticatedData,
-  Ciphertext,
   combineDecryptionSharesSimple,
   Context,
   DecryptionShareSimple,
-  decryptWithSharedSecret,
   EncryptedThresholdDecryptionRequest,
   EncryptedThresholdDecryptionResponse,
   FerveoVariant,
   SessionSharedSecret,
   SessionStaticSecret,
   ThresholdDecryptionRequest,
+  ThresholdMessageKit,
 } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
-import { keccak256 } from 'ethers/lib/utils';
 
 import { DkgCoordinatorAgent, DkgParticipant } from '../agents/coordinator';
 import { ConditionExpression } from '../conditions';
-import { DkgClient, DkgRitual } from '../dkg';
+import { DkgRitual } from '../dkg';
 import { PorterClient } from '../porter';
-import { fromJSON, toBytes, toJSON } from '../utils';
+import { fromJSON, objectEquals, toJSON } from '../utils';
 
 export type ThresholdDecrypterJSON = {
   porterUri: string;
@@ -46,55 +42,25 @@ export class ThresholdDecrypter {
   // Retrieve and decrypt ciphertext using provider and condition expression
   public async retrieveAndDecrypt(
     provider: ethers.providers.Provider,
-    signer: ethers.Signer,
     conditionExpr: ConditionExpression,
-    ciphertext: Ciphertext
+    thresholdMessageKit: ThresholdMessageKit,
+    signer?: ethers.Signer
   ): Promise<Uint8Array> {
-    const acp = await this.makeAcp(provider, signer, conditionExpr, ciphertext);
-
     const decryptionShares = await this.retrieve(
       provider,
       conditionExpr,
-      ciphertext,
-      acp,
+      thresholdMessageKit,
       signer
     );
-
     const sharedSecret = combineDecryptionSharesSimple(decryptionShares);
-    return decryptWithSharedSecret(
-      ciphertext,
-      conditionExpr.asAad(),
-      sharedSecret
-    );
-  }
-
-  private async makeAcp(
-    provider: ethers.providers.Provider,
-    signer: ethers.Signer,
-    conditionExpr: ConditionExpression,
-    ciphertext: Ciphertext
-  ) {
-    const dkgRitual = await DkgClient.getExistingRitual(
-      provider,
-      this.ritualId
-    );
-    const authData = new AuthenticatedData(
-      dkgRitual.dkgPublicKey,
-      conditionExpr.toWASMConditions()
-    );
-
-    const headerHash = keccak256(ciphertext.header.toBytes());
-    const authorization = await signer.signMessage(headerHash);
-
-    return new AccessControlPolicy(authData, toBytes(authorization));
+    return thresholdMessageKit.decryptWithSharedSecret(sharedSecret);
   }
 
   // Retrieve decryption shares
   public async retrieve(
     provider: ethers.providers.Provider,
     conditionExpr: ConditionExpression,
-    ciphertext: Ciphertext,
-    acp: AccessControlPolicy,
+    thresholdMessageKit: ThresholdMessageKit,
     signer?: ethers.Signer
   ): Promise<DecryptionShareSimple[]> {
     const dkgParticipants = await DkgCoordinatorAgent.getParticipants(
@@ -106,10 +72,9 @@ export class ThresholdDecrypter {
       .toJson();
     const { sharedSecrets, encryptedRequests } = this.makeDecryptionRequests(
       this.ritualId,
-      ciphertext,
-      contextStr,
+      new Context(contextStr),
       dkgParticipants,
-      acp
+      thresholdMessageKit
     );
 
     const { encryptedResponses, errors } = await this.porter.cbdDecrypt(
@@ -154,10 +119,9 @@ export class ThresholdDecrypter {
 
   private makeDecryptionRequests(
     ritualId: number,
-    ciphertext: Ciphertext,
-    contextStr: string,
+    conditionContext: Context,
     dkgParticipants: Array<DkgParticipant>,
-    acp: AccessControlPolicy
+    thresholdMessageKit: ThresholdMessageKit
   ): {
     sharedSecrets: Record<string, SessionSharedSecret>;
     encryptedRequests: Record<string, EncryptedThresholdDecryptionRequest>;
@@ -165,9 +129,9 @@ export class ThresholdDecrypter {
     const decryptionRequest = new ThresholdDecryptionRequest(
       ritualId,
       FerveoVariant.simple,
-      ciphertext.header,
-      acp,
-      new Context(contextStr)
+      thresholdMessageKit.ciphertextHeader,
+      thresholdMessageKit.acp,
+      conditionContext
     );
 
     const ephemeralSessionKey = this.makeSessionKey();
@@ -234,8 +198,6 @@ export class ThresholdDecrypter {
   }
 
   public equals(other: ThresholdDecrypter): boolean {
-    return (
-      this.porter.porterUrl.toString() === other.porter.porterUrl.toString()
-    );
+    return objectEquals(this.toObj(), other.toObj());
   }
 }

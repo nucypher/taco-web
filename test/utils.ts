@@ -313,7 +313,7 @@ interface FakeDkgRitualFlow {
   thresholdMessageKit: ThresholdMessageKit;
 }
 
-export const fakeTDecFlow = async ({
+export const fakeTDecFlow = ({
   validators,
   validatorKeypairs,
   ritualId,
@@ -364,7 +364,7 @@ const fakeConditionExpr = () => {
   return new ConditionExpression(erc721Balance);
 };
 
-export const fakeDkgTDecFlowE2E = async (
+export const fakeDkgTDecFlowE2E = (
   ritualId = 0,
   variant: FerveoVariant = FerveoVariant.precomputed,
   conditionExpr: ConditionExpression = fakeConditionExpr(),
@@ -379,7 +379,7 @@ export const fakeDkgTDecFlowE2E = async (
     conditionExpr
   );
 
-  const { decryptionShares } = await fakeTDecFlow({
+  const { decryptionShares } = fakeTDecFlow({
     ...ritual,
     message,
     dkgPublicKey,
@@ -429,13 +429,13 @@ export const fakeCoordinatorRitual = async (
   };
 };
 
-export const fakeDkgParticipants = async (
+export const fakeDkgParticipants = (
   ritualId: number
-): Promise<{
+): {
   participants: DkgParticipant[];
   participantSecrets: Record<string, SessionStaticSecret>;
-}> => {
-  const ritual = await fakeDkgTDecFlowE2E(ritualId);
+} => {
+  const ritual = fakeDkgTDecFlowE2E(ritualId);
   const label = toBytes(`${ritualId}`);
 
   const participantSecrets: Record<string, SessionStaticSecret> =

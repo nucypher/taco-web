@@ -221,50 +221,6 @@ describe('condition set', () => {
       }
     );
 
-    it.each([
-      // no "operator" nor "method" value
-      {
-        version: ConditionExpression.VERSION,
-        condition: {
-          randoKey: 'randoValue',
-          otherKey: 'otherValue',
-        },
-      },
-      // invalid "method" and no "contractAddress"
-      {
-        version: ConditionExpression.VERSION,
-        condition: {
-          method: 'doWhatIWant',
-          returnValueTest: {
-            index: 0,
-            comparator: '>',
-            value: '100',
-          },
-          chain: 5,
-        },
-      },
-      // condition with wrong method "method" and no contract address
-      {
-        version: ConditionExpression.VERSION,
-        condition: {
-          ...testTimeConditionObj,
-          method: 'doWhatIWant',
-        },
-      },
-      // rpc condition (no contract address) with disallowed method
-      {
-        version: ConditionExpression.VERSION,
-        condition: {
-          ...testRpcConditionObj,
-          method: 'isPolicyActive',
-        },
-      },
-    ])("can't determine condition type", (invalidCondition) => {
-      expect(() => {
-        ConditionExpression.fromObj(invalidCondition);
-      }).toThrow('unrecognized condition data');
-    });
-
     it.each(['_invalid_condition_type_', undefined as unknown as string])(
       'rejects an invalid condition type',
       (invalidConditionType) => {

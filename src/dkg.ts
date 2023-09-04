@@ -136,10 +136,10 @@ export class DkgClient {
   }
 
   public static async getFinalizedRitual(
-    web3Provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
     ritualId: number
   ): Promise<DkgRitual> {
-    const ritual = await DkgClient.getExistingRitual(web3Provider, ritualId);
+    const ritual = await DkgClient.getExistingRitual(provider, ritualId);
     if (ritual.state !== DkgRitualState.FINALIZED) {
       throw new Error(
         `Ritual ${ritualId} is not finalized. State: ${ritual.state}`

@@ -12,8 +12,9 @@ import {
   fakeDkgParticipants,
   fakeDkgRitual,
   fakePorterUri,
+  fakeProvider,
+  fakeSigner,
   fakeTDecFlow,
-  fakeWeb3Provider,
   mockCbdDecrypt,
   mockGetExistingRitual,
   mockGetParticipants,
@@ -40,11 +41,12 @@ describe('taco', () => {
   it('encrypts and decrypts', async () => {
     const mockedDkg = fakeDkgFlow(variant, 0, 4, 4);
     const mockedDkgRitual = fakeDkgRitual(mockedDkg);
-    const web3Provider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
+    const provider = fakeProvider(aliceSecretKey.toBEBytes());
+    const signer = fakeSigner(aliceSecretKey.toBEBytes());
     const getExistingRitualSpy = mockGetExistingRitual(mockedDkgRitual);
 
     const tacoMk = await taco.encrypt(
-      web3Provider,
+      provider,
       message,
       ownsNFT,
       mockedDkg.ritualId
@@ -55,12 +57,11 @@ describe('taco', () => {
     const { decryptionShares } = fakeTDecFlow({
       ...mockedDkg,
       message: toBytes(message),
-      aad: tacoMk.aad,
-      ciphertext: tacoMk.ciphertext,
+      dkgPublicKey: mockedDkg.dkg.publicKey(),
+      thresholdMessageKit: tacoMk.thresholdMessageKit,
     });
     const { participantSecrets, participants } = fakeDkgParticipants(
-      mockedDkg.ritualId,
-      variant
+      mockedDkg.ritualId
     );
     const requesterSessionKey = SessionStaticSecret.random();
     const decryptSpy = mockCbdDecrypt(
@@ -73,8 +74,9 @@ describe('taco', () => {
     const sessionKeySpy = mockRandomSessionStaticSecret(requesterSessionKey);
 
     const decryptedMessage = await taco.decrypt(
-      web3Provider,
+      provider,
       tacoMk,
+      signer,
       fakePorterUri
     );
     expect(getParticipantsSpy).toHaveBeenCalled();

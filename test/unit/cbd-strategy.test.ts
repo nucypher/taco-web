@@ -29,9 +29,9 @@ const {
 } = conditions;
 
 // Shared test variables
-const aliceSecretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);
-const aliceProvider = fakeProvider(aliceSecretKey.toBEBytes());
-const aliceSigner = fakeSigner(aliceSecretKey.toBEBytes());
+const secretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);
+const provider = fakeProvider(secretKey.toBEBytes());
+const signer = fakeSigner(secretKey.toBEBytes());
 const ownsNFT = new ERC721Ownership({
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
   parameters: [3591],
@@ -56,7 +56,7 @@ async function makeDeployedCbdStrategy() {
   const getUrsulasSpy = mockGetUrsulas(ursulas);
   const getExistingRitualSpy = mockGetExistingRitual(mockedDkgRitual);
 
-  const deployedStrategy = await strategy.deploy(aliceProvider, ritualId);
+  const deployedStrategy = await strategy.deploy(provider, ritualId);
 
   expect(getUrsulasSpy).toHaveBeenCalled();
   expect(getExistingRitualSpy).toHaveBeenCalled();
@@ -108,13 +108,13 @@ describe('CbdDeployedStrategy', () => {
       .encryptMessageCbd(message);
 
     // Setup mocks for `retrieveAndDecrypt`
-    const { decryptionShares } = await fakeTDecFlow({
+    const { decryptionShares } = fakeTDecFlow({
       ...mockedDkg,
       message: toBytes(message),
       dkgPublicKey: mockedDkg.dkg.publicKey(),
       thresholdMessageKit,
     });
-    const { participantSecrets, participants } = await fakeDkgParticipants(
+    const { participantSecrets, participants } = fakeDkgParticipants(
       mockedDkg.ritualId
     );
     const requesterSessionKey = SessionStaticSecret.random();
@@ -130,9 +130,9 @@ describe('CbdDeployedStrategy', () => {
 
     const decryptedMessage =
       await deployedStrategy.decrypter.retrieveAndDecrypt(
-        aliceProvider,
+        provider,
         thresholdMessageKit,
-        aliceSigner
+        signer
       );
     expect(getUrsulasSpy).toHaveBeenCalled();
     expect(getParticipantsSpy).toHaveBeenCalled();

@@ -114,7 +114,7 @@ describe('context parameters', () => {
     const conditionExpr = new ConditionExpression(condition);
     expect(conditionExpr.contextRequiresSigner()).toBe(true);
     expect(() => conditionExpr.buildContext(provider, {}, undefined)).toThrow(
-      `Condition contains ${USER_ADDRESS_PARAM} context variable and requires a signer to populate`
+      `Cannot use ${USER_ADDRESS_PARAM} as a parameter without a signer`
     );
   });
 

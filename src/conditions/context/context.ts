@@ -51,7 +51,7 @@ export class ConditionContext {
     );
     if (conditionRequiresSigner && !this.signer) {
       throw new Error(
-        `Condition contains ${USER_ADDRESS_PARAM} context variable and requires a signer to populate`
+        `Cannot use ${USER_ADDRESS_PARAM} as a parameter without a signer`
       );
     }
 

@@ -45,17 +45,19 @@ export class ThresholdDecrypter {
 
   // Retrieve and decrypt ciphertext using provider and condition expression
   public async retrieveAndDecrypt(
-    provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer,
     conditionExpr: ConditionExpression,
     ciphertext: Ciphertext
   ): Promise<Uint8Array> {
-    const acp = await this.makeAcp(provider, conditionExpr, ciphertext);
+    const acp = await this.makeAcp(provider, signer, conditionExpr, ciphertext);
 
     const decryptionShares = await this.retrieve(
       provider,
       conditionExpr,
       ciphertext,
-      acp
+      acp,
+      signer
     );
 
     const sharedSecret = combineDecryptionSharesSimple(decryptionShares);
@@ -67,7 +69,8 @@ export class ThresholdDecrypter {
   }
 
   private async makeAcp(
-    provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer,
     conditionExpr: ConditionExpression,
     ciphertext: Ciphertext
   ) {
@@ -81,23 +84,26 @@ export class ThresholdDecrypter {
     );
 
     const headerHash = keccak256(ciphertext.header.toBytes());
-    const authorization = await provider.getSigner().signMessage(headerHash);
+    const authorization = await signer.signMessage(headerHash);
 
     return new AccessControlPolicy(authData, toBytes(authorization));
   }
 
   // Retrieve decryption shares
   public async retrieve(
-    provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
     conditionExpr: ConditionExpression,
     ciphertext: Ciphertext,
-    acp: AccessControlPolicy
+    acp: AccessControlPolicy,
+    signer?: ethers.Signer
   ): Promise<DecryptionShareSimple[]> {
     const dkgParticipants = await DkgCoordinatorAgent.getParticipants(
       provider,
       this.ritualId
     );
-    const contextStr = await conditionExpr.buildContext(provider).toJson();
+    const contextStr = await conditionExpr
+      .buildContext(provider, {}, signer)
+      .toJson();
     const { sharedSecrets, encryptedRequests } = this.makeDecryptionRequests(
       this.ritualId,
       ciphertext,

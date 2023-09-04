@@ -14,9 +14,10 @@ import {
   fakeAlice,
   fakeBob,
   fakePorterUri,
+  fakeProvider,
   fakeRemoteBob,
+  fakeSigner,
   fakeUrsulas,
-  fakeWeb3Provider,
   fromBytes,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
@@ -34,7 +35,8 @@ describe('story: alice shares message with bob through policy', () => {
   const startDate = new Date();
   const endDate = new Date(Date.now() + 60 * 1000);
   const mockedUrsulas = fakeUrsulas(shares);
-  const web3Provider = fakeWeb3Provider();
+  const provider = fakeProvider();
+  const signer = fakeSigner();
 
   // Intermediate variables used for mocking
   let encryptedTreasureMap: EncryptedTreasureMap;
@@ -65,7 +67,7 @@ describe('story: alice shares message with bob through policy', () => {
       startDate,
       endDate,
     };
-    policy = await alice.grant(web3Provider, fakePorterUri, policyParams);
+    policy = await alice.grant(provider, signer, fakePorterUri, policyParams);
 
     expect(
       bytesEqual(

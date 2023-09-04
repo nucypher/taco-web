@@ -29,13 +29,13 @@ export class CbdStrategy {
   }
 
   public async deploy(
-    web3Provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
     ritualId: number
   ): Promise<DeployedCbdStrategy> {
     // TODO(#264): Enable ritual initialization
     // if (ritualId === undefined) {
     //   ritualId = await DkgClient.initializeRitual(
-    //     web3Provider,
+    //     provider,
     //     this.cohort.ursulaAddresses,
     //     true
     //   );
@@ -44,7 +44,7 @@ export class CbdStrategy {
     //   // Given that we just initialized the ritual, this should never happen
     //   throw new Error('Ritual ID is undefined');
     // }
-    const dkgRitual = await DkgClient.getExistingRitual(web3Provider, ritualId);
+    const dkgRitual = await DkgClient.getExistingRitual(provider, ritualId);
     return DeployedCbdStrategy.create(dkgRitual, this.cohort.porterUri);
   }
 
@@ -84,7 +84,7 @@ export class DeployedCbdStrategy {
 
   // TODO: This is analogous to create() above, is it useful?
   public static async fromRitualId(
-    provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
     porterUri: string,
     ritualId: number
   ): Promise<DeployedCbdStrategy> {

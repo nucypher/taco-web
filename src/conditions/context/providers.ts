@@ -1,3 +1,4 @@
+import type { TypedDataSigner } from '@ethersproject/abstract-signer';
 import { ethers } from 'ethers';
 import { utils as ethersUtils } from 'ethers/lib/ethers';
 
@@ -18,10 +19,13 @@ interface ChainData {
 export class WalletAuthenticationProvider {
   private walletSignature?: Record<string, string>;
 
-  constructor(private readonly web3Provider: ethers.providers.Web3Provider) {}
+  constructor(
+    private readonly provider: ethers.providers.Provider,
+    private readonly signer: ethers.Signer
+  ) {}
 
   public async getOrCreateWalletSignature(): Promise<TypedSignature> {
-    const address = await this.web3Provider.getSigner().getAddress();
+    const address = await this.signer.getAddress();
     const storageKey = `wallet-signature-${address}`;
 
     // If we have a signature in localStorage, return it
@@ -59,7 +63,7 @@ export class WalletAuthenticationProvider {
   private async createWalletSignature(): Promise<TypedSignature> {
     // Ensure freshness of the signature
     const { blockNumber, blockHash, chainId } = await this.getChainData();
-    const address = await this.web3Provider.getSigner().getAddress();
+    const address = await this.signer.getAddress();
     const signatureText = `I'm the owner of address ${address} as of block number ${blockNumber}`;
     const salt = ethersUtils.hexlify(ethersUtils.randomBytes(32));
 
@@ -85,9 +89,10 @@ export class WalletAuthenticationProvider {
         blockHash,
       },
     };
-    const signature = await this.web3Provider
-      .getSigner()
-      ._signTypedData(typedData.domain, typedData.types, typedData.message);
+    // https://github.com/ethers-io/ethers.js/issues/1431#issuecomment-813950552
+    const signature = await (
+      this.signer as unknown as TypedDataSigner
+    )._signTypedData(typedData.domain, typedData.types, typedData.message);
 
     const formattedTypedData: FormattedTypedData = {
       ...typedData,
@@ -118,9 +123,9 @@ export class WalletAuthenticationProvider {
   }
 
   private async getChainData(): Promise<ChainData> {
-    const blockNumber = await this.web3Provider.getBlockNumber();
-    const blockHash = (await this.web3Provider.getBlock(blockNumber)).hash;
-    const chainId = (await this.web3Provider.getNetwork()).chainId;
+    const blockNumber = await this.provider.getBlockNumber();
+    const blockHash = (await this.provider.getBlock(blockNumber)).hash;
+    const chainId = (await this.provider.getNetwork()).chainId;
     return { blockNumber, blockHash, chainId };
   }
 }

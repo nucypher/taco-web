@@ -15,7 +15,8 @@ import { DEFAULT_WAIT_N_CONFIRMATIONS, getContract } from './contracts';
 
 export class PreSubscriptionManagerAgent {
   public static async createPolicy(
-    web3Provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer,
     valueInWei: BigNumber,
     policyId: Uint8Array,
     size: number,
@@ -23,7 +24,7 @@ export class PreSubscriptionManagerAgent {
     endTimestamp: number,
     ownerAddress: ChecksumAddress
   ): Promise<ContractTransaction> {
-    const SubscriptionManager = await this.connectReadWrite(web3Provider);
+    const SubscriptionManager = await this.connectReadWrite(provider, signer);
     const overrides = {
       value: valueInWei.toString(),
     };
@@ -66,14 +67,15 @@ export class PreSubscriptionManagerAgent {
   }
 
   private static async connectReadWrite(
-    web3Provider: ethers.providers.Web3Provider
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer
   ) {
-    return await this.connect(web3Provider, web3Provider.getSigner());
+    return await this.connect(provider, signer);
   }
 
   private static async connect(
     provider: ethers.providers.Provider,
-    signer?: ethers.providers.JsonRpcSigner
+    signer?: ethers.Signer
   ): Promise<SubscriptionManager> {
     const network = await provider.getNetwork();
     const contractAddress = getContract(

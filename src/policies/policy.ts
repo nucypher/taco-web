@@ -42,9 +42,10 @@ export class PreEnactedPolicy implements IPreEnactedPolicy {
   ) {}
 
   public async enact(
-    web3Provider: ethers.providers.Web3Provider
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer
   ): Promise<EnactedPolicy> {
-    const txHash = await this.publish(web3Provider);
+    const txHash = await this.publish(provider, signer);
     return {
       ...this,
       txHash,
@@ -52,19 +53,21 @@ export class PreEnactedPolicy implements IPreEnactedPolicy {
   }
 
   private async publish(
-    web3Provider: ethers.providers.Web3Provider
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer
   ): Promise<string> {
     const startTimestamp = toEpoch(this.startTimestamp);
     const endTimestamp = toEpoch(this.endTimestamp);
-    const ownerAddress = await web3Provider.getSigner().getAddress();
+    const ownerAddress = await signer.getAddress();
     const value = await PreSubscriptionManagerAgent.getPolicyCost(
-      web3Provider,
+      provider,
       this.size,
       startTimestamp,
       endTimestamp
     );
     const tx = await PreSubscriptionManagerAgent.createPolicy(
-      web3Provider,
+      provider,
+      signer,
       value,
       this.id.toBytes(),
       this.size,
@@ -107,11 +110,12 @@ export class BlockchainPolicy {
   }
 
   public async enact(
-    web3Provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer,
     ursulas: readonly Ursula[]
   ): Promise<EnactedPolicy> {
     const preEnacted = await this.generatePreEnactedPolicy(ursulas);
-    return await preEnacted.enact(web3Provider);
+    return await preEnacted.enact(provider, signer);
   }
 
   public async generatePreEnactedPolicy(

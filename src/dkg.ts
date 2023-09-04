@@ -65,23 +65,25 @@ const assumedThreshold = (sharesNum: number): number =>
 
 export class DkgClient {
   public static async initializeRitual(
-    web3Provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer,
     ursulas: ChecksumAddress[],
     waitUntilEnd = false
   ): Promise<number | undefined> {
     const ritualId = await DkgCoordinatorAgent.initializeRitual(
-      web3Provider,
+      provider,
+      signer,
       ursulas.sort()
     );
 
     if (waitUntilEnd) {
       const isSuccessful = await DkgClient.waitUntilRitualEnd(
-        web3Provider,
+        provider,
         ritualId
       );
       if (!isSuccessful) {
         const ritualState = await DkgCoordinatorAgent.getRitualState(
-          web3Provider,
+          provider,
           ritualId
         );
         throw new Error(
@@ -94,7 +96,7 @@ export class DkgClient {
   }
 
   private static waitUntilRitualEnd = async (
-    web3Provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
     ritualId: number
   ): Promise<boolean> => {
     return new Promise((resolve, reject) => {
@@ -105,19 +107,19 @@ export class DkgClient {
           reject();
         }
       };
-      DkgCoordinatorAgent.onRitualEndEvent(web3Provider, ritualId, callback);
+      DkgCoordinatorAgent.onRitualEndEvent(provider, ritualId, callback);
     });
   };
 
   public static async getExistingRitual(
-    web3Provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
     ritualId: number
   ): Promise<DkgRitual> {
     const ritualState = await DkgCoordinatorAgent.getRitualState(
-      web3Provider,
+      provider,
       ritualId
     );
-    const ritual = await DkgCoordinatorAgent.getRitual(web3Provider, ritualId);
+    const ritual = await DkgCoordinatorAgent.getRitual(provider, ritualId);
     const dkgPkBytes = new Uint8Array([
       ...fromHexString(ritual.publicKey.word0),
       ...fromHexString(ritual.publicKey.word1),

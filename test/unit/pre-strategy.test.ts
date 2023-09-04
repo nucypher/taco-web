@@ -9,8 +9,9 @@ import {
 import { Ursula } from '../../src/porter';
 import { toBytes } from '../../src/utils';
 import {
+  fakeProvider,
+  fakeSigner,
   fakeUrsulas,
-  fakeWeb3Provider,
   makeCohort,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
@@ -30,8 +31,10 @@ const {
 // Shared test variables
 const aliceSecretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);
 const bobSecretKey = SecretKey.fromBEBytes(bobSecretKeyBytes);
-const aliceProvider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
-const bobProvider = fakeWeb3Provider(bobSecretKey.toBEBytes());
+const aliceSigner = fakeSigner(aliceSecretKey.toBEBytes());
+const aliceProvider = fakeProvider(aliceSecretKey.toBEBytes());
+const bobSigner = fakeSigner(bobSecretKey.toBEBytes());
+const bobProvider = fakeProvider(bobSecretKey.toBEBytes());
 const ownsNFT = new ERC721Ownership({
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
   parameters: [3591],
@@ -54,7 +57,11 @@ const makeDeployedPreStrategy = async () => {
   const makeTreasureMapSpy = mockMakeTreasureMap();
   const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
-  const deployedStrategy = await strategy.deploy(aliceProvider, 'test');
+  const deployedStrategy = await strategy.deploy(
+    aliceProvider,
+    aliceSigner,
+    'test'
+  );
 
   expect(generateKFragsSpy).toHaveBeenCalled();
   expect(publishToBlockchainSpy).toHaveBeenCalled();
@@ -126,8 +133,9 @@ describe('PreDeployedStrategy', () => {
 
     const decryptedMessage =
       await deployedStrategy.decrypter.retrieveAndDecrypt(
-        [encryptedMessageKit],
-        bobProvider
+        bobProvider,
+        bobSigner,
+        [encryptedMessageKit]
       );
     expect(getUrsulasSpy).toHaveBeenCalled();
     expect(retrieveCFragsSpy).toHaveBeenCalled();

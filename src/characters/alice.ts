@@ -42,7 +42,8 @@ export class Alice {
   }
 
   public async grant(
-    web3Provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer,
     porterUri: string,
     policyParameters: BlockchainPolicyParameters,
     includeUrsulas?: readonly ChecksumAddress[],
@@ -54,12 +55,12 @@ export class Alice {
       excludeUrsulas,
       includeUrsulas
     );
-    const policy = await this.createPolicy(web3Provider, policyParameters);
-    return await policy.enact(web3Provider, ursulas);
+    const policy = await this.createPolicy(provider, policyParameters);
+    return await policy.enact(provider, signer, ursulas);
   }
 
   public async generatePreEnactedPolicy(
-    web3Provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
     porterUri: string,
     policyParameters: BlockchainPolicyParameters,
     includeUrsulas?: readonly ChecksumAddress[],
@@ -71,7 +72,7 @@ export class Alice {
       excludeUrsulas,
       includeUrsulas
     );
-    const policy = await this.createPolicy(web3Provider, policyParameters);
+    const policy = await this.createPolicy(provider, policyParameters);
     return await policy.generatePreEnactedPolicy(ursulas);
   }
 
@@ -94,11 +95,11 @@ export class Alice {
   }
 
   private async createPolicy(
-    web3Provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
     rawParameters: BlockchainPolicyParameters
   ): Promise<BlockchainPolicy> {
     const { bob, label, threshold, shares, startDate, endDate } =
-      await this.validatePolicyParameters(web3Provider, rawParameters);
+      await this.validatePolicyParameters(provider, rawParameters);
     const { delegatingKey, verifiedKFrags } = this.generateKFrags(
       bob,
       label,
@@ -119,7 +120,7 @@ export class Alice {
   }
 
   private async validatePolicyParameters(
-    web3Provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
     rawParams: BlockchainPolicyParameters
   ): Promise<BlockchainPolicyParameters> {
     const startDate = rawParams.startDate ?? new Date();
@@ -141,8 +142,8 @@ export class Alice {
       );
     }
 
-    const blockNumber = await web3Provider.getBlockNumber();
-    const block = await web3Provider.getBlock(blockNumber);
+    const blockNumber = await provider.getBlockNumber();
+    const block = await provider.getBlock(blockNumber);
     const blockTime = new Date(block.timestamp * 1000);
     if (endDate < blockTime) {
       throw new Error(

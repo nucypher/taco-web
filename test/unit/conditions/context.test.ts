@@ -1,11 +1,9 @@
-import { SecretKey } from '@nucypher/nucypher-core';
-
 import { CustomContextParam } from '../../../src';
 import { ConditionExpression } from '../../../src/conditions';
 import { ContractCondition, RpcCondition } from '../../../src/conditions/base';
 import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
 import { RESERVED_CONTEXT_PARAMS } from '../../../src/conditions/context/context';
-import { fakeWeb3Provider } from '../../utils';
+import { fakeProvider, fakeSigner } from '../../utils';
 import {
   testContractConditionObj,
   testFunctionAbi,
@@ -13,7 +11,8 @@ import {
   testRpcConditionObj,
 } from '../testVariables';
 
-const web3Provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
+const provider = fakeProvider();
+const signer = fakeSigner();
 
 describe('serialization', () => {
   it('serializes to json', async () => {
@@ -27,7 +26,9 @@ describe('serialization', () => {
       },
     });
     const conditionContext = new ConditionExpression(rpcCondition).buildContext(
-      web3Provider
+      provider,
+      {},
+      signer
     );
     const asJson = await conditionContext.toJson();
     expect(asJson).toBeDefined();
@@ -49,7 +50,7 @@ describe('context parameters', () => {
   };
   const contractCondition = new ContractCondition(contractConditionObj);
   const conditionExpr = new ConditionExpression(contractCondition);
-  const conditionContext = conditionExpr.buildContext(web3Provider);
+  const conditionContext = conditionExpr.buildContext(provider, {}, signer);
 
   describe('return value test', () => {
     it('accepts on a custom context parameters', async () => {
@@ -77,6 +78,32 @@ describe('context parameters', () => {
     });
   });
 
+  it('detects if a signer is required', () => {
+    const conditionObj = {
+      ...testContractConditionObj,
+      returnValueTest: {
+        ...testReturnValueTest,
+        value: USER_ADDRESS_PARAM,
+      },
+    };
+    const condition = new ContractCondition(conditionObj);
+    const conditionExpr = new ConditionExpression(condition);
+    const conditionContext = conditionExpr.buildContext(provider, {}, signer);
+    expect(conditionExpr.contextRequiresSigner()).toBe(true);
+    expect(conditionContext.requiresSigner()).toBe(true);
+  });
+
+  it('detects if a signer is not required', () => {
+    const condition = new RpcCondition(testRpcConditionObj);
+    const conditionExpr = new ConditionExpression(condition);
+    const conditionContext = conditionExpr.buildContext(provider, {}, signer);
+    expect(JSON.stringify(condition.toObj()).includes(USER_ADDRESS_PARAM)).toBe(
+      false
+    );
+    expect(conditionExpr.contextRequiresSigner()).toBe(false);
+    expect(conditionContext.requiresSigner()).toBe(false);
+  });
+
   describe('custom method parameters', () => {
     const contractConditionObj = {
       ...testContractConditionObj,
@@ -96,7 +123,7 @@ describe('context parameters', () => {
       });
       const conditionContext = new ConditionExpression(
         customContractCondition
-      ).buildContext(web3Provider);
+      ).buildContext(provider, {}, signer);
 
       await expect(async () => conditionContext.toObj()).rejects.toThrow(
         `Missing custom context parameter(s): ${customParamKey}`
@@ -110,7 +137,7 @@ describe('context parameters', () => {
       });
       const conditionContext = new ConditionExpression(
         customContractCondition
-      ).buildContext(web3Provider);
+      ).buildContext(provider, {}, signer);
 
       const asObj = await conditionContext.toObj();
       expect(asObj).toBeDefined();

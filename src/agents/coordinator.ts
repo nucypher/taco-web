@@ -57,10 +57,11 @@ export class DkgCoordinatorAgent {
   }
 
   public static async initializeRitual(
-    provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer,
     providers: ChecksumAddress[]
   ): Promise<number> {
-    const Coordinator = await this.connectReadWrite(provider);
+    const Coordinator = await this.connectReadWrite(provider, signer);
     const tx = await Coordinator.initiateRitual(providers);
     const txReceipt = await tx.wait(DEFAULT_WAIT_N_CONFIRMATIONS);
     const [ritualStartEvent] = txReceipt.events ?? [];
@@ -79,7 +80,7 @@ export class DkgCoordinatorAgent {
   }
 
   public static async getRitualState(
-    provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
     ritualId: number
   ): Promise<DkgRitualState> {
     const Coordinator = await this.connectReadOnly(provider);
@@ -87,7 +88,7 @@ export class DkgCoordinatorAgent {
   }
 
   public static async onRitualEndEvent(
-    provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
     ritualId: number,
     callback: (successful: boolean) => void
   ): Promise<void> {
@@ -109,14 +110,15 @@ export class DkgCoordinatorAgent {
   }
 
   private static async connectReadWrite(
-    web3Provider: ethers.providers.Web3Provider
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer
   ) {
-    return await this.connect(web3Provider, web3Provider.getSigner());
+    return await this.connect(provider, signer);
   }
 
   private static async connect(
     provider: ethers.providers.Provider,
-    signer?: ethers.providers.JsonRpcSigner
+    signer?: ethers.Signer
   ): Promise<Coordinator> {
     const network = await provider.getNetwork();
     const contractAddress = getContract(network.chainId, 'COORDINATOR');

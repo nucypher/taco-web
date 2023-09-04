@@ -1,6 +1,7 @@
 import Joi from 'joi';
 
 import { objectEquals } from '../../utils';
+import { USER_ADDRESS_PARAM } from '../const';
 
 type Map = Record<string, unknown>;
 
@@ -17,6 +18,10 @@ export class Condition {
       ...override,
     };
     return this.schema.validate(newValue);
+  }
+
+  public requiresSigner(): boolean {
+    return JSON.stringify(this.value).includes(USER_ADDRESS_PARAM);
   }
 
   public toObj(): Map {

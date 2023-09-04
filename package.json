@@ -71,6 +71,7 @@
     "@types/semver": "^7.5.0",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.0.1",
+    "bundlemon": "^2.0.0-rc.1",
     "cz-conventional-changelog": "^3.0.1",
     "eslint": "^7.8.0",
     "eslint-config-prettier": "^6.11.0",
@@ -132,6 +133,14 @@
     "coverageDirectory": "coverage",
     "collectCoverageFrom": [
       "src/**/*.ts"
+    ]
+  },
+  "bundlemon": {
+    "baseDir": "./build",
+    "files": [
+      {
+        "path": "**/*.*"
+      }
     ]
   }
 }

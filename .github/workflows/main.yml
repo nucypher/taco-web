@@ -36,14 +36,8 @@ jobs:
         with:
           fail_ci_if_error: true
 
-      - name: Check bundle size
-        uses: sarthak-saxena/JSBundleSize@3.0.0
-        with:
-          # Skipping some commands with 'echo ok'
-          bootstrap: 'echo ok'
-          build_command: 'echo ok'
-          dist_path: 'build'
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: BundleMon
+        uses: lironer/bundlemon-action@v1
 
   build_examples:
     name: Build project examples

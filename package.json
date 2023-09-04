@@ -80,7 +80,7 @@
     "prettier": "^2.1.1",
     "standard-version": "^9.0.0",
     "ts-jest": "^27.0.3",
-    "ts-unused-exports": "^8.0.0",
+    "ts-unused-exports": "^10.0.1",
     "typechain": "^7.0.0",
     "typedoc": "^0.22.11",
     "typedoc-plugin-missing-exports": "^0.22.6",

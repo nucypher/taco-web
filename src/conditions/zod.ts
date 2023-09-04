@@ -2,14 +2,14 @@ import { Primitive, z, ZodLiteral } from 'zod';
 
 // Source: https://github.com/colinhacks/zod/issues/831#issuecomment-1063481764
 const createUnion = <
-  T extends Readonly<[Primitive, Primitive, ...Primitive[]]>,
+  T extends Readonly<[Primitive, Primitive, ...Primitive[]]>
 >(
   values: T
 ) => {
   const zodLiterals = values.map((value) => z.literal(value)) as unknown as [
     ZodLiteral<Primitive>,
     ZodLiteral<Primitive>,
-    ...ZodLiteral<Primitive>[],
+    ...ZodLiteral<Primitive>[]
   ];
   return z.union(zodLiterals);
 };

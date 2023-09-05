@@ -1,5 +1,5 @@
 import { DkgPublicKey } from '@nucypher/nucypher-core';
-import { ethers } from 'ethers';
+import { BigNumberish, ethers } from 'ethers';
 
 import { DkgCoordinatorAgent, DkgRitualState } from './agents/coordinator';
 import { ChecksumAddress } from './types';
@@ -58,22 +58,23 @@ export class DkgRitual {
   }
 }
 
-// TODO: Currently, we're assuming that the threshold is always `floor(sharesNum / 2) + 1`.
-//  https://github.com/nucypher/nucypher/issues/3095
-const assumedThreshold = (sharesNum: number): number =>
-  Math.floor(sharesNum / 2) + 1;
-
 export class DkgClient {
   public static async initializeRitual(
     provider: ethers.providers.Provider,
     signer: ethers.Signer,
     ursulas: ChecksumAddress[],
+    authority: string,
+    duration: BigNumberish,
+    accessController: string,
     waitUntilEnd = false
   ): Promise<number | undefined> {
     const ritualId = await DkgCoordinatorAgent.initializeRitual(
       provider,
       signer,
-      ursulas.sort()
+      ursulas.sort(),
+      authority,
+      duration,
+      accessController
     );
 
     if (waitUntilEnd) {
@@ -111,7 +112,7 @@ export class DkgClient {
     });
   };
 
-  public static async getExistingRitual(
+  public static async getRitual(
     provider: ethers.providers.Provider,
     ritualId: number
   ): Promise<DkgRitual> {
@@ -129,7 +130,7 @@ export class DkgClient {
       DkgPublicKey.fromBytes(dkgPkBytes),
       {
         sharesNum: ritual.dkgSize,
-        threshold: assumedThreshold(ritual.dkgSize),
+        threshold: ritual.threshold,
       },
       ritualState
     );
@@ -139,7 +140,7 @@ export class DkgClient {
     provider: ethers.providers.Provider,
     ritualId: number
   ): Promise<DkgRitual> {
-    const ritual = await DkgClient.getExistingRitual(provider, ritualId);
+    const ritual = await DkgClient.getRitual(provider, ritualId);
     if (ritual.state !== DkgRitualState.FINALIZED) {
       throw new Error(
         `Ritual ${ritualId} is not finalized. State: ${ritual.state}`

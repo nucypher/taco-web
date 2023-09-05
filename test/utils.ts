@@ -524,10 +524,18 @@ export const fakeDkgRitual = (ritual: {
   );
 };
 
-export const mockGetExistingRitual = (dkgRitual: DkgRitual) => {
-  return jest.spyOn(DkgClient, 'getExistingRitual').mockImplementation(() => {
+export const mockGetRitual = (dkgRitual: DkgRitual) => {
+  return jest.spyOn(DkgClient, 'getRitual').mockImplementation(() => {
     return Promise.resolve(dkgRitual);
   });
+};
+
+export const mockGetRitualIdFromPublicKey = (ritualId: number) => {
+  return jest
+    .spyOn(DkgCoordinatorAgent, 'getRitualIdFromPublicKey')
+    .mockImplementation(() => {
+      return Promise.resolve(ritualId);
+    });
 };
 
 export const makeCohort = async (ursulas: Ursula[]) => {

@@ -9,7 +9,7 @@ import {
   TimeCondition,
   TimeConditionProps,
 } from '../../../src/conditions/base';
-import { RpcConditionType } from '../../../src/conditions/base/rpc';
+import { RpcConditionType } from '../../../src/conditions/base';
 import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
 import { ERC721Balance } from '../../../src/conditions/predefined';
 import { objectEquals, toJSON } from '../../../src/utils';
@@ -187,6 +187,12 @@ describe('condition set', () => {
         ConditionExpression.fromJSON(conditionExprJson);
       expect(conditionExprFromJson).toBeDefined();
       expect(conditionExprFromJson.equals(conditionExprFromJson)).toBeTruthy();
+
+      const asWasmConditions = conditionExprFromJson.toWASMConditions();
+      const fromWasmConditions =
+        ConditionExpression.fromWASMConditions(asWasmConditions);
+      expect(fromWasmConditions).toBeDefined();
+      expect(fromWasmConditions.equals(conditionExprFromJson)).toBeTruthy();
     });
 
     it('serializes to and from WASM conditions', () => {

@@ -15,8 +15,8 @@ import {
   fakeUrsulas,
   makeCohort,
   mockCbdDecrypt,
-  mockGetExistingRitual,
   mockGetParticipants,
+  mockGetRitual,
   mockGetUrsulas,
   mockRandomSessionStaticSecret,
 } from '../utils';
@@ -54,7 +54,7 @@ async function makeDeployedCbdStrategy() {
   const mockedDkg = fakeDkgFlow(variant, 0, 4, 4);
   const mockedDkgRitual = fakeDkgRitual(mockedDkg);
   const getUrsulasSpy = mockGetUrsulas(ursulas);
-  const getExistingRitualSpy = mockGetExistingRitual(mockedDkgRitual);
+  const getExistingRitualSpy = mockGetRitual(mockedDkgRitual);
 
   const deployedStrategy = await strategy.deploy(provider, ritualId);
 

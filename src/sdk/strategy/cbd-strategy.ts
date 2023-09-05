@@ -44,7 +44,7 @@ export class CbdStrategy {
     //   // Given that we just initialized the ritual, this should never happen
     //   throw new Error('Ritual ID is undefined');
     // }
-    const dkgRitual = await DkgClient.getExistingRitual(provider, ritualId);
+    const dkgRitual = await DkgClient.getRitual(provider, ritualId);
     return DeployedCbdStrategy.create(dkgRitual, this.cohort.porterUri);
   }
 
@@ -92,7 +92,7 @@ export class DeployedCbdStrategy {
     porterUri: string,
     ritualId: number
   ): Promise<DeployedCbdStrategy> {
-    const dkgRitual = await DkgClient.getExistingRitual(provider, ritualId);
+    const dkgRitual = await DkgClient.getRitual(provider, ritualId);
     return DeployedCbdStrategy.create(dkgRitual, porterUri);
   }
 

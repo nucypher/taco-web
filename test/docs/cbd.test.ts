@@ -8,6 +8,10 @@ import {
   PreStrategy,
   SecretKey,
 } from '../../src';
+import {
+  ContractCondition,
+  ContractConditionProps,
+} from '../../src/conditions/base';
 import { Ursula } from '../../src/porter';
 import { toBytes } from '../../src/utils';
 import {
@@ -24,7 +28,6 @@ import {
 
 const {
   predefined: { ERC721Ownership },
-  base: { ContractCondition },
   ConditionExpression,
 } = conditions;
 
@@ -91,7 +94,8 @@ describe('Get Started (CBD PoC)', () => {
     const newDeployed = await newStrategy.deploy(provider, signer, 'test');
 
     // 5. Encrypt the plaintext & update conditions
-    const NFTBalanceConfig = {
+    const NFTBalanceConfig: ContractConditionProps = {
+      conditionType: 'contract',
       contractAddress: '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D',
       standardContractType: 'ERC721',
       chain: 5,

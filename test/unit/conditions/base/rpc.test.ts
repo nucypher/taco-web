@@ -1,12 +1,16 @@
 import { RpcCondition } from '../../../../src/conditions/base';
+import { rpcConditionSchema } from '../../../../src/conditions/base/rpc';
 import { testRpcConditionObj } from '../../testVariables';
 
 describe('validation', () => {
   it('accepts on a valid schema', () => {
-    const rpc = new RpcCondition(testRpcConditionObj);
-    expect(rpc.toObj()).toEqual({
-      ...testRpcConditionObj,
-    });
+    const result = RpcCondition.validate(
+      rpcConditionSchema,
+      testRpcConditionObj
+    );
+
+    expect(result.error).toBeUndefined();
+    expect(result.data).toEqual(testRpcConditionObj);
   });
 
   it('rejects an invalid schema', () => {
@@ -14,16 +18,18 @@ describe('validation', () => {
       ...testRpcConditionObj,
       // Intentionally replacing `method` with an invalid method
       method: 'fake_invalid_method',
-    };
+    } as unknown as typeof testRpcConditionObj;
 
-    const badRpc = new RpcCondition(badRpcObj);
-    expect(() => badRpc.toObj()).toThrow(
-      'Invalid condition: "method" must be one of [eth_getBalance, balanceOf]'
-    );
+    const result = RpcCondition.validate(rpcConditionSchema, badRpcObj);
 
-    const { error } = badRpc.validate(badRpcObj);
-    expect(error?.message).toEqual(
-      '"method" must be one of [eth_getBalance, balanceOf]'
-    );
+    expect(result.error).toBeDefined();
+    expect(result.data).toBeUndefined();
+    expect(result.error?.format()).toMatchObject({
+      method: {
+        _errors: [
+          "Invalid enum value. Expected 'eth_getBalance' | 'balanceOf', received 'fake_invalid_method'",
+        ],
+      },
+    });
   });
 });

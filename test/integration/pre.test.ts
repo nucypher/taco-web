@@ -1,7 +1,7 @@
 import { CapsuleFrag, reencrypt } from '@nucypher/nucypher-core';
 
 import { conditions, Enrico, MessageKit, PolicyMessageKit } from '../../src';
-import { CompoundCondition } from '../../src/conditions';
+import { CompoundCondition } from '../../src/conditions/base';
 import { RetrievalResult } from '../../src/kits/retrieval';
 import { toBytes, zip } from '../../src/utils';
 import { fakeAlice, fakeBob, fakeUrsulas, reencryptKFrags } from '../utils';

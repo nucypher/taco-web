@@ -45,10 +45,6 @@ export const decrypt = async (
     ritualId,
     ritual.dkgParams.threshold
   );
-  // TODO: What do we do if there are no conditions?
-  if (!messageKit.acp.conditions) {
-    throw new Error('ThresholdMessageKit does not contain conditions');
-  }
   return decrypter.retrieveAndDecrypt(provider, messageKit, signer);
 };
 

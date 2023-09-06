@@ -1818,10 +1818,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@nucypher/nucypher-core@^0.12.0":
-  version "0.12.0"
-  resolved "https://registry.yarnpkg.com/@nucypher/nucypher-core/-/nucypher-core-0.12.0.tgz#0274026f3996601994e9639c06ab79c62c8f5d7c"
-  integrity sha512-hEjjnTSLNqHUiIF6U02j+M8jUOBCOt5mGG78lMHoathbak15AmYX4gkdkHTg2Ssvt5o77Cwzsn5YgGM4Haf7AQ==
+"@nucypher/nucypher-core@^0.13.0":
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/@nucypher/nucypher-core/-/nucypher-core-0.13.0.tgz#071263931d4e9604b428ea738ebe8ee5e1f302f3"
+  integrity sha512-HfEbrQvngOHIn0bMAdqPIF7WzkLdb5+sMhmX7bQl2SINABQ6FGGN8G+Arb+pbkYgru5qeQ+RTTbCBwBNaxFKEg==
 
 "@sinclair/typebox@^0.27.8":
   version "0.27.8"

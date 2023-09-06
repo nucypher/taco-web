@@ -36,10 +36,6 @@ export class ConditionContext {
     this.validate();
   }
 
-  private requiresSigner(): boolean {
-    return this.conditions.some((cond) => cond.requiresSigner());
-  }
-
   private validate() {
     Object.keys(this.customParameters).forEach((key) => {
       if (RESERVED_CONTEXT_PARAMS.includes(key)) {
@@ -54,7 +50,10 @@ export class ConditionContext {
       }
     });
 
-    if (this.requiresSigner() && !this.signer) {
+    const conditionRequiresSigner = this.conditions.some((c) =>
+      c.requiresSigner()
+    );
+    if (conditionRequiresSigner && !this.signer) {
       throw new Error(
         `Cannot use ${USER_ADDRESS_PARAM} as custom parameter without a signer`
       );
@@ -151,9 +150,9 @@ export class ConditionContext {
     acp: AccessControlPolicy,
     signer?: ethers.Signer
   ): ConditionContext {
-    const conditions = acp.conditions
-      ? [ConditionExpression.fromWASMConditions(acp.conditions).condition]
-      : [];
+    const conditions = [
+      ConditionExpression.fromWASMConditions(acp.conditions).condition,
+    ];
     return new ConditionContext(provider, conditions, {}, signer);
   }
 }

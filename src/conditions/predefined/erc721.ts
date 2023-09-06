@@ -1,4 +1,5 @@
 import { ContractCondition, ContractConditionProps } from '../base';
+import { ContractConditionType } from '../base/contract';
 import { USER_ADDRESS_PARAM } from '../const';
 
 // TODO: Rewrite these using Zod schemas?
@@ -9,7 +10,7 @@ const ERC721OwnershipDefaults: Omit<
   ContractConditionProps,
   ERC721OwnershipFields
 > = {
-  conditionType: 'contract',
+  conditionType: ContractConditionType,
   method: 'ownerOf',
   standardContractType: 'ERC721',
   returnValueTest: {
@@ -29,7 +30,7 @@ type ERC721BalanceFields = 'contractAddress' | 'chain';
 
 const ERC721BalanceDefaults: Omit<ContractConditionProps, ERC721BalanceFields> =
   {
-    conditionType: 'contract',
+    conditionType: ContractConditionType,
     method: 'balanceOf',
     parameters: [USER_ADDRESS_PARAM],
     standardContractType: 'ERC721',

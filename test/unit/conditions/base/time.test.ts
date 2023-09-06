@@ -3,7 +3,11 @@ import {
   TimeConditionProps,
 } from '../../../../src/conditions/base';
 import { ReturnValueTestProps } from '../../../../src/conditions/base/shared';
-import { timeConditionSchema } from '../../../../src/conditions/base/time';
+import {
+  TimeConditionMethod,
+  timeConditionSchema,
+  TimeConditionType,
+} from '../../../../src/conditions/base/time';
 
 describe('validation', () => {
   const returnValueTest: ReturnValueTestProps = {
@@ -14,9 +18,9 @@ describe('validation', () => {
 
   it('accepts a valid schema', () => {
     const conditionObj: TimeConditionProps = {
+      conditionType: TimeConditionType,
       returnValueTest,
-      conditionType: 'time',
-      method: 'blocktime',
+      method: TimeConditionMethod,
       chain: 1,
     };
     const result = TimeCondition.validate(timeConditionSchema, conditionObj);
@@ -27,7 +31,7 @@ describe('validation', () => {
 
   it('rejects an invalid schema', () => {
     const badObj = {
-      conditionType: 'time',
+      conditionType: TimeConditionType,
       // Intentionally replacing `returnValueTest` with an invalid test
       returnValueTest: {
         ...returnValueTest,

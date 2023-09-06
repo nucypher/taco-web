@@ -5,8 +5,10 @@ import createUnionSchema from '../zod';
 
 import { EthAddressOrUserAddressSchema, returnValueTestSchema } from './shared';
 
+export const RpcConditionType = 'rpc';
+
 export const rpcConditionSchema = z.object({
-  conditionType: z.literal('rpc').default('rpc'),
+  conditionType: z.literal(RpcConditionType).default(RpcConditionType),
   chain: createUnionSchema(SUPPORTED_CHAIN_IDS),
   method: z.enum(['eth_getBalance', 'balanceOf']),
   parameters: z.array(EthAddressOrUserAddressSchema),

@@ -132,7 +132,6 @@ describe('CbdDeployedStrategy', () => {
     const decryptedMessage =
       await deployedStrategy.decrypter.retrieveAndDecrypt(
         aliceProvider,
-        conditionExpr,
         thresholdMessageKit,
         aliceSigner
       );

@@ -1,8 +1,13 @@
-import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
+import {
+  AccessControlPolicy,
+  Context,
+  Conditions as WASMConditions,
+} from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
 import { fromJSON, toJSON } from '../../utils';
 import { Condition } from '../condition';
+import { ConditionExpression } from '../condition-expr';
 import { USER_ADDRESS_PARAM } from '../const';
 
 import { TypedSignature, WalletAuthenticationProvider } from './providers';
@@ -31,7 +36,7 @@ export class ConditionContext {
     this.validate();
   }
 
-  public requiresSigner(): boolean {
+  private requiresSigner(): boolean {
     return this.conditions.some((cond) => cond.requiresSigner());
   }
 
@@ -120,19 +125,35 @@ export class ConditionContext {
     return parameters;
   };
 
-  public toJson = async (): Promise<string> => {
+  public async toJson(): Promise<string> {
     const parameters = await this.toObj();
     return toJSON(parameters);
-  };
+  }
 
-  public withCustomParams = (
+  public withCustomParams(
     params: Record<string, CustomContextParam>
-  ): ConditionContext => {
+  ): ConditionContext {
     return new ConditionContext(
       this.provider,
       this.conditions,
       params,
       this.signer
     );
-  };
+  }
+
+  public async toWASMContext(): Promise<Context> {
+    const asJson = await this.toJson();
+    return new Context(asJson);
+  }
+
+  public static fromAccessControlPolicy(
+    provider: ethers.providers.Provider,
+    acp: AccessControlPolicy,
+    signer?: ethers.Signer
+  ): ConditionContext {
+    const conditions = acp.conditions
+      ? [ConditionExpression.fromWASMConditions(acp.conditions).condition]
+      : [];
+    return new ConditionContext(provider, conditions, {}, signer);
+  }
 }

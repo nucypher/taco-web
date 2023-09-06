@@ -188,6 +188,13 @@ describe('condition set', () => {
       expect(conditionExprFromJson.equals(conditionExprFromJson)).toBeTruthy();
     });
 
+    it('serializes to and from WASM conditions', () => {
+      const conditionExpr = new ConditionExpression(erc721BalanceCondition);
+      const wasmConditions = conditionExpr.toWASMConditions();
+      const fromWasm = ConditionExpression.fromWASMConditions(wasmConditions);
+      expect(conditionExpr.equals(fromWasm)).toBeTruthy();
+    });
+
     it('incompatible version', () => {
       const currentVersion = new SemVer(ConditionExpression.VERSION);
       const invalidVersion = currentVersion.inc('major');

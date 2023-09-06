@@ -75,6 +75,6 @@ export class Condition {
   }
 
   public equals(other: Condition) {
-    return objectEquals(this, other);
+    return objectEquals(this.toObj(), other.toObj());
   }
 }

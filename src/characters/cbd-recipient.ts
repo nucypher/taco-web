@@ -13,7 +13,7 @@ import {
 import { ethers } from 'ethers';
 
 import { DkgCoordinatorAgent, DkgParticipant } from '../agents/coordinator';
-import { ConditionExpression } from '../conditions';
+import { ConditionContext } from '../conditions';
 import { DkgRitual } from '../dkg';
 import { PorterClient } from '../porter';
 import { fromJSON, objectEquals, toJSON } from '../utils';
@@ -42,13 +42,11 @@ export class ThresholdDecrypter {
   // Retrieve and decrypt ciphertext using provider and condition expression
   public async retrieveAndDecrypt(
     provider: ethers.providers.Provider,
-    conditionExpr: ConditionExpression,
     thresholdMessageKit: ThresholdMessageKit,
     signer?: ethers.Signer
   ): Promise<Uint8Array> {
     const decryptionShares = await this.retrieve(
       provider,
-      conditionExpr,
       thresholdMessageKit,
       signer
     );
@@ -59,7 +57,6 @@ export class ThresholdDecrypter {
   // Retrieve decryption shares
   public async retrieve(
     provider: ethers.providers.Provider,
-    conditionExpr: ConditionExpression,
     thresholdMessageKit: ThresholdMessageKit,
     signer?: ethers.Signer
   ): Promise<DecryptionShareSimple[]> {
@@ -67,15 +64,18 @@ export class ThresholdDecrypter {
       provider,
       this.ritualId
     );
-    const contextStr = await conditionExpr
-      .buildContext(provider, {}, signer)
-      .toJson();
-    const { sharedSecrets, encryptedRequests } = this.makeDecryptionRequests(
-      this.ritualId,
-      new Context(contextStr),
-      dkgParticipants,
-      thresholdMessageKit
-    );
+    const wasmContext = await ConditionContext.fromAccessControlPolicy(
+      provider,
+      thresholdMessageKit.acp,
+      signer
+    ).toWASMContext();
+    const { sharedSecrets, encryptedRequests } =
+      await this.makeDecryptionRequests(
+        this.ritualId,
+        wasmContext,
+        dkgParticipants,
+        thresholdMessageKit
+      );
 
     const { encryptedResponses, errors } = await this.porter.cbdDecrypt(
       encryptedRequests,
@@ -117,21 +117,21 @@ export class ThresholdDecrypter {
     );
   }
 
-  private makeDecryptionRequests(
+  private async makeDecryptionRequests(
     ritualId: number,
-    conditionContext: Context,
+    wasmContext: Context,
     dkgParticipants: Array<DkgParticipant>,
     thresholdMessageKit: ThresholdMessageKit
-  ): {
+  ): Promise<{
     sharedSecrets: Record<string, SessionSharedSecret>;
     encryptedRequests: Record<string, EncryptedThresholdDecryptionRequest>;
-  } {
+  }> {
     const decryptionRequest = new ThresholdDecryptionRequest(
       ritualId,
       FerveoVariant.simple,
       thresholdMessageKit.ciphertextHeader,
       thresholdMessageKit.acp,
-      conditionContext
+      wasmContext
     );
 
     const ephemeralSessionKey = this.makeSessionKey();

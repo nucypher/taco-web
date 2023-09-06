@@ -14,7 +14,6 @@ import {
   DkgPublicKey,
   EncryptedThresholdDecryptionResponse,
   EncryptedTreasureMap,
-  encryptForDkg,
   EthereumAddress,
   FerveoVariant,
   Keypair,
@@ -323,16 +322,8 @@ export const fakeTDecFlow = async ({
   threshold,
   receivedMessages,
   message,
-  conditionExpr,
-  dkgPublicKey,
   thresholdMessageKit,
 }: FakeDkgRitualFlow) => {
-  const [_ciphertext, authenticatedData] = encryptForDkg(
-    message,
-    dkgPublicKey,
-    conditionExpr.toWASMConditions()
-  );
-
   // Having aggregated the transcripts, the validators can now create decryption shares
   const decryptionShares: (
     | DecryptionSharePrecomputed
@@ -349,7 +340,7 @@ export const fakeTDecFlow = async ({
     const decryptionShare = aggregate.createDecryptionShareSimple(
       dkg,
       thresholdMessageKit.ciphertextHeader,
-      authenticatedData.aad(),
+      thresholdMessageKit.acp.aad(),
       keypair
     );
     decryptionShares.push(decryptionShare);
@@ -362,7 +353,6 @@ export const fakeTDecFlow = async ({
     throw new Error('Decryption failed');
   }
   return {
-    authenticatedData,
     decryptionShares,
     plaintext,
     sharedSecret,
@@ -393,7 +383,7 @@ export const fakeDkgTDecFlowE2E = async (
     conditionExpr
   );
 
-  const { decryptionShares, authenticatedData } = await fakeTDecFlow({
+  const { decryptionShares } = await fakeTDecFlow({
     ...ritual,
     message,
     conditionExpr,
@@ -405,7 +395,6 @@ export const fakeDkgTDecFlowE2E = async (
     ...ritual,
     message,
     decryptionShares,
-    authenticatedData,
     thresholdMessageKit,
   };
 };

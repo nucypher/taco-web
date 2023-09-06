@@ -102,6 +102,22 @@ describe('context parameters', () => {
     expect(conditionExpr.contextRequiresSigner()).toBe(false);
   });
 
+  it('rejects on a missing signer', () => {
+    const conditionObj = {
+      ...testContractConditionObj,
+      returnValueTest: {
+        ...testReturnValueTest,
+        value: USER_ADDRESS_PARAM,
+      },
+    };
+    const condition = new ContractCondition(conditionObj);
+    const conditionExpr = new ConditionExpression(condition);
+    expect(conditionExpr.contextRequiresSigner()).toBe(true);
+    expect(() => conditionExpr.buildContext(provider, {}, undefined)).toThrow(
+      `Cannot use ${USER_ADDRESS_PARAM} as custom parameter without a signer`
+    );
+  });
+
   describe('custom method parameters', () => {
     const contractConditionObj = {
       ...testContractConditionObj,

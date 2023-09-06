@@ -310,7 +310,6 @@ interface FakeDkgRitualFlow {
   dkg: Dkg;
   message: Uint8Array;
   dkgPublicKey: DkgPublicKey;
-  conditionExpr: ConditionExpression;
   thresholdMessageKit: ThresholdMessageKit;
 }
 
@@ -386,7 +385,6 @@ export const fakeDkgTDecFlowE2E = async (
   const { decryptionShares } = await fakeTDecFlow({
     ...ritual,
     message,
-    conditionExpr,
     dkgPublicKey,
     thresholdMessageKit,
   });

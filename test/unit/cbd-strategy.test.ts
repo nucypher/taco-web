@@ -111,7 +111,6 @@ describe('CbdDeployedStrategy', () => {
     const { decryptionShares } = await fakeTDecFlow({
       ...mockedDkg,
       message: toBytes(message),
-      conditionExpr,
       dkgPublicKey: mockedDkg.dkg.publicKey(),
       thresholdMessageKit,
     });

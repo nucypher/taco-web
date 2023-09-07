@@ -1,5 +1,8 @@
-# package.json is formatted by package managers, so we ignore it here
 package.json
-coverage
-build
-types/ethers-contracts
+**/dist/**
+**/types/**
+**/build/**
+CHANGELOG.md
+**/*.sol
+README.md
+/packages/nucypher-ts/src/contracts/ethers-typechain/

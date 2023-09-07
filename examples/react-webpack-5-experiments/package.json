@@ -1,17 +1,17 @@
 {
   "name": "nucypher-ts-example-react-webpack",
   "version": "0.1.0",
-  "description": "A usage example for nucypher-ts",
   "private": true,
+  "description": "A usage example for nucypher-ts",
   "author": "Piotr Rosłaniec <p.roslaniec@gmail.com>",
   "scripts": {
-    "start": "webpack serve --mode development",
-    "build": "tsc --noEmit && rimraf build && webpack --mode production --progress"
+    "build": "tsc --noEmit && rimraf build && webpack --mode production --progress",
+    "start": "webpack serve --mode development"
   },
   "dependencies": {
+    "@nucypher/nucypher-ts": "workspace:*",
     "ethers": "^5.4.1",
     "file-loader": "^6.2.0",
-    "@nucypher/nucypher-ts": "0.9.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
     "react-router-dom": "^5.2.0"

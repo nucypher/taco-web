@@ -1,16 +1,14 @@
 {
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "echo \"Warning: no build specified\" && exit 0",
-    "start": "node index.js"
-  },
   "version": "1.0.0",
-  "author": "Piotr Rosłaniec <p.roslaniec@gmail.com>",
   "description": "A nucypher-ts usage example with NodeJs",
   "license": "GPL-3.0-only",
+  "author": "Piotr Rosłaniec <p.roslaniec@gmail.com>",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
+    "@nucypher/nucypher-ts": "workspace:*",
     "cors": "^2.8.5",
-    "express": "^4.18.2",
-    "@nucypher/nucypher-ts": "../../"
+    "express": "^4.18.2"
   }
 }

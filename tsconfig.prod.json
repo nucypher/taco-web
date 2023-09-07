@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "lib": [
+      "ES2018"
+    ],
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "strict": true,
+    "target": "ES2018",
+    "sourceMap": true,
+    "composite": true,
+    "incremental": true,
+    "stripInternal": true
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/nucypher-ts/tsconfig.json"
+    }
+  ]
+}

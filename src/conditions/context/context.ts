@@ -1,8 +1,4 @@
-import {
-  AccessControlPolicy,
-  Context,
-  Conditions as WASMConditions,
-} from '@nucypher/nucypher-core';
+import { Context, Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
 import { fromJSON, toJSON } from '../../utils';
@@ -55,7 +51,7 @@ export class ConditionContext {
     );
     if (conditionRequiresSigner && !this.signer) {
       throw new Error(
-        `Cannot use ${USER_ADDRESS_PARAM} as custom parameter without a signer`
+        `Condition contains ${USER_ADDRESS_PARAM} context variable and requires a signer to populate`
       );
     }
 
@@ -96,7 +92,7 @@ export class ConditionContext {
     if (requestedParameters.has(USER_ADDRESS_PARAM)) {
       if (!this.walletAuthProvider) {
         throw new Error(
-          `Cannot use ${USER_ADDRESS_PARAM} as custom parameter without a signer`
+          `Condition contains ${USER_ADDRESS_PARAM} context variable and requires a signer to populate`
         );
       }
       parameters[USER_ADDRESS_PARAM] =
@@ -145,14 +141,14 @@ export class ConditionContext {
     return new Context(asJson);
   }
 
-  public static fromAccessControlPolicy(
+  public static fromConditions(
     provider: ethers.providers.Provider,
-    acp: AccessControlPolicy,
+    conditions: WASMConditions,
     signer?: ethers.Signer
   ): ConditionContext {
-    const conditions = [
-      ConditionExpression.fromWASMConditions(acp.conditions).condition,
+    const innerConditions = [
+      ConditionExpression.fromWASMConditions(conditions).condition,
     ];
-    return new ConditionContext(provider, conditions, {}, signer);
+    return new ConditionContext(provider, innerConditions, {}, signer);
   }
 }

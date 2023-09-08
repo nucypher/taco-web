@@ -64,9 +64,9 @@ export class ThresholdDecrypter {
       provider,
       this.ritualId
     );
-    const wasmContext = await ConditionContext.fromAccessControlPolicy(
+    const wasmContext = await ConditionContext.fromConditions(
       provider,
-      thresholdMessageKit.acp,
+      thresholdMessageKit.acp.conditions,
       signer
     ).toWASMContext();
     const { sharedSecrets, encryptedRequests } =

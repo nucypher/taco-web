@@ -29,7 +29,7 @@ describe('DkgCoordinatorAgent', () => {
 
   it('fetches participants from the coordinator', async () => {
     const provider = fakeProvider(SecretKey.random().toBEBytes());
-    const fakeParticipants = fakeDkgParticipants(fakeRitualId);
+    const fakeParticipants = await fakeDkgParticipants(fakeRitualId);
     const getParticipantsSpy = mockGetParticipants(
       fakeParticipants.participants
     );

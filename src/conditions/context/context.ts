@@ -1,8 +1,9 @@
-import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
+import { Context, Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
 import { fromJSON, toJSON } from '../../utils';
 import { Condition } from '../condition';
+import { ConditionExpression } from '../condition-expr';
 import { USER_ADDRESS_PARAM } from '../const';
 
 import { TypedSignature, WalletAuthenticationProvider } from './providers';
@@ -31,10 +32,6 @@ export class ConditionContext {
     this.validate();
   }
 
-  public requiresSigner(): boolean {
-    return this.conditions.some((cond) => cond.requiresSigner());
-  }
-
   private validate() {
     Object.keys(this.customParameters).forEach((key) => {
       if (RESERVED_CONTEXT_PARAMS.includes(key)) {
@@ -49,9 +46,12 @@ export class ConditionContext {
       }
     });
 
-    if (this.requiresSigner() && !this.signer) {
+    const conditionRequiresSigner = this.conditions.some((c) =>
+      c.requiresSigner()
+    );
+    if (conditionRequiresSigner && !this.signer) {
       throw new Error(
-        `Cannot use ${USER_ADDRESS_PARAM} as custom parameter without a signer`
+        `Condition contains ${USER_ADDRESS_PARAM} context variable and requires a signer to populate`
       );
     }
 
@@ -92,7 +92,7 @@ export class ConditionContext {
     if (requestedParameters.has(USER_ADDRESS_PARAM)) {
       if (!this.walletAuthProvider) {
         throw new Error(
-          `Cannot use ${USER_ADDRESS_PARAM} as custom parameter without a signer`
+          `Condition contains ${USER_ADDRESS_PARAM} context variable and requires a signer to populate`
         );
       }
       parameters[USER_ADDRESS_PARAM] =
@@ -120,19 +120,35 @@ export class ConditionContext {
     return parameters;
   };
 
-  public toJson = async (): Promise<string> => {
+  public async toJson(): Promise<string> {
     const parameters = await this.toObj();
     return toJSON(parameters);
-  };
+  }
 
-  public withCustomParams = (
+  public withCustomParams(
     params: Record<string, CustomContextParam>
-  ): ConditionContext => {
+  ): ConditionContext {
     return new ConditionContext(
       this.provider,
       this.conditions,
       params,
       this.signer
     );
-  };
+  }
+
+  public async toWASMContext(): Promise<Context> {
+    const asJson = await this.toJson();
+    return new Context(asJson);
+  }
+
+  public static fromConditions(
+    provider: ethers.providers.Provider,
+    conditions: WASMConditions,
+    signer?: ethers.Signer
+  ): ConditionContext {
+    const innerConditions = [
+      ConditionExpression.fromWASMConditions(conditions).condition,
+    ];
+    return new ConditionContext(provider, innerConditions, {}, signer);
+  }
 }

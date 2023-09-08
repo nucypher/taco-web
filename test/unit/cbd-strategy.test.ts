@@ -30,8 +30,8 @@ const {
 
 // Shared test variables
 const aliceSecretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);
-const aliceSigner = fakeSigner(aliceSecretKey.toBEBytes());
 const aliceProvider = fakeProvider(aliceSecretKey.toBEBytes());
+const aliceSigner = fakeSigner(aliceSecretKey.toBEBytes());
 const ownsNFT = new ERC721Ownership({
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
   parameters: [3591],
@@ -54,10 +54,9 @@ async function makeDeployedCbdStrategy() {
 
   const mockedDkg = fakeDkgFlow(variant, 0, 4, 4);
   const mockedDkgRitual = fakeDkgRitual(mockedDkg);
-  const web3Provider = fakeProvider(aliceSecretKey.toBEBytes());
   const getUrsulasSpy = mockGetUrsulas(ursulas);
   const getExistingRitualSpy = mockGetExistingRitual(mockedDkgRitual);
-  const deployedStrategy = await strategy.deploy(web3Provider, ritualId);
+  const deployedStrategy = await strategy.deploy(aliceProvider, ritualId);
 
   expect(getUrsulasSpy).toHaveBeenCalled();
   expect(getExistingRitualSpy).toHaveBeenCalled();
@@ -104,20 +103,19 @@ describe('CbdDeployedStrategy', () => {
     const { mockedDkg, deployedStrategy } = await makeDeployedCbdStrategy();
 
     const message = 'this is a secret';
-    const { ciphertext, aad } = deployedStrategy
+    const thresholdMessageKit = deployedStrategy
       .makeEncrypter(conditionExpr)
       .encryptMessageCbd(message);
 
     // Setup mocks for `retrieveAndDecrypt`
-    const { decryptionShares } = fakeTDecFlow({
+    const { decryptionShares } = await fakeTDecFlow({
       ...mockedDkg,
       message: toBytes(message),
-      aad,
-      ciphertext,
+      dkgPublicKey: mockedDkg.dkg.publicKey(),
+      thresholdMessageKit,
     });
-    const { participantSecrets, participants } = fakeDkgParticipants(
-      mockedDkg.ritualId,
-      variant
+    const { participantSecrets, participants } = await fakeDkgParticipants(
+      mockedDkg.ritualId
     );
     const requesterSessionKey = SessionStaticSecret.random();
     const decryptSpy = mockCbdDecrypt(
@@ -133,9 +131,8 @@ describe('CbdDeployedStrategy', () => {
     const decryptedMessage =
       await deployedStrategy.decrypter.retrieveAndDecrypt(
         aliceProvider,
-        aliceSigner,
-        conditionExpr,
-        ciphertext
+        thresholdMessageKit,
+        aliceSigner
       );
     expect(getUrsulasSpy).toHaveBeenCalled();
     expect(getParticipantsSpy).toHaveBeenCalled();

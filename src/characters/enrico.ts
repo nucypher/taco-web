@@ -1,11 +1,13 @@
 import {
-  Ciphertext,
+  AccessControlPolicy,
   DkgPublicKey,
-  ferveoEncrypt,
+  encryptForDkg,
   MessageKit,
   PublicKey,
   SecretKey,
+  ThresholdMessageKit,
 } from '@nucypher/nucypher-core';
+import { arrayify, keccak256 } from 'ethers/lib/utils';
 
 import { ConditionExpression } from '../conditions';
 import { Keyring } from '../keyring';
@@ -51,13 +53,13 @@ export class Enrico {
 
   public encryptMessageCbd(
     plaintext: Uint8Array | string,
-    withConditions?: ConditionExpression
-  ): { ciphertext: Ciphertext; aad: Uint8Array } {
-    if (!withConditions) {
-      withConditions = this.conditions;
+    conditions?: ConditionExpression
+  ): ThresholdMessageKit {
+    if (!conditions) {
+      conditions = this.conditions;
     }
 
-    if (!withConditions) {
+    if (!conditions) {
       throw new Error('Conditions are required for CBD encryption.');
     }
 
@@ -65,12 +67,19 @@ export class Enrico {
       throw new Error('Wrong key type. Use encryptMessagePre instead.');
     }
 
-    const aad = withConditions.asAad();
-    const ciphertext = ferveoEncrypt(
+    const [ciphertext, authenticatedData] = encryptForDkg(
       plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext),
-      aad,
-      this.encryptingKey
+      this.encryptingKey,
+      conditions.toWASMConditions()
     );
-    return { ciphertext, aad };
+
+    const headerHash = keccak256(ciphertext.header.toBytes());
+    const authorization = this.keyring.signer.sign(arrayify(headerHash));
+    const acp = new AccessControlPolicy(
+      authenticatedData,
+      authorization.toBEBytes()
+    );
+
+    return new ThresholdMessageKit(ciphertext, acp);
   }
 }

@@ -2,7 +2,7 @@ import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 import { SemVer } from 'semver';
 
-import { toBytes, toJSON } from '../utils';
+import { toJSON } from '../utils';
 
 import { Condition } from './condition';
 import { ConditionContext, CustomContextParam } from './context';
@@ -13,7 +13,7 @@ export type ConditionExpressionJSON = {
 };
 
 export class ConditionExpression {
-  static VERSION = '1.0.0';
+  public static VERSION = '1.0.0';
 
   constructor(
     public readonly condition: Condition,
@@ -61,6 +61,10 @@ export class ConditionExpression {
     return new WASMConditions(toJSON(this.toObj()));
   }
 
+  public static fromWASMConditions(conditions: WASMConditions) {
+    return ConditionExpression.fromJSON(conditions.toString());
+  }
+
   public buildContext(
     provider: ethers.providers.Provider,
     customParameters: Record<string, CustomContextParam> = {},
@@ -76,10 +80,6 @@ export class ConditionExpression {
 
   public contextRequiresSigner(): boolean {
     return this.condition.requiresSigner();
-  }
-
-  public asAad(): Uint8Array {
-    return toBytes(this.toJson());
   }
 
   public equals(other: ConditionExpression): boolean {

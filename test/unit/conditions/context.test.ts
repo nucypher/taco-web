@@ -91,6 +91,10 @@ describe('context parameters', () => {
     const condition = new ContractCondition(conditionObj);
     const conditionExpr = new ConditionExpression(condition);
     expect(conditionExpr.contextRequiresSigner()).toBe(true);
+    expect(conditionExpr.buildContext(provider, {}, signer)).toBeDefined();
+    expect(() => conditionExpr.buildContext(provider, {})).toThrow(
+      `Signer required to satisfy ${USER_ADDRESS_PARAM} context variable in condition`
+    );
   });
 
   it('detects if a signer is not required', () => {
@@ -100,6 +104,8 @@ describe('context parameters', () => {
       false
     );
     expect(conditionExpr.contextRequiresSigner()).toBe(false);
+    expect(conditionExpr.buildContext(provider, {}, signer)).toBeDefined();
+    expect(conditionExpr.buildContext(provider, {})).toBeDefined();
   });
 
   it('rejects on a missing signer', () => {
@@ -114,7 +120,7 @@ describe('context parameters', () => {
     const conditionExpr = new ConditionExpression(condition);
     expect(conditionExpr.contextRequiresSigner()).toBe(true);
     expect(() => conditionExpr.buildContext(provider, {}, undefined)).toThrow(
-      `Cannot use ${USER_ADDRESS_PARAM} as a parameter without a signer`
+      `Signer required to satisfy ${USER_ADDRESS_PARAM} context variable in condition`
     );
   });
 

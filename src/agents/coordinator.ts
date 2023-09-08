@@ -120,8 +120,8 @@ export class DkgCoordinatorAgent {
     const Coordinator = await this.connectReadOnly(provider);
     const dkgPublicKeyBytes = dkgPublicKey.toBytes();
     const pointStruct: BLS12381.G1PointStruct = {
-      word0: dkgPublicKeyBytes.slice(0, 16),
-      word1: dkgPublicKeyBytes.slice(16, 32),
+      word0: dkgPublicKeyBytes.slice(0, 32),
+      word1: dkgPublicKeyBytes.slice(32, 48),
     };
     return await Coordinator.getRitualIdFromPublicKey(pointStruct);
   }

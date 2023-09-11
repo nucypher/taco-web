@@ -41,13 +41,13 @@ export function App() {
     if (!provider) {
       return;
     }
-    const secretKey = SecretKey.fromBytes(Buffer.from('fake-secret-key-32-bytes-alice-x'));
+    const secretKey = SecretKey.fromBEBytes(Buffer.from('fake-secret-key-32-bytes-alice-x'));
     const alice = Alice.fromSecretKey(config, secretKey, provider);
     setAlice(alice);
   };
 
   const makeBob = () => {
-    const secretKey = SecretKey.fromBytes(Buffer.from('fake-secret-key-32-bytes-bob-xxx'));
+    const secretKey = SecretKey.fromBEBytes(Buffer.from('fake-secret-key-32-bytes-bob-xxx'));
     const bob = Bob.fromSecretKey(config, secretKey);
     setBob(bob);
   };
@@ -103,18 +103,18 @@ export function App() {
         <div className="stack left">
           <div>
             <div>Create Alice and Bob</div>
-            <button onClick={(e) => makeCharacters()}>Go</button>
+            <button onClick={() => makeCharacters()}>Go</button>
             <div>
               {alice && (
                 <span>
-                  Alice: {`0x${toHexString(alice.verifyingKey.toBytes())}`}
+                  Alice: {`0x${toHexString(alice.verifyingKey.toCompressedBytes())}`}
                 </span>
               )}
             </div>
             <div>
               {bob && (
                 <span>
-                  Bob: {`0x${toHexString(bob.verifyingKey.toBytes())}`}
+                  Bob: {`0x${toHexString(bob.verifyingKey.toCompressedBytes())}`}
                 </span>
               )}
             </div>
@@ -123,7 +123,7 @@ export function App() {
           {alice && bob && (
             <div>
               <div>Create a policy</div>
-              <button onClick={(e) => runExample()}>Go</button>
+              <button onClick={() => runExample()}>Go</button>
             </div>
           )}
 

@@ -12,19 +12,19 @@ import type {
   PopulatedTransaction,
   Signer,
   utils,
-} from "ethers";
+} from 'ethers';
 import type {
   FunctionFragment,
   Result,
   EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+} from '@ethersproject/abi';
+import type { Listener, Provider } from '@ethersproject/providers';
 import type {
   TypedEventFilter,
   TypedEvent,
   TypedListener,
   OnEvent,
-} from "./common";
+} from './common';
 
 export declare namespace BLS12381 {
   export type G2PointStruct = {
@@ -65,539 +65,539 @@ export declare namespace Coordinator {
 
 export interface CoordinatorInterface extends utils.Interface {
   functions: {
-    "DEFAULT_ADMIN_ROLE()": FunctionFragment;
-    "INITIATOR_ROLE()": FunctionFragment;
-    "TREASURY_ROLE()": FunctionFragment;
-    "acceptDefaultAdminTransfer()": FunctionFragment;
-    "application()": FunctionFragment;
-    "beginDefaultAdminTransfer(address)": FunctionFragment;
-    "cancelDefaultAdminTransfer()": FunctionFragment;
-    "changeDefaultAdminDelay(uint48)": FunctionFragment;
-    "cohortFingerprint(address[])": FunctionFragment;
-    "currency()": FunctionFragment;
-    "defaultAdmin()": FunctionFragment;
-    "defaultAdminDelay()": FunctionFragment;
-    "defaultAdminDelayIncreaseWait()": FunctionFragment;
-    "feeRatePerSecond()": FunctionFragment;
-    "getAuthority(uint32)": FunctionFragment;
-    "getParticipantFromProvider(uint32,address)": FunctionFragment;
-    "getParticipants(uint32)": FunctionFragment;
-    "getProviderPublicKey(address,uint256)": FunctionFragment;
-    "getPublicKeyFromRitualId(uint32)": FunctionFragment;
-    "getRitualIdFromPublicKey((bytes32,bytes16))": FunctionFragment;
-    "getRitualInitiationCost(address[],uint32)": FunctionFragment;
-    "getRitualState(uint32)": FunctionFragment;
-    "getRoleAdmin(bytes32)": FunctionFragment;
-    "getThresholdForRitualSize(uint16)": FunctionFragment;
-    "grantRole(bytes32,address)": FunctionFragment;
-    "hasRole(bytes32,address)": FunctionFragment;
-    "initiateRitual(address[],address,uint32,address)": FunctionFragment;
-    "isInitiationPublic()": FunctionFragment;
-    "isRitualFinalized(uint32)": FunctionFragment;
-    "makeInitiationPublic()": FunctionFragment;
-    "maxDkgSize()": FunctionFragment;
-    "numberOfRituals()": FunctionFragment;
-    "owner()": FunctionFragment;
-    "pendingDefaultAdmin()": FunctionFragment;
-    "pendingDefaultAdminDelay()": FunctionFragment;
-    "pendingFees(uint256)": FunctionFragment;
-    "postAggregation(uint32,bytes,(bytes32,bytes16),bytes)": FunctionFragment;
-    "postTranscript(uint32,bytes)": FunctionFragment;
-    "processPendingFee(uint32)": FunctionFragment;
-    "renounceRole(bytes32,address)": FunctionFragment;
-    "revokeRole(bytes32,address)": FunctionFragment;
-    "rituals(uint256)": FunctionFragment;
-    "rollbackDefaultAdminDelay()": FunctionFragment;
-    "setMaxDkgSize(uint16)": FunctionFragment;
-    "setProviderPublicKey((bytes32,bytes32,bytes32))": FunctionFragment;
-    "setReimbursementPool(address)": FunctionFragment;
-    "setRitualAuthority(uint32,address)": FunctionFragment;
-    "setTimeout(uint32)": FunctionFragment;
-    "supportsInterface(bytes4)": FunctionFragment;
-    "timeout()": FunctionFragment;
-    "totalPendingFees()": FunctionFragment;
-    "withdrawTokens(address,uint256)": FunctionFragment;
+    'DEFAULT_ADMIN_ROLE()': FunctionFragment;
+    'INITIATOR_ROLE()': FunctionFragment;
+    'TREASURY_ROLE()': FunctionFragment;
+    'acceptDefaultAdminTransfer()': FunctionFragment;
+    'application()': FunctionFragment;
+    'beginDefaultAdminTransfer(address)': FunctionFragment;
+    'cancelDefaultAdminTransfer()': FunctionFragment;
+    'changeDefaultAdminDelay(uint48)': FunctionFragment;
+    'cohortFingerprint(address[])': FunctionFragment;
+    'currency()': FunctionFragment;
+    'defaultAdmin()': FunctionFragment;
+    'defaultAdminDelay()': FunctionFragment;
+    'defaultAdminDelayIncreaseWait()': FunctionFragment;
+    'feeRatePerSecond()': FunctionFragment;
+    'getAuthority(uint32)': FunctionFragment;
+    'getParticipantFromProvider(uint32,address)': FunctionFragment;
+    'getParticipants(uint32)': FunctionFragment;
+    'getProviderPublicKey(address,uint256)': FunctionFragment;
+    'getPublicKeyFromRitualId(uint32)': FunctionFragment;
+    'getRitualIdFromPublicKey((bytes32,bytes16))': FunctionFragment;
+    'getRitualInitiationCost(address[],uint32)': FunctionFragment;
+    'getRitualState(uint32)': FunctionFragment;
+    'getRoleAdmin(bytes32)': FunctionFragment;
+    'getThresholdForRitualSize(uint16)': FunctionFragment;
+    'grantRole(bytes32,address)': FunctionFragment;
+    'hasRole(bytes32,address)': FunctionFragment;
+    'initiateRitual(address[],address,uint32,address)': FunctionFragment;
+    'isInitiationPublic()': FunctionFragment;
+    'isRitualFinalized(uint32)': FunctionFragment;
+    'makeInitiationPublic()': FunctionFragment;
+    'maxDkgSize()': FunctionFragment;
+    'numberOfRituals()': FunctionFragment;
+    'owner()': FunctionFragment;
+    'pendingDefaultAdmin()': FunctionFragment;
+    'pendingDefaultAdminDelay()': FunctionFragment;
+    'pendingFees(uint256)': FunctionFragment;
+    'postAggregation(uint32,bytes,(bytes32,bytes16),bytes)': FunctionFragment;
+    'postTranscript(uint32,bytes)': FunctionFragment;
+    'processPendingFee(uint32)': FunctionFragment;
+    'renounceRole(bytes32,address)': FunctionFragment;
+    'revokeRole(bytes32,address)': FunctionFragment;
+    'rituals(uint256)': FunctionFragment;
+    'rollbackDefaultAdminDelay()': FunctionFragment;
+    'setMaxDkgSize(uint16)': FunctionFragment;
+    'setProviderPublicKey((bytes32,bytes32,bytes32))': FunctionFragment;
+    'setReimbursementPool(address)': FunctionFragment;
+    'setRitualAuthority(uint32,address)': FunctionFragment;
+    'setTimeout(uint32)': FunctionFragment;
+    'supportsInterface(bytes4)': FunctionFragment;
+    'timeout()': FunctionFragment;
+    'totalPendingFees()': FunctionFragment;
+    'withdrawTokens(address,uint256)': FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "DEFAULT_ADMIN_ROLE"
-      | "INITIATOR_ROLE"
-      | "TREASURY_ROLE"
-      | "acceptDefaultAdminTransfer"
-      | "application"
-      | "beginDefaultAdminTransfer"
-      | "cancelDefaultAdminTransfer"
-      | "changeDefaultAdminDelay"
-      | "cohortFingerprint"
-      | "currency"
-      | "defaultAdmin"
-      | "defaultAdminDelay"
-      | "defaultAdminDelayIncreaseWait"
-      | "feeRatePerSecond"
-      | "getAuthority"
-      | "getParticipantFromProvider"
-      | "getParticipants"
-      | "getProviderPublicKey"
-      | "getPublicKeyFromRitualId"
-      | "getRitualIdFromPublicKey"
-      | "getRitualInitiationCost"
-      | "getRitualState"
-      | "getRoleAdmin"
-      | "getThresholdForRitualSize"
-      | "grantRole"
-      | "hasRole"
-      | "initiateRitual"
-      | "isInitiationPublic"
-      | "isRitualFinalized"
-      | "makeInitiationPublic"
-      | "maxDkgSize"
-      | "numberOfRituals"
-      | "owner"
-      | "pendingDefaultAdmin"
-      | "pendingDefaultAdminDelay"
-      | "pendingFees"
-      | "postAggregation"
-      | "postTranscript"
-      | "processPendingFee"
-      | "renounceRole"
-      | "revokeRole"
-      | "rituals"
-      | "rollbackDefaultAdminDelay"
-      | "setMaxDkgSize"
-      | "setProviderPublicKey"
-      | "setReimbursementPool"
-      | "setRitualAuthority"
-      | "setTimeout"
-      | "supportsInterface"
-      | "timeout"
-      | "totalPendingFees"
-      | "withdrawTokens"
+      | 'DEFAULT_ADMIN_ROLE'
+      | 'INITIATOR_ROLE'
+      | 'TREASURY_ROLE'
+      | 'acceptDefaultAdminTransfer'
+      | 'application'
+      | 'beginDefaultAdminTransfer'
+      | 'cancelDefaultAdminTransfer'
+      | 'changeDefaultAdminDelay'
+      | 'cohortFingerprint'
+      | 'currency'
+      | 'defaultAdmin'
+      | 'defaultAdminDelay'
+      | 'defaultAdminDelayIncreaseWait'
+      | 'feeRatePerSecond'
+      | 'getAuthority'
+      | 'getParticipantFromProvider'
+      | 'getParticipants'
+      | 'getProviderPublicKey'
+      | 'getPublicKeyFromRitualId'
+      | 'getRitualIdFromPublicKey'
+      | 'getRitualInitiationCost'
+      | 'getRitualState'
+      | 'getRoleAdmin'
+      | 'getThresholdForRitualSize'
+      | 'grantRole'
+      | 'hasRole'
+      | 'initiateRitual'
+      | 'isInitiationPublic'
+      | 'isRitualFinalized'
+      | 'makeInitiationPublic'
+      | 'maxDkgSize'
+      | 'numberOfRituals'
+      | 'owner'
+      | 'pendingDefaultAdmin'
+      | 'pendingDefaultAdminDelay'
+      | 'pendingFees'
+      | 'postAggregation'
+      | 'postTranscript'
+      | 'processPendingFee'
+      | 'renounceRole'
+      | 'revokeRole'
+      | 'rituals'
+      | 'rollbackDefaultAdminDelay'
+      | 'setMaxDkgSize'
+      | 'setProviderPublicKey'
+      | 'setReimbursementPool'
+      | 'setRitualAuthority'
+      | 'setTimeout'
+      | 'supportsInterface'
+      | 'timeout'
+      | 'totalPendingFees'
+      | 'withdrawTokens',
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "DEFAULT_ADMIN_ROLE",
-    values?: undefined
+    functionFragment: 'DEFAULT_ADMIN_ROLE',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "INITIATOR_ROLE",
-    values?: undefined
+    functionFragment: 'INITIATOR_ROLE',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "TREASURY_ROLE",
-    values?: undefined
+    functionFragment: 'TREASURY_ROLE',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "acceptDefaultAdminTransfer",
-    values?: undefined
+    functionFragment: 'acceptDefaultAdminTransfer',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "application",
-    values?: undefined
+    functionFragment: 'application',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "beginDefaultAdminTransfer",
-    values: [string]
+    functionFragment: 'beginDefaultAdminTransfer',
+    values: [string],
   ): string;
   encodeFunctionData(
-    functionFragment: "cancelDefaultAdminTransfer",
-    values?: undefined
+    functionFragment: 'cancelDefaultAdminTransfer',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "changeDefaultAdminDelay",
-    values: [BigNumberish]
+    functionFragment: 'changeDefaultAdminDelay',
+    values: [BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "cohortFingerprint",
-    values: [string[]]
+    functionFragment: 'cohortFingerprint',
+    values: [string[]],
   ): string;
-  encodeFunctionData(functionFragment: "currency", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'currency', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "defaultAdmin",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "defaultAdminDelay",
-    values?: undefined
+    functionFragment: 'defaultAdmin',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "defaultAdminDelayIncreaseWait",
-    values?: undefined
+    functionFragment: 'defaultAdminDelay',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "feeRatePerSecond",
-    values?: undefined
+    functionFragment: 'defaultAdminDelayIncreaseWait',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "getAuthority",
-    values: [BigNumberish]
+    functionFragment: 'feeRatePerSecond',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "getParticipantFromProvider",
-    values: [BigNumberish, string]
+    functionFragment: 'getAuthority',
+    values: [BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "getParticipants",
-    values: [BigNumberish]
+    functionFragment: 'getParticipantFromProvider',
+    values: [BigNumberish, string],
   ): string;
   encodeFunctionData(
-    functionFragment: "getProviderPublicKey",
-    values: [string, BigNumberish]
+    functionFragment: 'getParticipants',
+    values: [BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "getPublicKeyFromRitualId",
-    values: [BigNumberish]
+    functionFragment: 'getProviderPublicKey',
+    values: [string, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "getRitualIdFromPublicKey",
-    values: [BLS12381.G1PointStruct]
+    functionFragment: 'getPublicKeyFromRitualId',
+    values: [BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "getRitualInitiationCost",
-    values: [string[], BigNumberish]
+    functionFragment: 'getRitualIdFromPublicKey',
+    values: [BLS12381.G1PointStruct],
   ): string;
   encodeFunctionData(
-    functionFragment: "getRitualState",
-    values: [BigNumberish]
+    functionFragment: 'getRitualInitiationCost',
+    values: [string[], BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "getRoleAdmin",
-    values: [BytesLike]
+    functionFragment: 'getRitualState',
+    values: [BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "getThresholdForRitualSize",
-    values: [BigNumberish]
+    functionFragment: 'getRoleAdmin',
+    values: [BytesLike],
   ): string;
   encodeFunctionData(
-    functionFragment: "grantRole",
-    values: [BytesLike, string]
+    functionFragment: 'getThresholdForRitualSize',
+    values: [BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "hasRole",
-    values: [BytesLike, string]
+    functionFragment: 'grantRole',
+    values: [BytesLike, string],
   ): string;
   encodeFunctionData(
-    functionFragment: "initiateRitual",
-    values: [string[], string, BigNumberish, string]
+    functionFragment: 'hasRole',
+    values: [BytesLike, string],
   ): string;
   encodeFunctionData(
-    functionFragment: "isInitiationPublic",
-    values?: undefined
+    functionFragment: 'initiateRitual',
+    values: [string[], string, BigNumberish, string],
   ): string;
   encodeFunctionData(
-    functionFragment: "isRitualFinalized",
-    values: [BigNumberish]
+    functionFragment: 'isInitiationPublic',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "makeInitiationPublic",
-    values?: undefined
+    functionFragment: 'isRitualFinalized',
+    values: [BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "maxDkgSize",
-    values?: undefined
+    functionFragment: 'makeInitiationPublic',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "numberOfRituals",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "pendingDefaultAdmin",
-    values?: undefined
+    functionFragment: 'maxDkgSize',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "pendingDefaultAdminDelay",
-    values?: undefined
+    functionFragment: 'numberOfRituals',
+    values?: undefined,
+  ): string;
+  encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: 'pendingDefaultAdmin',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "pendingFees",
-    values: [BigNumberish]
+    functionFragment: 'pendingDefaultAdminDelay',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "postAggregation",
-    values: [BigNumberish, BytesLike, BLS12381.G1PointStruct, BytesLike]
+    functionFragment: 'pendingFees',
+    values: [BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "postTranscript",
-    values: [BigNumberish, BytesLike]
+    functionFragment: 'postAggregation',
+    values: [BigNumberish, BytesLike, BLS12381.G1PointStruct, BytesLike],
   ): string;
   encodeFunctionData(
-    functionFragment: "processPendingFee",
-    values: [BigNumberish]
+    functionFragment: 'postTranscript',
+    values: [BigNumberish, BytesLike],
   ): string;
   encodeFunctionData(
-    functionFragment: "renounceRole",
-    values: [BytesLike, string]
+    functionFragment: 'processPendingFee',
+    values: [BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "revokeRole",
-    values: [BytesLike, string]
+    functionFragment: 'renounceRole',
+    values: [BytesLike, string],
   ): string;
   encodeFunctionData(
-    functionFragment: "rituals",
-    values: [BigNumberish]
+    functionFragment: 'revokeRole',
+    values: [BytesLike, string],
   ): string;
   encodeFunctionData(
-    functionFragment: "rollbackDefaultAdminDelay",
-    values?: undefined
+    functionFragment: 'rituals',
+    values: [BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "setMaxDkgSize",
-    values: [BigNumberish]
+    functionFragment: 'rollbackDefaultAdminDelay',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "setProviderPublicKey",
-    values: [BLS12381.G2PointStruct]
+    functionFragment: 'setMaxDkgSize',
+    values: [BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "setReimbursementPool",
-    values: [string]
+    functionFragment: 'setProviderPublicKey',
+    values: [BLS12381.G2PointStruct],
   ): string;
   encodeFunctionData(
-    functionFragment: "setRitualAuthority",
-    values: [BigNumberish, string]
+    functionFragment: 'setReimbursementPool',
+    values: [string],
   ): string;
   encodeFunctionData(
-    functionFragment: "setTimeout",
-    values: [BigNumberish]
+    functionFragment: 'setRitualAuthority',
+    values: [BigNumberish, string],
   ): string;
   encodeFunctionData(
-    functionFragment: "supportsInterface",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(functionFragment: "timeout", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "totalPendingFees",
-    values?: undefined
+    functionFragment: 'setTimeout',
+    values: [BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "withdrawTokens",
-    values: [string, BigNumberish]
+    functionFragment: 'supportsInterface',
+    values: [BytesLike],
+  ): string;
+  encodeFunctionData(functionFragment: 'timeout', values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: 'totalPendingFees',
+    values?: undefined,
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'withdrawTokens',
+    values: [string, BigNumberish],
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "DEFAULT_ADMIN_ROLE",
-    data: BytesLike
+    functionFragment: 'DEFAULT_ADMIN_ROLE',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "INITIATOR_ROLE",
-    data: BytesLike
+    functionFragment: 'INITIATOR_ROLE',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "TREASURY_ROLE",
-    data: BytesLike
+    functionFragment: 'TREASURY_ROLE',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "acceptDefaultAdminTransfer",
-    data: BytesLike
+    functionFragment: 'acceptDefaultAdminTransfer',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "application",
-    data: BytesLike
+    functionFragment: 'application',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "beginDefaultAdminTransfer",
-    data: BytesLike
+    functionFragment: 'beginDefaultAdminTransfer',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "cancelDefaultAdminTransfer",
-    data: BytesLike
+    functionFragment: 'cancelDefaultAdminTransfer',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "changeDefaultAdminDelay",
-    data: BytesLike
+    functionFragment: 'changeDefaultAdminDelay',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "cohortFingerprint",
-    data: BytesLike
+    functionFragment: 'cohortFingerprint',
+    data: BytesLike,
   ): Result;
-  decodeFunctionResult(functionFragment: "currency", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'currency', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "defaultAdmin",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "defaultAdminDelay",
-    data: BytesLike
+    functionFragment: 'defaultAdmin',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "defaultAdminDelayIncreaseWait",
-    data: BytesLike
+    functionFragment: 'defaultAdminDelay',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "feeRatePerSecond",
-    data: BytesLike
+    functionFragment: 'defaultAdminDelayIncreaseWait',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getAuthority",
-    data: BytesLike
+    functionFragment: 'feeRatePerSecond',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getParticipantFromProvider",
-    data: BytesLike
+    functionFragment: 'getAuthority',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getParticipants",
-    data: BytesLike
+    functionFragment: 'getParticipantFromProvider',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getProviderPublicKey",
-    data: BytesLike
+    functionFragment: 'getParticipants',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getPublicKeyFromRitualId",
-    data: BytesLike
+    functionFragment: 'getProviderPublicKey',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getRitualIdFromPublicKey",
-    data: BytesLike
+    functionFragment: 'getPublicKeyFromRitualId',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getRitualInitiationCost",
-    data: BytesLike
+    functionFragment: 'getRitualIdFromPublicKey',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getRitualState",
-    data: BytesLike
+    functionFragment: 'getRitualInitiationCost',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getRoleAdmin",
-    data: BytesLike
+    functionFragment: 'getRitualState',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getThresholdForRitualSize",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "initiateRitual",
-    data: BytesLike
+    functionFragment: 'getRoleAdmin',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isInitiationPublic",
-    data: BytesLike
+    functionFragment: 'getThresholdForRitualSize',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(functionFragment: 'grantRole', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'hasRole', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: 'initiateRitual',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isRitualFinalized",
-    data: BytesLike
+    functionFragment: 'isInitiationPublic',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "makeInitiationPublic",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "maxDkgSize", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "numberOfRituals",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "pendingDefaultAdmin",
-    data: BytesLike
+    functionFragment: 'isRitualFinalized',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "pendingDefaultAdminDelay",
-    data: BytesLike
+    functionFragment: 'makeInitiationPublic',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(functionFragment: 'maxDkgSize', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: 'numberOfRituals',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: 'pendingDefaultAdmin',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "pendingFees",
-    data: BytesLike
+    functionFragment: 'pendingDefaultAdminDelay',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "postAggregation",
-    data: BytesLike
+    functionFragment: 'pendingFees',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "postTranscript",
-    data: BytesLike
+    functionFragment: 'postAggregation',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "processPendingFee",
-    data: BytesLike
+    functionFragment: 'postTranscript',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "renounceRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "rituals", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "rollbackDefaultAdminDelay",
-    data: BytesLike
+    functionFragment: 'processPendingFee',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setMaxDkgSize",
-    data: BytesLike
+    functionFragment: 'renounceRole',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(functionFragment: 'revokeRole', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'rituals', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: 'rollbackDefaultAdminDelay',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setProviderPublicKey",
-    data: BytesLike
+    functionFragment: 'setMaxDkgSize',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setReimbursementPool",
-    data: BytesLike
+    functionFragment: 'setProviderPublicKey',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setRitualAuthority",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "setTimeout", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "supportsInterface",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "timeout", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "totalPendingFees",
-    data: BytesLike
+    functionFragment: 'setReimbursementPool',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "withdrawTokens",
-    data: BytesLike
+    functionFragment: 'setRitualAuthority',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(functionFragment: 'setTimeout', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: 'supportsInterface',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(functionFragment: 'timeout', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: 'totalPendingFees',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'withdrawTokens',
+    data: BytesLike,
   ): Result;
 
   events: {
-    "AggregationPosted(uint32,address,bytes32)": EventFragment;
-    "DefaultAdminDelayChangeCanceled()": EventFragment;
-    "DefaultAdminDelayChangeScheduled(uint48,uint48)": EventFragment;
-    "DefaultAdminTransferCanceled()": EventFragment;
-    "DefaultAdminTransferScheduled(address,uint48)": EventFragment;
-    "EndRitual(uint32,bool)": EventFragment;
-    "MaxDkgSizeChanged(uint16,uint16)": EventFragment;
-    "ParticipantPublicKeySet(uint32,address,(bytes32,bytes32,bytes32))": EventFragment;
-    "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
-    "RoleGranted(bytes32,address,address)": EventFragment;
-    "RoleRevoked(bytes32,address,address)": EventFragment;
-    "StartAggregationRound(uint32)": EventFragment;
-    "StartRitual(uint32,address,address[])": EventFragment;
-    "TimeoutChanged(uint32,uint32)": EventFragment;
-    "TranscriptPosted(uint32,address,bytes32)": EventFragment;
+    'AggregationPosted(uint32,address,bytes32)': EventFragment;
+    'DefaultAdminDelayChangeCanceled()': EventFragment;
+    'DefaultAdminDelayChangeScheduled(uint48,uint48)': EventFragment;
+    'DefaultAdminTransferCanceled()': EventFragment;
+    'DefaultAdminTransferScheduled(address,uint48)': EventFragment;
+    'EndRitual(uint32,bool)': EventFragment;
+    'MaxDkgSizeChanged(uint16,uint16)': EventFragment;
+    'ParticipantPublicKeySet(uint32,address,(bytes32,bytes32,bytes32))': EventFragment;
+    'RoleAdminChanged(bytes32,bytes32,bytes32)': EventFragment;
+    'RoleGranted(bytes32,address,address)': EventFragment;
+    'RoleRevoked(bytes32,address,address)': EventFragment;
+    'StartAggregationRound(uint32)': EventFragment;
+    'StartRitual(uint32,address,address[])': EventFragment;
+    'TimeoutChanged(uint32,uint32)': EventFragment;
+    'TranscriptPosted(uint32,address,bytes32)': EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "AggregationPosted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'AggregationPosted'): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "DefaultAdminDelayChangeCanceled"
+    nameOrSignatureOrTopic: 'DefaultAdminDelayChangeCanceled',
   ): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "DefaultAdminDelayChangeScheduled"
+    nameOrSignatureOrTopic: 'DefaultAdminDelayChangeScheduled',
   ): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "DefaultAdminTransferCanceled"
+    nameOrSignatureOrTopic: 'DefaultAdminTransferCanceled',
   ): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "DefaultAdminTransferScheduled"
+    nameOrSignatureOrTopic: 'DefaultAdminTransferScheduled',
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "EndRitual"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MaxDkgSizeChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ParticipantPublicKeySet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "StartAggregationRound"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "StartRitual"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TimeoutChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TranscriptPosted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'EndRitual'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'MaxDkgSizeChanged'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'ParticipantPublicKeySet'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'RoleAdminChanged'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'RoleGranted'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'RoleRevoked'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'StartAggregationRound'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'StartRitual'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'TimeoutChanged'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'TranscriptPosted'): EventFragment;
 }
 
 export interface AggregationPostedEventObject {
@@ -785,15 +785,15 @@ export interface Coordinator extends BaseContract {
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TEvent>>;
 
   listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
+    eventFilter?: TypedEventFilter<TEvent>,
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
   removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
+    eventFilter: TypedEventFilter<TEvent>,
   ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
@@ -809,28 +809,28 @@ export interface Coordinator extends BaseContract {
     TREASURY_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
     acceptDefaultAdminTransfer(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     application(overrides?: CallOverrides): Promise<[string]>;
 
     beginDefaultAdminTransfer(
       newAdmin: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     cancelDefaultAdminTransfer(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     changeDefaultAdminDelay(
       newDelay: BigNumberish,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     cohortFingerprint(
       nodes: string[],
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string]>;
 
     currency(overrides?: CallOverrides): Promise<[string]>;
@@ -845,68 +845,68 @@ export interface Coordinator extends BaseContract {
 
     getAuthority(
       ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string]>;
 
     getParticipantFromProvider(
       ritualId: BigNumberish,
       provider: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[Coordinator.ParticipantStructOutput]>;
 
     getParticipants(
       ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[Coordinator.ParticipantStructOutput[]]>;
 
     getProviderPublicKey(
       _provider: string,
       _ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[BLS12381.G2PointStructOutput]>;
 
     getPublicKeyFromRitualId(
       ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<
       [BLS12381.G1PointStructOutput] & {
-        dkgPublicKey: BLS12381.G1PointStructOutput;
-      }
+      dkgPublicKey: BLS12381.G1PointStructOutput;
+    }
     >;
 
     getRitualIdFromPublicKey(
       dkgPublicKey: BLS12381.G1PointStruct,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[number] & { ritualId: number }>;
 
     getRitualInitiationCost(
       providers: string[],
       duration: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[BigNumber]>;
 
     getRitualState(
       ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[number]>;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
     getThresholdForRitualSize(
       size: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[number]>;
 
     grantRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     hasRole(
       role: BytesLike,
       account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[boolean]>;
 
     initiateRitual(
@@ -914,18 +914,18 @@ export interface Coordinator extends BaseContract {
       authority: string,
       duration: BigNumberish,
       accessController: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     isInitiationPublic(overrides?: CallOverrides): Promise<[boolean]>;
 
     isRitualFinalized(
       ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[boolean]>;
 
     makeInitiationPublic(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     maxDkgSize(overrides?: CallOverrides): Promise<[number]>;
@@ -935,16 +935,16 @@ export interface Coordinator extends BaseContract {
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     pendingDefaultAdmin(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string, number] & { newAdmin: string; schedule: number }>;
 
     pendingDefaultAdminDelay(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[number, number] & { newDelay: number; schedule: number }>;
 
     pendingFees(
       arg0: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[BigNumber]>;
 
     postAggregation(
@@ -952,35 +952,35 @@ export interface Coordinator extends BaseContract {
       aggregatedTranscript: BytesLike,
       dkgPublicKey: BLS12381.G1PointStruct,
       decryptionRequestStaticKey: BytesLike,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     postTranscript(
       ritualId: BigNumberish,
       transcript: BytesLike,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     processPendingFee(
       ritualId: BigNumberish,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     renounceRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     revokeRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     rituals(
       arg0: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<
       [
         string,
@@ -994,56 +994,56 @@ export interface Coordinator extends BaseContract {
         boolean,
         string,
         BLS12381.G1PointStructOutput,
-        string
+        string,
       ] & {
-        initiator: string;
-        initTimestamp: number;
-        endTimestamp: number;
-        totalTranscripts: number;
-        totalAggregations: number;
-        authority: string;
-        dkgSize: number;
-        threshold: number;
-        aggregationMismatch: boolean;
-        accessController: string;
-        publicKey: BLS12381.G1PointStructOutput;
-        aggregatedTranscript: string;
-      }
+      initiator: string;
+      initTimestamp: number;
+      endTimestamp: number;
+      totalTranscripts: number;
+      totalAggregations: number;
+      authority: string;
+      dkgSize: number;
+      threshold: number;
+      aggregationMismatch: boolean;
+      accessController: string;
+      publicKey: BLS12381.G1PointStructOutput;
+      aggregatedTranscript: string;
+    }
     >;
 
     rollbackDefaultAdminDelay(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     setMaxDkgSize(
       newSize: BigNumberish,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     setProviderPublicKey(
       _publicKey: BLS12381.G2PointStruct,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     setReimbursementPool(
       pool: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     setRitualAuthority(
       ritualId: BigNumberish,
       authority: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     setTimeout(
       newTimeout: BigNumberish,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     supportsInterface(
       interfaceId: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[boolean]>;
 
     timeout(overrides?: CallOverrides): Promise<[number]>;
@@ -1053,7 +1053,7 @@ export interface Coordinator extends BaseContract {
     withdrawTokens(
       token: string,
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
   };
 
@@ -1064,28 +1064,28 @@ export interface Coordinator extends BaseContract {
   TREASURY_ROLE(overrides?: CallOverrides): Promise<string>;
 
   acceptDefaultAdminTransfer(
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   application(overrides?: CallOverrides): Promise<string>;
 
   beginDefaultAdminTransfer(
     newAdmin: string,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   cancelDefaultAdminTransfer(
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   changeDefaultAdminDelay(
     newDelay: BigNumberish,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   cohortFingerprint(
     nodes: string[],
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<string>;
 
   currency(overrides?: CallOverrides): Promise<string>;
@@ -1100,64 +1100,64 @@ export interface Coordinator extends BaseContract {
 
   getAuthority(
     ritualId: BigNumberish,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<string>;
 
   getParticipantFromProvider(
     ritualId: BigNumberish,
     provider: string,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<Coordinator.ParticipantStructOutput>;
 
   getParticipants(
     ritualId: BigNumberish,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<Coordinator.ParticipantStructOutput[]>;
 
   getProviderPublicKey(
     _provider: string,
     _ritualId: BigNumberish,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<BLS12381.G2PointStructOutput>;
 
   getPublicKeyFromRitualId(
     ritualId: BigNumberish,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<BLS12381.G1PointStructOutput>;
 
   getRitualIdFromPublicKey(
     dkgPublicKey: BLS12381.G1PointStruct,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<number>;
 
   getRitualInitiationCost(
     providers: string[],
     duration: BigNumberish,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<BigNumber>;
 
   getRitualState(
     ritualId: BigNumberish,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<number>;
 
   getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
   getThresholdForRitualSize(
     size: BigNumberish,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<number>;
 
   grantRole(
     role: BytesLike,
     account: string,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   hasRole(
     role: BytesLike,
     account: string,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<boolean>;
 
   initiateRitual(
@@ -1165,18 +1165,18 @@ export interface Coordinator extends BaseContract {
     authority: string,
     duration: BigNumberish,
     accessController: string,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   isInitiationPublic(overrides?: CallOverrides): Promise<boolean>;
 
   isRitualFinalized(
     ritualId: BigNumberish,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<boolean>;
 
   makeInitiationPublic(
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   maxDkgSize(overrides?: CallOverrides): Promise<number>;
@@ -1186,16 +1186,16 @@ export interface Coordinator extends BaseContract {
   owner(overrides?: CallOverrides): Promise<string>;
 
   pendingDefaultAdmin(
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<[string, number] & { newAdmin: string; schedule: number }>;
 
   pendingDefaultAdminDelay(
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<[number, number] & { newDelay: number; schedule: number }>;
 
   pendingFees(
     arg0: BigNumberish,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<BigNumber>;
 
   postAggregation(
@@ -1203,35 +1203,35 @@ export interface Coordinator extends BaseContract {
     aggregatedTranscript: BytesLike,
     dkgPublicKey: BLS12381.G1PointStruct,
     decryptionRequestStaticKey: BytesLike,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   postTranscript(
     ritualId: BigNumberish,
     transcript: BytesLike,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   processPendingFee(
     ritualId: BigNumberish,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   renounceRole(
     role: BytesLike,
     account: string,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   revokeRole(
     role: BytesLike,
     account: string,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   rituals(
     arg0: BigNumberish,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<
     [
       string,
@@ -1245,56 +1245,56 @@ export interface Coordinator extends BaseContract {
       boolean,
       string,
       BLS12381.G1PointStructOutput,
-      string
+      string,
     ] & {
-      initiator: string;
-      initTimestamp: number;
-      endTimestamp: number;
-      totalTranscripts: number;
-      totalAggregations: number;
-      authority: string;
-      dkgSize: number;
-      threshold: number;
-      aggregationMismatch: boolean;
-      accessController: string;
-      publicKey: BLS12381.G1PointStructOutput;
-      aggregatedTranscript: string;
-    }
+    initiator: string;
+    initTimestamp: number;
+    endTimestamp: number;
+    totalTranscripts: number;
+    totalAggregations: number;
+    authority: string;
+    dkgSize: number;
+    threshold: number;
+    aggregationMismatch: boolean;
+    accessController: string;
+    publicKey: BLS12381.G1PointStructOutput;
+    aggregatedTranscript: string;
+  }
   >;
 
   rollbackDefaultAdminDelay(
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   setMaxDkgSize(
     newSize: BigNumberish,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   setProviderPublicKey(
     _publicKey: BLS12381.G2PointStruct,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   setReimbursementPool(
     pool: string,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   setRitualAuthority(
     ritualId: BigNumberish,
     authority: string,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   setTimeout(
     newTimeout: BigNumberish,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   supportsInterface(
     interfaceId: BytesLike,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<boolean>;
 
   timeout(overrides?: CallOverrides): Promise<number>;
@@ -1304,7 +1304,7 @@ export interface Coordinator extends BaseContract {
   withdrawTokens(
     token: string,
     amount: BigNumberish,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -1320,19 +1320,19 @@ export interface Coordinator extends BaseContract {
 
     beginDefaultAdminTransfer(
       newAdmin: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     cancelDefaultAdminTransfer(overrides?: CallOverrides): Promise<void>;
 
     changeDefaultAdminDelay(
       newDelay: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     cohortFingerprint(
       nodes: string[],
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<string>;
 
     currency(overrides?: CallOverrides): Promise<string>;
@@ -1347,64 +1347,64 @@ export interface Coordinator extends BaseContract {
 
     getAuthority(
       ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<string>;
 
     getParticipantFromProvider(
       ritualId: BigNumberish,
       provider: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<Coordinator.ParticipantStructOutput>;
 
     getParticipants(
       ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<Coordinator.ParticipantStructOutput[]>;
 
     getProviderPublicKey(
       _provider: string,
       _ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BLS12381.G2PointStructOutput>;
 
     getPublicKeyFromRitualId(
       ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BLS12381.G1PointStructOutput>;
 
     getRitualIdFromPublicKey(
       dkgPublicKey: BLS12381.G1PointStruct,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<number>;
 
     getRitualInitiationCost(
       providers: string[],
       duration: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getRitualState(
       ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<number>;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
     getThresholdForRitualSize(
       size: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<number>;
 
     grantRole(
       role: BytesLike,
       account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     hasRole(
       role: BytesLike,
       account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<boolean>;
 
     initiateRitual(
@@ -1412,14 +1412,14 @@ export interface Coordinator extends BaseContract {
       authority: string,
       duration: BigNumberish,
       accessController: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<number>;
 
     isInitiationPublic(overrides?: CallOverrides): Promise<boolean>;
 
     isRitualFinalized(
       ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<boolean>;
 
     makeInitiationPublic(overrides?: CallOverrides): Promise<void>;
@@ -1431,16 +1431,16 @@ export interface Coordinator extends BaseContract {
     owner(overrides?: CallOverrides): Promise<string>;
 
     pendingDefaultAdmin(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string, number] & { newAdmin: string; schedule: number }>;
 
     pendingDefaultAdminDelay(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[number, number] & { newDelay: number; schedule: number }>;
 
     pendingFees(
       arg0: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     postAggregation(
@@ -1448,35 +1448,35 @@ export interface Coordinator extends BaseContract {
       aggregatedTranscript: BytesLike,
       dkgPublicKey: BLS12381.G1PointStruct,
       decryptionRequestStaticKey: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     postTranscript(
       ritualId: BigNumberish,
       transcript: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     processPendingFee(
       ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     renounceRole(
       role: BytesLike,
       account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     revokeRole(
       role: BytesLike,
       account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     rituals(
       arg0: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<
       [
         string,
@@ -1490,54 +1490,54 @@ export interface Coordinator extends BaseContract {
         boolean,
         string,
         BLS12381.G1PointStructOutput,
-        string
+        string,
       ] & {
-        initiator: string;
-        initTimestamp: number;
-        endTimestamp: number;
-        totalTranscripts: number;
-        totalAggregations: number;
-        authority: string;
-        dkgSize: number;
-        threshold: number;
-        aggregationMismatch: boolean;
-        accessController: string;
-        publicKey: BLS12381.G1PointStructOutput;
-        aggregatedTranscript: string;
-      }
+      initiator: string;
+      initTimestamp: number;
+      endTimestamp: number;
+      totalTranscripts: number;
+      totalAggregations: number;
+      authority: string;
+      dkgSize: number;
+      threshold: number;
+      aggregationMismatch: boolean;
+      accessController: string;
+      publicKey: BLS12381.G1PointStructOutput;
+      aggregatedTranscript: string;
+    }
     >;
 
     rollbackDefaultAdminDelay(overrides?: CallOverrides): Promise<void>;
 
     setMaxDkgSize(
       newSize: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     setProviderPublicKey(
       _publicKey: BLS12381.G2PointStruct,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     setReimbursementPool(
       pool: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     setRitualAuthority(
       ritualId: BigNumberish,
       authority: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     setTimeout(
       newTimeout: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     supportsInterface(
       interfaceId: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<boolean>;
 
     timeout(overrides?: CallOverrides): Promise<number>;
@@ -1547,144 +1547,144 @@ export interface Coordinator extends BaseContract {
     withdrawTokens(
       token: string,
       amount: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
   };
 
   filters: {
-    "AggregationPosted(uint32,address,bytes32)"(
+    'AggregationPosted(uint32,address,bytes32)'(
       ritualId?: BigNumberish | null,
       node?: string | null,
-      aggregatedTranscriptDigest?: null
+      aggregatedTranscriptDigest?: null,
     ): AggregationPostedEventFilter;
     AggregationPosted(
       ritualId?: BigNumberish | null,
       node?: string | null,
-      aggregatedTranscriptDigest?: null
+      aggregatedTranscriptDigest?: null,
     ): AggregationPostedEventFilter;
 
-    "DefaultAdminDelayChangeCanceled()"(): DefaultAdminDelayChangeCanceledEventFilter;
+    'DefaultAdminDelayChangeCanceled()'(): DefaultAdminDelayChangeCanceledEventFilter;
     DefaultAdminDelayChangeCanceled(): DefaultAdminDelayChangeCanceledEventFilter;
 
-    "DefaultAdminDelayChangeScheduled(uint48,uint48)"(
+    'DefaultAdminDelayChangeScheduled(uint48,uint48)'(
       newDelay?: null,
-      effectSchedule?: null
+      effectSchedule?: null,
     ): DefaultAdminDelayChangeScheduledEventFilter;
     DefaultAdminDelayChangeScheduled(
       newDelay?: null,
-      effectSchedule?: null
+      effectSchedule?: null,
     ): DefaultAdminDelayChangeScheduledEventFilter;
 
-    "DefaultAdminTransferCanceled()"(): DefaultAdminTransferCanceledEventFilter;
+    'DefaultAdminTransferCanceled()'(): DefaultAdminTransferCanceledEventFilter;
     DefaultAdminTransferCanceled(): DefaultAdminTransferCanceledEventFilter;
 
-    "DefaultAdminTransferScheduled(address,uint48)"(
+    'DefaultAdminTransferScheduled(address,uint48)'(
       newAdmin?: string | null,
-      acceptSchedule?: null
+      acceptSchedule?: null,
     ): DefaultAdminTransferScheduledEventFilter;
     DefaultAdminTransferScheduled(
       newAdmin?: string | null,
-      acceptSchedule?: null
+      acceptSchedule?: null,
     ): DefaultAdminTransferScheduledEventFilter;
 
-    "EndRitual(uint32,bool)"(
+    'EndRitual(uint32,bool)'(
       ritualId?: BigNumberish | null,
-      successful?: null
+      successful?: null,
     ): EndRitualEventFilter;
     EndRitual(
       ritualId?: BigNumberish | null,
-      successful?: null
+      successful?: null,
     ): EndRitualEventFilter;
 
-    "MaxDkgSizeChanged(uint16,uint16)"(
+    'MaxDkgSizeChanged(uint16,uint16)'(
       oldSize?: null,
-      newSize?: null
+      newSize?: null,
     ): MaxDkgSizeChangedEventFilter;
     MaxDkgSizeChanged(
       oldSize?: null,
-      newSize?: null
+      newSize?: null,
     ): MaxDkgSizeChangedEventFilter;
 
-    "ParticipantPublicKeySet(uint32,address,(bytes32,bytes32,bytes32))"(
+    'ParticipantPublicKeySet(uint32,address,(bytes32,bytes32,bytes32))'(
       ritualId?: BigNumberish | null,
       participant?: string | null,
-      publicKey?: null
+      publicKey?: null,
     ): ParticipantPublicKeySetEventFilter;
     ParticipantPublicKeySet(
       ritualId?: BigNumberish | null,
       participant?: string | null,
-      publicKey?: null
+      publicKey?: null,
     ): ParticipantPublicKeySetEventFilter;
 
-    "RoleAdminChanged(bytes32,bytes32,bytes32)"(
+    'RoleAdminChanged(bytes32,bytes32,bytes32)'(
       role?: BytesLike | null,
       previousAdminRole?: BytesLike | null,
-      newAdminRole?: BytesLike | null
+      newAdminRole?: BytesLike | null,
     ): RoleAdminChangedEventFilter;
     RoleAdminChanged(
       role?: BytesLike | null,
       previousAdminRole?: BytesLike | null,
-      newAdminRole?: BytesLike | null
+      newAdminRole?: BytesLike | null,
     ): RoleAdminChangedEventFilter;
 
-    "RoleGranted(bytes32,address,address)"(
+    'RoleGranted(bytes32,address,address)'(
       role?: BytesLike | null,
       account?: string | null,
-      sender?: string | null
+      sender?: string | null,
     ): RoleGrantedEventFilter;
     RoleGranted(
       role?: BytesLike | null,
       account?: string | null,
-      sender?: string | null
+      sender?: string | null,
     ): RoleGrantedEventFilter;
 
-    "RoleRevoked(bytes32,address,address)"(
+    'RoleRevoked(bytes32,address,address)'(
       role?: BytesLike | null,
       account?: string | null,
-      sender?: string | null
+      sender?: string | null,
     ): RoleRevokedEventFilter;
     RoleRevoked(
       role?: BytesLike | null,
       account?: string | null,
-      sender?: string | null
+      sender?: string | null,
     ): RoleRevokedEventFilter;
 
-    "StartAggregationRound(uint32)"(
-      ritualId?: BigNumberish | null
+    'StartAggregationRound(uint32)'(
+      ritualId?: BigNumberish | null,
     ): StartAggregationRoundEventFilter;
     StartAggregationRound(
-      ritualId?: BigNumberish | null
+      ritualId?: BigNumberish | null,
     ): StartAggregationRoundEventFilter;
 
-    "StartRitual(uint32,address,address[])"(
+    'StartRitual(uint32,address,address[])'(
       ritualId?: BigNumberish | null,
       authority?: string | null,
-      participants?: null
+      participants?: null,
     ): StartRitualEventFilter;
     StartRitual(
       ritualId?: BigNumberish | null,
       authority?: string | null,
-      participants?: null
+      participants?: null,
     ): StartRitualEventFilter;
 
-    "TimeoutChanged(uint32,uint32)"(
+    'TimeoutChanged(uint32,uint32)'(
       oldTimeout?: null,
-      newTimeout?: null
+      newTimeout?: null,
     ): TimeoutChangedEventFilter;
     TimeoutChanged(
       oldTimeout?: null,
-      newTimeout?: null
+      newTimeout?: null,
     ): TimeoutChangedEventFilter;
 
-    "TranscriptPosted(uint32,address,bytes32)"(
+    'TranscriptPosted(uint32,address,bytes32)'(
       ritualId?: BigNumberish | null,
       node?: string | null,
-      transcriptDigest?: null
+      transcriptDigest?: null,
     ): TranscriptPostedEventFilter;
     TranscriptPosted(
       ritualId?: BigNumberish | null,
       node?: string | null,
-      transcriptDigest?: null
+      transcriptDigest?: null,
     ): TranscriptPostedEventFilter;
   };
 
@@ -1696,28 +1696,28 @@ export interface Coordinator extends BaseContract {
     TREASURY_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
     acceptDefaultAdminTransfer(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     application(overrides?: CallOverrides): Promise<BigNumber>;
 
     beginDefaultAdminTransfer(
       newAdmin: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     cancelDefaultAdminTransfer(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     changeDefaultAdminDelay(
       newDelay: BigNumberish,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     cohortFingerprint(
       nodes: string[],
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     currency(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1727,74 +1727,74 @@ export interface Coordinator extends BaseContract {
     defaultAdminDelay(overrides?: CallOverrides): Promise<BigNumber>;
 
     defaultAdminDelayIncreaseWait(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     feeRatePerSecond(overrides?: CallOverrides): Promise<BigNumber>;
 
     getAuthority(
       ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getParticipantFromProvider(
       ritualId: BigNumberish,
       provider: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getParticipants(
       ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getProviderPublicKey(
       _provider: string,
       _ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getPublicKeyFromRitualId(
       ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getRitualIdFromPublicKey(
       dkgPublicKey: BLS12381.G1PointStruct,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getRitualInitiationCost(
       providers: string[],
       duration: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getRitualState(
       ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getRoleAdmin(
       role: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getThresholdForRitualSize(
       size: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     grantRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     hasRole(
       role: BytesLike,
       account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     initiateRitual(
@@ -1802,18 +1802,18 @@ export interface Coordinator extends BaseContract {
       authority: string,
       duration: BigNumberish,
       accessController: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     isInitiationPublic(overrides?: CallOverrides): Promise<BigNumber>;
 
     isRitualFinalized(
       ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     makeInitiationPublic(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     maxDkgSize(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1828,7 +1828,7 @@ export interface Coordinator extends BaseContract {
 
     pendingFees(
       arg0: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     postAggregation(
@@ -1836,67 +1836,67 @@ export interface Coordinator extends BaseContract {
       aggregatedTranscript: BytesLike,
       dkgPublicKey: BLS12381.G1PointStruct,
       decryptionRequestStaticKey: BytesLike,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     postTranscript(
       ritualId: BigNumberish,
       transcript: BytesLike,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     processPendingFee(
       ritualId: BigNumberish,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     renounceRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     revokeRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     rituals(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     rollbackDefaultAdminDelay(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     setMaxDkgSize(
       newSize: BigNumberish,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     setProviderPublicKey(
       _publicKey: BLS12381.G2PointStruct,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     setReimbursementPool(
       pool: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     setRitualAuthority(
       ritualId: BigNumberish,
       authority: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     setTimeout(
       newTimeout: BigNumberish,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     supportsInterface(
       interfaceId: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     timeout(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1906,13 +1906,13 @@ export interface Coordinator extends BaseContract {
     withdrawTokens(
       token: string,
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     DEFAULT_ADMIN_ROLE(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     INITIATOR_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1920,28 +1920,28 @@ export interface Coordinator extends BaseContract {
     TREASURY_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     acceptDefaultAdminTransfer(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     application(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     beginDefaultAdminTransfer(
       newAdmin: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     cancelDefaultAdminTransfer(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     changeDefaultAdminDelay(
       newDelay: BigNumberish,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     cohortFingerprint(
       nodes: string[],
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     currency(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1951,74 +1951,74 @@ export interface Coordinator extends BaseContract {
     defaultAdminDelay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     defaultAdminDelayIncreaseWait(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     feeRatePerSecond(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getAuthority(
       ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getParticipantFromProvider(
       ritualId: BigNumberish,
       provider: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getParticipants(
       ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getProviderPublicKey(
       _provider: string,
       _ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getPublicKeyFromRitualId(
       ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getRitualIdFromPublicKey(
       dkgPublicKey: BLS12381.G1PointStruct,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getRitualInitiationCost(
       providers: string[],
       duration: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getRitualState(
       ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getRoleAdmin(
       role: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getThresholdForRitualSize(
       size: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     grantRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     hasRole(
       role: BytesLike,
       account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     initiateRitual(
@@ -2026,20 +2026,20 @@ export interface Coordinator extends BaseContract {
       authority: string,
       duration: BigNumberish,
       accessController: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     isInitiationPublic(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     isRitualFinalized(
       ritualId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     makeInitiationPublic(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     maxDkgSize(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -2049,16 +2049,16 @@ export interface Coordinator extends BaseContract {
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     pendingDefaultAdmin(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     pendingDefaultAdminDelay(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     pendingFees(
       arg0: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     postAggregation(
@@ -2066,70 +2066,70 @@ export interface Coordinator extends BaseContract {
       aggregatedTranscript: BytesLike,
       dkgPublicKey: BLS12381.G1PointStruct,
       decryptionRequestStaticKey: BytesLike,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     postTranscript(
       ritualId: BigNumberish,
       transcript: BytesLike,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     processPendingFee(
       ritualId: BigNumberish,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     renounceRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     revokeRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     rituals(
       arg0: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     rollbackDefaultAdminDelay(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     setMaxDkgSize(
       newSize: BigNumberish,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     setProviderPublicKey(
       _publicKey: BLS12381.G2PointStruct,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     setReimbursementPool(
       pool: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     setRitualAuthority(
       ritualId: BigNumberish,
       authority: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     setTimeout(
       newTimeout: BigNumberish,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     supportsInterface(
       interfaceId: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     timeout(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -2139,7 +2139,7 @@ export interface Coordinator extends BaseContract {
     withdrawTokens(
       token: string,
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
   };
 }

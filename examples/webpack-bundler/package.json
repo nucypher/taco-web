@@ -11,7 +11,7 @@
     "start": "webpack-dev-server"
   },
   "dependencies": {
-    "@nucypher/nucypher-ts": "workspace:*",
+    "@nucypher/nucypher-ts": "^1.0.0-alpha.5",
     "ethers": "^5.5.2"
   },
   "devDependencies": {

@@ -5,11 +5,11 @@
   "description": "A usage example for nucypher-ts",
   "author": "Piotr Rosłaniec <p.roslaniec@gmail.com>",
   "scripts": {
-    "build": "tsc --noEmit && rimraf build && webpack --mode production --progress",
+    "build": "tsc && rimraf build && webpack --mode production --progress",
     "start": "webpack serve --mode development"
   },
   "dependencies": {
-    "@nucypher/nucypher-ts": "workspace:*",
+    "@nucypher/nucypher-ts": "^1.0.0-alpha.5",
     "ethers": "^5.4.1",
     "file-loader": "^6.2.0",
     "react": "^17.0.0",

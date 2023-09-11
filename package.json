@@ -4,10 +4,9 @@
   "license": "GPL-3.0-only",
   "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
   "scripts": {
-    "postinstall": "pnpm build",
-    "docs": "run-s docs:root docs:packages",
-    "docs:root": "typedoc",
-    "docs:packages": "pnpm run --parallel --aggregate-output --reporter append-only --filter './packages/**' docs",
+    "build:docs": "run-s docs:root docs:packages docs:merge",
+    "docs:root": "typedoc --out build/docs",
+    "docs:packages": "pnpm run --parallel --aggregate-output --reporter append-only --filter './packages/**' build/docs",
     "docs:merge": "typedoc --entryPointStrategy merge \"docs-json/*.json\"",
     "doc:publish": "gh-pages -m \"[ci skip] Updates\" -d build/docs",
     "format": "prettier --check \"./**/*.ts\" README.md",
@@ -17,13 +16,14 @@
     "typecheck": "pnpm --parallel --aggregate-output --reporter append-only typecheck",
     "build": "tsc --build --verbose ./tsconfig.prod.json",
     "watch": "tsc --build --verbose --watch ./tsconfig.prod.json",
-    "package:check": "pnpm run --parallel --aggregate-output --reporter append-only --filter './packages/**' package-check",
     "test": "pnpm run --parallel --aggregate-output --reporter append-only --filter './packages/**' test",
     "test:fix": "pnpm fix && pnpm format:fix && pnpm typecheck && pnpm test",
+    "package:check": "pnpm run --parallel --aggregate-output --reporter append-only --filter './packages/**' package-check",
     "packages:lint": "pnpm packages:sort --check",
     "packages:sort": "sort-package-json \"package.json\" \"examples/*/package.json\" \"packages/*/package.json\"",
+    "exports:lint": "pnpm run --parallel --aggregate-output --reporter append-only --filter './packages/**' exports:lint",
     "fix": "pnpm lint:fix && pnpm format:fix && pnpm packages:sort",
-    "ci:lint": "pnpm lint && pnpm typecheck && pnpm package:check && pnpm packages:lint"
+    "ci:lint": "run-p lint typecheck package:check packages:lint exports:lint"
   },
   "devDependencies": {
     "@skypack/package-check": "^0.2.2",
@@ -47,7 +47,8 @@
     "prettier": "^2.8.8",
     "sort-package-json": "^2.5.1",
     "ts-jest": "^29.1.1",
-    "ts-node": "^10.9.1",
+    "ts-jest-resolver": "^2.0.1",
+    "ts-node": "^10.7.0",
     "ts-unused-exports": "^10.0.1",
     "typedoc": "^0.25.1",
     "typedoc-plugin-missing-exports": "^2.1.0",
@@ -57,7 +58,10 @@
     "baseDir": ".",
     "files": [
       {
-        "path": "**/nucypher-ts/build/**/*.*"
+        "path": "**/shared/build/**/*.*"
+      },
+      {
+        "path": "**/taco/build/**/*.*"
       }
     ]
   },

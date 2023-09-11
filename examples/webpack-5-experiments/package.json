@@ -10,7 +10,7 @@
     "start": "webpack-dev-server"
   },
   "dependencies": {
-    "@nucypher/nucypher-ts": "workspace:*"
+    "@nucypher/nucypher-ts": "^1.0.0-alpha.5"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^10.2.4",

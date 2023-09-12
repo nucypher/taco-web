@@ -1,5 +1,6 @@
 {
-  "version": "1.0.0",
+  "version": "0.1.0",
+  "private": true,
   "description": "A nucypher-ts usage example with NodeJs",
   "license": "GPL-3.0-only",
   "author": "Piotr Rosłaniec <p.roslaniec@gmail.com>",

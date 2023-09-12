@@ -516,10 +516,8 @@ export const fakeDkgRitual = (ritual: {
   return new DkgRitual(
     fakeRitualId,
     ritual.dkg.publicKey(),
-    {
-      sharesNum: ritual.sharesNum,
-      threshold: ritual.threshold,
-    },
+    ritual.sharesNum,
+    ritual.threshold,
     DkgRitualState.FINALIZED
   );
 };

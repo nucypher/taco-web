@@ -43,7 +43,7 @@ export const decrypt = async (
   const decrypter = ThresholdDecrypter.create(
     porterUri,
     ritualId,
-    ritual.dkgParams.threshold
+    ritual.threshold
   );
   return decrypter.retrieveAndDecrypt(provider, messageKit, signer);
 };

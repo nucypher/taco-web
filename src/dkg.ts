@@ -3,17 +3,13 @@ import { BigNumberish, ethers } from 'ethers';
 
 import { DkgCoordinatorAgent, DkgRitualState } from './agents/coordinator';
 import { ChecksumAddress } from './types';
-import { fromHexString, objectEquals } from './utils';
-
-export type DkgRitualParameters = {
-  sharesNum: number;
-  threshold: number;
-};
+import { fromHexString } from './utils';
 
 export interface DkgRitualJSON {
   id: number;
   dkgPublicKey: Uint8Array;
-  dkgParams: DkgRitualParameters;
+  sharesNum: number;
+  threshold: number;
   state: DkgRitualState;
 }
 
@@ -21,7 +17,8 @@ export class DkgRitual {
   constructor(
     public readonly id: number,
     public readonly dkgPublicKey: DkgPublicKey,
-    public readonly dkgParams: DkgRitualParameters,
+    public readonly sharesNum: number,
+    public readonly threshold: number,
     public readonly state: DkgRitualState
   ) {}
 
@@ -29,7 +26,8 @@ export class DkgRitual {
     return {
       id: this.id,
       dkgPublicKey: this.dkgPublicKey.toBytes(),
-      dkgParams: this.dkgParams,
+      sharesNum: this.sharesNum,
+      threshold: this.threshold,
       state: this.state,
     };
   }
@@ -37,13 +35,15 @@ export class DkgRitual {
   public static fromObj({
     id,
     dkgPublicKey,
-    dkgParams,
+    sharesNum,
+    threshold,
     state,
   }: DkgRitualJSON): DkgRitual {
     return new DkgRitual(
       id,
       DkgPublicKey.fromBytes(dkgPublicKey),
-      dkgParams,
+      sharesNum,
+      threshold,
       state
     );
   }
@@ -52,7 +52,8 @@ export class DkgRitual {
     return [
       this.id === other.id,
       this.dkgPublicKey.equals(other.dkgPublicKey),
-      objectEquals(this.dkgParams, other.dkgParams),
+      this.sharesNum === other.sharesNum,
+      this.threshold === other.threshold,
       this.state === other.state,
     ].every(Boolean);
   }
@@ -128,10 +129,8 @@ export class DkgClient {
     return new DkgRitual(
       ritualId,
       DkgPublicKey.fromBytes(dkgPkBytes),
-      {
-        sharesNum: ritual.dkgSize,
-        threshold: ritual.threshold,
-      },
+      ritual.dkgSize,
+      ritual.threshold,
       ritualState
     );
   }

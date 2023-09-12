@@ -1,5 +1,5 @@
 import { CapsuleFrag, reencrypt } from '@nucypher/nucypher-core';
-import { test } from 'vitest';
+import { expect, test } from 'vitest';
 
 import {
   ConditionExpression,

@@ -3,7 +3,7 @@ import {
   SecretKey,
   SessionStaticSecret,
 } from '@nucypher/nucypher-core';
-import { afterEach, test, vi } from 'vitest';
+import { afterEach, expect, test, vi } from 'vitest';
 
 import {
   CbdStrategy,

@@ -1,6 +1,6 @@
-import { test } from 'vitest';
-import { MessageKit } from '../../src';
-import { toBytes } from '../../src/utils';
+import { expect, test } from 'vitest';
+
+import { MessageKit, toBytes } from '../../src';
 import { fakeBob } from '../utils';
 
 test('message kit', () => {

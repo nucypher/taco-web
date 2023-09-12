@@ -1,4 +1,4 @@
-import { test } from 'vitest';
+import { expect, test } from 'vitest';
 
 import { ConditionExpression, CustomContextParam } from '../../../src';
 import { ContractCondition, RpcCondition } from '../../../src/conditions/base';

@@ -34,7 +34,7 @@ import {
 import axios from 'axios';
 import { ethers, providers, Wallet } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
-import { vi } from 'vitest';
+import { expect, vi } from 'vitest';
 
 import {
   Alice,

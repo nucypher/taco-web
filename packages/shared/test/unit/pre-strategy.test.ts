@@ -1,13 +1,13 @@
 import { SecretKey, VerifiedKeyFrag } from '@nucypher/nucypher-core';
-import { afterEach, test, vi } from 'vitest';
+import { afterEach, expect, test, vi } from 'vitest';
 
 import {
   ConditionExpression,
   DeployedPreStrategy,
   PreDecrypter,
   PreStrategy,
-  Ursula,
   toBytes,
+  Ursula,
 } from '../../src';
 import { ERC721Ownership } from '../../src/conditions/predefined';
 import {

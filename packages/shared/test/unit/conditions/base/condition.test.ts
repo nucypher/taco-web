@@ -1,5 +1,6 @@
-import { test } from 'vitest';
-import { Condition } from '../../../../src/conditions';
+import { expect, test } from 'vitest';
+
+import { Condition } from '../../../../src';
 import { ContractCondition } from '../../../../src/conditions/base';
 import {
   ERC721Balance,

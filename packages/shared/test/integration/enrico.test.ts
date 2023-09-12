@@ -1,6 +1,7 @@
 // Disabling because we want to access Alice.keyring which is a private property
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { test } from 'vitest';
+import { expect, test } from 'vitest';
+
 import {
   ConditionExpression,
   Enrico,

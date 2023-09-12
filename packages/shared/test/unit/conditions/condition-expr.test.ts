@@ -1,7 +1,7 @@
 import { SemVer } from 'semver';
-import { test } from 'vitest';
+import { expect, test } from 'vitest';
 
-import { ConditionExpression } from '../../../src/conditions';
+import { ConditionExpression, objectEquals, toJSON } from '../../../src';
 import {
   CompoundCondition,
   ContractCondition,
@@ -13,7 +13,6 @@ import {
 } from '../../../src/conditions/base';
 import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
 import { ERC721Balance } from '../../../src/conditions/predefined';
-import { objectEquals, toJSON } from '../../../src/utils';
 import {
   TEST_CHAIN_ID,
   TEST_CONTRACT_ADDR,

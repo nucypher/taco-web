@@ -86,9 +86,9 @@ importers:
 
   examples/nodejs:
     dependencies:
-      '@nucypher/nucypher-ts':
-        specifier: ^1.0.0-alpha.5
-        version: 1.0.0-beta.4
+      '@nucypher/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -101,9 +101,9 @@ importers:
       '@craco/craco':
         specifier: ^6.4.3
         version: 6.4.5(@types/node@18.17.15)(react-scripts@4.0.3)(typescript@5.2.2)
-      '@nucypher/nucypher-ts':
-        specifier: ^1.0.0-alpha.5
-        version: 1.0.0-beta.4
+      '@nucypher/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@testing-library/jest-dom':
         specifier: ^5.11.4
         version: 5.17.0
@@ -131,9 +131,9 @@ importers:
 
   examples/react-webpack-5-experiments:
     dependencies:
-      '@nucypher/nucypher-ts':
-        specifier: ^1.0.0-alpha.5
-        version: 1.0.0-beta.4
+      '@nucypher/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       ethers:
         specifier: ^5.4.1
         version: 5.7.2
@@ -216,9 +216,9 @@ importers:
 
   examples/webpack-5-experiments:
     dependencies:
-      '@nucypher/nucypher-ts':
-        specifier: ^1.0.0-alpha.5
-        version: 1.0.0-beta.4
+      '@nucypher/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
     devDependencies:
       copy-webpack-plugin:
         specifier: ^10.2.4
@@ -235,9 +235,9 @@ importers:
 
   examples/webpack-bundler:
     dependencies:
-      '@nucypher/nucypher-ts':
-        specifier: ^1.0.0-alpha.5
-        version: 1.0.0-beta.4
+      '@nucypher/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       ethers:
         specifier: ^5.5.2
         version: 5.7.2
@@ -2792,10 +2792,6 @@ packages:
     deprecated: This version has been deprecated and is no longer supported or maintained
     dev: false
 
-  /@hapi/hoek@9.3.0:
-    resolution: {integrity: sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ==}
-    dev: false
-
   /@hapi/joi@15.1.1:
     resolution: {integrity: sha512-entf8ZMOK8sc+8YfeOlM8pCfg3b5+WZIKBfUaaJT8UsjAAPjartzxIYm3TIbjvA4u+u++KbcXD38k682nVHDAQ==}
     deprecated: Switch to 'npm install joi'
@@ -2811,12 +2807,6 @@ packages:
     deprecated: This version has been deprecated and is no longer supported or maintained
     dependencies:
       '@hapi/hoek': 8.5.1
-    dev: false
-
-  /@hapi/topo@5.1.0:
-    resolution: {integrity: sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==}
-    dependencies:
-      '@hapi/hoek': 9.3.0
     dev: false
 
   /@humanwhocodes/config-array@0.11.11:
@@ -3151,29 +3141,8 @@ packages:
       mkdirp: 1.0.4
       rimraf: 3.0.2
 
-  /@nucypher/nucypher-core@0.10.0:
-    resolution: {integrity: sha512-7ZbFIZbAIO8UU++0tGhZEP8z1m4Vj5b/4+c9opBXXK88GZ7DFjdNWeTJWOCwLK3fMSpQJcUmkkqfsUd+PfGa9A==}
-    dev: false
-
   /@nucypher/nucypher-core@0.13.0:
     resolution: {integrity: sha512-HfEbrQvngOHIn0bMAdqPIF7WzkLdb5+sMhmX7bQl2SINABQ6FGGN8G+Arb+pbkYgru5qeQ+RTTbCBwBNaxFKEg==}
-    dev: false
-
-  /@nucypher/nucypher-ts@1.0.0-beta.4:
-    resolution: {integrity: sha512-lKKBZncnD4D+ufh23eYol+oMujyamYZYIEGr9e2JxvClLNRyUW4avh3zSlrxVFsrwZ6mceVKC8oRblAgqvA6Sg==}
-    engines: {node: '>=16'}
-    dependencies:
-      '@nucypher/nucypher-core': 0.10.0
-      axios: 0.21.4
-      deep-equal: 2.2.2
-      ethers: 5.7.2
-      joi: 17.10.1
-      qs: 6.11.2
-      semver: 7.5.4
-    transitivePeerDependencies:
-      - bufferutil
-      - debug
-      - utf-8-validate
     dev: false
 
   /@pmmmwh/react-refresh-webpack-plugin@0.4.3(react-refresh@0.8.3)(webpack-dev-server@3.11.1)(webpack@4.44.2):
@@ -3290,20 +3259,6 @@ packages:
       estree-walker: 1.0.1
       picomatch: 2.3.1
       rollup: 1.32.1
-    dev: false
-
-  /@sideway/address@4.1.4:
-    resolution: {integrity: sha512-7vwq+rOHVWjyXxVlR76Agnvhy8I9rpzjosTESvmhNeXOXdZZB15Fl+TI9x1SiHZH5Jv2wTGduSxFDIaq0m3DUw==}
-    dependencies:
-      '@hapi/hoek': 9.3.0
-    dev: false
-
-  /@sideway/formula@3.0.1:
-    resolution: {integrity: sha512-/poHZJJVjx3L+zVD6g9KgHfYnb443oi7wLu/XKojDviHy6HOEOA6z1Trk5aR1dGcmPenJEgb2sK2I80LeS3MIg==}
-    dev: false
-
-  /@sideway/pinpoint@2.0.0:
-    resolution: {integrity: sha512-RNiOoTPkptFtSVzQevY/yWtZwf/RxyVnPy/OcA9HBM3MlGDnBEYL5B41H0MTn0Uec8Hi+2qUtTfG2WWZBmMejQ==}
     dev: false
 
   /@sinclair/typebox@0.27.8:
@@ -5059,14 +5014,6 @@ packages:
       '@babel/runtime': 7.22.15
       is-retry-allowed: 2.2.0
     dev: true
-
-  /axios@0.21.4:
-    resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
-    dependencies:
-      follow-redirects: 1.15.2(debug@4.3.4)
-    transitivePeerDependencies:
-      - debug
-    dev: false
 
   /axios@1.5.0:
     resolution: {integrity: sha512-D4DdjDo5CY50Qms0qGQTTw6Q44jl7zRwY7bthds06pUGfChBCTcQs+N743eFWGEd6pRTMd6A+I87aWyFV5wiZQ==}
@@ -10829,16 +10776,6 @@ packages:
       - supports-color
       - ts-node
       - utf-8-validate
-    dev: false
-
-  /joi@17.10.1:
-    resolution: {integrity: sha512-vIiDxQKmRidUVp8KngT8MZSOcmRVm2zV7jbMjNYWuHcJWI0bUck3nRTGQjhpPlQenIQIBC5Vp9AhcnHbWQqafw==}
-    dependencies:
-      '@hapi/hoek': 9.3.0
-      '@hapi/topo': 5.1.0
-      '@sideway/address': 4.1.4
-      '@sideway/formula': 3.0.1
-      '@sideway/pinpoint': 2.0.0
     dev: false
 
   /joycon@3.1.1:

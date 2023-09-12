@@ -1,5 +1,6 @@
-import { test } from 'vitest';
-import { Condition } from '../../../src/conditions';
+import { expect, test } from 'vitest';
+
+import { Condition } from '../../../src';
 import { CompoundCondition } from '../../../src/conditions/base';
 import {
   compoundConditionSchema,

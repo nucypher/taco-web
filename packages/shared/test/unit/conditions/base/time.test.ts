@@ -1,4 +1,5 @@
-import { test } from 'vitest';
+import { expect, test } from 'vitest';
+
 import {
   TimeCondition,
   TimeConditionProps,

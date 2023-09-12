@@ -20,11 +20,11 @@
   ],
   "scripts": {
     "build": "tsc --build ./tsconfig.build.json --verbose",
-    "test": "vitest run",
+    "exports:lint": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
     "lint": "eslint --ext .ts src test",
     "lint:fix": "pnpm lint --fix",
-    "exports:lint": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
-    "package-check": "package-check"
+    "package-check": "package-check",
+    "test": "vitest run"
   },
   "dependencies": {
     "@nucypher/nucypher-core": "^0.13.0",

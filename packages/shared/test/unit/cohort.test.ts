@@ -1,4 +1,5 @@
-import { test } from 'vitest';
+import { expect, test } from 'vitest';
+
 import { Cohort } from '../../src';
 import { fakeUrsulas, makeCohort } from '../utils';
 

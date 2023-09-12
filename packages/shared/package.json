@@ -19,14 +19,14 @@
     "dist/**/*"
   ],
   "scripts": {
-    "postinstall": "yarn typechain",
     "prebuild": "yarn typechain",
     "build": "tsc --build ./tsconfig.build.json --verbose",
-    "test": "vitest run",
+    "exports:lint": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
+    "postinstall": "yarn typechain",
     "lint": "eslint --ext .ts src test",
     "lint:fix": "pnpm lint --fix",
-    "exports:lint": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
     "package-check": "package-check",
+    "test": "vitest run",
     "typechain": "typechain --out-dir=./src/contracts/ethers-typechain --target=ethers-v5 \"abis/**/*.json\""
   },
   "dependencies": {

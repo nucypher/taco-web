@@ -1,6 +1,6 @@
 import { MessageKit, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 import { providers } from 'ethers';
-import { SpyInstance, test, vi } from 'vitest';
+import { expect, SpyInstance, test, vi } from 'vitest';
 
 import {
   Cohort,

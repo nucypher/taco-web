@@ -1,4 +1,5 @@
-import { test } from 'vitest';
+import { expect, test } from 'vitest';
+
 import { RpcCondition } from '../../../../src/conditions/base';
 import { rpcConditionSchema } from '../../../../src/conditions/base/rpc';
 import { testRpcConditionObj } from '../../testVariables';

@@ -5,14 +5,14 @@ import {
   PublicKey,
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
-import { test } from 'vitest';
+import { expect, test } from 'vitest';
 
 import {
   ChecksumAddress,
   EnactedPolicy,
   Enrico,
-  Ursula,
   toBytes,
+  Ursula,
 } from '../../src';
 import {
   bytesEqual,

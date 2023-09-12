@@ -12,6 +12,14 @@ export * from './types';
 export * from './utils';
 export * from './web3';
 
+
+// Forming modules for convenience
+// TODO: Should we strucutre shared exports like this?
+import * as conditions from './conditions';
+
+export {conditions};
+
+
 // Re-exports
 export {
   PublicKey,

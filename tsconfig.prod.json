@@ -15,6 +15,9 @@
   "files": [],
   "references": [
     {
+      "path": "./packages/pre/tsconfig.build.json"
+    },
+    {
       "path": "./packages/shared/tsconfig.build.json"
     },
     {

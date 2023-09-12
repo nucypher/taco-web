@@ -261,6 +261,76 @@ importers:
         specifier: ^3.1.5
         version: 3.11.3(webpack-cli@3.3.12)(webpack@4.47.0)
 
+  packages/pre:
+    dependencies:
+      '@ethersproject/abi':
+        specifier: ^5.7.0
+        version: 5.7.0
+      '@ethersproject/abstract-signer':
+        specifier: ^5.7.0
+        version: 5.7.0
+      '@ethersproject/providers':
+        specifier: ^5.7.2
+        version: 5.7.2
+      '@nucypher/nucypher-core':
+        specifier: ^0.12.0
+        version: 0.12.0
+      '@nucypher/shared':
+        specifier: workspace:*
+        version: link:../shared
+      axios:
+        specifier: ^1.5.0
+        version: 1.5.0
+      deep-equal:
+        specifier: ^2.2.1
+        version: 2.2.2
+      ethers:
+        specifier: ^5.7.2
+        version: 5.7.2
+      qs:
+        specifier: ^6.10.1
+        version: 6.11.2
+      semver:
+        specifier: ^7.5.2
+        version: 7.5.4
+      vitest:
+        specifier: ^0.34.4
+        version: 0.34.4
+      zod:
+        specifier: ^3.22.1
+        version: 3.22.2
+    devDependencies:
+      '@babel/core':
+        specifier: ^7.22.17
+        version: 7.22.17
+      '@babel/preset-env':
+        specifier: ^7.22.15
+        version: 7.22.15(@babel/core@7.22.17)
+      '@babel/preset-typescript':
+        specifier: ^7.22.15
+        version: 7.22.15(@babel/core@7.22.17)
+      '@typechain/ethers-v5':
+        specifier: ^11.1.1
+        version: 11.1.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2)(ethers@5.7.2)(typechain@8.3.1)(typescript@5.2.2)
+      '@types/deep-equal':
+        specifier: ^1.0.1
+        version: 1.0.1
+      '@types/qs':
+        specifier: ^6.9.7
+        version: 6.9.8
+      '@types/semver':
+        specifier: ^7.5.0
+        version: 7.5.1
+      cz-conventional-changelog:
+        specifier: ^3.0.1
+        version: 3.3.0
+      standard-version:
+        specifier: ^9.0.0
+        version: 9.5.0
+      typechain:
+        specifier: ^8.3.1
+        version: 8.3.1(typescript@5.2.2)
+
   packages/shared:
     dependencies:
       '@ethersproject/abi':

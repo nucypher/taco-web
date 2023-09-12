@@ -1,5 +1,5 @@
-import { SessionStaticKey } from '@nucypher/nucypher-core';
-import { ethers } from 'ethers';
+import { DkgPublicKey, SessionStaticKey } from '@nucypher/nucypher-core';
+import { BigNumberish, ethers } from 'ethers';
 
 import {
   Coordinator,
@@ -13,12 +13,16 @@ import { DEFAULT_WAIT_N_CONFIRMATIONS, getContract } from './contracts';
 
 export interface CoordinatorRitual {
   initiator: string;
-  dkgSize: number;
   initTimestamp: number;
+  endTimestamp: number;
   totalTranscripts: number;
   totalAggregations: number;
-  publicKey: BLS12381.G1PointStructOutput;
+  authority: string;
+  dkgSize: number;
+  threshold: number;
   aggregationMismatch: boolean;
+  accessController: string;
+  publicKey: BLS12381.G1PointStructOutput;
   aggregatedTranscript: string;
 }
 
@@ -59,10 +63,18 @@ export class DkgCoordinatorAgent {
   public static async initializeRitual(
     provider: ethers.providers.Provider,
     signer: ethers.Signer,
-    providers: ChecksumAddress[]
+    providers: ChecksumAddress[],
+    authority: string,
+    duration: BigNumberish,
+    accessController: string
   ): Promise<number> {
     const Coordinator = await this.connectReadWrite(provider, signer);
-    const tx = await Coordinator.initiateRitual(providers);
+    const tx = await Coordinator.initiateRitual(
+      providers,
+      authority,
+      duration,
+      accessController
+    );
     const txReceipt = await tx.wait(DEFAULT_WAIT_N_CONFIRMATIONS);
     const [ritualStartEvent] = txReceipt.events ?? [];
     if (!ritualStartEvent) {
@@ -95,14 +107,23 @@ export class DkgCoordinatorAgent {
     const Coordinator = await this.connectReadOnly(provider);
     // We leave `initiator` undefined because we don't care who the initiator is
     // We leave `successful` undefined because we don't care if the ritual was successful
-    const eventFilter = Coordinator.filters.EndRitual(
-      ritualId,
-      undefined,
-      undefined
-    );
-    Coordinator.once(eventFilter, (_ritualId, _initiator, successful) => {
+    const eventFilter = Coordinator.filters.EndRitual(ritualId, undefined);
+    Coordinator.once(eventFilter, (_ritualId, successful) => {
       callback(successful);
     });
+  }
+
+  public static async getRitualIdFromPublicKey(
+    provider: ethers.providers.Provider,
+    dkgPublicKey: DkgPublicKey
+  ): Promise<number> {
+    const Coordinator = await this.connectReadOnly(provider);
+    const dkgPublicKeyBytes = dkgPublicKey.toBytes();
+    const pointStruct: BLS12381.G1PointStruct = {
+      word0: dkgPublicKeyBytes.slice(0, 32),
+      word1: dkgPublicKeyBytes.slice(32, 48),
+    };
+    return await Coordinator.getRitualIdFromPublicKey(pointStruct);
   }
 
   private static async connectReadOnly(provider: ethers.providers.Provider) {

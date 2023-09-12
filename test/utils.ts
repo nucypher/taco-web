@@ -313,7 +313,7 @@ interface FakeDkgRitualFlow {
   thresholdMessageKit: ThresholdMessageKit;
 }
 
-export const fakeTDecFlow = async ({
+export const fakeTDecFlow = ({
   validators,
   validatorKeypairs,
   ritualId,
@@ -324,10 +324,7 @@ export const fakeTDecFlow = async ({
   thresholdMessageKit,
 }: FakeDkgRitualFlow) => {
   // Having aggregated the transcripts, the validators can now create decryption shares
-  const decryptionShares: (
-    | DecryptionSharePrecomputed
-    | DecryptionShareSimple
-  )[] = [];
+  const decryptionShares: DecryptionShareSimple[] = [];
   zip(validators, validatorKeypairs).forEach(([validator, keypair]) => {
     const dkg = new Dkg(ritualId, sharesNum, threshold, validators, validator);
     const aggregate = dkg.aggregateTranscript(receivedMessages);
@@ -367,7 +364,7 @@ const fakeConditionExpr = () => {
   return new ConditionExpression(erc721Balance);
 };
 
-export const fakeDkgTDecFlowE2E = async (
+export const fakeDkgTDecFlowE2E = (
   ritualId = 0,
   variant: FerveoVariant = FerveoVariant.precomputed,
   conditionExpr: ConditionExpression = fakeConditionExpr(),
@@ -382,7 +379,7 @@ export const fakeDkgTDecFlowE2E = async (
     conditionExpr
   );
 
-  const { decryptionShares } = await fakeTDecFlow({
+  const { decryptionShares } = fakeTDecFlow({
     ...ritual,
     message,
     dkgPublicKey,
@@ -432,13 +429,13 @@ export const fakeCoordinatorRitual = async (
   };
 };
 
-export const fakeDkgParticipants = async (
+export const fakeDkgParticipants = (
   ritualId: number
-): Promise<{
+): {
   participants: DkgParticipant[];
   participantSecrets: Record<string, SessionStaticSecret>;
-}> => {
-  const ritual = await fakeDkgTDecFlowE2E(ritualId);
+} => {
+  const ritual = fakeDkgTDecFlowE2E(ritualId);
   const label = toBytes(`${ritualId}`);
 
   const participantSecrets: Record<string, SessionStaticSecret> =
@@ -519,18 +516,24 @@ export const fakeDkgRitual = (ritual: {
   return new DkgRitual(
     fakeRitualId,
     ritual.dkg.publicKey(),
-    {
-      sharesNum: ritual.sharesNum,
-      threshold: ritual.threshold,
-    },
+    ritual.sharesNum,
+    ritual.threshold,
     DkgRitualState.FINALIZED
   );
 };
 
-export const mockGetExistingRitual = (dkgRitual: DkgRitual) => {
-  return jest.spyOn(DkgClient, 'getExistingRitual').mockImplementation(() => {
+export const mockGetRitual = (dkgRitual: DkgRitual) => {
+  return jest.spyOn(DkgClient, 'getRitual').mockImplementation(() => {
     return Promise.resolve(dkgRitual);
   });
+};
+
+export const mockGetRitualIdFromPublicKey = (ritualId: number) => {
+  return jest
+    .spyOn(DkgCoordinatorAgent, 'getRitualIdFromPublicKey')
+    .mockImplementation(() => {
+      return Promise.resolve(ritualId);
+    });
 };
 
 export const makeCohort = async (ursulas: Ursula[]) => {

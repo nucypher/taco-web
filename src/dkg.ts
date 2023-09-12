@@ -1,19 +1,15 @@
 import { DkgPublicKey } from '@nucypher/nucypher-core';
-import { ethers } from 'ethers';
+import { BigNumberish, ethers } from 'ethers';
 
 import { DkgCoordinatorAgent, DkgRitualState } from './agents/coordinator';
 import { ChecksumAddress } from './types';
-import { fromHexString, objectEquals } from './utils';
-
-export type DkgRitualParameters = {
-  sharesNum: number;
-  threshold: number;
-};
+import { fromHexString } from './utils';
 
 export interface DkgRitualJSON {
   id: number;
   dkgPublicKey: Uint8Array;
-  dkgParams: DkgRitualParameters;
+  sharesNum: number;
+  threshold: number;
   state: DkgRitualState;
 }
 
@@ -21,7 +17,8 @@ export class DkgRitual {
   constructor(
     public readonly id: number,
     public readonly dkgPublicKey: DkgPublicKey,
-    public readonly dkgParams: DkgRitualParameters,
+    public readonly sharesNum: number,
+    public readonly threshold: number,
     public readonly state: DkgRitualState
   ) {}
 
@@ -29,7 +26,8 @@ export class DkgRitual {
     return {
       id: this.id,
       dkgPublicKey: this.dkgPublicKey.toBytes(),
-      dkgParams: this.dkgParams,
+      sharesNum: this.sharesNum,
+      threshold: this.threshold,
       state: this.state,
     };
   }
@@ -37,13 +35,15 @@ export class DkgRitual {
   public static fromObj({
     id,
     dkgPublicKey,
-    dkgParams,
+    sharesNum,
+    threshold,
     state,
   }: DkgRitualJSON): DkgRitual {
     return new DkgRitual(
       id,
       DkgPublicKey.fromBytes(dkgPublicKey),
-      dkgParams,
+      sharesNum,
+      threshold,
       state
     );
   }
@@ -52,28 +52,30 @@ export class DkgRitual {
     return [
       this.id === other.id,
       this.dkgPublicKey.equals(other.dkgPublicKey),
-      objectEquals(this.dkgParams, other.dkgParams),
+      this.sharesNum === other.sharesNum,
+      this.threshold === other.threshold,
       this.state === other.state,
     ].every(Boolean);
   }
 }
-
-// TODO: Currently, we're assuming that the threshold is always `floor(sharesNum / 2) + 1`.
-//  https://github.com/nucypher/nucypher/issues/3095
-const assumedThreshold = (sharesNum: number): number =>
-  Math.floor(sharesNum / 2) + 1;
 
 export class DkgClient {
   public static async initializeRitual(
     provider: ethers.providers.Provider,
     signer: ethers.Signer,
     ursulas: ChecksumAddress[],
+    authority: string,
+    duration: BigNumberish,
+    accessController: string,
     waitUntilEnd = false
   ): Promise<number | undefined> {
     const ritualId = await DkgCoordinatorAgent.initializeRitual(
       provider,
       signer,
-      ursulas.sort()
+      ursulas.sort(),
+      authority,
+      duration,
+      accessController
     );
 
     if (waitUntilEnd) {
@@ -111,7 +113,7 @@ export class DkgClient {
     });
   };
 
-  public static async getExistingRitual(
+  public static async getRitual(
     provider: ethers.providers.Provider,
     ritualId: number
   ): Promise<DkgRitual> {
@@ -127,12 +129,23 @@ export class DkgClient {
     return new DkgRitual(
       ritualId,
       DkgPublicKey.fromBytes(dkgPkBytes),
-      {
-        sharesNum: ritual.dkgSize,
-        threshold: assumedThreshold(ritual.dkgSize),
-      },
+      ritual.dkgSize,
+      ritual.threshold,
       ritualState
     );
+  }
+
+  public static async getFinalizedRitual(
+    provider: ethers.providers.Provider,
+    ritualId: number
+  ): Promise<DkgRitual> {
+    const ritual = await DkgClient.getRitual(provider, ritualId);
+    if (ritual.state !== DkgRitualState.FINALIZED) {
+      throw new Error(
+        `Ritual ${ritualId} is not finalized. State: ${ritual.state}`
+      );
+    }
+    return ritual;
   }
 
   // TODO: Without Validator public key in Coordinator, we cannot verify the

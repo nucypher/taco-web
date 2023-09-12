@@ -1,9 +1,10 @@
 import { RpcCondition } from '../../../../src/conditions/base';
 import { rpcConditionSchema } from '../../../../src/conditions/base/rpc';
 import { testRpcConditionObj } from '../../testVariables';
+import { test } from 'vitest';
 
-describe('validation', () => {
-  it('accepts on a valid schema', () => {
+test('validation', () => {
+  test('accepts on a valid schema', () => {
     const result = RpcCondition.validate(
       rpcConditionSchema,
       testRpcConditionObj,
@@ -13,7 +14,7 @@ describe('validation', () => {
     expect(result.data).toEqual(testRpcConditionObj);
   });
 
-  it('rejects an invalid schema', () => {
+  test('rejects an invalid schema', () => {
     const badRpcObj = {
       ...testRpcConditionObj,
       // Intentionally replacing `method` with an invalid method

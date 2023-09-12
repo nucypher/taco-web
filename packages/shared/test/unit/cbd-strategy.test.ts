@@ -3,6 +3,7 @@ import {
   SecretKey,
   SessionStaticSecret,
 } from '@nucypher/nucypher-core';
+import { afterEach, test, vi } from 'vitest';
 
 import {
   CbdStrategy,
@@ -14,7 +15,6 @@ import { toBytes } from '../../src';
 import { ERC721Ownership } from '../../src/conditions/predefined';
 import {
   fakeDkgFlow,
-  mockDkgParticipants,
   fakeDkgRitual,
   fakeProvider,
   fakeSigner,
@@ -22,6 +22,7 @@ import {
   fakeUrsulas,
   makeCohort,
   mockCbdDecrypt,
+  mockDkgParticipants,
   mockGetParticipants,
   mockGetRitual,
   mockGetUrsulas,
@@ -66,28 +67,28 @@ async function makeDeployedCbdStrategy() {
   return { mockedDkg, deployedStrategy };
 }
 
-describe('CbdStrategy', () => {
+test('CbdStrategy', () => {
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
-  it('creates a strategy', async () => {
+  test('creates a strategy', async () => {
     await makeCbdStrategy();
   });
 
-  it('can deploy and return a CbdDeployedStrategy', async () => {
+  test('can deploy and return a CbdDeployedStrategy', async () => {
     await makeDeployedCbdStrategy();
   });
 
-  describe('serialization', () => {
-    it('serializes to a plain object', async () => {
+  test('serialization', () => {
+    test('serializes to a plain object', async () => {
       const strategy = await makeCbdStrategy();
       const asObj = strategy.toObj();
       const fromObj = CbdStrategy.fromObj(asObj);
       expect(fromObj.equals(strategy)).toBeTruthy();
     });
 
-    it('serializes to a JSON', async () => {
+    test('serializes to a JSON', async () => {
       const strategy = await makeCbdStrategy();
       const asJson = strategy.toJSON();
       const fromJson = CbdStrategy.fromJSON(asJson);
@@ -96,12 +97,12 @@ describe('CbdStrategy', () => {
   });
 });
 
-describe('CbdDeployedStrategy', () => {
+test('CbdDeployedStrategy', () => {
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
-  it('can encrypt and decrypt', async () => {
+  test('can encrypt and decrypt', async () => {
     const { mockedDkg, deployedStrategy } = await makeDeployedCbdStrategy();
 
     const message = 'this is a secret';
@@ -143,15 +144,15 @@ describe('CbdDeployedStrategy', () => {
     expect(decryptedMessage).toEqual(toBytes(message));
   });
 
-  describe('serialization', () => {
-    it('serializes to a plaintext object', async () => {
+  test('serialization', () => {
+    test('serializes to a plaintext object', async () => {
       const { deployedStrategy } = await makeDeployedCbdStrategy();
       const asJson = deployedStrategy.toJSON();
       const fromJson = DeployedCbdStrategy.fromJSON(asJson);
       expect(fromJson.equals(deployedStrategy)).toBeTruthy();
     });
 
-    it('serializes to a JSON', async () => {
+    test('serializes to a JSON', async () => {
       const { deployedStrategy } = await makeDeployedCbdStrategy();
       const asJson = deployedStrategy.toJSON();
       const fromJson = DeployedCbdStrategy.fromJSON(asJson);
@@ -160,15 +161,15 @@ describe('CbdDeployedStrategy', () => {
   });
 });
 
-describe('ThresholdDecrypter', () => {
-  it('serializes to a plain object', async () => {
+test('ThresholdDecrypter', () => {
+  test('serializes to a plain object', async () => {
     const { deployedStrategy } = await makeDeployedCbdStrategy();
     const configObj = deployedStrategy.decrypter.toObj();
     const fromObj = ThresholdDecrypter.fromObj(configObj);
     expect(fromObj.equals(deployedStrategy.decrypter)).toBeTruthy();
   });
 
-  it('serializes to a JSON', async () => {
+  test('serializes to a JSON', async () => {
     const { deployedStrategy } = await makeDeployedCbdStrategy();
     const configJSON = deployedStrategy.decrypter.toJSON();
     const fromJSON = ThresholdDecrypter.fromJSON(configJSON);

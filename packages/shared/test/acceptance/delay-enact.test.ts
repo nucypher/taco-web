@@ -11,8 +11,9 @@ import {
   mockGetUrsulas,
   mockPublishToBlockchain,
 } from '../utils';
+import { test } from 'vitest';
 
-describe('story: alice creates a policy but someone else enacts it', () => {
+test('story: alice creates a policy but someone else enacts it', () => {
   const threshold = 2;
   const shares = 3;
   const startDate = new Date();
@@ -22,7 +23,7 @@ describe('story: alice creates a policy but someone else enacts it', () => {
   const provider = fakeProvider();
   const signer = fakeSigner();
 
-  it('alice generates a new policy', async () => {
+  test('alice generates a new policy', async () => {
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const generateKFragsSpy = mockGenerateKFrags();
     const publishToBlockchainSpy = mockPublishToBlockchain();

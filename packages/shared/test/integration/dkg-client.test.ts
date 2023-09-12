@@ -1,4 +1,5 @@
 import { SecretKey } from '@nucypher/nucypher-core';
+import { test, vi, afterEach } from 'vitest';
 
 import { DkgCoordinatorAgent } from '../../src';
 import {
@@ -9,25 +10,25 @@ import {
   mockRitualId,
 } from '../utils';
 
-jest.mock('../../src/contracts/agents/coordinator', () => ({
+vi.mock('../../src/contracts/agents/coordinator', () => ({
   DkgCoordinatorAgent: {
     getRitual: () => Promise.resolve(mockCoordinatorRitual(mockRitualId)),
     getParticipants: () => Promise.resolve(mockDkgParticipants(mockRitualId)),
   },
 }));
 
-describe('DkgCoordinatorAgent', () => {
+test('DkgCoordinatorAgent', () => {
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
-  it('fetches transcripts from the coordinator', async () => {
+  test('fetches transcripts from the coordinator', async () => {
     const provider = fakeProvider(SecretKey.random().toBEBytes());
     const ritual = await DkgCoordinatorAgent.getRitual(provider, mockRitualId);
     expect(ritual).toBeDefined();
   });
 
-  it('fetches participants from the coordinator', async () => {
+  test('fetches participants from the coordinator', async () => {
     const provider = fakeProvider(SecretKey.random().toBEBytes());
     const fakeParticipants = await mockDkgParticipants(mockRitualId);
     const getParticipantsSpy = mockGetParticipants(
@@ -43,8 +44,8 @@ describe('DkgCoordinatorAgent', () => {
 });
 
 // TODO: Fix this test after the DkgClient.verifyRitual() method is implemented
-// describe('DkgClient', () => {
-//   it('verifies the dkg ritual', async () => {
+// test('DkgClient', () => {
+//   test('verifies the dkg ritual', async () => {
 //     const provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
 //
 //     const dkgClient = new DkgClient(provider);

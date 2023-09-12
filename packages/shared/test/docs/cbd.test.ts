@@ -1,5 +1,6 @@
 import { MessageKit, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 import { providers } from 'ethers';
+import { SpyInstance, test, vi } from 'vitest';
 
 import {
   Cohort,
@@ -27,9 +28,11 @@ import {
   mockRetrieveCFragsRequest,
 } from '../utils';
 
-describe('Get Started (CBD PoC)', () => {
+// TODO: move to packages/taco
+
+test('Get Started (CBD PoC)', () => {
   function mockRetrieveAndDecrypt(
-    makeTreasureMapSpy: jest.SpyInstance,
+    makeTreasureMapSpy: SpyInstance,
     encryptedMessageKit: MessageKit,
   ) {
     // Setup mocks for `retrieveAndDecrypt`
@@ -45,7 +48,7 @@ describe('Get Started (CBD PoC)', () => {
     );
   }
 
-  it('can run the get started example', async () => {
+  test('can run the get started example', async () => {
     const detectEthereumProvider = mockDetectEthereumProvider();
     const mockedUrsulas = fakeUrsulas();
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
@@ -54,9 +57,9 @@ describe('Get Started (CBD PoC)', () => {
     const makeTreasureMapSpy = mockMakeTreasureMap();
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
-    jest
-      .spyOn(providers, 'Web3Provider')
-      .mockImplementation(() => fakeProvider(SecretKey.random().toBEBytes()));
+    vi.spyOn(providers, 'Web3Provider').mockImplementation(() =>
+      fakeProvider(SecretKey.random().toBEBytes()),
+    );
 
     //
     // Start of the code example

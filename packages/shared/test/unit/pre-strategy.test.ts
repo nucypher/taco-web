@@ -1,4 +1,5 @@
 import { SecretKey, VerifiedKeyFrag } from '@nucypher/nucypher-core';
+import { afterEach, test, vi } from 'vitest';
 
 import {
   ConditionExpression,
@@ -75,28 +76,28 @@ const makeDeployedPreStrategy = async () => {
   return { deployedStrategy, ursulaAddresses, verifiedKFrags };
 };
 
-describe('PreStrategy', () => {
+test('PreStrategy', () => {
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
-  it('creates a strategy', async () => {
+  test('creates a strategy', async () => {
     await makePreStrategy();
   });
 
-  it('deploys a strategy', async () => {
+  test('deploys a strategy', async () => {
     await makeDeployedPreStrategy();
   });
 
-  describe('serialization', () => {
-    it('serializes to plain object', async () => {
+  test('serialization', () => {
+    test('serializes to plain object', async () => {
       const strategy = await makePreStrategy();
       const asObject = strategy.toObj();
       const fromObject = PreStrategy.fromObj(asObject);
       expect(fromObject.equals(strategy)).toBeTruthy();
     });
 
-    it('serializes to JSON', async () => {
+    test('serializes to JSON', async () => {
       const strategy = await makePreStrategy();
       const asJson = strategy.toJSON();
       const fromJSON = PreStrategy.fromJSON(asJson);
@@ -105,12 +106,12 @@ describe('PreStrategy', () => {
   });
 });
 
-describe('PreDeployedStrategy', () => {
+test('PreDeployedStrategy', () => {
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
-  it('encrypts and decrypts', async () => {
+  test('encrypts and decrypts', async () => {
     const { deployedStrategy, ursulaAddresses, verifiedKFrags } =
       await makeDeployedPreStrategy();
 
@@ -138,15 +139,15 @@ describe('PreDeployedStrategy', () => {
     expect(decryptedMessage[0]).toEqual(toBytes(plaintext));
   });
 
-  describe('serialization', () => {
-    it('serializes to a plain object', async () => {
+  test('serialization', () => {
+    test('serializes to a plain object', async () => {
       const { deployedStrategy } = await makeDeployedPreStrategy();
       const asObj = deployedStrategy.toObj();
       const fromJson = DeployedPreStrategy.fromObj(asObj);
       expect(fromJson.equals(deployedStrategy)).toBeTruthy();
     });
 
-    it('serializes to a JSON', async () => {
+    test('serializes to a JSON', async () => {
       const { deployedStrategy } = await makeDeployedPreStrategy();
       const asJson = deployedStrategy.toJSON();
       const fromJson = DeployedPreStrategy.fromJSON(asJson);
@@ -155,15 +156,15 @@ describe('PreDeployedStrategy', () => {
   });
 });
 
-describe('PreDecrypter', () => {
-  it('serializes to a plain object', async () => {
+test('PreDecrypter', () => {
+  test('serializes to a plain object', async () => {
     const { deployedStrategy } = await makeDeployedPreStrategy();
     const asObj = deployedStrategy.decrypter.toObj();
     const fromJson = PreDecrypter.fromObj(asObj);
     expect(fromJson.equals(deployedStrategy.decrypter)).toBeTruthy();
   });
 
-  it('serializes to JSON', async () => {
+  test('serializes to JSON', async () => {
     const { deployedStrategy } = await makeDeployedPreStrategy();
     const asJson = deployedStrategy.decrypter.toJSON();
     const fromJson = PreDecrypter.fromJSON(asJson);

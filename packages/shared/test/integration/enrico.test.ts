@@ -11,9 +11,10 @@ import {
   fromBytes,
   reencryptKFrags,
 } from '../utils';
+import { test } from 'vitest';
 
-describe('enrico', () => {
-  it('alice decrypts message encrypted by enrico', async () => {
+test('enrico', () => {
+  test('alice decrypts message encrypted by enrico', async () => {
     const label = 'fake-label';
     const message = 'fake-message';
     const alice = fakeAlice();
@@ -28,7 +29,7 @@ describe('enrico', () => {
     expect(alicePlaintext).toEqual(alicePlaintext);
   });
 
-  it('bob decrypts reencrypted message', async () => {
+  test('bob decrypts reencrypted message', async () => {
     const label = 'fake-label';
     const alice = fakeAlice();
     const bob = fakeBob();
@@ -88,7 +89,7 @@ describe('enrico', () => {
     expect(bytesEqual(decrypted, plaintextBytes)).toBeTruthy();
   });
 
-  it('enrico generates a message kit with conditions', async () => {
+  test('enrico generates a message kit with conditions', async () => {
     const label = 'fake-label';
     const message = 'fake-message';
     const alice = fakeAlice();
@@ -112,7 +113,7 @@ describe('enrico', () => {
     expect(alicePlaintext).toEqual(alicePlaintext);
   });
 
-  it('can overwrite conditions at encryption time', async () => {
+  test('can overwrite conditions at encryption time', async () => {
     const label = 'fake-label';
     const message = 'fake-message';
     const alice = fakeAlice();

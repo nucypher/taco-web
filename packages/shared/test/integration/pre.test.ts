@@ -1,4 +1,5 @@
 import { CapsuleFrag, reencrypt } from '@nucypher/nucypher-core';
+import { test } from 'vitest';
 
 import {
   ConditionExpression,
@@ -12,7 +13,7 @@ import { CompoundCondition } from '../../src/conditions/base';
 import { fakeAlice, fakeBob, fakeUrsulas, reencryptKFrags } from '../utils';
 import { ERC721Ownership } from '../../src/conditions/predefined';
 
-describe('proxy reencryption', () => {
+test('proxy reencryption', () => {
   const plaintext = toBytes('plaintext-message');
   const threshold = 2;
   const shares = 3;
@@ -21,7 +22,7 @@ describe('proxy reencryption', () => {
   const alice = fakeAlice();
   const bob = fakeBob();
 
-  it('verifies capsule frags', async () => {
+  test('verifies capsule frags', async () => {
     const { capsule } = new MessageKit(bob.decryptingKey, plaintext, null);
     const { delegatingKey, verifiedKFrags } = alice.generateKFrags(
       bob,
@@ -45,7 +46,7 @@ describe('proxy reencryption', () => {
     expect(areVerified).toBeTruthy();
   });
 
-  it('encrypts and decrypts reencrypted message', async () => {
+  test('encrypts and decrypts reencrypted message', async () => {
     const { verifiedKFrags } = alice.generateKFrags(
       bob,
       label,
@@ -75,7 +76,7 @@ describe('proxy reencryption', () => {
     expect(bobPlaintext).toEqual(plaintext);
   });
 
-  it('encrypts and decrypts reencrypted message with conditions', async () => {
+  test('encrypts and decrypts reencrypted message with conditions', async () => {
     const { verifiedKFrags } = alice.generateKFrags(
       bob,
       label,

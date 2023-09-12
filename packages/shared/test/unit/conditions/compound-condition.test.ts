@@ -9,9 +9,10 @@ import {
   testRpcConditionObj,
   testTimeConditionObj,
 } from '../testVariables';
+import { test } from 'vitest';
 
-describe('validation', () => {
-  it('accepts or operator', () => {
+test('validation', () => {
+  test('accepts or operator', () => {
     const conditionObj = {
       operator: 'or',
       operands: [testContractConditionObj, testTimeConditionObj],
@@ -25,7 +26,7 @@ describe('validation', () => {
     });
   });
 
-  it('accepts and operator', () => {
+  test('accepts and operator', () => {
     const conditionObj = {
       operator: 'and',
       operands: [testContractConditionObj, testTimeConditionObj],
@@ -42,7 +43,7 @@ describe('validation', () => {
     });
   });
 
-  it('rejects an invalid operator', () => {
+  test('rejects an invalid operator', () => {
     const result = CompoundCondition.validate(compoundConditionSchema, {
       operator: 'not-an-operator',
       operands: [testRpcConditionObj, testTimeConditionObj],
@@ -59,7 +60,7 @@ describe('validation', () => {
     });
   });
 
-  it('rejects invalid number of operands = 0', () => {
+  test('rejects invalid number of operands = 0', () => {
     const result = CompoundCondition.validate(compoundConditionSchema, {
       operator: 'or',
       operands: [],
@@ -74,7 +75,7 @@ describe('validation', () => {
     });
   });
 
-  it('rejects invalid number of operands = 1', () => {
+  test('rejects invalid number of operands = 1', () => {
     const result = CompoundCondition.validate(compoundConditionSchema, {
       operator: 'or',
       operands: [testRpcConditionObj],
@@ -88,7 +89,7 @@ describe('validation', () => {
     });
   });
 
-  it('accepts recursive compound conditions', () => {
+  test('accepts recursive compound conditions', () => {
     const conditionObj = {
       operator: 'and',
       operands: [

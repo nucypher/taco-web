@@ -8,15 +8,16 @@ import {
   timeConditionSchema,
   TimeConditionType,
 } from '../../../../src/conditions/base/time';
+import { test } from 'vitest';
 
-describe('validation', () => {
+test('validation', () => {
   const returnValueTest: ReturnValueTestProps = {
     index: 0,
     comparator: '>',
     value: '100',
   };
 
-  it('accepts a valid schema', () => {
+  test('accepts a valid schema', () => {
     const conditionObj: TimeConditionProps = {
       conditionType: TimeConditionType,
       returnValueTest,
@@ -29,7 +30,7 @@ describe('validation', () => {
     expect(result.data).toEqual(conditionObj);
   });
 
-  it('rejects an invalid schema', () => {
+  test('rejects an invalid schema', () => {
     const badObj = {
       conditionType: TimeConditionType,
       // Intentionally replacing `returnValueTest` with an invalid test

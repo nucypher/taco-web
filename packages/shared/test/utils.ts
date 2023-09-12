@@ -34,6 +34,7 @@ import {
 import axios from 'axios';
 import { ethers, providers, Wallet } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
+import { vi } from 'vitest';
 
 import { Alice, Bob, Cohort, Enrico, RemoteBob } from '../src';
 import {
@@ -151,13 +152,13 @@ export const mockGetUrsulas = (ursulas: readonly Ursula[]) => {
     };
   };
 
-  return jest.spyOn(axios, 'get').mockImplementation(async () => {
+  return vi.spyOn(axios, 'get').mockImplementation(async () => {
     return Promise.resolve({ data: fakePorterUrsulas(ursulas) });
   });
 };
 export const mockPublishToBlockchain = () => {
   const txHash = '0x1234567890123456789012345678901234567890';
-  return jest
+  return vi
     .spyOn(PreEnactedPolicy.prototype as any, 'publish')
     .mockImplementation(async () => Promise.resolve(txHash));
 };
@@ -180,7 +181,7 @@ export const mockRetrieveCFragsRequest = (
   capsule: Capsule,
 ) => {
   const results = fakeCFragResponse(ursulas, verifiedKFrags, capsule);
-  return jest
+  return vi
     .spyOn(PorterClient.prototype, 'retrieveCFrags')
     .mockImplementation(() => {
       return Promise.resolve(results);
@@ -190,7 +191,7 @@ export const mockGenerateKFrags = (withValue?: {
   delegatingKey: PublicKey;
   verifiedKFrags: VerifiedKeyFrag[];
 }) => {
-  const spy = jest.spyOn(Alice.prototype as any, 'generateKFrags');
+  const spy = vi.spyOn(Alice.prototype as any, 'generateKFrags');
   if (withValue) {
     return spy.mockImplementation(() => withValue);
   }
@@ -198,10 +199,7 @@ export const mockGenerateKFrags = (withValue?: {
 };
 
 export const mockEncryptTreasureMap = (withValue?: EncryptedTreasureMap) => {
-  const spy = jest.spyOn(
-    BlockchainPolicy.prototype as any,
-    'encryptTreasureMap',
-  );
+  const spy = vi.spyOn(BlockchainPolicy.prototype as any, 'encryptTreasureMap');
   if (withValue) {
     return spy.mockImplementation(() => withValue);
   }
@@ -222,11 +220,11 @@ export const reencryptKFrags = (
 };
 
 export const mockMakeTreasureMap = () => {
-  return jest.spyOn(BlockchainPolicy.prototype as any, 'makeTreasureMap');
+  return vi.spyOn(BlockchainPolicy.prototype as any, 'makeTreasureMap');
 };
 
 export const mockDetectEthereumProvider = () => {
-  return jest.fn(async () => {
+  return vi.fn(async () => {
     return {} as unknown as providers.ExternalProvider;
   });
 };
@@ -457,7 +455,7 @@ export const mockDkgParticipants = (
 };
 
 export const mockGetParticipants = (participants: DkgParticipant[]) => {
-  return jest
+  return vi
     .spyOn(DkgCoordinatorAgent, 'getParticipants')
     .mockImplementation(() => {
       return Promise.resolve(participants);
@@ -489,7 +487,7 @@ export const mockCbdDecrypt = (
     encryptedResponses,
     errors,
   };
-  return jest
+  return vi
     .spyOn(PorterClient.prototype, 'cbdDecrypt')
     .mockImplementation(() => {
       return Promise.resolve(result);
@@ -497,7 +495,7 @@ export const mockCbdDecrypt = (
 };
 
 export const mockRandomSessionStaticSecret = (secret: SessionStaticSecret) => {
-  return jest
+  return vi
     .spyOn(ThresholdDecrypter.prototype as any, 'makeSessionKey')
     .mockImplementation(() => secret);
 };
@@ -519,19 +517,19 @@ export const fakeDkgRitual = (ritual: {
 };
 
 export const mockGetRitual = (dkgRitual: DkgRitual) => {
-  return jest.spyOn(DkgClient, 'getRitual').mockImplementation(() => {
+  return vi.spyOn(DkgClient, 'getRitual').mockImplementation(() => {
     return Promise.resolve(dkgRitual);
   });
 };
 
 export const mockGetFinalizedRitualSpy = (dkgRitual: DkgRitual) => {
-  return jest.spyOn(DkgClient, 'getFinalizedRitual').mockImplementation(() => {
+  return vi.spyOn(DkgClient, 'getFinalizedRitual').mockImplementation(() => {
     return Promise.resolve(dkgRitual);
   });
 };
 
 export const mockGetRitualIdFromPublicKey = (ritualId: number) => {
-  return jest
+  return vi
     .spyOn(DkgCoordinatorAgent, 'getRitualIdFromPublicKey')
     .mockImplementation(() => {
       return Promise.resolve(ritualId);

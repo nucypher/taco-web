@@ -1,23 +1,24 @@
 import { Cohort } from '../../src';
 import { fakeUrsulas, makeCohort } from '../utils';
+import { test } from 'vitest';
 
-describe('Cohort', () => {
+test('Cohort', () => {
   const mockedUrsulas = fakeUrsulas();
 
-  it('creates a Cohort', async () => {
+  test('creates a Cohort', async () => {
     const cohort = await makeCohort(mockedUrsulas);
     const expectedUrsulas = mockedUrsulas.map((u) => u.checksumAddress);
     expect(cohort.ursulaAddresses).toEqual(expectedUrsulas);
   });
 
-  it('serializes to a plain object', async () => {
+  test('serializes to a plain object', async () => {
     const cohort = await makeCohort(mockedUrsulas);
     const asObj = cohort.toObj();
     const fromObj = Cohort.fromObj(asObj);
     expect(fromObj).toEqual(cohort);
   });
 
-  it('serializes to JSON', async () => {
+  test('serializes to JSON', async () => {
     const cohort = await makeCohort(mockedUrsulas);
     const asJson = cohort.toJSON();
     const fromJson = Cohort.fromJSON(asJson);

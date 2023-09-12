@@ -18,7 +18,6 @@ export const core = {
   TreasureMap,
   MessageKit,
   Ciphertext,
-}
+};
 
-
-export {taco} from './taco';
+export { taco } from './taco';

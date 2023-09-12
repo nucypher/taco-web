@@ -1,5 +1,5 @@
 import { SecretKey } from '@nucypher/nucypher-core';
-import { test, vi, afterEach } from 'vitest';
+import { afterEach, test, vi } from 'vitest';
 
 import { DkgCoordinatorAgent } from '../../src';
 import {

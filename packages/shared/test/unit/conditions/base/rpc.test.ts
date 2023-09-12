@@ -1,7 +1,7 @@
+import { test } from 'vitest';
 import { RpcCondition } from '../../../../src/conditions/base';
 import { rpcConditionSchema } from '../../../../src/conditions/base/rpc';
 import { testRpcConditionObj } from '../../testVariables';
-import { test } from 'vitest';
 
 test('validation', () => {
   test('accepts on a valid schema', () => {

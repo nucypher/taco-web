@@ -1,16 +1,16 @@
+import { test } from 'vitest';
 import { ConditionExpression, CustomContextParam } from '../../../../src';
 import {
   ContractCondition,
   ContractConditionProps,
 } from '../../../../src/conditions/base';
 import {
-  contractConditionSchema,
   FunctionAbiProps,
+  contractConditionSchema,
 } from '../../../../src/conditions/base/contract';
 import { USER_ADDRESS_PARAM } from '../../../../src/conditions/const';
 import { fakeProvider, fakeSigner } from '../../../utils';
 import { testContractConditionObj, testFunctionAbi } from '../../testVariables';
-import { test } from 'vitest';
 
 test('validation', () => {
   test('accepts on a valid schema', () => {

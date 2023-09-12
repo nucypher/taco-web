@@ -1,3 +1,4 @@
+import { test } from 'vitest';
 import { Condition } from '../../../../src/conditions';
 import { ContractCondition } from '../../../../src/conditions/base';
 import {
@@ -9,7 +10,6 @@ import {
   TEST_CONTRACT_ADDR,
   testContractConditionObj,
 } from '../../testVariables';
-import { test } from 'vitest';
 
 test('validation', () => {
   const condition = new ERC721Balance({

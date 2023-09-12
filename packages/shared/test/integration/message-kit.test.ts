@@ -1,7 +1,7 @@
+import { test } from 'vitest';
 import { MessageKit } from '../../src';
 import { toBytes } from '../../src/utils';
 import { fakeBob } from '../utils';
-import { test } from 'vitest';
 
 test('message kit', () => {
   test('bob decrypts', () => {

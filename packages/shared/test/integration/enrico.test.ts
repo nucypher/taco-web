@@ -1,8 +1,13 @@
 // Disabling because we want to access Alice.keyring which is a private property
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ConditionExpression, Enrico, PolicyMessageKit } from '../../src';
-import { RetrievalResult } from '../../src';
-import { toBytes } from '../../src';
+import { test } from 'vitest';
+import {
+  ConditionExpression,
+  Enrico,
+  PolicyMessageKit,
+  RetrievalResult,
+  toBytes,
+} from '../../src';
 import { ERC721Ownership } from '../../src/conditions/predefined';
 import {
   bytesEqual,
@@ -11,7 +16,6 @@ import {
   fromBytes,
   reencryptKFrags,
 } from '../utils';
-import { test } from 'vitest';
 
 test('enrico', () => {
   test('alice decrypts message encrypted by enrico', async () => {

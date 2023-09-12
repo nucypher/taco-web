@@ -8,9 +8,9 @@ import {
   getPorterUri,
   PreStrategy,
   SecretKey,
+  toBytes,
+  Ursula,
 } from '../../src';
-import { Ursula } from '../../src';
-import { toBytes } from '../../src';
 import {
   ContractCondition,
   ContractConditionProps,

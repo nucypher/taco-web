@@ -1,3 +1,4 @@
+import { test } from 'vitest';
 import { Condition } from '../../../src/conditions';
 import { CompoundCondition } from '../../../src/conditions/base';
 import {
@@ -9,7 +10,6 @@ import {
   testRpcConditionObj,
   testTimeConditionObj,
 } from '../testVariables';
-import { test } from 'vitest';
 
 test('validation', () => {
   test('accepts or operator', () => {

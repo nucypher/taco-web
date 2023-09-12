@@ -1,6 +1,6 @@
+import { test } from 'vitest';
 import { Cohort } from '../../src';
 import { fakeUrsulas, makeCohort } from '../utils';
-import { test } from 'vitest';
 
 test('Cohort', () => {
   const mockedUrsulas = fakeUrsulas();

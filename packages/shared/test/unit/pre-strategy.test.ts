@@ -6,9 +6,9 @@ import {
   DeployedPreStrategy,
   PreDecrypter,
   PreStrategy,
+  Ursula,
+  toBytes,
 } from '../../src';
-import { Ursula } from '../../src';
-import { toBytes } from '../../src';
 import { ERC721Ownership } from '../../src/conditions/predefined';
 import {
   fakeProvider,

@@ -6,10 +6,10 @@ import {
   ThresholdDecrypterJSON,
 } from '../characters/cbd-recipient';
 import { Enrico } from '../characters/enrico';
+import { Cohort, CohortJSON } from '../cohort';
 import { ConditionExpression, ConditionExpressionJSON } from '../conditions';
 import { DkgClient, DkgRitual } from '../dkg';
 import { fromJSON, toJSON } from '../utils';
-import { Cohort, CohortJSON } from '../cohort';
 
 export type CbdStrategyJSON = {
   cohort: CohortJSON;

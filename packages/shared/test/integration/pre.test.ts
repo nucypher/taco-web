@@ -6,12 +6,13 @@ import {
   Enrico,
   MessageKit,
   PolicyMessageKit,
+  RetrievalResult,
+  toBytes,
+  zip,
 } from '../../src';
-import { RetrievalResult } from '../../src';
-import { toBytes, zip } from '../../src';
 import { CompoundCondition } from '../../src/conditions/base';
-import { fakeAlice, fakeBob, fakeUrsulas, reencryptKFrags } from '../utils';
 import { ERC721Ownership } from '../../src/conditions/predefined';
+import { fakeAlice, fakeBob, fakeUrsulas, reencryptKFrags } from '../utils';
 
 test('proxy reencryption', () => {
   const plaintext = toBytes('plaintext-message');

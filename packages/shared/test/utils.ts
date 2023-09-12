@@ -36,21 +36,31 @@ import { ethers, providers, Wallet } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 import { vi } from 'vitest';
 
-import { Alice, Bob, Cohort, Enrico, RemoteBob } from '../src';
 import {
+  Alice,
+  BlockchainPolicy,
+  Bob,
   CbdDecryptResult,
+  ChecksumAddress,
+  Cohort,
+  ConditionExpression,
+  DkgClient,
+  DkgCoordinatorAgent,
+  DkgParticipant,
+  DkgRitual,
+  DkgRitualState,
+  Enrico,
   GetUrsulasResult,
   PorterClient,
+  PreEnactedPolicy,
+  RemoteBob,
   RetrieveCFragsResult,
+  ThresholdDecrypter,
+  toBytes,
+  toHexString,
   Ursula,
+  zip,
 } from '../src';
-import { ChecksumAddress } from '../src';
-import { toBytes, toHexString, zip } from '../src';
-import { DkgCoordinatorAgent, DkgParticipant, DkgRitualState } from '../src';
-import { ThresholdDecrypter } from '../src';
-import { ConditionExpression } from '../src';
-import { DkgClient, DkgRitual } from '../src';
-import { BlockchainPolicy, PreEnactedPolicy } from '../src';
 import { ERC721Balance } from '../src/conditions/predefined';
 
 import { TEST_CHAIN_ID, TEST_CONTRACT_ADDR } from './unit/testVariables';

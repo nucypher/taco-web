@@ -1,3 +1,4 @@
+import { test } from 'vitest';
 import {
   bytesEqual,
   fakeAlice,
@@ -11,7 +12,6 @@ import {
   mockGetUrsulas,
   mockPublishToBlockchain,
 } from '../utils';
-import { test } from 'vitest';
 
 test('story: alice creates a policy but someone else enacts it', () => {
   const threshold = 2;

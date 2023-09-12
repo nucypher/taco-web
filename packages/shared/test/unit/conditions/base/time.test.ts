@@ -1,3 +1,4 @@
+import { test } from 'vitest';
 import {
   TimeCondition,
   TimeConditionProps,
@@ -5,10 +6,9 @@ import {
 import { ReturnValueTestProps } from '../../../../src/conditions/base/shared';
 import {
   TimeConditionMethod,
-  timeConditionSchema,
   TimeConditionType,
+  timeConditionSchema,
 } from '../../../../src/conditions/base/time';
-import { test } from 'vitest';
 
 test('validation', () => {
   const returnValueTest: ReturnValueTestProps = {

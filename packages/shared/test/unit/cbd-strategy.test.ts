@@ -9,9 +9,9 @@ import {
   CbdStrategy,
   ConditionExpression,
   DeployedCbdStrategy,
+  ThresholdDecrypter,
+  toBytes,
 } from '../../src';
-import { ThresholdDecrypter } from '../../src';
-import { toBytes } from '../../src';
 import { ERC721Ownership } from '../../src/conditions/predefined';
 import {
   fakeDkgFlow,

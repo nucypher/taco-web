@@ -7,10 +7,13 @@ import {
 } from '@nucypher/nucypher-core';
 import { test } from 'vitest';
 
-import { EnactedPolicy, Enrico } from '../../src';
-import { Ursula } from '../../src';
-import { ChecksumAddress } from '../../src';
-import { toBytes } from '../../src';
+import {
+  ChecksumAddress,
+  EnactedPolicy,
+  Enrico,
+  Ursula,
+  toBytes,
+} from '../../src';
 import {
   bytesEqual,
   fakeAlice,

@@ -7,21 +7,19 @@ import {
   ContractCondition,
   ContractConditionProps,
   RpcCondition,
+  RpcConditionType,
   TimeCondition,
   TimeConditionProps,
 } from '../../../src/conditions/base';
-import { RpcConditionType } from '../../../src/conditions/base';
 import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
 import { ERC721Balance } from '../../../src/conditions/predefined';
 import { objectEquals, toJSON } from '../../../src/utils';
 import {
   TEST_CHAIN_ID,
   TEST_CONTRACT_ADDR,
+  testContractConditionObj,
   testFunctionAbi,
   testReturnValueTest,
-} from '../testVariables';
-import {
-  testContractConditionObj,
   testRpcConditionObj,
   testTimeConditionObj,
 } from '../testVariables';

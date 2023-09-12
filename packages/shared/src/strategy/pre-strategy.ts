@@ -5,10 +5,10 @@ import { Alice } from '../characters/alice';
 import { Bob } from '../characters/bob';
 import { Enrico } from '../characters/enrico';
 import { PreDecrypter, PreDecrypterJSON } from '../characters/pre-recipient';
+import { Cohort, CohortJSON } from '../cohort';
 import { ConditionExpression } from '../conditions';
 import { EnactedPolicy } from '../policy';
 import { base64ToU8Receiver, toJSON } from '../utils';
-import { Cohort, CohortJSON } from '../cohort';
 
 export type PreStrategyJSON = {
   cohort: CohortJSON;

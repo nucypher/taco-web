@@ -1,3 +1,8 @@
+import {
+  testContractConditionObj,
+  testRpcConditionObj,
+  testTimeConditionObj,
+} from '@nucypher/test-utils';
 import { expect, test } from 'vitest';
 
 import { Condition } from '../../../src';
@@ -6,11 +11,6 @@ import {
   compoundConditionSchema,
   CompoundConditionType,
 } from '../../../src/conditions/compound-condition';
-import {
-  testContractConditionObj,
-  testRpcConditionObj,
-  testTimeConditionObj,
-} from '../testVariables';
 
 test('validation', () => {
   test('accepts or operator', () => {

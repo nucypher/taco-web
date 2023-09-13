@@ -5,10 +5,10 @@
   "author": "Piotr Rosłaniec <p.roslaniec@gmail.com>",
   "scripts": {
     "build": "craco build",
+    "check": "pnpm build",
     "eject": "react-scripts eject",
     "start": "craco start",
-    "test": "craco test",
-    "check": "pnpm build"
+    "test": "craco test"
   },
   "browserslist": {
     "production": [

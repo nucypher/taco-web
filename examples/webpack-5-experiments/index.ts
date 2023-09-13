@@ -1,15 +1,19 @@
-import {Alice, Bob, getPorterUri, SecretKey} from '@nucypher/shared';
+import { Alice, Bob, getPorterUri, SecretKey } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
 const txtEncoder = new TextEncoder();
 
 const makeAlice = () => {
-  const secretKey = SecretKey.fromBEBytes(txtEncoder.encode('fake-secret-key-32-bytes-alice-x'));
+  const secretKey = SecretKey.fromBEBytes(
+    txtEncoder.encode('fake-secret-key-32-bytes-alice-x'),
+  );
   return Alice.fromSecretKey(secretKey);
 };
 
 const makeBob = () => {
-  const secretKey = SecretKey.fromBEBytes(txtEncoder.encode('fake-secret-key-32-bytes-bob-xxx'));
+  const secretKey = SecretKey.fromBEBytes(
+    txtEncoder.encode('fake-secret-key-32-bytes-bob-xxx'),
+  );
   return Bob.fromSecretKey(secretKey);
 };
 
@@ -35,9 +39,9 @@ const runExample = async () => {
 
   const remoteBob = makeRemoteBob();
   const threshold = 2;
-  const shares = 3
-  const startDate = new Date()
-  const endDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30) // In 30 days
+  const shares = 3;
+  const startDate = new Date();
+  const endDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30); // In 30 days
   const policyParams = {
     bob: remoteBob,
     label: getRandomLabel(),
@@ -45,7 +49,7 @@ const runExample = async () => {
     shares,
     startDate,
     endDate,
-  }
+  };
   const porterUri = getPorterUri('tapir'); // Test network
 
   const alice = makeAlice();

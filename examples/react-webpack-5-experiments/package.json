@@ -5,9 +5,9 @@
   "author": "Piotr Rosłaniec <p.roslaniec@gmail.com>",
   "scripts": {
     "build": "webpack --mode production --progress",
+    "check": "pnpm typecheck && pnpm build",
     "start": "webpack serve --mode development",
-    "typecheck": "tsc --noEmit",
-    "check": "pnpm typecheck && pnpm build"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@nucypher/shared": "workspace:*",

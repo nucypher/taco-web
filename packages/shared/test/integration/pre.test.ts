@@ -1,4 +1,10 @@
 import { CapsuleFrag, reencrypt } from '@nucypher/nucypher-core';
+import {
+  fakeAlice,
+  fakeBob,
+  fakeUrsulas,
+  reencryptKFrags,
+} from '@nucypher/test-utils';
 import { expect, test } from 'vitest';
 
 import {
@@ -12,7 +18,6 @@ import {
 } from '../../src';
 import { CompoundCondition } from '../../src/conditions/base';
 import { ERC721Ownership } from '../../src/conditions/predefined';
-import { fakeAlice, fakeBob, fakeUrsulas, reencryptKFrags } from '../utils';
 
 test('proxy reencryption', () => {
   const plaintext = toBytes('plaintext-message');

@@ -1,4 +1,15 @@
 import { MessageKit, VerifiedKeyFrag } from '@nucypher/nucypher-core';
+import {
+  fakeProvider,
+  fakeUrsulas,
+  mockDetectEthereumProvider,
+  mockEncryptTreasureMap,
+  mockGenerateKFrags,
+  mockGetUrsulas,
+  mockMakeTreasureMap,
+  mockPublishToBlockchain,
+  mockRetrieveCFragsRequest,
+} from '@nucypher/test-utils';
 import { providers } from 'ethers';
 import { expect, SpyInstance, test, vi } from 'vitest';
 
@@ -16,17 +27,6 @@ import {
   ContractConditionProps,
 } from '../../src/conditions/base';
 import { ERC721Ownership } from '../../src/conditions/predefined';
-import {
-  fakeProvider,
-  fakeUrsulas,
-  mockDetectEthereumProvider,
-  mockEncryptTreasureMap,
-  mockGenerateKFrags,
-  mockGetUrsulas,
-  mockMakeTreasureMap,
-  mockPublishToBlockchain,
-  mockRetrieveCFragsRequest,
-} from '../utils';
 
 // TODO: move to packages/taco
 

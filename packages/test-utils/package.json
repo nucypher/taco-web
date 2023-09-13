@@ -1,11 +1,7 @@
 {
-  "name": "@nucypher/pre",
+  "name": "@nucypher/test-utils",
   "version": "0.1.0",
-  "keywords": [
-    "pre",
-    "threshold",
-    "access control"
-  ],
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/nucypher/nucypher-ts"
@@ -27,15 +23,24 @@
   "scripts": {
     "build": "tsc --build ./tsconfig.build.json --verbose",
     "exports:lint": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
-    "lint": "eslint --ext .ts src test",
-    "lint:fix": "pnpm lint --fix",
-    "package-check": "package-check",
-    "test": "vitest run"
+    "lint": "eslint --ext .ts src",
+    "lint:fix": "pnpm lint --fix"
   },
   "dependencies": {
     "@nucypher/nucypher-core": "^0.13.0",
     "@nucypher/shared": "workspace:*",
+    "axios": "^1.5.0",
     "ethers": "^5.7.2"
+  },
+  "devDependencies": {
+    "@nucypher/test-utils": "workspace:*",
+    "@typechain/ethers-v5": "^11.1.1",
+    "@types/deep-equal": "^1.0.1",
+    "@types/qs": "^6.9.7",
+    "@types/semver": "^7.5.0",
+    "cz-conventional-changelog": "^3.0.1",
+    "standard-version": "^9.0.0",
+    "typechain": "^8.3.1"
   },
   "engines": {
     "node": ">=16",

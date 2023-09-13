@@ -1,3 +1,9 @@
+import {
+  fakeProvider,
+  fakeSigner,
+  testContractConditionObj,
+  testFunctionAbi,
+} from '@nucypher/test-utils';
 import { expect, test } from 'vitest';
 
 import { ConditionExpression, CustomContextParam } from '../../../../src';
@@ -10,8 +16,6 @@ import {
   contractConditionSchema,
 } from '../../../../src/conditions/base/contract';
 import { USER_ADDRESS_PARAM } from '../../../../src/conditions/const';
-import { fakeProvider, fakeSigner } from '../../../utils';
-import { testContractConditionObj, testFunctionAbi } from '../../testVariables';
 
 test('validation', () => {
   test('accepts on a valid schema', () => {

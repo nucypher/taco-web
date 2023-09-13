@@ -5,15 +5,6 @@ import {
   PublicKey,
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
-import { expect, test } from 'vitest';
-
-import {
-  ChecksumAddress,
-  EnactedPolicy,
-  Enrico,
-  toBytes,
-  Ursula,
-} from '../../src';
 import {
   bytesEqual,
   fakeAlice,
@@ -31,7 +22,16 @@ import {
   mockPublishToBlockchain,
   mockRetrieveCFragsRequest,
   reencryptKFrags,
-} from '../utils';
+} from '@nucypher/test-utils';
+import { expect, test } from 'vitest';
+
+import {
+  ChecksumAddress,
+  EnactedPolicy,
+  Enrico,
+  toBytes,
+  Ursula,
+} from '../../src';
 
 test('story: alice shares message with bob through policy', () => {
   const message = 'secret-message-from-alice';

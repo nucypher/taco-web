@@ -1,16 +1,17 @@
+import {
+  fakeProvider,
+  fakeSigner,
+  testContractConditionObj,
+  testFunctionAbi,
+  testReturnValueTest,
+  testRpcConditionObj,
+} from '@nucypher/test-utils';
 import { expect, test } from 'vitest';
 
 import { ConditionExpression, CustomContextParam } from '../../../src';
 import { ContractCondition, RpcCondition } from '../../../src/conditions/base';
 import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
 import { RESERVED_CONTEXT_PARAMS } from '../../../src/conditions/context/context';
-import { fakeProvider, fakeSigner } from '../../utils';
-import {
-  testContractConditionObj,
-  testFunctionAbi,
-  testReturnValueTest,
-  testRpcConditionObj,
-} from '../testVariables';
 
 const provider = fakeProvider();
 const signer = fakeSigner();

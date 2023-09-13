@@ -22,6 +22,9 @@
     },
     {
       "path": "./packages/taco/tsconfig.build.json"
+    },
+    {
+      "path": "./packages/test-utils/tsconfig.build.json"
     }
   ]
 }

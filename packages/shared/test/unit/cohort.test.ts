@@ -1,7 +1,7 @@
+import { fakeUrsulas, makeCohort } from '@nucypher/test-utils';
 import { expect, test } from 'vitest';
 
 import { Cohort } from '../../src';
-import { fakeUrsulas, makeCohort } from '../utils';
 
 test('Cohort', () => {
   const mockedUrsulas = fakeUrsulas();

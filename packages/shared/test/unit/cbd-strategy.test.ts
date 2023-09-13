@@ -3,17 +3,8 @@ import {
   SecretKey,
   SessionStaticSecret,
 } from '@nucypher/nucypher-core';
-import { afterEach, expect, test, vi } from 'vitest';
-
 import {
-  CbdStrategy,
-  ConditionExpression,
-  DeployedCbdStrategy,
-  ThresholdDecrypter,
-  toBytes,
-} from '../../src';
-import { ERC721Ownership } from '../../src/conditions/predefined';
-import {
+  aliceSecretKeyBytes,
   fakeDkgFlow,
   fakeDkgRitual,
   fakeProvider,
@@ -27,9 +18,17 @@ import {
   mockGetRitual,
   mockGetUrsulas,
   mockRandomSessionStaticSecret,
-} from '../utils';
+} from '@nucypher/test-utils';
+import { afterEach, expect, test, vi } from 'vitest';
 
-import { aliceSecretKeyBytes } from './testVariables';
+import {
+  CbdStrategy,
+  ConditionExpression,
+  DeployedCbdStrategy,
+  ThresholdDecrypter,
+  toBytes,
+} from '../../src';
+import { ERC721Ownership } from '../../src/conditions/predefined';
 
 // Shared test variables
 const secretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);

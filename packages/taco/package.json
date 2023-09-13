@@ -12,6 +12,12 @@
   },
   "license": "GPL-3.0-only",
   "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -28,7 +34,11 @@
   },
   "dependencies": {
     "@nucypher/nucypher-core": "^0.13.0",
-    "@nucypher/shared": "workspace:*"
+    "@nucypher/shared": "workspace:*",
+    "ethers": "^5.7.2"
+  },
+  "devDependencies": {
+    "@nucypher/test-utils": "workspace:*"
   },
   "engines": {
     "node": ">=16",

@@ -1,3 +1,12 @@
+import {
+  TEST_CHAIN_ID,
+  TEST_CONTRACT_ADDR,
+  testContractConditionObj,
+  testFunctionAbi,
+  testReturnValueTest,
+  testRpcConditionObj,
+  testTimeConditionObj,
+} from '@nucypher/test-utils';
 import { SemVer } from 'semver';
 import { expect, test } from 'vitest';
 
@@ -13,15 +22,6 @@ import {
 } from '../../../src/conditions/base';
 import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
 import { ERC721Balance } from '../../../src/conditions/predefined';
-import {
-  TEST_CHAIN_ID,
-  TEST_CONTRACT_ADDR,
-  testContractConditionObj,
-  testFunctionAbi,
-  testReturnValueTest,
-  testRpcConditionObj,
-  testTimeConditionObj,
-} from '../testVariables';
 
 test('condition set', () => {
   const erc721BalanceCondition = new ERC721Balance({

@@ -4,8 +4,8 @@
   "license": "GPL-3.0-only",
   "author": "Piotr Rosłaniec <p.roslaniec@gmail.com>",
   "scripts": {
-    "start": "ts-node src/index.ts",
     "check": "pnpm typecheck",
+    "start": "ts-node src/index.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

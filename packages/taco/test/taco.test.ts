@@ -4,8 +4,8 @@ import {
   SessionStaticSecret,
 } from '@nucypher/nucypher-core';
 import { predefined, toBytes } from '@nucypher/shared';
-import { aliceSecretKeyBytes } from '@nucypher/shared/test/unit/testVariables';
 import {
+  aliceSecretKeyBytes,
   fakeDkgFlow,
   fakeDkgRitual,
   fakePorterUri,
@@ -18,7 +18,7 @@ import {
   mockGetParticipants,
   mockGetRitualIdFromPublicKey,
   mockRandomSessionStaticSecret,
-} from '@nucypher/shared/test/utils';
+} from '@nucypher/test-utils';
 import { expect, test } from 'vitest';
 
 import * as taco from '../src';

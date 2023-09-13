@@ -35,8 +35,13 @@ export class TimeCondition extends Condition {
   }
 }
 
-export { ContractConditionType, type ContractConditionProps } from './contract';
+export {
+  ContractConditionType,
+  FunctionAbiProps,
+  type ContractConditionProps,
+} from './contract';
 export { RpcConditionType, type RpcConditionProps } from './rpc';
+export { ReturnValueTestProps } from './shared';
 export {
   TimeConditionMethod,
   TimeConditionType,

@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Block } from '@ethersproject/providers';
 import {
   AggregatedTranscript,
   Capsule,
@@ -31,11 +30,6 @@ import {
   VerifiedCapsuleFrag,
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
-import axios from 'axios';
-import { ethers, providers, Wallet } from 'ethers';
-import { keccak256 } from 'ethers/lib/utils';
-import { expect, vi } from 'vitest';
-
 import {
   Alice,
   BlockchainPolicy,
@@ -50,6 +44,7 @@ import {
   DkgRitual,
   DkgRitualState,
   Enrico,
+  ERC721Balance,
   GetUrsulasResult,
   PorterClient,
   PreEnactedPolicy,
@@ -60,10 +55,13 @@ import {
   toHexString,
   Ursula,
   zip,
-} from '../src';
-import { ERC721Balance } from '../src/conditions/predefined';
+} from '@nucypher/shared';
+import axios from 'axios';
+import { ethers, providers, Wallet } from 'ethers';
+import { keccak256 } from 'ethers/lib/utils';
+import { expect, SpyInstance, vi } from 'vitest';
 
-import { TEST_CHAIN_ID, TEST_CONTRACT_ADDR } from './unit/testVariables';
+import { TEST_CHAIN_ID, TEST_CONTRACT_ADDR } from './variables';
 
 export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
   first.length === second.length &&
@@ -95,7 +93,7 @@ const makeFakeProvider = (timestamp: number, blockNumber: number) => {
   const block = { timestamp };
   return {
     getBlockNumber: () => Promise.resolve(blockNumber),
-    getBlock: () => Promise.resolve(block as Block),
+    getBlock: () => Promise.resolve(block),
     _isProvider: true,
     getNetwork: () => Promise.resolve({ name: 'mockNetwork', chainId: -1 }),
   };
@@ -146,7 +144,7 @@ export const fakeUrsulas = (n = 4): Ursula[] =>
     uri: `https://example.${i}.com:9151`,
   }));
 
-export const mockGetUrsulas = (ursulas: readonly Ursula[]) => {
+export const mockGetUrsulas = (ursulas: readonly Ursula[]): SpyInstance => {
   const fakePorterUrsulas = (
     mockUrsulas: readonly Ursula[],
   ): GetUrsulasResult => {
@@ -166,7 +164,7 @@ export const mockGetUrsulas = (ursulas: readonly Ursula[]) => {
     return Promise.resolve({ data: fakePorterUrsulas(ursulas) });
   });
 };
-export const mockPublishToBlockchain = () => {
+export const mockPublishToBlockchain = (): SpyInstance => {
   const txHash = '0x1234567890123456789012345678901234567890';
   return vi
     .spyOn(PreEnactedPolicy.prototype as any, 'publish')
@@ -189,7 +187,7 @@ export const mockRetrieveCFragsRequest = (
   ursulas: readonly ChecksumAddress[],
   verifiedKFrags: readonly VerifiedKeyFrag[],
   capsule: Capsule,
-) => {
+): SpyInstance => {
   const results = fakeCFragResponse(ursulas, verifiedKFrags, capsule);
   return vi
     .spyOn(PorterClient.prototype, 'retrieveCFrags')
@@ -200,7 +198,7 @@ export const mockRetrieveCFragsRequest = (
 export const mockGenerateKFrags = (withValue?: {
   delegatingKey: PublicKey;
   verifiedKFrags: VerifiedKeyFrag[];
-}) => {
+}): SpyInstance => {
   const spy = vi.spyOn(Alice.prototype as any, 'generateKFrags');
   if (withValue) {
     return spy.mockImplementation(() => withValue);
@@ -208,7 +206,9 @@ export const mockGenerateKFrags = (withValue?: {
   return spy;
 };
 
-export const mockEncryptTreasureMap = (withValue?: EncryptedTreasureMap) => {
+export const mockEncryptTreasureMap = (
+  withValue?: EncryptedTreasureMap,
+): SpyInstance => {
   const spy = vi.spyOn(BlockchainPolicy.prototype as any, 'encryptTreasureMap');
   if (withValue) {
     return spy.mockImplementation(() => withValue);
@@ -229,11 +229,11 @@ export const reencryptKFrags = (
   return { verifiedCFrags };
 };
 
-export const mockMakeTreasureMap = () => {
+export const mockMakeTreasureMap = (): SpyInstance => {
   return vi.spyOn(BlockchainPolicy.prototype as any, 'makeTreasureMap');
 };
 
-export const mockDetectEthereumProvider = () => {
+export const mockDetectEthereumProvider = (): SpyInstance => {
   return vi.fn(async () => {
     return {} as unknown as providers.ExternalProvider;
   });
@@ -464,7 +464,9 @@ export const mockDkgParticipants = (
   return { participantSecrets, participants };
 };
 
-export const mockGetParticipants = (participants: DkgParticipant[]) => {
+export const mockGetParticipants = (
+  participants: DkgParticipant[],
+): SpyInstance => {
   return vi
     .spyOn(DkgCoordinatorAgent, 'getParticipants')
     .mockImplementation(() => {
@@ -478,7 +480,7 @@ export const mockCbdDecrypt = (
   participantSecrets: Record<string, SessionStaticSecret>,
   requesterPk: SessionStaticKey,
   errors: Record<string, string> = {},
-) => {
+): SpyInstance => {
   const encryptedResponses: Record<
     string,
     EncryptedThresholdDecryptionResponse
@@ -504,7 +506,9 @@ export const mockCbdDecrypt = (
     });
 };
 
-export const mockRandomSessionStaticSecret = (secret: SessionStaticSecret) => {
+export const mockRandomSessionStaticSecret = (
+  secret: SessionStaticSecret,
+): SpyInstance => {
   return vi
     .spyOn(ThresholdDecrypter.prototype as any, 'makeSessionKey')
     .mockImplementation(() => secret);
@@ -526,19 +530,21 @@ export const fakeDkgRitual = (ritual: {
   );
 };
 
-export const mockGetRitual = (dkgRitual: DkgRitual) => {
+export const mockGetRitual = (dkgRitual: DkgRitual): SpyInstance => {
   return vi.spyOn(DkgClient, 'getRitual').mockImplementation(() => {
     return Promise.resolve(dkgRitual);
   });
 };
 
-export const mockGetFinalizedRitualSpy = (dkgRitual: DkgRitual) => {
+export const mockGetFinalizedRitualSpy = (
+  dkgRitual: DkgRitual,
+): SpyInstance => {
   return vi.spyOn(DkgClient, 'getFinalizedRitual').mockImplementation(() => {
     return Promise.resolve(dkgRitual);
   });
 };
 
-export const mockGetRitualIdFromPublicKey = (ritualId: number) => {
+export const mockGetRitualIdFromPublicKey = (ritualId: number): SpyInstance => {
   return vi
     .spyOn(DkgCoordinatorAgent, 'getRitualIdFromPublicKey')
     .mockImplementation(() => {

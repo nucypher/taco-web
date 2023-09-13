@@ -1,5 +1,3 @@
-import { expect, test } from 'vitest';
-
 import {
   bytesEqual,
   fakeAlice,
@@ -12,7 +10,8 @@ import {
   mockGenerateKFrags,
   mockGetUrsulas,
   mockPublishToBlockchain,
-} from '../utils';
+} from '@nucypher/test-utils';
+import { expect, test } from 'vitest';
 
 test('story: alice creates a policy but someone else enacts it', () => {
   const threshold = 2;

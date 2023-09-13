@@ -1,18 +1,14 @@
 import {
   ContractConditionProps,
-  RpcConditionProps,
-  TimeConditionProps,
-} from '../../src/conditions/base';
-import {
   ContractConditionType,
   FunctionAbiProps,
-} from '../../src/conditions/base/contract';
-import { RpcConditionType } from '../../src/conditions/base/rpc';
-import { ReturnValueTestProps } from '../../src/conditions/base/shared';
-import {
+  ReturnValueTestProps,
+  RpcConditionProps,
+  RpcConditionType,
   TimeConditionMethod,
+  TimeConditionProps,
   TimeConditionType,
-} from '../../src/conditions/base/time';
+} from '@nucypher/shared';
 
 export const aliceSecretKeyBytes = new Uint8Array([
   55, 82, 190, 189, 203, 164, 60, 148, 36, 86, 46, 123, 63, 152, 215, 113, 174,

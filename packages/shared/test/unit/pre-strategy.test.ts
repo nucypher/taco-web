@@ -1,4 +1,18 @@
 import { SecretKey, VerifiedKeyFrag } from '@nucypher/nucypher-core';
+import {
+  aliceSecretKeyBytes,
+  bobSecretKeyBytes,
+  fakeProvider,
+  fakeSigner,
+  fakeUrsulas,
+  makeCohort,
+  mockEncryptTreasureMap,
+  mockGenerateKFrags,
+  mockGetUrsulas,
+  mockMakeTreasureMap,
+  mockPublishToBlockchain,
+  mockRetrieveCFragsRequest,
+} from '@nucypher/test-utils';
 import { afterEach, expect, test, vi } from 'vitest';
 
 import {
@@ -10,20 +24,6 @@ import {
   Ursula,
 } from '../../src';
 import { ERC721Ownership } from '../../src/conditions/predefined';
-import {
-  fakeProvider,
-  fakeSigner,
-  fakeUrsulas,
-  makeCohort,
-  mockEncryptTreasureMap,
-  mockGenerateKFrags,
-  mockGetUrsulas,
-  mockMakeTreasureMap,
-  mockPublishToBlockchain,
-  mockRetrieveCFragsRequest,
-} from '../utils';
-
-import { aliceSecretKeyBytes, bobSecretKeyBytes } from './testVariables';
 
 // Shared test variables
 const aliceSecretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);

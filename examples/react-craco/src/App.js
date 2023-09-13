@@ -1,7 +1,7 @@
 import './App.css';
 
-import { useEffect, useState } from 'react';
-import { ethers } from 'ethers';
+import {useEffect, useState} from 'react';
+import {ethers} from 'ethers';
 
 function toHexString(byteArray) {
   return Array.from(byteArray, function (byte) {
@@ -17,7 +17,7 @@ function App() {
   const [policy, setPolicy] = useState('');
 
   const loadNucypher = async () => {
-    const nucypherModule = await import('@nucypher/nucypher-ts');
+    const nucypherModule = await import('@nucypher/shared');
     setNucypher(nucypherModule);
   };
 
@@ -27,7 +27,7 @@ function App() {
     }
     const provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
 
-    const { chainId } = await provider.getNetwork();
+    const {chainId} = await provider.getNetwork();
     if (![137, 80001].includes(chainId)) {
       console.error('You need to connect to the Mumbai or Polygon network');
     }
@@ -58,8 +58,8 @@ function App() {
   };
 
   const makeRemoteBob = (bob) => {
-    const { decryptingKey, verifyingKey } = bob;
-    return { decryptingKey, verifyingKey };
+    const {decryptingKey, verifyingKey} = bob;
+    return {decryptingKey, verifyingKey};
   };
 
   const makeCharacters = () => {
@@ -109,7 +109,7 @@ function App() {
           <div className="stack left">
             <div>
               <div>Create Alice and Bob</div>
-              <button onClick={(e) => makeCharacters()}>Go</button>
+              <button onClick={() => makeCharacters()}>Go</button>
               <div>
                 {alice && (
                   <span>
@@ -129,7 +129,7 @@ function App() {
             {alice && bob && (
               <div>
                 <div>Create a policy</div>
-                <button onClick={(e) => runExample()}>Go</button>
+                <button onClick={() => runExample()}>Go</button>
               </div>
             )}
 

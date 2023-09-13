@@ -5,9 +5,8 @@ This example takes advantage of `craco` - React utility that overrides `create-r
 ## Usage
 
 ```bash
-$ cp .env.example .env
-$ yarn install
-$ yarn start
+yarn install
+yarn start
 ```
 
 Next, go to [localhost:3000](http://localhost:3000/) in your browser and look into the JS console.

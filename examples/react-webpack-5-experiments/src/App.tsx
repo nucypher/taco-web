@@ -1,4 +1,4 @@
-import { Alice, Bob, EnactedPolicy, SecretKey } from '@nucypher/nucypher-ts';
+import {Alice, Bob, EnactedPolicy, getPorterUri, SecretKey} from '@nucypher/shared';
 import { ethers } from 'ethers';
 import React from 'react';
 import { useEffect, useState } from 'react';
@@ -32,23 +32,18 @@ export function App() {
     setProvider(provider);
   };
 
-  const config = {
-    // Public Porter endpoint on Tapir network
-    porterUri: 'https://porter-tapir.nucypher.community',
-  }
-
   const makeAlice = () => {
     if (!provider) {
       return;
     }
     const secretKey = SecretKey.fromBEBytes(Buffer.from('fake-secret-key-32-bytes-alice-x'));
-    const alice = Alice.fromSecretKey(config, secretKey, provider);
+    const alice = Alice.fromSecretKey(secretKey);
     setAlice(alice);
   };
 
   const makeBob = () => {
     const secretKey = SecretKey.fromBEBytes(Buffer.from('fake-secret-key-32-bytes-bob-xxx'));
-    const bob = Bob.fromSecretKey(config, secretKey);
+    const bob = Bob.fromSecretKey(secretKey);
     setBob(bob);
   };
 
@@ -66,7 +61,7 @@ export function App() {
   const getRandomLabel = () => `label-${new Date().getTime()}`;
 
   const runExample = async () => {
-    if (!alice || !bob) {
+    if (!alice || !bob || !provider) {
       return;
     }
     const remoteBob = makeRemoteBob(bob);
@@ -82,11 +77,13 @@ export function App() {
       startDate,
       endDate,
     };
+    const porterUri = getPorterUri('tapir'); // Test network
 
     const policy = await alice.grant(
+      provider,
+      provider.getSigner(),
+      porterUri,
       policyParams,
-      [],
-      []
     );
 
     console.log('Policy created');

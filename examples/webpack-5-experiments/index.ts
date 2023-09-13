@@ -1,21 +1,16 @@
-import { Alice, Bob, SecretKey } from '@nucypher/nucypher-ts';
+import {Alice, Bob, getPorterUri, SecretKey} from '@nucypher/shared';
 import { ethers } from 'ethers';
 
 const txtEncoder = new TextEncoder();
 
-const config = {
-  // Public Porter endpoint on Tapir network
-  porterUri: 'https://porter-tapir.nucypher.community',
-}
-
-const makeAlice = (provider) => {
-  const secretKey = SecretKey.fromBytes(txtEncoder.encode('fake-secret-key-32-bytes-alice-x'));
-  return Alice.fromSecretKey(config, secretKey, provider);
+const makeAlice = () => {
+  const secretKey = SecretKey.fromBEBytes(txtEncoder.encode('fake-secret-key-32-bytes-alice-x'));
+  return Alice.fromSecretKey(secretKey);
 };
 
 const makeBob = () => {
-  const secretKey = SecretKey.fromBytes(txtEncoder.encode('fake-secret-key-32-bytes-bob-xxx'));
-  return Bob.fromSecretKey(config, secretKey);
+  const secretKey = SecretKey.fromBEBytes(txtEncoder.encode('fake-secret-key-32-bytes-bob-xxx'));
+  return Bob.fromSecretKey(secretKey);
 };
 
 const makeRemoteBob = () => {
@@ -51,14 +46,14 @@ const runExample = async () => {
     startDate,
     endDate,
   }
+  const porterUri = getPorterUri('tapir'); // Test network
 
-  const alice = makeAlice(provider);
-  const includeUrsulas = [];
-  const excludeUrsulas = [];
+  const alice = makeAlice();
   const policy = await alice.grant(
+    provider,
+    provider.getSigner(),
+    porterUri,
     policyParams,
-    includeUrsulas,
-    excludeUrsulas
   );
 
   console.log('Policy created:');

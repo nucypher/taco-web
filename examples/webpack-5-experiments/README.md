@@ -11,8 +11,8 @@ This example takes advantage of experimental async WASM loading in `webpack-5`. 
 ## Usage
 
 ```bash
-$ yarn install
-$ yarn start
+yarn install
+yarn start
 ```
 
 Go to [localhost:8080](http://localhost:8080/) in your browser and look in the JS console.

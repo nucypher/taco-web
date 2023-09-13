@@ -1,4 +1,4 @@
-import { Alice, Bob, SecretKey } from '@nucypher/nucypher-ts';
+import { Alice, Bob, SecretKey } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
 const config = {

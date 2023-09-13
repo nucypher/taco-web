@@ -3,7 +3,7 @@ const path = require("path");
 
 module.exports = {
   entry: {
-    index: "./index.js",
+    index: "./index.ts",
   },
   output: {
     path: path.resolve(__dirname, "dist"),

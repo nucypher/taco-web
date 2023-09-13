@@ -334,6 +334,9 @@ importers:
       '@nucypher/shared':
         specifier: workspace:*
         version: link:../shared
+      axios:
+        specifier: ^1.5.0
+        version: 1.5.0
       ethers:
         specifier: ^5.7.2
         version: 5.7.2

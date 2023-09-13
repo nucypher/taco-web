@@ -9,8 +9,7 @@
     "sourceMap": true,
     "composite": true,
     "incremental": true,
-    "stripInternal": true,
-    "noEmit": true
+    "stripInternal": true
   },
   "files": [],
   "references": [

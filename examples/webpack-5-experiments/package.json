@@ -10,7 +10,8 @@
     "start": "webpack-dev-server"
   },
   "dependencies": {
-    "@nucypher/shared": "workspace:*"
+    "@nucypher/shared": "workspace:*",
+    "ethers": "^5.7.2"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^10.2.4",

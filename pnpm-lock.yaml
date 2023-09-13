@@ -98,6 +98,9 @@ importers:
       '@nucypher/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      ethers:
+        specifier: ^5.7.2
+        version: 5.7.2
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -204,6 +207,9 @@ importers:
       '@nucypher/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      ethers:
+        specifier: ^5.7.2
+        version: 5.7.2
     devDependencies:
       copy-webpack-plugin:
         specifier: ^10.2.4

@@ -5,8 +5,8 @@ import {
   DkgClient,
   DkgCoordinatorAgent,
   Enrico,
-  ThresholdDecrypter,
   getPorterUri,
+  ThresholdDecrypter,
   toBytes,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';

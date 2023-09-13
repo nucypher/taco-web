@@ -12,8 +12,8 @@ import {
   ContractConditionProps,
 } from '../../../../src/conditions/base';
 import {
-  FunctionAbiProps,
   contractConditionSchema,
+  FunctionAbiProps,
 } from '../../../../src/conditions/base/contract';
 import { USER_ADDRESS_PARAM } from '../../../../src/conditions/const';
 

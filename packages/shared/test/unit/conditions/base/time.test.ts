@@ -7,8 +7,8 @@ import {
 import { ReturnValueTestProps } from '../../../../src/conditions/base/shared';
 import {
   TimeConditionMethod,
-  TimeConditionType,
   timeConditionSchema,
+  TimeConditionType,
 } from '../../../../src/conditions/base/time';
 
 test('validation', () => {

@@ -15,12 +15,11 @@
     "build": "tsc --build --verbose ./tsconfig.prod.json",
     "watch": "tsc --build --verbose --watch ./tsconfig.prod.json",
     "test": "vitest run",
-    "test:fix": "pnpm fix && pnpm format:fix && pnpm typecheck && pnpm test",
     "package:check": "pnpm run --parallel --aggregate-output --reporter append-only --filter './packages/**' package-check",
     "packages:lint": "pnpm packages:sort --check",
     "packages:sort": "sort-package-json \"package.json\" \"examples/*/package.json\" \"packages/*/package.json\"",
     "exports:lint": "pnpm run --parallel --aggregate-output --reporter append-only --filter './packages/**' exports:lint",
-    "fix": "pnpm lint:fix && pnpm format:fix && pnpm packages:sort",
+    "fix": "pnpm format:fix && pnpm lint:fix && pnpm packages:sort",
     "ci:lint": "run-p lint typecheck package:check packages:lint exports:lint",
     "check-examples": "pnpm run --parallel --aggregate-output --reporter append-only --filter './examples/**' check"
   },

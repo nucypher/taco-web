@@ -10,17 +10,24 @@ pnpm install
 
 ## Development
 
-TODO: Update
+Execute common tasks with:
 
 ```bash
 pnpm build
 pnpm test
+pnpm lint
+pnpm fix
 ```
 
 ## Documentation
 
-TODO: Update
+Build and publish documentation with:
+
+```bash
+pnpm doc
+pnpm doc:publish
+```
 
 ## Publishing
 
-TODO: Update
+TODO: Update after implementing publishing.

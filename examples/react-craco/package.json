@@ -1,14 +1,14 @@
 {
+  "name": "react-craco",
   "version": "0.1.0",
   "private": true,
-  "license": "GPL-3.0-only",
-  "author": "Piotr Rosłaniec <p.roslaniec@gmail.com>",
   "scripts": {
     "build": "craco build",
-    "check": "pnpm build",
+    "check": "pnpm type-check && pnpm build",
     "eject": "react-scripts eject",
     "start": "craco start",
-    "test": "craco test"
+    "test": "craco test",
+    "type-check": "tsc -p tsconfig.build.json"
   },
   "browserslist": {
     "production": [
@@ -22,20 +22,18 @@
       "last 1 safari version"
     ]
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
   "dependencies": {
-    "@craco/craco": "^7.1.0",
     "@nucypher/shared": "workspace:*",
     "ethers": "^5.7.2",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-scripts": "^5.0.1",
-    "wasm-loader": "^1.3.0",
-    "web-vitals": "^3.4.0"
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@craco/craco": "^7.1.0",
+    "@types/node": "^16.18.50",
+    "@types/react": "^18.2.21",
+    "@types/react-dom": "^18.2.7",
+    "react-scripts": "5.0.1",
+    "wasm-loader": "^1.3.0"
   }
 }

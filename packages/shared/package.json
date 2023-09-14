@@ -25,10 +25,10 @@
     "dist/**/*"
   ],
   "scripts": {
-    "prebuild": "yarn typechain",
+    "prebuild": "pnpm typechain",
     "build": "tsc --build ./tsconfig.build.json --verbose",
     "exports:lint": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
-    "postinstall": "yarn typechain",
+    "postinstall": "pnpm typechain",
     "lint": "eslint --ext .ts src test",
     "lint:fix": "pnpm lint --fix",
     "package-check": "package-check",

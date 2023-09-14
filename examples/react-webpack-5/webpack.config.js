@@ -1,7 +1,5 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
-const { ESBuildMinifyPlugin } = require('esbuild-loader');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const webpack = require('webpack');
 
@@ -14,15 +12,6 @@ module.exports = {
     isDevelopment && new ReactRefreshWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: './src/index.html',
-    }),
-    new CopyPlugin({
-      patterns: [
-        { from: 'src/_redirects', to: '' },
-        {
-          from: 'src/assets/images/favicon.ico',
-          to: 'favicon.ico',
-        },
-      ],
     }),
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
@@ -56,13 +45,6 @@ module.exports = {
   output: {
     filename: '[name].[contenthash].js',
     path: path.resolve(__dirname, 'build'),
-  },
-  optimization: {
-    minimizer: [
-      new ESBuildMinifyPlugin({
-        target: 'es2018',
-      }),
-    ],
   },
   devServer: {
     historyApiFallback: true,

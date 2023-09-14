@@ -14,7 +14,7 @@ Full documentation can be found [here](https://docs.threshold.network/app-develo
 ## Installation
 
 ```
-yarn add @nucypher/nucypher-ts
+pnpm add @nucypher/nucypher-ts
 ```
 
 ## Tutorial

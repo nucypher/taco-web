@@ -1,18 +1,19 @@
-import { Alice, Bob, getPorterUri, SecretKey } from '@nucypher/shared';
-import { ethers } from 'ethers';
+const { Alice, Bob, getPorterUri, SecretKey } = require("@nucypher/shared");
+const ethers = require("ethers");
+
 
 const txtEncoder = new TextEncoder();
 
 const makeAlice = () => {
   const secretKey = SecretKey.fromBEBytes(
-    txtEncoder.encode('fake-secret-key-32-bytes-alice-x'),
+    txtEncoder.encode("fake-secret-key-32-bytes-alice-x")
   );
   return Alice.fromSecretKey(secretKey);
 };
 
 const makeBob = () => {
   const secretKey = SecretKey.fromBEBytes(
-    txtEncoder.encode('fake-secret-key-32-bytes-bob-xxx'),
+    txtEncoder.encode("fake-secret-key-32-bytes-bob-xxx")
   );
   return Bob.fromSecretKey(secretKey);
 };
@@ -29,13 +30,13 @@ const getRandomLabel = () => `label-${new Date().getTime()}`;
 
 const runExample = async () => {
   if (!window.ethereum) {
-    console.error('You need to connect to the MetaMask extension');
+    console.error("You need to connect to the MetaMask extension");
   }
 
-  alert('Sign a transaction to create a policy.');
+  alert("Sign a transaction to create a policy.");
 
-  const provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
-  await provider.send('eth_requestAccounts', []);
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  await provider.send("eth_requestAccounts", []);
 
   const remoteBob = makeRemoteBob();
   const threshold = 2;
@@ -48,20 +49,26 @@ const runExample = async () => {
     threshold,
     shares,
     startDate,
-    endDate,
+    endDate
   };
-  const porterUri = getPorterUri('tapir'); // Test network
+  const porterUri = getPorterUri("tapir"); // Test network
 
   const alice = makeAlice();
   const policy = await alice.grant(
     provider,
     provider.getSigner(),
     porterUri,
-    policyParams,
+    policyParams
   );
 
-  console.log('Policy created:');
+  console.log("Policy created:");
   console.log({ policy });
 };
 
-runExample();
+runExample()
+  .then(() => {
+    console.log("Example finished.");
+  })
+  .catch((err) => {
+    console.error("Example failed:", err);
+  });

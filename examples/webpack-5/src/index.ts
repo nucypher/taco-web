@@ -1,19 +1,26 @@
-import { Alice, Bob, SecretKey } from '@nucypher/shared';
+import { Alice, Bob, getPorterUri, SecretKey } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
-const config = {
-  // Public Porter endpoint on Tapir network
-  porterUri: 'https://porter-tapir.nucypher.community',
+declare global {
+  interface Window {
+    ethereum?: ethers.providers.ExternalProvider;
+  }
 }
 
-const makeAlice = (provider) => {
-  const secretKey = SecretKey.fromBytes(Buffer.from('fake-secret-key-32-bytes-alice-x'));
-  return Alice.fromSecretKey(config, secretKey, provider);
+const txtEncoder = new TextEncoder();
+
+const makeAlice = () => {
+  const secretKey = SecretKey.fromBEBytes(
+    txtEncoder.encode('fake-secret-key-32-bytes-alice-x'),
+  );
+  return Alice.fromSecretKey(secretKey);
 };
 
 const makeBob = () => {
-  const secretKey = SecretKey.fromBytes(Buffer.from('fake-secret-key-32-bytes-bob-xxx'));
-  return Bob.fromSecretKey(config, secretKey);
+  const secretKey = SecretKey.fromBEBytes(
+    txtEncoder.encode('fake-secret-key-32-bytes-bob-xxx'),
+  );
+  return Bob.fromSecretKey(secretKey);
 };
 
 const makeRemoteBob = () => {
@@ -33,7 +40,7 @@ const runExample = async () => {
 
   alert('Sign a transaction to create a policy.');
 
-  const provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+  const provider = new ethers.providers.Web3Provider(window.ethereum!, 'any');
   await provider.send('eth_requestAccounts', []);
 
   const remoteBob = makeRemoteBob();
@@ -41,7 +48,6 @@ const runExample = async () => {
   const shares = 3;
   const startDate = new Date();
   const endDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30); // In 30 days
-
   const policyParams = {
     bob: remoteBob,
     label: getRandomLabel(),
@@ -50,18 +56,24 @@ const runExample = async () => {
     startDate,
     endDate,
   };
+  const porterUri = getPorterUri('tapir'); // Test network
 
-  const alice = makeAlice(provider);
-  const includeUrsulas = [];
-  const excludeUrsulas = [];
+  const alice = makeAlice();
   const policy = await alice.grant(
+    provider,
+    provider.getSigner(),
+    porterUri,
     policyParams,
-    includeUrsulas,
-    excludeUrsulas
   );
 
   console.log('Policy created:');
   console.log({ policy });
 };
 
-runExample();
+runExample()
+  .then(() => {
+    console.log('Example finished.');
+  })
+  .catch((err) => {
+    console.error('Example failed:', err);
+  });

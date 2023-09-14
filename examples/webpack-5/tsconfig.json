@@ -4,5 +4,6 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "noEmit": true
   }
 }

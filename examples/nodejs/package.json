@@ -4,9 +4,9 @@
   "license": "GPL-3.0-only",
   "author": "Piotr Rosłaniec <p.roslaniec@gmail.com>",
   "scripts": {
-    "check": "pnpm typecheck",
+    "check": "pnpm type-check",
     "start": "ts-node src/index.ts",
-    "typecheck": "tsc --noEmit"
+    "type-check": "tsc -p tsconfig.build.json"
   },
   "dependencies": {
     "@nucypher/shared": "workspace:*"

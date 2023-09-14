@@ -5,9 +5,10 @@
   "author": "Piotr Rosłaniec <p.roslaniec@gmail.com>",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --config webpack.config.js",
-    "check": "pnpm build",
-    "start": "webpack-dev-server"
+    "build": "webpack --mode production --progress",
+    "check": "pnpm type-check && pnpm build",
+    "start": "webpack serve --mode development",
+    "type-check": "tsc"
   },
   "dependencies": {
     "@nucypher/shared": "workspace:*",
@@ -15,6 +16,7 @@
   },
   "devDependencies": {
     "copy-webpack-plugin": "^10.2.4",
+    "esbuild-loader": "^2.11.0",
     "webpack": "^5.4.0",
     "webpack-cli": "^4.9.2",
     "webpack-dev-server": "^4.7.4"

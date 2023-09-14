@@ -5,13 +5,13 @@
   "author": "Piotr Rosłaniec <p.roslaniec@gmail.com>",
   "scripts": {
     "build": "webpack --mode production --progress",
-    "check": "pnpm typecheck && pnpm build",
+    "check": "pnpm type-check && pnpm build",
     "start": "webpack serve --mode development",
-    "typecheck": "tsc --noEmit"
+    "type-check": "tsc"
   },
   "dependencies": {
     "@nucypher/shared": "workspace:*",
-    "ethers": "^5.4.1",
+    "ethers": "^5.7.2",
     "file-loader": "^6.2.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
@@ -26,15 +26,12 @@
     "@typescript-eslint/eslint-plugin": "^4.28.2",
     "@typescript-eslint/parser": "^4.28.2",
     "buffer": "^6.0.3",
-    "copy-webpack-plugin": "^6.2.1",
     "esbuild-loader": "^2.11.0",
     "html-webpack-plugin": "^4.5.0",
     "process": "^0.11.10",
     "react-refresh": "^0.11.0",
-    "rimraf": "^3.0.2",
     "stream-browserify": "^3.0.0",
     "ts-loader": "^8.0.7",
-    "typescript": "^4.0.0",
     "webpack": "^5.44.0",
     "webpack-bundle-analyzer": "^4.4.2",
     "webpack-cli": "^4.7.2",

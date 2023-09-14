@@ -235,7 +235,7 @@ export const mockMakeTreasureMap = (): SpyInstance => {
 
 export const mockDetectEthereumProvider =
   (): (() => providers.ExternalProvider) => {
-    return () => ({} as unknown as providers.ExternalProvider);
+    return () => ({}) as unknown as providers.ExternalProvider;
   };
 
 export const fakeDkgFlow = (

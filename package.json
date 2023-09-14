@@ -4,9 +4,9 @@
   "license": "GPL-3.0-only",
   "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
   "scripts": {
-    "build:docs": "run-s docs:root docs:packages docs:merge",
-    "docs:root": "typedoc --out build/docs",
-    "doc:publish": "gh-pages -m \"[ci skip] Updates\" -d build/docs",
+    "typedoc": "typedoc",
+    "typedoc:all": "pnpm run --parallel --aggregate-output --reporter append-only typedoc",
+    "typedoc:publish": "gh-pages -m \"[ci skip] Update typedoc docs\" -d docs",
     "format": "prettier --check \"./**/*.ts\" README.md",
     "format:fix": "prettier --write \"./**/*.ts\" README.md",
     "lint": "pnpm run --parallel --aggregate-output --reporter append-only lint",
@@ -46,7 +46,9 @@
     "ts-node": "^10.7.0",
     "ts-unused-exports": "^10.0.1",
     "typedoc": "^0.25.1",
+    "typedoc-plugin-coverage": "^2.2.0",
     "typedoc-plugin-missing-exports": "^2.1.0",
+    "typedoc-plugin-zod": "^1.1.0",
     "typescript": "^5.2.2",
     "vitest": "^0.34.4"
   },

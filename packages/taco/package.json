@@ -30,17 +30,18 @@
     "lint": "eslint --ext .ts src test",
     "lint:fix": "pnpm lint --fix",
     "package-check": "package-check",
-    "test": "vitest run"
+    "test": "vitest run",
+    "typedoc": "typedoc"
   },
   "dependencies": {
     "@nucypher/nucypher-core": "^0.13.0",
     "@nucypher/shared": "workspace:*"
   },
-  "peerDependencies": {
-    "ethers": "^5.7.2"
-  },
   "devDependencies": {
     "@nucypher/test-utils": "workspace:*"
+  },
+  "peerDependencies": {
+    "ethers": "^5.7.2"
   },
   "engines": {
     "node": ">=16",

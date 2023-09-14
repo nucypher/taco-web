@@ -233,11 +233,10 @@ export const mockMakeTreasureMap = (): SpyInstance => {
   return vi.spyOn(BlockchainPolicy.prototype as any, 'makeTreasureMap');
 };
 
-export const mockDetectEthereumProvider = (): SpyInstance => {
-  return vi.fn(async () => {
-    return {} as unknown as providers.ExternalProvider;
-  });
-};
+export const mockDetectEthereumProvider =
+  (): (() => providers.ExternalProvider) => {
+    return () => ({} as unknown as providers.ExternalProvider);
+  };
 
 export const fakeDkgFlow = (
   variant: FerveoVariant,

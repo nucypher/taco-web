@@ -33,7 +33,8 @@
     "lint:fix": "pnpm lint --fix",
     "package-check": "package-check",
     "test": "vitest run",
-    "typechain": "typechain --out-dir=./src/contracts/ethers-typechain --target=ethers-v5 \"abis/**/*.json\""
+    "typechain": "typechain --out-dir=./src/contracts/ethers-typechain --target=ethers-v5 \"abis/**/*.json\"",
+    "typedoc": "typedoc"
   },
   "dependencies": {
     "@ethersproject/abi": "^5.7.0",

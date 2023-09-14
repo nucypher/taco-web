@@ -1,5 +1,10 @@
 {
   "extends": ["./typedoc.base.json"],
-  "entryPoints": ["packages/*"],
-  "entryPointStrategy": "packages"
+  "entryPoints": [
+    "packages/pre",
+    "packages/shared",
+    "packages/taco"
+  ],
+  "entryPointStrategy": "packages",
+  "name": "@nucypher/nucypher-ts"
 }

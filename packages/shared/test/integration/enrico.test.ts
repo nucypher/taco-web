@@ -12,11 +12,11 @@ import { expect, test } from 'vitest';
 import {
   ConditionExpression,
   Enrico,
+  ERC721Ownership,
   PolicyMessageKit,
   RetrievalResult,
   toBytes,
 } from '../../src';
-import { ERC721Ownership } from '../../src/conditions/predefined';
 
 test('enrico', () => {
   test('alice decrypts message encrypted by enrico', async () => {

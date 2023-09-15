@@ -101,6 +101,9 @@ importers:
       '@nucypher/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      ethers:
+        specifier: ^5.7.2
+        version: 5.7.2
 
   examples/react-craco:
     dependencies:

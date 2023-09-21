@@ -1,3 +1,4 @@
+'use client';
 import {
   Alice,
   Bob,
@@ -9,6 +10,9 @@ import {
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare const window: any;
 
 function App() {
   const [isInit, setIsInit] = useState<boolean>(false);

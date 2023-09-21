@@ -56,7 +56,7 @@ function App() {
     return <div>Loading...</div>;
   }
 
-  console.log({Alice, Bob, getPorterUri, SecretKey, toHexString});
+  console.log({ Alice, Bob, getPorterUri, SecretKey, toHexString });
 
   const makeAlice = () => {
     const alice = Alice.fromSecretKey(SecretKey.random());

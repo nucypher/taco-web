@@ -1,49 +1,58 @@
-import {Alice, Bob, EnactedPolicy, getPorterUri, SecretKey} from '@nucypher/shared';
-import { ethers } from 'ethers';
-import React from 'react';
-import { useEffect, useState } from 'react';
+// import {initialize , SecretKey} from "@nucypher/nucypher-core";
+import {initialize , SecretKey} from "@nucypher/shared";
+import { Alice, Bob, EnactedPolicy, getPorterUri, toHexString } from "@nucypher/shared";
+import { ethers } from "ethers";
+import { useEffect, useState } from "react";
 
-declare let window: any;
 
-function toHexString(byteArray: Uint8Array) {
-  return Array.from(byteArray, function (byte) {
-    return ('0' + (byte & 0xff).toString(16)).slice(-2);
-  }).join('');
-}
+function App() {
+  const [isInit, setIsInit] = useState<boolean>(false);
+  const [provider, setProvider] = useState<ethers.providers.Web3Provider | undefined>();
+  const [alice, setAlice] = useState<Alice | undefined>();
+  const [bob, setBob] = useState<Bob | undefined>();
+  const [policy, setPolicy] = useState<EnactedPolicy>();
 
-export function App() {
-  const [provider, setProvider] = useState(undefined as ethers.providers.Web3Provider | undefined);
-  const [alice, setAlice] = useState(undefined as Alice | undefined);
-  const [bob, setBob] = useState(undefined as Bob | undefined);
-  const [policy, setPolicy] = useState(undefined as EnactedPolicy | undefined);
+  const initNucypher = async () => {
+    // await initialize();
+    await initialize();
+    setIsInit(true);
+  };
 
   const loadWeb3Provider = async () => {
     if (!window.ethereum) {
-      console.error('You need to connect to the MetaMask extension');
+      console.error("You need to connect to the MetaMask extension");
     }
-    const provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+    const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
 
     const { chainId } = await provider.getNetwork();
-    if (chainId !== 5) {
-      console.error('You need to connect to the Goerli test network');
+    if (![137, 80001].includes(chainId)) {
+      console.error("You need to connect to the Mumbai or Polygon network");
     }
 
-    await provider.send('eth_requestAccounts', []);
+    await provider.send("eth_requestAccounts", []);
     setProvider(provider);
   };
 
+  useEffect(() => {
+    initNucypher()
+    loadWeb3Provider();
+  }, []);
+
+  if (!isInit || !provider) {
+    return <div>Loading...</div>;
+  }
+
+  console.log({Alice, Bob, getPorterUri, SecretKey, toHexString})
+
   const makeAlice = () => {
-    if (!provider) {
-      return;
-    }
-    const secretKey = SecretKey.fromBEBytes(Buffer.from('fake-secret-key-32-bytes-alice-x'));
-    const alice = Alice.fromSecretKey(secretKey);
+    const alice = Alice.fromSecretKey(
+      SecretKey.random()
+    );
     setAlice(alice);
   };
 
   const makeBob = () => {
-    const secretKey = SecretKey.fromBEBytes(Buffer.from('fake-secret-key-32-bytes-bob-xxx'));
-    const bob = Bob.fromSecretKey(secretKey);
+    const bob = Bob.fromSecretKey(SecretKey.random());
     setBob(bob);
   };
 
@@ -55,15 +64,21 @@ export function App() {
   const makeCharacters = () => {
     makeAlice();
     makeBob();
-    setPolicy(undefined);
   };
 
   const getRandomLabel = () => `label-${new Date().getTime()}`;
 
   const runExample = async () => {
-    if (!alice || !bob || !provider) {
+    if (!provider) {
+      console.error("You need to connect to the MetaMask extension");
       return;
     }
+
+    if (!alice || !bob) {
+      console.error("You need to create Alice and Bob");
+      return;
+    }
+
     const remoteBob = makeRemoteBob(bob);
     const threshold = 2;
     const shares = 3;
@@ -75,24 +90,19 @@ export function App() {
       threshold,
       shares,
       startDate,
-      endDate,
+      endDate
     };
-    const porterUri = getPorterUri('tapir'); // Test network
 
     const policy = await alice.grant(
       provider,
       provider.getSigner(),
-      porterUri,
-      policyParams,
+      getPorterUri("tapir"), // Testnet porter
+      policyParams
     );
 
-    console.log('Policy created');
+    console.log("Policy created");
     setPolicy(policy);
   };
-
-  useEffect(() => {
-    loadWeb3Provider();
-  }, []);
 
   return (
     <div className="App">
@@ -104,15 +114,15 @@ export function App() {
             <div>
               {alice && (
                 <span>
-                  Alice: {`0x${toHexString(alice.verifyingKey.toCompressedBytes())}`}
-                </span>
+                    Alice: {`0x${toHexString(alice.verifyingKey.toCompressedBytes())}`}
+                  </span>
               )}
             </div>
             <div>
               {bob && (
                 <span>
-                  Bob: {`0x${toHexString(bob.verifyingKey.toCompressedBytes())}`}
-                </span>
+                    Bob: {`0x${toHexString(bob.verifyingKey.toCompressedBytes())}`}
+                  </span>
               )}
             </div>
           </div>

@@ -1,16 +1,11 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const webpack = require('webpack');
 
 module.exports = {
   entry: './src/index.ts',
   plugins: [
     new HtmlWebpackPlugin({
       template: './src/index.html',
-    }),
-    new webpack.ProvidePlugin({
-      Buffer: ['buffer', 'Buffer'],
-      process: 'process/browser',
     }),
   ].filter(Boolean),
   module: {
@@ -32,10 +27,6 @@ module.exports = {
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
-    fallback: {
-      stream: require.resolve('stream-browserify'),
-      buffer: require.resolve('buffer/'),
-    },
   },
   output: {
     filename: '[name].[contenthash].js',
@@ -48,8 +39,5 @@ module.exports = {
     headers: {
       'Access-Control-Allow-Origin': '*',
     },
-  },
-  experiments: {
-    asyncWebAssembly: true,
   },
 };

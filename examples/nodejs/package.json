@@ -6,7 +6,7 @@
   "scripts": {
     "check": "pnpm type-check",
     "start": "ts-node src/index.ts",
-    "type-check": "tsc -p tsconfig.build.json"
+    "type-check": "tsc"
   },
   "dependencies": {
     "@nucypher/shared": "workspace:*",

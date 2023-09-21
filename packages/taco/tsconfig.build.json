@@ -7,7 +7,7 @@
   },
   "references": [
     {
-      "path": "../shared/tsconfig.build.json"
+      "path": "../shared/tsconfig.es.json"
     }
   ]
 }

@@ -1,4 +1,10 @@
-import { Alice, Bob, getPorterUri, SecretKey } from '@nucypher/shared';
+import {
+  Alice,
+  Bob,
+  SecretKey,
+  getPorterUri,
+  initialize,
+} from '@nucypher/shared';
 import { ethers } from 'ethers';
 
 declare global {
@@ -37,6 +43,8 @@ const runExample = async () => {
   if (!window.ethereum) {
     console.error('You need to connect to the MetaMask extension');
   }
+
+  await initialize();
 
   alert('Sign a transaction to create a policy.');
 

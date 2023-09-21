@@ -27,7 +27,7 @@
     "lint:fix": "pnpm lint --fix"
   },
   "dependencies": {
-    "@nucypher/nucypher-core": "^0.13.0",
+    "@nucypher/nucypher-core": "file:../../../nucypher-core/nucypher-core-wasm-bundler",
     "@nucypher/shared": "workspace:*",
     "axios": "^1.5.0",
     "ethers": "^5.7.2"

@@ -197,8 +197,8 @@ importers:
   packages/pre:
     dependencies:
       '@nucypher/nucypher-core':
-        specifier: file:../../../nucypher-core/nucypher-core-wasm-bundler
-        version: file:../nucypher-core/nucypher-core-wasm-bundler
+        specifier: 0.13.0-alpha.0
+        version: 0.13.0-alpha.0
       '@nucypher/shared':
         specifier: workspace:*
         version: link:../shared
@@ -218,8 +218,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       '@nucypher/nucypher-core':
-        specifier: file:../../../nucypher-core/nucypher-core-wasm-bundler
-        version: file:../nucypher-core/nucypher-core-wasm-bundler
+        specifier: 0.13.0-alpha.0
+        version: 0.13.0-alpha.0
       axios:
         specifier: ^1.5.0
         version: 1.5.0
@@ -264,8 +264,8 @@ importers:
   packages/taco:
     dependencies:
       '@nucypher/nucypher-core':
-        specifier: file:../../../nucypher-core/nucypher-core-wasm-bundler
-        version: file:../nucypher-core/nucypher-core-wasm-bundler
+        specifier: 0.13.0-alpha.0
+        version: 0.13.0-alpha.0
       '@nucypher/shared':
         specifier: workspace:*
         version: link:../shared
@@ -280,8 +280,8 @@ importers:
   packages/test-utils:
     dependencies:
       '@nucypher/nucypher-core':
-        specifier: file:../../../nucypher-core/nucypher-core-wasm-bundler
-        version: file:../nucypher-core/nucypher-core-wasm-bundler
+        specifier: 0.13.0-alpha.0
+        version: 0.13.0-alpha.0
       '@nucypher/shared':
         specifier: workspace:*
         version: link:../shared
@@ -3169,6 +3169,10 @@ packages:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.15.0
+
+  /@nucypher/nucypher-core@0.13.0-alpha.0:
+    resolution: {integrity: sha512-Nk+BE1iUY4m/ZHtbKRLJkAidXLLpwFmIbXBgS9qJMT1601dYFee/VvP0W6QoiSP9CirtZ730qtltuYb+MIzOfg==}
+    dev: false
 
   /@pmmmwh/react-refresh-webpack-plugin@0.5.11(react-refresh@0.11.0)(webpack-dev-server@4.15.1)(webpack@5.88.2):
     resolution: {integrity: sha512-7j/6vdTym0+qZ6u4XbSAxrWBGYSdCfTzySkj7WAFgDLmSyWlOrWvpyzxlFh5jtw9dn0oL/jtW+06XfFiisN3JQ==}
@@ -14229,9 +14233,4 @@ packages:
 
   /zod@3.22.2:
     resolution: {integrity: sha512-wvWkphh5WQsJbVk1tbx1l1Ly4yg+XecD+Mq280uBGt9wa5BKSWf4Mhp6GmrkPixhMxmabYY7RbzlwVP32pbGCg==}
-    dev: false
-
-  file:../nucypher-core/nucypher-core-wasm-bundler:
-    resolution: {directory: ../nucypher-core/nucypher-core-wasm-bundler, type: directory}
-    name: '@nucypher/nucypher-core-wasm'
     dev: false

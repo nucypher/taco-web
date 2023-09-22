@@ -5,7 +5,7 @@ import {
   initialize,
   SecretKey,
   toBytes,
-} from '@nucypher/shared';
+} from '@nucypher/pre';
 import { ethers } from 'ethers';
 
 const makeAlice = () => {

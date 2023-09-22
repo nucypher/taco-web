@@ -98,9 +98,9 @@ importers:
 
   examples/nextjs:
     dependencies:
-      '@nucypher/shared':
+      '@nucypher/pre':
         specifier: workspace:*
-        version: link:../../packages/shared
+        version: link:../../packages/pre
       '@types/node':
         specifier: 20.6.3
         version: 20.6.3
@@ -134,18 +134,18 @@ importers:
 
   examples/nodejs:
     dependencies:
-      '@nucypher/shared':
+      '@nucypher/pre':
         specifier: workspace:*
-        version: link:../../packages/shared
+        version: link:../../packages/pre
       ethers:
         specifier: ^5.7.2
         version: 5.7.2
 
   examples/react:
     dependencies:
-      '@nucypher/shared':
+      '@nucypher/pre':
         specifier: workspace:*
-        version: link:../../packages/shared
+        version: link:../../packages/pre
       ethers:
         specifier: ^5.7.2
         version: 5.7.2
@@ -171,9 +171,9 @@ importers:
 
   examples/webpack-5:
     dependencies:
-      '@nucypher/shared':
+      '@nucypher/pre':
         specifier: workspace:*
-        version: link:../../packages/shared
+        version: link:../../packages/pre
       ethers:
         specifier: ^5.7.2
         version: 5.7.2

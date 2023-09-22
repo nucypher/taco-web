@@ -1,18 +1,21 @@
 import { PublicKey, SecretKey } from '@nucypher/nucypher-core';
 import {
-  Alice,
   base64ToU8Receiver,
-  Bob,
   Cohort,
   CohortJSON,
   ConditionExpression,
-  EnactedPolicy,
-  Enrico,
   toJSON,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
-import { PreDecrypter, PreDecrypterJSON } from './pre-recipient';
+import {
+  Alice,
+  Bob,
+  Enrico,
+  PreDecrypter,
+  PreDecrypterJSON,
+} from './characters';
+import { EnactedPolicy } from './policy';
 
 export type PreStrategyJSON = {
   cohort: CohortJSON;

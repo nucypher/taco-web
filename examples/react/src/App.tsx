@@ -6,7 +6,7 @@ import {
   initialize,
   SecretKey,
   toHexString,
-} from '@nucypher/shared';
+} from '@nucypher/pre';
 import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
 

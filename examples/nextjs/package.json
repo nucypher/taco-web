@@ -9,7 +9,7 @@
     "type-check": "tsc -p tsconfig.build.json"
   },
   "dependencies": {
-    "@nucypher/shared": "workspace:*",
+    "@nucypher/pre": "workspace:*",
     "@types/node": "20.6.3",
     "@types/react": "18.2.22",
     "@types/react-dom": "18.2.7",
@@ -22,7 +22,6 @@
     "typescript": "5.2.2"
   },
   "peerDependencies": {
-    "@nucypher/shared": "workspace:*",
     "ethers": "^5.7.2",
     "typescript": "5.2.2"
   }

@@ -23,8 +23,7 @@
     ]
   },
   "dependencies": {
-    "@nucypher/shared": "workspace:*",
-    "ethers": "^5.7.2",
+    "@nucypher/pre": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -33,5 +32,8 @@
     "@types/react": "^18.2.21",
     "@types/react-dom": "^18.2.7",
     "react-scripts": "^5.0.1"
+  },
+  "peerDependencies": {
+    "ethers": "^5.7.2"
   }
 }

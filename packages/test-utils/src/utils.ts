@@ -12,14 +12,11 @@ import {
   Dkg,
   DkgPublicKey,
   EncryptedThresholdDecryptionResponse,
-  EncryptedTreasureMap,
   EthereumAddress,
   FerveoVariant,
   Keypair,
-  PublicKey,
   reencrypt,
   SecretKey,
-  SessionSecretFactory,
   SessionStaticKey,
   SessionStaticSecret,
   ThresholdDecryptionResponse,
@@ -27,30 +24,19 @@ import {
   Transcript,
   Validator,
   ValidatorMessage,
-  VerifiedCapsuleFrag,
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
 import {
-  Alice,
-  BlockchainPolicy,
-  Bob,
   CbdDecryptResult,
   ChecksumAddress,
   Cohort,
   ConditionExpression,
-  DkgClient,
   DkgCoordinatorAgent,
   DkgParticipant,
-  DkgRitual,
-  DkgRitualState,
-  Enrico,
   ERC721Balance,
   GetUrsulasResult,
   PorterClient,
-  PreEnactedPolicy,
-  RemoteBob,
   RetrieveCFragsResult,
-  toBytes,
   toHexString,
   Ursula,
   zip,
@@ -58,7 +44,6 @@ import {
 import { MessageKit } from '@nucypher/shared/dist/es';
 import axios from 'axios';
 import { ethers, providers, Wallet } from 'ethers';
-import { keccak256 } from 'ethers/lib/utils';
 import { expect, SpyInstance, vi } from 'vitest';
 
 import { TEST_CHAIN_ID, TEST_CONTRACT_ADDR } from './variables';
@@ -71,23 +56,6 @@ export const fromBytes = (bytes: Uint8Array): string =>
   new TextDecoder().decode(bytes);
 
 export const fakePorterUri = 'https://_this_should_crash.com/';
-
-export const fakeBob = (): Bob => {
-  const secretKey = SecretKey.fromBEBytes(
-    toBytes('fake-secret-key-32-bytes-bob-xxx'),
-  );
-  return Bob.fromSecretKey(secretKey);
-};
-
-export const fakeRemoteBob = (): RemoteBob => {
-  const { decryptingKey, verifyingKey } = fakeBob();
-  return RemoteBob.fromKeys(decryptingKey, verifyingKey);
-};
-
-export const fakeAlice = (aliceKey = 'fake-secret-key-32-bytes-alice-x') => {
-  const secretKey = SecretKey.fromBEBytes(toBytes(aliceKey));
-  return Alice.fromSecretKey(secretKey);
-};
 
 const makeFakeProvider = (timestamp: number, blockNumber: number) => {
   const block = { timestamp };
@@ -166,12 +134,6 @@ export const mockGetUrsulas = (
     return Promise.resolve({ data: fakePorterUrsulas(ursulas) });
   });
 };
-export const mockPublishToBlockchain = (): SpyInstance => {
-  const txHash = '0x1234567890123456789012345678901234567890';
-  return vi
-    .spyOn(PreEnactedPolicy.prototype as any, 'publish')
-    .mockImplementation(async () => Promise.resolve(txHash));
-};
 
 const fakeCFragResponse = (
   ursulas: readonly ChecksumAddress[],
@@ -196,43 +158,6 @@ export const mockRetrieveCFragsRequest = (
     .mockImplementation(() => {
       return Promise.resolve(results);
     });
-};
-export const mockGenerateKFrags = (withValue?: {
-  delegatingKey: PublicKey;
-  verifiedKFrags: VerifiedKeyFrag[];
-}): SpyInstance => {
-  const spy = vi.spyOn(Alice.prototype as any, 'generateKFrags');
-  if (withValue) {
-    return spy.mockImplementation(() => withValue);
-  }
-  return spy;
-};
-
-export const mockEncryptTreasureMap = (
-  withValue?: EncryptedTreasureMap,
-): SpyInstance => {
-  const spy = vi.spyOn(BlockchainPolicy.prototype as any, 'encryptTreasureMap');
-  if (withValue) {
-    return spy.mockImplementation(() => withValue);
-  }
-  return spy;
-};
-
-export const reencryptKFrags = (
-  kFrags: readonly VerifiedKeyFrag[],
-  capsule: Capsule,
-): {
-  verifiedCFrags: VerifiedCapsuleFrag[];
-} => {
-  if (!kFrags) {
-    throw new Error('Pass at least one kFrag.');
-  }
-  const verifiedCFrags = kFrags.map((kFrag) => reencrypt(capsule, kFrag));
-  return { verifiedCFrags };
-};
-
-export const mockMakeTreasureMap = (): SpyInstance => {
-  return vi.spyOn(BlockchainPolicy.prototype as any, 'makeTreasureMap');
 };
 
 export const mockDetectEthereumProvider =
@@ -361,128 +286,12 @@ export const fakeTDecFlow = ({
   };
 };
 
-const fakeConditionExpr = () => {
+export const fakeConditionExpr = () => {
   const erc721Balance = new ERC721Balance({
     chain: TEST_CHAIN_ID,
     contractAddress: TEST_CONTRACT_ADDR,
   });
   return new ConditionExpression(erc721Balance);
-};
-
-export const fakeDkgTDecFlowE2E: (
-  ritualId?: number,
-  variant?: FerveoVariant,
-  conditionExpr?: ConditionExpression,
-  message?: Uint8Array,
-  sharesNum?: number,
-  threshold?: number,
-) => {
-  dkg: Dkg;
-  serverAggregate: AggregatedTranscript;
-  sharesNum: number;
-  transcripts: Transcript[];
-  validatorKeypairs: Keypair[];
-  validators: Validator[];
-  ritualId: number;
-  threshold: number;
-  receivedMessages: ValidatorMessage[];
-  message: Uint8Array;
-  thresholdMessageKit: ThresholdMessageKit;
-  decryptionShares: DecryptionShareSimple[];
-} = (
-  ritualId = 0,
-  variant: FerveoVariant = FerveoVariant.precomputed,
-  conditionExpr: ConditionExpression = fakeConditionExpr(),
-  message = toBytes('fake-message'),
-  sharesNum = 4,
-  threshold = 4,
-) => {
-  const ritual = fakeDkgFlow(variant, ritualId, sharesNum, threshold);
-  const dkgPublicKey = ritual.dkg.publicKey();
-  const thresholdMessageKit = new Enrico(dkgPublicKey).encryptMessageCbd(
-    message,
-    conditionExpr,
-  );
-
-  const { decryptionShares } = fakeTDecFlow({
-    ...ritual,
-    message,
-    dkgPublicKey,
-    thresholdMessageKit,
-  });
-
-  return {
-    ...ritual,
-    message,
-    decryptionShares,
-    thresholdMessageKit,
-  };
-};
-
-export const mockCoordinatorRitual = async (
-  ritualId: number,
-): Promise<{
-  aggregationMismatch: boolean;
-  initTimestamp: number;
-  aggregatedTranscriptHash: string;
-  initiator: string;
-  dkgSize: number;
-  id: number;
-  publicKey: { word1: string; word0: string };
-  totalTranscripts: number;
-  aggregatedTranscript: string;
-  publicKeyHash: string;
-  totalAggregations: number;
-}> => {
-  const ritual = await fakeDkgTDecFlowE2E();
-  const dkgPkBytes = ritual.dkg.publicKey().toBytes();
-  return {
-    id: ritualId,
-    initiator: ritual.validators[0].address.toString(),
-    dkgSize: ritual.sharesNum,
-    initTimestamp: 0,
-    totalTranscripts: ritual.receivedMessages.length,
-    totalAggregations: ritual.sharesNum, // Assuming the ritual is finished
-    aggregatedTranscriptHash: keccak256(ritual.serverAggregate.toBytes()),
-    aggregationMismatch: false, // Assuming the ritual is correct
-    aggregatedTranscript: toHexString(ritual.serverAggregate.toBytes()),
-    publicKey: {
-      word0: toHexString(dkgPkBytes.slice(0, 32)),
-      word1: toHexString(dkgPkBytes.slice(32, 48)),
-    },
-    publicKeyHash: keccak256(ritual.dkg.publicKey().toBytes()),
-  };
-};
-
-export const mockDkgParticipants = (
-  ritualId: number,
-): {
-  participants: DkgParticipant[];
-  participantSecrets: Record<string, SessionStaticSecret>;
-} => {
-  const ritual = fakeDkgTDecFlowE2E(ritualId);
-  const label = toBytes(`${ritualId}`);
-
-  const participantSecrets: Record<string, SessionStaticSecret> =
-    Object.fromEntries(
-      ritual.validators.map(({ address }) => {
-        const participantSecret = SessionSecretFactory.random().makeKey(label);
-        return [address.toString(), participantSecret];
-      }),
-    );
-
-  const participants: DkgParticipant[] = zip(
-    Object.entries(participantSecrets),
-    ritual.transcripts,
-  ).map(([[address, secret], transcript]) => {
-    return {
-      provider: address,
-      aggregated: true, // Assuming all validators already contributed to the aggregate
-      transcript,
-      decryptionRequestStaticKey: secret.publicKey(),
-    } as DkgParticipant;
-  });
-  return { participantSecrets, participants };
 };
 
 export const mockGetParticipants = (
@@ -525,36 +334,6 @@ export const mockCbdDecrypt = (
     .mockImplementation(() => {
       return Promise.resolve(result);
     });
-};
-
-export const mockRitualId = 0;
-
-export const fakeDkgRitual = (ritual: {
-  dkg: Dkg;
-  sharesNum: number;
-  threshold: number;
-}) => {
-  return new DkgRitual(
-    mockRitualId,
-    ritual.dkg.publicKey(),
-    ritual.sharesNum,
-    ritual.threshold,
-    DkgRitualState.FINALIZED,
-  );
-};
-
-export const mockGetRitual = (dkgRitual: DkgRitual): SpyInstance => {
-  return vi.spyOn(DkgClient, 'getRitual').mockImplementation(() => {
-    return Promise.resolve(dkgRitual);
-  });
-};
-
-export const mockGetFinalizedRitualSpy = (
-  dkgRitual: DkgRitual,
-): SpyInstance => {
-  return vi.spyOn(DkgClient, 'getFinalizedRitual').mockImplementation(() => {
-    return Promise.resolve(dkgRitual);
-  });
 };
 
 export const mockGetRitualIdFromPublicKey = (ritualId: number): SpyInstance => {

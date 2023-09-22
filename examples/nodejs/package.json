@@ -9,7 +9,9 @@
     "type-check": "tsc"
   },
   "dependencies": {
-    "@nucypher/shared": "workspace:*",
+    "@nucypher/pre": "workspace:*"
+  },
+  "peerDependencies": {
     "ethers": "^5.7.2"
   }
 }

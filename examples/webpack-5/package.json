@@ -11,8 +11,7 @@
     "type-check": "tsc"
   },
   "dependencies": {
-    "@nucypher/shared": "workspace:*",
-    "ethers": "^5.7.2"
+    "@nucypher/pre": "workspace:*"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^10.2.4",
@@ -20,5 +19,8 @@
     "webpack": "^5.4.0",
     "webpack-cli": "^4.9.2",
     "webpack-dev-server": "^4.7.4"
+  },
+  "peerDependencies": {
+    "ethers": "^5.7.2"
   }
 }

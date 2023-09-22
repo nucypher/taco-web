@@ -9,7 +9,6 @@ import {
 import {
   Condition,
   ConditionExpression,
-  DkgClient,
   DkgCoordinatorAgent,
   getPorterUri,
   toBytes,
@@ -17,6 +16,7 @@ import {
 import { ethers } from 'ethers';
 import { arrayify, keccak256 } from 'ethers/lib/utils';
 
+import { DkgClient } from './dkg';
 import { retrieveAndDecrypt } from './tdec';
 
 export const encrypt = async (
@@ -45,11 +45,11 @@ export const encryptWithPublicKey = async (
   message: string,
   condition: Condition,
   dkgPublicKey: DkgPublicKey,
-  authorizationSigner?: Signer,
+  authSigner?: Signer,
 ): Promise<ThresholdMessageKit> => {
   const conditionExpr = new ConditionExpression(condition);
-  if (!authorizationSigner) {
-    authorizationSigner = new Signer(SecretKey.random());
+  if (!authSigner) {
+    authSigner = new Signer(SecretKey.random());
   }
 
   const [ciphertext, authenticatedData] = encryptForDkg(
@@ -59,7 +59,7 @@ export const encryptWithPublicKey = async (
   );
 
   const headerHash = keccak256(ciphertext.header.toBytes());
-  const authorization = authorizationSigner.sign(arrayify(headerHash));
+  const authorization = authSigner.sign(arrayify(headerHash));
   const acp = new AccessControlPolicy(
     authenticatedData,
     authorization.toBEBytes(),

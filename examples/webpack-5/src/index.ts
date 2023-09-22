@@ -1,10 +1,4 @@
-import {
-  Alice,
-  Bob,
-  SecretKey,
-  getPorterUri,
-  initialize,
-} from '@nucypher/shared';
+import { Alice, Bob, SecretKey, getPorterUri, initialize } from '@nucypher/pre';
 import { ethers } from 'ethers';
 
 declare global {

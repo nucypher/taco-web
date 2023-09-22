@@ -144,7 +144,9 @@ export const fakeUrsulas = (n = 4): Ursula[] =>
     uri: `https://example.${i}.com:9151`,
   }));
 
-export const mockGetUrsulas = (ursulas: readonly Ursula[]): SpyInstance => {
+export const mockGetUrsulas = (
+  ursulas: Ursula[] = fakeUrsulas(),
+): SpyInstance => {
   const fakePorterUrsulas = (
     mockUrsulas: readonly Ursula[],
   ): GetUrsulasResult => {
@@ -571,7 +573,7 @@ export const mockGetRitualIdFromPublicKey = (ritualId: number): SpyInstance => {
     });
 };
 
-export const makeCohort = async (ursulas: Ursula[]) => {
+export const makeCohort = async (ursulas: Ursula[] = fakeUrsulas()) => {
   const getUrsulasSpy = mockGetUrsulas(ursulas);
   const porterUri = 'https://_this.should.crash';
   const numUrsulas = ursulas.length;

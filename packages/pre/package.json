@@ -37,6 +37,9 @@
     "@nucypher/nucypher-core": "0.13.0-alpha.0",
     "@nucypher/shared": "workspace:*"
   },
+  "devDependencies": {
+    "@nucypher/test-utils": "workspace:*"
+  },
   "peerDependencies": {
     "ethers": "^5.7.2"
   },

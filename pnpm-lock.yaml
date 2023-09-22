@@ -205,6 +205,10 @@ importers:
       ethers:
         specifier: ^5.7.2
         version: 5.7.2
+    devDependencies:
+      '@nucypher/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
 
   packages/shared:
     dependencies:
@@ -239,6 +243,9 @@ importers:
         specifier: ^3.22.1
         version: 3.22.2
     devDependencies:
+      '@nucypher/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       '@typechain/ethers-v5':
         specifier: ^11.1.1
         version: 11.1.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2)(ethers@5.7.2)(typechain@8.3.1)(typescript@5.2.2)
@@ -292,9 +299,6 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
     devDependencies:
-      '@nucypher/test-utils':
-        specifier: workspace:*
-        version: 'link:'
       '@typechain/ethers-v5':
         specifier: ^11.1.1
         version: 11.1.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2)(ethers@5.7.2)(typechain@8.3.1)(typescript@5.2.2)

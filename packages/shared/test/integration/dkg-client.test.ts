@@ -1,4 +1,3 @@
-import { SecretKey } from '@nucypher/nucypher-core';
 import {
   fakeProvider,
   mockCoordinatorRitual,
@@ -8,7 +7,7 @@ import {
 } from '@nucypher/test-utils';
 import { afterEach, expect, test, vi } from 'vitest';
 
-import { DkgCoordinatorAgent } from '../../src';
+import { DkgCoordinatorAgent, SecretKey } from '../../src';
 
 vi.mock('../../src/contracts/agents/coordinator', () => ({
   DkgCoordinatorAgent: {

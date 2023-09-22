@@ -1,10 +1,7 @@
 import { DkgPublicKey } from '@nucypher/nucypher-core';
 import { BigNumberish, ethers } from 'ethers';
 
-import {
-  DkgCoordinatorAgent,
-  DkgRitualState,
-} from './contracts/agents/coordinator';
+import { DkgCoordinatorAgent, DkgRitualState } from './contracts';
 import { ChecksumAddress } from './types';
 import { fromHexString } from './utils';
 

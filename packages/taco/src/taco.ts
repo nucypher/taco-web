@@ -1,20 +1,23 @@
 import {
+  AccessControlPolicy,
+  DkgPublicKey,
+  encryptForDkg,
+  SecretKey,
+  Signer,
+  ThresholdMessageKit,
+} from '@nucypher/nucypher-core';
+import {
   Condition,
   ConditionExpression,
   DkgClient,
   DkgCoordinatorAgent,
+  getPorterUri,
   toBytes,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
+import { arrayify, keccak256 } from 'ethers/lib/utils';
 
-import { ThresholdDecrypter } from './cbd-recipient';
-
-import {
-  DkgPublicKey,
-  Enrico,
-  getPorterUri,
-  ThresholdMessageKit,
-} from './index';
+import { retrieveAndDecrypt } from './tdec';
 
 export const encrypt = async (
   provider: ethers.providers.Provider,
@@ -22,6 +25,18 @@ export const encrypt = async (
   condition: Condition,
   ritualId: number,
 ): Promise<ThresholdMessageKit> => {
+  // TODO(#264): Enable ritual initialization
+  // if (ritualId === undefined) {
+  //   ritualId = await DkgClient.initializeRitual(
+  //     provider,
+  //     this.cohort.ursulaAddresses,
+  //     true
+  //   );
+  // }
+  // if (ritualId === undefined) {
+  //   // Given that we just initialized the ritual, this should never happen
+  //   throw new Error('Ritual ID is undefined');
+  // }
   const dkgRitual = await DkgClient.getFinalizedRitual(provider, ritualId);
   return await encryptWithPublicKey(message, condition, dkgRitual.dkgPublicKey);
 };
@@ -30,10 +45,27 @@ export const encryptWithPublicKey = async (
   message: string,
   condition: Condition,
   dkgPublicKey: DkgPublicKey,
+  authorizationSigner?: Signer,
 ): Promise<ThresholdMessageKit> => {
-  const encrypter = new Enrico(dkgPublicKey);
   const conditionExpr = new ConditionExpression(condition);
-  return encrypter.encryptMessageCbd(toBytes(message), conditionExpr);
+  if (!authorizationSigner) {
+    authorizationSigner = new Signer(SecretKey.random());
+  }
+
+  const [ciphertext, authenticatedData] = encryptForDkg(
+    toBytes(message),
+    dkgPublicKey,
+    conditionExpr.toWASMConditions(),
+  );
+
+  const headerHash = keccak256(ciphertext.header.toBytes());
+  const authorization = authorizationSigner.sign(arrayify(headerHash));
+  const acp = new AccessControlPolicy(
+    authenticatedData,
+    authorization.toBEBytes(),
+  );
+
+  return new ThresholdMessageKit(ciphertext, acp);
 };
 
 export const decrypt = async (
@@ -47,12 +79,14 @@ export const decrypt = async (
     messageKit.acp.publicKey,
   );
   const ritual = await DkgClient.getFinalizedRitual(provider, ritualId);
-  const decrypter = ThresholdDecrypter.create(
+  return retrieveAndDecrypt(
+    provider,
     porterUri,
+    messageKit,
     ritualId,
     ritual.threshold,
+    signer,
   );
-  return decrypter.retrieveAndDecrypt(provider, messageKit, signer);
 };
 
 export const taco = {

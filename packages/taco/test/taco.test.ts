@@ -1,7 +1,6 @@
 import {
   FerveoVariant,
   initialize,
-  SecretKey,
   SessionStaticSecret,
 } from '@nucypher/nucypher-core';
 import { predefined, toBytes } from '@nucypher/shared';
@@ -25,7 +24,6 @@ import { beforeAll, expect, test } from 'vitest';
 import * as taco from '../src';
 
 // Shared test variables
-let aliceSecretKey: SecretKey;
 let variant: FerveoVariant;
 const message = 'this is a secret';
 const ownsNFT = new predefined.ERC721Ownership({
@@ -37,15 +35,14 @@ const ownsNFT = new predefined.ERC721Ownership({
 test('taco', () => {
   beforeAll(async () => {
     await initialize();
-    aliceSecretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);
     variant = FerveoVariant.precomputed;
   });
 
   test('encrypts and decrypts', async () => {
     const mockedDkg = fakeDkgFlow(variant, 0, 4, 4);
     const mockedDkgRitual = fakeDkgRitual(mockedDkg);
-    const provider = fakeProvider(aliceSecretKey.toBEBytes());
-    const signer = fakeSigner(aliceSecretKey.toBEBytes());
+    const provider = fakeProvider(aliceSecretKeyBytes);
+    const signer = fakeSigner(aliceSecretKeyBytes);
     const getFinalizedRitualSpy = mockGetFinalizedRitualSpy(mockedDkgRitual);
 
     const messageKit = await taco.encrypt(

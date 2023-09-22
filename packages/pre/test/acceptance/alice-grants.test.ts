@@ -6,6 +6,14 @@ import {
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
 import {
+  ChecksumAddress,
+  EnactedPolicy,
+  Enrico,
+  initialize,
+  toBytes,
+  Ursula,
+} from '@nucypher/shared';
+import {
   bytesEqual,
   fakeAlice,
   fakeBob,
@@ -23,15 +31,6 @@ import {
   reencryptKFrags,
 } from '@nucypher/test-utils';
 import { beforeAll, expect, test } from 'vitest';
-
-import {
-  ChecksumAddress,
-  EnactedPolicy,
-  Enrico,
-  initialize,
-  toBytes,
-  Ursula,
-} from '../../src';
 
 test('story: alice shares message with bob through policy', () => {
   const message = 'secret-message-from-alice';

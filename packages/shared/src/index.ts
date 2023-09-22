@@ -7,7 +7,6 @@ export * from './keyring';
 export * from './kits';
 export * from './policy';
 export * from './porter';
-export * from './strategy';
 export * from './types';
 export * from './utils';
 export * from './web3';

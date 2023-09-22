@@ -1,4 +1,15 @@
 import {
+  Cohort,
+  ConditionExpression,
+  ContractCondition,
+  ContractConditionProps,
+  ERC721Ownership,
+  getPorterUri,
+  initialize,
+  SecretKey,
+  toBytes,
+} from '@nucypher/shared';
+import {
   fakeProvider,
   fakeUrsulas,
   mockDetectEthereumProvider,
@@ -7,51 +18,21 @@ import {
   mockGetUrsulas,
   mockMakeTreasureMap,
   mockPublishToBlockchain,
-  mockRetrieveCFragsRequest,
+  mockRetrieveAndDecrypt,
 } from '@nucypher/test-utils';
 import { providers } from 'ethers';
-import { expect, SpyInstance, test, vi } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vitest';
 
-import {
-  Cohort,
-  ConditionExpression,
-  ContractCondition,
-  ContractConditionProps,
-  ERC721Ownership,
-  getPorterUri,
-  initialize,
-  MessageKit,
-  PreStrategy,
-  SecretKey,
-  toBytes,
-  Ursula,
-  VerifiedKeyFrag
-} from '../../src';
+import { PreStrategy } from '../src';
 
-// TODO: move to packages/taco
+test('doc tests', async () => {
+  beforeAll(async () => {
+    await initialize();
+  });
 
-test('Get Started (CBD PoC)', () => {
-  function mockRetrieveAndDecrypt(
-    makeTreasureMapSpy: SpyInstance,
-    encryptedMessageKit: MessageKit,
-  ) {
-    // Setup mocks for `retrieveAndDecrypt`
-    const ursulaAddresses = (
-      makeTreasureMapSpy.mock.calls[0][0] as readonly Ursula[]
-    ).map((u) => u.checksumAddress);
-    const verifiedKFrags = makeTreasureMapSpy.mock
-      .calls[0][1] as readonly VerifiedKeyFrag[];
-    return mockRetrieveCFragsRequest(
-      ursulaAddresses,
-      verifiedKFrags,
-      encryptedMessageKit.capsule,
-    );
-  }
-
-  test('can run the get started example', async () => {
+  test('runs get started example', async () => {
     const detectEthereumProvider = mockDetectEthereumProvider();
-    const mockedUrsulas = fakeUrsulas();
-    const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
+    const getUrsulasSpy = mockGetUrsulas();
     const generateKFragsSpy = mockGenerateKFrags();
     const publishToBlockchainSpy = mockPublishToBlockchain();
     const makeTreasureMapSpy = mockMakeTreasureMap();
@@ -60,8 +41,6 @@ test('Get Started (CBD PoC)', () => {
     vi.spyOn(providers, 'Web3Provider').mockImplementation(() =>
       fakeProvider(SecretKey.random().toBEBytes()),
     );
-
-    await initialize();
 
     //
     // Start of the code example
@@ -134,10 +113,8 @@ test('Get Started (CBD PoC)', () => {
     const condObj = conditions.condition.toObj();
     expect(newCohort.ursulaAddresses).toEqual(expectedAddresses);
     expect(condObj.parameters).toEqual([5954]);
-    expect(condObj.chain).toEqual(5);
-    expect(condObj.contractAddress).toEqual(
-      '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D',
-    );
+    expect(condObj.chain).toEqual(NFTBalanceConfig.chain);
+    expect(condObj.contractAddress).toEqual(NFTBalanceConfig.contractAddress);
     expect(publishToBlockchainSpy).toHaveBeenCalled();
     expect(getUrsulasSpy).toHaveBeenCalledTimes(2);
     expect(generateKFragsSpy).toHaveBeenCalled();

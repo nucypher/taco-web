@@ -50,12 +50,12 @@ import {
   PreEnactedPolicy,
   RemoteBob,
   RetrieveCFragsResult,
-  ThresholdDecrypter,
   toBytes,
   toHexString,
   Ursula,
   zip,
 } from '@nucypher/shared';
+import { MessageKit } from '@nucypher/shared/dist/es';
 import axios from 'axios';
 import { ethers, providers, Wallet } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
@@ -527,14 +527,6 @@ export const mockCbdDecrypt = (
     });
 };
 
-export const mockRandomSessionStaticSecret = (
-  secret: SessionStaticSecret,
-): SpyInstance => {
-  return vi
-    .spyOn(ThresholdDecrypter.prototype as any, 'makeSessionKey')
-    .mockImplementation(() => secret);
-};
-
 export const mockRitualId = 0;
 
 export const fakeDkgRitual = (ritual: {
@@ -580,4 +572,21 @@ export const makeCohort = async (ursulas: Ursula[] = fakeUrsulas()) => {
   const cohort = await Cohort.create(porterUri, numUrsulas);
   expect(getUrsulasSpy).toHaveBeenCalled();
   return cohort;
+};
+
+const mockRetrieveAndDecrypt = (
+  makeTreasureMapSpy: SpyInstance,
+  encryptedMessageKit: MessageKit,
+) => {
+  // Setup mocks for `retrieveAndDecrypt`
+  const ursulaAddresses = (
+    makeTreasureMapSpy.mock.calls[0][0] as readonly Ursula[]
+  ).map((u) => u.checksumAddress);
+  const verifiedKFrags = makeTreasureMapSpy.mock
+    .calls[0][1] as readonly VerifiedKeyFrag[];
+  return mockRetrieveCFragsRequest(
+    ursulaAddresses,
+    verifiedKFrags,
+    encryptedMessageKit.capsule,
+  );
 };

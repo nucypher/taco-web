@@ -1,15 +1,18 @@
 import { DkgPublicKey } from '@nucypher/nucypher-core';
+import {
+  Cohort,
+  CohortJSON,
+  ConditionExpression,
+  ConditionExpressionJSON,
+  DkgClient,
+  DkgRitual,
+  Enrico,
+  fromJSON,
+  toJSON,
+} from '@nucypher/shared';
 import { ethers } from 'ethers';
 
-import {
-  ThresholdDecrypter,
-  ThresholdDecrypterJSON,
-} from '../characters/cbd-recipient';
-import { Enrico } from '../characters/enrico';
-import { Cohort, CohortJSON } from '../cohort';
-import { ConditionExpression, ConditionExpressionJSON } from '../conditions';
-import { DkgClient, DkgRitual } from '../dkg';
-import { fromJSON, toJSON } from '../utils';
+import { ThresholdDecrypter, ThresholdDecrypterJSON } from './cbd-recipient';
 
 export type CbdStrategyJSON = {
   cohort: CohortJSON;

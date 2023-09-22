@@ -1,15 +1,20 @@
-import { DkgPublicKey, ThresholdMessageKit } from '@nucypher/nucypher-core';
 import {
   Condition,
   ConditionExpression,
   DkgClient,
   DkgCoordinatorAgent,
-  Enrico,
-  getPorterUri,
-  ThresholdDecrypter,
   toBytes,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
+
+import { ThresholdDecrypter } from './cbd-recipient';
+
+import {
+  DkgPublicKey,
+  Enrico,
+  getPorterUri,
+  ThresholdMessageKit,
+} from './index';
 
 export const encrypt = async (
   provider: ethers.providers.Provider,
@@ -18,10 +23,10 @@ export const encrypt = async (
   ritualId: number,
 ): Promise<ThresholdMessageKit> => {
   const dkgRitual = await DkgClient.getFinalizedRitual(provider, ritualId);
-  return await encryptLight(message, condition, dkgRitual.dkgPublicKey);
+  return await encryptWithPublicKey(message, condition, dkgRitual.dkgPublicKey);
 };
 
-export const encryptLight = async (
+export const encryptWithPublicKey = async (
   message: string,
   condition: Condition,
   dkgPublicKey: DkgPublicKey,
@@ -52,6 +57,6 @@ export const decrypt = async (
 
 export const taco = {
   encrypt,
-  encryptLight,
+  encryptWithPublicKey,
   decrypt,
 };

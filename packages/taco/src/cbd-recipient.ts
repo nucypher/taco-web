@@ -10,15 +10,16 @@ import {
   ThresholdDecryptionRequest,
   ThresholdMessageKit,
 } from '@nucypher/nucypher-core';
-import { ethers } from 'ethers';
-
-import { ConditionContext } from '../conditions';
 import {
+  ConditionContext,
   DkgCoordinatorAgent,
   DkgParticipant,
-} from '../contracts/agents/coordinator';
-import { PorterClient } from '../porter';
-import { fromJSON, objectEquals, toJSON } from '../utils';
+  fromJSON,
+  objectEquals,
+  PorterClient,
+  toJSON,
+} from '@nucypher/shared';
+import { ethers } from 'ethers';
 
 export type ThresholdDecrypterJSON = {
   porterUri: string;

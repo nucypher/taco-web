@@ -7,15 +7,12 @@ export {
   BlockchainPolicyParameters,
   Bob,
   Cohort,
-  DeployedPreStrategy,
   EnactedPolicy,
   Enrico,
   Keyring,
   PolicyMessageKit,
   PorterClient,
-  PreDecrypter,
   PreEnactedPolicy,
-  PreStrategy,
   RemoteBob,
   conditions,
   getPorterUri,
@@ -31,3 +28,7 @@ export {
   Signer,
   TreasureMap,
 } from '@nucypher/nucypher-core';
+
+export { DeployedPreStrategy, PreStrategy } from './pre-strategy';
+
+export { PreDecrypter } from './pre-recipient';

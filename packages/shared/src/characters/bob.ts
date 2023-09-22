@@ -7,8 +7,7 @@ import {
 } from '@nucypher/nucypher-core';
 
 import { Keyring } from '../keyring';
-import { PolicyMessageKit } from '../kits/message';
-import { RetrievalResult } from '../kits/retrieval';
+import { PolicyMessageKit, RetrievalResult } from '../kits';
 import { PorterClient } from '../porter';
 import { zip } from '../utils';
 

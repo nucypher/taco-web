@@ -8,9 +8,8 @@ import {
 } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { Alice } from './characters/alice';
-import { RemoteBob } from './characters/bob';
-import { PreSubscriptionManagerAgent } from './contracts/agents/subscription-manager';
+import { Alice, RemoteBob } from './characters';
+import { PreSubscriptionManagerAgent } from './contracts';
 import { Ursula } from './porter';
 import { toBytes, toEpoch, zip } from './utils';
 import { toCanonicalAddress } from './web3';

@@ -21,7 +21,7 @@ import { retrieveAndDecrypt } from './tdec';
 
 export const encrypt = async (
   provider: ethers.providers.Provider,
-  message: string,
+  message: Uint8Array | string,
   condition: Condition,
   ritualId: number,
 ): Promise<ThresholdMessageKit> => {
@@ -42,18 +42,22 @@ export const encrypt = async (
 };
 
 export const encryptWithPublicKey = async (
-  message: string,
+  message: Uint8Array | string,
   condition: Condition,
   dkgPublicKey: DkgPublicKey,
   authSigner?: Signer,
 ): Promise<ThresholdMessageKit> => {
+  if (typeof message === 'string') {
+    message = toBytes(message);
+  }
+
   const conditionExpr = new ConditionExpression(condition);
   if (!authSigner) {
     authSigner = new Signer(SecretKey.random());
   }
 
   const [ciphertext, authenticatedData] = encryptForDkg(
-    toBytes(message),
+    message,
     dkgPublicKey,
     conditionExpr.toWASMConditions(),
   );

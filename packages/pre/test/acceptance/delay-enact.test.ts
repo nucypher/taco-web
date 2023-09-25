@@ -1,4 +1,3 @@
-import { initialize } from '@nucypher/shared';
 import {
   bytesEqual,
   fakeAlice,
@@ -12,6 +11,8 @@ import {
   mockPublishToBlockchain,
 } from '@nucypher/test-utils';
 import { beforeAll, expect, test } from 'vitest';
+
+import { initialize } from '../../src';
 
 test('story: alice creates a policy but someone else enacts it', () => {
   const threshold = 2;

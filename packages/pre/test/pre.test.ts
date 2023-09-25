@@ -1,5 +1,13 @@
 import { CapsuleFrag, reencrypt } from '@nucypher/nucypher-core';
 import {
+  fakeAlice,
+  fakeBob,
+  fakeUrsulas,
+  reencryptKFrags,
+} from '@nucypher/test-utils';
+import { beforeAll, expect, test } from 'vitest';
+
+import {
   Alice,
   Bob,
   CompoundCondition,
@@ -12,14 +20,7 @@ import {
   RetrievalResult,
   toBytes,
   zip,
-} from '@nucypher/shared';
-import {
-  fakeAlice,
-  fakeBob,
-  fakeUrsulas,
-  reencryptKFrags,
-} from '@nucypher/test-utils';
-import { beforeAll, expect, test } from 'vitest';
+} from '../src';
 
 test('proxy reencryption', () => {
   let alice: Alice;

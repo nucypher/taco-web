@@ -1,6 +1,6 @@
 {
   "extends": ["../../typedoc.base.json"],
   "entryPoints": ["src/index.ts"],
-  "tsconfig": "tsconfig.build.json",
+  "tsconfig": "tsconfig.es.json",
   "name": "@nucypher/shared"
 }

@@ -4,15 +4,6 @@ import {
   SessionStaticSecret,
 } from '@nucypher/nucypher-core';
 import {
-  CbdStrategy,
-  ConditionExpression,
-  DeployedCbdStrategy,
-  ERC721Ownership,
-  initialize,
-  ThresholdDecrypter,
-  toBytes,
-} from '@nucypher/shared';
-import {
   aliceSecretKeyBytes,
   fakeDkgFlow,
   fakeDkgRitual,
@@ -31,13 +22,22 @@ import {
 import { ethers } from 'ethers';
 import { afterEach, beforeAll, expect, test, vi } from 'vitest';
 
+import {
+  CbdStrategy,
+  conditions,
+  DeployedCbdStrategy,
+  initialize,
+  ThresholdDecrypter,
+  toBytes,
+} from '../src';
+
 // Shared test variables
-const ownsNFT = new ERC721Ownership({
+const ownsNFT = new conditions.ERC721Ownership({
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
   parameters: [3591],
   chain: 5,
 });
-const conditionExpr = new ConditionExpression(ownsNFT);
+const conditionExpr = new conditions.ConditionExpression(ownsNFT);
 const ritualId = 0;
 
 const makeCbdStrategy = async () => {

@@ -1,14 +1,6 @@
 // Disabling because we want to access Alice.keyring which is a private property
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  ConditionExpression,
-  Enrico,
-  ERC721Ownership,
-  PolicyMessageKit,
-  RetrievalResult,
-  toBytes,
-} from '@nucypher/shared';
-import {
   bytesEqual,
   fakeAlice,
   fakeBob,
@@ -16,6 +8,15 @@ import {
   reencryptKFrags,
 } from '@nucypher/test-utils';
 import { expect, test } from 'vitest';
+
+import {
+  ConditionExpression,
+  Enrico,
+  ERC721Ownership,
+  PolicyMessageKit,
+  RetrievalResult,
+  toBytes,
+} from '../src';
 
 test('enrico', () => {
   test('alice decrypts message encrypted by enrico', async () => {

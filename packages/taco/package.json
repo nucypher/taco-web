@@ -14,18 +14,22 @@
   "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
+      "import": "./dist/es/index.js",
+      "require": "./dist/cjs/index.js"
     }
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/es/index.js",
+  "types": "./dist/cjs/index.d.ts",
   "files": [
-    "dist/**/*"
+    "dist"
   ],
   "scripts": {
-    "build": "tsc --build ./tsconfig.build.json --verbose",
+    "prebuild": "pnpm clean",
+    "build": "pnpm build:module && pnpm build:cjs",
+    "build:cjs": "tsc --build ./tsconfig.cjs.json --verbose",
+    "build:module": "tsc --build ./tsconfig.es.json --verbose",
+    "clean": "rm -rf dist",
     "exports:lint": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
     "lint": "eslint --ext .ts src test",
     "lint:fix": "pnpm lint --fix",

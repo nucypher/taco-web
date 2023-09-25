@@ -1,15 +1,5 @@
 import { SecretKey, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 import {
-  ConditionExpression,
-  DeployedPreStrategy,
-  ERC721Ownership,
-  initialize,
-  PreDecrypter,
-  PreStrategy,
-  toBytes,
-  Ursula,
-} from '@nucypher/shared';
-import {
   aliceSecretKeyBytes,
   bobSecretKeyBytes,
   fakeProvider,
@@ -25,13 +15,23 @@ import {
 } from '@nucypher/test-utils';
 import { afterEach, beforeAll, expect, test, vi } from 'vitest';
 
+import {
+  conditions,
+  DeployedPreStrategy,
+  initialize,
+  PreDecrypter,
+  PreStrategy,
+  toBytes,
+  Ursula,
+} from '../src';
+
 // Shared test variables
-const ownsNFT = new ERC721Ownership({
+const ownsNFT = new conditions.ERC721Ownership({
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
   parameters: [3591],
   chain: 5,
 });
-const conditionExpr = new ConditionExpression(ownsNFT);
+const conditionExpr = new conditions.ConditionExpression(ownsNFT);
 
 const makePreStrategy = async () => {
   const aliceSecretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);

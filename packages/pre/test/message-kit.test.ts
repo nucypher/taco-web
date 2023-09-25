@@ -1,6 +1,7 @@
-import { MessageKit, toBytes } from '@nucypher/shared';
 import { fakeBob } from '@nucypher/test-utils';
 import { expect, test } from 'vitest';
+
+import { MessageKit, toBytes } from '../src';
 
 test('message kit', () => {
   test('bob decrypts', () => {

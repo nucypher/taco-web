@@ -1,15 +1,4 @@
 import {
-  Cohort,
-  ConditionExpression,
-  ContractCondition,
-  ContractConditionProps,
-  ERC721Ownership,
-  getPorterUri,
-  initialize,
-  SecretKey,
-  toBytes,
-} from '@nucypher/shared';
-import {
   fakeProvider,
   fakeUrsulas,
   mockDetectEthereumProvider,
@@ -23,7 +12,18 @@ import {
 import { providers } from 'ethers';
 import { beforeAll, expect, test, vi } from 'vitest';
 
-import { CbdStrategy } from '../src';
+import {
+  CbdStrategy,
+  Cohort,
+  ConditionExpression,
+  ContractCondition,
+  ContractConditionProps,
+  ERC721Ownership,
+  getPorterUri,
+  initialize,
+  SecretKey,
+  toBytes,
+} from '../src';
 
 test('doc tests', async () => {
   beforeAll(async () => {

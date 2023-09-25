@@ -12,11 +12,16 @@ import {
   VerifiedCapsuleFrag,
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
-import { toBytes } from '@nucypher/shared';
 import { SpyInstance, vi } from 'vitest';
 
-import { Alice, Bob, RemoteBob } from '../src/characters';
-import { BlockchainPolicy, PreEnactedPolicy } from '../src/policy';
+import {
+  Alice,
+  BlockchainPolicy,
+  Bob,
+  PreEnactedPolicy,
+  RemoteBob,
+  toBytes,
+} from '../src';
 
 export const fakeBob = (): Bob => {
   const secretKey = SecretKey.fromBEBytes(

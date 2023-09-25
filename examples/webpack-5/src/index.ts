@@ -51,6 +51,15 @@ const runExample = async () => {
   const provider = new ethers.providers.Web3Provider(window.ethereum!, 'any');
   await provider.send('eth_requestAccounts', []);
 
+  const { chainId } = await provider.getNetwork();
+  if (chainId !== 80001) {
+    // Switch to Matic Mumbai testnet
+    await window.ethereum!.request!({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: '0x13881' }],
+    });
+  }
+
   const remoteBob = makeRemoteBob();
   const threshold = 2;
   const shares = 3;

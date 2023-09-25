@@ -30,9 +30,13 @@ function App() {
     }
     const provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
 
-    const { chainId } = await provider.getNetwork();
-    if (![137, 80001].includes(chainId)) {
-      console.error('You need to connect to the Mumbai or Polygon network');
+    const {chainId} = await provider.getNetwork();
+    if (chainId !== 80001) {
+      // Switch to Matic Mumbai testnet
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{chainId: '0x13881'}],
+      });
     }
 
     await provider.send('eth_requestAccounts', []);

@@ -168,7 +168,8 @@ test('supports custom function abi', () => {
   });
 
   test('accepts custom function abi with a custom parameter', async () => {
-    const asJson = await conditionExpr.buildContext(fakeProvider(), {}, fakeSigner())
+    const asJson = await conditionExpr
+      .buildContext(fakeProvider(), {}, fakeSigner())
       .withCustomParams(customParams)
       .toJson();
 

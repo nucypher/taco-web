@@ -1,5 +1,10 @@
 import { CapsuleFrag, reencrypt } from '@nucypher/nucypher-core';
-import {fakeAlice, fakeBob, fakeUrsulas, reencryptKFrags} from '@nucypher/test-utils';
+import {
+  fakeAlice,
+  fakeBob,
+  fakeUrsulas,
+  reencryptKFrags,
+} from '@nucypher/test-utils';
 import { beforeAll, expect, test } from 'vitest';
 
 import {

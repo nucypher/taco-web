@@ -46,7 +46,7 @@ export const testRpcConditionObj: RpcConditionProps = {
   conditionType: RpcConditionType,
   chain: TEST_CHAIN_ID,
   method: 'eth_getBalance',
-  parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
+  parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77', 'latest'],
   returnValueTest: testReturnValueTest,
 };
 

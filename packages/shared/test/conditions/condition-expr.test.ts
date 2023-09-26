@@ -10,18 +10,20 @@ import {
 import { SemVer } from 'semver';
 import { expect, test } from 'vitest';
 
-import { ConditionExpression, objectEquals, toJSON } from '../../src';
 import {
   CompoundCondition,
+  ConditionExpression,
   ContractCondition,
   ContractConditionProps,
+  ERC721Balance,
+  objectEquals,
   RpcCondition,
   RpcConditionType,
   TimeCondition,
   TimeConditionProps,
-} from '../../src/conditions/base';
+  toJSON,
+} from '../../src';
 import { USER_ADDRESS_PARAM } from '../../src/conditions/const';
-import { ERC721Balance } from '../../src/conditions/predefined';
 
 test('condition set', () => {
   const erc721BalanceCondition = new ERC721Balance({

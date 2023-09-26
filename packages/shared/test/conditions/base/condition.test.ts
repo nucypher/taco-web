@@ -5,12 +5,12 @@ import {
 } from '@nucypher/test-utils';
 import { expect, test } from 'vitest';
 
-import { Condition } from '../../../src';
-import { ContractCondition } from '../../../src/conditions/base';
 import {
+  Condition,
+  ContractCondition,
   ERC721Balance,
   ERC721Ownership,
-} from '../../../src/conditions/predefined';
+} from '../../../src';
 
 test('validation', () => {
   const condition = new ERC721Balance({

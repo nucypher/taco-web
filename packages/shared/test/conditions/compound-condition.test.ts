@@ -3,16 +3,15 @@ import {
   testRpcConditionObj,
   testTimeConditionObj,
 } from '@nucypher/test-utils';
-import { expect, test } from 'vitest';
+import {describe, expect, test} from 'vitest';
 
-import { Condition } from '../../src';
-import { CompoundCondition } from '../../src/conditions/base';
+import {CompoundCondition, Condition} from '../../src';
 import {
   compoundConditionSchema,
   CompoundConditionType,
 } from '../../src/conditions/compound-condition';
 
-test('validation', () => {
+describe('validation', () => {
   test('accepts or operator', () => {
     const conditionObj = {
       operator: 'or',
@@ -122,5 +121,47 @@ test('validation', () => {
         },
       ],
     });
+  });
+
+  const multichainCondition = {
+    conditionType: 'compound',
+    operator: 'and',
+    operands: [1, 137, 5, 80001].map((chain) => (
+      {
+        ...testRpcConditionObj,
+        chain,
+      })),
+  };
+
+  test('accepts on a valid multichain condition schema', () => {
+    const result = CompoundCondition.validate(
+      compoundConditionSchema,
+      multichainCondition,
+    );
+
+    expect(result.error).toBeUndefined();
+    expect(result.data).toEqual(multichainCondition);
+  });
+
+  test('rejects an invalid multichain condition schema', () => {
+    const badMultichainCondition = {
+      ...multichainCondition,
+      operands: [
+        ...multichainCondition.operands,
+        {
+          // Bad condition
+          ...testRpcConditionObj,
+          chain: -1,
+        },
+      ],
+    };
+
+    const result = CompoundCondition.validate(
+      compoundConditionSchema,
+      badMultichainCondition,
+    );
+
+    expect(result.error).toBeDefined();
+    expect(result.data).toBeUndefined();
   });
 });

@@ -1,7 +1,7 @@
 import { testRpcConditionObj } from '@nucypher/test-utils';
 import { expect, test } from 'vitest';
 
-import { RpcCondition } from '../../../src/conditions/base';
+import { RpcCondition } from '../../../src';
 import { rpcConditionSchema } from '../../../src/conditions/base/rpc';
 
 test('validation', () => {

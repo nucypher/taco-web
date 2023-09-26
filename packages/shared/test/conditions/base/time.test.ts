@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest';
 
 import {
+  ReturnValueTestProps,
   TimeCondition,
   TimeConditionProps,
-} from '../../../src/conditions/base';
-import { ReturnValueTestProps } from '../../../src/conditions/base/shared';
+} from '../../../src';
 import {
   TimeConditionMethod,
   timeConditionSchema,

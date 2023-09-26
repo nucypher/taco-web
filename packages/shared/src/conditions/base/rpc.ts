@@ -11,7 +11,9 @@ export const rpcConditionSchema = z.object({
   conditionType: z.literal(RpcConditionType).default(RpcConditionType),
   chain: createUnionSchema(SUPPORTED_CHAIN_IDS),
   method: z.enum(['eth_getBalance', 'balanceOf']),
-  parameters: z.array(EthAddressOrUserAddressSchema),
+  parameters: z.array(
+    z.union([EthAddressOrUserAddressSchema, z.string(), z.number()]),
+  ),
   returnValueTest: returnValueTestSchema,
 });
 

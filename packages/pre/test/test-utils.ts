@@ -14,14 +14,9 @@ import {
 } from '@nucypher/nucypher-core';
 import { SpyInstance, vi } from 'vitest';
 
-import {
-  Alice,
-  BlockchainPolicy,
-  Bob,
-  PreEnactedPolicy,
-  RemoteBob,
-  toBytes,
-} from '../src';
+import { Alice, Bob, toBytes } from '../src';
+import { RemoteBob } from '../src/characters';
+import { BlockchainPolicy, PreEnactedPolicy } from '../src/policy';
 
 export const fakeBob = (): Bob => {
   const secretKey = SecretKey.fromBEBytes(

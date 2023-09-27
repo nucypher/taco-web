@@ -1,4 +1,5 @@
 import { SecretKey, VerifiedKeyFrag } from '@nucypher/nucypher-core';
+import { Ursula } from '@nucypher/shared';
 import {
   aliceSecretKeyBytes,
   bobSecretKeyBytes,
@@ -6,24 +7,25 @@ import {
   fakeSigner,
   fakeUrsulas,
   makeCohort,
-  mockEncryptTreasureMap,
-  mockGenerateKFrags,
   mockGetUrsulas,
-  mockMakeTreasureMap,
-  mockPublishToBlockchain,
   mockRetrieveCFragsRequest,
 } from '@nucypher/test-utils';
-import { afterEach, beforeAll, expect, test, vi } from 'vitest';
+import { afterEach, expect, test, vi } from 'vitest';
 
 import {
   conditions,
   DeployedPreStrategy,
-  initialize,
   PreDecrypter,
   PreStrategy,
   toBytes,
-  Ursula,
 } from '../src';
+
+import {
+  mockEncryptTreasureMap,
+  mockGenerateKFrags,
+  mockMakeTreasureMap,
+  mockPublishToBlockchain,
+} from './test-utils';
 
 // Shared test variables
 const ownsNFT = new conditions.ERC721Ownership({
@@ -76,10 +78,6 @@ const makeDeployedPreStrategy = async () => {
 };
 
 test('pre strategy', () => {
-  beforeAll(async () => {
-    await initialize();
-  });
-
   test('PreStrategy', () => {
     afterEach(() => {
       vi.restoreAllMocks();

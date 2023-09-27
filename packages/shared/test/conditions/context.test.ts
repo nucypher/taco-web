@@ -7,7 +7,7 @@ import {
   testRpcConditionObj,
 } from '@nucypher/test-utils';
 import { ethers } from 'ethers';
-import { beforeAll, expect, test } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 import {
   ConditionExpression,
@@ -19,7 +19,7 @@ import {
 import { USER_ADDRESS_PARAM } from '../../src/conditions/const';
 import { RESERVED_CONTEXT_PARAMS } from '../../src/conditions/context/context';
 
-test('context', () => {
+describe('context', () => {
   let provider: ethers.providers.Provider;
   let signer: ethers.Signer;
 
@@ -29,8 +29,8 @@ test('context', () => {
     signer = fakeSigner();
   });
 
-  test('serialization', () => {
-    test('serializes to json', async () => {
+  describe('serialization', () => {
+    it('serializes to json', async () => {
       const rpcCondition = new RpcCondition({
         ...testRpcConditionObj,
         parameters: [USER_ADDRESS_PARAM],
@@ -44,12 +44,13 @@ test('context', () => {
         rpcCondition,
       ).buildContext(provider, {}, signer);
       const asJson = await conditionContext.toJson();
+
       expect(asJson).toBeDefined();
       expect(asJson).toContain(USER_ADDRESS_PARAM);
     });
   });
 
-  test('context parameters', () => {
+  describe('context parameters', () => {
     const customParamKey = ':customParam';
     const customParams: Record<string, CustomContextParam> = {};
     customParams[customParamKey] = 1234;
@@ -65,8 +66,8 @@ test('context', () => {
     const conditionExpr = new ConditionExpression(contractCondition);
     const conditionContext = conditionExpr.buildContext(provider, {}, signer);
 
-    test('return value test', () => {
-      test('accepts on a custom context parameters', async () => {
+    describe('return value test', () => {
+      it('accepts on a custom context parameters', async () => {
         const asObj = await conditionContext
           .withCustomParams(customParams)
           .toObj();
@@ -74,14 +75,14 @@ test('context', () => {
         expect(asObj[customParamKey]).toEqual(1234);
       });
 
-      test('rejects on a missing custom context parameter', async () => {
+      it('rejects on a missing custom context parameter', async () => {
         await expect(conditionContext.toObj()).rejects.toThrow(
           `Missing custom context parameter(s): ${customParamKey}`,
         );
       });
     });
 
-    test('rejects on using reserved context parameter', () => {
+    it('rejects on using reserved context parameter', () => {
       const badCustomParams: Record<string, CustomContextParam> = {};
       RESERVED_CONTEXT_PARAMS.forEach((reservedParam) => {
         badCustomParams[reservedParam] = 'this-will-throw';
@@ -93,7 +94,7 @@ test('context', () => {
       });
     });
 
-    test('detects if a signer is required', () => {
+    it('detects if a signer is required', () => {
       const conditionObj = {
         ...testContractConditionObj,
         returnValueTest: {
@@ -110,7 +111,7 @@ test('context', () => {
       );
     });
 
-    test('detects if a signer is not required', () => {
+    it('detects if a signer is not required', () => {
       const condition = new RpcCondition(testRpcConditionObj);
       const conditionExpr = new ConditionExpression(condition);
       expect(
@@ -121,7 +122,7 @@ test('context', () => {
       expect(conditionExpr.buildContext(provider, {})).toBeDefined();
     });
 
-    test('rejects on a missing signer', () => {
+    it('rejects on a missing signer', () => {
       const conditionObj = {
         ...testContractConditionObj,
         returnValueTest: {
@@ -137,7 +138,7 @@ test('context', () => {
       );
     });
 
-    test('rejects on a missing signer', () => {
+    it('rejects on a missing signer', () => {
       const conditionObj = {
         ...testContractConditionObj,
         returnValueTest: {
@@ -153,7 +154,7 @@ test('context', () => {
       );
     });
 
-    test('custom method parameters', () => {
+    describe('custom method parameters', () => {
       const contractConditionObj = {
         ...testContractConditionObj,
         standardContractType: undefined, // We're going to use a custom function ABI
@@ -165,7 +166,7 @@ test('context', () => {
         },
       };
 
-      test('rejects on a missing parameter ', async () => {
+      it('rejects on a missing parameter ', async () => {
         const customContractCondition = new ContractCondition({
           ...contractConditionObj,
           parameters: [USER_ADDRESS_PARAM, customParamKey],
@@ -179,7 +180,7 @@ test('context', () => {
         );
       });
 
-      test('accepts on a hard-coded parameter', async () => {
+      it('accepts on a hard-coded parameter', async () => {
         const customContractCondition = new ContractCondition({
           ...contractConditionObj,
           parameters: [USER_ADDRESS_PARAM, 100],

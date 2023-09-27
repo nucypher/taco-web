@@ -1,11 +1,11 @@
 import { testRpcConditionObj } from '@nucypher/test-utils';
-import { expect, test } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { RpcCondition } from '../../../src';
 import { rpcConditionSchema } from '../../../src/conditions/base/rpc';
 
-test('validation', () => {
-  test('accepts on a valid schema', () => {
+describe('validation', () => {
+  it('accepts on a valid schema', () => {
     const result = RpcCondition.validate(
       rpcConditionSchema,
       testRpcConditionObj,
@@ -15,7 +15,7 @@ test('validation', () => {
     expect(result.data).toEqual(testRpcConditionObj);
   });
 
-  test('rejects an invalid schema', () => {
+  it('rejects an invalid schema', () => {
     const badRpcObj = {
       ...testRpcConditionObj,
       // Intentionally replacing `method` with an invalid method

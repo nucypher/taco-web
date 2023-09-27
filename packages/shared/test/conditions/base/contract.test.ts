@@ -4,7 +4,7 @@ import {
   testContractConditionObj,
   testFunctionAbi,
 } from '@nucypher/test-utils';
-import { beforeAll, expect, test } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 import {
   ConditionExpression,
@@ -19,8 +19,8 @@ import {
 } from '../../../src/conditions/base/contract';
 import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
 
-test('validation', () => {
-  test('accepts on a valid schema', () => {
+describe('validation', () => {
+  it('accepts on a valid schema', () => {
     const result = ContractCondition.validate(
       contractConditionSchema,
       testContractConditionObj,
@@ -30,7 +30,7 @@ test('validation', () => {
     expect(result.data).toEqual(testContractConditionObj);
   });
 
-  test('rejects an invalid schema', () => {
+  it('rejects an invalid schema', () => {
     const badContractCondition = {
       ...testContractConditionObj,
       // Intentionally removing `contractAddress`
@@ -51,7 +51,7 @@ test('validation', () => {
   });
 });
 
-test('accepts either standardContractType or functionAbi but not both or none', () => {
+describe('accepts either standardContractType or functionAbi but not both or none', () => {
   const standardContractType = 'ERC20';
   const functionAbi = {
     inputs: [
@@ -73,7 +73,7 @@ test('accepts either standardContractType or functionAbi but not both or none', 
     type: 'function',
   };
 
-  test('accepts standardContractType', () => {
+  it('accepts standardContractType', () => {
     const conditionObj = {
       ...testContractConditionObj,
       standardContractType,
@@ -88,7 +88,7 @@ test('accepts either standardContractType or functionAbi but not both or none', 
     expect(result.data).toEqual(conditionObj);
   });
 
-  test('accepts functionAbi', () => {
+  it('accepts functionAbi', () => {
     const conditionObj = {
       ...testContractConditionObj,
       functionAbi,
@@ -103,7 +103,7 @@ test('accepts either standardContractType or functionAbi but not both or none', 
     expect(result.data).toEqual(conditionObj);
   });
 
-  test('rejects both', () => {
+  it('rejects both', () => {
     const conditionObj = {
       ...testContractConditionObj,
       standardContractType,
@@ -123,7 +123,7 @@ test('accepts either standardContractType or functionAbi but not both or none', 
     });
   });
 
-  test('rejects none', () => {
+  it('rejects none', () => {
     const conditionObj = {
       ...testContractConditionObj,
       standardContractType: undefined,
@@ -144,7 +144,7 @@ test('accepts either standardContractType or functionAbi but not both or none', 
   });
 });
 
-test('supports custom function abi', () => {
+describe('supports custom function abi', () => {
   const contractConditionObj: ContractConditionProps = {
     ...testContractConditionObj,
     standardContractType: undefined,
@@ -167,7 +167,7 @@ test('supports custom function abi', () => {
     await initialize();
   });
 
-  test('accepts custom function abi with a custom parameter', async () => {
+  it('accepts custom function abi with a custom parameter', async () => {
     const asJson = await conditionExpr
       .buildContext(fakeProvider(), {}, fakeSigner())
       .withCustomParams(customParams)
@@ -178,7 +178,7 @@ test('supports custom function abi', () => {
     expect(asJson).toContain(myCustomParam);
   });
 
-  test.each([
+  it.each([
     {
       method: 'balanceOf',
       functionAbi: {
@@ -217,7 +217,7 @@ test('supports custom function abi', () => {
     expect(result.data?.functionAbi).toEqual(functionAbi);
   });
 
-  test.each([
+  it.each([
     {
       method: '1234',
       badField: 'name',

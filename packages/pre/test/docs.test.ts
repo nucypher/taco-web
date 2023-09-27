@@ -1,23 +1,21 @@
 import {
-  fakeProvider,
-  fakeUrsulas,
-  mockDetectEthereumProvider,
-  mockEncryptTreasureMap,
-  mockGenerateKFrags,
-  mockGetUrsulas,
-  mockMakeTreasureMap,
-  mockPublishToBlockchain,
-  mockRetrieveAndDecrypt,
-} from '@nucypher/test-utils';
-import { providers } from 'ethers';
-import { beforeAll, expect, test, vi } from 'vitest';
-
-import {
-  Cohort,
   ConditionExpression,
   ContractCondition,
   ContractConditionProps,
   ERC721Ownership,
+} from '@nucypher/shared';
+import {
+  fakeProvider,
+  fakeUrsulas,
+  mockDetectEthereumProvider,
+  mockGetUrsulas,
+  mockRetrieveAndDecrypt,
+} from '@nucypher/test-utils';
+import { providers } from 'ethers';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
+
+import {
+  Cohort,
   getPorterUri,
   initialize,
   PreStrategy,
@@ -25,12 +23,19 @@ import {
   toBytes,
 } from '../src';
 
-test('doc tests', async () => {
+import {
+  mockEncryptTreasureMap,
+  mockGenerateKFrags,
+  mockMakeTreasureMap,
+  mockPublishToBlockchain,
+} from './test-utils';
+
+describe('doc tests', async () => {
   beforeAll(async () => {
     await initialize();
   });
 
-  test('runs get started example', async () => {
+  it('runs get started example', async () => {
     const detectEthereumProvider = mockDetectEthereumProvider();
     const getUrsulasSpy = mockGetUrsulas();
     const generateKFragsSpy = mockGenerateKFrags();

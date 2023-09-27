@@ -1,26 +1,18 @@
 import { CapsuleFrag, reencrypt } from '@nucypher/nucypher-core';
 import {
-  fakeAlice,
-  fakeBob,
-  fakeUrsulas,
-  reencryptKFrags,
-} from '@nucypher/test-utils';
-import { beforeAll, expect, test } from 'vitest';
-
-import {
-  Alice,
-  Bob,
   CompoundCondition,
   ConditionExpression,
-  Enrico,
   ERC721Ownership,
-  initialize,
-  MessageKit,
-  PolicyMessageKit,
-  RetrievalResult,
-  toBytes,
   zip,
-} from '../src';
+} from '@nucypher/shared';
+import { fakeUrsulas } from '@nucypher/test-utils';
+import { beforeAll, expect, test } from 'vitest';
+
+import { Alice, Bob, MessageKit, toBytes } from '../src';
+import { Enrico } from '../src/characters';
+import { PolicyMessageKit, RetrievalResult } from '../src/kits';
+
+import { fakeAlice, fakeBob, reencryptKFrags } from './test-utils';
 
 test('proxy reencryption', () => {
   let alice: Alice;
@@ -32,7 +24,6 @@ test('proxy reencryption', () => {
 
   test('verifies capsule frags', async () => {
     beforeAll(async () => {
-      await initialize();
       bob = fakeBob();
       alice = fakeAlice();
     });

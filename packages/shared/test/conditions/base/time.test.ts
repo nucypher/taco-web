@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import {
   ReturnValueTestProps,
@@ -11,14 +11,14 @@ import {
   TimeConditionType,
 } from '../../../src/conditions/base/time';
 
-test('validation', () => {
+describe('validation', () => {
   const returnValueTest: ReturnValueTestProps = {
     index: 0,
     comparator: '>',
     value: '100',
   };
 
-  test('accepts a valid schema', () => {
+  it('accepts a valid schema', () => {
     const conditionObj: TimeConditionProps = {
       conditionType: TimeConditionType,
       returnValueTest,
@@ -31,7 +31,7 @@ test('validation', () => {
     expect(result.data).toEqual(conditionObj);
   });
 
-  test('rejects an invalid schema', () => {
+  it('rejects an invalid schema', () => {
     const badObj = {
       conditionType: TimeConditionType,
       // Intentionally replacing `returnValueTest` with an invalid test

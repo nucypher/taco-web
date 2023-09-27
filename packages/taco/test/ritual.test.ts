@@ -1,7 +1,6 @@
 import { DkgPublicKey } from '@nucypher/nucypher-core';
+import { fromHexString } from '@nucypher/shared';
 import { expect, test } from 'vitest';
-
-import { fromHexString } from '../src';
 
 test('Ritual', () => {
   test('deserializes pre-made dkg ritual', async () => {

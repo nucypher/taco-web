@@ -10,36 +10,30 @@
   "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
+      "import": "./dist/es/index.js",
+      "require": "./dist/cjs/index.js"
     }
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/es/index.js",
+  "types": "./dist/cjs/index.d.ts",
   "files": [
-    "dist/**/*"
+    "dist"
   ],
   "scripts": {
-    "build": "tsc --build ./tsconfig.build.json --verbose",
+    "build": "pnpm build:module && pnpm build:cjs",
+    "build:cjs": "tsc --build ./tsconfig.cjs.json --verbose",
+    "build:module": "tsc --build ./tsconfig.es.json --verbose",
     "exports:lint": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
     "lint": "eslint --ext .ts src",
     "lint:fix": "pnpm lint --fix"
   },
   "dependencies": {
-    "@nucypher/nucypher-core": "0.13.0-alpha.0",
+    "@nucypher/nucypher-core": "0.13.0-alpha.1",
     "@nucypher/shared": "workspace:*",
     "axios": "^1.5.0",
-    "ethers": "^5.7.2"
-  },
-  "devDependencies": {
-    "@typechain/ethers-v5": "^11.1.1",
-    "@types/deep-equal": "^1.0.1",
-    "@types/qs": "^6.9.7",
-    "@types/semver": "^7.5.0",
-    "cz-conventional-changelog": "^3.0.1",
-    "standard-version": "^9.0.0",
-    "typechain": "^8.3.1"
+    "ethers": "^5.7.2",
+    "vitest": "^0.34.4"
   },
   "engines": {
     "node": ">=18",

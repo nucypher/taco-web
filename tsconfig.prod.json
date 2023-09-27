@@ -32,7 +32,10 @@
       "path": "./packages/taco/tsconfig.cjs.json"
     },
     {
-      "path": "./packages/test-utils/tsconfig.build.json"
+      "path": "./packages/test-utils/tsconfig.es.json"
+    },
+    {
+      "path": "./packages/test-utils/tsconfig.cjs.json"
     }
   ]
 }

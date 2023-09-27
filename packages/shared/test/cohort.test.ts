@@ -1,21 +1,21 @@
 import { fakeUrsulas, makeCohort } from '@nucypher/test-utils';
-import { beforeAll, expect, test } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 import { Cohort, initialize } from '../src';
 
-test('Cohort', () => {
+describe('Cohort', () => {
   beforeAll(async () => {
     await initialize();
   });
 
-  test('creates a Cohort', async () => {
+  it('creates a Cohort', async () => {
     const ursulas = fakeUrsulas();
     const cohort = await makeCohort(ursulas);
     const expectedUrsulas = ursulas.map((u) => u.checksumAddress);
     expect(cohort.ursulaAddresses).toEqual(expectedUrsulas);
   });
 
-  test('serializes to a plain object', async () => {
+  it('serializes to a plain object', async () => {
     const ursulas = fakeUrsulas();
     const cohort = await makeCohort(ursulas);
     const asObj = cohort.toObj();
@@ -23,7 +23,7 @@ test('Cohort', () => {
     expect(fromObj).toEqual(cohort);
   });
 
-  test('serializes to JSON', async () => {
+  it('serializes to JSON', async () => {
     const ursulas = fakeUrsulas();
     const cohort = await makeCohort(ursulas);
     const asJson = cohort.toJSON();

@@ -18,6 +18,7 @@ import {
 } from '@nucypher/nucypher-core';
 import {
   ConditionExpression,
+  DkgCoordinatorAgent,
   DkgParticipant,
   DkgRitualState,
   toBytes,
@@ -86,9 +87,9 @@ export const fakeDkgTDecFlowE2E: (
   };
 };
 
-export const mockCoordinatorRitual = async (
+export const fakeCoordinatorRitual = (
   ritualId: number,
-): Promise<{
+): {
   aggregationMismatch: boolean;
   initTimestamp: number;
   aggregatedTranscriptHash: string;
@@ -100,8 +101,8 @@ export const mockCoordinatorRitual = async (
   aggregatedTranscript: string;
   publicKeyHash: string;
   totalAggregations: number;
-}> => {
-  const ritual = await fakeDkgTDecFlowE2E();
+} => {
+  const ritual = fakeDkgTDecFlowE2E();
   const dkgPkBytes = ritual.dkg.publicKey().toBytes();
   return {
     id: ritualId,
@@ -152,7 +153,7 @@ export const mockDkgParticipants = (
   return { participantSecrets, participants };
 };
 
-export const mockRitualId = 0;
+export const fakeRitualId = 0;
 
 export const fakeDkgRitual = (ritual: {
   dkg: Dkg;
@@ -160,7 +161,7 @@ export const fakeDkgRitual = (ritual: {
   threshold: number;
 }) => {
   return new DkgRitual(
-    mockRitualId,
+    fakeRitualId,
     ritual.dkg.publicKey(),
     ritual.sharesNum,
     ritual.threshold,
@@ -168,10 +169,15 @@ export const fakeDkgRitual = (ritual: {
   );
 };
 
-export const mockGetRitual = (dkgRitual: DkgRitual): SpyInstance => {
-  return vi.spyOn(DkgClient, 'getRitual').mockImplementation(() => {
-    return Promise.resolve(dkgRitual);
-  });
+export const mockGetRitual = (dkgRitual?: DkgRitual): SpyInstance => {
+  const { dkg, threshold, sharesNum } = fakeDkgTDecFlowE2E();
+  return vi
+    .spyOn(DkgCoordinatorAgent, 'getRitual')
+    .mockImplementation(async () => {
+      return Promise.resolve(
+        dkgRitual ?? fakeDkgRitual({ dkg, threshold, sharesNum }),
+      );
+    });
 };
 
 export const mockGetFinalizedRitualSpy = (
@@ -180,4 +186,10 @@ export const mockGetFinalizedRitualSpy = (
   return vi.spyOn(DkgClient, 'getFinalizedRitual').mockImplementation(() => {
     return Promise.resolve(dkgRitual);
   });
+};
+
+export const mockMakeSessionKey = (secret: SessionStaticSecret) => {
+  return vi
+    .spyOn(SessionStaticSecret, 'random')
+    .mockImplementation(() => secret);
 };

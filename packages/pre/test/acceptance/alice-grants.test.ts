@@ -5,35 +5,33 @@ import {
   PublicKey,
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
+import { ChecksumAddress, initialize, Ursula } from '@nucypher/shared';
 import {
   bytesEqual,
-  fakeAlice,
-  fakeBob,
   fakePorterUri,
   fakeProvider,
-  fakeRemoteBob,
   fakeSigner,
+  fakeUrsulas,
   fromBytes,
+  mockGetUrsulas,
+  mockRetrieveCFragsRequest,
+} from '@nucypher/test-utils';
+import { beforeEach, describe, expect, it } from 'vitest';
+
+import { EnactedPolicy, toBytes } from '../../src';
+import { Enrico } from '../../src/characters';
+import {
+  fakeAlice,
+  fakeBob,
+  fakeRemoteBob,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
-  mockGetUrsulas,
   mockMakeTreasureMap,
   mockPublishToBlockchain,
-  mockRetrieveCFragsRequest,
   reencryptKFrags,
-} from '@nucypher/test-utils';
-import { beforeAll, expect, test } from 'vitest';
+} from '../test-utils';
 
-import {
-  ChecksumAddress,
-  EnactedPolicy,
-  Enrico,
-  initialize,
-  toBytes,
-  Ursula,
-} from '../../src';
-
-test('story: alice shares message with bob through policy', () => {
+describe('story: alice shares message with bob through policy', () => {
   const message = 'secret-message-from-alice';
   const threshold = 2;
   const shares = 3;
@@ -52,12 +50,12 @@ test('story: alice shares message with bob through policy', () => {
   let aliceVerifyingKey: PublicKey;
   let policyEncryptingKey: PublicKey;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     await initialize();
   });
 
-  test('alice grants a new policy to bob', async () => {
-    const getUrsulasSpy = mockGetUrsulas();
+  it('alice grants a new policy to bob', async () => {
+    const getUrsulasSpy = mockGetUrsulas(fakeUrsulas().slice(0, shares));
     const generateKFragsSpy = mockGenerateKFrags();
     const publishToBlockchainSpy = mockPublishToBlockchain();
     const makeTreasureMapSpy = mockMakeTreasureMap();
@@ -105,14 +103,13 @@ test('story: alice shares message with bob through policy', () => {
     verifiedKFrags = makeTreasureMapSpy.mock.calls[0][1] as VerifiedKeyFrag[];
   });
 
-  test('enrico encrypts the message', () => {
+  it('enrico encrypts the message', () => {
     const enrico = new Enrico(policyEncryptingKey);
     encryptedMessage = enrico.encryptMessagePre(toBytes(message));
   });
 
-  test('bob retrieves and decrypts the message', async () => {
+  it('bob retrieves and decrypts the message', async () => {
     const bob = fakeBob();
-    const getUrsulasSpy = mockGetUrsulas();
     const retrieveCFragsSpy = mockRetrieveCFragsRequest(
       ursulaAddresses,
       verifiedKFrags,
@@ -128,7 +125,6 @@ test('story: alice shares message with bob through policy', () => {
     );
     const bobPlaintext = fromBytes(retrievedMessage[0]);
 
-    expect(getUrsulasSpy).toHaveBeenCalled();
     expect(retrieveCFragsSpy).toHaveBeenCalled();
     expect(bobPlaintext).toEqual(message);
 

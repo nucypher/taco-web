@@ -112,9 +112,7 @@ export const fakeUrsulas = (n = 4): Ursula[] =>
     uri: `https://example.${i}.com:9151`,
   }));
 
-export const mockGetUrsulas = (
-  ursulas: Ursula[] = fakeUrsulas(),
-): SpyInstance => {
+export const mockGetUrsulas = (ursulas: Ursula[] = fakeUrsulas()) => {
   const fakePorterUrsulas = (
     mockUrsulas: readonly Ursula[],
   ): GetUrsulasResult => {
@@ -353,7 +351,7 @@ export const makeCohort = async (ursulas: Ursula[] = fakeUrsulas()) => {
   return cohort;
 };
 
-const mockRetrieveAndDecrypt = (
+export const mockRetrieveAndDecrypt = (
   makeTreasureMapSpy: SpyInstance,
   encryptedMessageKit: MessageKit,
 ) => {

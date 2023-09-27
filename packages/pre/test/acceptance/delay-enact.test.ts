@@ -1,18 +1,19 @@
 import {
   bytesEqual,
-  fakeAlice,
   fakePorterUri,
   fakeProvider,
-  fakeRemoteBob,
   fakeSigner,
+  mockGetUrsulas,
+} from '@nucypher/test-utils';
+import { expect, test } from 'vitest';
+
+import {
+  fakeAlice,
+  fakeRemoteBob,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
-  mockGetUrsulas,
   mockPublishToBlockchain,
-} from '@nucypher/test-utils';
-import { beforeAll, expect, test } from 'vitest';
-
-import { initialize } from '../../src';
+} from '../test-utils';
 
 test('story: alice creates a policy but someone else enacts it', () => {
   const threshold = 2;
@@ -22,10 +23,6 @@ test('story: alice creates a policy but someone else enacts it', () => {
   const label = 'fake-data-label';
 
   test('verifies capsule frags', async () => {
-    beforeAll(async () => {
-      await initialize();
-    });
-
     test('alice generates a new policy', async () => {
       const provider = fakeProvider();
       const getUrsulasSpy = mockGetUrsulas();

@@ -8,7 +8,7 @@ import {
   testTimeConditionObj,
 } from '@nucypher/test-utils';
 import { SemVer } from 'semver';
-import { expect, test } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 import {
   CompoundCondition,
@@ -16,6 +16,7 @@ import {
   ContractCondition,
   ContractConditionProps,
   ERC721Balance,
+  initialize,
   objectEquals,
   RpcCondition,
   RpcConditionType,
@@ -25,7 +26,7 @@ import {
 } from '../../src';
 import { USER_ADDRESS_PARAM } from '../../src/conditions/const';
 
-test('condition set', () => {
+describe('condition set', () => {
   const erc721BalanceCondition = new ERC721Balance({
     chain: TEST_CHAIN_ID,
     contractAddress: TEST_CONTRACT_ADDR,
@@ -65,10 +66,14 @@ test('condition set', () => {
     ],
   });
 
-  test('equality', () => {
+  beforeAll(async () => {
+    await initialize();
+  });
+
+  describe('equality', () => {
     const conditionExprCurrentVersion = new ConditionExpression(rpcCondition);
 
-    test('same version and condition', () => {
+    it('same version and condition', () => {
       const conditionExprSameCurrentVersion = new ConditionExpression(
         rpcCondition,
         ConditionExpression.VERSION,
@@ -78,7 +83,7 @@ test('condition set', () => {
       ).toBeTruthy();
     });
 
-    test('different minor/patch version but same condition', () => {
+    it('different minor/patch version but same condition', () => {
       const conditionExprOlderMinorVersion = new ConditionExpression(
         rpcCondition,
         '0.1.0',
@@ -98,7 +103,7 @@ test('condition set', () => {
       ).not.toBeTruthy();
     });
 
-    test('minor/patch number greater than major; still older', () => {
+    it('minor/patch number greater than major; still older', () => {
       const conditionExprOlderMinorVersion = new ConditionExpression(
         rpcCondition,
         '0.9.0',
@@ -135,7 +140,7 @@ test('condition set', () => {
       ).not.toBeTruthy();
     });
 
-    test.each([
+    it.each([
       erc721BalanceCondition,
       contractConditionNoAbi,
       contractConditionWithAbi,
@@ -151,7 +156,7 @@ test('condition set', () => {
       ).not.toBeTruthy();
     });
 
-    test('same contract condition although using erc721 helper', () => {
+    it('same contract condition although using erc721 helper', () => {
       const erc721ConditionExpr = new ConditionExpression(
         erc721BalanceCondition,
       );
@@ -169,8 +174,8 @@ test('condition set', () => {
     });
   });
 
-  test('serialization / deserialization', () => {
-    test.each([
+  describe('serialization / deserialization', () => {
+    it.each([
       erc721BalanceCondition,
       contractConditionNoAbi,
       contractConditionWithAbi,
@@ -198,14 +203,14 @@ test('condition set', () => {
       expect(fromWasmConditions.equals(conditionExprFromJson)).toBeTruthy();
     });
 
-    test('serializes to and from WASM conditions', () => {
+    it('serializes to and from WASM conditions', () => {
       const conditionExpr = new ConditionExpression(erc721BalanceCondition);
       const wasmConditions = conditionExpr.toWASMConditions();
       const fromWasm = ConditionExpression.fromWASMConditions(wasmConditions);
       expect(conditionExpr.equals(fromWasm)).toBeTruthy();
     });
 
-    test('incompatible version', () => {
+    it('incompatible version', () => {
       const currentVersion = new SemVer(ConditionExpression.VERSION);
       const invalidVersion = currentVersion.inc('major');
       expect(() => {
@@ -218,7 +223,7 @@ test('condition set', () => {
       );
     });
 
-    test.each(['version', 'x.y', 'x.y.z', '-1,0.0', '1.0.0.0.0.0.0'])(
+    it.each(['version', 'x.y', 'x.y.z', '-1,0.0', '1.0.0.0.0.0.0'])(
       'invalid versions',
       (invalidVersion) => {
         expect(() => {
@@ -230,7 +235,7 @@ test('condition set', () => {
       },
     );
 
-    test.each(['_invalid_condition_type_', undefined as unknown as string])(
+    it.each(['_invalid_condition_type_', undefined as unknown as string])(
       'rejects an invalid condition type',
       (invalidConditionType) => {
         const conditionObj = {
@@ -246,7 +251,7 @@ test('condition set', () => {
       },
     );
 
-    test('rejects a mismatched condition type', () => {
+    it('rejects a mismatched condition type', () => {
       const conditionObj = {
         ...testTimeConditionObj,
         conditionType: RpcConditionType,
@@ -259,7 +264,7 @@ test('condition set', () => {
       }).toThrow(/^Invalid condition/);
     });
 
-    test('erc721 condition serialization', () => {
+    it('erc721 condition serialization', () => {
       const conditionExpr = new ConditionExpression(erc721BalanceCondition);
 
       const erc721BalanceConditionObj = erc721BalanceCondition.toObj();
@@ -287,7 +292,7 @@ test('condition set', () => {
       expect(conditionExprFromJson.condition).toBeInstanceOf(ContractCondition);
     });
 
-    test('contract condition no abi serialization', () => {
+    it('contract condition no abi serialization', () => {
       const conditionExpr = new ConditionExpression(contractConditionNoAbi);
 
       const conditionExprJson = conditionExpr.toJson();
@@ -319,7 +324,7 @@ test('condition set', () => {
       expect(conditionExprFromJson.condition).toBeInstanceOf(ContractCondition);
     });
 
-    test('contract condition with abi serialization', () => {
+    it('contract condition with abi serialization', () => {
       const conditionExpr = new ConditionExpression(contractConditionWithAbi);
 
       const conditionExprJson = conditionExpr.toJson();
@@ -352,7 +357,7 @@ test('condition set', () => {
       expect(conditionExprFromJson.condition).toBeInstanceOf(ContractCondition);
     });
 
-    test('time condition serialization', () => {
+    it('time condition serialization', () => {
       const conditionExpr = new ConditionExpression(timeCondition);
 
       const conditionExprJson = conditionExpr.toJson();
@@ -375,7 +380,7 @@ test('condition set', () => {
       expect(conditionExprFromJson.condition).toBeInstanceOf(TimeCondition);
     });
 
-    test('rpc condition serialization', () => {
+    it('rpc condition serialization', () => {
       const conditionExpr = new ConditionExpression(rpcCondition);
 
       const conditionExprJson = conditionExpr.toJson();
@@ -399,7 +404,7 @@ test('condition set', () => {
       expect(conditionExprFromJson.condition).toBeInstanceOf(RpcCondition);
     });
 
-    test('compound condition serialization', () => {
+    it('compound condition serialization', () => {
       const conditionExpr = new ConditionExpression(compoundCondition);
       const compoundConditionObj = compoundCondition.toObj();
 

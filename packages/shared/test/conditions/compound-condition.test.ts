@@ -3,16 +3,16 @@ import {
   testRpcConditionObj,
   testTimeConditionObj,
 } from '@nucypher/test-utils';
-import {describe, expect, test} from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-import {CompoundCondition, Condition} from '../../src';
+import { CompoundCondition, Condition } from '../../src';
 import {
   compoundConditionSchema,
   CompoundConditionType,
 } from '../../src/conditions/compound-condition';
 
 describe('validation', () => {
-  test('accepts or operator', () => {
+  it('accepts or operator', () => {
     const conditionObj = {
       operator: 'or',
       operands: [testContractConditionObj, testTimeConditionObj],
@@ -26,7 +26,7 @@ describe('validation', () => {
     });
   });
 
-  test('accepts and operator', () => {
+  it('accepts and operator', () => {
     const conditionObj = {
       operator: 'and',
       operands: [testContractConditionObj, testTimeConditionObj],
@@ -43,7 +43,7 @@ describe('validation', () => {
     });
   });
 
-  test('rejects an invalid operator', () => {
+  it('rejects an invalid operator', () => {
     const result = CompoundCondition.validate(compoundConditionSchema, {
       operator: 'not-an-operator',
       operands: [testRpcConditionObj, testTimeConditionObj],
@@ -60,7 +60,7 @@ describe('validation', () => {
     });
   });
 
-  test('rejects invalid number of operands = 0', () => {
+  it('rejects invalid number of operands = 0', () => {
     const result = CompoundCondition.validate(compoundConditionSchema, {
       operator: 'or',
       operands: [],
@@ -75,7 +75,7 @@ describe('validation', () => {
     });
   });
 
-  test('rejects invalid number of operands = 1', () => {
+  it('rejects invalid number of operands = 1', () => {
     const result = CompoundCondition.validate(compoundConditionSchema, {
       operator: 'or',
       operands: [testRpcConditionObj],
@@ -89,7 +89,7 @@ describe('validation', () => {
     });
   });
 
-  test('accepts recursive compound conditions', () => {
+  it('accepts recursive compound conditions', () => {
     const conditionObj = {
       operator: 'and',
       operands: [
@@ -126,14 +126,13 @@ describe('validation', () => {
   const multichainCondition = {
     conditionType: 'compound',
     operator: 'and',
-    operands: [1, 137, 5, 80001].map((chain) => (
-      {
-        ...testRpcConditionObj,
-        chain,
-      })),
+    operands: [1, 137, 5, 80001].map((chain) => ({
+      ...testRpcConditionObj,
+      chain,
+    })),
   };
 
-  test('accepts on a valid multichain condition schema', () => {
+  it('accepts on a valid multichain condition schema', () => {
     const result = CompoundCondition.validate(
       compoundConditionSchema,
       multichainCondition,
@@ -143,7 +142,7 @@ describe('validation', () => {
     expect(result.data).toEqual(multichainCondition);
   });
 
-  test('rejects an invalid multichain condition schema', () => {
+  it('rejects an invalid multichain condition schema', () => {
     const badMultichainCondition = {
       ...multichainCondition,
       operands: [

@@ -1,27 +1,26 @@
-import {
-  FerveoVariant,
-  initialize,
-  SessionStaticSecret,
-} from '@nucypher/nucypher-core';
+import { FerveoVariant, SessionStaticSecret } from '@nucypher/nucypher-core';
 import {
   aliceSecretKeyBytes,
   fakeDkgFlow,
-  fakeDkgRitual,
   fakePorterUri,
   fakeProvider,
   fakeSigner,
   fakeTDecFlow,
   mockCbdDecrypt,
-  mockDkgParticipants,
-  mockGetFinalizedRitualSpy,
   mockGetParticipants,
   mockGetRitualIdFromPublicKey,
-  mockRandomSessionStaticSecret,
 } from '@nucypher/test-utils';
-import { beforeAll, expect, test } from 'vitest';
+import { expect, test } from 'vitest';
 
 import * as taco from '../src';
 import { conditions, toBytes } from '../src';
+
+import {
+  fakeDkgRitual,
+  mockDkgParticipants,
+  mockGetFinalizedRitualSpy,
+  mockMakeSessionKey,
+} from './test-utils';
 
 // Shared test variables
 const message = 'this is a secret';
@@ -32,10 +31,6 @@ const ownsNFT = new conditions.ERC721Ownership({
 });
 
 test('taco', () => {
-  beforeAll(async () => {
-    await initialize();
-  });
-
   test('encrypts and decrypts', async () => {
     const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
     const mockedDkgRitual = fakeDkgRitual(mockedDkg);
@@ -68,7 +63,7 @@ test('taco', () => {
       requesterSessionKey.publicKey(),
     );
     const getParticipantsSpy = mockGetParticipants(participants);
-    const sessionKeySpy = mockRandomSessionStaticSecret(requesterSessionKey);
+    const sessionKeySpy = mockMakeSessionKey(requesterSessionKey);
     const getRitualIdFromPublicKey = mockGetRitualIdFromPublicKey(
       mockedDkg.ritualId,
     );

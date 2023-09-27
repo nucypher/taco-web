@@ -1,41 +1,32 @@
-import {
-  fakeProvider,
-  mockCoordinatorRitual,
-  mockDkgParticipants,
-  mockGetParticipants,
-  mockRitualId,
-} from '@nucypher/test-utils';
-import { afterEach, expect, test, vi } from 'vitest';
+import { DkgCoordinatorAgent } from '@nucypher/shared';
+import { fakeProvider, mockGetParticipants } from '@nucypher/test-utils';
+import { beforeAll, describe, expect, it } from 'vitest';
 
-import { DkgCoordinatorAgent, SecretKey } from '../src';
+import { initialize } from '../src';
 
-vi.mock('../../src/contracts/agents/coordinator', () => ({
-  DkgCoordinatorAgent: {
-    getRitual: () => Promise.resolve(mockCoordinatorRitual(mockRitualId)),
-    getParticipants: () => Promise.resolve(mockDkgParticipants(mockRitualId)),
-  },
-}));
+import { fakeRitualId, mockDkgParticipants, mockGetRitual } from './test-utils';
 
-test('DkgCoordinatorAgent', () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
+describe('DkgCoordinatorAgent', () => {
+  beforeAll(async () => {
+    await initialize();
   });
 
-  test('fetches transcripts from the coordinator', async () => {
-    const provider = fakeProvider(SecretKey.random().toBEBytes());
-    const ritual = await DkgCoordinatorAgent.getRitual(provider, mockRitualId);
+  it('fetches transcripts from the coordinator', async () => {
+    const provider = fakeProvider();
+    const getRitualSpy = mockGetRitual();
+    const ritual = await DkgCoordinatorAgent.getRitual(provider, fakeRitualId);
     expect(ritual).toBeDefined();
+    expect(getRitualSpy).toHaveBeenCalled();
   });
 
-  test('fetches participants from the coordinator', async () => {
-    const provider = fakeProvider(SecretKey.random().toBEBytes());
-    const fakeParticipants = await mockDkgParticipants(mockRitualId);
+  it('fetches participants from the coordinator', async () => {
+    const provider = fakeProvider();
     const getParticipantsSpy = mockGetParticipants(
-      fakeParticipants.participants,
+      mockDkgParticipants(fakeRitualId).participants,
     );
     const participants = await DkgCoordinatorAgent.getParticipants(
       provider,
-      mockRitualId,
+      fakeRitualId,
     );
     expect(getParticipantsSpy).toHaveBeenCalled();
     expect(participants.length).toBeGreaterThan(0);
@@ -43,8 +34,8 @@ test('DkgCoordinatorAgent', () => {
 });
 
 // TODO: Fix this test after the DkgClient.verifyRitual() method is implemented
-// test('DkgClient', () => {
-//   test('verifies the dkg ritual', async () => {
+// describe('DkgClient', () => {
+//   it('verifies the dkg ritual', async () => {
 //     const provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
 //
 //     const dkgClient = new DkgClient(provider);

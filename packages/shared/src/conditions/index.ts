@@ -7,13 +7,10 @@ export * from './base';
 export * from './predefined';
 
 export {
+  CompoundConditionProps,
   CompoundConditionType,
-  type CompoundConditionProps,
 } from './compound-condition';
-export { Condition, type ConditionProps } from './condition';
-export {
-  ConditionExpression,
-  type ConditionExpressionJSON,
-} from './condition-expr';
-export { ConditionContext, type CustomContextParam } from './context';
+export { Condition, ConditionProps } from './condition';
+export { ConditionExpression, ConditionExpressionJSON } from './condition-expr';
+export { ConditionContext, CustomContextParam } from './context';
 export { base, predefined };

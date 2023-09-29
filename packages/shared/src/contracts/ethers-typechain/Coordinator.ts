@@ -92,7 +92,9 @@ export interface CoordinatorInterface extends utils.Interface {
     "grantRole(bytes32,address)": FunctionFragment;
     "hasRole(bytes32,address)": FunctionFragment;
     "initiateRitual(address[],address,uint32,address)": FunctionFragment;
+    "isEncryptionAuthorized(uint32,bytes,bytes)": FunctionFragment;
     "isInitiationPublic()": FunctionFragment;
+    "isProviderPublicKeySet(address)": FunctionFragment;
     "isRitualFinalized(uint32)": FunctionFragment;
     "makeInitiationPublic()": FunctionFragment;
     "maxDkgSize()": FunctionFragment;
@@ -148,7 +150,9 @@ export interface CoordinatorInterface extends utils.Interface {
       | "grantRole"
       | "hasRole"
       | "initiateRitual"
+      | "isEncryptionAuthorized"
       | "isInitiationPublic"
+      | "isProviderPublicKeySet"
       | "isRitualFinalized"
       | "makeInitiationPublic"
       | "maxDkgSize"
@@ -281,8 +285,16 @@ export interface CoordinatorInterface extends utils.Interface {
     values: [string[], string, BigNumberish, string]
   ): string;
   encodeFunctionData(
+    functionFragment: "isEncryptionAuthorized",
+    values: [BigNumberish, BytesLike, BytesLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "isInitiationPublic",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isProviderPublicKeySet",
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "isRitualFinalized",
@@ -475,7 +487,15 @@ export interface CoordinatorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "isEncryptionAuthorized",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "isInitiationPublic",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isProviderPublicKeySet",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -917,7 +937,19 @@ export interface Coordinator extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
+    isEncryptionAuthorized(
+      ritualId: BigNumberish,
+      evidence: BytesLike,
+      ciphertextHeader: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     isInitiationPublic(overrides?: CallOverrides): Promise<[boolean]>;
+
+    isProviderPublicKeySet(
+      _provider: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     isRitualFinalized(
       ritualId: BigNumberish,
@@ -1168,7 +1200,19 @@ export interface Coordinator extends BaseContract {
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
+  isEncryptionAuthorized(
+    ritualId: BigNumberish,
+    evidence: BytesLike,
+    ciphertextHeader: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   isInitiationPublic(overrides?: CallOverrides): Promise<boolean>;
+
+  isProviderPublicKeySet(
+    _provider: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   isRitualFinalized(
     ritualId: BigNumberish,
@@ -1415,7 +1459,19 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides
     ): Promise<number>;
 
+    isEncryptionAuthorized(
+      ritualId: BigNumberish,
+      evidence: BytesLike,
+      ciphertextHeader: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     isInitiationPublic(overrides?: CallOverrides): Promise<boolean>;
+
+    isProviderPublicKeySet(
+      _provider: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     isRitualFinalized(
       ritualId: BigNumberish,
@@ -1805,7 +1861,19 @@ export interface Coordinator extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
+    isEncryptionAuthorized(
+      ritualId: BigNumberish,
+      evidence: BytesLike,
+      ciphertextHeader: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     isInitiationPublic(overrides?: CallOverrides): Promise<BigNumber>;
+
+    isProviderPublicKeySet(
+      _provider: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     isRitualFinalized(
       ritualId: BigNumberish,
@@ -2029,7 +2097,19 @@ export interface Coordinator extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
+    isEncryptionAuthorized(
+      ritualId: BigNumberish,
+      evidence: BytesLike,
+      ciphertextHeader: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     isInitiationPublic(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isProviderPublicKeySet(
+      _provider: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

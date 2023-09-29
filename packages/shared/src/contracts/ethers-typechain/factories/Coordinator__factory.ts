@@ -8,1377 +8,1425 @@ import type { Coordinator, CoordinatorInterface } from "../Coordinator";
 
 const _abi = [
   {
+    type: "constructor",
+    stateMutability: "nonpayable",
     inputs: [
       {
-        internalType: "contract IAccessControlApplication",
-        name: "_stakes",
+        name: "_application",
         type: "address",
+        internalType: "contract ITACoChildApplication",
       },
       {
-        internalType: "uint32",
         name: "_timeout",
         type: "uint32",
+        internalType: "uint32",
       },
       {
-        internalType: "uint16",
         name: "_maxDkgSize",
         type: "uint16",
+        internalType: "uint16",
       },
       {
-        internalType: "address",
         name: "_admin",
         type: "address",
+        internalType: "address",
       },
       {
-        internalType: "contract IERC20",
         name: "_currency",
         type: "address",
+        internalType: "contract IERC20",
       },
       {
-        internalType: "uint256",
         name: "_feeRatePerSecond",
         type: "uint256",
+        internalType: "uint256",
       },
     ],
-    stateMutability: "nonpayable",
-    type: "constructor",
   },
   {
-    anonymous: false,
+    type: "event",
+    name: "AggregationPosted",
     inputs: [
       {
-        indexed: true,
-        internalType: "uint32",
         name: "ritualId",
         type: "uint32",
+        internalType: "uint32",
+        indexed: true,
       },
       {
-        indexed: true,
-        internalType: "address",
         name: "node",
         type: "address",
+        internalType: "address",
+        indexed: true,
       },
       {
-        indexed: false,
-        internalType: "bytes32",
         name: "aggregatedTranscriptDigest",
         type: "bytes32",
+        internalType: "bytes32",
+        indexed: false,
       },
     ],
-    name: "AggregationPosted",
-    type: "event",
+    anonymous: false,
   },
   {
-    anonymous: false,
-    inputs: [],
+    type: "event",
     name: "DefaultAdminDelayChangeCanceled",
-    type: "event",
+    inputs: [],
+    anonymous: false,
   },
   {
-    anonymous: false,
+    type: "event",
+    name: "DefaultAdminDelayChangeScheduled",
     inputs: [
       {
-        indexed: false,
-        internalType: "uint48",
         name: "newDelay",
         type: "uint48",
+        internalType: "uint48",
+        indexed: false,
       },
       {
-        indexed: false,
-        internalType: "uint48",
         name: "effectSchedule",
         type: "uint48",
+        internalType: "uint48",
+        indexed: false,
       },
     ],
-    name: "DefaultAdminDelayChangeScheduled",
-    type: "event",
+    anonymous: false,
   },
   {
-    anonymous: false,
-    inputs: [],
+    type: "event",
     name: "DefaultAdminTransferCanceled",
-    type: "event",
+    inputs: [],
+    anonymous: false,
   },
   {
-    anonymous: false,
+    type: "event",
+    name: "DefaultAdminTransferScheduled",
     inputs: [
       {
-        indexed: true,
-        internalType: "address",
         name: "newAdmin",
         type: "address",
+        internalType: "address",
+        indexed: true,
       },
       {
-        indexed: false,
-        internalType: "uint48",
         name: "acceptSchedule",
         type: "uint48",
+        internalType: "uint48",
+        indexed: false,
       },
     ],
-    name: "DefaultAdminTransferScheduled",
-    type: "event",
+    anonymous: false,
   },
   {
-    anonymous: false,
+    type: "event",
+    name: "EndRitual",
     inputs: [
       {
-        indexed: true,
-        internalType: "uint32",
         name: "ritualId",
         type: "uint32",
+        internalType: "uint32",
+        indexed: true,
       },
       {
-        indexed: false,
-        internalType: "bool",
         name: "successful",
         type: "bool",
+        internalType: "bool",
+        indexed: false,
       },
     ],
-    name: "EndRitual",
-    type: "event",
+    anonymous: false,
   },
   {
-    anonymous: false,
+    type: "event",
+    name: "MaxDkgSizeChanged",
     inputs: [
       {
-        indexed: false,
-        internalType: "uint16",
         name: "oldSize",
         type: "uint16",
+        internalType: "uint16",
+        indexed: false,
       },
       {
-        indexed: false,
-        internalType: "uint16",
         name: "newSize",
         type: "uint16",
+        internalType: "uint16",
+        indexed: false,
       },
     ],
-    name: "MaxDkgSizeChanged",
-    type: "event",
+    anonymous: false,
   },
   {
-    anonymous: false,
+    type: "event",
+    name: "ParticipantPublicKeySet",
     inputs: [
       {
-        indexed: true,
-        internalType: "uint32",
         name: "ritualId",
         type: "uint32",
+        internalType: "uint32",
+        indexed: true,
       },
       {
-        indexed: true,
-        internalType: "address",
         name: "participant",
         type: "address",
+        internalType: "address",
+        indexed: true,
       },
       {
-        components: [
-          {
-            internalType: "bytes32",
-            name: "word0",
-            type: "bytes32",
-          },
-          {
-            internalType: "bytes32",
-            name: "word1",
-            type: "bytes32",
-          },
-          {
-            internalType: "bytes32",
-            name: "word2",
-            type: "bytes32",
-          },
-        ],
-        indexed: false,
-        internalType: "struct BLS12381.G2Point",
         name: "publicKey",
         type: "tuple",
-      },
-    ],
-    name: "ParticipantPublicKeySet",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "role",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "previousAdminRole",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "newAdminRole",
-        type: "bytes32",
-      },
-    ],
-    name: "RoleAdminChanged",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "role",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-    ],
-    name: "RoleGranted",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "role",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-    ],
-    name: "RoleRevoked",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "uint32",
-        name: "ritualId",
-        type: "uint32",
-      },
-    ],
-    name: "StartAggregationRound",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "uint32",
-        name: "ritualId",
-        type: "uint32",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "authority",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address[]",
-        name: "participants",
-        type: "address[]",
-      },
-    ],
-    name: "StartRitual",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint32",
-        name: "oldTimeout",
-        type: "uint32",
-      },
-      {
-        indexed: false,
-        internalType: "uint32",
-        name: "newTimeout",
-        type: "uint32",
-      },
-    ],
-    name: "TimeoutChanged",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "uint32",
-        name: "ritualId",
-        type: "uint32",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "node",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "bytes32",
-        name: "transcriptDigest",
-        type: "bytes32",
-      },
-    ],
-    name: "TranscriptPosted",
-    type: "event",
-  },
-  {
-    inputs: [],
-    name: "DEFAULT_ADMIN_ROLE",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "INITIATOR_ROLE",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "TREASURY_ROLE",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "acceptDefaultAdminTransfer",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "application",
-    outputs: [
-      {
-        internalType: "contract IAccessControlApplication",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "newAdmin",
-        type: "address",
-      },
-    ],
-    name: "beginDefaultAdminTransfer",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "cancelDefaultAdminTransfer",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint48",
-        name: "newDelay",
-        type: "uint48",
-      },
-    ],
-    name: "changeDefaultAdminDelay",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address[]",
-        name: "nodes",
-        type: "address[]",
-      },
-    ],
-    name: "cohortFingerprint",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "pure",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "currency",
-    outputs: [
-      {
-        internalType: "contract IERC20",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "defaultAdmin",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "defaultAdminDelay",
-    outputs: [
-      {
-        internalType: "uint48",
-        name: "",
-        type: "uint48",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "defaultAdminDelayIncreaseWait",
-    outputs: [
-      {
-        internalType: "uint48",
-        name: "",
-        type: "uint48",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "feeRatePerSecond",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "ritualId",
-        type: "uint32",
-      },
-    ],
-    name: "getAuthority",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "ritualId",
-        type: "uint32",
-      },
-      {
-        internalType: "address",
-        name: "provider",
-        type: "address",
-      },
-    ],
-    name: "getParticipantFromProvider",
-    outputs: [
-      {
         components: [
           {
-            internalType: "address",
+            name: "word0",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "word1",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "word2",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
+        internalType: "struct BLS12381.G2Point",
+        indexed: false,
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "RoleAdminChanged",
+    inputs: [
+      {
+        name: "role",
+        type: "bytes32",
+        internalType: "bytes32",
+        indexed: true,
+      },
+      {
+        name: "previousAdminRole",
+        type: "bytes32",
+        internalType: "bytes32",
+        indexed: true,
+      },
+      {
+        name: "newAdminRole",
+        type: "bytes32",
+        internalType: "bytes32",
+        indexed: true,
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "RoleGranted",
+    inputs: [
+      {
+        name: "role",
+        type: "bytes32",
+        internalType: "bytes32",
+        indexed: true,
+      },
+      {
+        name: "account",
+        type: "address",
+        internalType: "address",
+        indexed: true,
+      },
+      {
+        name: "sender",
+        type: "address",
+        internalType: "address",
+        indexed: true,
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "RoleRevoked",
+    inputs: [
+      {
+        name: "role",
+        type: "bytes32",
+        internalType: "bytes32",
+        indexed: true,
+      },
+      {
+        name: "account",
+        type: "address",
+        internalType: "address",
+        indexed: true,
+      },
+      {
+        name: "sender",
+        type: "address",
+        internalType: "address",
+        indexed: true,
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "StartAggregationRound",
+    inputs: [
+      {
+        name: "ritualId",
+        type: "uint32",
+        internalType: "uint32",
+        indexed: true,
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "StartRitual",
+    inputs: [
+      {
+        name: "ritualId",
+        type: "uint32",
+        internalType: "uint32",
+        indexed: true,
+      },
+      {
+        name: "authority",
+        type: "address",
+        internalType: "address",
+        indexed: true,
+      },
+      {
+        name: "participants",
+        type: "address[]",
+        internalType: "address[]",
+        indexed: false,
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "TimeoutChanged",
+    inputs: [
+      {
+        name: "oldTimeout",
+        type: "uint32",
+        internalType: "uint32",
+        indexed: false,
+      },
+      {
+        name: "newTimeout",
+        type: "uint32",
+        internalType: "uint32",
+        indexed: false,
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "TranscriptPosted",
+    inputs: [
+      {
+        name: "ritualId",
+        type: "uint32",
+        internalType: "uint32",
+        indexed: true,
+      },
+      {
+        name: "node",
+        type: "address",
+        internalType: "address",
+        indexed: true,
+      },
+      {
+        name: "transcriptDigest",
+        type: "bytes32",
+        internalType: "bytes32",
+        indexed: false,
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "function",
+    name: "DEFAULT_ADMIN_ROLE",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "bytes32",
+        internalType: "bytes32",
+      },
+    ],
+  },
+  {
+    type: "function",
+    name: "INITIATOR_ROLE",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "bytes32",
+        internalType: "bytes32",
+      },
+    ],
+  },
+  {
+    type: "function",
+    name: "TREASURY_ROLE",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "bytes32",
+        internalType: "bytes32",
+      },
+    ],
+  },
+  {
+    type: "function",
+    name: "acceptDefaultAdminTransfer",
+    stateMutability: "nonpayable",
+    inputs: [],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "application",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "address",
+        internalType: "contract ITACoChildApplication",
+      },
+    ],
+  },
+  {
+    type: "function",
+    name: "beginDefaultAdminTransfer",
+    stateMutability: "nonpayable",
+    inputs: [
+      {
+        name: "newAdmin",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "cancelDefaultAdminTransfer",
+    stateMutability: "nonpayable",
+    inputs: [],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "changeDefaultAdminDelay",
+    stateMutability: "nonpayable",
+    inputs: [
+      {
+        name: "newDelay",
+        type: "uint48",
+        internalType: "uint48",
+      },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "cohortFingerprint",
+    stateMutability: "pure",
+    inputs: [
+      {
+        name: "nodes",
+        type: "address[]",
+        internalType: "address[]",
+      },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "bytes32",
+        internalType: "bytes32",
+      },
+    ],
+  },
+  {
+    type: "function",
+    name: "currency",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "address",
+        internalType: "contract IERC20",
+      },
+    ],
+  },
+  {
+    type: "function",
+    name: "defaultAdmin",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+  },
+  {
+    type: "function",
+    name: "defaultAdminDelay",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "uint48",
+        internalType: "uint48",
+      },
+    ],
+  },
+  {
+    type: "function",
+    name: "defaultAdminDelayIncreaseWait",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "uint48",
+        internalType: "uint48",
+      },
+    ],
+  },
+  {
+    type: "function",
+    name: "feeRatePerSecond",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+  },
+  {
+    type: "function",
+    name: "getAuthority",
+    stateMutability: "view",
+    inputs: [
+      {
+        name: "ritualId",
+        type: "uint32",
+        internalType: "uint32",
+      },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+  },
+  {
+    type: "function",
+    name: "getParticipantFromProvider",
+    stateMutability: "view",
+    inputs: [
+      {
+        name: "ritualId",
+        type: "uint32",
+        internalType: "uint32",
+      },
+      {
+        name: "provider",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "tuple",
+        components: [
+          {
             name: "provider",
             type: "address",
+            internalType: "address",
           },
           {
-            internalType: "bool",
             name: "aggregated",
             type: "bool",
+            internalType: "bool",
           },
           {
-            internalType: "bytes",
             name: "transcript",
             type: "bytes",
+            internalType: "bytes",
           },
           {
-            internalType: "bytes",
             name: "decryptionRequestStaticKey",
             type: "bytes",
+            internalType: "bytes",
           },
         ],
         internalType: "struct Coordinator.Participant",
-        name: "",
-        type: "tuple",
       },
     ],
-    stateMutability: "view",
-    type: "function",
   },
   {
+    type: "function",
+    name: "getParticipants",
+    stateMutability: "view",
     inputs: [
       {
-        internalType: "uint32",
         name: "ritualId",
         type: "uint32",
+        internalType: "uint32",
       },
     ],
-    name: "getParticipants",
     outputs: [
       {
+        name: "",
+        type: "tuple[]",
         components: [
           {
-            internalType: "address",
             name: "provider",
             type: "address",
+            internalType: "address",
           },
           {
-            internalType: "bool",
             name: "aggregated",
             type: "bool",
+            internalType: "bool",
           },
           {
-            internalType: "bytes",
             name: "transcript",
             type: "bytes",
+            internalType: "bytes",
           },
           {
-            internalType: "bytes",
             name: "decryptionRequestStaticKey",
             type: "bytes",
+            internalType: "bytes",
           },
         ],
         internalType: "struct Coordinator.Participant[]",
-        name: "",
-        type: "tuple[]",
       },
     ],
-    stateMutability: "view",
-    type: "function",
   },
   {
+    type: "function",
+    name: "getProviderPublicKey",
+    stateMutability: "view",
     inputs: [
       {
-        internalType: "address",
         name: "_provider",
         type: "address",
+        internalType: "address",
       },
       {
-        internalType: "uint256",
         name: "_ritualId",
         type: "uint256",
+        internalType: "uint256",
       },
     ],
-    name: "getProviderPublicKey",
     outputs: [
       {
+        name: "",
+        type: "tuple",
         components: [
           {
-            internalType: "bytes32",
             name: "word0",
             type: "bytes32",
+            internalType: "bytes32",
           },
           {
-            internalType: "bytes32",
             name: "word1",
             type: "bytes32",
+            internalType: "bytes32",
           },
           {
-            internalType: "bytes32",
             name: "word2",
             type: "bytes32",
+            internalType: "bytes32",
           },
         ],
         internalType: "struct BLS12381.G2Point",
-        name: "",
-        type: "tuple",
       },
     ],
-    stateMutability: "view",
-    type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "ritualId",
-        type: "uint32",
-      },
-    ],
+    type: "function",
     name: "getPublicKeyFromRitualId",
-    outputs: [
-      {
-        components: [
-          {
-            internalType: "bytes32",
-            name: "word0",
-            type: "bytes32",
-          },
-          {
-            internalType: "bytes16",
-            name: "word1",
-            type: "bytes16",
-          },
-        ],
-        internalType: "struct BLS12381.G1Point",
-        name: "dkgPublicKey",
-        type: "tuple",
-      },
-    ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
-        components: [
-          {
-            internalType: "bytes32",
-            name: "word0",
-            type: "bytes32",
-          },
-          {
-            internalType: "bytes16",
-            name: "word1",
-            type: "bytes16",
-          },
-        ],
-        internalType: "struct BLS12381.G1Point",
-        name: "dkgPublicKey",
-        type: "tuple",
-      },
-    ],
-    name: "getRitualIdFromPublicKey",
-    outputs: [
-      {
-        internalType: "uint32",
         name: "ritualId",
         type: "uint32",
+        internalType: "uint32",
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    outputs: [
+      {
+        name: "dkgPublicKey",
+        type: "tuple",
+        components: [
+          {
+            name: "word0",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "word1",
+            type: "bytes16",
+            internalType: "bytes16",
+          },
+        ],
+        internalType: "struct BLS12381.G1Point",
+      },
+    ],
   },
   {
+    type: "function",
+    name: "getRitualIdFromPublicKey",
+    stateMutability: "view",
     inputs: [
       {
-        internalType: "address[]",
+        name: "dkgPublicKey",
+        type: "tuple",
+        components: [
+          {
+            name: "word0",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "word1",
+            type: "bytes16",
+            internalType: "bytes16",
+          },
+        ],
+        internalType: "struct BLS12381.G1Point",
+      },
+    ],
+    outputs: [
+      {
+        name: "ritualId",
+        type: "uint32",
+        internalType: "uint32",
+      },
+    ],
+  },
+  {
+    type: "function",
+    name: "getRitualInitiationCost",
+    stateMutability: "view",
+    inputs: [
+      {
         name: "providers",
         type: "address[]",
+        internalType: "address[]",
       },
       {
-        internalType: "uint32",
         name: "duration",
         type: "uint32",
+        internalType: "uint32",
       },
     ],
-    name: "getRitualInitiationCost",
     outputs: [
       {
-        internalType: "uint256",
         name: "",
         type: "uint256",
+        internalType: "uint256",
       },
     ],
-    stateMutability: "view",
-    type: "function",
   },
   {
+    type: "function",
+    name: "getRitualState",
+    stateMutability: "view",
     inputs: [
       {
-        internalType: "uint32",
         name: "ritualId",
         type: "uint32",
+        internalType: "uint32",
       },
     ],
-    name: "getRitualState",
     outputs: [
       {
-        internalType: "enum Coordinator.RitualState",
         name: "",
         type: "uint8",
+        internalType: "enum Coordinator.RitualState",
       },
     ],
-    stateMutability: "view",
-    type: "function",
   },
   {
+    type: "function",
+    name: "getRoleAdmin",
+    stateMutability: "view",
     inputs: [
       {
-        internalType: "bytes32",
         name: "role",
         type: "bytes32",
+        internalType: "bytes32",
       },
     ],
-    name: "getRoleAdmin",
     outputs: [
       {
-        internalType: "bytes32",
         name: "",
         type: "bytes32",
+        internalType: "bytes32",
       },
     ],
-    stateMutability: "view",
-    type: "function",
   },
   {
+    type: "function",
+    name: "getThresholdForRitualSize",
+    stateMutability: "pure",
     inputs: [
       {
-        internalType: "uint16",
         name: "size",
         type: "uint16",
+        internalType: "uint16",
       },
     ],
-    name: "getThresholdForRitualSize",
     outputs: [
       {
-        internalType: "uint16",
         name: "",
         type: "uint16",
+        internalType: "uint16",
       },
     ],
-    stateMutability: "pure",
-    type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "role",
-        type: "bytes32",
-      },
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
+    type: "function",
     name: "grantRole",
-    outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [
       {
-        internalType: "bytes32",
         name: "role",
         type: "bytes32",
+        internalType: "bytes32",
       },
       {
-        internalType: "address",
         name: "account",
         type: "address",
+        internalType: "address",
       },
     ],
+    outputs: [],
+  },
+  {
+    type: "function",
     name: "hasRole",
+    stateMutability: "view",
+    inputs: [
+      {
+        name: "role",
+        type: "bytes32",
+        internalType: "bytes32",
+      },
+      {
+        name: "account",
+        type: "address",
+        internalType: "address",
+      },
+    ],
     outputs: [
       {
-        internalType: "bool",
         name: "",
         type: "bool",
+        internalType: "bool",
       },
     ],
-    stateMutability: "view",
-    type: "function",
   },
   {
+    type: "function",
+    name: "initiateRitual",
+    stateMutability: "nonpayable",
     inputs: [
       {
-        internalType: "address[]",
         name: "providers",
         type: "address[]",
+        internalType: "address[]",
       },
       {
-        internalType: "address",
         name: "authority",
         type: "address",
+        internalType: "address",
       },
       {
-        internalType: "uint32",
         name: "duration",
         type: "uint32",
+        internalType: "uint32",
       },
       {
-        internalType: "contract IEncryptionAuthorizer",
         name: "accessController",
         type: "address",
+        internalType: "contract IEncryptionAuthorizer",
       },
     ],
-    name: "initiateRitual",
     outputs: [
       {
-        internalType: "uint32",
         name: "",
         type: "uint32",
+        internalType: "uint32",
       },
     ],
-    stateMutability: "nonpayable",
-    type: "function",
   },
   {
-    inputs: [],
-    name: "isInitiationPublic",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
+    type: "function",
+    name: "isEncryptionAuthorized",
     stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
-        internalType: "uint32",
         name: "ritualId",
         type: "uint32",
+        internalType: "uint32",
+      },
+      {
+        name: "evidence",
+        type: "bytes",
+        internalType: "bytes",
+      },
+      {
+        name: "ciphertextHeader",
+        type: "bytes",
+        internalType: "bytes",
       },
     ],
-    name: "isRitualFinalized",
     outputs: [
       {
-        internalType: "bool",
         name: "",
         type: "bool",
+        internalType: "bool",
       },
     ],
+  },
+  {
+    type: "function",
+    name: "isInitiationPublic",
     stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [],
-    name: "makeInitiationPublic",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "maxDkgSize",
     outputs: [
       {
-        internalType: "uint16",
+        name: "",
+        type: "bool",
+        internalType: "bool",
+      },
+    ],
+  },
+  {
+    type: "function",
+    name: "isProviderPublicKeySet",
+    stateMutability: "view",
+    inputs: [
+      {
+        name: "_provider",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "bool",
+        internalType: "bool",
+      },
+    ],
+  },
+  {
+    type: "function",
+    name: "isRitualFinalized",
+    stateMutability: "view",
+    inputs: [
+      {
+        name: "ritualId",
+        type: "uint32",
+        internalType: "uint32",
+      },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "bool",
+        internalType: "bool",
+      },
+    ],
+  },
+  {
+    type: "function",
+    name: "makeInitiationPublic",
+    stateMutability: "nonpayable",
+    inputs: [],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "maxDkgSize",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [
+      {
         name: "",
         type: "uint16",
+        internalType: "uint16",
       },
     ],
-    stateMutability: "view",
-    type: "function",
   },
   {
-    inputs: [],
+    type: "function",
     name: "numberOfRituals",
+    stateMutability: "view",
+    inputs: [],
     outputs: [
       {
-        internalType: "uint256",
         name: "",
         type: "uint256",
+        internalType: "uint256",
       },
     ],
-    stateMutability: "view",
-    type: "function",
   },
   {
-    inputs: [],
+    type: "function",
     name: "owner",
+    stateMutability: "view",
+    inputs: [],
     outputs: [
       {
-        internalType: "address",
         name: "",
         type: "address",
+        internalType: "address",
       },
     ],
-    stateMutability: "view",
-    type: "function",
   },
   {
-    inputs: [],
+    type: "function",
     name: "pendingDefaultAdmin",
+    stateMutability: "view",
+    inputs: [],
     outputs: [
       {
-        internalType: "address",
         name: "newAdmin",
         type: "address",
+        internalType: "address",
       },
       {
-        internalType: "uint48",
         name: "schedule",
         type: "uint48",
+        internalType: "uint48",
       },
     ],
-    stateMutability: "view",
-    type: "function",
   },
   {
-    inputs: [],
+    type: "function",
     name: "pendingDefaultAdminDelay",
+    stateMutability: "view",
+    inputs: [],
     outputs: [
       {
-        internalType: "uint48",
         name: "newDelay",
         type: "uint48",
+        internalType: "uint48",
       },
       {
-        internalType: "uint48",
         name: "schedule",
         type: "uint48",
+        internalType: "uint48",
       },
     ],
-    stateMutability: "view",
-    type: "function",
   },
   {
+    type: "function",
+    name: "pendingFees",
+    stateMutability: "view",
     inputs: [
       {
-        internalType: "uint256",
         name: "",
         type: "uint256",
+        internalType: "uint256",
       },
     ],
-    name: "pendingFees",
     outputs: [
       {
-        internalType: "uint256",
         name: "",
         type: "uint256",
+        internalType: "uint256",
       },
     ],
-    stateMutability: "view",
-    type: "function",
   },
   {
+    type: "function",
+    name: "postAggregation",
+    stateMutability: "nonpayable",
     inputs: [
       {
-        internalType: "uint32",
         name: "ritualId",
         type: "uint32",
+        internalType: "uint32",
       },
       {
-        internalType: "bytes",
         name: "aggregatedTranscript",
         type: "bytes",
+        internalType: "bytes",
       },
       {
-        components: [
-          {
-            internalType: "bytes32",
-            name: "word0",
-            type: "bytes32",
-          },
-          {
-            internalType: "bytes16",
-            name: "word1",
-            type: "bytes16",
-          },
-        ],
-        internalType: "struct BLS12381.G1Point",
         name: "dkgPublicKey",
         type: "tuple",
-      },
-      {
-        internalType: "bytes",
-        name: "decryptionRequestStaticKey",
-        type: "bytes",
-      },
-    ],
-    name: "postAggregation",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "ritualId",
-        type: "uint32",
-      },
-      {
-        internalType: "bytes",
-        name: "transcript",
-        type: "bytes",
-      },
-    ],
-    name: "postTranscript",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "ritualId",
-        type: "uint32",
-      },
-    ],
-    name: "processPendingFee",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "role",
-        type: "bytes32",
-      },
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "renounceRole",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "role",
-        type: "bytes32",
-      },
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "revokeRole",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    name: "rituals",
-    outputs: [
-      {
-        internalType: "address",
-        name: "initiator",
-        type: "address",
-      },
-      {
-        internalType: "uint32",
-        name: "initTimestamp",
-        type: "uint32",
-      },
-      {
-        internalType: "uint32",
-        name: "endTimestamp",
-        type: "uint32",
-      },
-      {
-        internalType: "uint16",
-        name: "totalTranscripts",
-        type: "uint16",
-      },
-      {
-        internalType: "uint16",
-        name: "totalAggregations",
-        type: "uint16",
-      },
-      {
-        internalType: "address",
-        name: "authority",
-        type: "address",
-      },
-      {
-        internalType: "uint16",
-        name: "dkgSize",
-        type: "uint16",
-      },
-      {
-        internalType: "uint16",
-        name: "threshold",
-        type: "uint16",
-      },
-      {
-        internalType: "bool",
-        name: "aggregationMismatch",
-        type: "bool",
-      },
-      {
-        internalType: "contract IEncryptionAuthorizer",
-        name: "accessController",
-        type: "address",
-      },
-      {
         components: [
           {
-            internalType: "bytes32",
             name: "word0",
             type: "bytes32",
+            internalType: "bytes32",
           },
           {
-            internalType: "bytes16",
             name: "word1",
             type: "bytes16",
+            internalType: "bytes16",
           },
         ],
         internalType: "struct BLS12381.G1Point",
+      },
+      {
+        name: "decryptionRequestStaticKey",
+        type: "bytes",
+        internalType: "bytes",
+      },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "postTranscript",
+    stateMutability: "nonpayable",
+    inputs: [
+      {
+        name: "ritualId",
+        type: "uint32",
+        internalType: "uint32",
+      },
+      {
+        name: "transcript",
+        type: "bytes",
+        internalType: "bytes",
+      },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "processPendingFee",
+    stateMutability: "nonpayable",
+    inputs: [
+      {
+        name: "ritualId",
+        type: "uint32",
+        internalType: "uint32",
+      },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "renounceRole",
+    stateMutability: "nonpayable",
+    inputs: [
+      {
+        name: "role",
+        type: "bytes32",
+        internalType: "bytes32",
+      },
+      {
+        name: "account",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "revokeRole",
+    stateMutability: "nonpayable",
+    inputs: [
+      {
+        name: "role",
+        type: "bytes32",
+        internalType: "bytes32",
+      },
+      {
+        name: "account",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "rituals",
+    stateMutability: "view",
+    inputs: [
+      {
+        name: "",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [
+      {
+        name: "initiator",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "initTimestamp",
+        type: "uint32",
+        internalType: "uint32",
+      },
+      {
+        name: "endTimestamp",
+        type: "uint32",
+        internalType: "uint32",
+      },
+      {
+        name: "totalTranscripts",
+        type: "uint16",
+        internalType: "uint16",
+      },
+      {
+        name: "totalAggregations",
+        type: "uint16",
+        internalType: "uint16",
+      },
+      {
+        name: "authority",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "dkgSize",
+        type: "uint16",
+        internalType: "uint16",
+      },
+      {
+        name: "threshold",
+        type: "uint16",
+        internalType: "uint16",
+      },
+      {
+        name: "aggregationMismatch",
+        type: "bool",
+        internalType: "bool",
+      },
+      {
+        name: "accessController",
+        type: "address",
+        internalType: "contract IEncryptionAuthorizer",
+      },
+      {
         name: "publicKey",
         type: "tuple",
-      },
-      {
-        internalType: "bytes",
-        name: "aggregatedTranscript",
-        type: "bytes",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "rollbackDefaultAdminDelay",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint16",
-        name: "newSize",
-        type: "uint16",
-      },
-    ],
-    name: "setMaxDkgSize",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         components: [
           {
-            internalType: "bytes32",
             name: "word0",
             type: "bytes32",
+            internalType: "bytes32",
           },
           {
+            name: "word1",
+            type: "bytes16",
+            internalType: "bytes16",
+          },
+        ],
+        internalType: "struct BLS12381.G1Point",
+      },
+      {
+        name: "aggregatedTranscript",
+        type: "bytes",
+        internalType: "bytes",
+      },
+    ],
+  },
+  {
+    type: "function",
+    name: "rollbackDefaultAdminDelay",
+    stateMutability: "nonpayable",
+    inputs: [],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "setMaxDkgSize",
+    stateMutability: "nonpayable",
+    inputs: [
+      {
+        name: "newSize",
+        type: "uint16",
+        internalType: "uint16",
+      },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "setProviderPublicKey",
+    stateMutability: "nonpayable",
+    inputs: [
+      {
+        name: "_publicKey",
+        type: "tuple",
+        components: [
+          {
+            name: "word0",
+            type: "bytes32",
             internalType: "bytes32",
+          },
+          {
             name: "word1",
             type: "bytes32",
+            internalType: "bytes32",
           },
           {
-            internalType: "bytes32",
             name: "word2",
             type: "bytes32",
+            internalType: "bytes32",
           },
         ],
         internalType: "struct BLS12381.G2Point",
-        name: "_publicKey",
-        type: "tuple",
       },
     ],
-    name: "setProviderPublicKey",
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
   },
   {
+    type: "function",
+    name: "setReimbursementPool",
+    stateMutability: "nonpayable",
     inputs: [
       {
-        internalType: "contract IReimbursementPool",
         name: "pool",
         type: "address",
+        internalType: "contract IReimbursementPool",
       },
     ],
-    name: "setReimbursementPool",
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
   },
   {
+    type: "function",
+    name: "setRitualAuthority",
+    stateMutability: "nonpayable",
     inputs: [
       {
-        internalType: "uint32",
         name: "ritualId",
         type: "uint32",
+        internalType: "uint32",
       },
       {
-        internalType: "address",
         name: "authority",
         type: "address",
+        internalType: "address",
       },
     ],
-    name: "setRitualAuthority",
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
   },
   {
+    type: "function",
+    name: "setTimeout",
+    stateMutability: "nonpayable",
     inputs: [
       {
-        internalType: "uint32",
         name: "newTimeout",
         type: "uint32",
+        internalType: "uint32",
       },
     ],
-    name: "setTimeout",
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
   },
   {
+    type: "function",
+    name: "supportsInterface",
+    stateMutability: "view",
     inputs: [
       {
-        internalType: "bytes4",
         name: "interfaceId",
         type: "bytes4",
+        internalType: "bytes4",
       },
     ],
-    name: "supportsInterface",
     outputs: [
       {
-        internalType: "bool",
         name: "",
         type: "bool",
+        internalType: "bool",
       },
     ],
-    stateMutability: "view",
-    type: "function",
   },
   {
-    inputs: [],
+    type: "function",
     name: "timeout",
+    stateMutability: "view",
+    inputs: [],
     outputs: [
       {
-        internalType: "uint32",
         name: "",
         type: "uint32",
+        internalType: "uint32",
       },
     ],
-    stateMutability: "view",
-    type: "function",
   },
   {
-    inputs: [],
+    type: "function",
     name: "totalPendingFees",
+    stateMutability: "view",
+    inputs: [],
     outputs: [
       {
-        internalType: "uint256",
         name: "",
         type: "uint256",
+        internalType: "uint256",
       },
     ],
-    stateMutability: "view",
-    type: "function",
   },
   {
+    type: "function",
+    name: "withdrawTokens",
+    stateMutability: "nonpayable",
     inputs: [
       {
-        internalType: "contract IERC20",
         name: "token",
         type: "address",
+        internalType: "contract IERC20",
       },
       {
-        internalType: "uint256",
         name: "amount",
         type: "uint256",
+        internalType: "uint256",
       },
     ],
-    name: "withdrawTokens",
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
   },
 ] as const;
 

@@ -2,6 +2,7 @@ export { DkgPublicKey, ThresholdMessageKit } from '@nucypher/nucypher-core';
 
 export {
   conditions,
+  fromBytes,
   getPorterUri,
   initialize,
   toBytes,

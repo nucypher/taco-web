@@ -2,19 +2,18 @@ import {
   AccessControlPolicy,
   DkgPublicKey,
   encryptForDkg,
-  SecretKey,
-  Signer,
   ThresholdMessageKit,
 } from '@nucypher/nucypher-core';
 import {
   Condition,
   ConditionExpression,
   DkgCoordinatorAgent,
+  fromHexString,
   getPorterUri,
   toBytes,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
-import { arrayify, keccak256 } from 'ethers/lib/utils';
+import { keccak256 } from 'ethers/lib/utils';
 
 import { DkgClient } from './dkg';
 import { retrieveAndDecrypt } from './tdec';
@@ -24,6 +23,7 @@ export const encrypt = async (
   message: Uint8Array | string,
   condition: Condition,
   ritualId: number,
+  authSigner: ethers.Signer,
 ): Promise<ThresholdMessageKit> => {
   // TODO(#264): Enable ritual initialization
   // if (ritualId === undefined) {
@@ -38,23 +38,40 @@ export const encrypt = async (
   //   throw new Error('Ritual ID is undefined');
   // }
   const dkgRitual = await DkgClient.getFinalizedRitual(provider, ritualId);
-  return await encryptWithPublicKey(message, condition, dkgRitual.dkgPublicKey);
+
+  const mk = await encryptWithPublicKey(
+    message,
+    condition,
+    dkgRitual.dkgPublicKey,
+    authSigner,
+  );
+
+  const isAuthorized = DkgCoordinatorAgent.isEncryptionAuthorized(
+    provider,
+    ritualId,
+    mk,
+  );
+  if (!isAuthorized) {
+    const signerAddress = await authSigner.getAddress();
+    throw new Error(`Encryption not authorized for signer: ${signerAddress}}`);
+  }
+  return mk;
 };
 
 export const encryptWithPublicKey = async (
   message: Uint8Array | string,
   condition: Condition,
   dkgPublicKey: DkgPublicKey,
-  authSigner?: Signer,
+  authSigner: ethers.Signer,
 ): Promise<ThresholdMessageKit> => {
   if (typeof message === 'string') {
     message = toBytes(message);
   }
 
   const conditionExpr = new ConditionExpression(condition);
-  if (!authSigner) {
-    authSigner = new Signer(SecretKey.random());
-  }
+  // if (!authSigner) {
+  //   authSigner = new Signer(SecretKey.random());
+  // }
 
   const [ciphertext, authenticatedData] = encryptForDkg(
     message,
@@ -63,10 +80,10 @@ export const encryptWithPublicKey = async (
   );
 
   const headerHash = keccak256(ciphertext.header.toBytes());
-  const authorization = authSigner.sign(arrayify(headerHash));
+  const authorization = await authSigner.signMessage(fromHexString(headerHash));
   const acp = new AccessControlPolicy(
     authenticatedData,
-    authorization.toBEBytes(),
+    fromHexString(authorization),
   );
 
   return new ThresholdMessageKit(ciphertext, acp);

@@ -1,7 +1,10 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "lib": ["ES2018", "dom"],
+    "lib": [
+      "ES2018",
+      "dom"
+    ],
     "module": "CommonJS",
     "moduleResolution": "node",
     "strict": true,
@@ -10,8 +13,15 @@
     "composite": true,
     "incremental": true,
     "exactOptionalPropertyTypes": true,
-    "noImplicitOverride": true,
+    "noImplicitOverride": true
   },
-  "include": ["**/*.ts", "**/*.js", "**/.*.js", "scripts/.common.ts"],
-  "exclude": ["**/node_modules"]
+  "include": [
+    "**/*.ts",
+    "**/*.js",
+    "**/.*.js",
+    "scripts/.common.ts"
+  ],
+  "exclude": [
+    "**/node_modules"
+  ]
 }

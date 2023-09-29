@@ -2,6 +2,7 @@ import {
   conditions,
   decrypt,
   encrypt,
+  fromBytes,
   getPorterUri,
   initialize,
   toBytes,
@@ -23,34 +24,47 @@ if (!privateKey) {
 
 const runExample = async () => {
   await initialize();
+
   const signer = new ethers.Wallet(privateKey);
   const provider = new ethers.providers.JsonRpcProvider(rpcProviderUrl);
 
+  console.log("Signer's address:", await signer.getAddress());
+
   console.log('Encrypting message...');
   const message = toBytes('this is a secret');
-  const ownsNFT = new conditions.ERC721Ownership({
-    contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
-    parameters: [3591],
+  const hasPositiveBalance = new conditions.RpcCondition({
+    conditionType: 'rpc',
     chain: 5,
+    method: 'eth_getBalance',
+    parameters: [':userAddress', 'latest'],
+    returnValueTest: {
+      comparator: '>',
+      value: 0,
+    },
   });
-  const ritualId = 17; // Replace with your own ritual ID
-  const messageKit = await encrypt(provider, message, ownsNFT, ritualId);
-
-  console.log('Decrypting message...');
-  const porterUri = getPorterUri('tapir'); // Test network
-  const decryptedMessage = await decrypt(
+  console.assert(
+    hasPositiveBalance.requiresSigner(),
+    'Condition requires signer',
+  );
+  const ritualId = 2; // Replace with your own ritual ID
+  const messageKit = await encrypt(
     provider,
-    messageKit,
+    message,
+    hasPositiveBalance,
+    ritualId,
     signer,
-    porterUri,
   );
 
-  console.assert(decryptedMessage === message);
+  console.log('Decrypting message...');
+  const porterUri = getPorterUri('lynx'); // Test network
+  const decryptedBytes = await decrypt(provider, messageKit, signer, porterUri);
+  const decryptedMessage = fromBytes(decryptedBytes);
+  console.log('Decrypted message:', decryptedMessage);
 };
 
 runExample()
   .then(() => {
-    console.log('Example finished.');
+    console.log('Example finished');
   })
   .catch((err) => {
     console.error('Example failed:', err);

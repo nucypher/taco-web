@@ -2,10 +2,9 @@
 import {
   conditions,
   decrypt,
-  encrypt,
+  encrypt, fromBytes,
   getPorterUri,
   initialize,
-  toBytes,
 } from '@nucypher/taco';
 import {ethers} from 'ethers';
 import {useEffect, useState} from 'react';
@@ -13,11 +12,14 @@ import {useEffect, useState} from 'react';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const window: any;
 
+const message = 'this is a secret';
+
 function App() {
-  const [isInit, setIsInit] = useState<boolean>(false);
+  const [isInit, setIsInit] = useState(false);
   const [provider, setProvider] = useState<
     ethers.providers.Web3Provider | undefined
   >();
+  const [decryptedMessage, setDecryptedMessage] = useState<string | undefined>("");
 
   const initNucypher = async () => {
     await initialize();
@@ -59,8 +61,6 @@ function App() {
 
     await initialize();
 
-    alert('Sign a transaction to create a policy.');
-
     const provider = new ethers.providers.Web3Provider(window.ethereum!, 'any');
     await provider.send('eth_requestAccounts', []);
     const signer = provider.getSigner();
@@ -75,34 +75,30 @@ function App() {
     }
 
     console.log('Encrypting message...');
-    const message = toBytes('this is a secret');
-    const ownsNFT = new conditions.ERC721Ownership({
-      contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
-      parameters: [3591],
+    const hasPositiveBalance = new conditions.RpcCondition({
+      conditionType: 'rpc',
       chain: 5,
+      method: 'eth_getBalance',
+      parameters: [':userAddress', 'latest'],
+      returnValueTest: {
+        comparator: '>',
+        value: 0,
+      },
     });
-    const ritualId = 17; // Replace with your own ritual ID
-    const messageKit = await encrypt(provider, message, ownsNFT, ritualId);
+    const ritualId = 2; // Replace with your own ritual ID
+    const messageKit = await encrypt(provider, message, hasPositiveBalance, ritualId, signer);
 
     console.log('Decrypting message...');
-    const porterUri = getPorterUri('tapir'); // Test network
-    const decryptedMessage = await decrypt(
-      provider,
-      messageKit,
-      signer,
-      porterUri,
-    );
+    const porterUri = getPorterUri('lynx'); // Test network
+    const decryptedMessage = await decrypt(provider, messageKit, signer, porterUri);
 
-    console.log('Decrypted message:', decryptedMessage);
-    if (decryptedMessage === message) {
-      console.log('Success!');
-    } else {
-      console.log('Failed to decrypt message');
-    }
+    setDecryptedMessage(fromBytes(decryptedMessage));
   };
 
   return (
     <div>
+      <h1>Secret message: {message}</h1>
+      {(decryptedMessage && <h1>Decrypted message: {decryptedMessage}</h1>)}
       <button onClick={runExample}>Run example</button>
     </div>
   );

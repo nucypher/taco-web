@@ -1,4 +1,4 @@
-# taco-demo
+# taco-nft-example
 
 ## Installation
 

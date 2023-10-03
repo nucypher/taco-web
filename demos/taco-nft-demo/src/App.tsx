@@ -6,17 +6,17 @@ import {
   initialize,
   ThresholdMessageKit,
 } from '@nucypher/taco';
-import { Mumbai, useEthers } from '@usedapp/core';
-import { ethers } from 'ethers';
-import React, { useEffect, useState } from 'react';
+import {Mumbai, useEthers} from '@usedapp/core';
+import {ethers} from 'ethers';
+import React, {useEffect, useState} from 'react';
 
-import { ConditionBuilder } from './ConditionBuilder';
-import { Decrypt } from './Decrypt';
-import { Encrypt } from './Encrypt';
-import { Spinner } from './Spinner';
+import {Decrypt} from './Decrypt';
+import {Encrypt} from './Encrypt';
+import {NFTConditionBuilder} from './NFTConditionBuilder';
+import {Spinner} from './Spinner';
 
 export default function App() {
-  const { activateBrowserWallet, deactivate, account, switchNetwork, chainId } =
+  const {activateBrowserWallet, deactivate, account, switchNetwork } =
     useEthers();
 
   const [loading, setLoading] = useState(false);
@@ -28,7 +28,6 @@ export default function App() {
 
   useEffect(() => {
     initialize();
-    switchNetwork(Mumbai.chainId);
   }, []);
 
   const encryptMessage = async (message: string) => {
@@ -84,7 +83,7 @@ export default function App() {
   }
 
   if (loading) {
-    return <Spinner loading={loading} />;
+    return <Spinner loading={loading}/>;
   }
 
   return (
@@ -95,7 +94,7 @@ export default function App() {
         {account && <p>Account: {account}</p>}
       </div>
 
-      <ConditionBuilder
+      <NFTConditionBuilder
         enabled={true}
         condition={condition}
         setConditions={setCondition}

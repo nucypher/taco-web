@@ -25,6 +25,7 @@
     "check-examples": "pnpm run --parallel --aggregate-output --reporter append-only --filter './examples/**' --filter './demos/**' check"
   },
   "dependencies": {
+    "@changesets/cli": "^2.26.2",
     "@nucypher/nucypher-core": "0.13.0-alpha.1"
   },
   "devDependencies": {

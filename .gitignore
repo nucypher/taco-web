@@ -14,5 +14,4 @@ examples/*/pnpm-lock.yaml
 pnpm-debug.log
 docs-json
 ./docs
-.env
 .next

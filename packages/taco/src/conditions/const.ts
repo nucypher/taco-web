@@ -1,4 +1,4 @@
-import { ChainId } from '../web3';
+import { ChainId } from '@nucypher/shared';
 
 export const USER_ADDRESS_PARAM = ':userAddress';
 

@@ -23,11 +23,11 @@ export class PreSubscriptionManagerAgent {
     endTimestamp: number,
     ownerAddress: ChecksumAddress,
   ): Promise<ContractTransaction> {
-    const SubscriptionManager = await this.connectReadWrite(provider, signer);
+    const subscriptionManager = await this.connectReadWrite(provider, signer);
     const overrides = {
       value: valueInWei.toString(),
     };
-    const estimatedGas = await SubscriptionManager.estimateGas.createPolicy(
+    const estimatedGas = await subscriptionManager.estimateGas.createPolicy(
       ethersUtils.hexlify(policyId),
       ownerAddress,
       size,
@@ -35,7 +35,7 @@ export class PreSubscriptionManagerAgent {
       endTimestamp,
       overrides,
     );
-    const tx = await SubscriptionManager.createPolicy(
+    const tx = await subscriptionManager.createPolicy(
       ethersUtils.hexlify(policyId),
       ownerAddress,
       size,
@@ -53,8 +53,8 @@ export class PreSubscriptionManagerAgent {
     startTimestamp: number,
     endTimestamp: number,
   ): Promise<BigNumber> {
-    const SubscriptionManager = await this.connectReadOnly(provider);
-    return await SubscriptionManager.getPolicyCost(
+    const subscriptionManager = await this.connectReadOnly(provider);
+    return await subscriptionManager.getPolicyCost(
       size,
       startTimestamp,
       endTimestamp,

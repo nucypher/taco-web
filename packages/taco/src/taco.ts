@@ -5,8 +5,6 @@ import {
   ThresholdMessageKit,
 } from '@nucypher/nucypher-core';
 import {
-  Condition,
-  ConditionExpression,
   DkgCoordinatorAgent,
   fromHexString,
   getPorterUri,
@@ -15,6 +13,7 @@ import {
 import { ethers } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 
+import { Condition, ConditionExpression } from './conditions';
 import { DkgClient } from './dkg';
 import { retrieveAndDecrypt } from './tdec';
 
@@ -69,9 +68,6 @@ export const encryptWithPublicKey = async (
   }
 
   const conditionExpr = new ConditionExpression(condition);
-  // if (!authSigner) {
-  //   authSigner = new Signer(SecretKey.random());
-  // }
 
   const [ciphertext, authenticatedData] = encryptForDkg(
     message,

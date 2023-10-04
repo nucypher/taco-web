@@ -1,6 +1,4 @@
-import { PorterClient } from './porter';
-import { ChecksumAddress } from './types';
-import { objectEquals } from './utils';
+import { ChecksumAddress, objectEquals, PorterClient } from '@nucypher/shared';
 
 export type CohortJSON = {
   ursulaAddresses: ChecksumAddress[];

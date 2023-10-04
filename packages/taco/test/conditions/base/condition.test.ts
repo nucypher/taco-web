@@ -1,8 +1,4 @@
-import {
-  TEST_CHAIN_ID,
-  TEST_CONTRACT_ADDR,
-  testContractConditionObj,
-} from '@nucypher/test-utils';
+import { TEST_CHAIN_ID, TEST_CONTRACT_ADDR } from '@nucypher/test-utils';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -10,7 +6,8 @@ import {
   ContractCondition,
   ERC721Balance,
   ERC721Ownership,
-} from '../../../src';
+} from '../../../src/conditions';
+import { testContractConditionObj } from '../../test-utils';
 
 describe('validation', () => {
   const condition = new ERC721Balance({

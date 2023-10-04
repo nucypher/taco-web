@@ -1,7 +1,7 @@
 import { Context, Conditions as WASMConditions } from '@nucypher/nucypher-core';
+import { fromJSON, toJSON } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
-import { fromJSON, toJSON } from '../../utils';
 import { Condition } from '../condition';
 import { ConditionExpression } from '../condition-expr';
 import { USER_ADDRESS_PARAM } from '../const';
@@ -59,6 +59,48 @@ export class ConditionContext {
   }
 
   public toObj = async (): Promise<Record<string, ContextParam>> => {
+    const requestedParameters = this.findRequestedParameters();
+    const parameters = await this.fillContextParameters(requestedParameters);
+
+    // Ok, so at this point we should have all the parameters we need
+    // If we don't, we have a problem and we should throw
+    const missingParameters = Array.from(requestedParameters).filter(
+      (key) => !parameters[key],
+    );
+    if (missingParameters.length > 0) {
+      throw new Error(
+        `Missing custom context parameter(s): ${missingParameters.join(', ')}`,
+      );
+    }
+
+    return parameters;
+  };
+
+  private async fillContextParameters(requestedParameters: Set<string>) {
+    // Now, we can safely add all the parameters
+    const parameters: Record<string, ContextParam> = {};
+
+    // Fill in predefined context parameters
+    if (requestedParameters.has(USER_ADDRESS_PARAM)) {
+      if (!this.walletAuthProvider) {
+        throw new Error(
+          `Condition contains ${USER_ADDRESS_PARAM} context variable and requires a signer to populate`,
+        );
+      }
+      parameters[USER_ADDRESS_PARAM] =
+        await this.walletAuthProvider.getOrCreateWalletSignature();
+      // Remove from requested parameters
+      requestedParameters.delete(USER_ADDRESS_PARAM);
+    }
+
+    // Fill in custom parameters
+    for (const key in this.customParameters) {
+      parameters[key] = this.customParameters[key];
+    }
+    return parameters;
+  }
+
+  private findRequestedParameters() {
     // First, we want to find all the parameters we need to add
     const requestedParameters = new Set<string>();
 
@@ -84,41 +126,8 @@ export class ConditionContext {
         }
       }
     }
-
-    // Now, we can safely add all the parameters
-    const parameters: Record<string, ContextParam> = {};
-
-    // Fill in predefined context parameters
-    if (requestedParameters.has(USER_ADDRESS_PARAM)) {
-      if (!this.walletAuthProvider) {
-        throw new Error(
-          `Condition contains ${USER_ADDRESS_PARAM} context variable and requires a signer to populate`,
-        );
-      }
-      parameters[USER_ADDRESS_PARAM] =
-        await this.walletAuthProvider.getOrCreateWalletSignature();
-      // Remove from requested parameters
-      requestedParameters.delete(USER_ADDRESS_PARAM);
-    }
-
-    // Fill in custom parameters
-    for (const key in this.customParameters) {
-      parameters[key] = this.customParameters[key];
-    }
-
-    // Ok, so at this point we should have all the parameters we need
-    // If we don't, we have a problem and we should throw
-    const missingParameters = Array.from(requestedParameters).filter(
-      (key) => !parameters[key],
-    );
-    if (missingParameters.length > 0) {
-      throw new Error(
-        `Missing custom context parameter(s): ${missingParameters.join(', ')}`,
-      );
-    }
-
-    return parameters;
-  };
+    return requestedParameters;
+  }
 
   public async toJson(): Promise<string> {
     const parameters = await this.toObj();

@@ -1,5 +1,8 @@
-import { ContractCondition, ContractConditionProps } from '../base';
-import { ContractConditionType } from '../base/contract';
+import {
+  ContractCondition,
+  ContractConditionProps,
+  ContractConditionType,
+} from '../base';
 import { USER_ADDRESS_PARAM } from '../const';
 
 // TODO: Rewrite these using Zod schemas?

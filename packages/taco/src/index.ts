@@ -1,11 +1,7 @@
 export { DkgPublicKey, ThresholdMessageKit } from '@nucypher/nucypher-core';
 
-export {
-  conditions,
-  fromBytes,
-  getPorterUri,
-  initialize,
-  toBytes,
-} from '@nucypher/shared';
+export { fromBytes, getPorterUri, initialize, toBytes } from '@nucypher/shared';
+
+export * as conditions from './conditions';
 
 export { decrypt, encrypt } from './taco';

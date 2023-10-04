@@ -469,9 +469,6 @@ importers:
       '@ethersproject/abi':
         specifier: ^5.7.0
         version: 5.7.0
-      '@ethersproject/abstract-signer':
-        specifier: ^5.7.0
-        version: 5.7.0
       '@ethersproject/providers':
         specifier: ^5.7.2
         version: 5.7.2
@@ -490,6 +487,40 @@ importers:
       qs:
         specifier: ^6.10.1
         version: 6.11.2
+    devDependencies:
+      '@typechain/ethers-v5':
+        specifier: ^11.1.1
+        version: 11.1.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2)(ethers@5.7.2)(typechain@8.3.1)(typescript@5.2.2)
+      '@types/deep-equal':
+        specifier: ^1.0.1
+        version: 1.0.1
+      '@types/qs':
+        specifier: ^6.9.7
+        version: 6.9.8
+      cz-conventional-changelog:
+        specifier: ^3.0.1
+        version: 3.3.0
+      standard-version:
+        specifier: ^9.0.0
+        version: 9.5.0
+      typechain:
+        specifier: ^8.3.1
+        version: 8.3.1(typescript@5.2.2)
+
+  packages/taco:
+    dependencies:
+      '@ethersproject/abstract-signer':
+        specifier: ^5.7.0
+        version: 5.7.0
+      '@nucypher/nucypher-core':
+        specifier: 0.13.0-alpha.1
+        version: 0.13.0-alpha.1
+      '@nucypher/shared':
+        specifier: workspace:*
+        version: link:../shared
+      ethers:
+        specifier: ^5.7.2
+        version: 5.7.2
       semver:
         specifier: ^7.5.2
         version: 7.5.4
@@ -500,46 +531,9 @@ importers:
       '@nucypher/test-utils':
         specifier: workspace:*
         version: link:../test-utils
-      '@typechain/ethers-v5':
-        specifier: ^11.1.1
-        version: 11.1.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2)(ethers@5.7.2)(typechain@8.3.1)(typescript@5.2.2)
-      '@types/deep-equal':
-        specifier: ^1.0.1
-        version: 1.0.1
-      '@types/qs':
-        specifier: ^6.9.7
-        version: 6.9.8
       '@types/semver':
         specifier: ^7.5.0
-        version: 7.5.1
-      cz-conventional-changelog:
-        specifier: ^3.0.1
-        version: 3.3.0
-      standard-version:
-        specifier: ^9.0.0
-        version: 9.5.0
-      typechain:
-        specifier: ^8.3.1
-        version: 8.3.1(typescript@5.2.2)
-      vitest:
-        specifier: ^0.34.4
-        version: 0.34.4
-
-  packages/taco:
-    dependencies:
-      '@nucypher/nucypher-core':
-        specifier: 0.13.0-alpha.1
-        version: 0.13.0-alpha.1
-      '@nucypher/shared':
-        specifier: workspace:*
-        version: link:../shared
-      ethers:
-        specifier: ^5.7.2
-        version: 5.7.2
-    devDependencies:
-      '@nucypher/test-utils':
-        specifier: workspace:*
-        version: link:../test-utils
+        version: 7.5.2
 
   packages/test-utils:
     dependencies:
@@ -3926,10 +3920,6 @@ packages:
 
   /@types/scheduler@0.16.3:
     resolution: {integrity: sha512-5cJ8CB4yAx7BH1oMvdU0Jh9lrEXyPkar6F9G/ERswkCuvP4KQZfZkSjcMbAICCpQTN4OuZn8tz0HiKv9TGZgrQ==}
-
-  /@types/semver@7.5.1:
-    resolution: {integrity: sha512-cJRQXpObxfNKkFAZbJl2yjWtJCqELQIdShsogr1d2MilP8dKD9TE/nEKHkJgUNHdGKCQaf9HbIynuV2csLGVLg==}
-    dev: true
 
   /@types/semver@7.5.2:
     resolution: {integrity: sha512-7aqorHYgdNO4DM36stTiGO3DvKoex9TQRwsJU6vMaFGyqpBA1MNZkz+PG3gaNUPpTAOYhT1WR7M1JyA3fbS9Cw==}

@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+
 import {
   AggregatedTranscript,
   Capsule,
@@ -15,6 +16,7 @@ import {
   EthereumAddress,
   FerveoVariant,
   Keypair,
+  MessageKit,
   reencrypt,
   SecretKey,
   SessionStaticKey,
@@ -29,11 +31,7 @@ import {
 import {
   CbdDecryptResult,
   ChecksumAddress,
-  Cohort,
-  ConditionExpression,
   DkgCoordinatorAgent,
-  DkgParticipant,
-  ERC721Balance,
   GetUrsulasResult,
   PorterClient,
   RetrieveCFragsResult,
@@ -41,12 +39,9 @@ import {
   Ursula,
   zip,
 } from '@nucypher/shared';
-import { MessageKit } from '@nucypher/shared/dist/es';
 import axios from 'axios';
 import { ethers, providers, Wallet } from 'ethers';
 import { expect, SpyInstance, vi } from 'vitest';
-
-import { TEST_CHAIN_ID, TEST_CONTRACT_ADDR } from './variables';
 
 export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
   first.length === second.length &&
@@ -284,24 +279,6 @@ export const fakeTDecFlow = ({
   };
 };
 
-export const fakeConditionExpr = () => {
-  const erc721Balance = new ERC721Balance({
-    chain: TEST_CHAIN_ID,
-    contractAddress: TEST_CONTRACT_ADDR,
-  });
-  return new ConditionExpression(erc721Balance);
-};
-
-export const mockGetParticipants = (
-  participants: DkgParticipant[],
-): SpyInstance => {
-  return vi
-    .spyOn(DkgCoordinatorAgent, 'getParticipants')
-    .mockImplementation(() => {
-      return Promise.resolve(participants);
-    });
-};
-
 export const mockCbdDecrypt = (
   ritualId: number,
   decryptionShares: (DecryptionSharePrecomputed | DecryptionShareSimple)[],
@@ -340,15 +317,6 @@ export const mockGetRitualIdFromPublicKey = (ritualId: number): SpyInstance => {
     .mockImplementation(() => {
       return Promise.resolve(ritualId);
     });
-};
-
-export const makeCohort = async (ursulas: Ursula[] = fakeUrsulas()) => {
-  const getUrsulasSpy = mockGetUrsulas(ursulas);
-  const porterUri = 'https://_this.should.crash';
-  const numUrsulas = ursulas.length;
-  const cohort = await Cohort.create(porterUri, numUrsulas);
-  expect(getUrsulasSpy).toHaveBeenCalled();
-  return cohort;
 };
 
 export const mockRetrieveAndDecrypt = (

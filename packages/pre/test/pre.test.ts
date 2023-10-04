@@ -1,18 +1,12 @@
 import { CapsuleFrag, reencrypt } from '@nucypher/nucypher-core';
-import {
-  CompoundCondition,
-  ConditionExpression,
-  ERC721Ownership,
-  zip,
-} from '@nucypher/shared';
+import { zip } from '@nucypher/shared';
 import { fakeUrsulas } from '@nucypher/test-utils';
 import { beforeAll, expect, test } from 'vitest';
 
-import { Alice, Bob, MessageKit, toBytes } from '../src';
-import { Enrico } from '../src/characters';
+import { Alice, Bob, Enrico, MessageKit, toBytes } from '../src';
 import { PolicyMessageKit, RetrievalResult } from '../src/kits';
 
-import { fakeAlice, fakeBob, reencryptKFrags } from './test-utils';
+import { fakeAlice, fakeBob, reencryptKFrags } from './utils';
 
 test('proxy reencryption', () => {
   let alice: Alice;
@@ -61,7 +55,7 @@ test('proxy reencryption', () => {
 
     const policyEncryptingKey = alice.getPolicyEncryptingKeyFromLabel(label);
     const enrico = new Enrico(policyEncryptingKey);
-    const encryptedMessage = enrico.encryptMessagePre(plaintext);
+    const encryptedMessage = enrico.encryptMessage(plaintext);
 
     const ursulaAddresses = fakeUrsulas().map(
       (ursula) => ursula.checksumAddress,
@@ -93,25 +87,8 @@ test('proxy reencryption', () => {
 
     const policyEncryptingKey = alice.getPolicyEncryptingKeyFromLabel(label);
 
-    const genuineUndead = new ERC721Ownership({
-      contractAddress: '0x209e639a0EC166Ac7a1A4bA41968fa967dB30221',
-      chain: 1,
-      parameters: [1],
-    });
-    const gnomePals = new ERC721Ownership({
-      contractAddress: '0x5dB11d7356aa4C0E85Aa5b255eC2B5F81De6d4dA',
-      chain: 1,
-      parameters: [1],
-    });
-    const conditionsSet = new ConditionExpression(
-      new CompoundCondition({
-        operator: 'or',
-        operands: [genuineUndead.toObj(), gnomePals.toObj()],
-      }),
-    );
-
-    const enrico = new Enrico(policyEncryptingKey, undefined, conditionsSet);
-    const encryptedMessage = enrico.encryptMessagePre(plaintext);
+    const enrico = new Enrico(policyEncryptingKey);
+    const encryptedMessage = enrico.encryptMessage(plaintext);
 
     const ursulaAddresses = fakeUrsulas().map(
       (ursula) => ursula.checksumAddress,

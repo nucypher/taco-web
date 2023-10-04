@@ -1,8 +1,8 @@
-import { testRpcConditionObj } from '@nucypher/test-utils';
 import { describe, expect, it } from 'vitest';
 
-import { RpcCondition } from '../../../src';
+import { RpcCondition } from '../../../src/conditions';
 import { rpcConditionSchema } from '../../../src/conditions/base/rpc';
+import { testRpcConditionObj } from '../../test-utils';
 
 describe('validation', () => {
   it('accepts on a valid schema', () => {

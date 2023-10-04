@@ -12,9 +12,11 @@ import {
   VerifiedCapsuleFrag,
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
-import { SpyInstance, vi } from 'vitest';
+import { Ursula } from '@nucypher/shared';
+import { fakeUrsulas, mockGetUrsulas } from '@nucypher/test-utils';
+import { expect, SpyInstance, vi } from 'vitest';
 
-import { Alice, Bob, toBytes } from '../src';
+import { Alice, Bob, Cohort, toBytes } from '../src';
 import { RemoteBob } from '../src/characters';
 import { BlockchainPolicy, PreEnactedPolicy } from '../src/policy';
 
@@ -78,4 +80,13 @@ export const reencryptKFrags = (
 
 export const mockMakeTreasureMap = (): SpyInstance => {
   return vi.spyOn(BlockchainPolicy.prototype as any, 'makeTreasureMap');
+};
+
+export const makeCohort = async (ursulas: Ursula[] = fakeUrsulas()) => {
+  const getUrsulasSpy = mockGetUrsulas(ursulas);
+  const porterUri = 'https://_this.should.crash';
+  const numUrsulas = ursulas.length;
+  const cohort = await Cohort.create(porterUri, numUrsulas);
+  expect(getUrsulasSpy).toHaveBeenCalled();
+  return cohort;
 };

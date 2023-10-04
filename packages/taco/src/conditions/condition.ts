@@ -1,6 +1,5 @@
+import { objectEquals } from '@nucypher/shared';
 import { z } from 'zod';
-
-import { objectEquals } from '../utils';
 
 import {
   CompoundCondition,

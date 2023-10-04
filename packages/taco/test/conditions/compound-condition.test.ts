@@ -1,15 +1,15 @@
-import {
-  testContractConditionObj,
-  testRpcConditionObj,
-  testTimeConditionObj,
-} from '@nucypher/test-utils';
 import { describe, expect, it } from 'vitest';
 
-import { CompoundCondition, Condition } from '../../src';
+import { CompoundCondition, Condition } from '../../src/conditions';
 import {
   compoundConditionSchema,
   CompoundConditionType,
 } from '../../src/conditions/compound-condition';
+import {
+  testContractConditionObj,
+  testRpcConditionObj,
+  testTimeConditionObj,
+} from '../test-utils';
 
 describe('validation', () => {
   it('accepts or operator', () => {
@@ -28,6 +28,7 @@ describe('validation', () => {
 
   it('accepts and operator', () => {
     const conditionObj = {
+      conditionType: CompoundConditionType,
       operator: 'and',
       operands: [testContractConditionObj, testTimeConditionObj],
     };
@@ -45,6 +46,7 @@ describe('validation', () => {
 
   it('rejects an invalid operator', () => {
     const result = CompoundCondition.validate(compoundConditionSchema, {
+      conditionType: CompoundConditionType,
       operator: 'not-an-operator',
       operands: [testRpcConditionObj, testTimeConditionObj],
     });
@@ -91,6 +93,7 @@ describe('validation', () => {
 
   it('accepts recursive compound conditions', () => {
     const conditionObj = {
+      conditionType: CompoundConditionType,
       operator: 'and',
       operands: [
         testContractConditionObj,
@@ -124,7 +127,7 @@ describe('validation', () => {
   });
 
   const multichainCondition = {
-    conditionType: 'compound',
+    conditionType: CompoundConditionType,
     operator: 'and',
     operands: [1, 137, 5, 80001].map((chain) => ({
       ...testRpcConditionObj,

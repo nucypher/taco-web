@@ -7,7 +7,6 @@ import {
   fakeSigner,
   fakeTDecFlow,
   mockCbdDecrypt,
-  mockGetParticipants,
   mockGetRitualIdFromPublicKey,
 } from '@nucypher/test-utils';
 import { expect, test } from 'vitest';
@@ -19,6 +18,7 @@ import {
   fakeDkgRitual,
   mockDkgParticipants,
   mockGetFinalizedRitualSpy,
+  mockGetParticipants,
   mockMakeSessionKey,
 } from './test-utils';
 
@@ -43,6 +43,7 @@ test('taco', () => {
       message,
       ownsNFT,
       mockedDkg.ritualId,
+      signer,
     );
     expect(getFinalizedRitualSpy).toHaveBeenCalled();
 
@@ -52,7 +53,7 @@ test('taco', () => {
       dkgPublicKey: mockedDkg.dkg.publicKey(),
       thresholdMessageKit: messageKit,
     });
-    const { participantSecrets, participants } = mockDkgParticipants(
+    const { participantSecrets, participants } = await mockDkgParticipants(
       mockedDkg.ritualId,
     );
     const requesterSessionKey = SessionStaticSecret.random();

@@ -1,12 +1,6 @@
-import {
-  TEST_CHAIN_ID,
-  TEST_CONTRACT_ADDR,
-  testContractConditionObj,
-  testFunctionAbi,
-  testReturnValueTest,
-  testRpcConditionObj,
-  testTimeConditionObj,
-} from '@nucypher/test-utils';
+import { initialize } from '@nucypher/nucypher-core';
+import { objectEquals, toJSON } from '@nucypher/shared';
+import { TEST_CHAIN_ID, TEST_CONTRACT_ADDR } from '@nucypher/test-utils';
 import { SemVer } from 'semver';
 import { beforeAll, describe, expect, it } from 'vitest';
 
@@ -16,18 +10,22 @@ import {
   ContractCondition,
   ContractConditionProps,
   ERC721Balance,
-  initialize,
-  objectEquals,
   RpcCondition,
   RpcConditionType,
   TimeCondition,
   TimeConditionProps,
-  toJSON,
-} from '../../src';
+} from '../../src/conditions';
 import { USER_ADDRESS_PARAM } from '../../src/conditions/const';
+import {
+  testContractConditionObj,
+  testFunctionAbi,
+  testReturnValueTest,
+  testRpcConditionObj,
+  testTimeConditionObj,
+} from '../test-utils';
 
 describe('condition set', () => {
-  const erc721BalanceCondition = new ERC721Balance({
+  const erc721Balance = new ERC721Balance({
     chain: TEST_CHAIN_ID,
     contractAddress: TEST_CONTRACT_ADDR,
   });
@@ -76,7 +74,7 @@ describe('condition set', () => {
     it('same version and condition', () => {
       const conditionExprSameCurrentVersion = new ConditionExpression(
         rpcCondition,
-        ConditionExpression.VERSION,
+        ConditionExpression.version,
       );
       expect(
         conditionExprCurrentVersion.equals(conditionExprSameCurrentVersion),
@@ -141,7 +139,7 @@ describe('condition set', () => {
     });
 
     it.each([
-      erc721BalanceCondition,
+      erc721Balance,
       contractConditionNoAbi,
       contractConditionWithAbi,
       timeCondition,
@@ -157,26 +155,21 @@ describe('condition set', () => {
     });
 
     it('same contract condition although using erc721 helper', () => {
-      const erc721ConditionExpr = new ConditionExpression(
-        erc721BalanceCondition,
-      );
-      const erc721ConditionData = erc721BalanceCondition.toObj();
+      const conditionExpr = new ConditionExpression(erc721Balance);
+      const erc721ConditionData = erc721Balance.toObj();
       const sameContractCondition = new ContractCondition(erc721ConditionData);
       const contractConditionExpr = new ConditionExpression(
         sameContractCondition,
       );
       expect(
-        objectEquals(
-          erc721ConditionExpr.toObj(),
-          contractConditionExpr.toObj(),
-        ),
+        objectEquals(conditionExpr.toObj(), contractConditionExpr.toObj()),
       ).toBeTruthy();
     });
   });
 
   describe('serialization / deserialization', () => {
     it.each([
-      erc721BalanceCondition,
+      erc721Balance,
       contractConditionNoAbi,
       contractConditionWithAbi,
       rpcCondition,
@@ -187,7 +180,7 @@ describe('condition set', () => {
       const conditionExprJson = conditionExpr.toJson();
       expect(conditionExprJson).toBeDefined();
       expect(conditionExprJson).toContain('version');
-      expect(conditionExprJson).toContain(ConditionExpression.VERSION);
+      expect(conditionExprJson).toContain(ConditionExpression.version);
       expect(conditionExprJson).toContain('condition');
       expect(conditionExprJson).toContain(toJSON(condition.toObj()));
 
@@ -204,14 +197,14 @@ describe('condition set', () => {
     });
 
     it('serializes to and from WASM conditions', () => {
-      const conditionExpr = new ConditionExpression(erc721BalanceCondition);
+      const conditionExpr = new ConditionExpression(erc721Balance);
       const wasmConditions = conditionExpr.toWASMConditions();
       const fromWasm = ConditionExpression.fromWASMConditions(wasmConditions);
       expect(conditionExpr.equals(fromWasm)).toBeTruthy();
     });
 
     it('incompatible version', () => {
-      const currentVersion = new SemVer(ConditionExpression.VERSION);
+      const currentVersion = new SemVer(ConditionExpression.version);
       const invalidVersion = currentVersion.inc('major');
       expect(() => {
         ConditionExpression.fromObj({
@@ -219,7 +212,7 @@ describe('condition set', () => {
           condition: testTimeConditionObj,
         });
       }).toThrow(
-        `Version provided, ${invalidVersion}, is incompatible with current version, ${ConditionExpression.VERSION}`,
+        `Version provided, ${invalidVersion}, is incompatible with current version, ${ConditionExpression.version}`,
       );
     });
 
@@ -244,7 +237,7 @@ describe('condition set', () => {
         } as unknown as TimeConditionProps;
         expect(() => {
           ConditionExpression.fromObj({
-            version: ConditionExpression.VERSION,
+            version: ConditionExpression.version,
             condition: conditionObj,
           });
         }).toThrow(`Invalid conditionType: ${invalidConditionType}`);
@@ -258,28 +251,26 @@ describe('condition set', () => {
       } as unknown as TimeConditionProps;
       expect(() => {
         ConditionExpression.fromObj({
-          version: ConditionExpression.VERSION,
+          version: ConditionExpression.version,
           condition: conditionObj,
         });
       }).toThrow(/^Invalid condition/);
     });
 
     it('erc721 condition serialization', () => {
-      const conditionExpr = new ConditionExpression(erc721BalanceCondition);
+      const conditionExpr = new ConditionExpression(erc721Balance);
 
-      const erc721BalanceConditionObj = erc721BalanceCondition.toObj();
+      const asObj = erc721Balance.toObj();
       const conditionExprJson = conditionExpr.toJson();
       expect(conditionExprJson).toBeDefined();
       expect(conditionExprJson).toContain('chain');
       expect(conditionExprJson).toContain(TEST_CHAIN_ID.toString());
       expect(conditionExprJson).toContain('contractAddress');
-      expect(conditionExprJson).toContain(
-        erc721BalanceConditionObj.contractAddress,
-      );
+      expect(conditionExprJson).toContain(asObj.contractAddress);
       expect(conditionExprJson).toContain('standardContractType');
       expect(conditionExprJson).toContain('ERC721');
       expect(conditionExprJson).toContain('method');
-      expect(conditionExprJson).toContain(erc721BalanceConditionObj.method);
+      expect(conditionExprJson).toContain(asObj.method);
       expect(conditionExprJson).toContain('returnValueTest');
 
       expect(conditionExprJson).not.toContain('functionAbi');

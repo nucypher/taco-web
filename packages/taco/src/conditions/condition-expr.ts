@@ -1,8 +1,7 @@
 import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
+import { toJSON } from '@nucypher/shared';
 import { ethers } from 'ethers';
 import { SemVer } from 'semver';
-
-import { toJSON } from '../utils';
 
 import { Condition } from './condition';
 import { ConditionContext, CustomContextParam } from './context';
@@ -13,11 +12,11 @@ export type ConditionExpressionJSON = {
 };
 
 export class ConditionExpression {
-  public static VERSION = '1.0.0';
+  public static version = '1.0.0';
 
   constructor(
     public readonly condition: Condition,
-    public readonly version: string = ConditionExpression.VERSION,
+    public readonly version: string = ConditionExpression.version,
   ) {}
 
   public toObj(): ConditionExpressionJSON {
@@ -30,10 +29,10 @@ export class ConditionExpression {
 
   public static fromObj(obj: ConditionExpressionJSON): ConditionExpression {
     const receivedVersion = new SemVer(obj.version);
-    const currentVersion = new SemVer(ConditionExpression.VERSION);
+    const currentVersion = new SemVer(ConditionExpression.version);
     if (receivedVersion.major > currentVersion.major) {
       throw new Error(
-        `Version provided, ${obj.version}, is incompatible with current version, ${ConditionExpression.VERSION}`,
+        `Version provided, ${obj.version}, is incompatible with current version, ${ConditionExpression.version}`,
       );
     }
 

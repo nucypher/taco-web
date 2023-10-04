@@ -13,7 +13,7 @@ import {
   mockEncryptTreasureMap,
   mockGenerateKFrags,
   mockPublishToBlockchain,
-} from '../test-utils';
+} from '../utils';
 
 test('story: alice creates a policy but someone else enacts it', () => {
   const threshold = 2;

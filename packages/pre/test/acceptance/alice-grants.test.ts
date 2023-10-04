@@ -18,8 +18,7 @@ import {
 } from '@nucypher/test-utils';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { EnactedPolicy, toBytes } from '../../src';
-import { Enrico } from '../../src/characters';
+import { EnactedPolicy, Enrico, toBytes } from '../../src';
 import {
   fakeAlice,
   fakeBob,
@@ -29,7 +28,7 @@ import {
   mockMakeTreasureMap,
   mockPublishToBlockchain,
   reencryptKFrags,
-} from '../test-utils';
+} from '../utils';
 
 describe('story: alice shares message with bob through policy', () => {
   const message = 'secret-message-from-alice';
@@ -105,7 +104,7 @@ describe('story: alice shares message with bob through policy', () => {
 
   it('enrico encrypts the message', () => {
     const enrico = new Enrico(policyEncryptingKey);
-    encryptedMessage = enrico.encryptMessagePre(toBytes(message));
+    encryptedMessage = enrico.encryptMessage(toBytes(message));
   });
 
   it('bob retrieves and decrypts the message', async () => {

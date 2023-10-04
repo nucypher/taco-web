@@ -1,7 +1,10 @@
-import { fakeUrsulas, makeCohort } from '@nucypher/test-utils';
+import { initialize } from '@nucypher/shared';
+import { fakeUrsulas } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { Cohort, initialize } from '../src';
+import { Cohort } from '../src';
+
+import { makeCohort } from './utils';
 
 describe('Cohort', () => {
   beforeAll(async () => {

@@ -8,16 +8,12 @@ import {
   EncryptedThresholdDecryptionResponse,
   encryptForDkg,
   FerveoVariant,
-  SecretKey,
   SessionSharedSecret,
   SessionStaticSecret,
-  Signer,
   ThresholdDecryptionRequest,
   ThresholdMessageKit,
 } from '@nucypher/nucypher-core';
 import {
-  ConditionContext,
-  ConditionExpression,
   DkgCoordinatorAgent,
   DkgParticipant,
   PorterClient,
@@ -26,16 +22,14 @@ import {
 import { ethers } from 'ethers';
 import { arrayify, keccak256 } from 'ethers/lib/utils';
 
-export const encryptMessageCbd = (
+import { ConditionContext, ConditionExpression } from './conditions';
+
+export const encryptMessage = async (
   plaintext: Uint8Array | string,
   encryptingKey: DkgPublicKey,
   conditions: ConditionExpression,
-  authorizationSigner?: Signer,
-): ThresholdMessageKit => {
-  if (!authorizationSigner) {
-    authorizationSigner = new Signer(SecretKey.random());
-  }
-
+  authSigner: ethers.Signer,
+): Promise<ThresholdMessageKit> => {
   const [ciphertext, authenticatedData] = encryptForDkg(
     plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext),
     encryptingKey,
@@ -43,10 +37,10 @@ export const encryptMessageCbd = (
   );
 
   const headerHash = keccak256(ciphertext.header.toBytes());
-  const authorization = authorizationSigner.sign(arrayify(headerHash));
+  const authorization = await authSigner.signMessage(arrayify(headerHash));
   const acp = new AccessControlPolicy(
     authenticatedData,
-    authorization.toBEBytes(),
+    toBytes(authorization),
   );
 
   return new ThresholdMessageKit(ciphertext, acp);

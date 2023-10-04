@@ -3,13 +3,11 @@ import { describe, expect, it } from 'vitest';
 import {
   ReturnValueTestProps,
   TimeCondition,
-  TimeConditionProps,
-} from '../../../src';
-import {
   TimeConditionMethod,
-  timeConditionSchema,
+  TimeConditionProps,
   TimeConditionType,
-} from '../../../src/conditions/base/time';
+} from '../../../src/conditions';
+import { timeConditionSchema } from '../../../src/conditions/base/time';
 
 describe('validation', () => {
   const returnValueTest: ReturnValueTestProps = {

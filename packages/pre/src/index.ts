@@ -1,7 +1,5 @@
 export {
-  Cohort,
   PorterClient,
-  conditions,
   fromHexString,
   getPorterUri,
   toBytes,
@@ -20,8 +18,6 @@ export {
   initialize,
 } from '@nucypher/nucypher-core';
 
-export { DeployedPreStrategy, PreStrategy } from './pre-strategy';
-
-export { Alice, Bob, PreDecrypter } from './characters';
-
+export { Alice, Bob, Enrico } from './characters';
+export { Cohort } from './cohort';
 export { EnactedPolicy } from './policy';

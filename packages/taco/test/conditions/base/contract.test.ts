@@ -1,9 +1,5 @@
-import {
-  fakeProvider,
-  fakeSigner,
-  testContractConditionObj,
-  testFunctionAbi,
-} from '@nucypher/test-utils';
+import { initialize } from '@nucypher/nucypher-core';
+import { fakeProvider, fakeSigner } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import {
@@ -11,13 +7,11 @@ import {
   ContractCondition,
   ContractConditionProps,
   CustomContextParam,
-  initialize,
-} from '../../../src';
-import {
-  contractConditionSchema,
   FunctionAbiProps,
-} from '../../../src/conditions/base/contract';
+} from '../../../src/conditions';
+import { contractConditionSchema } from '../../../src/conditions/base/contract';
 import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
+import { testContractConditionObj, testFunctionAbi } from '../../test-utils';
 
 describe('validation', () => {
   it('accepts on a valid schema', () => {

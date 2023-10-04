@@ -1,10 +1,15 @@
 import { DkgCoordinatorAgent } from '@nucypher/shared';
-import { fakeProvider, mockGetParticipants } from '@nucypher/test-utils';
+import { fakeProvider } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { initialize } from '../src';
 
-import { fakeRitualId, mockDkgParticipants, mockGetRitual } from './test-utils';
+import {
+  fakeRitualId,
+  mockDkgParticipants,
+  mockGetParticipants,
+  mockGetRitual,
+} from './test-utils';
 
 describe('DkgCoordinatorAgent', () => {
   beforeAll(async () => {
@@ -22,7 +27,7 @@ describe('DkgCoordinatorAgent', () => {
   it('fetches participants from the coordinator', async () => {
     const provider = fakeProvider();
     const getParticipantsSpy = mockGetParticipants(
-      mockDkgParticipants(fakeRitualId).participants,
+      (await mockDkgParticipants(fakeRitualId)).participants,
     );
     const participants = await DkgCoordinatorAgent.getParticipants(
       provider,

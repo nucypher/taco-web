@@ -17,7 +17,7 @@ import {
   ValidatorMessage,
 } from '@nucypher/nucypher-core';
 import {
-  ConditionExpression,
+  CoordinatorRitual,
   DkgCoordinatorAgent,
   DkgParticipant,
   DkgRitualState,
@@ -26,15 +26,31 @@ import {
   zip,
 } from '@nucypher/shared';
 import {
-  fakeConditionExpr,
   fakeDkgFlow,
+  fakeSigner,
   fakeTDecFlow,
+  TEST_CHAIN_ID,
+  TEST_CONTRACT_ADDR,
 } from '@nucypher/test-utils';
+import { ethers } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 import { SpyInstance, vi } from 'vitest';
 
+import {
+  ConditionExpression,
+  ContractConditionProps,
+  ContractConditionType,
+  ERC721Balance,
+  FunctionAbiProps,
+  ReturnValueTestProps,
+  RpcConditionProps,
+  RpcConditionType,
+  TimeConditionMethod,
+  TimeConditionProps,
+  TimeConditionType,
+} from '../src/conditions';
 import { DkgClient, DkgRitual } from '../src/dkg';
-import { encryptMessageCbd } from '../src/tdec';
+import { encryptMessage } from '../src/tdec';
 
 export const fakeDkgTDecFlowE2E: (
   ritualId?: number,
@@ -43,7 +59,7 @@ export const fakeDkgTDecFlowE2E: (
   message?: Uint8Array,
   sharesNum?: number,
   threshold?: number,
-) => {
+) => Promise<{
   dkg: Dkg;
   serverAggregate: AggregatedTranscript;
   sharesNum: number;
@@ -56,7 +72,7 @@ export const fakeDkgTDecFlowE2E: (
   message: Uint8Array;
   thresholdMessageKit: ThresholdMessageKit;
   decryptionShares: DecryptionShareSimple[];
-} = (
+}> = async (
   ritualId = 0,
   variant: FerveoVariant = FerveoVariant.precomputed,
   conditionExpr: ConditionExpression = fakeConditionExpr(),
@@ -66,10 +82,11 @@ export const fakeDkgTDecFlowE2E: (
 ) => {
   const ritual = fakeDkgFlow(variant, ritualId, sharesNum, threshold);
   const dkgPublicKey = ritual.dkg.publicKey();
-  const thresholdMessageKit = encryptMessageCbd(
+  const thresholdMessageKit = await encryptMessage(
     message,
     dkgPublicKey,
     conditionExpr,
+    fakeSigner(),
   );
 
   const { decryptionShares } = fakeTDecFlow({
@@ -87,22 +104,10 @@ export const fakeDkgTDecFlowE2E: (
   };
 };
 
-export const fakeCoordinatorRitual = (
+export const fakeCoordinatorRitual = async (
   ritualId: number,
-): {
-  aggregationMismatch: boolean;
-  initTimestamp: number;
-  aggregatedTranscriptHash: string;
-  initiator: string;
-  dkgSize: number;
-  id: number;
-  publicKey: { word1: string; word0: string };
-  totalTranscripts: number;
-  aggregatedTranscript: string;
-  publicKeyHash: string;
-  totalAggregations: number;
-} => {
-  const ritual = fakeDkgTDecFlowE2E();
+): Promise<CoordinatorRitual> => {
+  const ritual = await fakeDkgTDecFlowE2E();
   const dkgPkBytes = ritual.dkg.publicKey().toBytes();
   return {
     id: ritualId,
@@ -122,13 +127,13 @@ export const fakeCoordinatorRitual = (
   };
 };
 
-export const mockDkgParticipants = (
+export const mockDkgParticipants = async (
   ritualId: number,
-): {
+): Promise<{
   participants: DkgParticipant[];
   participantSecrets: Record<string, SessionStaticSecret>;
-} => {
-  const ritual = fakeDkgTDecFlowE2E(ritualId);
+}> => {
+  const ritual = await fakeDkgTDecFlowE2E(ritualId);
   const label = toBytes(`${ritualId}`);
 
   const participantSecrets: Record<string, SessionStaticSecret> =
@@ -169,15 +174,14 @@ export const fakeDkgRitual = (ritual: {
   );
 };
 
-export const mockGetRitual = (dkgRitual?: DkgRitual): SpyInstance => {
-  const { dkg, threshold, sharesNum } = fakeDkgTDecFlowE2E();
+export const mockGetRitual = (): SpyInstance => {
   return vi
     .spyOn(DkgCoordinatorAgent, 'getRitual')
-    .mockImplementation(async () => {
-      return Promise.resolve(
-        dkgRitual ?? fakeDkgRitual({ dkg, threshold, sharesNum }),
-      );
-    });
+    .mockImplementation(
+      (_provider: ethers.providers.Provider, _ritualId: number) => {
+        return Promise.resolve(fakeCoordinatorRitual(fakeRitualId));
+      },
+    );
 };
 
 export const mockGetFinalizedRitualSpy = (
@@ -192,4 +196,82 @@ export const mockMakeSessionKey = (secret: SessionStaticSecret) => {
   return vi
     .spyOn(SessionStaticSecret, 'random')
     .mockImplementation(() => secret);
+};
+
+export const testReturnValueTest: ReturnValueTestProps = {
+  index: 0,
+  comparator: '>',
+  value: '100',
+};
+
+export const testTimeConditionObj: TimeConditionProps = {
+  conditionType: TimeConditionType,
+  returnValueTest: {
+    index: 0,
+    comparator: '>',
+    value: '100',
+  },
+  method: TimeConditionMethod,
+  chain: 5,
+};
+
+export const testRpcConditionObj: RpcConditionProps = {
+  conditionType: RpcConditionType,
+  chain: TEST_CHAIN_ID,
+  method: 'eth_getBalance',
+  parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77', 'latest'],
+  returnValueTest: testReturnValueTest,
+};
+
+export const testContractConditionObj: ContractConditionProps = {
+  conditionType: ContractConditionType,
+  contractAddress: '0x0000000000000000000000000000000000000000',
+  chain: 5,
+  standardContractType: 'ERC20',
+  method: 'balanceOf',
+  parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
+  returnValueTest: testReturnValueTest,
+};
+
+export const testFunctionAbi: FunctionAbiProps = {
+  name: 'myFunction',
+  type: 'function',
+  stateMutability: 'view',
+  inputs: [
+    {
+      internalType: 'address',
+      name: 'account',
+      type: 'address',
+    },
+    {
+      internalType: 'uint256',
+      name: 'myCustomParam',
+      type: 'uint256',
+    },
+  ],
+  outputs: [
+    {
+      internalType: 'uint256',
+      name: 'someValue',
+      type: 'uint256',
+    },
+  ],
+};
+
+export const fakeConditionExpr = () => {
+  const condition = new ERC721Balance({
+    chain: TEST_CHAIN_ID,
+    contractAddress: TEST_CONTRACT_ADDR,
+  });
+  return new ConditionExpression(condition);
+};
+
+export const mockGetParticipants = (
+  participants: DkgParticipant[],
+): SpyInstance => {
+  return vi
+    .spyOn(DkgCoordinatorAgent, 'getParticipants')
+    .mockImplementation(() => {
+      return Promise.resolve(participants);
+    });
 };

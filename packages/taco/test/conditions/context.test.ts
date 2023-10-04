@@ -1,11 +1,5 @@
-import {
-  fakeProvider,
-  fakeSigner,
-  testContractConditionObj,
-  testFunctionAbi,
-  testReturnValueTest,
-  testRpcConditionObj,
-} from '@nucypher/test-utils';
+import { initialize } from '@nucypher/nucypher-core';
+import { fakeProvider, fakeSigner } from '@nucypher/test-utils';
 import { ethers } from 'ethers';
 import { beforeAll, describe, expect, it } from 'vitest';
 
@@ -13,11 +7,16 @@ import {
   ConditionExpression,
   ContractCondition,
   CustomContextParam,
-  initialize,
   RpcCondition,
-} from '../../src';
+} from '../../src/conditions';
 import { USER_ADDRESS_PARAM } from '../../src/conditions/const';
 import { RESERVED_CONTEXT_PARAMS } from '../../src/conditions/context/context';
+import {
+  testContractConditionObj,
+  testFunctionAbi,
+  testReturnValueTest,
+  testRpcConditionObj,
+} from '../test-utils';
 
 describe('context', () => {
   let provider: ethers.providers.Provider;

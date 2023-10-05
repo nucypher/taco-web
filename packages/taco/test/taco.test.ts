@@ -81,8 +81,8 @@ describe('taco', () => {
     const decryptedMessage = await taco.decrypt(
       provider,
       messageKit,
-      signer,
       fakePorterUri,
+      signer,
     );
     expect(getParticipantsSpy).toHaveBeenCalled();
     expect(sessionKeySpy).toHaveBeenCalled();

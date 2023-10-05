@@ -4,12 +4,7 @@ import {
   encryptForDkg,
   ThresholdMessageKit,
 } from '@nucypher/nucypher-core';
-import {
-  DkgCoordinatorAgent,
-  fromHexString,
-  getPorterUri,
-  toBytes,
-} from '@nucypher/shared';
+import { DkgCoordinatorAgent, fromHexString, toBytes } from '@nucypher/shared';
 import { ethers } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 
@@ -77,8 +72,8 @@ export const encryptWithPublicKey = async (
 export const decrypt = async (
   provider: ethers.providers.Provider,
   messageKit: ThresholdMessageKit,
+  porterUri: string,
   signer?: ethers.Signer,
-  porterUri = getPorterUri('tapir'),
 ): Promise<Uint8Array> => {
   const ritualId = await DkgCoordinatorAgent.getRitualIdFromPublicKey(
     provider,

@@ -5,6 +5,7 @@ import {
   EnactedPolicy,
   getPorterUri,
   initialize,
+  PRE_DOMAIN,
   SecretKey,
   toHexString,
 } from '@nucypher/pre';
@@ -106,7 +107,7 @@ function App() {
     const policy = await alice.grant(
       provider,
       provider.getSigner(),
-      getPorterUri('tapir'), // Testnet porter
+      getPorterUri(PRE_DOMAIN.TESTNET),
       policyParams,
     );
 

@@ -1,26 +1,22 @@
 {
-  "name": "nucypher-ts-example-bundler",
   "version": "0.1.0",
-  "description": "A usage example for nucypher-ts",
-  "main": "index.js",
   "private": true,
+  "license": "GPL-3.0-only",
   "author": "Piotr Rosłaniec <p.roslaniec@gmail.com>",
+  "main": "index.js",
   "scripts": {
     "build": "webpack --config webpack.config.js",
+    "check": "pnpm build",
     "start": "webpack-dev-server"
   },
-  "license": "GPL-3.0-only",
   "dependencies": {
-    "ethers": "^5.5.2",
-    "@nucypher/nucypher-ts": "0.9.0"
+    "@nucypher/shared": "workspace:*",
+    "ethers": "^5.5.2"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^5.0.0",
     "webpack": "^4.29.3",
     "webpack-cli": "^3.1.0",
     "webpack-dev-server": "^3.1.5"
-  },
-  "resolutions": {
-    "glob-parent": "5.1.2"
   }
 }

@@ -1,30 +1,21 @@
-const { addBeforeLoader, loaderByName } = require("@craco/craco");
-
 module.exports = {
   webpack: {
-    configure: (webpackConfig) => {
-      const wasmExtensionRegExp = /\.wasm$/;
+    configure: (config) => {
+      const wasmExtensionRegExp = /\.wasm$/
+      config.resolve.extensions.push('.wasm')
+      config.experiments = {
+        syncWebAssembly: true,
+      }
 
-      webpackConfig.module.rules.forEach((rule) => {
-        (rule.oneOf || []).forEach((oneOf) => {
-          if (oneOf.loader && oneOf.loader.indexOf("file-loader") >= 0) {
-            oneOf.exclude.push(wasmExtensionRegExp);
+      config.module.rules.forEach(rule => {
+        (rule.oneOf || []).forEach(oneOf => {
+          if (oneOf.type === 'asset/resource') {
+            oneOf.exclude.push(wasmExtensionRegExp)
           }
-        });
-      });
+        })
+      })
 
-      const wasmLoader = {
-        test: wasmExtensionRegExp,
-        exclude: /node_modules/,
-        loaders: [
-          {
-            loader: "wasm-loader",
-          },
-        ],
-      };
-
-      addBeforeLoader(webpackConfig, loaderByName("file-loader"), wasmLoader);
-      return webpackConfig;
+      return config
     },
   },
-};
+}

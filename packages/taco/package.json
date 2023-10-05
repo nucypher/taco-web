@@ -1,0 +1,50 @@
+{
+  "name": "@nucypher/taco",
+  "version": "0.1.0",
+  "keywords": [
+    "taco",
+    "threshold",
+    "access control"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nucypher/nucypher-ts"
+  },
+  "license": "GPL-3.0-only",
+  "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "tsc --build ./tsconfig.build.json --verbose",
+    "exports:lint": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
+    "lint": "eslint --ext .ts src test",
+    "lint:fix": "pnpm lint --fix",
+    "package-check": "package-check",
+    "test": "vitest run",
+    "typedoc": "typedoc"
+  },
+  "dependencies": {
+    "@nucypher/nucypher-core": "^0.13.0",
+    "@nucypher/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@nucypher/test-utils": "workspace:*"
+  },
+  "peerDependencies": {
+    "ethers": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=16",
+    "pnpm": ">=8.0.0"
+  }
+}

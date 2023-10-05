@@ -1,0 +1,40 @@
+{
+  "version": "0.1.0",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "author": "Piotr Rosłaniec <p.roslaniec@gmail.com>",
+  "scripts": {
+    "build": "webpack --mode production --progress",
+    "check": "pnpm type-check && pnpm build",
+    "start": "webpack serve --mode development",
+    "type-check": "tsc"
+  },
+  "dependencies": {
+    "@nucypher/shared": "workspace:*",
+    "ethers": "^5.7.2",
+    "file-loader": "^6.2.0",
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0",
+    "react-router-dom": "^5.2.0"
+  },
+  "devDependencies": {
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.4",
+    "@testing-library/react": "^11.0.0",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "@types/react-router-dom": "^5.1.7",
+    "@typescript-eslint/eslint-plugin": "^4.28.2",
+    "@typescript-eslint/parser": "^4.28.2",
+    "buffer": "^6.0.3",
+    "esbuild-loader": "^2.11.0",
+    "html-webpack-plugin": "^4.5.0",
+    "process": "^0.11.10",
+    "react-refresh": "^0.11.0",
+    "stream-browserify": "^3.0.0",
+    "ts-loader": "^8.0.7",
+    "webpack": "^5.44.0",
+    "webpack-bundle-analyzer": "^4.4.2",
+    "webpack-cli": "^4.7.2",
+    "webpack-dev-server": "^4.7.4"
+  }
+}

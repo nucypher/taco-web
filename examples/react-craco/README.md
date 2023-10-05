@@ -1,13 +1,15 @@
-# `nucypher-ts` in React:
+# `react-craco` integration example
 
-This example takes advantage of `craco` - React utility that overrides `create-react-app` configuration without ejecting it. See `craco.config.js` for details.
+Shows how to integrate `@nucypher/*` into a React application.
+
+In order to load WASM dependencies of `@nucypher/*`, we override the `react-scripts` configuration with `craco`. For
+more details, see the `craco.config.js` file.
 
 ## Usage
 
 ```bash
-$ cp .env.example .env
-$ yarn install
-$ yarn start
+pnpm install
+pnpm start
 ```
 
-Next, go to [localhost:3000](http://localhost:3000/) in your browser and look into the JS console.
+Next, go to [http://127.0.0.1:3000/](http://127.0.0.1:8080/) in your browser and inspect the UI and the JS console.

@@ -1,6 +1,6 @@
 {
   "name": "taco-demo",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "A usage example for @nucypher/taco",
   "private": true,
   "author": "Piotr Rosłaniec <p.roslaniec@gmail.com>",

@@ -13,7 +13,7 @@ In order to run this demo will need a MetaMask with an account funded with some
 $MATIC.
 
 In order to connect with the network, the demo uses a public instances of
-[Porter](https://docs.nucypher.com/en/latest/application_development/web_development.html#running-porter).
+[Porter](https://docs.threshold.network/app-development/threshold-access-control-tac/porter).
 
 ### Polygon
 

@@ -27,13 +27,12 @@
     "lint:fix": "pnpm lint --fix"
   },
   "dependencies": {
-    "@nucypher/nucypher-core": "^0.13.0",
+    "@nucypher/nucypher-core": "0.13.0-alpha.0",
     "@nucypher/shared": "workspace:*",
     "axios": "^1.5.0",
     "ethers": "^5.7.2"
   },
   "devDependencies": {
-    "@nucypher/test-utils": "workspace:*",
     "@typechain/ethers-v5": "^11.1.1",
     "@types/deep-equal": "^1.0.1",
     "@types/qs": "^6.9.7",

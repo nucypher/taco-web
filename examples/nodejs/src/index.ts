@@ -1,4 +1,11 @@
-import {Alice, Bob, getPorterUri, SecretKey, toBytes} from '@nucypher/shared';
+import {
+  Alice,
+  Bob,
+  getPorterUri,
+  initialize,
+  SecretKey,
+  toBytes,
+} from '@nucypher/shared';
 import { ethers } from 'ethers';
 
 const makeAlice = () => {
@@ -26,6 +33,8 @@ const makeRemoteBob = () => {
 const getRandomLabel = () => `label-${new Date().getTime()}`;
 
 const runExample = async () => {
+  await initialize();
+
   const provider = ethers.Wallet.createRandom();
 
   const remoteBob = makeRemoteBob();

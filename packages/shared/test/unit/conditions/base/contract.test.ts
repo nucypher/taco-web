@@ -4,13 +4,15 @@ import {
   testContractConditionObj,
   testFunctionAbi,
 } from '@nucypher/test-utils';
-import { expect, test } from 'vitest';
+import { beforeAll, expect, test } from 'vitest';
 
-import { ConditionExpression, CustomContextParam } from '../../../../src';
 import {
+  ConditionExpression,
   ContractCondition,
   ContractConditionProps,
-} from '../../../../src/conditions/base';
+  CustomContextParam,
+  initialize,
+} from '../../../../src';
 import {
   contractConditionSchema,
   FunctionAbiProps,
@@ -156,16 +158,18 @@ test('supports custom function abi', () => {
     },
   };
   const contractCondition = new ContractCondition(contractConditionObj);
-  const provider = fakeProvider();
-  const signer = fakeSigner();
   const conditionExpr = new ConditionExpression(contractCondition);
-  const conditionContext = conditionExpr.buildContext(provider, {}, signer);
   const myCustomParam = ':customParam';
   const customParams: Record<string, CustomContextParam> = {};
   customParams[myCustomParam] = 1234;
 
+  beforeAll(async () => {
+    await initialize();
+  });
+
   test('accepts custom function abi with a custom parameter', async () => {
-    const asJson = await conditionContext
+    const asJson = await conditionExpr
+      .buildContext(fakeProvider(), {}, fakeSigner())
       .withCustomParams(customParams)
       .toJson();
 

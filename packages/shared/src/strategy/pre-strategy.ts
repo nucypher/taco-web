@@ -1,10 +1,13 @@
 import { PublicKey, SecretKey } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { Alice } from '../characters/alice';
-import { Bob } from '../characters/bob';
-import { Enrico } from '../characters/enrico';
-import { PreDecrypter, PreDecrypterJSON } from '../characters/pre-recipient';
+import {
+  Alice,
+  Bob,
+  Enrico,
+  PreDecrypter,
+  PreDecrypterJSON,
+} from '../characters';
 import { Cohort, CohortJSON } from '../cohort';
 import { ConditionExpression } from '../conditions';
 import { EnactedPolicy } from '../policy';

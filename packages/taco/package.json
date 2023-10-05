@@ -34,7 +34,7 @@
     "typedoc": "typedoc"
   },
   "dependencies": {
-    "@nucypher/nucypher-core": "^0.13.0",
+    "@nucypher/nucypher-core": "0.13.0-alpha.0",
     "@nucypher/shared": "workspace:*"
   },
   "devDependencies": {

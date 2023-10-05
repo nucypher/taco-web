@@ -1,4 +1,3 @@
-import { MessageKit, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 import {
   fakeProvider,
   fakeUrsulas,
@@ -16,17 +15,18 @@ import { expect, SpyInstance, test, vi } from 'vitest';
 import {
   Cohort,
   ConditionExpression,
+  ContractCondition,
+  ContractConditionProps,
+  ERC721Ownership,
   getPorterUri,
+  initialize,
+  MessageKit,
   PreStrategy,
   SecretKey,
   toBytes,
   Ursula,
+  VerifiedKeyFrag
 } from '../../src';
-import {
-  ContractCondition,
-  ContractConditionProps,
-} from '../../src/conditions/base';
-import { ERC721Ownership } from '../../src/conditions/predefined';
 
 // TODO: move to packages/taco
 
@@ -60,6 +60,8 @@ test('Get Started (CBD PoC)', () => {
     vi.spyOn(providers, 'Web3Provider').mockImplementation(() =>
       fakeProvider(SecretKey.random().toBEBytes()),
     );
+
+    await initialize();
 
     //
     // Start of the code example

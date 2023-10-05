@@ -1,49 +1,61 @@
-import { ethers } from "ethers";
-import { useEffect, useState } from "react";
+import {
+  Alice,
+  Bob,
+  EnactedPolicy,
+  getPorterUri,
+  initialize,
+  SecretKey,
+  toHexString,
+} from '@nucypher/shared';
+import { ethers } from 'ethers';
+import { useEffect, useState } from 'react';
 
 function App() {
-  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  const [nucypher, setNucypher] = useState<any>();
-  const [provider, setProvider] = useState<ethers.providers.Web3Provider | undefined>();
-  const [alice, setAlice] = useState<typeof Alice | undefined>();
-  const [bob, setBob] = useState<typeof Bob | undefined>();
-  const [policy, setPolicy] = useState<typeof EnactedPolicy>();
+  const [isInit, setIsInit] = useState<boolean>(false);
+  const [provider, setProvider] = useState<
+    ethers.providers.Web3Provider | undefined
+  >();
+  const [alice, setAlice] = useState<Alice | undefined>();
+  const [bob, setBob] = useState<Bob | undefined>();
+  const [policy, setPolicy] = useState<EnactedPolicy>();
 
-  const loadNucypher = async () => {
-    const nucypherModule = await import("@nucypher/shared");
-    setNucypher(nucypherModule);
+  const initNucypher = async () => {
+    await initialize();
+    setIsInit(true);
   };
 
   const loadWeb3Provider = async () => {
     if (!window.ethereum) {
-      console.error("You need to connect to the MetaMask extension");
+      console.error('You need to connect to the MetaMask extension');
     }
-    const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+    const provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
 
-    const { chainId } = await provider.getNetwork();
-    if (![137, 80001].includes(chainId)) {
-      console.error("You need to connect to the Mumbai or Polygon network");
+    const {chainId} = await provider.getNetwork();
+    if (chainId !== 80001) {
+      // Switch to Matic Mumbai testnet
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{chainId: '0x13881'}],
+      });
     }
 
-    await provider.send("eth_requestAccounts", []);
+    await provider.send('eth_requestAccounts', []);
     setProvider(provider);
   };
 
   useEffect(() => {
-    loadNucypher();
+    initNucypher();
     loadWeb3Provider();
   }, []);
 
-  if (!nucypher || !provider) {
+  if (!isInit || !provider) {
     return <div>Loading...</div>;
   }
 
-  const { Alice, Bob, EnactedPolicy, getPorterUri, SecretKey, toHexString } = nucypher;
+  console.log({ Alice, Bob, getPorterUri, SecretKey, toHexString });
 
   const makeAlice = () => {
-    const alice = Alice.fromSecretKey(
-      SecretKey.random()
-    );
+    const alice = Alice.fromSecretKey(SecretKey.random());
     setAlice(alice);
   };
 
@@ -52,7 +64,7 @@ function App() {
     setBob(bob);
   };
 
-  const makeRemoteBob = (bob: typeof Bob) => {
+  const makeRemoteBob = (bob: Bob) => {
     const { decryptingKey, verifyingKey } = bob;
     return { decryptingKey, verifyingKey };
   };
@@ -66,12 +78,12 @@ function App() {
 
   const runExample = async () => {
     if (!provider) {
-      console.error("You need to connect to the MetaMask extension");
+      console.error('You need to connect to the MetaMask extension');
       return;
     }
 
     if (!alice || !bob) {
-      console.error("You need to create Alice and Bob");
+      console.error('You need to create Alice and Bob');
       return;
     }
 
@@ -86,17 +98,17 @@ function App() {
       threshold,
       shares,
       startDate,
-      endDate
+      endDate,
     };
 
     const policy = await alice.grant(
       provider,
       provider.getSigner(),
-      getPorterUri("tapir"), // Testnet porter
-      policyParams
+      getPorterUri('tapir'), // Testnet porter
+      policyParams,
     );
 
-    console.log("Policy created");
+    console.log('Policy created');
     setPolicy(policy);
   };
 
@@ -110,15 +122,17 @@ function App() {
             <div>
               {alice && (
                 <span>
-                    Alice: {`0x${toHexString(alice.verifyingKey.toCompressedBytes())}`}
-                  </span>
+                  Alice:{' '}
+                  {`0x${toHexString(alice.verifyingKey.toCompressedBytes())}`}
+                </span>
               )}
             </div>
             <div>
               {bob && (
                 <span>
-                    Bob: {`0x${toHexString(bob.verifyingKey.toCompressedBytes())}`}
-                  </span>
+                  Bob:{' '}
+                  {`0x${toHexString(bob.verifyingKey.toCompressedBytes())}`}
+                </span>
               )}
             </div>
           </div>

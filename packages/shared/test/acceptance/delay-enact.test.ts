@@ -5,60 +5,64 @@ import {
   fakeProvider,
   fakeRemoteBob,
   fakeSigner,
-  fakeUrsulas,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
   mockGetUrsulas,
   mockPublishToBlockchain,
 } from '@nucypher/test-utils';
-import { expect, test } from 'vitest';
+import { beforeAll, expect, test } from 'vitest';
+
+import { initialize } from '../../src';
 
 test('story: alice creates a policy but someone else enacts it', () => {
   const threshold = 2;
   const shares = 3;
   const startDate = new Date();
   const endDate = new Date(Date.now() + 60 * 1000); // 60s later
-  const mockedUrsulas = fakeUrsulas(shares);
   const label = 'fake-data-label';
-  const provider = fakeProvider();
-  const signer = fakeSigner();
 
-  test('alice generates a new policy', async () => {
-    const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
-    const generateKFragsSpy = mockGenerateKFrags();
-    const publishToBlockchainSpy = mockPublishToBlockchain();
-    const encryptTreasureMapSpy = mockEncryptTreasureMap();
+  test('verifies capsule frags', async () => {
+    beforeAll(async () => {
+      await initialize();
+    });
 
-    const alice = fakeAlice('fake-secret-key-32-bytes-alice-1');
-    const bob = fakeRemoteBob();
-    const policyParams = {
-      bob,
-      label,
-      threshold,
-      shares,
-      startDate,
-      endDate,
-    };
+    test('alice generates a new policy', async () => {
+      const provider = fakeProvider();
+      const getUrsulasSpy = mockGetUrsulas();
+      const generateKFragsSpy = mockGenerateKFrags();
+      const publishToBlockchainSpy = mockPublishToBlockchain();
+      const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
-    const preEnactedPolicy = await alice.generatePreEnactedPolicy(
-      provider,
-      fakePorterUri,
-      policyParams,
-    );
-    expect(
-      bytesEqual(
-        preEnactedPolicy.aliceVerifyingKey.toCompressedBytes(),
-        alice.verifyingKey.toCompressedBytes(),
-      ),
-    ).toBeTruthy();
-    expect(preEnactedPolicy.label).toBe(label);
+      const alice = fakeAlice('fake-secret-key-32-bytes-alice-1');
+      const policyParams = {
+        bob: fakeRemoteBob(),
+        label,
+        threshold,
+        shares,
+        startDate,
+        endDate,
+      };
 
-    const enacted = await preEnactedPolicy.enact(provider, signer);
-    expect(enacted.txHash).toBeDefined();
+      const preEnactedPolicy = await alice.generatePreEnactedPolicy(
+        provider,
+        fakePorterUri,
+        policyParams,
+      );
+      expect(
+        bytesEqual(
+          preEnactedPolicy.aliceVerifyingKey.toCompressedBytes(),
+          alice.verifyingKey.toCompressedBytes(),
+        ),
+      ).toBeTruthy();
+      expect(preEnactedPolicy.label).toBe(label);
 
-    expect(getUrsulasSpy).toHaveBeenCalled();
-    expect(generateKFragsSpy).toHaveBeenCalled();
-    expect(publishToBlockchainSpy).toHaveBeenCalled();
-    expect(encryptTreasureMapSpy).toHaveBeenCalled();
+      const enacted = await preEnactedPolicy.enact(provider, fakeSigner());
+      expect(enacted.txHash).toBeDefined();
+
+      expect(getUrsulasSpy).toHaveBeenCalled();
+      expect(generateKFragsSpy).toHaveBeenCalled();
+      expect(publishToBlockchainSpy).toHaveBeenCalled();
+      expect(encryptTreasureMapSpy).toHaveBeenCalled();
+    });
   });
 });

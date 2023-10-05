@@ -3,11 +3,12 @@
   "include": ["src"],
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "src",
+    "noEmit": true
   },
   "references": [
     {
-      "path": "../shared/tsconfig.es.json"
+      "path": "../../packages/shared/tsconfig.es.json"
     }
   ]
 }

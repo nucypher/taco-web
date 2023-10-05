@@ -144,7 +144,9 @@ export const fakeUrsulas = (n = 4): Ursula[] =>
     uri: `https://example.${i}.com:9151`,
   }));
 
-export const mockGetUrsulas = (ursulas: readonly Ursula[]): SpyInstance => {
+export const mockGetUrsulas = (
+  ursulas: Ursula[] = fakeUrsulas(),
+): SpyInstance => {
   const fakePorterUrsulas = (
     mockUrsulas: readonly Ursula[],
   ): GetUrsulasResult => {
@@ -367,7 +369,27 @@ const fakeConditionExpr = () => {
   return new ConditionExpression(erc721Balance);
 };
 
-export const fakeDkgTDecFlowE2E = (
+export const fakeDkgTDecFlowE2E: (
+  ritualId?: number,
+  variant?: FerveoVariant,
+  conditionExpr?: ConditionExpression,
+  message?: Uint8Array,
+  sharesNum?: number,
+  threshold?: number,
+) => {
+  dkg: Dkg;
+  serverAggregate: AggregatedTranscript;
+  sharesNum: number;
+  transcripts: Transcript[];
+  validatorKeypairs: Keypair[];
+  validators: Validator[];
+  ritualId: number;
+  threshold: number;
+  receivedMessages: ValidatorMessage[];
+  message: Uint8Array;
+  thresholdMessageKit: ThresholdMessageKit;
+  decryptionShares: DecryptionShareSimple[];
+} = (
   ritualId = 0,
   variant: FerveoVariant = FerveoVariant.precomputed,
   conditionExpr: ConditionExpression = fakeConditionExpr(),
@@ -551,7 +573,7 @@ export const mockGetRitualIdFromPublicKey = (ritualId: number): SpyInstance => {
     });
 };
 
-export const makeCohort = async (ursulas: Ursula[]) => {
+export const makeCohort = async (ursulas: Ursula[] = fakeUrsulas()) => {
   const getUrsulasSpy = mockGetUrsulas(ursulas);
   const porterUri = 'https://_this.should.crash';
   const numUrsulas = ursulas.length;

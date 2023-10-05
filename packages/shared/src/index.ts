@@ -28,4 +28,6 @@ export {
   SecretKey,
   Signer,
   TreasureMap,
+  VerifiedKeyFrag,
+  initialize,
 } from '@nucypher/nucypher-core';

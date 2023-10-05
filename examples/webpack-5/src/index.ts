@@ -1,4 +1,10 @@
-import { Alice, Bob, getPorterUri, SecretKey } from '@nucypher/shared';
+import {
+  Alice,
+  Bob,
+  SecretKey,
+  getPorterUri,
+  initialize,
+} from '@nucypher/shared';
 import { ethers } from 'ethers';
 
 declare global {
@@ -38,10 +44,21 @@ const runExample = async () => {
     console.error('You need to connect to the MetaMask extension');
   }
 
+  await initialize();
+
   alert('Sign a transaction to create a policy.');
 
   const provider = new ethers.providers.Web3Provider(window.ethereum!, 'any');
   await provider.send('eth_requestAccounts', []);
+
+  const { chainId } = await provider.getNetwork();
+  if (chainId !== 80001) {
+    // Switch to Matic Mumbai testnet
+    await window.ethereum!.request!({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: '0x13881' }],
+    });
+  }
 
   const remoteBob = makeRemoteBob();
   const threshold = 2;

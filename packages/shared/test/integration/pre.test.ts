@@ -5,30 +5,38 @@ import {
   fakeUrsulas,
   reencryptKFrags,
 } from '@nucypher/test-utils';
-import { expect, test } from 'vitest';
+import { beforeAll, expect, test } from 'vitest';
 
 import {
+  Alice,
+  Bob,
+  CompoundCondition,
   ConditionExpression,
   Enrico,
+  ERC721Ownership,
+  initialize,
   MessageKit,
   PolicyMessageKit,
   RetrievalResult,
   toBytes,
   zip,
 } from '../../src';
-import { CompoundCondition } from '../../src/conditions/base';
-import { ERC721Ownership } from '../../src/conditions/predefined';
 
 test('proxy reencryption', () => {
+  let alice: Alice;
+  let bob: Bob;
   const plaintext = toBytes('plaintext-message');
   const threshold = 2;
   const shares = 3;
-  const ursulas = fakeUrsulas(shares);
   const label = 'fake-data-label';
-  const alice = fakeAlice();
-  const bob = fakeBob();
 
   test('verifies capsule frags', async () => {
+    beforeAll(async () => {
+      await initialize();
+      bob = fakeBob();
+      alice = fakeAlice();
+    });
+
     const { capsule } = new MessageKit(bob.decryptingKey, plaintext, null);
     const { delegatingKey, verifiedKFrags } = alice.generateKFrags(
       bob,
@@ -64,7 +72,9 @@ test('proxy reencryption', () => {
     const enrico = new Enrico(policyEncryptingKey);
     const encryptedMessage = enrico.encryptMessagePre(plaintext);
 
-    const ursulaAddresses = ursulas.map((ursula) => ursula.checksumAddress);
+    const ursulaAddresses = fakeUrsulas().map(
+      (ursula) => ursula.checksumAddress,
+    );
     const reencrypted = verifiedKFrags.map((kFrag) =>
       reencrypt(encryptedMessage.capsule, kFrag),
     );
@@ -112,7 +122,9 @@ test('proxy reencryption', () => {
     const enrico = new Enrico(policyEncryptingKey, undefined, conditionsSet);
     const encryptedMessage = enrico.encryptMessagePre(plaintext);
 
-    const ursulaAddresses = ursulas.map((ursula) => ursula.checksumAddress);
+    const ursulaAddresses = fakeUrsulas().map(
+      (ursula) => ursula.checksumAddress,
+    );
     const reencrypted = verifiedKFrags.map((kFrag) =>
       reencrypt(encryptedMessage.capsule, kFrag),
     );

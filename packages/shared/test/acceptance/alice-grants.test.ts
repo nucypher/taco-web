@@ -13,7 +13,6 @@ import {
   fakeProvider,
   fakeRemoteBob,
   fakeSigner,
-  fakeUrsulas,
   fromBytes,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
@@ -23,12 +22,13 @@ import {
   mockRetrieveCFragsRequest,
   reencryptKFrags,
 } from '@nucypher/test-utils';
-import { expect, test } from 'vitest';
+import { beforeAll, expect, test } from 'vitest';
 
 import {
   ChecksumAddress,
   EnactedPolicy,
   Enrico,
+  initialize,
   toBytes,
   Ursula,
 } from '../../src';
@@ -39,9 +39,6 @@ test('story: alice shares message with bob through policy', () => {
   const shares = 3;
   const startDate = new Date();
   const endDate = new Date(Date.now() + 60 * 1000);
-  const mockedUrsulas = fakeUrsulas(shares);
-  const provider = fakeProvider();
-  const signer = fakeSigner();
 
   // Intermediate variables used for mocking
   let encryptedTreasureMap: EncryptedTreasureMap;
@@ -55,8 +52,12 @@ test('story: alice shares message with bob through policy', () => {
   let aliceVerifyingKey: PublicKey;
   let policyEncryptingKey: PublicKey;
 
+  beforeAll(async () => {
+    await initialize();
+  });
+
   test('alice grants a new policy to bob', async () => {
-    const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
+    const getUrsulasSpy = mockGetUrsulas();
     const generateKFragsSpy = mockGenerateKFrags();
     const publishToBlockchainSpy = mockPublishToBlockchain();
     const makeTreasureMapSpy = mockMakeTreasureMap();
@@ -72,7 +73,12 @@ test('story: alice shares message with bob through policy', () => {
       startDate,
       endDate,
     };
-    policy = await alice.grant(provider, signer, fakePorterUri, policyParams);
+    policy = await alice.grant(
+      fakeProvider(),
+      fakeSigner(),
+      fakePorterUri,
+      policyParams,
+    );
 
     expect(
       bytesEqual(
@@ -106,7 +112,7 @@ test('story: alice shares message with bob through policy', () => {
 
   test('bob retrieves and decrypts the message', async () => {
     const bob = fakeBob();
-    const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
+    const getUrsulasSpy = mockGetUrsulas();
     const retrieveCFragsSpy = mockRetrieveCFragsRequest(
       ursulaAddresses,
       verifiedKFrags,

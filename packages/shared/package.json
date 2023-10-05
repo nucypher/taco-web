@@ -15,19 +15,22 @@
   "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
+      "import": "./dist/es/index.js",
+      "require": "./dist/cjs/index.js"
     }
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/es/index.js",
+  "types": "./dist/cjs/index.d.ts",
   "files": [
-    "dist/**/*"
+    "dist"
   ],
   "scripts": {
-    "prebuild": "pnpm typechain",
-    "build": "tsc --build ./tsconfig.build.json --verbose",
+    "prebuild": "pnpm typechain && pnpm clean",
+    "build": "pnpm build:module && pnpm build:cjs",
+    "build:cjs": "tsc --build ./tsconfig.cjs.json --verbose",
+    "build:module": "tsc --build ./tsconfig.es.json --verbose",
+    "clean": "rm -rf dist",
     "exports:lint": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
     "postinstall": "pnpm typechain",
     "lint": "eslint --ext .ts src test",
@@ -41,7 +44,7 @@
     "@ethersproject/abi": "^5.7.0",
     "@ethersproject/abstract-signer": "^5.7.0",
     "@ethersproject/providers": "^5.7.2",
-    "@nucypher/nucypher-core": "^0.13.0",
+    "@nucypher/nucypher-core": "0.13.0-alpha.0",
     "axios": "^1.5.0",
     "deep-equal": "^2.2.1",
     "ethers": "^5.7.2",

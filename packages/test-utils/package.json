@@ -35,6 +35,7 @@
     "ethers": "^5.7.2",
     "vitest": "^0.34.4"
   },
+  "packageManager": "^pnpm@8.7.1",
   "engines": {
     "node": ">=18",
     "pnpm": ">=8.0.0"

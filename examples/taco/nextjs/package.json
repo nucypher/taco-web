@@ -1,4 +1,5 @@
 {
+  "name": "taco-nextjs",
   "private": true,
   "scripts": {
     "build": "next build",

@@ -25,6 +25,7 @@ export default function App() {
     useState<ThresholdMessageKit>();
   const [decryptedMessage, setDecryptedMessage] = useState<string>();
   const [decryptionErrors, setDecryptionErrors] = useState<string[]>([]);
+  const [ritualId, setRitualId] = useState<number>(2);
 
   useEffect(() => {
     initialize();
@@ -39,7 +40,6 @@ export default function App() {
     await switchNetwork(Mumbai.chainId);
 
     const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const ritualId = 2; // Replace with your own ritual ID
     const encryptedMessage = await encrypt(
       provider,
       message,
@@ -93,6 +93,10 @@ export default function App() {
         <button onClick={deactivate}> Disconnect Wallet</button>
         {account && <p>Account: {account}</p>}
       </div>
+
+      <h2>Ritual ID</h2>
+      <p>Replace with your own ritual ID</p>
+      <input type={'number'} value={ritualId} onChange={(e) => setRitualId(parseInt(e.currentTarget.value))} />
 
       <NFTConditionBuilder
         enabled={true}

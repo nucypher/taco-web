@@ -8,5 +8,5 @@ export const SUPPORTED_CHAIN_IDS = [
   ChainId.POLYGON,
   ChainId.MUMBAI,
   ChainId.GOERLI,
-  ChainId.MAINNET,
+  ChainId.ETHEREUM_MAINNET,
 ];

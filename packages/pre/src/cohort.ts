@@ -14,8 +14,8 @@ export class Cohort {
   public static async create(
     porterUri: string,
     numUrsulas: number,
-    include: string[] = [],
-    exclude: string[] = [],
+    include: ChecksumAddress[] = [],
+    exclude: ChecksumAddress[] = [],
   ) {
     const porter = new PorterClient(porterUri);
     const ursulas = await porter.getUrsulas(numUrsulas, exclude, include);

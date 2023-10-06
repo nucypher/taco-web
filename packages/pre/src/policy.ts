@@ -7,6 +7,7 @@ import {
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
 import {
+  ChecksumAddress,
   PreSubscriptionManagerAgent,
   toBytes,
   toCanonicalAddress,
@@ -76,7 +77,7 @@ export class PreEnactedPolicy implements IPreEnactedPolicy {
       this.size,
       startTimestamp,
       endTimestamp,
-      ownerAddress,
+      ownerAddress as ChecksumAddress,
     );
     return tx.hash;
   }

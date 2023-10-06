@@ -38,23 +38,12 @@ export const encrypt = async (
   // }
   const dkgRitual = await DkgClient.getFinalizedRitual(provider, ritualId);
 
-  const mk = await encryptWithPublicKey(
+  return await encryptWithPublicKey(
     message,
     condition,
     dkgRitual.dkgPublicKey,
     authSigner,
   );
-
-  const isAuthorized = DkgCoordinatorAgent.isEncryptionAuthorized(
-    provider,
-    ritualId,
-    mk,
-  );
-  if (!isAuthorized) {
-    const signerAddress = await authSigner.getAddress();
-    throw new Error(`Encryption not authorized for signer: ${signerAddress}}`);
-  }
-  return mk;
 };
 
 export const encryptWithPublicKey = async (
@@ -106,8 +95,8 @@ export const decrypt = async (
   );
 };
 
-export const taco = {
-  encrypt,
-  encryptWithPublicKey,
-  decrypt,
-};
+export const isAuthorized = async (
+  provider: ethers.providers.Provider,
+  messageKit: ThresholdMessageKit,
+  ritualId: number,
+) => DkgCoordinatorAgent.isEncryptionAuthorized(provider, ritualId, messageKit);

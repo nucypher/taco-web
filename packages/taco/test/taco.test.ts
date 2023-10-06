@@ -23,7 +23,6 @@ import {
   mockDkgParticipants,
   mockGetFinalizedRitual,
   mockGetParticipants,
-  mockIsEncryptionAuthorized,
   mockMakeSessionKey,
 } from './test-utils';
 
@@ -46,7 +45,6 @@ describe('taco', () => {
     const provider = fakeProvider(aliceSecretKeyBytes);
     const signer = fakeSigner(aliceSecretKeyBytes);
     const getFinalizedRitualSpy = mockGetFinalizedRitual(mockedDkgRitual);
-    const isEncryptionAuthorizedSpy = mockIsEncryptionAuthorized();
 
     const messageKit = await taco.encrypt(
       provider,
@@ -56,7 +54,6 @@ describe('taco', () => {
       signer,
     );
     expect(getFinalizedRitualSpy).toHaveBeenCalled();
-    expect(isEncryptionAuthorizedSpy).toHaveBeenCalled();
 
     const { decryptionShares } = fakeTDecFlow({
       ...mockedDkg,

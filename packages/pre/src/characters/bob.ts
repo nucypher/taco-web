@@ -5,7 +5,7 @@ import {
   SecretKey,
   Signer,
 } from '@nucypher/nucypher-core';
-import { PorterClient, zip } from '@nucypher/shared';
+import { ChecksumAddress, PorterClient, zip } from '@nucypher/shared';
 
 import { Keyring } from '../keyring';
 import { PolicyMessageKit, RetrievalResult } from '../kits';
@@ -128,7 +128,7 @@ export class Bob {
     return zip(policyMessageKits, retrieveCFragsResponses).map((pair) => {
       const [messageKit, { cFrags, errors }] = pair;
       const vcFrags = Object.keys(cFrags).map((address) => {
-        const verified = cFrags[address].verify(
+        const verified = cFrags[address as ChecksumAddress].verify(
           messageKit.capsule,
           publisherVerifyingKey,
           policyEncryptingKey,

@@ -4,7 +4,13 @@ import {
   encryptForDkg,
   ThresholdMessageKit,
 } from '@nucypher/nucypher-core';
-import { DkgCoordinatorAgent, fromHexString, toBytes } from '@nucypher/shared';
+import {
+  ChecksumAddress,
+  DkgCoordinatorAgent,
+  fromHexString,
+  GlobalAllowListAgent,
+  toBytes,
+} from '@nucypher/shared';
 import { ethers } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 
@@ -101,3 +107,17 @@ export const isAuthorized = async (
   messageKit: ThresholdMessageKit,
   ritualId: number,
 ) => DkgCoordinatorAgent.isEncryptionAuthorized(provider, ritualId, messageKit);
+
+export const registerEncrypters = async (
+  provider: ethers.providers.Provider,
+  signer: ethers.Signer,
+  ritualId: number,
+  encrypters: ChecksumAddress[],
+): Promise<void> => {
+  await GlobalAllowListAgent.registerEncrypters(
+    provider,
+    signer,
+    ritualId,
+    encrypters,
+  );
+};

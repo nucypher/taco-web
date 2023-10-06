@@ -1,58 +1,57 @@
 import {
   FerveoVariant,
   initialize,
-  SecretKey,
   SessionStaticSecret,
 } from '@nucypher/nucypher-core';
-import { predefined, toBytes } from '@nucypher/shared';
 import {
   aliceSecretKeyBytes,
   fakeDkgFlow,
-  fakeDkgRitual,
   fakePorterUri,
   fakeProvider,
   fakeSigner,
   fakeTDecFlow,
   mockCbdDecrypt,
-  mockDkgParticipants,
-  mockGetFinalizedRitualSpy,
-  mockGetParticipants,
   mockGetRitualIdFromPublicKey,
-  mockRandomSessionStaticSecret,
 } from '@nucypher/test-utils';
-import { beforeAll, expect, test } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 import * as taco from '../src';
+import { conditions, toBytes } from '../src';
+
+import {
+  fakeDkgRitual,
+  mockDkgParticipants,
+  mockGetFinalizedRitual,
+  mockGetParticipants,
+  mockMakeSessionKey,
+} from './test-utils';
 
 // Shared test variables
-let aliceSecretKey: SecretKey;
-let variant: FerveoVariant;
 const message = 'this is a secret';
-const ownsNFT = new predefined.ERC721Ownership({
+const ownsNFT = new conditions.ERC721Ownership({
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
   parameters: [3591],
   chain: 5,
 });
 
-test('taco', () => {
+describe('taco', () => {
   beforeAll(async () => {
     await initialize();
-    aliceSecretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);
-    variant = FerveoVariant.precomputed;
   });
 
-  test('encrypts and decrypts', async () => {
-    const mockedDkg = fakeDkgFlow(variant, 0, 4, 4);
+  it('encrypts and decrypts', async () => {
+    const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
     const mockedDkgRitual = fakeDkgRitual(mockedDkg);
-    const provider = fakeProvider(aliceSecretKey.toBEBytes());
-    const signer = fakeSigner(aliceSecretKey.toBEBytes());
-    const getFinalizedRitualSpy = mockGetFinalizedRitualSpy(mockedDkgRitual);
+    const provider = fakeProvider(aliceSecretKeyBytes);
+    const signer = fakeSigner(aliceSecretKeyBytes);
+    const getFinalizedRitualSpy = mockGetFinalizedRitual(mockedDkgRitual);
 
     const messageKit = await taco.encrypt(
       provider,
       message,
       ownsNFT,
       mockedDkg.ritualId,
+      signer,
     );
     expect(getFinalizedRitualSpy).toHaveBeenCalled();
 
@@ -62,7 +61,7 @@ test('taco', () => {
       dkgPublicKey: mockedDkg.dkg.publicKey(),
       thresholdMessageKit: messageKit,
     });
-    const { participantSecrets, participants } = mockDkgParticipants(
+    const { participantSecrets, participants } = await mockDkgParticipants(
       mockedDkg.ritualId,
     );
     const requesterSessionKey = SessionStaticSecret.random();
@@ -73,11 +72,11 @@ test('taco', () => {
       requesterSessionKey.publicKey(),
     );
     const getParticipantsSpy = mockGetParticipants(participants);
-    const sessionKeySpy = mockRandomSessionStaticSecret(requesterSessionKey);
+    const sessionKeySpy = mockMakeSessionKey(requesterSessionKey);
     const getRitualIdFromPublicKey = mockGetRitualIdFromPublicKey(
       mockedDkg.ritualId,
     );
-    const getRitualSpy = mockGetFinalizedRitualSpy(mockedDkgRitual);
+    const getRitualSpy = mockGetFinalizedRitual(mockedDkgRitual);
 
     const decryptedMessage = await taco.decrypt(
       provider,

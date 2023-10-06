@@ -1,24 +1,9 @@
-// TODO: Create a pre module and export it here
-// Similarly to how taco works
-// export {pre} from './pre';
-// What goes into the pre module? Should we re-export the basic building blocks and/or remake the helper methods?
 export {
-  Alice,
-  BlockchainPolicyParameters,
-  Bob,
-  Cohort,
-  DeployedPreStrategy,
-  EnactedPolicy,
-  Enrico,
-  Keyring,
-  PolicyMessageKit,
   PorterClient,
-  PreDecrypter,
-  PreEnactedPolicy,
-  PreStrategy,
-  RemoteBob,
-  conditions,
+  fromHexString,
   getPorterUri,
+  toBytes,
+  toHexString,
 } from '@nucypher/shared';
 
 export {
@@ -30,4 +15,9 @@ export {
   SecretKey,
   Signer,
   TreasureMap,
+  initialize,
 } from '@nucypher/nucypher-core';
+
+export { Alice, Bob, Enrico } from './characters';
+export { Cohort } from './cohort';
+export { EnactedPolicy } from './policy';

@@ -1,0 +1,18 @@
+{
+  "version": "0.1.0",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "author": "Piotr Rosłaniec <p.roslaniec@gmail.com>",
+  "scripts": {
+    "check": "pnpm type-check",
+    "start": "ts-node src/index.ts",
+    "type-check": "tsc"
+  },
+  "dependencies": {
+    "@nucypher/taco": "workspace:*",
+    "dotenv": "^16.3.1"
+  },
+  "peerDependencies": {
+    "ethers": "^5.7.2"
+  }
+}

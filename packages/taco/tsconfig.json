@@ -5,4 +5,9 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
   },
+  "references": [
+    {
+      "path": "../shared/tsconfig.es.json"
+    }
+  ]
 }

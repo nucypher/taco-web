@@ -1,34 +1,77 @@
-import { DkgPublicKey, ThresholdMessageKit } from '@nucypher/nucypher-core';
 import {
-  Condition,
-  ConditionExpression,
-  DkgClient,
+  AccessControlPolicy,
+  DkgPublicKey,
+  encryptForDkg,
+  ThresholdMessageKit,
+} from '@nucypher/nucypher-core';
+import {
   DkgCoordinatorAgent,
-  Enrico,
+  fromHexString,
   getPorterUri,
-  ThresholdDecrypter,
   toBytes,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
+import { keccak256 } from 'ethers/lib/utils';
+
+import { Condition, ConditionExpression } from './conditions';
+import { DkgClient } from './dkg';
+import { retrieveAndDecrypt } from './tdec';
 
 export const encrypt = async (
   provider: ethers.providers.Provider,
-  message: string,
+  message: Uint8Array | string,
   condition: Condition,
   ritualId: number,
+  authSigner: ethers.Signer,
 ): Promise<ThresholdMessageKit> => {
+  // TODO(#264): Enable ritual initialization
+  // if (ritualId === undefined) {
+  //   ritualId = await DkgClient.initializeRitual(
+  //     provider,
+  //     this.cohort.ursulaAddresses,
+  //     true
+  //   );
+  // }
+  // if (ritualId === undefined) {
+  //   // Given that we just initialized the ritual, this should never happen
+  //   throw new Error('Ritual ID is undefined');
+  // }
   const dkgRitual = await DkgClient.getFinalizedRitual(provider, ritualId);
-  return await encryptLight(message, condition, dkgRitual.dkgPublicKey);
+
+  return await encryptWithPublicKey(
+    message,
+    condition,
+    dkgRitual.dkgPublicKey,
+    authSigner,
+  );
 };
 
-export const encryptLight = async (
-  message: string,
+export const encryptWithPublicKey = async (
+  message: Uint8Array | string,
   condition: Condition,
   dkgPublicKey: DkgPublicKey,
+  authSigner: ethers.Signer,
 ): Promise<ThresholdMessageKit> => {
-  const encrypter = new Enrico(dkgPublicKey);
+  if (typeof message === 'string') {
+    message = toBytes(message);
+  }
+
   const conditionExpr = new ConditionExpression(condition);
-  return encrypter.encryptMessageCbd(toBytes(message), conditionExpr);
+
+  const [ciphertext, authenticatedData] = encryptForDkg(
+    message,
+    dkgPublicKey,
+    conditionExpr.toWASMConditions(),
+  );
+
+  const headerHash = keccak256(ciphertext.header.toBytes());
+  const authorization = await authSigner.signMessage(fromHexString(headerHash));
+  const acp = new AccessControlPolicy(
+    authenticatedData,
+    fromHexString(authorization),
+  );
+
+  return new ThresholdMessageKit(ciphertext, acp);
 };
 
 export const decrypt = async (
@@ -42,16 +85,18 @@ export const decrypt = async (
     messageKit.acp.publicKey,
   );
   const ritual = await DkgClient.getFinalizedRitual(provider, ritualId);
-  const decrypter = ThresholdDecrypter.create(
+  return retrieveAndDecrypt(
+    provider,
     porterUri,
+    messageKit,
     ritualId,
     ritual.threshold,
+    signer,
   );
-  return decrypter.retrieveAndDecrypt(provider, messageKit, signer);
 };
 
-export const taco = {
-  encrypt,
-  encryptLight,
-  decrypt,
-};
+export const isAuthorized = async (
+  provider: ethers.providers.Provider,
+  messageKit: ThresholdMessageKit,
+  ritualId: number,
+) => DkgCoordinatorAgent.isEncryptionAuthorized(provider, ritualId, messageKit);

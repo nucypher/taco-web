@@ -4,6 +4,9 @@ import deepEqual from 'deep-equal';
 export const toBytes = (str: string): Uint8Array =>
   new TextEncoder().encode(str);
 
+export const fromBytes = (bytes: Uint8Array): string =>
+  new TextDecoder().decode(bytes);
+
 export const fromHexString = (hexString: string): Uint8Array => {
   if (hexString.startsWith('0x')) {
     hexString = hexString.slice(2);
@@ -16,10 +19,10 @@ export const toHexString = (bytes: Uint8Array): string =>
   bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
 
 export const toBase64 = (bytes: Uint8Array): string =>
-  Buffer.from(bytes).toString('base64');
+  btoa(String.fromCharCode(...bytes));
 
 export const fromBase64 = (str: string): Uint8Array =>
-  Buffer.from(str, 'base64');
+  Uint8Array.from(atob(str), (c) => c.charCodeAt(0));
 
 export const base64ToU8Receiver = (_key: string, value: unknown) => {
   if (typeof value === 'string' && value.startsWith('base64:')) {

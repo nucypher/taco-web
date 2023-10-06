@@ -33,37 +33,31 @@
     "clean": "rm -rf dist",
     "exports:lint": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
     "postinstall": "pnpm typechain",
-    "lint": "eslint --ext .ts src test",
+    "lint": "eslint --ext .ts src",
     "lint:fix": "pnpm lint --fix",
     "package-check": "package-check",
-    "test": "vitest run",
     "typechain": "typechain --out-dir=./src/contracts/ethers-typechain --target=ethers-v5 \"abis/**/*.json\"",
     "typedoc": "typedoc"
   },
   "dependencies": {
     "@ethersproject/abi": "^5.7.0",
-    "@ethersproject/abstract-signer": "^5.7.0",
     "@ethersproject/providers": "^5.7.2",
-    "@nucypher/nucypher-core": "0.13.0-alpha.0",
+    "@nucypher/nucypher-core": "0.13.0-alpha.1",
     "axios": "^1.5.0",
     "deep-equal": "^2.2.1",
     "ethers": "^5.7.2",
-    "qs": "^6.10.1",
-    "semver": "^7.5.2",
-    "zod": "^3.22.1"
+    "qs": "^6.10.1"
   },
   "devDependencies": {
-    "@nucypher/test-utils": "workspace:*",
     "@typechain/ethers-v5": "^11.1.1",
     "@types/deep-equal": "^1.0.1",
     "@types/qs": "^6.9.7",
-    "@types/semver": "^7.5.0",
     "cz-conventional-changelog": "^3.0.1",
     "standard-version": "^9.0.0",
     "typechain": "^8.3.1"
   },
   "engines": {
-    "node": ">=16",
+    "node": ">=18",
     "pnpm": ">=8.0.0"
   }
 }

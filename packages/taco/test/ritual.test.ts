@@ -1,9 +1,13 @@
 import { DkgPublicKey } from '@nucypher/nucypher-core';
-import { fromHexString } from '@nucypher/shared';
-import { expect, test } from 'vitest';
+import { fromHexString, initialize } from '@nucypher/shared';
+import { beforeAll, describe, expect, it } from 'vitest';
 
-test('Ritual', () => {
-  test('deserializes pre-made dkg ritual', async () => {
+describe('Ritual', () => {
+  beforeAll(async () => {
+    await initialize();
+  });
+
+  it('deserializes pre-made dkg ritual', async () => {
     const pkWord1 = fromHexString(
       '9045795411ed251bf2eecc9415552c41863502a207104ef7ab482bc2364729d9',
     );

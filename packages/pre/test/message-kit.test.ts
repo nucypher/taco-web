@@ -1,11 +1,15 @@
-import { expect, test } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
-import { MessageKit, toBytes } from '../src';
+import { initialize, MessageKit, toBytes } from '../src';
 
 import { fakeBob } from './utils';
 
-test('message kit', () => {
-  test('bob decrypts', () => {
+describe('message kit', () => {
+  beforeAll(async () => {
+    await initialize();
+  });
+
+  it('bob decrypts', () => {
     const bob = fakeBob();
     const plaintext = toBytes('fake-message');
     const messageKit = new MessageKit(bob.decryptingKey, plaintext, null);

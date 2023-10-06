@@ -1,14 +1,14 @@
-import { CapsuleFrag, reencrypt } from '@nucypher/nucypher-core';
+import { CapsuleFrag, initialize, reencrypt } from '@nucypher/nucypher-core';
 import { zip } from '@nucypher/shared';
 import { fakeUrsulas } from '@nucypher/test-utils';
-import { beforeAll, expect, test } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 import { Alice, Bob, Enrico, MessageKit, toBytes } from '../src';
 import { PolicyMessageKit, RetrievalResult } from '../src/kits';
 
 import { fakeAlice, fakeBob, reencryptKFrags } from './utils';
 
-test('proxy reencryption', () => {
+describe('proxy reencryption', () => {
   let alice: Alice;
   let bob: Bob;
   const plaintext = toBytes('plaintext-message');
@@ -16,12 +16,13 @@ test('proxy reencryption', () => {
   const shares = 3;
   const label = 'fake-data-label';
 
-  test('verifies capsule frags', async () => {
-    beforeAll(async () => {
-      bob = fakeBob();
-      alice = fakeAlice();
-    });
+  beforeAll(async () => {
+    await initialize();
+    bob = fakeBob();
+    alice = fakeAlice();
+  });
 
+  it('verifies capsule frags', async () => {
     const { capsule } = new MessageKit(bob.decryptingKey, plaintext, null);
     const { delegatingKey, verifiedKFrags } = alice.generateKFrags(
       bob,
@@ -45,7 +46,7 @@ test('proxy reencryption', () => {
     expect(areVerified).toBeTruthy();
   });
 
-  test('encrypts and decrypts reencrypted message', async () => {
+  it('encrypts and decrypts reencrypted message', async () => {
     const { verifiedKFrags } = alice.generateKFrags(
       bob,
       label,
@@ -57,7 +58,7 @@ test('proxy reencryption', () => {
     const enrico = new Enrico(policyEncryptingKey);
     const encryptedMessage = enrico.encryptMessage(plaintext);
 
-    const ursulaAddresses = fakeUrsulas().map(
+    const ursulaAddresses = fakeUrsulas(3).map(
       (ursula) => ursula.checksumAddress,
     );
     const reencrypted = verifiedKFrags.map((kFrag) =>
@@ -77,7 +78,7 @@ test('proxy reencryption', () => {
     expect(bobPlaintext).toEqual(plaintext);
   });
 
-  test('encrypts and decrypts reencrypted message with conditions', async () => {
+  it('encrypts and decrypts reencrypted message with conditions', async () => {
     const { verifiedKFrags } = alice.generateKFrags(
       bob,
       label,
@@ -90,7 +91,7 @@ test('proxy reencryption', () => {
     const enrico = new Enrico(policyEncryptingKey);
     const encryptedMessage = enrico.encryptMessage(plaintext);
 
-    const ursulaAddresses = fakeUrsulas().map(
+    const ursulaAddresses = fakeUrsulas(shares).map(
       (ursula) => ursula.checksumAddress,
     );
     const reencrypted = verifiedKFrags.map((kFrag) =>

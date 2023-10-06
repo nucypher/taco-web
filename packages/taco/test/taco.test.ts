@@ -1,4 +1,8 @@
-import { FerveoVariant, SessionStaticSecret } from '@nucypher/nucypher-core';
+import {
+  FerveoVariant,
+  initialize,
+  SessionStaticSecret,
+} from '@nucypher/nucypher-core';
 import {
   aliceSecretKeyBytes,
   fakeDkgFlow,
@@ -9,7 +13,7 @@ import {
   mockCbdDecrypt,
   mockGetRitualIdFromPublicKey,
 } from '@nucypher/test-utils';
-import { expect, test } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 import * as taco from '../src';
 import { conditions, toBytes } from '../src';
@@ -17,8 +21,9 @@ import { conditions, toBytes } from '../src';
 import {
   fakeDkgRitual,
   mockDkgParticipants,
-  mockGetFinalizedRitualSpy,
+  mockGetFinalizedRitual,
   mockGetParticipants,
+  mockIsEncryptionAuthorized,
   mockMakeSessionKey,
 } from './test-utils';
 
@@ -30,13 +35,18 @@ const ownsNFT = new conditions.ERC721Ownership({
   chain: 5,
 });
 
-test('taco', () => {
-  test('encrypts and decrypts', async () => {
+describe('taco', () => {
+  beforeAll(async () => {
+    await initialize();
+  });
+
+  it('encrypts and decrypts', async () => {
     const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
     const mockedDkgRitual = fakeDkgRitual(mockedDkg);
     const provider = fakeProvider(aliceSecretKeyBytes);
     const signer = fakeSigner(aliceSecretKeyBytes);
-    const getFinalizedRitualSpy = mockGetFinalizedRitualSpy(mockedDkgRitual);
+    const getFinalizedRitualSpy = mockGetFinalizedRitual(mockedDkgRitual);
+    const isEncryptionAuthorizedSpy = mockIsEncryptionAuthorized();
 
     const messageKit = await taco.encrypt(
       provider,
@@ -46,6 +56,7 @@ test('taco', () => {
       signer,
     );
     expect(getFinalizedRitualSpy).toHaveBeenCalled();
+    expect(isEncryptionAuthorizedSpy).toHaveBeenCalled();
 
     const { decryptionShares } = fakeTDecFlow({
       ...mockedDkg,
@@ -68,7 +79,7 @@ test('taco', () => {
     const getRitualIdFromPublicKey = mockGetRitualIdFromPublicKey(
       mockedDkg.ritualId,
     );
-    const getRitualSpy = mockGetFinalizedRitualSpy(mockedDkgRitual);
+    const getRitualSpy = mockGetFinalizedRitual(mockedDkgRitual);
 
     const decryptedMessage = await taco.decrypt(
       provider,

@@ -3,10 +3,12 @@ import {
   fakePorterUri,
   fakeProvider,
   fakeSigner,
+  fakeUrsulas,
   mockGetUrsulas,
 } from '@nucypher/test-utils';
-import { expect, test } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
+import { initialize } from '../../src';
 import {
   fakeAlice,
   fakeRemoteBob,
@@ -15,17 +17,21 @@ import {
   mockPublishToBlockchain,
 } from '../utils';
 
-test('story: alice creates a policy but someone else enacts it', () => {
+describe('story: alice creates a policy but someone else enacts it', () => {
   const threshold = 2;
   const shares = 3;
   const startDate = new Date();
   const endDate = new Date(Date.now() + 60 * 1000); // 60s later
   const label = 'fake-data-label';
 
-  test('verifies capsule frags', async () => {
-    test('alice generates a new policy', async () => {
+  describe('verifies capsule frags', async () => {
+    beforeAll(async () => {
+      await initialize();
+    });
+
+    it('alice generates a new policy', async () => {
       const provider = fakeProvider();
-      const getUrsulasSpy = mockGetUrsulas();
+      const getUrsulasSpy = mockGetUrsulas(fakeUrsulas(shares));
       const generateKFragsSpy = mockGenerateKFrags();
       const publishToBlockchainSpy = mockPublishToBlockchain();
       const encryptTreasureMapSpy = mockEncryptTreasureMap();

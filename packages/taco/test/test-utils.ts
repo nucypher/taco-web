@@ -184,12 +184,20 @@ export const mockGetRitual = (): SpyInstance => {
     );
 };
 
-export const mockGetFinalizedRitualSpy = (
-  dkgRitual: DkgRitual,
-): SpyInstance => {
+export const mockGetFinalizedRitual = (dkgRitual: DkgRitual): SpyInstance => {
   return vi.spyOn(DkgClient, 'getFinalizedRitual').mockImplementation(() => {
     return Promise.resolve(dkgRitual);
   });
+};
+
+export const mockIsEncryptionAuthorized = (
+  isAuthorized = true,
+): SpyInstance => {
+  return vi
+    .spyOn(DkgCoordinatorAgent, 'isEncryptionAuthorized')
+    .mockImplementation(async () => {
+      return Promise.resolve(isAuthorized);
+    });
 };
 
 export const mockMakeSessionKey = (secret: SessionStaticSecret) => {

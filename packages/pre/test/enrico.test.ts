@@ -1,15 +1,19 @@
 // Disabling because we want to access Alice.keyring which is a private property
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { bytesEqual, fromBytes } from '@nucypher/test-utils';
-import { expect, test } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
-import { Enrico, toBytes } from '../src';
+import { Enrico, initialize, toBytes } from '../src';
 import { PolicyMessageKit, RetrievalResult } from '../src/kits';
 
 import { fakeAlice, fakeBob, reencryptKFrags } from './utils';
 
-test('enrico', () => {
-  test('alice decrypts message encrypted by enrico', async () => {
+describe('enrico', () => {
+  beforeAll(async () => {
+    await initialize();
+  });
+
+  it('alice decrypts message encrypted by enrico', async () => {
     const label = 'fake-label';
     const message = 'fake-message';
     const alice = fakeAlice();
@@ -24,7 +28,7 @@ test('enrico', () => {
     expect(alicePlaintext).toEqual(alicePlaintext);
   });
 
-  test('bob decrypts reencrypted message', async () => {
+  it('bob decrypts reencrypted message', async () => {
     const label = 'fake-label';
     const alice = fakeAlice();
     const bob = fakeBob();

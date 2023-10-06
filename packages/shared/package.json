@@ -32,7 +32,6 @@
     "build:module": "tsc --build ./tsconfig.es.json --verbose",
     "clean": "rm -rf dist",
     "exports:lint": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
-    "postinstall": "pnpm typechain",
     "lint": "eslint --ext .ts src",
     "lint:fix": "pnpm lint --fix",
     "package-check": "package-check",

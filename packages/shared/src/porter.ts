@@ -18,14 +18,14 @@ const porterUri: Record<string, string> = {
   oryx: 'https://porter-oryx.nucypher.community',
   lynx: 'https://porter-lynx.nucypher.community',
 };
-export type PorterNetwork = keyof typeof porterUri;
+export type PorterDomain = keyof typeof porterUri;
 
-export const getPorterUri = (network: PorterNetwork): string => {
-  const uri = porterUri[network];
+export const getPorterUri = (domain: PorterDomain): string => {
+  const uri = porterUri[domain];
   if (!uri) {
-    throw new Error(`No default Porter URI found for network: ${network}`);
+    throw new Error(`No default Porter URI found for domain: ${domain}`);
   }
-  return porterUri[network];
+  return porterUri[domain];
 };
 
 // /get_ursulas

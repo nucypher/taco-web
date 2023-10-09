@@ -1,0 +1,53 @@
+name: '🔎 Lynx Testnet Example'
+
+on:
+  schedule:
+    - cron: "0/20 * * * *"  # Every 20 minutes
+  pull_request:
+    # branches:
+    #   - main
+    #   - development
+    #   - epic-*
+  workflow_dispatch:
+
+env:
+  RPC_PROVIDER_URL: ${{ vars.INFURA_MUMBAI }}
+  PRIVATE_KEY: ${{ vars.TESTNET_ENRICO_PRIVATE_KEY }}
+
+jobs:
+  build_project:
+    name: '🔎 Lynx Testnet Example on Node ${{ matrix.node }} and ${{ matrix.os }}'
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node: [ '18.x' ]
+        os: [ ubuntu-latest ]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8.1
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'pnpm'
+
+      - name: Lynx testnet node-js script installation
+        working-directory: ./examples/taco/nodejs 
+        run: pnpm install
+
+      - name: Lynx testnet node-js script environment
+        working-directory: ./examples/taco/nodejs 
+        run: |
+          echo RPC_PROVIDER_URL=${{ vars.INFURA_MUMBAI }} > .env
+          echo PRIVATE_KEY=${{ vars.TESTNET_ENRICO_PRIVATE_KEY }} >> .env
+          cat .env
+
+      - name: Lynx testnet node-js script execution
+        id: lynx_script
+        working-directory: ./examples/taco/nodejs 
+        run: pnpm start

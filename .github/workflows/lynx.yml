@@ -10,9 +10,9 @@ on:
     #   - epic-*
   workflow_dispatch:
 
-env:
-  RPC_PROVIDER_URL: ${{ vars.INFURA_MUMBAI }}
-  PRIVATE_KEY: ${{ vars.TESTNET_ENRICO_PRIVATE_KEY }}
+env:  # TODO: Use variables when GH supports it for forks. See https://github.com/orgs/community/discussions/44322
+  RPC_PROVIDER_URL: "https://polygon-mumbai.infura.io/v3/3747007a284045d483c342fb39889a30"
+  PRIVATE_KEY: "0x900edb9e8214b2353f82aa195e915128f419a92cfb8bbc0f4784f10ef4112b86"
 
 jobs:
   build_project:
@@ -43,9 +43,8 @@ jobs:
       - name: Lynx testnet node-js script environment
         working-directory: ./examples/taco/nodejs 
         run: |
-          echo RPC_PROVIDER_URL=${{ vars.INFURA_MUMBAI }} > .env
-          echo PRIVATE_KEY=${{ vars.TESTNET_ENRICO_PRIVATE_KEY }} >> .env
-          cat .env
+          echo RPC_PROVIDER_URL=$RPC_PROVIDER_URL > .env
+          echo PRIVATE_KEY=$PRIVATE_KEY >> .env
 
       - name: Lynx testnet node-js script execution
         id: lynx_script

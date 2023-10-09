@@ -31,7 +31,8 @@ const runExample = async () => {
   console.log("Signer's address:", await signer.getAddress());
 
   console.log('Encrypting message...');
-  const message = toBytes('this is a secret');
+  const messageString = 'this is a secret';
+  const message = toBytes(messageString);
   const hasPositiveBalance = new conditions.RpcCondition({
     conditionType: 'rpc',
     chain: 80001,
@@ -58,8 +59,12 @@ const runExample = async () => {
   console.log('Decrypting message...');
   const porterUri = getPorterUri('lynx'); // Test network
   const decryptedBytes = await decrypt(provider, messageKit, signer, porterUri);
-  const decryptedMessage = fromBytes(decryptedBytes);
-  console.log('Decrypted message:', decryptedMessage);
+  const decryptedMessageString = fromBytes(decryptedBytes);
+  console.log('Decrypted message:', decryptedMessageString);
+  console.assert(
+    decryptedMessageString === messageString,
+    'Decrypted message is different to original message',
+  );
 };
 
 runExample()

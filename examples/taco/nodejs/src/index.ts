@@ -31,10 +31,11 @@ const runExample = async () => {
   console.log("Signer's address:", await signer.getAddress());
 
   console.log('Encrypting message...');
-  const message = toBytes('this is a secret');
+  const messageString = 'this is a secret';
+  const message = toBytes(messageString);
   const hasPositiveBalance = new conditions.RpcCondition({
     conditionType: 'rpc',
-    chain: 5,
+    chain: 80001,
     method: 'eth_getBalance',
     parameters: [':userAddress', 'latest'],
     returnValueTest: {
@@ -46,7 +47,7 @@ const runExample = async () => {
     hasPositiveBalance.requiresSigner(),
     'Condition requires signer',
   );
-  const ritualId = 2; // Replace with your own ritual ID
+  const ritualId = 1; // Replace with your own ritual ID
   const messageKit = await encrypt(
     provider,
     message,
@@ -58,8 +59,12 @@ const runExample = async () => {
   console.log('Decrypting message...');
   const porterUri = getPorterUri('lynx'); // Test network
   const decryptedBytes = await decrypt(provider, messageKit, signer, porterUri);
-  const decryptedMessage = fromBytes(decryptedBytes);
-  console.log('Decrypted message:', decryptedMessage);
+  const decryptedMessageString = fromBytes(decryptedBytes);
+  console.log('Decrypted message:', decryptedMessageString);
+  console.assert(
+    decryptedMessageString === messageString,
+    'Decrypted message is different to original message',
+  );
 };
 
 runExample()

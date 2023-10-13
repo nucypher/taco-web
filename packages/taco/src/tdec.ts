@@ -93,13 +93,13 @@ const retrieve = async (
   );
 
   const porter = new PorterClient(porterUri);
-  const { encryptedResponses, errors } = await porter.cbdDecrypt(
+  const { encryptedResponses, errors } = await porter.tacoDecrypt(
     encryptedRequests,
     threshold,
   );
   if (Object.keys(encryptedResponses).length < threshold) {
     throw new Error(
-      `Threshold of responses not met; CBD decryption failed with errors: ${JSON.stringify(
+      `Threshold of responses not met; TACo decryption failed with errors: ${JSON.stringify(
         errors,
       )}`,
     );

@@ -29,12 +29,12 @@ import {
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
 import {
-  CbdDecryptResult,
   ChecksumAddress,
   DkgCoordinatorAgent,
   GetUrsulasResult,
   PorterClient,
   RetrieveCFragsResult,
+  TacoDecryptResult,
   toHexString,
   Ursula,
   zip,
@@ -281,7 +281,7 @@ export const fakeTDecFlow = ({
   };
 };
 
-export const mockCbdDecrypt = (
+export const mockTacoDecrypt = (
   ritualId: number,
   decryptionShares: (DecryptionSharePrecomputed | DecryptionShareSimple)[],
   participantSecrets: Record<string, SessionStaticSecret>,
@@ -302,12 +302,12 @@ export const mockCbdDecrypt = (
     ),
   );
 
-  const result: CbdDecryptResult = {
+  const result: TacoDecryptResult = {
     encryptedResponses,
     errors,
   };
   return vi
-    .spyOn(PorterClient.prototype, 'cbdDecrypt')
+    .spyOn(PorterClient.prototype, 'tacoDecrypt')
     .mockImplementation(() => {
       return Promise.resolve(result);
     });

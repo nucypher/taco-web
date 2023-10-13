@@ -77,7 +77,7 @@ export class WalletAuthenticationProvider {
         ],
       },
       domain: {
-        name: 'cbd',
+        name: 'taco',
         version: '1',
         chainId,
         salt,

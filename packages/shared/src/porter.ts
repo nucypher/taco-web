@@ -18,9 +18,16 @@ const porterUri: Record<string, string> = {
   oryx: 'https://porter-oryx.nucypher.community',
   lynx: 'https://porter-lynx.nucypher.community',
 };
-export type PorterDomain = keyof typeof porterUri;
 
-export const getPorterUri = (domain: PorterDomain): string => {
+export type Domain = keyof typeof porterUri;
+
+export const domains: Record<string, Domain> = {
+  DEV: 'lynx',
+  TESTNET: 'tapir',
+  MAINNET: 'mainnet',
+};
+
+export const getPorterUri = (domain: Domain): string => {
   const uri = porterUri[domain];
   if (!uri) {
     throw new Error(`No default Porter URI found for domain: ${domain}`);

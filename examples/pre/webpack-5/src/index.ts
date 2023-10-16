@@ -1,10 +1,10 @@
 import {
   Alice,
   Bob,
-  PRE_DOMAIN,
-  SecretKey,
+  domains,
   getPorterUri,
   initialize,
+  SecretKey,
 } from '@nucypher/pre';
 import { ethers } from 'ethers';
 
@@ -65,7 +65,7 @@ const runExample = async () => {
     startDate,
     endDate,
   };
-  const porterUri = getPorterUri(PRE_DOMAIN.TESTNET);
+  const porterUri = getPorterUri(domains.TESTNET);
 
   const alice = makeAlice();
   const policy = await alice.grant(

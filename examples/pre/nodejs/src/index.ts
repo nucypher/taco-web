@@ -1,9 +1,9 @@
 import {
   Alice,
   Bob,
+  domains,
   getPorterUri,
   initialize,
-  PRE_DOMAIN,
   SecretKey,
   toBytes,
 } from '@nucypher/pre';
@@ -59,7 +59,7 @@ const runExample = async () => {
     startDate: new Date(),
     endDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // In 30 days,
   };
-  const porterUri = getPorterUri(PRE_DOMAIN.TESTNET);
+  const porterUri = getPorterUri(domains.TESTNET);
   const alice = makeAlice();
 
   console.log('Creating policy...');

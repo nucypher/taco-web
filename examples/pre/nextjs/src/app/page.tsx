@@ -2,10 +2,10 @@
 import {
   Alice,
   Bob,
+  domains,
   EnactedPolicy,
   getPorterUri,
   initialize,
-  PRE_DOMAIN,
   SecretKey,
   toHexString,
 } from '@nucypher/pre';
@@ -107,7 +107,7 @@ function App() {
     const policy = await alice.grant(
       provider,
       provider.getSigner(),
-      getPorterUri(PRE_DOMAIN.TESTNET),
+      getPorterUri(domains.TESTNET),
       policyParams,
     );
 

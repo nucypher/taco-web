@@ -86,7 +86,7 @@ export type RetrieveCFragsResult = {
   readonly errors: Record<ChecksumAddress, string>;
 };
 
-// /taco_decrypt
+// /decrypt
 
 type PostTacoDecryptRequest = {
   readonly threshold: number;
@@ -193,7 +193,7 @@ export class PorterClient {
       threshold,
     };
     const resp: AxiosResponse<PostTacoDecryptResponse> = await axios.post(
-      new URL('/taco_decrypt', this.porterUrl).toString(),
+      new URL('/decrypt', this.porterUrl).toString(),
       data,
     );
 

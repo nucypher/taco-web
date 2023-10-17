@@ -1,11 +1,12 @@
 import {
   Alice,
   Bob,
+  domains,
   EnactedPolicy,
   getPorterUri,
   initialize,
   SecretKey,
-  toHexString,
+  toHexString
 } from '@nucypher/pre';
 import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
@@ -47,8 +48,6 @@ function App() {
   if (!isInit || !provider) {
     return <div>Loading...</div>;
   }
-
-  console.log({ Alice, Bob, getPorterUri, SecretKey, toHexString });
 
   const makeAlice = () => {
     const alice = Alice.fromSecretKey(SecretKey.random());
@@ -96,11 +95,10 @@ function App() {
       startDate,
       endDate,
     };
-
     const policy = await alice.grant(
       provider,
       provider.getSigner(),
-      getPorterUri('tapir'), // Testnet porter
+      getPorterUri(domains.TESTNET),
       policyParams,
     );
 

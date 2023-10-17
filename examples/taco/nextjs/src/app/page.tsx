@@ -2,9 +2,11 @@
 import {
   conditions,
   decrypt,
-  encrypt, fromBytes,
+  domains,
+  encrypt,
+  fromBytes,
   getPorterUri,
-  initialize,
+  initialize
 } from '@nucypher/taco';
 import {ethers} from 'ethers';
 import {useEffect, useState} from 'react';
@@ -89,8 +91,8 @@ function App() {
     const messageKit = await encrypt(provider, message, hasPositiveBalance, ritualId, signer);
 
     console.log('Decrypting message...');
-    const porterUri = getPorterUri('lynx'); // Test network
-    const decryptedMessage = await decrypt(provider, messageKit, signer, porterUri);
+    const porterUri = getPorterUri(domains.DEV);
+    const decryptedMessage = await decrypt(provider, messageKit,porterUri,signer);
 
     setDecryptedMessage(fromBytes(decryptedMessage));
   };

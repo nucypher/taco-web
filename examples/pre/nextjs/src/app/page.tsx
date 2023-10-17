@@ -2,6 +2,7 @@
 import {
   Alice,
   Bob,
+  domains,
   EnactedPolicy,
   getPorterUri,
   initialize,
@@ -106,7 +107,7 @@ function App() {
     const policy = await alice.grant(
       provider,
       provider.getSigner(),
-      getPorterUri('tapir'), // Testnet porter
+      getPorterUri(domains.TESTNET),
       policyParams,
     );
 

@@ -1,4 +1,11 @@
-import { Alice, Bob, SecretKey, getPorterUri, initialize } from '@nucypher/pre';
+import {
+  Alice,
+  Bob,
+  domains,
+  getPorterUri,
+  initialize,
+  SecretKey,
+} from '@nucypher/pre';
 import { ethers } from 'ethers';
 
 declare global {
@@ -58,7 +65,7 @@ const runExample = async () => {
     startDate,
     endDate,
   };
-  const porterUri = getPorterUri('tapir'); // Test network
+  const porterUri = getPorterUri(domains.TESTNET);
 
   const alice = makeAlice();
   const policy = await alice.grant(

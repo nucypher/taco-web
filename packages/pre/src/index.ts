@@ -1,12 +1,4 @@
 export {
-  PorterClient,
-  fromHexString,
-  getPorterUri,
-  toBytes,
-  toHexString,
-} from '@nucypher/shared';
-
-export {
   Ciphertext,
   EncryptedTreasureMap,
   HRAC,
@@ -15,8 +7,8 @@ export {
   SecretKey,
   Signer,
   TreasureMap,
-  initialize,
 } from '@nucypher/nucypher-core';
+export { fromBytes, initialize, toBytes, toHexString, getPorterUri, domains } from '@nucypher/shared';
 
 export { Alice, Bob, Enrico } from './characters';
 export { Cohort } from './cohort';

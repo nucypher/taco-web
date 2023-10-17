@@ -12,21 +12,27 @@ import qs from 'qs';
 import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from './types';
 import { fromBase64, fromHexString, toBase64, toHexString } from './utils';
 
-type Network = 'mainnet' | 'tapir' | 'oryx' | 'lynx';
-
-const PORTER_URIS: Record<Network, string> = {
+const porterUri: Record<string, string> = {
   mainnet: 'https://porter.nucypher.community',
   tapir: 'https://porter-tapir.nucypher.community',
   oryx: 'https://porter-oryx.nucypher.community',
   lynx: 'https://porter-lynx.nucypher.community',
 };
 
-export const getPorterUri = (network: Network): string => {
-  const uri = PORTER_URIS[network];
+export type Domain = keyof typeof porterUri;
+
+export const domains: Record<string, Domain> = {
+  DEV: 'lynx',
+  TESTNET: 'tapir',
+  MAINNET: 'mainnet',
+};
+
+export const getPorterUri = (domain: Domain): string => {
+  const uri = porterUri[domain];
   if (!uri) {
-    throw new Error(`No default Porter URI found for network: ${network}`);
+    throw new Error(`No default Porter URI found for domain: ${domain}`);
   }
-  return PORTER_URIS[network];
+  return porterUri[domain];
 };
 
 // /get_ursulas

@@ -5,6 +5,7 @@ import {
   fromBytes,
   getPorterUri,
   initialize,
+  domains,
   toBytes,
 } from '@nucypher/taco';
 import * as dotenv from 'dotenv';
@@ -57,8 +58,8 @@ const runExample = async () => {
   );
 
   console.log('Decrypting message...');
-  const porterUri = getPorterUri('lynx'); // Test network
-  const decryptedBytes = await decrypt(provider, messageKit, signer, porterUri);
+  const porterUri = getPorterUri(domains.DEV);
+  const decryptedBytes = await decrypt(provider, messageKit, porterUri, signer);
   const decryptedMessageString = fromBytes(decryptedBytes);
   console.log('Decrypted message:', decryptedMessageString);
   console.assert(

@@ -91,7 +91,7 @@ function App() {
     const ritualId = 2; // Replace with your own ritual ID
     const messageKit = await encrypt(
       provider,
-      domains.DEV,
+      domains.TESTNET,
       message,
       hasPositiveBalance,
       ritualId,
@@ -101,9 +101,9 @@ function App() {
     console.log('Decrypting message...');
     const decryptedMessage = await decrypt(
       provider,
-      domains.DEV,
+      domains.TESTNET,
       messageKit,
-      getPorterUri(domains.DEV),
+      getPorterUri(domains.TESTNET),
       signer,
     );
 

@@ -48,10 +48,10 @@ const runExample = async () => {
     hasPositiveBalance.requiresSigner(),
     'Condition requires signer',
   );
-  const ritualId = 1; // Replace with your own ritual ID
+  const ritualId = 2; // Replace with your own ritual ID
   const messageKit = await encrypt(
     provider,
-    domains.DEV,
+    domains.TESTNET,
     message,
     hasPositiveBalance,
     ritualId,
@@ -61,9 +61,9 @@ const runExample = async () => {
   console.log('Decrypting message...');
   const decryptedBytes = await decrypt(
     provider,
-    domains.DEV,
+    domains.TESTNET,
     messageKit,
-    getPorterUri(domains.DEV),
+    getPorterUri(domains.TESTNET),
     signer,
   );
   const decryptedMessageString = fromBytes(decryptedBytes);

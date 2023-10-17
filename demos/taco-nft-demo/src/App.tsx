@@ -43,7 +43,7 @@ export default function App() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const encryptedMessage = await encrypt(
       provider,
-      domains.DEV,
+      domains.TESTNET,
       message,
       condition,
       ritualId,
@@ -65,9 +65,9 @@ export default function App() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const decryptedMessage = await decrypt(
       provider,
-      domains.DEV,
+      domains.TESTNET,
       encryptedMessage,
-      getPorterUri(domains.DEV),
+      getPorterUri(domains.TESTNET),
       provider.getSigner(),
     );
 

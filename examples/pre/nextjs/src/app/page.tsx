@@ -107,8 +107,8 @@ function App() {
     const policy = await alice.grant(
       provider,
       provider.getSigner(),
-      domains.DEV,
-      getPorterUri(domains.DEV),
+      domains.TESTNET,
+      getPorterUri(domains.TESTNET),
       policyParams,
     );
 

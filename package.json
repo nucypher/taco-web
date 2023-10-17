@@ -22,7 +22,7 @@
     "exports:lint": "pnpm run --parallel --aggregate-output --reporter append-only --filter './packages/**' exports:lint",
     "fix": "pnpm format:fix && pnpm lint:fix && pnpm packages:sort",
     "ci:lint": "run-p lint type-check package:check packages:lint exports:lint",
-    "check-examples": "pnpm run --parallel --aggregate-output --reporter append-only --filter './examples/**' check"
+    "check-examples": "pnpm run --parallel --aggregate-output --reporter append-only --filter './examples/**' --filter './demos/**' check"
   },
   "dependencies": {
     "@nucypher/nucypher-core": "0.13.0-alpha.1"

@@ -1,11 +1,11 @@
 import {
   conditions,
   decrypt,
+  domains,
   encrypt,
   fromBytes,
   getPorterUri,
   initialize,
-  domains,
   toBytes,
 } from '@nucypher/taco';
 import { ethers } from 'ethers';
@@ -41,6 +41,7 @@ const runExample = async () => {
   const ritualId = 2; // Replace with your own ritual ID
   const messageKit = await encrypt(
     provider,
+    domains.TESTNET,
     message,
     hasPositiveBalance,
     ritualId,
@@ -48,8 +49,13 @@ const runExample = async () => {
   );
 
   console.log('Decrypting message...');
-  const porterUri = getPorterUri(domains.DEV);
-  const decryptedBytes = await decrypt(provider, messageKit, porterUri, signer);
+  const decryptedBytes = await decrypt(
+    provider,
+    domains.TESTNET,
+    messageKit,
+    getPorterUri(domains.TESTNET),
+    signer,
+  );
   const decryptedMessage = fromBytes(decryptedBytes);
   console.log('Decrypted message:', decryptedMessage);
 };

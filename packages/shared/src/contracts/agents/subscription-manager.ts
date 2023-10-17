@@ -5,6 +5,7 @@ import {
   utils as ethersUtils,
 } from 'ethers';
 
+import { Domain } from '../../porter';
 import { ChecksumAddress } from '../../types';
 import {
   SubscriptionManager,
@@ -16,6 +17,7 @@ export class PreSubscriptionManagerAgent {
   public static async createPolicy(
     provider: ethers.providers.Provider,
     signer: ethers.Signer,
+    domain: Domain,
     valueInWei: BigNumber,
     policyId: Uint8Array,
     size: number,
@@ -23,7 +25,11 @@ export class PreSubscriptionManagerAgent {
     endTimestamp: number,
     ownerAddress: ChecksumAddress,
   ): Promise<ContractTransaction> {
-    const subscriptionManager = await this.connectReadWrite(provider, signer);
+    const subscriptionManager = await this.connectReadWrite(
+      provider,
+      domain,
+      signer,
+    );
     const overrides = {
       value: valueInWei.toString(),
     };
@@ -49,11 +55,12 @@ export class PreSubscriptionManagerAgent {
 
   public static async getPolicyCost(
     provider: ethers.providers.Provider,
+    domain: Domain,
     size: number,
     startTimestamp: number,
     endTimestamp: number,
   ): Promise<BigNumber> {
-    const subscriptionManager = await this.connectReadOnly(provider);
+    const subscriptionManager = await this.connectReadOnly(provider, domain);
     return await subscriptionManager.getPolicyCost(
       size,
       startTimestamp,
@@ -61,25 +68,31 @@ export class PreSubscriptionManagerAgent {
     );
   }
 
-  private static async connectReadOnly(provider: ethers.providers.Provider) {
-    return await this.connect(provider);
+  private static async connectReadOnly(
+    provider: ethers.providers.Provider,
+    domain: Domain,
+  ) {
+    return await this.connect(provider, domain);
   }
 
   private static async connectReadWrite(
     provider: ethers.providers.Provider,
+    domain: Domain,
     signer: ethers.Signer,
   ) {
-    return await this.connect(provider, signer);
+    return await this.connect(provider, domain, signer);
   }
 
   private static async connect(
     provider: ethers.providers.Provider,
+    domain: Domain,
     signer?: ethers.Signer,
   ): Promise<SubscriptionManager> {
     const network = await provider.getNetwork();
     const contractAddress = getContract(
+      domain,
       network.chainId,
-      'SUBSCRIPTION_MANAGER',
+      'SubscriptionManager',
     );
     return SubscriptionManager__factory.connect(
       contractAddress,

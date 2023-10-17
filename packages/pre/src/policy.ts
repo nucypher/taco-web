@@ -7,6 +7,8 @@ import {
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
 import {
+  ChecksumAddress,
+  Domain,
   PreSubscriptionManagerAgent,
   toBytes,
   toCanonicalAddress,
@@ -47,8 +49,9 @@ export class PreEnactedPolicy implements IPreEnactedPolicy {
   public async enact(
     provider: ethers.providers.Provider,
     signer: ethers.Signer,
+    domain: Domain,
   ): Promise<EnactedPolicy> {
-    const txHash = await this.publish(provider, signer);
+    const txHash = await this.publish(provider, signer, domain);
     return {
       ...this,
       txHash,
@@ -58,12 +61,14 @@ export class PreEnactedPolicy implements IPreEnactedPolicy {
   private async publish(
     provider: ethers.providers.Provider,
     signer: ethers.Signer,
+    domain: Domain,
   ): Promise<string> {
     const startTimestamp = toEpoch(this.startTimestamp);
     const endTimestamp = toEpoch(this.endTimestamp);
     const ownerAddress = await signer.getAddress();
     const value = await PreSubscriptionManagerAgent.getPolicyCost(
       provider,
+      domain,
       this.size,
       startTimestamp,
       endTimestamp,
@@ -71,12 +76,13 @@ export class PreEnactedPolicy implements IPreEnactedPolicy {
     const tx = await PreSubscriptionManagerAgent.createPolicy(
       provider,
       signer,
+      domain,
       value,
       this.id.toBytes(),
       this.size,
       startTimestamp,
       endTimestamp,
-      ownerAddress,
+      ownerAddress as ChecksumAddress,
     );
     return tx.hash;
   }
@@ -115,10 +121,11 @@ export class BlockchainPolicy {
   public async enact(
     provider: ethers.providers.Provider,
     signer: ethers.Signer,
+    domain: Domain,
     ursulas: readonly Ursula[],
   ): Promise<EnactedPolicy> {
     const preEnacted = await this.generatePreEnactedPolicy(ursulas);
-    return await preEnacted.enact(provider, signer);
+    return await preEnacted.enact(provider, signer, domain);
   }
 
   public async generatePreEnactedPolicy(

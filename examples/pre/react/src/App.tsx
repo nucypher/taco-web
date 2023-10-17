@@ -6,7 +6,7 @@ import {
   getPorterUri,
   initialize,
   SecretKey,
-  toHexString
+  toHexString,
 } from '@nucypher/pre';
 import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
@@ -98,6 +98,7 @@ function App() {
     const policy = await alice.grant(
       provider,
       provider.getSigner(),
+      domains.TESTNET,
       getPorterUri(domains.TESTNET),
       policyParams,
     );

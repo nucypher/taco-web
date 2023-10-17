@@ -4,7 +4,7 @@ import {
   Signer,
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
-import { ChecksumAddress, PorterClient } from '@nucypher/shared';
+import { ChecksumAddress, Domain, PorterClient } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
 import { Keyring } from '../keyring';
@@ -43,6 +43,7 @@ export class Alice {
   public async grant(
     provider: ethers.providers.Provider,
     signer: ethers.Signer,
+    domain: Domain,
     porterUri: string,
     policyParameters: BlockchainPolicyParameters,
     includeUrsulas?: readonly ChecksumAddress[],
@@ -55,7 +56,7 @@ export class Alice {
       includeUrsulas,
     );
     const policy = await this.createPolicy(provider, policyParameters);
-    return await policy.enact(provider, signer, ursulas);
+    return await policy.enact(provider, signer, domain, ursulas);
   }
 
   public async generatePreEnactedPolicy(

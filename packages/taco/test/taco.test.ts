@@ -16,7 +16,7 @@ import {
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import * as taco from '../src';
-import { conditions, toBytes } from '../src';
+import { conditions, domains, toBytes } from '../src';
 
 import {
   fakeDkgRitual,
@@ -48,6 +48,7 @@ describe('taco', () => {
 
     const messageKit = await taco.encrypt(
       provider,
+      domains.DEV,
       message,
       ownsNFT,
       mockedDkg.ritualId,
@@ -80,6 +81,7 @@ describe('taco', () => {
 
     const decryptedMessage = await taco.decrypt(
       provider,
+      domains.DEV,
       messageKit,
       fakePorterUri,
       signer,

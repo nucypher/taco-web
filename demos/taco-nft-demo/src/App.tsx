@@ -1,6 +1,7 @@
 import {
   conditions,
   decrypt,
+  domains,
   encrypt,
   getPorterUri,
   initialize,
@@ -42,6 +43,7 @@ export default function App() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const encryptedMessage = await encrypt(
       provider,
+      domains.TESTNET,
       message,
       condition,
       ritualId,
@@ -61,12 +63,12 @@ export default function App() {
     setDecryptionErrors([]);
 
     const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const porterUri = getPorterUri('lynx');
     const decryptedMessage = await decrypt(
       provider,
+      domains.TESTNET,
       encryptedMessage,
+      getPorterUri(domains.TESTNET),
       provider.getSigner(),
-      porterUri,
     );
 
     setDecryptedMessage(new TextDecoder().decode(decryptedMessage));

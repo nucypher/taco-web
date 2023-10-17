@@ -95,8 +95,10 @@ export const fakeProvider = (
   } as unknown as ethers.providers.Web3Provider;
 };
 
-const genChecksumAddress = (i: number) =>
-  '0x' + '0'.repeat(40 - i.toString(16).length) + i.toString(16);
+const genChecksumAddress = (i: number): ChecksumAddress =>
+  `0x${'0'.repeat(40 - i.toString(16).length)}${i.toString(
+    16,
+  )}`.toLowerCase() as ChecksumAddress;
 
 const genEthAddr = (i: number) =>
   EthereumAddress.fromString(genChecksumAddress(i));
@@ -105,7 +107,7 @@ export const fakeUrsulas = (n = 4): Ursula[] =>
   // 0...n-1
   Array.from(Array(n).keys()).map((i: number) => ({
     encryptingKey: SecretKey.random().publicKey(),
-    checksumAddress: genChecksumAddress(i).toLowerCase(),
+    checksumAddress: genChecksumAddress(i),
     uri: `https://example.${i}.com:9151`,
   }));
 

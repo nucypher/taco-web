@@ -12,7 +12,7 @@ export class RetrievalResult {
   }
 
   public get addresses(): readonly ChecksumAddress[] {
-    return Object.keys(this.cFrags);
+    return Object.keys(this.cFrags) as ChecksumAddress[];
   }
 
   public withResult(result: RetrievalResult): RetrievalResult {

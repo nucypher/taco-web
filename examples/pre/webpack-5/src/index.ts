@@ -65,13 +65,13 @@ const runExample = async () => {
     startDate,
     endDate,
   };
-  const porterUri = getPorterUri(domains.TESTNET);
 
   const alice = makeAlice();
   const policy = await alice.grant(
     provider,
     provider.getSigner(),
-    porterUri,
+    domains.TESTNET,
+    getPorterUri(domains.TESTNET),
     policyParams,
   );
 

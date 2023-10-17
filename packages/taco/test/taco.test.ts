@@ -10,8 +10,8 @@ import {
   fakeProvider,
   fakeSigner,
   fakeTDecFlow,
-  mockCbdDecrypt,
   mockGetRitualIdFromPublicKey,
+  mockTacoDecrypt,
 } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
@@ -65,7 +65,7 @@ describe('taco', () => {
       mockedDkg.ritualId,
     );
     const requesterSessionKey = SessionStaticSecret.random();
-    const decryptSpy = mockCbdDecrypt(
+    const decryptSpy = mockTacoDecrypt(
       mockedDkg.ritualId,
       decryptionShares,
       participantSecrets,

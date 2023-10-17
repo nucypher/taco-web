@@ -92,9 +92,9 @@ export type RetrieveCFragsResult = {
   readonly errors: Record<ChecksumAddress, string>;
 };
 
-// /cbd_decrypt
+// /decrypt
 
-type PostCbdDecryptRequest = {
+type PostTacoDecryptRequest = {
   readonly threshold: number;
   readonly encrypted_decryption_requests: Record<
     ChecksumAddress,
@@ -102,7 +102,7 @@ type PostCbdDecryptRequest = {
   >;
 };
 
-type PostCbdDecryptResponse = {
+type PostTacoDecryptResponse = {
   result: {
     decryption_results: {
       encrypted_decryption_responses: Record<
@@ -114,7 +114,7 @@ type PostCbdDecryptResponse = {
   };
 };
 
-export type CbdDecryptResult = {
+export type TacoDecryptResult = {
   encryptedResponses: Record<string, EncryptedThresholdDecryptionResponse>;
   errors: Record<string, string>;
 };
@@ -185,11 +185,11 @@ export class PorterClient {
     });
   }
 
-  public async cbdDecrypt(
+  public async tacoDecrypt(
     encryptedRequests: Record<string, EncryptedThresholdDecryptionRequest>,
     threshold: number,
-  ): Promise<CbdDecryptResult> {
-    const data: PostCbdDecryptRequest = {
+  ): Promise<TacoDecryptResult> {
+    const data: PostTacoDecryptRequest = {
       encrypted_decryption_requests: Object.fromEntries(
         Object.entries(encryptedRequests).map(([ursula, encryptedRequest]) => [
           ursula,
@@ -198,8 +198,8 @@ export class PorterClient {
       ),
       threshold,
     };
-    const resp: AxiosResponse<PostCbdDecryptResponse> = await axios.post(
-      new URL('/cbd_decrypt', this.porterUrl).toString(),
+    const resp: AxiosResponse<PostTacoDecryptResponse> = await axios.post(
+      new URL('/decrypt', this.porterUrl).toString(),
       data,
     );
 

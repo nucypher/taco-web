@@ -1,11 +1,11 @@
 import {
   conditions,
   decrypt,
+  domains,
   encrypt,
   fromBytes,
   getPorterUri,
   initialize,
-  domains,
   toBytes,
 } from '@nucypher/taco';
 import * as dotenv from 'dotenv';
@@ -51,6 +51,7 @@ const runExample = async () => {
   const ritualId = 1; // Replace with your own ritual ID
   const messageKit = await encrypt(
     provider,
+    domains.DEV,
     message,
     hasPositiveBalance,
     ritualId,
@@ -58,8 +59,13 @@ const runExample = async () => {
   );
 
   console.log('Decrypting message...');
-  const porterUri = getPorterUri(domains.DEV);
-  const decryptedBytes = await decrypt(provider, messageKit, porterUri, signer);
+  const decryptedBytes = await decrypt(
+    provider,
+    domains.DEV,
+    messageKit,
+    getPorterUri(domains.DEV),
+    signer,
+  );
   const decryptedMessageString = fromBytes(decryptedBytes);
   console.log('Decrypted message:', decryptedMessageString);
   console.assert(

@@ -5,7 +5,7 @@ import {
   PublicKey,
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
-import { ChecksumAddress, initialize, Ursula } from '@nucypher/shared';
+import { ChecksumAddress, domains, initialize, Ursula } from '@nucypher/shared';
 import {
   bytesEqual,
   fakePorterUri,
@@ -73,6 +73,7 @@ describe('story: alice shares message with bob through policy', () => {
     policy = await alice.grant(
       fakeProvider(),
       fakeSigner(),
+      domains.DEV,
       fakePorterUri,
       policyParams,
     );

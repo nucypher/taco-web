@@ -7,6 +7,7 @@ import {
 import {
   ChecksumAddress,
   DkgCoordinatorAgent,
+  Domain,
   fromHexString,
   GlobalAllowListAgent,
   toBytes,
@@ -24,6 +25,7 @@ import { retrieveAndDecrypt } from './tdec';
 
 export const encrypt = async (
   provider: ethers.providers.Provider,
+  domain: Domain,
   message: Uint8Array | string,
   condition: Condition,
   ritualId: number,
@@ -41,7 +43,7 @@ export const encrypt = async (
   //   // Given that we just initialized the ritual, this should never happen
   //   throw new Error('Ritual ID is undefined');
   // }
-  const dkgRitual = await DkgClient.getFinalizedRitual(provider, ritualId);
+  const dkgRitual = await DkgClient.getFinalizedRitual(provider, domain, ritualId);
 
   return await encryptWithPublicKey(
     message,
@@ -81,6 +83,7 @@ export const encryptWithPublicKey = async (
 
 export const decrypt = async (
   provider: ethers.providers.Provider,
+  domain: Domain,
   messageKit: ThresholdMessageKit,
   porterUri: string,
   signer?: ethers.Signer,
@@ -88,11 +91,13 @@ export const decrypt = async (
 ): Promise<Uint8Array> => {
   const ritualId = await DkgCoordinatorAgent.getRitualIdFromPublicKey(
     provider,
+    domain,
     messageKit.acp.publicKey,
   );
-  const ritual = await DkgClient.getFinalizedRitual(provider, ritualId);
+  const ritual = await DkgClient.getFinalizedRitual(provider, domain, ritualId);
   return retrieveAndDecrypt(
     provider,
+    domain,
     porterUri,
     messageKit,
     ritualId,
@@ -104,19 +109,22 @@ export const decrypt = async (
 
 export const isAuthorized = async (
   provider: ethers.providers.Provider,
+  domain: Domain,
   messageKit: ThresholdMessageKit,
   ritualId: number,
-) => DkgCoordinatorAgent.isEncryptionAuthorized(provider, ritualId, messageKit);
+) => DkgCoordinatorAgent.isEncryptionAuthorized(provider, domain, ritualId, messageKit);
 
 export const registerEncrypters = async (
   provider: ethers.providers.Provider,
   signer: ethers.Signer,
+  domain: Domain,
   ritualId: number,
   encrypters: ChecksumAddress[],
 ): Promise<void> => {
   await GlobalAllowListAgent.registerEncrypters(
     provider,
     signer,
+    domain,
     ritualId,
     encrypters,
   );

@@ -59,11 +59,16 @@ const runExample = async () => {
     startDate: new Date(),
     endDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // In 30 days,
   };
-  const porterUri = getPorterUri(domains.TESTNET);
   const alice = makeAlice();
 
   console.log('Creating policy...');
-  const policy = await alice.grant(provider, signer, porterUri, policyParams);
+  const policy = await alice.grant(
+    provider,
+    signer,
+    domains.DEV,
+    getPorterUri(domains.DEV),
+    policyParams,
+  );
 
   console.log('Policy created:');
   console.log({ policy });

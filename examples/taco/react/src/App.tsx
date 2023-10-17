@@ -7,8 +7,8 @@ import {
   getPorterUri,
   initialize,
 } from '@nucypher/taco';
-import {ethers} from 'ethers';
-import {useEffect, useState} from 'react';
+import { ethers } from 'ethers';
+import { useEffect, useState } from 'react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const window: any;
@@ -20,7 +20,9 @@ function App() {
   const [provider, setProvider] = useState<
     ethers.providers.Web3Provider | undefined
   >();
-  const [decryptedMessage, setDecryptedMessage] = useState<string | undefined>("");
+  const [decryptedMessage, setDecryptedMessage] = useState<string | undefined>(
+    '',
+  );
 
   const initNucypher = async () => {
     await initialize();
@@ -33,12 +35,12 @@ function App() {
     }
     const provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
 
-    const {chainId} = await provider.getNetwork();
+    const { chainId } = await provider.getNetwork();
     if (chainId !== 80001) {
       // Switch to Matic Mumbai testnet
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{chainId: '0x13881'}],
+        params: [{ chainId: '0x13881' }],
       });
     }
 
@@ -66,12 +68,12 @@ function App() {
     await provider.send('eth_requestAccounts', []);
     const signer = provider.getSigner();
 
-    const {chainId} = await provider.getNetwork();
+    const { chainId } = await provider.getNetwork();
     if (chainId !== 80001) {
       // Switch to Matic Mumbai testnet
       await window.ethereum!.request!({
         method: 'wallet_switchEthereumChain',
-        params: [{chainId: '0x13881'}],
+        params: [{ chainId: '0x13881' }],
       });
     }
 
@@ -87,11 +89,23 @@ function App() {
       },
     });
     const ritualId = 2; // Replace with your own ritual ID
-    const messageKit = await encrypt(provider, message, hasPositiveBalance, ritualId, signer);
+    const messageKit = await encrypt(
+      provider,
+      domains.DEV,
+      message,
+      hasPositiveBalance,
+      ritualId,
+      signer,
+    );
 
     console.log('Decrypting message...');
-    const porterUri = getPorterUri(domains.DEV);
-    const decryptedMessage = await decrypt(provider, messageKit, porterUri, signer);
+    const decryptedMessage = await decrypt(
+      provider,
+      domains.DEV,
+      messageKit,
+      getPorterUri(domains.DEV),
+      signer,
+    );
 
     setDecryptedMessage(fromBytes(decryptedMessage));
   };
@@ -99,7 +113,7 @@ function App() {
   return (
     <div>
       <h1>Secret message: {message}</h1>
-      {(decryptedMessage && <h1>Decrypted message: {decryptedMessage}</h1>)}
+      {decryptedMessage && <h1>Decrypted message: {decryptedMessage}</h1>}
       <button onClick={runExample}>Run example</button>
     </div>
   );

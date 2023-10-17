@@ -1,54 +1,40 @@
-import * as lynxRegistryJson from '@nucypher/nucypher-contracts/deployment/artifacts/lynx.json';
-import * as mainnetRegistryJson from '@nucypher/nucypher-contracts/deployment/artifacts/mainnet.json';
 import * as fs from 'fs';
 import * as path from 'path';
+
 import * as tmp from 'tmp';
 import { glob, runTypeChain } from 'typechain';
 
-type Abi = unknown;
-
-type DeployedContract = {
-  address: string;
-  abi: Abi;
-};
-
-type Contract = {
-  name: string;
-  abi: Abi;
-};
-
-type ContractRegistry = {
-  [chainId: string]: Record<string, DeployedContract>;
-};
-
-const lynxRegistry: ContractRegistry = lynxRegistryJson;
-const mainnetRegistry: ContractRegistry = mainnetRegistryJson;
+import {
+  Contract,
+  ContractName,
+  contractNames,
+  ContractRegistry,
+  domainRegistry,
+} from '../src';
 
 const parseContractRegistry = (registry: ContractRegistry): Contract[] =>
   Object.keys(registry)
     .map((chainId) => {
       const networkRegistry = registry[chainId];
-      return Object.keys(networkRegistry).map((contractName) => {
+      return Object.keys(networkRegistry).map((contractName): Contract => {
         const contract = networkRegistry[contractName];
-        return { name: contractName, abi: contract.abi };
+        return { name: contractName as ContractName, abi: contract.abi };
       });
     })
     .flat();
 
 console.log(`Parsing contract registries`);
-const lynxContracts = parseContractRegistry(lynxRegistry);
-const mainnetContracts = parseContractRegistry(mainnetRegistry);
-console.log(`Found ${lynxContracts.length} contracts on Lynx`);
-console.log(`Found ${mainnetContracts.length} contracts on Mainnet`);
-const allContracts = [...lynxContracts, ...mainnetContracts];
 
-const SELECTED_CONTRACT_NAMES = [
-  'Coordinator',
-  'GlobalAllowList',
-  'SubscriptionManager',
-];
+const allContracts = Object.entries(domainRegistry)
+  .map(([domain, registry]) => {
+    const contracts = parseContractRegistry(registry);
+    console.log(`Found ${contracts.length} contracts on ${domain}`);
+    return contracts;
+  })
+  .flat();
+
 const selectedContracts = allContracts.filter(({ name }) =>
-  SELECTED_CONTRACT_NAMES.includes(name),
+  contractNames.includes(name),
 );
 console.log(
   `Selected contracts: ${selectedContracts.map(({ name }) => name).join(', ')}`,

@@ -9,8 +9,8 @@ import {
   SecretKey,
   toHexString,
 } from '@nucypher/pre';
-import {ethers} from 'ethers';
-import {useEffect, useState} from 'react';
+import { ethers } from 'ethers';
+import { useEffect, useState } from 'react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const window: any;
@@ -35,12 +35,12 @@ function App() {
     }
     const provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
 
-    const {chainId} = await provider.getNetwork();
+    const { chainId } = await provider.getNetwork();
     if (chainId !== 80001) {
       // Switch to Matic Mumbai testnet
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{chainId: '0x13881'}],
+        params: [{ chainId: '0x13881' }],
       });
     }
 
@@ -68,8 +68,8 @@ function App() {
   };
 
   const makeRemoteBob = (bob: Bob) => {
-    const {decryptingKey, verifyingKey} = bob;
-    return {decryptingKey, verifyingKey};
+    const { decryptingKey, verifyingKey } = bob;
+    return { decryptingKey, verifyingKey };
   };
 
   const makeCharacters = () => {
@@ -107,7 +107,8 @@ function App() {
     const policy = await alice.grant(
       provider,
       provider.getSigner(),
-      getPorterUri(domains.TESTNET),
+      domains.DEV,
+      getPorterUri(domains.DEV),
       policyParams,
     );
 

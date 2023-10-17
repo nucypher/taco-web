@@ -2,8 +2,9 @@
 
 Shows how to integrate `@nucypher/taco` into a React application.
 
-In order to load WASM dependencies of `@nucypher/taco`, we override the `react-scripts` configuration with `craco`. For
-more details, see the `craco.config.js` file.
+In order to load WASM dependencies of `@nucypher/taco`, we override the
+`react-scripts` configuration with `craco`. For more details, see the
+`craco.config.js` file.
 
 ## Usage
 

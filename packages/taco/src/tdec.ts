@@ -16,6 +16,7 @@ import {
 import {
   DkgCoordinatorAgent,
   DkgParticipant,
+  Domain,
   PorterClient,
   toBytes,
 } from '@nucypher/shared';
@@ -53,6 +54,7 @@ export const encryptMessage = async (
 // Retrieve and decrypt ciphertext using provider and condition expression
 export const retrieveAndDecrypt = async (
   provider: ethers.providers.Provider,
+  domain: Domain,
   porterUri: string,
   thresholdMessageKit: ThresholdMessageKit,
   ritualId: number,
@@ -62,6 +64,7 @@ export const retrieveAndDecrypt = async (
 ): Promise<Uint8Array> => {
   const decryptionShares = await retrieve(
     provider,
+    domain,
     porterUri,
     thresholdMessageKit,
     ritualId,
@@ -76,6 +79,7 @@ export const retrieveAndDecrypt = async (
 // Retrieve decryption shares
 const retrieve = async (
   provider: ethers.providers.Provider,
+  domain: Domain,
   porterUri: string,
   thresholdMessageKit: ThresholdMessageKit,
   ritualId: number,
@@ -85,6 +89,7 @@ const retrieve = async (
 ): Promise<DecryptionShareSimple[]> => {
   const dkgParticipants = await DkgCoordinatorAgent.getParticipants(
     provider,
+    domain,
     ritualId,
   );
   const wasmContext = await ConditionContext.fromConditions(

@@ -3,6 +3,7 @@ import {
   ChecksumAddress,
   DkgCoordinatorAgent,
   DkgRitualState,
+  Domain,
   fromHexString,
 } from '@nucypher/shared';
 import { BigNumberish, ethers } from 'ethers';
@@ -65,6 +66,7 @@ export class DkgClient {
   public static async initializeRitual(
     provider: ethers.providers.Provider,
     signer: ethers.Signer,
+    domain: Domain,
     ursulas: ChecksumAddress[],
     authority: string,
     duration: BigNumberish,
@@ -74,6 +76,7 @@ export class DkgClient {
     const ritualId = await DkgCoordinatorAgent.initializeRitual(
       provider,
       signer,
+      domain,
       ursulas.sort(),
       authority,
       duration,
@@ -83,11 +86,13 @@ export class DkgClient {
     if (waitUntilEnd) {
       const isSuccessful = await DkgClient.waitUntilRitualEnd(
         provider,
+        domain,
         ritualId,
       );
       if (!isSuccessful) {
         const ritualState = await DkgCoordinatorAgent.getRitualState(
           provider,
+          domain,
           ritualId,
         );
         throw new Error(
@@ -101,6 +106,7 @@ export class DkgClient {
 
   private static waitUntilRitualEnd = async (
     provider: ethers.providers.Provider,
+    domain: Domain,
     ritualId: number,
   ): Promise<boolean> => {
     return new Promise((resolve, reject) => {
@@ -111,19 +117,21 @@ export class DkgClient {
           reject();
         }
       };
-      DkgCoordinatorAgent.onRitualEndEvent(provider, ritualId, callback);
+      DkgCoordinatorAgent.onRitualEndEvent(provider, domain, ritualId, callback);
     });
   };
 
   public static async getRitual(
     provider: ethers.providers.Provider,
+    domain: Domain,
     ritualId: number,
   ): Promise<DkgRitual> {
     const ritualState = await DkgCoordinatorAgent.getRitualState(
       provider,
+      domain,
       ritualId,
     );
-    const ritual = await DkgCoordinatorAgent.getRitual(provider, ritualId);
+    const ritual = await DkgCoordinatorAgent.getRitual(provider, domain, ritualId);
     const dkgPkBytes = new Uint8Array([
       ...fromHexString(ritual.publicKey.word0),
       ...fromHexString(ritual.publicKey.word1),
@@ -139,9 +147,10 @@ export class DkgClient {
 
   public static async getFinalizedRitual(
     provider: ethers.providers.Provider,
+    domain: Domain,
     ritualId: number,
   ): Promise<DkgRitual> {
-    const ritual = await DkgClient.getRitual(provider, ritualId);
+    const ritual = await DkgClient.getRitual(provider, domain, ritualId);
     if (ritual.state !== DkgRitualState.FINALIZED) {
       throw new Error(
         `Ritual ${ritualId} is not finalized. State: ${ritual.state}`,

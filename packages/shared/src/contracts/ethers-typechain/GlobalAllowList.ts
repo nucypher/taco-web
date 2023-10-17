@@ -2,6 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 import type {
+  EventFragment,
+  FunctionFragment,
+  Result,
+} from '@ethersproject/abi';
+import type { Listener, Provider } from '@ethersproject/providers';
+import type {
   BaseContract,
   BigNumber,
   BigNumberish,
@@ -12,277 +18,271 @@ import type {
   PopulatedTransaction,
   Signer,
   utils,
-} from "ethers";
+} from 'ethers';
 import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
-import type {
-  TypedEventFilter,
-  TypedEvent,
-  TypedListener,
   OnEvent,
-} from "./common";
+  TypedEvent,
+  TypedEventFilter,
+  TypedListener,
+} from './common';
 
 export interface GlobalAllowListInterface extends utils.Interface {
   functions: {
-    "DEFAULT_ADMIN_ROLE()": FunctionFragment;
-    "acceptDefaultAdminTransfer()": FunctionFragment;
-    "authorize(uint32,address[])": FunctionFragment;
-    "beginDefaultAdminTransfer(address)": FunctionFragment;
-    "cancelDefaultAdminTransfer()": FunctionFragment;
-    "changeDefaultAdminDelay(uint48)": FunctionFragment;
-    "coordinator()": FunctionFragment;
-    "deauthorize(uint32,address[])": FunctionFragment;
-    "defaultAdmin()": FunctionFragment;
-    "defaultAdminDelay()": FunctionFragment;
-    "defaultAdminDelayIncreaseWait()": FunctionFragment;
-    "getRoleAdmin(bytes32)": FunctionFragment;
-    "grantRole(bytes32,address)": FunctionFragment;
-    "hasRole(bytes32,address)": FunctionFragment;
-    "isAddressAuthorized(uint32,address)": FunctionFragment;
-    "isAuthorized(uint32,bytes,bytes)": FunctionFragment;
-    "owner()": FunctionFragment;
-    "pendingDefaultAdmin()": FunctionFragment;
-    "pendingDefaultAdminDelay()": FunctionFragment;
-    "renounceRole(bytes32,address)": FunctionFragment;
-    "revokeRole(bytes32,address)": FunctionFragment;
-    "rollbackDefaultAdminDelay()": FunctionFragment;
-    "setCoordinator(address)": FunctionFragment;
-    "supportsInterface(bytes4)": FunctionFragment;
+    'DEFAULT_ADMIN_ROLE()': FunctionFragment;
+    'acceptDefaultAdminTransfer()': FunctionFragment;
+    'authorize(uint32,address[])': FunctionFragment;
+    'beginDefaultAdminTransfer(address)': FunctionFragment;
+    'cancelDefaultAdminTransfer()': FunctionFragment;
+    'changeDefaultAdminDelay(uint48)': FunctionFragment;
+    'coordinator()': FunctionFragment;
+    'deauthorize(uint32,address[])': FunctionFragment;
+    'defaultAdmin()': FunctionFragment;
+    'defaultAdminDelay()': FunctionFragment;
+    'defaultAdminDelayIncreaseWait()': FunctionFragment;
+    'getRoleAdmin(bytes32)': FunctionFragment;
+    'grantRole(bytes32,address)': FunctionFragment;
+    'hasRole(bytes32,address)': FunctionFragment;
+    'isAddressAuthorized(uint32,address)': FunctionFragment;
+    'isAuthorized(uint32,bytes,bytes)': FunctionFragment;
+    'owner()': FunctionFragment;
+    'pendingDefaultAdmin()': FunctionFragment;
+    'pendingDefaultAdminDelay()': FunctionFragment;
+    'renounceRole(bytes32,address)': FunctionFragment;
+    'revokeRole(bytes32,address)': FunctionFragment;
+    'rollbackDefaultAdminDelay()': FunctionFragment;
+    'setCoordinator(address)': FunctionFragment;
+    'supportsInterface(bytes4)': FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "DEFAULT_ADMIN_ROLE"
-      | "acceptDefaultAdminTransfer"
-      | "authorize"
-      | "beginDefaultAdminTransfer"
-      | "cancelDefaultAdminTransfer"
-      | "changeDefaultAdminDelay"
-      | "coordinator"
-      | "deauthorize"
-      | "defaultAdmin"
-      | "defaultAdminDelay"
-      | "defaultAdminDelayIncreaseWait"
-      | "getRoleAdmin"
-      | "grantRole"
-      | "hasRole"
-      | "isAddressAuthorized"
-      | "isAuthorized"
-      | "owner"
-      | "pendingDefaultAdmin"
-      | "pendingDefaultAdminDelay"
-      | "renounceRole"
-      | "revokeRole"
-      | "rollbackDefaultAdminDelay"
-      | "setCoordinator"
-      | "supportsInterface"
+      | 'DEFAULT_ADMIN_ROLE'
+      | 'acceptDefaultAdminTransfer'
+      | 'authorize'
+      | 'beginDefaultAdminTransfer'
+      | 'cancelDefaultAdminTransfer'
+      | 'changeDefaultAdminDelay'
+      | 'coordinator'
+      | 'deauthorize'
+      | 'defaultAdmin'
+      | 'defaultAdminDelay'
+      | 'defaultAdminDelayIncreaseWait'
+      | 'getRoleAdmin'
+      | 'grantRole'
+      | 'hasRole'
+      | 'isAddressAuthorized'
+      | 'isAuthorized'
+      | 'owner'
+      | 'pendingDefaultAdmin'
+      | 'pendingDefaultAdminDelay'
+      | 'renounceRole'
+      | 'revokeRole'
+      | 'rollbackDefaultAdminDelay'
+      | 'setCoordinator'
+      | 'supportsInterface',
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "DEFAULT_ADMIN_ROLE",
-    values?: undefined
+    functionFragment: 'DEFAULT_ADMIN_ROLE',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "acceptDefaultAdminTransfer",
-    values?: undefined
+    functionFragment: 'acceptDefaultAdminTransfer',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "authorize",
-    values: [BigNumberish, string[]]
+    functionFragment: 'authorize',
+    values: [BigNumberish, string[]],
   ): string;
   encodeFunctionData(
-    functionFragment: "beginDefaultAdminTransfer",
-    values: [string]
+    functionFragment: 'beginDefaultAdminTransfer',
+    values: [string],
   ): string;
   encodeFunctionData(
-    functionFragment: "cancelDefaultAdminTransfer",
-    values?: undefined
+    functionFragment: 'cancelDefaultAdminTransfer',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "changeDefaultAdminDelay",
-    values: [BigNumberish]
+    functionFragment: 'changeDefaultAdminDelay',
+    values: [BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "coordinator",
-    values?: undefined
+    functionFragment: 'coordinator',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "deauthorize",
-    values: [BigNumberish, string[]]
+    functionFragment: 'deauthorize',
+    values: [BigNumberish, string[]],
   ): string;
   encodeFunctionData(
-    functionFragment: "defaultAdmin",
-    values?: undefined
+    functionFragment: 'defaultAdmin',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "defaultAdminDelay",
-    values?: undefined
+    functionFragment: 'defaultAdminDelay',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "defaultAdminDelayIncreaseWait",
-    values?: undefined
+    functionFragment: 'defaultAdminDelayIncreaseWait',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "getRoleAdmin",
-    values: [BytesLike]
+    functionFragment: 'getRoleAdmin',
+    values: [BytesLike],
   ): string;
   encodeFunctionData(
-    functionFragment: "grantRole",
-    values: [BytesLike, string]
+    functionFragment: 'grantRole',
+    values: [BytesLike, string],
   ): string;
   encodeFunctionData(
-    functionFragment: "hasRole",
-    values: [BytesLike, string]
+    functionFragment: 'hasRole',
+    values: [BytesLike, string],
   ): string;
   encodeFunctionData(
-    functionFragment: "isAddressAuthorized",
-    values: [BigNumberish, string]
+    functionFragment: 'isAddressAuthorized',
+    values: [BigNumberish, string],
   ): string;
   encodeFunctionData(
-    functionFragment: "isAuthorized",
-    values: [BigNumberish, BytesLike, BytesLike]
+    functionFragment: 'isAuthorized',
+    values: [BigNumberish, BytesLike, BytesLike],
   ): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "pendingDefaultAdmin",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "pendingDefaultAdminDelay",
-    values?: undefined
+    functionFragment: 'pendingDefaultAdmin',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "renounceRole",
-    values: [BytesLike, string]
+    functionFragment: 'pendingDefaultAdminDelay',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "revokeRole",
-    values: [BytesLike, string]
+    functionFragment: 'renounceRole',
+    values: [BytesLike, string],
   ): string;
   encodeFunctionData(
-    functionFragment: "rollbackDefaultAdminDelay",
-    values?: undefined
+    functionFragment: 'revokeRole',
+    values: [BytesLike, string],
   ): string;
   encodeFunctionData(
-    functionFragment: "setCoordinator",
-    values: [string]
+    functionFragment: 'rollbackDefaultAdminDelay',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "supportsInterface",
-    values: [BytesLike]
+    functionFragment: 'setCoordinator',
+    values: [string],
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'supportsInterface',
+    values: [BytesLike],
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "DEFAULT_ADMIN_ROLE",
-    data: BytesLike
+    functionFragment: 'DEFAULT_ADMIN_ROLE',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "acceptDefaultAdminTransfer",
-    data: BytesLike
+    functionFragment: 'acceptDefaultAdminTransfer',
+    data: BytesLike,
   ): Result;
-  decodeFunctionResult(functionFragment: "authorize", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'authorize', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "beginDefaultAdminTransfer",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "cancelDefaultAdminTransfer",
-    data: BytesLike
+    functionFragment: 'beginDefaultAdminTransfer',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "changeDefaultAdminDelay",
-    data: BytesLike
+    functionFragment: 'cancelDefaultAdminTransfer',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "coordinator",
-    data: BytesLike
+    functionFragment: 'changeDefaultAdminDelay',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "deauthorize",
-    data: BytesLike
+    functionFragment: 'coordinator',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "defaultAdmin",
-    data: BytesLike
+    functionFragment: 'deauthorize',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "defaultAdminDelay",
-    data: BytesLike
+    functionFragment: 'defaultAdmin',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "defaultAdminDelayIncreaseWait",
-    data: BytesLike
+    functionFragment: 'defaultAdminDelay',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getRoleAdmin",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "isAddressAuthorized",
-    data: BytesLike
+    functionFragment: 'defaultAdminDelayIncreaseWait',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isAuthorized",
-    data: BytesLike
+    functionFragment: 'getRoleAdmin',
+    data: BytesLike,
   ): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'grantRole', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'hasRole', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "pendingDefaultAdmin",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "pendingDefaultAdminDelay",
-    data: BytesLike
+    functionFragment: 'isAddressAuthorized',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "renounceRole",
-    data: BytesLike
+    functionFragment: 'isAuthorized',
+    data: BytesLike,
   ): Result;
-  decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "rollbackDefaultAdminDelay",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setCoordinator",
-    data: BytesLike
+    functionFragment: 'pendingDefaultAdmin',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "supportsInterface",
-    data: BytesLike
+    functionFragment: 'pendingDefaultAdminDelay',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'renounceRole',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(functionFragment: 'revokeRole', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: 'rollbackDefaultAdminDelay',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'setCoordinator',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'supportsInterface',
+    data: BytesLike,
   ): Result;
 
   events: {
-    "DefaultAdminDelayChangeCanceled()": EventFragment;
-    "DefaultAdminDelayChangeScheduled(uint48,uint48)": EventFragment;
-    "DefaultAdminTransferCanceled()": EventFragment;
-    "DefaultAdminTransferScheduled(address,uint48)": EventFragment;
-    "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
-    "RoleGranted(bytes32,address,address)": EventFragment;
-    "RoleRevoked(bytes32,address,address)": EventFragment;
+    'DefaultAdminDelayChangeCanceled()': EventFragment;
+    'DefaultAdminDelayChangeScheduled(uint48,uint48)': EventFragment;
+    'DefaultAdminTransferCanceled()': EventFragment;
+    'DefaultAdminTransferScheduled(address,uint48)': EventFragment;
+    'RoleAdminChanged(bytes32,bytes32,bytes32)': EventFragment;
+    'RoleGranted(bytes32,address,address)': EventFragment;
+    'RoleRevoked(bytes32,address,address)': EventFragment;
   };
 
   getEvent(
-    nameOrSignatureOrTopic: "DefaultAdminDelayChangeCanceled"
+    nameOrSignatureOrTopic: 'DefaultAdminDelayChangeCanceled',
   ): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "DefaultAdminDelayChangeScheduled"
+    nameOrSignatureOrTopic: 'DefaultAdminDelayChangeScheduled',
   ): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "DefaultAdminTransferCanceled"
+    nameOrSignatureOrTopic: 'DefaultAdminTransferCanceled',
   ): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "DefaultAdminTransferScheduled"
+    nameOrSignatureOrTopic: 'DefaultAdminTransferScheduled',
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'RoleAdminChanged'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'RoleGranted'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'RoleRevoked'): EventFragment;
 }
 
 export interface DefaultAdminDelayChangeCanceledEventObject {}
@@ -374,15 +374,15 @@ export interface GlobalAllowList extends BaseContract {
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TEvent>>;
 
   listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
+    eventFilter?: TypedEventFilter<TEvent>,
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
   removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
+    eventFilter: TypedEventFilter<TEvent>,
   ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
@@ -394,27 +394,27 @@ export interface GlobalAllowList extends BaseContract {
     DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
     acceptDefaultAdminTransfer(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     authorize(
       ritualId: BigNumberish,
       addresses: string[],
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     beginDefaultAdminTransfer(
       newAdmin: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     cancelDefaultAdminTransfer(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     changeDefaultAdminDelay(
       newDelay: BigNumberish,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     coordinator(overrides?: CallOverrides): Promise<[string]>;
@@ -422,7 +422,7 @@ export interface GlobalAllowList extends BaseContract {
     deauthorize(
       ritualId: BigNumberish,
       addresses: string[],
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     defaultAdmin(overrides?: CallOverrides): Promise<[string]>;
@@ -436,89 +436,89 @@ export interface GlobalAllowList extends BaseContract {
     grantRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     hasRole(
       role: BytesLike,
       account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[boolean]>;
 
     isAddressAuthorized(
       ritualId: BigNumberish,
       encryptor: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[boolean]>;
 
     isAuthorized(
       ritualId: BigNumberish,
       evidence: BytesLike,
       ciphertextHeader: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[boolean]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     pendingDefaultAdmin(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string, number] & { newAdmin: string; schedule: number }>;
 
     pendingDefaultAdminDelay(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[number, number] & { newDelay: number; schedule: number }>;
 
     renounceRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     revokeRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     rollbackDefaultAdminDelay(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     setCoordinator(
       _coordinator: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     supportsInterface(
       interfaceId: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[boolean]>;
   };
 
   DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
   acceptDefaultAdminTransfer(
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   authorize(
     ritualId: BigNumberish,
     addresses: string[],
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   beginDefaultAdminTransfer(
     newAdmin: string,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   cancelDefaultAdminTransfer(
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   changeDefaultAdminDelay(
     newDelay: BigNumberish,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   coordinator(overrides?: CallOverrides): Promise<string>;
@@ -526,7 +526,7 @@ export interface GlobalAllowList extends BaseContract {
   deauthorize(
     ritualId: BigNumberish,
     addresses: string[],
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   defaultAdmin(overrides?: CallOverrides): Promise<string>;
@@ -540,62 +540,62 @@ export interface GlobalAllowList extends BaseContract {
   grantRole(
     role: BytesLike,
     account: string,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   hasRole(
     role: BytesLike,
     account: string,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<boolean>;
 
   isAddressAuthorized(
     ritualId: BigNumberish,
     encryptor: string,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<boolean>;
 
   isAuthorized(
     ritualId: BigNumberish,
     evidence: BytesLike,
     ciphertextHeader: BytesLike,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<boolean>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
   pendingDefaultAdmin(
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<[string, number] & { newAdmin: string; schedule: number }>;
 
   pendingDefaultAdminDelay(
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<[number, number] & { newDelay: number; schedule: number }>;
 
   renounceRole(
     role: BytesLike,
     account: string,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   revokeRole(
     role: BytesLike,
     account: string,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   rollbackDefaultAdminDelay(
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   setCoordinator(
     _coordinator: string,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   supportsInterface(
     interfaceId: BytesLike,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<boolean>;
 
   callStatic: {
@@ -606,19 +606,19 @@ export interface GlobalAllowList extends BaseContract {
     authorize(
       ritualId: BigNumberish,
       addresses: string[],
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     beginDefaultAdminTransfer(
       newAdmin: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     cancelDefaultAdminTransfer(overrides?: CallOverrides): Promise<void>;
 
     changeDefaultAdminDelay(
       newDelay: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     coordinator(overrides?: CallOverrides): Promise<string>;
@@ -626,7 +626,7 @@ export interface GlobalAllowList extends BaseContract {
     deauthorize(
       ritualId: BigNumberish,
       addresses: string[],
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     defaultAdmin(overrides?: CallOverrides): Promise<string>;
@@ -640,119 +640,119 @@ export interface GlobalAllowList extends BaseContract {
     grantRole(
       role: BytesLike,
       account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     hasRole(
       role: BytesLike,
       account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<boolean>;
 
     isAddressAuthorized(
       ritualId: BigNumberish,
       encryptor: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<boolean>;
 
     isAuthorized(
       ritualId: BigNumberish,
       evidence: BytesLike,
       ciphertextHeader: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<boolean>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
     pendingDefaultAdmin(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string, number] & { newAdmin: string; schedule: number }>;
 
     pendingDefaultAdminDelay(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[number, number] & { newDelay: number; schedule: number }>;
 
     renounceRole(
       role: BytesLike,
       account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     revokeRole(
       role: BytesLike,
       account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     rollbackDefaultAdminDelay(overrides?: CallOverrides): Promise<void>;
 
     setCoordinator(
       _coordinator: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     supportsInterface(
       interfaceId: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<boolean>;
   };
 
   filters: {
-    "DefaultAdminDelayChangeCanceled()"(): DefaultAdminDelayChangeCanceledEventFilter;
+    'DefaultAdminDelayChangeCanceled()'(): DefaultAdminDelayChangeCanceledEventFilter;
     DefaultAdminDelayChangeCanceled(): DefaultAdminDelayChangeCanceledEventFilter;
 
-    "DefaultAdminDelayChangeScheduled(uint48,uint48)"(
+    'DefaultAdminDelayChangeScheduled(uint48,uint48)'(
       newDelay?: null,
-      effectSchedule?: null
+      effectSchedule?: null,
     ): DefaultAdminDelayChangeScheduledEventFilter;
     DefaultAdminDelayChangeScheduled(
       newDelay?: null,
-      effectSchedule?: null
+      effectSchedule?: null,
     ): DefaultAdminDelayChangeScheduledEventFilter;
 
-    "DefaultAdminTransferCanceled()"(): DefaultAdminTransferCanceledEventFilter;
+    'DefaultAdminTransferCanceled()'(): DefaultAdminTransferCanceledEventFilter;
     DefaultAdminTransferCanceled(): DefaultAdminTransferCanceledEventFilter;
 
-    "DefaultAdminTransferScheduled(address,uint48)"(
+    'DefaultAdminTransferScheduled(address,uint48)'(
       newAdmin?: string | null,
-      acceptSchedule?: null
+      acceptSchedule?: null,
     ): DefaultAdminTransferScheduledEventFilter;
     DefaultAdminTransferScheduled(
       newAdmin?: string | null,
-      acceptSchedule?: null
+      acceptSchedule?: null,
     ): DefaultAdminTransferScheduledEventFilter;
 
-    "RoleAdminChanged(bytes32,bytes32,bytes32)"(
+    'RoleAdminChanged(bytes32,bytes32,bytes32)'(
       role?: BytesLike | null,
       previousAdminRole?: BytesLike | null,
-      newAdminRole?: BytesLike | null
+      newAdminRole?: BytesLike | null,
     ): RoleAdminChangedEventFilter;
     RoleAdminChanged(
       role?: BytesLike | null,
       previousAdminRole?: BytesLike | null,
-      newAdminRole?: BytesLike | null
+      newAdminRole?: BytesLike | null,
     ): RoleAdminChangedEventFilter;
 
-    "RoleGranted(bytes32,address,address)"(
+    'RoleGranted(bytes32,address,address)'(
       role?: BytesLike | null,
       account?: string | null,
-      sender?: string | null
+      sender?: string | null,
     ): RoleGrantedEventFilter;
     RoleGranted(
       role?: BytesLike | null,
       account?: string | null,
-      sender?: string | null
+      sender?: string | null,
     ): RoleGrantedEventFilter;
 
-    "RoleRevoked(bytes32,address,address)"(
+    'RoleRevoked(bytes32,address,address)'(
       role?: BytesLike | null,
       account?: string | null,
-      sender?: string | null
+      sender?: string | null,
     ): RoleRevokedEventFilter;
     RoleRevoked(
       role?: BytesLike | null,
       account?: string | null,
-      sender?: string | null
+      sender?: string | null,
     ): RoleRevokedEventFilter;
   };
 
@@ -760,27 +760,27 @@ export interface GlobalAllowList extends BaseContract {
     DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
     acceptDefaultAdminTransfer(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     authorize(
       ritualId: BigNumberish,
       addresses: string[],
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     beginDefaultAdminTransfer(
       newAdmin: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     cancelDefaultAdminTransfer(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     changeDefaultAdminDelay(
       newDelay: BigNumberish,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     coordinator(overrides?: CallOverrides): Promise<BigNumber>;
@@ -788,7 +788,7 @@ export interface GlobalAllowList extends BaseContract {
     deauthorize(
       ritualId: BigNumberish,
       addresses: string[],
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     defaultAdmin(overrides?: CallOverrides): Promise<BigNumber>;
@@ -796,37 +796,37 @@ export interface GlobalAllowList extends BaseContract {
     defaultAdminDelay(overrides?: CallOverrides): Promise<BigNumber>;
 
     defaultAdminDelayIncreaseWait(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getRoleAdmin(
       role: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     grantRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     hasRole(
       role: BytesLike,
       account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     isAddressAuthorized(
       ritualId: BigNumberish,
       encryptor: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     isAuthorized(
       ritualId: BigNumberish,
       evidence: BytesLike,
       ciphertextHeader: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
@@ -838,57 +838,57 @@ export interface GlobalAllowList extends BaseContract {
     renounceRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     revokeRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     rollbackDefaultAdminDelay(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     setCoordinator(
       _coordinator: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     supportsInterface(
       interfaceId: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     DEFAULT_ADMIN_ROLE(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     acceptDefaultAdminTransfer(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     authorize(
       ritualId: BigNumberish,
       addresses: string[],
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     beginDefaultAdminTransfer(
       newAdmin: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     cancelDefaultAdminTransfer(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     changeDefaultAdminDelay(
       newDelay: BigNumberish,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     coordinator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -896,7 +896,7 @@ export interface GlobalAllowList extends BaseContract {
     deauthorize(
       ritualId: BigNumberish,
       addresses: string[],
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     defaultAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -904,73 +904,73 @@ export interface GlobalAllowList extends BaseContract {
     defaultAdminDelay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     defaultAdminDelayIncreaseWait(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getRoleAdmin(
       role: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     grantRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     hasRole(
       role: BytesLike,
       account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     isAddressAuthorized(
       ritualId: BigNumberish,
       encryptor: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     isAuthorized(
       ritualId: BigNumberish,
       evidence: BytesLike,
       ciphertextHeader: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     pendingDefaultAdmin(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     pendingDefaultAdminDelay(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     renounceRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     revokeRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     rollbackDefaultAdminDelay(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     setCoordinator(
       _coordinator: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     supportsInterface(
       interfaceId: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
   };
 }

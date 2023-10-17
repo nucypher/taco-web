@@ -1,58 +1,66 @@
+import * as lynxRegistryJson from '@nucypher/nucypher-contracts/deployment/artifacts/lynx.json';
+import * as mainnetRegistryJson from '@nucypher/nucypher-contracts/deployment/artifacts/mainnet.json';
+import * as tapirRegistryJson from '@nucypher/nucypher-contracts/deployment/artifacts/tapir.json';
+
+import { Domain } from '../porter';
 import { ChecksumAddress } from '../types';
 import { ChainId } from '../web3';
 
-type Contracts = {
-  readonly SUBSCRIPTION_MANAGER: ChecksumAddress | undefined;
-  readonly COORDINATOR: ChecksumAddress | undefined;
-  readonly GLOBAL_ALLOW_LIST: ChecksumAddress | undefined;
+export type Abi = unknown;
+
+export type DeployedContract = {
+  address: string;
+  abi: Abi;
 };
 
-const POLYGON: Contracts = {
-  SUBSCRIPTION_MANAGER: '0xB0194073421192F6Cf38d72c791Be8729721A0b3',
-  COORDINATOR: undefined,
-  GLOBAL_ALLOW_LIST: undefined,
+export const contractNames = [
+  'Coordinator',
+  'GlobalAllowList',
+  'SubscriptionManager',
+] as const;
+
+export type ContractName = (typeof contractNames)[number];
+
+export type Contract = {
+  name: ContractName;
+  abi: Abi;
 };
 
-const MUMBAI: Contracts = {
-  SUBSCRIPTION_MANAGER: '0xb9015d7b35ce7c81dde38ef7136baa3b1044f313',
-  COORDINATOR: '0x8E49989F9D3aD89c8ab0de21FbA2E00C67ca872F',
-  GLOBAL_ALLOW_LIST: '0x7b521E78CFaf55fa01433181d1D636E7e4b73243',
+export type ContractRegistry = {
+  [chainId: string]: Record<string, DeployedContract>;
 };
 
-const GOERLI: Contracts = {
-  SUBSCRIPTION_MANAGER: undefined,
-  COORDINATOR: '0x2cf19429168a0943992D8e7dE534E9b802C687B6',
-  GLOBAL_ALLOW_LIST: undefined,
-};
-
-const ETHEREUM_MAINNET: Contracts = {
-  SUBSCRIPTION_MANAGER: undefined,
-  COORDINATOR: undefined,
-  GLOBAL_ALLOW_LIST: undefined,
-};
-
-const CONTRACTS: { readonly [key in ChainId]: Contracts } = {
-  [ChainId.POLYGON]: POLYGON,
-  [ChainId.MUMBAI]: MUMBAI,
-  [ChainId.GOERLI]: GOERLI,
-  [ChainId.ETHEREUM_MAINNET]: ETHEREUM_MAINNET,
+export const domainRegistry: Record<string, ContractRegistry> = {
+  lynx: lynxRegistryJson,
+  tapir: tapirRegistryJson,
+  mainnet: mainnetRegistryJson,
 };
 
 export const getContract = (
-  chainId: number,
-  contract: keyof Contracts,
+  domain: Domain,
+  chainId: ChainId,
+  contract: ContractName,
 ): ChecksumAddress => {
+  const registry = domainRegistry[domain];
+  if (!registry) {
+    throw new Error(`No contract registry found for domain: ${domain}`);
+  }
+
   if (!Object.values(ChainId).includes(chainId)) {
+    throw new Error(`Invalid chainId: ${chainId}`);
+  }
+
+  const contracts = registry[chainId as ChainId];
+  if (!contracts) {
     throw new Error(`No contracts found for chainId: ${chainId}`);
   }
-  if (!Object.keys(CONTRACTS[chainId as ChainId]).includes(contract)) {
-    throw new Error(`No contract found for name: ${contract}`);
+
+  const deployedContract = contracts[contract];
+  if (!deployedContract) {
+    throw new Error(`No contract found for name: ${deployedContract}`);
   }
-  const address = CONTRACTS[chainId as ChainId][contract];
-  if (!address) {
-    throw new Error(`No address found for contract: ${contract}`);
-  }
-  return address;
+
+  return deployedContract.address as ChecksumAddress;
 };
 
 export const DEFAULT_WAIT_N_CONFIRMATIONS = 1;

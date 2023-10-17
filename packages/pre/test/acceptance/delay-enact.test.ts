@@ -8,7 +8,7 @@ import {
 } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { initialize } from '../../src';
+import { domains, initialize } from '../../src';
 import {
   fakeAlice,
   fakeRemoteBob,
@@ -59,7 +59,7 @@ describe('story: alice creates a policy but someone else enacts it', () => {
       ).toBeTruthy();
       expect(preEnactedPolicy.label).toBe(label);
 
-      const enacted = await preEnactedPolicy.enact(provider, fakeSigner());
+      const enacted = await preEnactedPolicy.enact(provider, fakeSigner(), domains.DEV);
       expect(enacted.txHash).toBeDefined();
 
       expect(getUrsulasSpy).toHaveBeenCalled();

@@ -153,8 +153,8 @@ export class ConditionContext {
   public static fromConditions(
     provider: ethers.providers.Provider,
     conditions: WASMConditions,
-    customParameters: Record<string, CustomContextParam>,
     signer?: ethers.Signer,
+    customParameters?: Record<string, CustomContextParam>,
   ): ConditionContext {
     const innerConditions = [
       ConditionExpression.fromWASMConditions(conditions).condition,

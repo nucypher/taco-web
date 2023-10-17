@@ -78,7 +78,7 @@ export const decrypt = async (
   messageKit: ThresholdMessageKit,
   porterUri: string,
   signer?: ethers.Signer,
-  customParameters: Record<string, CustomContextParam> = {},
+  customParameters?: Record<string, CustomContextParam>,
 ): Promise<Uint8Array> => {
   const ritualId = await DkgCoordinatorAgent.getRitualIdFromPublicKey(
     provider,

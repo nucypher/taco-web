@@ -58,7 +58,7 @@ export const retrieveAndDecrypt = async (
   ritualId: number,
   threshold: number,
   signer?: ethers.Signer,
-  customParameters: Record<string, CustomContextParam> = {},
+  customParameters?: Record<string, CustomContextParam>,
 ): Promise<Uint8Array> => {
   const decryptionShares = await retrieve(
     provider,
@@ -81,7 +81,7 @@ const retrieve = async (
   ritualId: number,
   threshold: number,
   signer?: ethers.Signer,
-  customParameters: Record<string, CustomContextParam> = {},
+  customParameters?: Record<string, CustomContextParam>,
 ): Promise<DecryptionShareSimple[]> => {
   const dkgParticipants = await DkgCoordinatorAgent.getParticipants(
     provider,
@@ -90,8 +90,8 @@ const retrieve = async (
   const wasmContext = await ConditionContext.fromConditions(
     provider,
     thresholdMessageKit.acp.conditions,
-    customParameters,
     signer,
+    customParameters,
   ).toWASMContext();
   const { sharedSecrets, encryptedRequests } = await makeDecryptionRequests(
     ritualId,

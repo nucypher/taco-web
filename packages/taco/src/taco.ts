@@ -8,7 +8,11 @@ import { DkgCoordinatorAgent, fromHexString, toBytes } from '@nucypher/shared';
 import { ethers } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 
-import { Condition, ConditionExpression } from './conditions';
+import {
+  Condition,
+  ConditionExpression,
+  CustomContextParam
+} from './conditions';
 import { DkgClient } from './dkg';
 import { retrieveAndDecrypt } from './tdec';
 
@@ -74,6 +78,7 @@ export const decrypt = async (
   messageKit: ThresholdMessageKit,
   porterUri: string,
   signer?: ethers.Signer,
+  customParameters: Record<string, CustomContextParam> = {},
 ): Promise<Uint8Array> => {
   const ritualId = await DkgCoordinatorAgent.getRitualIdFromPublicKey(
     provider,
@@ -87,6 +92,7 @@ export const decrypt = async (
     ritualId,
     ritual.threshold,
     signer,
+    customParameters
   );
 };
 

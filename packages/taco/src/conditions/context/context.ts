@@ -153,11 +153,12 @@ export class ConditionContext {
   public static fromConditions(
     provider: ethers.providers.Provider,
     conditions: WASMConditions,
+    customParameters: Record<string, CustomContextParam>,
     signer?: ethers.Signer,
   ): ConditionContext {
     const innerConditions = [
       ConditionExpression.fromWASMConditions(conditions).condition,
     ];
-    return new ConditionContext(provider, innerConditions, {}, signer);
+    return new ConditionContext(provider, innerConditions, customParameters, signer);
   }
 }

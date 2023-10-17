@@ -22,7 +22,7 @@ import {
 import { ethers } from 'ethers';
 import { arrayify, keccak256 } from 'ethers/lib/utils';
 
-import { ConditionContext, ConditionExpression } from './conditions';
+import {ConditionContext, ConditionExpression, CustomContextParam} from './conditions';
 
 export const encryptMessage = async (
   plaintext: Uint8Array | string,
@@ -54,6 +54,7 @@ export const retrieveAndDecrypt = async (
   ritualId: number,
   threshold: number,
   signer?: ethers.Signer,
+  customParameters: Record<string, CustomContextParam> = {},
 ): Promise<Uint8Array> => {
   const decryptionShares = await retrieve(
     provider,
@@ -62,6 +63,7 @@ export const retrieveAndDecrypt = async (
     ritualId,
     threshold,
     signer,
+    customParameters,
   );
   const sharedSecret = combineDecryptionSharesSimple(decryptionShares);
   return thresholdMessageKit.decryptWithSharedSecret(sharedSecret);
@@ -75,6 +77,7 @@ const retrieve = async (
   ritualId: number,
   threshold: number,
   signer?: ethers.Signer,
+  customParameters: Record<string, CustomContextParam> = {},
 ): Promise<DecryptionShareSimple[]> => {
   const dkgParticipants = await DkgCoordinatorAgent.getParticipants(
     provider,
@@ -83,6 +86,7 @@ const retrieve = async (
   const wasmContext = await ConditionContext.fromConditions(
     provider,
     thresholdMessageKit.acp.conditions,
+    customParameters,
     signer,
   ).toWASMContext();
   const { sharedSecrets, encryptedRequests } = await makeDecryptionRequests(

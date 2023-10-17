@@ -8,7 +8,11 @@ import { DkgCoordinatorAgent, fromHexString, toBytes } from '@nucypher/shared';
 import { ethers } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 
-import {Condition, ConditionExpression, CustomContextParam} from './conditions';
+import {
+  Condition,
+  ConditionExpression,
+  CustomContextParam
+} from './conditions';
 import { DkgClient } from './dkg';
 import { retrieveAndDecrypt } from './tdec';
 

@@ -6,7 +6,10 @@
   "author": "Piotr Rosłaniec <p.roslaniec@gmail.com>",
   "scripts": {
     "start": "webpack serve --mode development",
-    "build": "tsc --noEmit && rimraf build && webpack --mode production --progress"
+    "build": "pnpm clean && webpack --mode production --progress",
+    "clean": "rimraf build",
+    "check": "pnpm typecheck && pnpm build",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@nucypher/taco": "workspace:*",

@@ -33,7 +33,7 @@ jobs:
       - name: Test
         run: pnpm test
 
-      - name: Check examples
+      - name: Check examples & demos
         run: pnpm check-examples
 
       - name: Upload coverage to Codecov

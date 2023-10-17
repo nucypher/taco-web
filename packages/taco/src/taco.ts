@@ -9,6 +9,7 @@ import {
   DkgCoordinatorAgent,
   Domain,
   fromHexString,
+  getPorterUri,
   GlobalAllowListAgent,
   toBytes,
 } from '@nucypher/shared';
@@ -85,10 +86,14 @@ export const decrypt = async (
   provider: ethers.providers.Provider,
   domain: Domain,
   messageKit: ThresholdMessageKit,
-  porterUri: string,
+  porterUri?: string,
   signer?: ethers.Signer,
   customParameters?: Record<string, CustomContextParam>,
 ): Promise<Uint8Array> => {
+  if (!porterUri) {
+    porterUri = getPorterUri(domain)
+  }
+
   const ritualId = await DkgCoordinatorAgent.getRitualIdFromPublicKey(
     provider,
     domain,

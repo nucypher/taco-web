@@ -1,10 +1,9 @@
 import { DkgPublicKey } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { bytesEqual } from '../../../test/utils';
 import {
-  CbdTDecDecrypter,
-  CbdTDecDecrypterJSON,
+  ThresholdDecrypter,
+  ThresholdDecrypterJSON,
 } from '../../characters/cbd-recipient';
 import { Enrico } from '../../characters/enrico';
 import { ConditionExpression, ConditionExpressionJSON } from '../../conditions';
@@ -18,7 +17,7 @@ export type CbdStrategyJSON = {
 };
 
 export type DeployedStrategyJSON = {
-  decrypter: CbdTDecDecrypterJSON;
+  decrypter: ThresholdDecrypterJSON;
   dkgPublicKey: Uint8Array;
 };
 
@@ -30,15 +29,23 @@ export class CbdStrategy {
   }
 
   public async deploy(
-    provider: ethers.providers.Web3Provider,
+    provider: ethers.providers.Provider,
     ritualId: number
   ): Promise<DeployedCbdStrategy> {
-    const dkgClient = new DkgClient(provider);
-    const dkgRitual = await dkgClient.getExistingRitual(
-      ritualId,
-      this.cohort.configuration.threshold
-    );
-    return DeployedCbdStrategy.create(this.cohort, dkgRitual);
+    // TODO(#264): Enable ritual initialization
+    // if (ritualId === undefined) {
+    //   ritualId = await DkgClient.initializeRitual(
+    //     provider,
+    //     this.cohort.ursulaAddresses,
+    //     true
+    //   );
+    // }
+    // if (ritualId === undefined) {
+    //   // Given that we just initialized the ritual, this should never happen
+    //   throw new Error('Ritual ID is undefined');
+    // }
+    const dkgRitual = await DkgClient.getRitual(provider, ritualId);
+    return DeployedCbdStrategy.create(dkgRitual, this.cohort.porterUri);
   }
 
   public static fromJSON(json: string) {
@@ -66,16 +73,27 @@ export class CbdStrategy {
 
 export class DeployedCbdStrategy {
   private constructor(
-    public readonly decrypter: CbdTDecDecrypter,
+    public readonly decrypter: ThresholdDecrypter,
     public readonly dkgPublicKey: DkgPublicKey
   ) {}
 
-  public static create(cohort: Cohort, dkgRitual: DkgRitual) {
-    const decrypter = CbdTDecDecrypter.create(
-      cohort.configuration.porterUri,
-      dkgRitual
+  public static create(dkgRitual: DkgRitual, porterUri: string) {
+    const decrypter = ThresholdDecrypter.create(
+      porterUri,
+      dkgRitual.id,
+      dkgRitual.threshold
     );
     return new DeployedCbdStrategy(decrypter, dkgRitual.dkgPublicKey);
+  }
+
+  // TODO: This is analogous to create() above, is it useful?
+  public static async fromRitualId(
+    provider: ethers.providers.Provider,
+    porterUri: string,
+    ritualId: number
+  ): Promise<DeployedCbdStrategy> {
+    const dkgRitual = await DkgClient.getRitual(provider, ritualId);
+    return DeployedCbdStrategy.create(dkgRitual, porterUri);
   }
 
   public makeEncrypter(conditionExpr: ConditionExpression): Enrico {
@@ -93,7 +111,7 @@ export class DeployedCbdStrategy {
 
   private static fromObj({ decrypter, dkgPublicKey }: DeployedStrategyJSON) {
     return new DeployedCbdStrategy(
-      CbdTDecDecrypter.fromObj(decrypter),
+      ThresholdDecrypter.fromObj(decrypter),
       DkgPublicKey.fromBytes(dkgPublicKey)
     );
   }
@@ -106,9 +124,9 @@ export class DeployedCbdStrategy {
   }
 
   public equals(other: DeployedCbdStrategy) {
-    return (
-      this.decrypter.equals(other.decrypter) &&
-      bytesEqual(this.dkgPublicKey.toBytes(), other.dkgPublicKey.toBytes())
-    );
+    return [
+      this.decrypter.equals(other.decrypter),
+      this.dkgPublicKey.equals(other.dkgPublicKey),
+    ].every(Boolean);
   }
 }

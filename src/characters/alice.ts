@@ -6,7 +6,6 @@ import {
 } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { Configuration } from '../config';
 import { Keyring } from '../keyring';
 import {
   BlockchainPolicy,
@@ -14,21 +13,15 @@ import {
   EnactedPolicy,
   PreEnactedPolicy,
 } from '../policies/policy';
+import { PorterClient } from '../porter';
 import { ChecksumAddress } from '../types';
 
 import { RemoteBob } from './bob';
-import { Porter } from './porter';
 
 export class Alice {
-  private readonly porter: Porter;
   private readonly keyring: Keyring;
 
-  private constructor(
-    config: Configuration,
-    secretKey: SecretKey,
-    public readonly web3Provider: ethers.providers.Web3Provider
-  ) {
-    this.porter = new Porter(config.porterUri);
+  private constructor(secretKey: SecretKey) {
     this.keyring = new Keyring(secretKey);
   }
 
@@ -40,12 +33,8 @@ export class Alice {
     return this.keyring.signer;
   }
 
-  public static fromSecretKey(
-    config: Configuration,
-    secretKey: SecretKey,
-    web3Provider: ethers.providers.Web3Provider
-  ): Alice {
-    return new Alice(config, secretKey, web3Provider);
+  public static fromSecretKey(secretKey: SecretKey): Alice {
+    return new Alice(secretKey);
   }
 
   public getPolicyEncryptingKeyFromLabel(label: string): PublicKey {
@@ -53,30 +42,37 @@ export class Alice {
   }
 
   public async grant(
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer,
+    porterUri: string,
     policyParameters: BlockchainPolicyParameters,
     includeUrsulas?: readonly ChecksumAddress[],
     excludeUrsulas?: readonly ChecksumAddress[]
   ): Promise<EnactedPolicy> {
-    const ursulas = await this.porter.getUrsulas(
+    const porter = new PorterClient(porterUri);
+    const ursulas = await porter.getUrsulas(
       policyParameters.shares,
       excludeUrsulas,
       includeUrsulas
     );
-    const policy = await this.createPolicy(policyParameters);
-    return await policy.enact(ursulas);
+    const policy = await this.createPolicy(provider, policyParameters);
+    return await policy.enact(provider, signer, ursulas);
   }
 
   public async generatePreEnactedPolicy(
+    provider: ethers.providers.Provider,
+    porterUri: string,
     policyParameters: BlockchainPolicyParameters,
     includeUrsulas?: readonly ChecksumAddress[],
     excludeUrsulas?: readonly ChecksumAddress[]
   ): Promise<PreEnactedPolicy> {
-    const ursulas = await this.porter.getUrsulas(
+    const porter = new PorterClient(porterUri);
+    const ursulas = await porter.getUrsulas(
       policyParameters.shares,
       excludeUrsulas,
       includeUrsulas
     );
-    const policy = await this.createPolicy(policyParameters);
+    const policy = await this.createPolicy(provider, policyParameters);
     return await policy.generatePreEnactedPolicy(ursulas);
   }
 
@@ -99,10 +95,11 @@ export class Alice {
   }
 
   private async createPolicy(
+    provider: ethers.providers.Provider,
     rawParameters: BlockchainPolicyParameters
   ): Promise<BlockchainPolicy> {
     const { bob, label, threshold, shares, startDate, endDate } =
-      await this.validatePolicyParameters(rawParameters);
+      await this.validatePolicyParameters(provider, rawParameters);
     const { delegatingKey, verifiedKFrags } = this.generateKFrags(
       bob,
       label,
@@ -123,6 +120,7 @@ export class Alice {
   }
 
   private async validatePolicyParameters(
+    provider: ethers.providers.Provider,
     rawParams: BlockchainPolicyParameters
   ): Promise<BlockchainPolicyParameters> {
     const startDate = rawParams.startDate ?? new Date();
@@ -144,8 +142,8 @@ export class Alice {
       );
     }
 
-    const blockNumber = await this.web3Provider.getBlockNumber();
-    const block = await this.web3Provider.getBlock(blockNumber);
+    const blockNumber = await provider.getBlockNumber();
+    const block = await provider.getBlock(blockNumber);
     const blockTime = new Date(block.timestamp * 1000);
     if (endDate < blockTime) {
       throw new Error(

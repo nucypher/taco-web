@@ -1,12 +1,22 @@
 import { MessageKit, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 import { providers } from 'ethers';
 
-import { Cohort, conditions, PreStrategy, SecretKey } from '../../src';
-import { Ursula } from '../../src/characters/porter';
+import {
+  Cohort,
+  conditions,
+  getPorterUri,
+  PreStrategy,
+  SecretKey,
+} from '../../src';
+import {
+  ContractCondition,
+  ContractConditionProps,
+} from '../../src/conditions/base';
+import { Ursula } from '../../src/porter';
 import { toBytes } from '../../src/utils';
 import {
+  fakeProvider,
   fakeUrsulas,
-  fakeWeb3Provider,
   mockDetectEthereumProvider,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
@@ -18,7 +28,6 @@ import {
 
 const {
   predefined: { ERC721Ownership },
-  base: { ContractCondition },
   ConditionExpression,
 } = conditions;
 
@@ -51,21 +60,16 @@ describe('Get Started (CBD PoC)', () => {
 
     jest
       .spyOn(providers, 'Web3Provider')
-      .mockImplementation(() =>
-        fakeWeb3Provider(SecretKey.random().toBEBytes())
-      );
+      .mockImplementation(() => fakeProvider(SecretKey.random().toBEBytes()));
 
     //
     // Start of the code example
     //
 
     // 2. Build a Cohort
-    const config = {
-      threshold: 3,
-      shares: 5,
-      porterUri: 'https://porter-tapir.nucypher.community',
-    };
-    const newCohort = await Cohort.create(config);
+    const porterUri = getPorterUri('tapir');
+    const numUrsulas = 5;
+    const newCohort = await Cohort.create(porterUri, numUrsulas);
 
     // 3. Specify default conditions
     const NFTOwnership = new ERC721Ownership({
@@ -85,11 +89,13 @@ describe('Get Started (CBD PoC)', () => {
     const MMprovider = await detectEthereumProvider();
     const mumbai = providers.getNetwork(80001);
 
-    const web3Provider = new providers.Web3Provider(MMprovider, mumbai);
-    const newDeployed = await newStrategy.deploy('test', web3Provider);
+    const provider = new providers.Web3Provider(MMprovider, mumbai);
+    const signer = provider.getSigner();
+    const newDeployed = await newStrategy.deploy(provider, signer, 'test');
 
     // 5. Encrypt the plaintext & update conditions
-    const NFTBalanceConfig = {
+    const NFTBalanceConfig: ContractConditionProps = {
+      conditionType: 'contract',
       contractAddress: '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D',
       standardContractType: 'ERC721',
       chain: 5,
@@ -114,8 +120,9 @@ describe('Get Started (CBD PoC)', () => {
 
     // 6. Request decryption rights
     const decryptedMessage = await newDeployed.decrypter.retrieveAndDecrypt(
-      [encryptedMessageKit],
-      web3Provider
+      provider,
+      signer,
+      [encryptedMessageKit]
     );
 
     //

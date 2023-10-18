@@ -3,19 +3,20 @@ import { SecretKey, SessionStaticSecret } from '@nucypher/nucypher-core';
 import { conditions } from '../../src';
 import { FerveoVariant } from '../../src';
 import { CbdStrategy, DeployedCbdStrategy } from '../../src';
-import { CbdTDecDecrypter } from '../../src/characters/cbd-recipient';
+import { ThresholdDecrypter } from '../../src/characters/cbd-recipient';
 import { toBytes } from '../../src/utils';
 import {
   fakeDkgFlow,
   fakeDkgParticipants,
   fakeDkgRitual,
+  fakeProvider,
+  fakeSigner,
   fakeTDecFlow,
   fakeUrsulas,
-  fakeWeb3Provider,
   makeCohort,
   mockCbdDecrypt,
-  mockGetExistingRitual,
   mockGetParticipants,
+  mockGetRitual,
   mockGetUrsulas,
   mockRandomSessionStaticSecret,
 } from '../utils';
@@ -28,8 +29,9 @@ const {
 } = conditions;
 
 // Shared test variables
-const aliceSecretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);
-const aliceProvider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
+const secretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);
+const provider = fakeProvider(secretKey.toBEBytes());
+const signer = fakeSigner(secretKey.toBEBytes());
 const ownsNFT = new ERC721Ownership({
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
   parameters: [3591],
@@ -37,7 +39,7 @@ const ownsNFT = new ERC721Ownership({
 });
 const conditionExpr = new ConditionExpression(ownsNFT);
 const ursulas = fakeUrsulas().slice(0, 3);
-const variant = FerveoVariant.Precomputed;
+const variant = FerveoVariant.precomputed;
 const ritualId = 0;
 
 const makeCbdStrategy = async () => {
@@ -49,13 +51,12 @@ const makeCbdStrategy = async () => {
 
 async function makeDeployedCbdStrategy() {
   const strategy = await makeCbdStrategy();
-
   const mockedDkg = fakeDkgFlow(variant, 0, 4, 4);
-  const mockedDkgRitual = fakeDkgRitual(mockedDkg, mockedDkg.threshold);
-  const web3Provider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
+  const mockedDkgRitual = fakeDkgRitual(mockedDkg);
   const getUrsulasSpy = mockGetUrsulas(ursulas);
-  const getExistingRitualSpy = mockGetExistingRitual(mockedDkgRitual);
-  const deployedStrategy = await strategy.deploy(web3Provider, ritualId);
+  const getExistingRitualSpy = mockGetRitual(mockedDkgRitual);
+
+  const deployedStrategy = await strategy.deploy(provider, ritualId);
 
   expect(getUrsulasSpy).toHaveBeenCalled();
   expect(getExistingRitualSpy).toHaveBeenCalled();
@@ -102,21 +103,19 @@ describe('CbdDeployedStrategy', () => {
     const { mockedDkg, deployedStrategy } = await makeDeployedCbdStrategy();
 
     const message = 'this is a secret';
-    const { ciphertext, aad } = deployedStrategy
+    const thresholdMessageKit = deployedStrategy
       .makeEncrypter(conditionExpr)
       .encryptMessageCbd(message);
 
     // Setup mocks for `retrieveAndDecrypt`
     const { decryptionShares } = fakeTDecFlow({
       ...mockedDkg,
-      variant,
       message: toBytes(message),
-      aad,
-      ciphertext,
+      dkgPublicKey: mockedDkg.dkg.publicKey(),
+      thresholdMessageKit,
     });
     const { participantSecrets, participants } = fakeDkgParticipants(
-      mockedDkg.ritualId,
-      variant
+      mockedDkg.ritualId
     );
     const requesterSessionKey = SessionStaticSecret.random();
     const decryptSpy = mockCbdDecrypt(
@@ -131,10 +130,9 @@ describe('CbdDeployedStrategy', () => {
 
     const decryptedMessage =
       await deployedStrategy.decrypter.retrieveAndDecrypt(
-        aliceProvider,
-        conditionExpr,
-        variant,
-        ciphertext
+        provider,
+        thresholdMessageKit,
+        signer
       );
     expect(getUrsulasSpy).toHaveBeenCalled();
     expect(getParticipantsSpy).toHaveBeenCalled();
@@ -160,18 +158,18 @@ describe('CbdDeployedStrategy', () => {
   });
 });
 
-describe('CbdTDecDecrypter', () => {
+describe('ThresholdDecrypter', () => {
   it('serializes to a plain object', async () => {
     const { deployedStrategy } = await makeDeployedCbdStrategy();
     const configObj = deployedStrategy.decrypter.toObj();
-    const fromObj = CbdTDecDecrypter.fromObj(configObj);
+    const fromObj = ThresholdDecrypter.fromObj(configObj);
     expect(fromObj.equals(deployedStrategy.decrypter)).toBeTruthy();
   });
 
   it('serializes to a JSON', async () => {
     const { deployedStrategy } = await makeDeployedCbdStrategy();
     const configJSON = deployedStrategy.decrypter.toJSON();
-    const fromJSON = CbdTDecDecrypter.fromJSON(configJSON);
+    const fromJSON = ThresholdDecrypter.fromJSON(configJSON);
     expect(fromJSON.equals(deployedStrategy.decrypter)).toBeTruthy();
   });
 });

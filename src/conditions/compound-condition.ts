@@ -1,31 +1,28 @@
-import Joi from 'joi';
+import { z } from 'zod';
 
-import { Condition } from './base';
 import { contractConditionSchema } from './base/contract';
 import { rpcConditionSchema } from './base/rpc';
 import { timeConditionSchema } from './base/time';
 
-const OR_OPERATOR = 'or';
-const AND_OPERATOR = 'and';
+export const CompoundConditionType = 'compound';
 
-const LOGICAL_OPERATORS = [AND_OPERATOR, OR_OPERATOR];
-
-export const compoundConditionSchema = Joi.object({
-  operator: Joi.string()
-    .valid(...LOGICAL_OPERATORS)
-    .required(),
-  operands: Joi.array()
-    .min(2)
-    .items(
-      rpcConditionSchema,
-      timeConditionSchema,
-      contractConditionSchema,
-      Joi.link('#compoundCondition')
+export const compoundConditionSchema: z.ZodSchema = z.object({
+  conditionType: z
+    .literal(CompoundConditionType)
+    .default(CompoundConditionType),
+  operator: z.enum(['and', 'or']),
+  operands: z
+    .array(
+      z.lazy(() =>
+        z.union([
+          rpcConditionSchema,
+          timeConditionSchema,
+          contractConditionSchema,
+          compoundConditionSchema,
+        ])
+      )
     )
-    .required()
-    .valid(),
-}).id('compoundCondition');
+    .min(2),
+});
 
-export class CompoundCondition extends Condition {
-  public readonly schema = compoundConditionSchema;
-}
+export type CompoundConditionProps = z.infer<typeof compoundConditionSchema>;

@@ -6,13 +6,11 @@ import {
   Signer,
 } from '@nucypher/nucypher-core';
 
-import { Configuration } from '../config';
 import { Keyring } from '../keyring';
 import { PolicyMessageKit } from '../kits/message';
 import { RetrievalResult } from '../kits/retrieval';
+import { PorterClient } from '../porter';
 import { zip } from '../utils';
-
-import { Porter } from './porter';
 
 export class RemoteBob {
   private constructor(
@@ -37,11 +35,9 @@ export class RemoteBob {
 }
 
 export class Bob {
-  private readonly porter: Porter;
   private readonly keyring: Keyring;
 
-  constructor(config: Configuration, secretKey: SecretKey) {
-    this.porter = new Porter(config.porterUri);
+  constructor(secretKey: SecretKey) {
     this.keyring = new Keyring(secretKey);
   }
 
@@ -57,11 +53,8 @@ export class Bob {
     return this.keyring.signer;
   }
 
-  public static fromSecretKey(
-    config: Configuration,
-    secretKey: SecretKey
-  ): Bob {
-    return new Bob(config, secretKey);
+  public static fromSecretKey(secretKey: SecretKey): Bob {
+    return new Bob(secretKey);
   }
 
   public decrypt(messageKit: MessageKit | PolicyMessageKit): Uint8Array {
@@ -69,12 +62,14 @@ export class Bob {
   }
 
   public async retrieveAndDecrypt(
+    porterUri: string,
     policyEncryptingKey: PublicKey,
     publisherVerifyingKey: PublicKey,
     messageKits: readonly MessageKit[],
     encryptedTreasureMap: EncryptedTreasureMap
   ): Promise<readonly Uint8Array[]> {
     const policyMessageKits = await this.retrieve(
+      porterUri,
       policyEncryptingKey,
       publisherVerifyingKey,
       messageKits,
@@ -103,6 +98,7 @@ export class Bob {
   }
 
   public async retrieve(
+    porterUri: string,
     policyEncryptingKey: PublicKey,
     publisherVerifyingKey: PublicKey,
     messageKits: readonly MessageKit[],
@@ -122,7 +118,8 @@ export class Bob {
     );
 
     const retrievalKits = policyMessageKits.map((pk) => pk.asRetrievalKit());
-    const retrieveCFragsResponses = await this.porter.retrieveCFrags(
+    const porter = new PorterClient(porterUri);
+    const retrieveCFragsResponses = await porter.retrieveCFrags(
       treasureMap,
       retrievalKits,
       publisherVerifyingKey,

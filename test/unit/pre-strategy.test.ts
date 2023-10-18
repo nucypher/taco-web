@@ -3,14 +3,15 @@ import { SecretKey, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 import {
   conditions,
   DeployedPreStrategy,
+  PreDecrypter,
   PreStrategy,
-  PreTDecDecrypter,
 } from '../../src';
-import { Ursula } from '../../src/characters/porter';
+import { Ursula } from '../../src/porter';
 import { toBytes } from '../../src/utils';
 import {
+  fakeProvider,
+  fakeSigner,
   fakeUrsulas,
-  fakeWeb3Provider,
   makeCohort,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
@@ -30,15 +31,17 @@ const {
 // Shared test variables
 const aliceSecretKey = SecretKey.fromBEBytes(aliceSecretKeyBytes);
 const bobSecretKey = SecretKey.fromBEBytes(bobSecretKeyBytes);
-const aliceProvider = fakeWeb3Provider(aliceSecretKey.toBEBytes());
-const bobProvider = fakeWeb3Provider(bobSecretKey.toBEBytes());
+const aliceSigner = fakeSigner(aliceSecretKey.toBEBytes());
+const aliceProvider = fakeProvider(aliceSecretKey.toBEBytes());
+const bobSigner = fakeSigner(bobSecretKey.toBEBytes());
+const bobProvider = fakeProvider(bobSecretKey.toBEBytes());
 const ownsNFT = new ERC721Ownership({
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
   parameters: [3591],
   chain: 5,
 });
 const conditionExpr = new ConditionExpression(ownsNFT);
-const mockedUrsulas = fakeUrsulas().slice(0, 3);
+const mockedUrsulas = fakeUrsulas();
 
 const makePreStrategy = async () => {
   const cohort = await makeCohort(mockedUrsulas);
@@ -54,7 +57,11 @@ const makeDeployedPreStrategy = async () => {
   const makeTreasureMapSpy = mockMakeTreasureMap();
   const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
-  const deployedStrategy = await strategy.deploy('test', aliceProvider);
+  const deployedStrategy = await strategy.deploy(
+    aliceProvider,
+    aliceSigner,
+    'test'
+  );
 
   expect(generateKFragsSpy).toHaveBeenCalled();
   expect(publishToBlockchainSpy).toHaveBeenCalled();
@@ -126,8 +133,9 @@ describe('PreDeployedStrategy', () => {
 
     const decryptedMessage =
       await deployedStrategy.decrypter.retrieveAndDecrypt(
-        [encryptedMessageKit],
-        bobProvider
+        bobProvider,
+        bobSigner,
+        [encryptedMessageKit]
       );
     expect(getUrsulasSpy).toHaveBeenCalled();
     expect(retrieveCFragsSpy).toHaveBeenCalled();
@@ -151,18 +159,18 @@ describe('PreDeployedStrategy', () => {
   });
 });
 
-describe('PreTDecDecrypter', () => {
+describe('PreDecrypter', () => {
   it('serializes to a plain object', async () => {
     const { deployedStrategy } = await makeDeployedPreStrategy();
     const asObj = deployedStrategy.decrypter.toObj();
-    const fromJson = PreTDecDecrypter.fromObj(asObj);
+    const fromJson = PreDecrypter.fromObj(asObj);
     expect(fromJson.equals(deployedStrategy.decrypter)).toBeTruthy();
   });
 
   it('serializes to JSON', async () => {
     const { deployedStrategy } = await makeDeployedPreStrategy();
     const asJson = deployedStrategy.decrypter.toJSON();
-    const fromJson = PreTDecDecrypter.fromJSON(asJson);
+    const fromJson = PreDecrypter.fromJSON(asJson);
     expect(fromJson.equals(deployedStrategy.decrypter)).toBeTruthy();
   });
 });

@@ -1,13 +1,22 @@
-// Disabling some of the eslint rules for conveninence.
+// Disabling some of the eslint rules for convenience.
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Block } from '@ethersproject/providers';
 import {
+  AggregatedTranscript,
   Capsule,
   CapsuleFrag,
+  combineDecryptionSharesSimple,
+  DecryptionSharePrecomputed,
+  DecryptionShareSimple,
+  Dkg,
+  DkgPublicKey,
   EncryptedThresholdDecryptionResponse,
   EncryptedTreasureMap,
-  ferveoEncrypt,
+  EthereumAddress,
+  FerveoVariant,
+  Keypair,
   PublicKey,
   reencrypt,
   SecretKey,
@@ -15,42 +24,39 @@ import {
   SessionStaticKey,
   SessionStaticSecret,
   ThresholdDecryptionResponse,
-  VerifiedCapsuleFrag,
-  VerifiedKeyFrag,
-} from '@nucypher/nucypher-core';
-import {
-  AggregatedTranscript,
-  Ciphertext,
-  combineDecryptionSharesPrecomputed,
-  combineDecryptionSharesSimple,
-  DecryptionSharePrecomputed,
-  DecryptionShareSimple,
-  decryptWithSharedSecret,
-  Dkg,
-  EthereumAddress,
-  Keypair,
+  ThresholdMessageKit,
   Transcript,
   Validator,
   ValidatorMessage,
+  VerifiedCapsuleFrag,
+  VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
 import axios from 'axios';
 import { ethers, providers, Wallet } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 
-import { Alice, Bob, Cohort, Configuration, RemoteBob } from '../src';
-import { DkgCoordinatorAgent, DkgParticipant } from '../src/agents/coordinator';
-import { CbdTDecDecrypter } from '../src/characters/cbd-recipient';
+import { Alice, Bob, Cohort, Enrico, RemoteBob } from '../src';
+import {
+  DkgCoordinatorAgent,
+  DkgParticipant,
+  DkgRitualState,
+} from '../src/agents/coordinator';
+import { ThresholdDecrypter } from '../src/characters/cbd-recipient';
+import { ConditionExpression } from '../src/conditions';
+import { ERC721Balance } from '../src/conditions/predefined';
+import { DkgClient, DkgRitual } from '../src/dkg';
+import { BlockchainPolicy, PreEnactedPolicy } from '../src/policies/policy';
 import {
   CbdDecryptResult,
   GetUrsulasResult,
-  Porter,
+  PorterClient,
   RetrieveCFragsResult,
   Ursula,
-} from '../src/characters/porter';
-import { DkgClient, DkgRitual, FerveoVariant } from '../src/dkg';
-import { BlockchainPolicy, PreEnactedPolicy } from '../src/policies/policy';
+} from '../src/porter';
 import { ChecksumAddress } from '../src/types';
 import { toBytes, toHexString, zip } from '../src/utils';
+
+import { TEST_CHAIN_ID, TEST_CONTRACT_ADDR } from './unit/testVariables';
 
 export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
   first.length === second.length &&
@@ -59,15 +65,13 @@ export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
 export const fromBytes = (bytes: Uint8Array): string =>
   new TextDecoder().decode(bytes);
 
-const mockConfig: Configuration = {
-  porterUri: 'https://_this_should_crash.com/',
-};
+export const fakePorterUri = 'https://_this_should_crash.com/';
 
 export const fakeBob = (): Bob => {
   const secretKey = SecretKey.fromBEBytes(
     toBytes('fake-secret-key-32-bytes-bob-xxx')
   );
-  return Bob.fromSecretKey(mockConfig, secretKey);
+  return Bob.fromSecretKey(secretKey);
 };
 
 export const fakeRemoteBob = (): RemoteBob => {
@@ -77,31 +81,48 @@ export const fakeRemoteBob = (): RemoteBob => {
 
 export const fakeAlice = (aliceKey = 'fake-secret-key-32-bytes-alice-x') => {
   const secretKey = SecretKey.fromBEBytes(toBytes(aliceKey));
-  const provider = fakeWeb3Provider(secretKey.toBEBytes());
-  return Alice.fromSecretKey(mockConfig, secretKey, provider);
+  return Alice.fromSecretKey(secretKey);
 };
 
-export const fakeWeb3Provider = (
-  secretKeyBytes = SecretKey.random().toBEBytes(),
-  blockNumber?: number,
-  blockTimestamp?: number
-): ethers.providers.Web3Provider => {
-  const block = { timestamp: blockTimestamp ?? 1000 };
-  const provider = {
-    getBlockNumber: () => Promise.resolve(blockNumber ?? 1000),
+const makeFakeProvider = (timestamp: number, blockNumber: number) => {
+  const block = { timestamp };
+  return {
+    getBlockNumber: () => Promise.resolve(blockNumber),
     getBlock: () => Promise.resolve(block as Block),
     _isProvider: true,
     getNetwork: () => Promise.resolve({ name: 'mockNetwork', chainId: -1 }),
   };
-  const fakeSignerWithProvider = {
+};
+
+export const fakeSigner = (
+  secretKeyBytes = SecretKey.random().toBEBytes(),
+  blockNumber = 1000,
+  blockTimestamp = 1000
+) => {
+  const provider = makeFakeProvider(blockNumber, blockTimestamp);
+  return {
     ...new Wallet(secretKeyBytes),
-    provider,
+    provider: provider,
     _signTypedData: () => Promise.resolve('fake-typed-signature'),
+    signMessage: () => Promise.resolve('fake-signature'),
     getAddress: () =>
       Promise.resolve('0x0000000000000000000000000000000000000000'),
   } as unknown as ethers.providers.JsonRpcSigner;
+};
+
+export const fakeProvider = (
+  secretKeyBytes = SecretKey.random().toBEBytes(),
+  blockNumber = 1000,
+  blockTimestamp = 1000
+): ethers.providers.Web3Provider => {
+  const fakeProvider = makeFakeProvider(blockTimestamp, blockNumber);
+  const fakeSignerWithProvider = fakeSigner(
+    secretKeyBytes,
+    blockNumber,
+    blockTimestamp
+  );
   return {
-    ...provider,
+    ...fakeProvider,
     getSigner: () => fakeSignerWithProvider,
   } as unknown as ethers.providers.Web3Provider;
 };
@@ -110,11 +131,12 @@ const genChecksumAddress = (i: number) =>
   '0x' + '0'.repeat(40 - i.toString(16).length) + i.toString(16);
 const genEthAddr = (i: number) =>
   EthereumAddress.fromString(genChecksumAddress(i));
-export const fakeUrsulas = (): readonly Ursula[] =>
-  [0, 1, 2, 3, 4].map((i: number) => ({
+export const fakeUrsulas = (n = 4): Ursula[] =>
+  // 0...n-1
+  Array.from(Array(n).keys()).map((i: number) => ({
     encryptingKey: SecretKey.random().publicKey(),
     checksumAddress: genChecksumAddress(i).toLowerCase(),
-    uri: 'https://example.a.com:9151',
+    uri: `https://example.${i}.com:9151`,
   }));
 
 export const mockGetUrsulas = (ursulas: readonly Ursula[]) => {
@@ -163,7 +185,7 @@ export const mockRetrieveCFragsRequest = (
 ) => {
   const results = fakeCFragResponse(ursulas, verifiedKFrags, capsule);
   return jest
-    .spyOn(Porter.prototype, 'retrieveCFrags')
+    .spyOn(PorterClient.prototype, 'retrieveCFrags')
     .mockImplementation(() => {
       return Promise.resolve(results);
     });
@@ -214,14 +236,14 @@ export const mockDetectEthereumProvider = () => {
 };
 
 export const fakeDkgFlow = (
-  variant: FerveoVariant | FerveoVariant.Precomputed,
+  variant: FerveoVariant,
   ritualId: number,
   sharesNum: number,
   threshold: number
 ) => {
   if (
-    variant !== FerveoVariant.Simple &&
-    variant !== FerveoVariant.Precomputed
+    !variant.equals(FerveoVariant.simple) &&
+    !variant.equals(FerveoVariant.precomputed)
   ) {
     throw new Error(`Invalid variant: ${variant}`);
   }
@@ -285,11 +307,10 @@ interface FakeDkgRitualFlow {
   sharesNum: number;
   threshold: number;
   receivedMessages: ValidatorMessage[];
-  variant: FerveoVariant;
-  ciphertext: Ciphertext;
-  aad: Uint8Array;
   dkg: Dkg;
   message: Uint8Array;
+  dkgPublicKey: DkgPublicKey;
+  thresholdMessageKit: ThresholdMessageKit;
 }
 
 export const fakeTDecFlow = ({
@@ -299,16 +320,11 @@ export const fakeTDecFlow = ({
   sharesNum,
   threshold,
   receivedMessages,
-  variant,
-  ciphertext,
-  aad,
   message,
+  thresholdMessageKit,
 }: FakeDkgRitualFlow) => {
   // Having aggregated the transcripts, the validators can now create decryption shares
-  const decryptionShares: (
-    | DecryptionSharePrecomputed
-    | DecryptionShareSimple
-  )[] = [];
+  const decryptionShares: DecryptionShareSimple[] = [];
   zip(validators, validatorKeypairs).forEach(([validator, keypair]) => {
     const dkg = new Dkg(ritualId, sharesNum, threshold, validators, validator);
     const aggregate = dkg.aggregateTranscript(receivedMessages);
@@ -317,75 +333,70 @@ export const fakeTDecFlow = ({
       throw new Error('Transcript is invalid');
     }
 
-    let decryptionShare;
-    if (variant === FerveoVariant.Precomputed) {
-      decryptionShare = aggregate.createDecryptionSharePrecomputed(
-        dkg,
-        ciphertext,
-        aad,
-        keypair
-      );
-    } else {
-      decryptionShare = aggregate.createDecryptionShareSimple(
-        dkg,
-        ciphertext,
-        aad,
-        keypair
-      );
-    }
+    const decryptionShare = aggregate.createDecryptionShareSimple(
+      dkg,
+      thresholdMessageKit.ciphertextHeader,
+      thresholdMessageKit.acp.aad(),
+      keypair
+    );
     decryptionShares.push(decryptionShare);
   });
 
-  // Now, the decryption share can be used to decrypt the ciphertext
-  // This part is in the client API
+  const sharedSecret = combineDecryptionSharesSimple(decryptionShares);
 
-  let sharedSecret;
-  if (variant === FerveoVariant.Precomputed) {
-    sharedSecret = combineDecryptionSharesPrecomputed(decryptionShares);
-  } else {
-    sharedSecret = combineDecryptionSharesSimple(decryptionShares);
-  }
-
-  // The client should have access to the public parameters of the DKG
-  const plaintext = decryptWithSharedSecret(ciphertext, aad, sharedSecret);
+  const plaintext = thresholdMessageKit.decryptWithSharedSecret(sharedSecret);
   if (!bytesEqual(plaintext, message)) {
     throw new Error('Decryption failed');
   }
-  return { decryptionShares, sharedSecret, plaintext };
+  return {
+    decryptionShares,
+    plaintext,
+    sharedSecret,
+    thresholdMessageKit,
+  };
 };
 
-export const fakeDkgTDecFlowE2e = (
-  variant: FerveoVariant,
-  message = toBytes('fake-message'),
-  aad = toBytes('fake-aad'),
+const fakeConditionExpr = () => {
+  const erc721Balance = new ERC721Balance({
+    chain: TEST_CHAIN_ID,
+    contractAddress: TEST_CONTRACT_ADDR,
+  });
+  return new ConditionExpression(erc721Balance);
+};
+
+export const fakeDkgTDecFlowE2E = (
   ritualId = 0,
+  variant: FerveoVariant = FerveoVariant.precomputed,
+  conditionExpr: ConditionExpression = fakeConditionExpr(),
+  message = toBytes('fake-message'),
   sharesNum = 4,
   threshold = 4
 ) => {
   const ritual = fakeDkgFlow(variant, ritualId, sharesNum, threshold);
+  const dkgPublicKey = ritual.dkg.publicKey();
+  const thresholdMessageKit = new Enrico(dkgPublicKey).encryptMessageCbd(
+    message,
+    conditionExpr
+  );
 
-  // In the meantime, the client creates a ciphertext and decryption request
-  const ciphertext = ferveoEncrypt(message, aad, ritual.dkg.publicKey());
   const { decryptionShares } = fakeTDecFlow({
     ...ritual,
-    variant,
-    ciphertext,
-    aad,
     message,
+    dkgPublicKey,
+    thresholdMessageKit,
   });
 
   return {
     ...ritual,
     message,
-    aad,
-    ciphertext,
     decryptionShares,
+    thresholdMessageKit,
   };
 };
 
-export const fakeCoordinatorRitual = (
+export const fakeCoordinatorRitual = async (
   ritualId: number
-): {
+): Promise<{
   aggregationMismatch: boolean;
   initTimestamp: number;
   aggregatedTranscriptHash: string;
@@ -397,8 +408,8 @@ export const fakeCoordinatorRitual = (
   aggregatedTranscript: string;
   publicKeyHash: string;
   totalAggregations: number;
-} => {
-  const ritual = fakeDkgTDecFlowE2e(FerveoVariant.Precomputed);
+}> => {
+  const ritual = await fakeDkgTDecFlowE2E();
   const dkgPkBytes = ritual.dkg.publicKey().toBytes();
   return {
     id: ritualId,
@@ -419,13 +430,12 @@ export const fakeCoordinatorRitual = (
 };
 
 export const fakeDkgParticipants = (
-  ritualId: number,
-  variant = FerveoVariant.Precomputed
+  ritualId: number
 ): {
   participants: DkgParticipant[];
   participantSecrets: Record<string, SessionStaticSecret>;
 } => {
-  const ritual = fakeDkgTDecFlowE2e(variant);
+  const ritual = fakeDkgTDecFlowE2E(ritualId);
   const label = toBytes(`${ritualId}`);
 
   const participantSecrets: Record<string, SessionStaticSecret> =
@@ -483,39 +493,54 @@ export const mockCbdDecrypt = (
     encryptedResponses,
     errors,
   };
-  return jest.spyOn(Porter.prototype, 'cbdDecrypt').mockImplementation(() => {
-    return Promise.resolve(result);
-  });
+  return jest
+    .spyOn(PorterClient.prototype, 'cbdDecrypt')
+    .mockImplementation(() => {
+      return Promise.resolve(result);
+    });
 };
 
 export const mockRandomSessionStaticSecret = (secret: SessionStaticSecret) => {
   return jest
-    .spyOn(CbdTDecDecrypter.prototype as any, 'makeSessionKey')
+    .spyOn(ThresholdDecrypter.prototype as any, 'makeSessionKey')
     .mockImplementation(() => secret);
 };
 
 export const fakeRitualId = 0;
 
-export const fakeDkgRitual = (ritual: { dkg: Dkg }, threshold: number) => {
-  return new DkgRitual(fakeRitualId, ritual.dkg.publicKey(), threshold);
+export const fakeDkgRitual = (ritual: {
+  dkg: Dkg;
+  sharesNum: number;
+  threshold: number;
+}) => {
+  return new DkgRitual(
+    fakeRitualId,
+    ritual.dkg.publicKey(),
+    ritual.sharesNum,
+    ritual.threshold,
+    DkgRitualState.FINALIZED
+  );
 };
 
-export const mockGetExistingRitual = (fakeRitual: unknown) => {
+export const mockGetRitual = (dkgRitual: DkgRitual) => {
+  return jest.spyOn(DkgClient, 'getRitual').mockImplementation(() => {
+    return Promise.resolve(dkgRitual);
+  });
+};
+
+export const mockGetRitualIdFromPublicKey = (ritualId: number) => {
   return jest
-    .spyOn(DkgClient.prototype as any, 'getExistingRitual')
+    .spyOn(DkgCoordinatorAgent, 'getRitualIdFromPublicKey')
     .mockImplementation(() => {
-      return Promise.resolve(fakeRitual);
+      return Promise.resolve(ritualId);
     });
 };
 
 export const makeCohort = async (ursulas: Ursula[]) => {
   const getUrsulasSpy = mockGetUrsulas(ursulas);
-  const config = {
-    threshold: 2,
-    shares: 3,
-    porterUri: 'https://_this.should.crash',
-  };
-  const cohort = await Cohort.create(config);
+  const porterUri = 'https://_this.should.crash';
+  const numUrsulas = ursulas.length;
+  const cohort = await Cohort.create(porterUri, numUrsulas);
   expect(getUrsulasSpy).toHaveBeenCalled();
   return cohort;
 };

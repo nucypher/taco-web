@@ -1,7 +1,7 @@
 import { CapsuleFrag, reencrypt } from '@nucypher/nucypher-core';
 
 import { conditions, Enrico, MessageKit, PolicyMessageKit } from '../../src';
-import { CompoundCondition } from '../../src/conditions';
+import { CompoundCondition } from '../../src/conditions/base';
 import { RetrievalResult } from '../../src/kits/retrieval';
 import { toBytes, zip } from '../../src/utils';
 import { fakeAlice, fakeBob, fakeUrsulas, reencryptKFrags } from '../utils';
@@ -15,7 +15,7 @@ describe('proxy reencryption', () => {
   const plaintext = toBytes('plaintext-message');
   const threshold = 2;
   const shares = 3;
-  const ursulas = fakeUrsulas().slice(0, shares);
+  const ursulas = fakeUrsulas(shares);
   const label = 'fake-data-label';
   const alice = fakeAlice();
   const bob = fakeBob();

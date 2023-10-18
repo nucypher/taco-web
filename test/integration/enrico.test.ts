@@ -99,7 +99,7 @@ describe('enrico', () => {
 
     const policyKey = alice.getPolicyEncryptingKeyFromLabel(label);
 
-    const ownsBufficornNFT = ERC721Ownership.fromObj({
+    const ownsBufficornNFT = new ERC721Ownership({
       contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
       parameters: [3591],
       chain: 5,

@@ -4,13 +4,10 @@ import { ethers } from 'ethers';
 import { Alice } from '../../characters/alice';
 import { Bob } from '../../characters/bob';
 import { Enrico } from '../../characters/enrico';
-import {
-  PreTDecDecrypter,
-  PreTDecDecrypterJSON,
-} from '../../characters/pre-recipient';
+import { PreDecrypter, PreDecrypterJSON } from '../../characters/pre-recipient';
 import { ConditionExpression } from '../../conditions';
 import { EnactedPolicy } from '../../policies/policy';
-import { base64ToU8Receiver, bytesEquals, toJSON } from '../../utils';
+import { base64ToU8Receiver, toJSON } from '../../utils';
 import { Cohort, CohortJSON } from '../cohort';
 
 export type PreStrategyJSON = {
@@ -23,7 +20,7 @@ export type PreStrategyJSON = {
 
 export type DeployedPreStrategyJSON = {
   cohortConfig: CohortJSON;
-  decrypterJSON: PreTDecDecrypterJSON;
+  decrypterJSON: PreDecrypterJSON;
   policyKeyBytes: Uint8Array;
 };
 
@@ -65,26 +62,36 @@ export class PreStrategy {
   }
 
   public async deploy(
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer,
     label: string,
-    provider: ethers.providers.Web3Provider
+    threshold = Math.floor(this.cohort.numUrsulas / 2) + 1,
+    shares = this.cohort.numUrsulas
   ): Promise<DeployedPreStrategy> {
-    const porterUri = this.cohort.configuration.porterUri;
-    const configuration = { porterUri };
-    const alice = Alice.fromSecretKey(
-      configuration,
-      this.aliceSecretKey,
-      provider
-    );
-    const bob = new Bob(configuration, this.bobSecretKey);
+    if (shares > this.cohort.numUrsulas) {
+      throw new Error(
+        `Threshold ${threshold} cannot be greater than the number of Ursulas in the cohort ${this.cohort.numUrsulas}`
+      );
+    }
+
+    const porterUri = this.cohort.porterUri;
+    const alice = Alice.fromSecretKey(this.aliceSecretKey);
+    const bob = new Bob(this.bobSecretKey);
     const policyParams = {
       bob,
       label,
-      threshold: this.cohort.configuration.threshold,
-      shares: this.cohort.configuration.shares,
+      threshold,
+      shares,
       startDate: this.startDate,
       endDate: this.endDate,
     };
-    const policy = await alice.grant(policyParams, this.cohort.ursulaAddresses);
+    const policy = await alice.grant(
+      provider,
+      signer,
+      porterUri,
+      policyParams,
+      this.cohort.ursulaAddresses
+    );
     return DeployedPreStrategy.create(this.cohort, policy, this.bobSecretKey);
   }
 
@@ -126,27 +133,20 @@ export class PreStrategy {
   }
 
   public equals(other: PreStrategy) {
-    return (
-      this.cohort.equals(other.cohort) &&
-      // TODO: Replace with `equals` after https://github.com/nucypher/nucypher-core/issues/56 is fixed
-      bytesEquals(
-        this.aliceSecretKey.toBEBytes(),
-        other.aliceSecretKey.toBEBytes()
-      ) &&
-      bytesEquals(
-        this.bobSecretKey.toBEBytes(),
-        other.bobSecretKey.toBEBytes()
-      ) &&
-      this.startDate.toString() === other.startDate.toString() &&
-      this.endDate.toString() === other.endDate.toString()
-    );
+    return [
+      this.cohort.equals(other.cohort),
+      this.aliceSecretKey.equals(other.aliceSecretKey),
+      this.bobSecretKey.equals(other.bobSecretKey),
+      this.startDate.toString() === other.startDate.toString(),
+      this.endDate.toString() === other.endDate.toString(),
+    ].every(Boolean);
   }
 }
 
 export class DeployedPreStrategy {
   private constructor(
     public readonly cohort: Cohort,
-    public readonly decrypter: PreTDecDecrypter,
+    public readonly decrypter: PreDecrypter,
     public readonly policyKey: PublicKey
   ) {}
 
@@ -155,8 +155,8 @@ export class DeployedPreStrategy {
     policy: EnactedPolicy,
     bobSecretKey: SecretKey
   ) {
-    const decrypter = PreTDecDecrypter.create(
-      cohort.configuration.porterUri,
+    const decrypter = PreDecrypter.create(
+      cohort.porterUri,
       bobSecretKey,
       policy.policyKey,
       policy.aliceVerifyingKey,
@@ -184,7 +184,7 @@ export class DeployedPreStrategy {
     policyKeyBytes,
   }: DeployedPreStrategyJSON) {
     const cohort = Cohort.fromObj(cohortConfig);
-    const decrypter = PreTDecDecrypter.fromObj(decrypterJSON);
+    const decrypter = PreDecrypter.fromObj(decrypterJSON);
     const policyKey = PublicKey.fromCompressedBytes(policyKeyBytes);
     return new DeployedPreStrategy(cohort, decrypter, policyKey);
   }
@@ -198,10 +198,10 @@ export class DeployedPreStrategy {
   }
 
   public equals(other: DeployedPreStrategy) {
-    return (
-      this.cohort.equals(other.cohort) &&
-      this.decrypter.equals(other.decrypter) &&
-      this.policyKey.equals(other.policyKey)
-    );
+    return [
+      this.cohort.equals(other.cohort),
+      this.decrypter.equals(other.decrypter),
+      this.policyKey.equals(other.policyKey),
+    ].every(Boolean);
   }
 }

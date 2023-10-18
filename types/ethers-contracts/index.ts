@@ -3,6 +3,6 @@
 /* eslint-disable */
 export type { Coordinator } from "./Coordinator";
 export type { SubscriptionManager } from "./SubscriptionManager";
-
+export * as factories from "./factories";
 export { Coordinator__factory } from "./factories/Coordinator__factory";
 export { SubscriptionManager__factory } from "./factories/SubscriptionManager__factory";

@@ -2,6 +2,52 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.5](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-alpha.4...v1.0.0-alpha.5) (2023-08-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* disable ritual initialization
+* replace variant parameter with a default simple variant
+
+### Features
+
+* disable ritual initialization ([7447664](https://github.com/nucypher/nucypher-ts/commit/7447664360ec961ada59916dc6b511f9dbad514d))
+* replace variant parameter with a default simple variant ([36fd43e](https://github.com/nucypher/nucypher-ts/commit/36fd43eda8e04f2a400099ab76a5a03f0325b850))
+
+## [1.0.0-alpha.4](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-alpha.3...v1.0.0-alpha.4) (2023-08-11)
+
+Re-released `1.0.0-alpha.3` after fixing a bad rebase.
+
+## [1.0.0-alpha.3](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-alpha.2...v1.0.0-alpha.3) (2023-08-11)
+
+Re-released `1.0.0-alpha.2` after fixing a bad rebase.
+
+## [1.0.0-alpha.2](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-alpha.1...v1.0.0-alpha.2) (2023-08-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* porter uris are based on networks, not chain ids
+* replaced configuration with raw porter uri
+
+### Features
+
+* implement local ritual verificaiton ([39241c0](https://github.com/nucypher/nucypher-ts/commit/39241c0cacc2b29bf11a5f4c88a6d53bb8ea4375))
+* porter uris are based on networks, not chain ids ([d911481](https://github.com/nucypher/nucypher-ts/commit/d911481d0f1b8f80e022b2c32de5aaa53607a2f9))
+* replaced configuration with raw porter uri ([fcd7fc0](https://github.com/nucypher/nucypher-ts/commit/fcd7fc0cb505b71a6e709ae37c1c53f9b2261f53))
+
+## [1.0.0-alpha.1](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-alpha.0...v1.0.0-alpha.1) (2023-07-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* incorrect condition parsing leading to undefined variables in context
+
+### Bug Fixes
+
+* incorrect condition parsing leading to undefined variables in context ([5695bc0](https://github.com/nucypher/nucypher-ts/commit/5695bc0b83d97b23e9fb6f1d9b6c1f71cc604049))
+
 ## [1.0.0-beta.4](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-beta.3...v1.0.0-beta.4) (2023-08-14)
 
 

@@ -1,7 +1,10 @@
 import {
   bytesEqual,
   fakeAlice,
+  fakePorterUri,
+  fakeProvider,
   fakeRemoteBob,
+  fakeSigner,
   fakeUrsulas,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
@@ -9,13 +12,15 @@ import {
   mockPublishToBlockchain,
 } from '../utils';
 
-describe('story: alice1 creates a policy but alice2 enacts it', () => {
+describe('story: alice creates a policy but someone else enacts it', () => {
   const threshold = 2;
   const shares = 3;
   const startDate = new Date();
   const endDate = new Date(Date.now() + 60 * 1000); // 60s later
-  const mockedUrsulas = fakeUrsulas().slice(0, shares);
+  const mockedUrsulas = fakeUrsulas(shares);
   const label = 'fake-data-label';
+  const provider = fakeProvider();
+  const signer = fakeSigner();
 
   it('alice generates a new policy', async () => {
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
@@ -23,8 +28,7 @@ describe('story: alice1 creates a policy but alice2 enacts it', () => {
     const publishToBlockchainSpy = mockPublishToBlockchain();
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
-    const alice1 = fakeAlice('fake-secret-key-32-bytes-alice-1');
-    const alice2 = fakeAlice('fake-secret-key-32-bytes-alice-2');
+    const alice = fakeAlice('fake-secret-key-32-bytes-alice-1');
     const bob = fakeRemoteBob();
     const policyParams = {
       bob,
@@ -35,18 +39,20 @@ describe('story: alice1 creates a policy but alice2 enacts it', () => {
       endDate,
     };
 
-    const preEnactedPolicy = await alice1.generatePreEnactedPolicy(
+    const preEnactedPolicy = await alice.generatePreEnactedPolicy(
+      provider,
+      fakePorterUri,
       policyParams
     );
     expect(
       bytesEqual(
         preEnactedPolicy.aliceVerifyingKey.toCompressedBytes(),
-        alice1.verifyingKey.toCompressedBytes()
+        alice.verifyingKey.toCompressedBytes()
       )
     ).toBeTruthy();
     expect(preEnactedPolicy.label).toBe(label);
 
-    const enacted = await preEnactedPolicy.enact(alice2);
+    const enacted = await preEnactedPolicy.enact(provider, signer);
     expect(enacted.txHash).toBeDefined();
 
     expect(getUrsulasSpy).toHaveBeenCalled();

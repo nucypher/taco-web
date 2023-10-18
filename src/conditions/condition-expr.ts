@@ -2,17 +2,10 @@ import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 import { SemVer } from 'semver';
 
-import { objectEquals, toBytes, toJSON } from '../utils';
+import { toJSON } from '../utils';
 
-import {
-  Condition,
-  ContractCondition,
-  RpcCondition,
-  TimeCondition,
-} from './base';
-import { BLOCKTIME_METHOD } from './base/time';
-import { CompoundCondition } from './compound-condition';
-import { ConditionContext } from './context';
+import { Condition } from './condition';
+import { ConditionContext, CustomContextParam } from './context';
 
 export type ConditionExpressionJSON = {
   version: string;
@@ -20,7 +13,7 @@ export type ConditionExpressionJSON = {
 };
 
 export class ConditionExpression {
-  static VERSION = '1.0.0';
+  public static VERSION = '1.0.0';
 
   constructor(
     public readonly condition: Condition,
@@ -28,10 +21,10 @@ export class ConditionExpression {
   ) {}
 
   public toObj(): ConditionExpressionJSON {
-    const conditionData = this.condition.toObj();
+    const condition = this.condition.toObj();
     return {
       version: this.version,
-      condition: conditionData,
+      condition,
     };
   }
 
@@ -44,31 +37,15 @@ export class ConditionExpression {
       );
     }
 
-    const underlyingConditionData = obj.condition;
-    let condition: Condition | undefined;
-
-    if (underlyingConditionData.operator) {
-      condition = new CompoundCondition(underlyingConditionData);
-    } else if (underlyingConditionData.method) {
-      if (underlyingConditionData.method === BLOCKTIME_METHOD) {
-        condition = new TimeCondition(underlyingConditionData);
-      } else if (underlyingConditionData.contractAddress) {
-        condition = new ContractCondition(underlyingConditionData);
-      } else if (
-        (underlyingConditionData.method as string).startsWith('eth_')
-      ) {
-        condition = new RpcCondition(underlyingConditionData);
-      }
-    }
-
-    if (!condition) {
+    if (!obj.condition) {
       throw new Error(
         `Invalid condition: unrecognized condition data ${JSON.stringify(
-          underlyingConditionData
+          obj.condition
         )}`
       );
     }
 
+    const condition = Condition.fromObj(obj.condition);
     return new ConditionExpression(condition, obj.version);
   }
 
@@ -84,20 +61,31 @@ export class ConditionExpression {
     return new WASMConditions(toJSON(this.toObj()));
   }
 
-  public buildContext(
-    provider: ethers.providers.Web3Provider
-  ): ConditionContext {
-    return new ConditionContext([this.condition], provider);
+  public static fromWASMConditions(conditions: WASMConditions) {
+    return ConditionExpression.fromJSON(conditions.toString());
   }
 
-  public asAad(): Uint8Array {
-    return toBytes(this.toJson());
+  public buildContext(
+    provider: ethers.providers.Provider,
+    customParameters: Record<string, CustomContextParam> = {},
+    signer?: ethers.Signer
+  ): ConditionContext {
+    return new ConditionContext(
+      provider,
+      [this.condition],
+      customParameters,
+      signer
+    );
+  }
+
+  public contextRequiresSigner(): boolean {
+    return this.condition.requiresSigner();
   }
 
   public equals(other: ConditionExpression): boolean {
-    return (
-      this.version === other.version &&
-      objectEquals(this.condition.toObj(), other.condition.toObj())
-    );
+    return [
+      this.version === other.version,
+      this.condition.equals(other.condition),
+    ].every(Boolean);
   }
 }

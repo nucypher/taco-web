@@ -1,73 +1,95 @@
-import { CompoundCondition } from '../../../src/conditions';
-import { ERC721Ownership } from '../../../src/conditions/predefined/erc721';
+import { Condition } from '../../../src/conditions';
+import { CompoundCondition } from '../../../src/conditions/base';
+import {
+  compoundConditionSchema,
+  CompoundConditionType,
+} from '../../../src/conditions/compound-condition';
 import {
   testContractConditionObj,
   testRpcConditionObj,
   testTimeConditionObj,
 } from '../testVariables';
 
-describe('validate', () => {
-  const ownsBufficornNFT = ERC721Ownership.fromObj({
-    contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
-    parameters: [3591],
-    chain: 5,
-  }).toObj();
-
+describe('validation', () => {
   it('accepts or operator', () => {
-    const orCondition = new CompoundCondition({
+    const conditionObj = {
       operator: 'or',
-      operands: [ownsBufficornNFT, testTimeConditionObj],
-    }).toObj();
+      operands: [testContractConditionObj, testTimeConditionObj],
+    };
+    const result = Condition.validate(compoundConditionSchema, conditionObj);
 
-    expect(orCondition.operator).toEqual('or');
-    expect(orCondition.operands).toEqual([
-      ownsBufficornNFT,
-      testTimeConditionObj,
-    ]);
+    expect(result.error).toBeUndefined();
+    expect(result.data).toEqual({
+      ...conditionObj,
+      conditionType: CompoundConditionType,
+    });
   });
 
   it('accepts and operator', () => {
-    const orCondition = new CompoundCondition({
+    const conditionObj = {
       operator: 'and',
       operands: [testContractConditionObj, testTimeConditionObj],
-    }).toObj();
+    };
+    const result = CompoundCondition.validate(
+      compoundConditionSchema,
+      conditionObj
+    );
 
-    expect(orCondition.operator).toEqual('and');
-    expect(orCondition.operands).toEqual([
-      testContractConditionObj,
-      testTimeConditionObj,
-    ]);
+    expect(result.error).toBeUndefined();
+    expect(result.data).toEqual({
+      ...conditionObj,
+      conditionType: CompoundConditionType,
+    });
   });
 
   it('rejects an invalid operator', () => {
-    expect(() =>
-      new CompoundCondition({
-        operator: 'not-an-operator',
-        operands: [testRpcConditionObj, testTimeConditionObj],
-      }).toObj()
-    ).toThrow('"operator" must be one of [and, or]');
+    const result = CompoundCondition.validate(compoundConditionSchema, {
+      operator: 'not-an-operator',
+      operands: [testRpcConditionObj, testTimeConditionObj],
+    });
+
+    expect(result.error).toBeDefined();
+    expect(result.data).toBeUndefined();
+    expect(result.error?.format()).toMatchObject({
+      operator: {
+        _errors: [
+          "Invalid enum value. Expected 'and' | 'or', received 'not-an-operator'",
+        ],
+      },
+    });
   });
 
   it('rejects invalid number of operands = 0', () => {
-    expect(() =>
-      new CompoundCondition({
-        operator: 'or',
-        operands: [],
-      }).toObj()
-    ).toThrow('"operands" must contain at least 2 items');
+    const result = CompoundCondition.validate(compoundConditionSchema, {
+      operator: 'or',
+      operands: [],
+    });
+
+    expect(result.error).toBeDefined();
+    expect(result.data).toBeUndefined();
+    expect(result.error?.format()).toMatchObject({
+      operands: {
+        _errors: ['Array must contain at least 2 element(s)'],
+      },
+    });
   });
 
   it('rejects invalid number of operands = 1', () => {
-    expect(() =>
-      new CompoundCondition({
-        operator: 'or',
-        operands: [testRpcConditionObj],
-      }).toObj()
-    ).toThrow('"operands" must contain at least 2 items');
+    const result = CompoundCondition.validate(compoundConditionSchema, {
+      operator: 'or',
+      operands: [testRpcConditionObj],
+    });
+    expect(result.error).toBeDefined();
+    expect(result.data).toBeUndefined();
+    expect(result.error?.format()).toMatchObject({
+      operands: {
+        _errors: ['Array must contain at least 2 element(s)'],
+      },
+    });
   });
 
-  it('it allows recursive compound conditions', () => {
-    const compoundCondition = new CompoundCondition({
+  it('accepts recursive compound conditions', () => {
+    const conditionObj = {
       operator: 'and',
       operands: [
         testContractConditionObj,
@@ -75,11 +97,28 @@ describe('validate', () => {
         testRpcConditionObj,
         {
           operator: 'or',
-          operands: [ownsBufficornNFT, testContractConditionObj],
+          operands: [testTimeConditionObj, testContractConditionObj],
         },
       ],
-    }).toObj();
-    expect(compoundCondition.operator).toEqual('and');
-    expect(compoundCondition.operands).toHaveLength(4);
+    };
+    const result = CompoundCondition.validate(
+      compoundConditionSchema,
+      conditionObj
+    );
+    expect(result.error).toBeUndefined();
+    expect(result.data).toEqual({
+      conditionType: CompoundConditionType,
+      operator: 'and',
+      operands: [
+        testContractConditionObj,
+        testTimeConditionObj,
+        testRpcConditionObj,
+        {
+          conditionType: CompoundConditionType,
+          operator: 'or',
+          operands: [testTimeConditionObj, testContractConditionObj],
+        },
+      ],
+    });
   });
 });

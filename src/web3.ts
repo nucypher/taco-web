@@ -1,4 +1,12 @@
 import { fromHexString } from './utils';
+
+export enum ChainId {
+  POLYGON = 137,
+  MUMBAI = 80001,
+  GOERLI = 5,
+  MAINNET = 1,
+}
+
 export const toCanonicalAddress = (address: string): Uint8Array => {
   const ETH_ADDRESS_STRING_PREFIX = '0x';
   const nonPrefixed = address.startsWith(ETH_ADDRESS_STRING_PREFIX)

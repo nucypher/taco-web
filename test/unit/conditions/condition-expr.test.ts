@@ -1,17 +1,18 @@
 import { SemVer } from 'semver';
 
+import { ConditionExpression } from '../../../src/conditions';
 import {
   CompoundCondition,
-  ConditionExpression,
-} from '../../../src/conditions';
-import {
   ContractCondition,
+  ContractConditionProps,
   RpcCondition,
   TimeCondition,
+  TimeConditionProps,
 } from '../../../src/conditions/base';
+import { RpcConditionType } from '../../../src/conditions/base';
 import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
 import { ERC721Balance } from '../../../src/conditions/predefined';
-import { toJSON } from '../../../src/utils';
+import { objectEquals, toJSON } from '../../../src/utils';
 import {
   TEST_CHAIN_ID,
   TEST_CONTRACT_ADDR,
@@ -35,7 +36,7 @@ describe('condition set', () => {
   );
 
   const customParamKey = ':customParam';
-  const contractConditionWithAbiObj = {
+  const contractConditionWithAbiObj: ContractConditionProps = {
     ...testContractConditionObj,
     standardContractType: undefined,
     functionAbi: testFunctionAbi,
@@ -67,17 +68,17 @@ describe('condition set', () => {
   describe('equality', () => {
     const conditionExprCurrentVersion = new ConditionExpression(rpcCondition);
 
-    it('same version and condition', async () => {
-      const conditionExprSameCurrentVerstion = new ConditionExpression(
+    it('same version and condition', () => {
+      const conditionExprSameCurrentVersion = new ConditionExpression(
         rpcCondition,
         ConditionExpression.VERSION
       );
       expect(
-        conditionExprCurrentVersion.equals(conditionExprSameCurrentVerstion)
+        conditionExprCurrentVersion.equals(conditionExprSameCurrentVersion)
       ).toBeTruthy();
     });
 
-    it('different minor/patch version but same condition', async () => {
+    it('different minor/patch version but same condition', () => {
       const conditionExprOlderMinorVersion = new ConditionExpression(
         rpcCondition,
         '0.1.0'
@@ -97,7 +98,7 @@ describe('condition set', () => {
       ).not.toBeTruthy();
     });
 
-    it('minor/patch number greater than major; still older', async () => {
+    it('minor/patch number greater than major; still older', () => {
       const conditionExprOlderMinorVersion = new ConditionExpression(
         rpcCondition,
         '0.9.0'
@@ -140,7 +141,7 @@ describe('condition set', () => {
       contractConditionWithAbi,
       timeCondition,
       compoundCondition,
-    ])('same version but different condition', async (condition) => {
+    ])('same version but different condition', (condition) => {
       const conditionExprSameVersionDifferentCondition =
         new ConditionExpression(condition);
       expect(
@@ -150,7 +151,7 @@ describe('condition set', () => {
       ).not.toBeTruthy();
     });
 
-    it('same contract condition although using erc721 helper', async () => {
+    it('same contract condition although using erc721 helper', () => {
       const erc721ConditionExpr = new ConditionExpression(
         erc721BalanceCondition
       );
@@ -159,7 +160,9 @@ describe('condition set', () => {
       const contractConditionExpr = new ConditionExpression(
         sameContractCondition
       );
-      expect(erc721ConditionExpr.equals(contractConditionExpr)).toBeTruthy();
+      expect(
+        objectEquals(erc721ConditionExpr.toObj(), contractConditionExpr.toObj())
+      ).toBeTruthy();
     });
   });
 
@@ -171,7 +174,7 @@ describe('condition set', () => {
       rpcCondition,
       timeCondition,
       compoundCondition,
-    ])('serializes to and from json', async (condition) => {
+    ])('serializes to and from json', (condition) => {
       const conditionExpr = new ConditionExpression(condition);
       const conditionExprJson = conditionExpr.toJson();
       expect(conditionExprJson).toBeDefined();
@@ -184,9 +187,22 @@ describe('condition set', () => {
         ConditionExpression.fromJSON(conditionExprJson);
       expect(conditionExprFromJson).toBeDefined();
       expect(conditionExprFromJson.equals(conditionExprFromJson)).toBeTruthy();
+
+      const asWasmConditions = conditionExprFromJson.toWASMConditions();
+      const fromWasmConditions =
+        ConditionExpression.fromWASMConditions(asWasmConditions);
+      expect(fromWasmConditions).toBeDefined();
+      expect(fromWasmConditions.equals(conditionExprFromJson)).toBeTruthy();
     });
 
-    it('incompatible version', async () => {
+    it('serializes to and from WASM conditions', () => {
+      const conditionExpr = new ConditionExpression(erc721BalanceCondition);
+      const wasmConditions = conditionExpr.toWASMConditions();
+      const fromWasm = ConditionExpression.fromWASMConditions(wasmConditions);
+      expect(conditionExpr.equals(fromWasm)).toBeTruthy();
+    });
+
+    it('incompatible version', () => {
       const currentVersion = new SemVer(ConditionExpression.VERSION);
       const invalidVersion = currentVersion.inc('major');
       expect(() => {
@@ -201,7 +217,7 @@ describe('condition set', () => {
 
     it.each(['version', 'x.y', 'x.y.z', '-1,0.0', '1.0.0.0.0.0.0'])(
       'invalid versions',
-      async (invalidVersion) => {
+      (invalidVersion) => {
         expect(() => {
           ConditionExpression.fromObj({
             version: invalidVersion,
@@ -211,51 +227,36 @@ describe('condition set', () => {
       }
     );
 
-    it.each([
-      // no "operator" nor "method" value
-      {
-        version: ConditionExpression.VERSION,
-        condition: {
-          randoKey: 'randoValue',
-          otherKey: 'otherValue',
-        },
-      },
-      // invalid "method" and no "contractAddress"
-      {
-        version: ConditionExpression.VERSION,
-        condition: {
-          method: 'doWhatIWant',
-          returnValueTest: {
-            index: 0,
-            comparator: '>',
-            value: '100',
-          },
-          chain: 5,
-        },
-      },
-      // condition with wrong method "method" and no contract address
-      {
-        version: ConditionExpression.VERSION,
-        condition: {
+    it.each(['_invalid_condition_type_', undefined as unknown as string])(
+      'rejects an invalid condition type',
+      (invalidConditionType) => {
+        const conditionObj = {
           ...testTimeConditionObj,
-          method: 'doWhatIWant',
-        },
-      },
-      // rpc condition (no contract address) with disallowed method
-      {
-        version: ConditionExpression.VERSION,
-        condition: {
-          ...testRpcConditionObj,
-          method: 'isPolicyActive',
-        },
-      },
-    ])("can't determine condition type", async (invalidCondition) => {
+          conditionType: invalidConditionType,
+        } as unknown as TimeConditionProps;
+        expect(() => {
+          ConditionExpression.fromObj({
+            version: ConditionExpression.VERSION,
+            condition: conditionObj,
+          });
+        }).toThrow(`Invalid conditionType: ${invalidConditionType}`);
+      }
+    );
+
+    it('rejects a mismatched condition type', () => {
+      const conditionObj = {
+        ...testTimeConditionObj,
+        conditionType: RpcConditionType,
+      } as unknown as TimeConditionProps;
       expect(() => {
-        ConditionExpression.fromObj(invalidCondition);
-      }).toThrow('unrecognized condition data');
+        ConditionExpression.fromObj({
+          version: ConditionExpression.VERSION,
+          condition: conditionObj,
+        });
+      }).toThrow(/^Invalid condition/);
     });
 
-    it('erc721 condition serialization', async () => {
+    it('erc721 condition serialization', () => {
       const conditionExpr = new ConditionExpression(erc721BalanceCondition);
 
       const erc721BalanceConditionObj = erc721BalanceCondition.toObj();
@@ -283,7 +284,7 @@ describe('condition set', () => {
       expect(conditionExprFromJson.condition).toBeInstanceOf(ContractCondition);
     });
 
-    it('contract condition no abi serialization', async () => {
+    it('contract condition no abi serialization', () => {
       const conditionExpr = new ConditionExpression(contractConditionNoAbi);
 
       const conditionExprJson = conditionExpr.toJson();
@@ -315,7 +316,7 @@ describe('condition set', () => {
       expect(conditionExprFromJson.condition).toBeInstanceOf(ContractCondition);
     });
 
-    it('contract condition with abi serialization', async () => {
+    it('contract condition with abi serialization', () => {
       const conditionExpr = new ConditionExpression(contractConditionWithAbi);
 
       const conditionExprJson = conditionExpr.toJson();
@@ -348,7 +349,7 @@ describe('condition set', () => {
       expect(conditionExprFromJson.condition).toBeInstanceOf(ContractCondition);
     });
 
-    it('time condition serialization', async () => {
+    it('time condition serialization', () => {
       const conditionExpr = new ConditionExpression(timeCondition);
 
       const conditionExprJson = conditionExpr.toJson();
@@ -371,7 +372,7 @@ describe('condition set', () => {
       expect(conditionExprFromJson.condition).toBeInstanceOf(TimeCondition);
     });
 
-    it('rpc condition serialization', async () => {
+    it('rpc condition serialization', () => {
       const conditionExpr = new ConditionExpression(rpcCondition);
 
       const conditionExprJson = conditionExpr.toJson();
@@ -395,7 +396,7 @@ describe('condition set', () => {
       expect(conditionExprFromJson.condition).toBeInstanceOf(RpcCondition);
     });
 
-    it('compound condition serialization', async () => {
+    it('compound condition serialization', () => {
       const conditionExpr = new ConditionExpression(compoundCondition);
       const compoundConditionObj = compoundCondition.toObj();
 

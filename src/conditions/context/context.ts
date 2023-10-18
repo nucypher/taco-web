@@ -1,8 +1,9 @@
-import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
+import { Context, Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
 import { fromJSON, toJSON } from '../../utils';
-import { Condition } from '../base';
+import { Condition } from '../condition';
+import { ConditionExpression } from '../condition-expr';
 import { USER_ADDRESS_PARAM } from '../const';
 
 import { TypedSignature, WalletAuthenticationProvider } from './providers';
@@ -14,16 +15,25 @@ export const RESERVED_CONTEXT_PARAMS = [USER_ADDRESS_PARAM];
 export const CONTEXT_PARAM_PREFIX = ':';
 
 export class ConditionContext {
-  private readonly walletAuthProvider: WalletAuthenticationProvider;
+  private readonly walletAuthProvider?: WalletAuthenticationProvider;
 
   constructor(
+    private readonly provider: ethers.providers.Provider,
     private readonly conditions: ReadonlyArray<Condition>,
-    // TODO: We don't always need a web3 provider, only in cases where some specific context parameters are used
-    // TODO: Consider making this optional or introducing a different pattern to handle that
-    private readonly web3Provider: ethers.providers.Web3Provider,
-    public readonly customParameters: Record<string, CustomContextParam> = {}
+    public readonly customParameters: Record<string, CustomContextParam> = {},
+    private readonly signer?: ethers.Signer
   ) {
-    Object.keys(customParameters).forEach((key) => {
+    if (this.signer) {
+      this.walletAuthProvider = new WalletAuthenticationProvider(
+        this.provider,
+        this.signer
+      );
+    }
+    this.validate();
+  }
+
+  private validate() {
+    Object.keys(this.customParameters).forEach((key) => {
       if (RESERVED_CONTEXT_PARAMS.includes(key)) {
         throw new Error(
           `Cannot use reserved parameter name ${key} as custom parameter`
@@ -35,7 +45,17 @@ export class ConditionContext {
         );
       }
     });
-    this.walletAuthProvider = new WalletAuthenticationProvider(web3Provider);
+
+    const conditionRequiresSigner = this.conditions.some((c) =>
+      c.requiresSigner()
+    );
+    if (conditionRequiresSigner && !this.signer) {
+      throw new Error(
+        `Signer required to satisfy ${USER_ADDRESS_PARAM} context variable in condition`
+      );
+    }
+
+    return this;
   }
 
   public toObj = async (): Promise<Record<string, ContextParam>> => {
@@ -70,6 +90,11 @@ export class ConditionContext {
 
     // Fill in predefined context parameters
     if (requestedParameters.has(USER_ADDRESS_PARAM)) {
+      if (!this.walletAuthProvider) {
+        throw new Error(
+          `Condition contains ${USER_ADDRESS_PARAM} context variable and requires a signer to populate`
+        );
+      }
       parameters[USER_ADDRESS_PARAM] =
         await this.walletAuthProvider.getOrCreateWalletSignature();
       // Remove from requested parameters
@@ -95,14 +120,35 @@ export class ConditionContext {
     return parameters;
   };
 
-  public toJson = async (): Promise<string> => {
+  public async toJson(): Promise<string> {
     const parameters = await this.toObj();
     return toJSON(parameters);
-  };
+  }
 
-  public withCustomParams = (
+  public withCustomParams(
     params: Record<string, CustomContextParam>
-  ): ConditionContext => {
-    return new ConditionContext(this.conditions, this.web3Provider, params);
-  };
+  ): ConditionContext {
+    return new ConditionContext(
+      this.provider,
+      this.conditions,
+      params,
+      this.signer
+    );
+  }
+
+  public async toWASMContext(): Promise<Context> {
+    const asJson = await this.toJson();
+    return new Context(asJson);
+  }
+
+  public static fromConditions(
+    provider: ethers.providers.Provider,
+    conditions: WASMConditions,
+    signer?: ethers.Signer
+  ): ConditionContext {
+    const innerConditions = [
+      ConditionExpression.fromWASMConditions(conditions).condition,
+    ];
+    return new ConditionContext(provider, innerConditions, {}, signer);
+  }
 }

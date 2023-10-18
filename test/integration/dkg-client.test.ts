@@ -4,8 +4,8 @@ import { DkgCoordinatorAgent } from '../../src/agents/coordinator';
 import {
   fakeCoordinatorRitual,
   fakeDkgParticipants,
+  fakeProvider,
   fakeRitualId,
-  fakeWeb3Provider,
   mockGetParticipants,
 } from '../utils';
 
@@ -22,14 +22,14 @@ describe('DkgCoordinatorAgent', () => {
   });
 
   it('fetches transcripts from the coordinator', async () => {
-    const provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
+    const provider = fakeProvider(SecretKey.random().toBEBytes());
     const ritual = await DkgCoordinatorAgent.getRitual(provider, fakeRitualId);
     expect(ritual).toBeDefined();
   });
 
   it('fetches participants from the coordinator', async () => {
-    const provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
-    const fakeParticipants = fakeDkgParticipants(fakeRitualId);
+    const provider = fakeProvider(SecretKey.random().toBEBytes());
+    const fakeParticipants = await fakeDkgParticipants(fakeRitualId);
     const getParticipantsSpy = mockGetParticipants(
       fakeParticipants.participants
     );

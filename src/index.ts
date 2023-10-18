@@ -2,8 +2,8 @@
 export { Alice } from './characters/alice';
 export { Bob, RemoteBob } from './characters/bob';
 export { Enrico } from './characters/enrico';
-export { PreTDecDecrypter } from './characters/pre-recipient';
-export { Porter } from './characters/porter';
+export { PreDecrypter } from './characters/pre-recipient';
+export { PorterClient } from './porter';
 
 // Policies
 export type {
@@ -15,25 +15,21 @@ export { PreEnactedPolicy } from './policies/policy';
 // Keyring
 export { Keyring } from './keyring';
 
-// Configuration
-export type { Configuration } from './config';
-export { defaultConfiguration } from './config';
+// Porter
+export { getPorterUri } from './porter';
 
 // Kits
 export { PolicyMessageKit } from './kits/message';
 
 // Conditions
-import type { CustomContextParam } from './conditions';
 import * as conditions from './conditions';
-// TODO: Not sure how to re-export this type from the conditions module
-export { conditions, CustomContextParam };
+export { conditions };
 
 // DKG
-export { FerveoVariant } from './dkg';
+export { FerveoVariant } from '@nucypher/nucypher-core';
 
 // SDK
 export { Cohort } from './sdk/cohort';
-export type { CohortConfiguration } from './sdk/cohort';
 export { DeployedPreStrategy, PreStrategy } from './sdk/strategy/pre-strategy';
 export { DeployedCbdStrategy, CbdStrategy } from './sdk/strategy/cbd-strategy';
 

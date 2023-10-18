@@ -1,96 +1,80 @@
 import {
-  Ciphertext,
+  combineDecryptionSharesSimple,
   Context,
-  DecryptionSharePrecomputed,
   DecryptionShareSimple,
-  decryptWithSharedSecret,
   EncryptedThresholdDecryptionRequest,
   EncryptedThresholdDecryptionResponse,
+  FerveoVariant,
   SessionSharedSecret,
   SessionStaticSecret,
   ThresholdDecryptionRequest,
+  ThresholdMessageKit,
 } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
 import { DkgCoordinatorAgent, DkgParticipant } from '../agents/coordinator';
-import { ConditionExpression } from '../conditions';
-import {
-  DkgRitual,
-  FerveoVariant,
-  getCombineDecryptionSharesFunction,
-  getVariantClass,
-} from '../dkg';
-import { fromJSON, toJSON } from '../utils';
+import { ConditionContext } from '../conditions';
+import { PorterClient } from '../porter';
+import { fromJSON, objectEquals, toJSON } from '../utils';
 
-import { Porter } from './porter';
-
-export type CbdTDecDecrypterJSON = {
+export type ThresholdDecrypterJSON = {
   porterUri: string;
   ritualId: number;
   threshold: number;
 };
 
-export class CbdTDecDecrypter {
-  // private readonly verifyingKey: Keyring;
-
+export class ThresholdDecrypter {
   private constructor(
-    private readonly porter: Porter,
+    private readonly porter: PorterClient,
     private readonly ritualId: number,
     private readonly threshold: number
   ) {}
 
-  public static create(porterUri: string, dkgRitual: DkgRitual) {
-    return new CbdTDecDecrypter(
-      new Porter(porterUri),
-      dkgRitual.id,
-      dkgRitual.threshold
+  public static create(porterUri: string, ritualId: number, threshold: number) {
+    return new ThresholdDecrypter(
+      new PorterClient(porterUri),
+      ritualId,
+      threshold
     );
   }
 
   // Retrieve and decrypt ciphertext using provider and condition expression
   public async retrieveAndDecrypt(
-    provider: ethers.providers.Web3Provider,
-    conditionExpr: ConditionExpression,
-    variant: FerveoVariant,
-    ciphertext: Ciphertext
+    web3Provider: ethers.providers.Provider,
+    thresholdMessageKit: ThresholdMessageKit,
+    signer?: ethers.Signer
   ): Promise<Uint8Array> {
     const decryptionShares = await this.retrieve(
-      provider,
-      conditionExpr,
-      variant,
-      ciphertext
+      web3Provider,
+      thresholdMessageKit,
+      signer
     );
-
-    const combineDecryptionSharesFn =
-      getCombineDecryptionSharesFunction(variant);
-    const sharedSecret = combineDecryptionSharesFn(decryptionShares);
-    return decryptWithSharedSecret(
-      ciphertext,
-      conditionExpr.asAad(),
-      sharedSecret
-    );
+    const sharedSecret = combineDecryptionSharesSimple(decryptionShares);
+    return thresholdMessageKit.decryptWithSharedSecret(sharedSecret);
   }
 
   // Retrieve decryption shares
   public async retrieve(
-    provider: ethers.providers.Web3Provider,
-    conditionExpr: ConditionExpression,
-    variant: FerveoVariant,
-    ciphertext: Ciphertext
-  ): Promise<DecryptionSharePrecomputed[] | DecryptionShareSimple[]> {
+    provider: ethers.providers.Provider,
+    thresholdMessageKit: ThresholdMessageKit,
+    signer?: ethers.Signer
+  ): Promise<DecryptionShareSimple[]> {
     const dkgParticipants = await DkgCoordinatorAgent.getParticipants(
       provider,
       this.ritualId
     );
-    const contextStr = await conditionExpr.buildContext(provider).toJson();
-    const { sharedSecrets, encryptedRequests } = this.makeDecryptionRequests(
-      this.ritualId,
-      variant,
-      ciphertext,
-      conditionExpr,
-      contextStr,
-      dkgParticipants
-    );
+    const wasmContext = await ConditionContext.fromConditions(
+      provider,
+      thresholdMessageKit.acp.conditions,
+      signer
+    ).toWASMContext();
+    const { sharedSecrets, encryptedRequests } =
+      await this.makeDecryptionRequests(
+        this.ritualId,
+        wasmContext,
+        dkgParticipants,
+        thresholdMessageKit
+      );
 
     const { encryptedResponses, errors } = await this.porter.cbdDecrypt(
       encryptedRequests,
@@ -98,14 +82,15 @@ export class CbdTDecDecrypter {
     );
     if (Object.keys(encryptedResponses).length < this.threshold) {
       throw new Error(
-        `CBD decryption failed with errors: ${JSON.stringify(errors)}`
+        `Threshold of responses not met; CBD decryption failed with errors: ${JSON.stringify(
+          errors
+        )}`
       );
     }
 
     return this.makeDecryptionShares(
       encryptedResponses,
       sharedSecrets,
-      variant,
       this.ritualId
     );
   }
@@ -113,7 +98,6 @@ export class CbdTDecDecrypter {
   private makeDecryptionShares(
     encryptedResponses: Record<string, EncryptedThresholdDecryptionResponse>,
     sessionSharedSecret: Record<string, SessionSharedSecret>,
-    variant: number,
     expectedRitualId: number
   ) {
     const decryptedResponses = Object.entries(encryptedResponses).map(
@@ -127,33 +111,26 @@ export class CbdTDecDecrypter {
       );
     }
 
-    const decryptionShares = decryptedResponses.map(
-      ({ decryptionShare }) => decryptionShare
-    );
-
-    const DecryptionShareType = getVariantClass(variant);
-    return decryptionShares.map((share) =>
-      DecryptionShareType.fromBytes(share)
+    return decryptedResponses.map(({ decryptionShare }) =>
+      DecryptionShareSimple.fromBytes(decryptionShare)
     );
   }
 
-  private makeDecryptionRequests(
+  private async makeDecryptionRequests(
     ritualId: number,
-    variant: number,
-    ciphertext: Ciphertext,
-    conditionExpr: ConditionExpression,
-    contextStr: string,
-    dkgParticipants: Array<DkgParticipant>
-  ): {
+    wasmContext: Context,
+    dkgParticipants: Array<DkgParticipant>,
+    thresholdMessageKit: ThresholdMessageKit
+  ): Promise<{
     sharedSecrets: Record<string, SessionSharedSecret>;
     encryptedRequests: Record<string, EncryptedThresholdDecryptionRequest>;
-  } {
+  }> {
     const decryptionRequest = new ThresholdDecryptionRequest(
       ritualId,
-      variant,
-      ciphertext,
-      conditionExpr.toWASMConditions(),
-      new Context(contextStr)
+      FerveoVariant.simple,
+      thresholdMessageKit.ciphertextHeader,
+      thresholdMessageKit.acp,
+      wasmContext
     );
 
     const ephemeralSessionKey = this.makeSessionKey();
@@ -191,7 +168,7 @@ export class CbdTDecDecrypter {
     return SessionStaticSecret.random();
   }
 
-  public toObj(): CbdTDecDecrypterJSON {
+  public toObj(): ThresholdDecrypterJSON {
     return {
       porterUri: this.porter.porterUrl.toString(),
       ritualId: this.ritualId,
@@ -207,17 +184,19 @@ export class CbdTDecDecrypter {
     porterUri,
     ritualId,
     threshold,
-  }: CbdTDecDecrypterJSON) {
-    return new CbdTDecDecrypter(new Porter(porterUri), ritualId, threshold);
+  }: ThresholdDecrypterJSON) {
+    return new ThresholdDecrypter(
+      new PorterClient(porterUri),
+      ritualId,
+      threshold
+    );
   }
 
   public static fromJSON(json: string) {
-    return CbdTDecDecrypter.fromObj(fromJSON(json));
+    return ThresholdDecrypter.fromObj(fromJSON(json));
   }
 
-  public equals(other: CbdTDecDecrypter): boolean {
-    return (
-      this.porter.porterUrl.toString() === other.porter.porterUrl.toString()
-    );
+  public equals(other: ThresholdDecrypter): boolean {
+    return objectEquals(this.toObj(), other.toObj());
   }
 }

@@ -1,42 +1,56 @@
-import { TimeCondition } from '../../../../src/conditions/base';
+import {
+  TimeCondition,
+  TimeConditionProps,
+} from '../../../../src/conditions/base';
+import { ReturnValueTestProps } from '../../../../src/conditions/base/shared';
+import {
+  TimeConditionMethod,
+  timeConditionSchema,
+  TimeConditionType,
+} from '../../../../src/conditions/base/time';
 
 describe('validation', () => {
-  const returnValueTest = {
+  const returnValueTest: ReturnValueTestProps = {
     index: 0,
     comparator: '>',
     value: '100',
   };
 
   it('accepts a valid schema', () => {
-    const timeCondition = new TimeCondition({
+    const conditionObj: TimeConditionProps = {
+      conditionType: TimeConditionType,
       returnValueTest,
-      chain: 5,
-    });
-    expect(timeCondition.toObj()).toEqual({
-      returnValueTest,
-      chain: 5,
-      method: 'blocktime',
-    });
+      method: TimeConditionMethod,
+      chain: 1,
+    };
+    const result = TimeCondition.validate(timeConditionSchema, conditionObj);
+
+    expect(result.error).toBeUndefined();
+    expect(result.data).toEqual(conditionObj);
   });
 
   it('rejects an invalid schema', () => {
-    const badTimeObj = {
+    const badObj = {
+      conditionType: TimeConditionType,
       // Intentionally replacing `returnValueTest` with an invalid test
       returnValueTest: {
         ...returnValueTest,
         comparator: 'not-a-comparator',
       },
       chain: 5,
-    };
+    } as unknown as TimeConditionProps;
+    const result = TimeCondition.validate(timeConditionSchema, badObj);
 
-    const badTimeCondition = new TimeCondition(badTimeObj);
-    expect(() => badTimeCondition.toObj()).toThrow(
-      'Invalid condition: "returnValueTest.comparator" must be one of [==, >, <, >=, <=, !=]'
-    );
-
-    const { error } = badTimeCondition.validate(badTimeObj);
-    expect(error?.message).toEqual(
-      '"returnValueTest.comparator" must be one of [==, >, <, >=, <=, !=]'
-    );
+    expect(result.error).toBeDefined();
+    expect(result.data).toBeUndefined();
+    expect(result.error?.format()).toMatchObject({
+      returnValueTest: {
+        comparator: {
+          _errors: [
+            "Invalid enum value. Expected '==' | '>' | '<' | '>=' | '<=' | '!=', received 'not-a-comparator'",
+          ],
+        },
+      },
+    });
   });
 });

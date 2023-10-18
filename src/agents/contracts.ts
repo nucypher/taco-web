@@ -1,4 +1,5 @@
-import { ChainId, ChecksumAddress } from '../types';
+import { ChecksumAddress } from '../types';
+import { ChainId } from '../web3';
 
 type Contracts = {
   readonly SUBSCRIPTION_MANAGER: ChecksumAddress | undefined;

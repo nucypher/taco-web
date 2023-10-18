@@ -38,7 +38,7 @@ const ownsNFT = new ERC721Ownership({
   chain: 5,
 });
 const conditionExpr = new ConditionExpression(ownsNFT);
-const ursulas = fakeUrsulas();
+const ursulas = fakeUrsulas().slice(0, 3);
 const variant = FerveoVariant.precomputed;
 const ritualId = 0;
 

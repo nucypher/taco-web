@@ -48,6 +48,30 @@ Re-released `1.0.0-alpha.2` after fixing a bad rebase.
 
 * incorrect condition parsing leading to undefined variables in context ([5695bc0](https://github.com/nucypher/nucypher-ts/commit/5695bc0b83d97b23e9fb6f1d9b6c1f71cc604049))
 
+## [1.0.0-beta.4](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-beta.3...v1.0.0-beta.4) (2023-08-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* use existing rituals in strategy api
+
+### Features
+
+* use existing rituals in strategy api ([1ada5cf](https://github.com/nucypher/nucypher-ts/commit/1ada5cfff121694a5ad8c437a14e9e41b5bd977f))
+
+## [1.0.0-beta.3](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-beta.2...v1.0.0-beta.3) (2023-07-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* incorrect condition parsing leading to undefined variables in context
+
+### Bug Fixes
+
+* incorrect condition parsing leading to undefined variables in context ([298fe22](https://github.com/nucypher/nucypher-ts/commit/298fe22e25674682ac04240957129af815ae56c8))
+
+## [1.0.0-beta.2](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-alpha.0...v1.0.0-beta.2) (2023-07-07)
+
 ## [1.0.0-alpha.0](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-beta.1...v1.0.0-alpha.0) (2023-06-27)
 
 

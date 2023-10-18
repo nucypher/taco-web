@@ -1,24 +1,30 @@
+// Disabling because we want to access Alice.keyring which is a private property
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Conditions, ConditionSet, Enrico, PolicyMessageKit } from '../../src';
+import { conditions, Enrico, PolicyMessageKit } from '../../src';
 import { RetrievalResult } from '../../src/kits/retrieval';
 import { toBytes } from '../../src/utils';
 import {
   bytesEqual,
+  fakeAlice,
+  fakeBob,
   fromBytes,
-  mockAlice,
-  mockBob,
   reencryptKFrags,
 } from '../utils';
+
+const {
+  predefined: { ERC721Ownership },
+  ConditionExpression,
+} = conditions;
 
 describe('enrico', () => {
   it('alice decrypts message encrypted by enrico', async () => {
     const label = 'fake-label';
     const message = 'fake-message';
-    const alice = mockAlice();
+    const alice = fakeAlice();
 
     const policyKey = alice.getPolicyEncryptingKeyFromLabel(label);
     const enrico = new Enrico(policyKey);
-    const encrypted = enrico.encryptMessage(toBytes(message));
+    const encrypted = enrico.encryptMessagePre(toBytes(message));
 
     const aliceKeyring = (alice as any).keyring;
     const aliceSk = await aliceKeyring.getSecretKeyFromLabel(label);
@@ -28,15 +34,15 @@ describe('enrico', () => {
 
   it('bob decrypts reencrypted message', async () => {
     const label = 'fake-label';
-    const alice = mockAlice();
-    const bob = mockBob();
+    const alice = fakeAlice();
+    const bob = fakeBob();
 
     const policyEncryptingKey = alice.getPolicyEncryptingKeyFromLabel(label);
     const enrico = new Enrico(policyEncryptingKey);
 
     const plaintext = 'Plaintext message';
     const plaintextBytes = toBytes(plaintext);
-    const encrypted = enrico.encryptMessage(plaintextBytes);
+    const encrypted = enrico.encryptMessagePre(plaintextBytes);
 
     // Alice can decrypt capsule she created
     const aliceSk = await (alice as any).keyring.getSecretKeyFromLabel(label);
@@ -51,7 +57,9 @@ describe('enrico', () => {
       threshold,
       shares
     );
-    expect(delegatingKey.toBytes()).toEqual(policyEncryptingKey.toBytes());
+    expect(delegatingKey.toCompressedBytes()).toEqual(
+      policyEncryptingKey.toCompressedBytes()
+    );
 
     // Bob can decrypt re-encrypted ciphertext
     const { verifiedCFrags } = reencryptKFrags(
@@ -87,19 +95,20 @@ describe('enrico', () => {
   it('enrico generates a message kit with conditions', async () => {
     const label = 'fake-label';
     const message = 'fake-message';
-    const alice = mockAlice();
+    const alice = fakeAlice();
 
     const policyKey = alice.getPolicyEncryptingKeyFromLabel(label);
 
-    const ownsBufficornNFT = Conditions.ERC721Ownership.fromObj({
+    const ownsBufficornNFT = ERC721Ownership.fromObj({
       contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
       parameters: [3591],
+      chain: 5,
     });
 
-    const conditions = new ConditionSet([ownsBufficornNFT]);
+    const conditions = new ConditionExpression(ownsBufficornNFT);
 
     const enrico = new Enrico(policyKey, undefined, conditions);
-    const encrypted = enrico.encryptMessage(toBytes(message));
+    const encrypted = enrico.encryptMessagePre(toBytes(message));
 
     const aliceKeyring = (alice as any).keyring;
     const aliceSk = await aliceKeyring.getSecretKeyFromLabel(label);
@@ -110,27 +119,27 @@ describe('enrico', () => {
   it('can overwrite conditions at encryption time', async () => {
     const label = 'fake-label';
     const message = 'fake-message';
-    const alice = mockAlice();
+    const alice = fakeAlice();
 
     const policyKey = alice.getPolicyEncryptingKeyFromLabel(label);
 
-    const ownsBufficornNFT = new Conditions.ERC721Ownership({
+    const ownsBufficornNFT = new ERC721Ownership({
       contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
       chain: 5,
       parameters: [3591],
     });
 
-    const ownsNonsenseNFT = new Conditions.ERC721Ownership({
+    const ownsNonsenseNFT = new ERC721Ownership({
       contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
       chain: 5,
       parameters: [6969],
     });
 
-    const conditions = new ConditionSet([ownsBufficornNFT]);
-    const updatedConditions = new ConditionSet([ownsNonsenseNFT]);
+    const conditions = new ConditionExpression(ownsBufficornNFT);
+    const updatedConditions = new ConditionExpression(ownsNonsenseNFT);
 
     const enrico = new Enrico(policyKey, undefined, conditions);
-    const encrypted = enrico.encryptMessage(
+    const encrypted = enrico.encryptMessagePre(
       toBytes(message),
       updatedConditions
     );

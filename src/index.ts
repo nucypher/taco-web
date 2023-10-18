@@ -1,28 +1,43 @@
+// Characters
 export { Alice } from './characters/alice';
 export { Bob, RemoteBob } from './characters/bob';
 export { Enrico } from './characters/enrico';
-export { tDecDecrypter } from './characters/universal-bob';
-export {
+export { PreTDecDecrypter } from './characters/pre-recipient';
+export { Porter } from './characters/porter';
+
+// Policies
+export type {
   BlockchainPolicyParameters,
   EnactedPolicy,
-  PreEnactedPolicy,
 } from './policies/policy';
-export { Porter } from './characters/porter';
+export { PreEnactedPolicy } from './policies/policy';
+
+// Keyring
 export { Keyring } from './keyring';
-export { Configuration, defaultConfiguration } from './config';
-export { RevocationKit } from './kits/revocation';
+
+// Configuration
+export type { Configuration } from './config';
+export { defaultConfiguration } from './config';
+
+// Kits
 export { PolicyMessageKit } from './kits/message';
-export {
-  Conditions,
-  ConditionSet,
-  ConditionContext,
-  Operator,
-  Condition,
-} from './policies/conditions';
 
+// Conditions
+import type { CustomContextParam } from './conditions';
+import * as conditions from './conditions';
+// TODO: Not sure how to re-export this type from the conditions module
+export { conditions, CustomContextParam };
+
+// DKG
+export { FerveoVariant } from './dkg';
+
+// SDK
 export { Cohort } from './sdk/cohort';
-export { DeployedStrategy, RevokedStrategy, Strategy } from './sdk/strategy';
+export type { CohortConfiguration } from './sdk/cohort';
+export { DeployedPreStrategy, PreStrategy } from './sdk/strategy/pre-strategy';
+export { DeployedCbdStrategy, CbdStrategy } from './sdk/strategy/cbd-strategy';
 
+// Re-exports
 export {
   PublicKey,
   SecretKey,
@@ -31,4 +46,5 @@ export {
   Signer,
   TreasureMap,
   MessageKit,
+  Ciphertext,
 } from '@nucypher/nucypher-core';

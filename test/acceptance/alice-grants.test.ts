@@ -11,17 +11,17 @@ import { ChecksumAddress } from '../../src/types';
 import { toBytes } from '../../src/utils';
 import {
   bytesEqual,
+  fakeAlice,
+  fakeBob,
+  fakeRemoteBob,
+  fakeUrsulas,
   fromBytes,
-  mockAlice,
-  mockBob,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
   mockGetUrsulas,
   mockMakeTreasureMap,
   mockPublishToBlockchain,
-  mockRemoteBob,
   mockRetrieveCFragsRequest,
-  mockUrsulas,
   reencryptKFrags,
 } from '../utils';
 
@@ -31,7 +31,7 @@ describe('story: alice shares message with bob through policy', () => {
   const shares = 3;
   const startDate = new Date();
   const endDate = new Date(Date.now() + 60 * 1000);
-  const mockedUrsulas = mockUrsulas().slice(0, shares);
+  const mockedUrsulas = fakeUrsulas().slice(0, shares);
 
   // Intermediate variables used for mocking
   let encryptedTreasureMap: EncryptedTreasureMap;
@@ -52,8 +52,8 @@ describe('story: alice shares message with bob through policy', () => {
     const makeTreasureMapSpy = mockMakeTreasureMap();
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
-    const alice = mockAlice();
-    const bob = mockRemoteBob();
+    const alice = fakeAlice();
+    const bob = fakeRemoteBob();
     const policyParams = {
       bob,
       label,
@@ -64,7 +64,12 @@ describe('story: alice shares message with bob through policy', () => {
     };
     policy = await alice.grant(policyParams);
 
-    expect(policy.aliceVerifyingKey).toEqual(alice.verifyingKey.toBytes());
+    expect(
+      bytesEqual(
+        policy.aliceVerifyingKey.toCompressedBytes(),
+        alice.verifyingKey.toCompressedBytes()
+      )
+    ).toBeTruthy();
     expect(policy.label).toBe(label);
     expect(getUrsulasSpy).toHaveBeenCalled();
     expect(generateKFragsSpy).toHaveBeenCalled();
@@ -86,11 +91,11 @@ describe('story: alice shares message with bob through policy', () => {
 
   it('enrico encrypts the message', () => {
     const enrico = new Enrico(policyEncryptingKey);
-    encryptedMessage = enrico.encryptMessage(toBytes(message));
+    encryptedMessage = enrico.encryptMessagePre(toBytes(message));
   });
 
   it('bob retrieves and decrypts the message', async () => {
-    const bob = mockBob();
+    const bob = fakeBob();
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const retrieveCFragsSpy = mockRetrieveCFragsRequest(
       ursulaAddresses,
@@ -121,12 +126,23 @@ describe('story: alice shares message with bob through policy', () => {
       bobVerifyingKey_,
     ] = retrieveCFragsSpy.mock.calls[0];
     expect(
-      bytesEqual(aliceVerifyingKey_.toBytes(), aliceVerifyingKey.toBytes())
+      bytesEqual(
+        aliceVerifyingKey_.toCompressedBytes(),
+        aliceVerifyingKey.toCompressedBytes()
+      )
     );
     expect(
-      bytesEqual(bobEncryptingKey_.toBytes(), bob.decryptingKey.toBytes())
+      bytesEqual(
+        bobEncryptingKey_.toCompressedBytes(),
+        bob.decryptingKey.toCompressedBytes()
+      )
     );
-    expect(bytesEqual(bobVerifyingKey_.toBytes(), bob.verifyingKey.toBytes()));
+    expect(
+      bytesEqual(
+        bobVerifyingKey_.toCompressedBytes(),
+        bob.verifyingKey.toCompressedBytes()
+      )
+    );
 
     const { verifiedCFrags } = reencryptKFrags(
       verifiedKFrags,

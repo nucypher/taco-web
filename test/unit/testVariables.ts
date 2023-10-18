@@ -1,12 +1,3 @@
-export const strategyJSON =
-  '{"cohort":{"ursulaAddresses":["0x5cf1703a1c99a4b42eb056535840e93118177232","0x7fff551249d223f723557a96a0e1a469c79cc934","0x9c7c824239d3159327024459ad69bb215859bd25"],"threshold":2,"shares":3,"porterUri":"https://_this.should.crash"},"aliceSecretKeyBytes":"base64:N1K+vcukPJQkVi57P5jXca5W9CwX48VEBVV0H9CYWDU=","bobSecretKeyBytes":"base64:dOs3NGmtXJMdjVMaXf3/m5PlAmqwzSGoF9XpyO4LwZk=","startDate":"2017-02-14T12:51:48.000Z","endDate":"2017-03-16T12:51:48.000Z"}';
-
-export const encryptedTreasureMapBase64 =
-  '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';
-
-export const deployedStrategyJSON =
-  '{"policy":{"id":"base64:tKuR/HipMeU4trCdytbZCQ==","label":"test","policyKey":"base64:A/u/2+G8Hn0UPwRZqVfa41XiT/6W2+98dotTob7xKg5C","encryptedTreasureMap":"base64:RU1hcAABAACSxGIDdzg9r81RRC+kQGy0C0s8LdQXwcDf+MJtuJ9+i3Zp+bICp+WRepaHInVIh7O3hiiz0Frs4Xr7sct2nNaXHrbFLgzKHdNnmhg7EIpPWs2HUJMjwh4Ny0rKVyx2/Ilvh24t5sUGtg2tnZKEMnf1Z9E8wIEv1itZmsjjXmnlrshHxPdQ/1cJneXIU+ch+n7t+BJQkOJSfLE74++KZJ+mUnPpCh8QWssHeeGNBeB2oB9CtpmcBzDoLdJJClTVte4OmADofiQ6RJswQfGCM6Gw21rJOqm5q7/6jaR47gvMlu/A94Y3WkiUAFbaGcr4vQzeAflRsR0N9LPfKIIqHfajWNCEagp0GgoaG6DsQVeEnaL7z+meg8HeQdO+m09OFh4b8Ic0m2BtYSscrlUBlU5JWrxKtLjPuxBTIQyX8FQV6gYnLyzkAEBAOgPgjuwHsTZeFUatTDYYhA/Y2hlfdmLeYW5pZ74/+uNJBof/9QB1beCn+TfrTbVyjGADn2JU8NwhnsNdDM3XFQy6WUoHLrnTs4lYj16unC7Ir6DnI6UXj84ixjli2ge8wgHpZkmQJKrMc1HvfDlM3TWG18rvEB0fE70sSMGhhegp/cjh52C3eTUACaEkO127r1kF/NjCDtbOsk9CnD2mwGyOMdr17B5TojWINwJ0SsT9gCgnZjEuxbX45NAr+M+Nz4TwbPF8ap67mj3dbGvuokNHsBfjn8YCRAIDgP83SYnR/Y4VqqKL7uzRbfmu2ljCkTohe9rJUNhwaVYpl0PODuVZQo1jAmSBZ9/HzVNbkqGwiTAtjz5CHXW7oKl8SwXiBUHXXOu0jvi8RgOP9BZeoL48sFLiSWDIxI2XAxEEuaD16vgvvthl0mxklP7R5p7vvAfAdP/lNCy28B5r7PPsXh6MmYyyaObetm2HzcJhB3sijfXHM5iEoQ41PKXRTRxrgAw1eVAjOnNW3Ld9LJEOqB6hh/U3UYUPhrXkk4kdc7EAm4gTMbq5wmEsZQRnWIn5IsBEAMFlh3z6PvtrcuwRJkIwQSF96Ai0kE776e9pjsiuEUyZFyn4wRTfg2mxdteiC4vKTBxh2BJNVxzRONtTMgcZ0JHZpCf/ZRct2Bke8F4eWn+AmtYDQEdASHnJQtjQPe5Fl5LoePZ1uIVaKgWywz6pV4zvX4hBAZ2gK/wo8hzJNRtAaKoAr8FQxG9HUlY2htZmCtI60m2a2y8Vj3IKTa2X/2PqB/OnuZEq18FCve91TmKqghCHqteB1ON6dMl+1XK4WpTlyELbha6cni8er2w4dDO+P6e40lWzQJKUlfyYfCoB8uRDCLw82a58kG80dYGZFZAmGhqItL9RC6Ofm2TBq0F+jfdSS3DVxrJG5AldhuKbIK73ojAaLV8FVjRyT6uwo6M4JAj12krCgbvOXUaHM3jT08ZFmOI0ldmzG/I6I73LHEGm7Hey6a+K4ry5EiXA+KgLMNA8pct6HihOKBws7ckClqYOos6nAyUkABpbASdfmyat8jtUNyIXprEtZr4wvB/2E011cf9EsnIVhEovpPmvMp7IdgID0Qxs219MFFr7sJ5XjHeOINA4jb6gh5r5uQzuYtpmxv7ppi8fs/x0co8pOsgHDfy4zRGDys/Z9f/QrEB6VHms9xh7Kwpp3HLAtCcEAkCg+AsnC++6VMwWwvcLbjfE2uIYsVJJ+ciX7rSYZyDzC0IayyqNJLgS30li1xPb2u5YHMA+2vzSQGx9Zae2QSXFwDQ5Qui94RfQP//x6pqZuutXI8fqGDey50DYtPYd8J6AiKcoOPBivqSTMXj2Nb9FItbDm5DYTRM7CmQkmbYLR+/hord5AFSYauEB3zsqME3vD3mBY5OvWfPqnSpUUGe2RTF+u3mtmcfptaO9fwWSr6ckBwBMB42DuoyXVuYsdXA6WCtqCjQGqCBG0qsvOJFA3Rd2q5cy4Q+V537LlOJAkhSu/9/1WDma7JbELCSq5fCl9hOVJ96c8CfJacSVhNM4LRT71qDEf9wI2AVQrjYeMGdSXDEtidXyz1oPZpCoc8mPALPLOvgwBhLYK175NteQ9GQ+9ySMI1NWBbv/FP1jwKrFtT46FdFQHKv8xc/z29muPNPmgev3ht1tvPzrrvyCtQLdASaaHTc1FlZcMlYopgOxvz8q3MUki0wjwpVudTSaowf8Bfduj3r6TSPo11+k97P49fy3LLxOsTrvVaetD0rNIs704MI0/DmNZd0FkqyX6JzFILUCZunK9azQoJX9vr9BzsQJ2r3vmlSYNA+n9C2+YIcZqE7nHjO38XTbnfCcrZvWohBZ+Q9gDWPD7Y378w3OgIrkzNEUJhFHCahLVj41l3Y3HIMI8GM98uejNjEVZLW6NEMrjhGh+aimmvgFCAIJYXFMFe8oSfeFRQBQnvOc0y+XJl5Mbm6g5oKp","aliceVerifyingKey":"base64:A3yU8aavNj4LJ97eFAaYpU97q70oSogzBZAlo5tj/1Kj","size":3,"startTimestamp":"2017-02-14T12:51:48.000Z","endTimestamp":"2017-03-16T12:51:48.000Z","txHash":"0x1234567890123456789012345678901234567890"},"cohortConfig":{"ursulaAddresses":["0x5cf1703a1c99a4b42eb056535840e93118177232","0x7fff551249d223f723557a96a0e1a469c79cc934","0x9c7c824239d3159327024459ad69bb215859bd25"],"threshold":2,"shares":3,"porterUri":"https://_this.should.crash"},"bobSecretKeyBytes":"base64:dOs3NGmtXJMdjVMaXf3/m5PlAmqwzSGoF9XpyO4LwZk="}';
-
 export const aliceSecretKeyBytes = new Uint8Array([
   55, 82, 190, 189, 203, 164, 60, 148, 36, 86, 46, 123, 63, 152, 215, 113, 174,
   86, 244, 44, 23, 227, 197, 68, 5, 85, 116, 31, 208, 152, 88, 53,
@@ -17,5 +8,64 @@ export const bobSecretKeyBytes = new Uint8Array([
   229, 2, 106, 176, 205, 33, 168, 23, 213, 233, 200, 238, 11, 193, 153,
 ]);
 
-export const decrypterJSON =
-  '{"porterUri":"https://_this.should.crash/","policyEncryptingKeyBytes":"base64:A/u/2+G8Hn0UPwRZqVfa41XiT/6W2+98dotTob7xKg5C","encryptedTreasureMapBytes":"base64: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","publisherVerifyingKeyBytes":"base64:A3yU8aavNj4LJ97eFAaYpU97q70oSogzBZAlo5tj/1Kj","bobSecretKeyBytes":"base64:dOs3NGmtXJMdjVMaXf3/m5PlAmqwzSGoF9XpyO4LwZk="}';
+export const TEST_CONTRACT_ADDR = '0x0000000000000000000000000000000000000001';
+export const TEST_CONTRACT_ADDR_2 =
+  '0x0000000000000000000000000000000000000002';
+export const TEST_CHAIN_ID = 5;
+
+export const testReturnValueTest = {
+  index: 0,
+  comparator: '>',
+  value: '100',
+};
+
+export const testTimeConditionObj = {
+  returnValueTest: {
+    index: 0,
+    comparator: '>',
+    value: '100',
+  },
+  method: 'blocktime',
+  chain: 5,
+};
+
+export const testRpcConditionObj = {
+  chain: TEST_CHAIN_ID,
+  method: 'eth_getBalance',
+  parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
+  returnValueTest: testReturnValueTest,
+};
+
+export const testContractConditionObj = {
+  contractAddress: '0x0000000000000000000000000000000000000000',
+  chain: 5,
+  standardContractType: 'ERC20',
+  method: 'balanceOf',
+  parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
+  returnValueTest: testReturnValueTest,
+};
+
+export const testFunctionAbi = {
+  name: 'myFunction',
+  type: 'function',
+  inputs: [
+    {
+      internalType: 'address',
+      name: 'account',
+      type: 'address',
+    },
+    {
+      internalType: 'uint256',
+      name: 'myCustomParam',
+      type: 'uint256',
+    },
+  ],
+  outputs: [
+    {
+      internalType: 'uint256',
+      name: 'someValue',
+      type: 'uint256',
+    },
+  ],
+  stateMutability: 'view',
+};

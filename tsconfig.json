@@ -6,7 +6,7 @@
     "outDir": "build/main",
     "rootDir": ".",
     "moduleResolution": "node",
-    "module": "esnext",
+    "module": "commonjs",
     "declaration": true,
     "inlineSourceMap": true,
     "esModuleInterop": true,
@@ -23,6 +23,7 @@
     "strictPropertyInitialization": true /* Enable strict checking of property initialization in classes. */,
     "noImplicitThis": true /* Raise error on 'this' expressions with an implied 'any' type. */,
     "alwaysStrict": true /* Parse in strict mode and emit "use strict" for each source file. */,
+    "isolatedModules": true, /* Transpile each file as a separate module (similar to 'ts.transpileModule'). */
 
     /* Additional Checks */
     "noUnusedLocals": true /* Report errors on unused locals. */,

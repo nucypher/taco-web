@@ -2,6 +2,91 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-beta.4](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-beta.3...v1.0.0-beta.4) (2023-08-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* use existing rituals in strategy api
+
+### Features
+
+* use existing rituals in strategy api ([1ada5cf](https://github.com/nucypher/nucypher-ts/commit/1ada5cfff121694a5ad8c437a14e9e41b5bd977f))
+
+## [1.0.0-beta.3](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-beta.2...v1.0.0-beta.3) (2023-07-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* incorrect condition parsing leading to undefined variables in context
+
+### Bug Fixes
+
+* incorrect condition parsing leading to undefined variables in context ([298fe22](https://github.com/nucypher/nucypher-ts/commit/298fe22e25674682ac04240957129af815ae56c8))
+
+## [1.0.0-beta.2](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-alpha.0...v1.0.0-beta.2) (2023-07-07)
+
+## [1.0.0-alpha.0](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-beta.1...v1.0.0-alpha.0) (2023-06-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* hide dkg public params
+* rename EvmCondition to ContractCondition
+* remove unused revocation kit
+* remove unused revoked strategy
+* refactor conditions into a module
+
+### Features
+
+* add bare-bones impl of dkg client ([6f3eaf6](https://github.com/nucypher/nucypher-ts/commit/6f3eaf64d6b7c419d7b1159cd0a1a3264266e1ea))
+* add class metadata to serialized conditions ([76ac0f1](https://github.com/nucypher/nucypher-ts/commit/76ac0f1ae56ffcf9bb8410f015f52e3af6c98af1))
+* add conveniance method making encrypters ([81d23ef](https://github.com/nucypher/nucypher-ts/commit/81d23efb40f343cb84f22a99264b6836d2e482ac))
+* add coordinator contract ([2258350](https://github.com/nucypher/nucypher-ts/commit/22583506e564d4525e632e35a3b70697b2e43eb9))
+* add tdec endpoint to porter ([b6eb53e](https://github.com/nucypher/nucypher-ts/commit/b6eb53e1422c099d8c663ea5a97d82c67bf41d36))
+* hide dkg public params ([87e237f](https://github.com/nucypher/nucypher-ts/commit/87e237fcbad8cab509de12d2f4ff27c8ab79dc20))
+* make index in return value test optional ([ad52ec1](https://github.com/nucypher/nucypher-ts/commit/ad52ec174de3ad0ce1118b2fba7df47a96c262fb))
+* refactor conditions into a module ([85ff684](https://github.com/nucypher/nucypher-ts/commit/85ff684efe3e4a9b32d628e65606770459d96a7c))
+* remove unused revocation kit ([a0ea384](https://github.com/nucypher/nucypher-ts/commit/a0ea384ec813052c0fbab06e7f0644ebb105c089))
+* remove unused revoked strategy ([d1b9818](https://github.com/nucypher/nucypher-ts/commit/d1b9818b0513f093094d10945fc943c1690b7bcb))
+* rename EvmCondition to ContractCondition ([77278d6](https://github.com/nucypher/nucypher-ts/commit/77278d6cccacca87be176a0b807426a5a5b5c11f))
+* support user-provided params in condition context ([fa287d6](https://github.com/nucypher/nucypher-ts/commit/fa287d6132155fa9a453b0f6e3afc76bd36b57eb))
+* update nucypher-core to 0.9.0 ([e707abf](https://github.com/nucypher/nucypher-ts/commit/e707abf44665deda4df60ee838d72f1e743a52aa))
+* use e2e-encrypted decryption requests ([f78a55f](https://github.com/nucypher/nucypher-ts/commit/f78a55fb362c5c2eccc07f34d35ab89cc34118f7))
+* validate function abi params and method ([d7db27a](https://github.com/nucypher/nucypher-ts/commit/d7db27a90f8a27448568430a0654e6721813416e))
+
+
+### Bug Fixes
+
+* struct deser ([284df4a](https://github.com/nucypher/nucypher-ts/commit/284df4a26cb6c512749d918e079052808c4335c4))
+
+## [1.0.0-beta.1](https://github.com/nucypher/nucypher-ts/compare/v1.0.0-beta.0...v1.0.0-beta.1) (2023-03-27)
+
+### ⚠ BREAKING CHANGES
+* `TimeLockCondition` no longer supported; instead `TimeCondition` with method name `blocktime` can be used
+
+### ⚠ BREAKING CHANGES
+
+* Pass provider to retireveAndDecrypt instead of ConditionContext (#135)
+* replace Web3Provider with direct usage of ethers.provider.Web3Provider
+* set main package entry to commonjs module
+
+### Features
+
+* expose startDate and endDate as strategy params ([56a10da](https://github.com/nucypher/nucypher-ts/commit/56a10dabcc79a6cc5c535b565da60b827277d413))
+* replace Web3Provider with direct usage of ethers.provider.Web3Provider ([206f08e](https://github.com/nucypher/nucypher-ts/commit/206f08e2a919aaddee2c7c08733787f3415dae71))
+* set main package entry to commonjs module ([214e858](https://github.com/nucypher/nucypher-ts/commit/214e85848f293257b2fcc40521a4c72db116e5aa))
+
+
+### Bug Fixes
+
+* remove unused provider parameter ([805b93c](https://github.com/nucypher/nucypher-ts/commit/805b93cd12b16bebadab07dcb45643710b6123e5))
+
+
+* Pass provider to retireveAndDecrypt instead of ConditionContext ([#135](https://github.com/nucypher/nucypher-ts/issues/135)) ([4fe98fc](https://github.com/nucypher/nucypher-ts/commit/4fe98fc8d158158eb14f8192376113de5f605ceb))
+
+## [1.0.0-beta.0](https://github.com/nucypher/nucypher-ts/compare/v0.9.0...v1.0.0-beta.0) (2023-03-27)
+
 ## [0.9.0](https://github.com/nucypher/nucypher-ts/compare/v0.7.9-alpha.26...v0.9.0) (2022-12-07)
 
 

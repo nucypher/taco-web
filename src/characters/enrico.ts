@@ -1,20 +1,27 @@
-import { MessageKit, PublicKey, SecretKey } from '@nucypher/nucypher-core';
+import {
+  Ciphertext,
+  DkgPublicKey,
+  ferveoEncrypt,
+  MessageKit,
+  PublicKey,
+  SecretKey,
+} from '@nucypher/nucypher-core';
 
+import { ConditionExpression } from '../conditions';
 import { Keyring } from '../keyring';
-import { ConditionSet } from '../policies/conditions';
 import { toBytes } from '../utils';
 
 export class Enrico {
-  public readonly policyEncryptingKey: PublicKey;
+  public readonly encryptingKey: PublicKey | DkgPublicKey;
   private readonly keyring: Keyring;
-  public conditions?: ConditionSet;
+  public conditions?: ConditionExpression;
 
   constructor(
-    policyEncryptingKey: PublicKey,
+    encryptingKey: PublicKey | DkgPublicKey,
     verifyingKey?: SecretKey,
-    conditions?: ConditionSet
+    conditions?: ConditionExpression
   ) {
-    this.policyEncryptingKey = policyEncryptingKey;
+    this.encryptingKey = encryptingKey;
     this.keyring = new Keyring(verifyingKey ?? SecretKey.random());
     this.conditions = conditions;
   }
@@ -23,17 +30,47 @@ export class Enrico {
     return this.keyring.publicKey;
   }
 
-  public encryptMessage(
+  public encryptMessagePre(
     plaintext: Uint8Array | string,
-    currentConditions?: ConditionSet
+    withConditions?: ConditionExpression
   ): MessageKit {
-    if (!currentConditions) {
-      currentConditions = this.conditions;
+    if (!withConditions) {
+      withConditions = this.conditions;
     }
+
+    if (!(this.encryptingKey instanceof PublicKey)) {
+      throw new Error('Wrong key type. Use encryptMessageCbd instead.');
+    }
+
     return new MessageKit(
-      this.policyEncryptingKey,
+      this.encryptingKey,
       plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext),
-      currentConditions ? currentConditions.toWASMConditions() : null
+      withConditions ? withConditions.toWASMConditions() : null
     );
+  }
+
+  public encryptMessageCbd(
+    plaintext: Uint8Array | string,
+    withConditions?: ConditionExpression
+  ): { ciphertext: Ciphertext; aad: Uint8Array } {
+    if (!withConditions) {
+      withConditions = this.conditions;
+    }
+
+    if (!withConditions) {
+      throw new Error('Conditions are required for CBD encryption.');
+    }
+
+    if (!(this.encryptingKey instanceof DkgPublicKey)) {
+      throw new Error('Wrong key type. Use encryptMessagePre instead.');
+    }
+
+    const aad = withConditions.asAad();
+    const ciphertext = ferveoEncrypt(
+      plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext),
+      aad,
+      this.encryptingKey
+    );
+    return { ciphertext, aad };
   }
 }

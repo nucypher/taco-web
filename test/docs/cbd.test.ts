@@ -1,16 +1,12 @@
 import { MessageKit, VerifiedKeyFrag } from '@nucypher/nucypher-core';
 import { providers } from 'ethers';
 
-import {
-  Cohort,
-  Conditions,
-  ConditionSet,
-  SecretKey,
-  Strategy,
-} from '../../src';
+import { Cohort, conditions, PreStrategy, SecretKey } from '../../src';
 import { Ursula } from '../../src/characters/porter';
 import { toBytes } from '../../src/utils';
 import {
+  fakeUrsulas,
+  fakeWeb3Provider,
   mockDetectEthereumProvider,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
@@ -18,9 +14,13 @@ import {
   mockMakeTreasureMap,
   mockPublishToBlockchain,
   mockRetrieveCFragsRequest,
-  mockUrsulas,
-  mockWeb3Provider,
 } from '../utils';
+
+const {
+  predefined: { ERC721Ownership },
+  base: { ContractCondition },
+  ConditionExpression,
+} = conditions;
 
 describe('Get Started (CBD PoC)', () => {
   function mockRetrieveAndDecrypt(
@@ -42,7 +42,7 @@ describe('Get Started (CBD PoC)', () => {
 
   it('can run the get started example', async () => {
     const detectEthereumProvider = mockDetectEthereumProvider();
-    const mockedUrsulas = mockUrsulas();
+    const mockedUrsulas = fakeUrsulas();
     const getUrsulasSpy = mockGetUrsulas(mockedUrsulas);
     const generateKFragsSpy = mockGenerateKFrags();
     const publishToBlockchainSpy = mockPublishToBlockchain();
@@ -52,7 +52,7 @@ describe('Get Started (CBD PoC)', () => {
     jest
       .spyOn(providers, 'Web3Provider')
       .mockImplementation(() =>
-        mockWeb3Provider(SecretKey.random().toSecretBytes())
+        fakeWeb3Provider(SecretKey.random().toBEBytes())
       );
 
     //
@@ -67,20 +67,20 @@ describe('Get Started (CBD PoC)', () => {
     };
     const newCohort = await Cohort.create(config);
 
-    // 3. Specify default Conditions
-    const NFTOwnership = new Conditions.ERC721Ownership({
+    // 3. Specify default conditions
+    const NFTOwnership = new ERC721Ownership({
       contractAddress: '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D',
       chain: 5, // Tapir network uses Görli testnet
       parameters: [5954],
     });
 
-    const conditions = new ConditionSet([
-      NFTOwnership,
+    const conditions = new ConditionExpression(
+      NFTOwnership
       // Other conditions can be added here
-    ]);
+    );
 
     // 4. Build a Strategy
-    const newStrategy = Strategy.create(newCohort, conditions);
+    const newStrategy = PreStrategy.create(newCohort);
 
     const MMprovider = await detectEthereumProvider();
     const mumbai = providers.getNetwork(80001);
@@ -88,7 +88,7 @@ describe('Get Started (CBD PoC)', () => {
     const web3Provider = new providers.Web3Provider(MMprovider, mumbai);
     const newDeployed = await newStrategy.deploy('test', web3Provider);
 
-    // 5. Encrypt the plaintext & update Conditions
+    // 5. Encrypt the plaintext & update conditions
     const NFTBalanceConfig = {
       contractAddress: '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D',
       standardContractType: 'ERC721',
@@ -100,15 +100,11 @@ describe('Get Started (CBD PoC)', () => {
         value: 3,
       },
     };
-    const NFTBalance = new Conditions.Condition(NFTBalanceConfig);
-
-    const encrypter = newDeployed.encrypter;
-
+    const NFTBalance = new ContractCondition(NFTBalanceConfig);
+    const newConditions = new ConditionExpression(NFTBalance);
     const plaintext = 'this is a secret';
-    const encryptedMessageKit = encrypter.encryptMessage(
-      plaintext,
-      new ConditionSet([NFTBalance])
-    );
+    const encrypter = newDeployed.makeEncrypter(newConditions);
+    const encryptedMessageKit = encrypter.encryptMessagePre(plaintext);
 
     // Mocking - Not a part of any code example
     const retrieveCFragsSpy = mockRetrieveAndDecrypt(
@@ -117,29 +113,24 @@ describe('Get Started (CBD PoC)', () => {
     );
 
     // 6. Request decryption rights
-    const decrypter = newDeployed.decrypter;
-
-    const conditionContext = conditions.buildContext(web3Provider);
-    const decryptedMessage = await decrypter.retrieveAndDecrypt(
+    const decryptedMessage = await newDeployed.decrypter.retrieveAndDecrypt(
       [encryptedMessageKit],
-      conditionContext
+      web3Provider
     );
 
     //
     // End of the code example
     //
 
-    const expectedAddresses = mockUrsulas().map((u) => u.checksumAddress);
-    const condObj = conditions.conditions[0].toObj();
+    const expectedAddresses = fakeUrsulas().map((u) => u.checksumAddress);
+    const condObj = conditions.condition.toObj();
     expect(newCohort.ursulaAddresses).toEqual(expectedAddresses);
     expect(condObj.parameters).toEqual([5954]);
     expect(condObj.chain).toEqual(5);
     expect(condObj.contractAddress).toEqual(
       '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D'
     );
-    expect(conditions.validate()).toEqual(true);
     expect(publishToBlockchainSpy).toHaveBeenCalled();
-    expect(newDeployed.label).toEqual('test');
     expect(getUrsulasSpy).toHaveBeenCalledTimes(2);
     expect(generateKFragsSpy).toHaveBeenCalled();
     expect(encryptTreasureMapSpy).toHaveBeenCalled();

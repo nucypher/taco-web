@@ -10,13 +10,12 @@ import {
   SubscriptionManager__factory,
 } from '../../types/ethers-contracts';
 import { ChecksumAddress } from '../types';
-import { Web3Provider } from '../web3';
 
-import { DEFAULT_WAIT_N_CONFIRMATIONS, getContracts } from './contracts';
+import { DEFAULT_WAIT_N_CONFIRMATIONS, getContract } from './contracts';
 
-export class SubscriptionManagerAgent {
+export class PreSubscriptionManagerAgent {
   public static async createPolicy(
-    web3Provider: Web3Provider,
+    web3Provider: ethers.providers.Web3Provider,
     valueInWei: BigNumber,
     policyId: Uint8Array,
     size: number,
@@ -24,10 +23,7 @@ export class SubscriptionManagerAgent {
     endTimestamp: number,
     ownerAddress: ChecksumAddress
   ): Promise<ContractTransaction> {
-    const SubscriptionManager = await this.connect(
-      web3Provider.provider,
-      web3Provider.signer
-    );
+    const SubscriptionManager = await this.connectReadWrite(web3Provider);
     const overrides = {
       value: valueInWei.toString(),
     };
@@ -57,7 +53,7 @@ export class SubscriptionManagerAgent {
     startTimestamp: number,
     endTimestamp: number
   ): Promise<BigNumber> {
-    const SubscriptionManager = await this.connect(provider);
+    const SubscriptionManager = await this.connectReadOnly(provider);
     return await SubscriptionManager.getPolicyCost(
       size,
       startTimestamp,
@@ -65,12 +61,25 @@ export class SubscriptionManagerAgent {
     );
   }
 
+  private static async connectReadOnly(provider: ethers.providers.Provider) {
+    return await this.connect(provider);
+  }
+
+  private static async connectReadWrite(
+    web3Provider: ethers.providers.Web3Provider
+  ) {
+    return await this.connect(web3Provider, web3Provider.getSigner());
+  }
+
   private static async connect(
     provider: ethers.providers.Provider,
     signer?: ethers.providers.JsonRpcSigner
   ): Promise<SubscriptionManager> {
     const network = await provider.getNetwork();
-    const contractAddress = getContracts(network.chainId).SUBSCRIPTION_MANAGER;
+    const contractAddress = getContract(
+      network.chainId,
+      'SUBSCRIPTION_MANAGER'
+    );
     return SubscriptionManager__factory.connect(
       contractAddress,
       signer ?? provider

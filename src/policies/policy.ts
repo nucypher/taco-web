@@ -7,11 +7,10 @@ import {
   VerifiedKeyFrag,
 } from '@nucypher/nucypher-core';
 
-import { SubscriptionManagerAgent } from '../agents/subscription-manager';
+import { PreSubscriptionManagerAgent } from '../agents/subscription-manager';
 import { Alice } from '../characters/alice';
 import { RemoteBob } from '../characters/bob';
 import { Ursula } from '../characters/porter';
-// import { RevocationKit } from '../kits/revocation';
 import { toBytes, toEpoch, zip } from '../utils';
 import { toCanonicalAddress } from '../web3';
 
@@ -20,8 +19,7 @@ export type EnactedPolicy = {
   readonly label: string;
   readonly policyKey: PublicKey;
   readonly encryptedTreasureMap: EncryptedTreasureMap;
-  // readonly revocationKit: RevocationKit;
-  readonly aliceVerifyingKey: Uint8Array;
+  readonly aliceVerifyingKey: PublicKey;
   readonly size: number;
   readonly startTimestamp: Date;
   readonly endTimestamp: Date;
@@ -45,8 +43,7 @@ export class PreEnactedPolicy implements IPreEnactedPolicy {
     public readonly label: string,
     public readonly policyKey: PublicKey,
     public readonly encryptedTreasureMap: EncryptedTreasureMap,
-    // public readonly revocationKit: RevocationKit,
-    public readonly aliceVerifyingKey: Uint8Array,
+    public readonly aliceVerifyingKey: PublicKey,
     public readonly size: number,
     public readonly startTimestamp: Date,
     public readonly endTimestamp: Date
@@ -63,14 +60,14 @@ export class PreEnactedPolicy implements IPreEnactedPolicy {
   private async publish(publisher: Alice): Promise<string> {
     const startTimestamp = toEpoch(this.startTimestamp);
     const endTimestamp = toEpoch(this.endTimestamp);
-    const ownerAddress = await publisher.web3Provider.getAddress();
-    const value = await SubscriptionManagerAgent.getPolicyCost(
-      publisher.web3Provider.provider,
+    const ownerAddress = await publisher.web3Provider.getSigner().getAddress();
+    const value = await PreSubscriptionManagerAgent.getPolicyCost(
+      publisher.web3Provider,
       this.size,
       startTimestamp,
       endTimestamp
     );
-    const tx = await SubscriptionManagerAgent.createPolicy(
+    const tx = await PreSubscriptionManagerAgent.createPolicy(
       publisher.web3Provider,
       value,
       this.id.toBytes(),
@@ -130,8 +127,7 @@ export class BlockchainPolicy {
       this.label,
       this.delegatingKey,
       encryptedTreasureMap,
-      // revocationKit,
-      this.publisher.verifyingKey.toBytes(),
+      this.publisher.verifyingKey,
       this.shares,
       this.startDate,
       this.endDate

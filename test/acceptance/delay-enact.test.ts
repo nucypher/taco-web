@@ -1,11 +1,12 @@
 import {
-  mockAlice,
+  bytesEqual,
+  fakeAlice,
+  fakeRemoteBob,
+  fakeUrsulas,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
   mockGetUrsulas,
   mockPublishToBlockchain,
-  mockRemoteBob,
-  mockUrsulas,
 } from '../utils';
 
 describe('story: alice1 creates a policy but alice2 enacts it', () => {
@@ -13,7 +14,7 @@ describe('story: alice1 creates a policy but alice2 enacts it', () => {
   const shares = 3;
   const startDate = new Date();
   const endDate = new Date(Date.now() + 60 * 1000); // 60s later
-  const mockedUrsulas = mockUrsulas().slice(0, shares);
+  const mockedUrsulas = fakeUrsulas().slice(0, shares);
   const label = 'fake-data-label';
 
   it('alice generates a new policy', async () => {
@@ -22,9 +23,9 @@ describe('story: alice1 creates a policy but alice2 enacts it', () => {
     const publishToBlockchainSpy = mockPublishToBlockchain();
     const encryptTreasureMapSpy = mockEncryptTreasureMap();
 
-    const alice1 = mockAlice('fake-secret-key-32-bytes-alice-1');
-    const alice2 = mockAlice('fake-secret-key-32-bytes-alice-2');
-    const bob = mockRemoteBob();
+    const alice1 = fakeAlice('fake-secret-key-32-bytes-alice-1');
+    const alice2 = fakeAlice('fake-secret-key-32-bytes-alice-2');
+    const bob = fakeRemoteBob();
     const policyParams = {
       bob,
       label,
@@ -37,9 +38,12 @@ describe('story: alice1 creates a policy but alice2 enacts it', () => {
     const preEnactedPolicy = await alice1.generatePreEnactedPolicy(
       policyParams
     );
-    expect(preEnactedPolicy.aliceVerifyingKey).toEqual(
-      alice1.verifyingKey.toBytes()
-    );
+    expect(
+      bytesEqual(
+        preEnactedPolicy.aliceVerifyingKey.toCompressedBytes(),
+        alice1.verifyingKey.toCompressedBytes()
+      )
+    ).toBeTruthy();
     expect(preEnactedPolicy.label).toBe(label);
 
     const enacted = await preEnactedPolicy.enact(alice2);

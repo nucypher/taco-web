@@ -42,7 +42,7 @@
     "@nucypher/nucypher-core": "0.13.0-alpha.1",
     "@nucypher/shared": "0.1.0-rc.2",
     "semver": "^7.5.2",
-    "zod": "^3.22.1"
+    "zod": "^3.22.3"
   },
   "devDependencies": {
     "@nucypher/test-utils": "workspace:*",

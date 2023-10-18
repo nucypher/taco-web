@@ -27,6 +27,7 @@ export default function App() {
   const [decryptedMessage, setDecryptedMessage] = useState<string>();
   const [decryptionErrors, setDecryptionErrors] = useState<string[]>([]);
   const [ritualId, setRitualId] = useState<number>(2);
+  const [domain, setDomain] = useState<string>(domains.TESTNET);
 
   useEffect(() => {
     initialize();
@@ -44,7 +45,7 @@ export default function App() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const encryptedMessage = await encrypt(
       provider,
-      domains.TESTNET,
+      domain,
       message,
       condition,
       ritualId,
@@ -66,9 +67,9 @@ export default function App() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const decryptedMessage = await decrypt(
       provider,
-      domains.TESTNET,
+      domain,
       encryptedMessage,
-      getPorterUri(domains.TESTNET),
+      getPorterUri(domain),
       provider.getSigner(),
     );
 
@@ -99,7 +100,24 @@ export default function App() {
 
       <h2>Ritual ID</h2>
       <p>Replace with your own ritual ID</p>
-      <input type={'number'} value={ritualId} onChange={(e) => setRitualId(parseInt(e.currentTarget.value))} />
+      <input
+        type={'number'}
+        value={ritualId}
+        onChange={(e) => setRitualId(parseInt(e.currentTarget.value))}
+      />
+
+      <h2>TACo Domain</h2>
+      <p>Must match the domain of your ritual</p>
+      <select
+        defaultValue={domain}
+        onChange={(e) => setDomain(e.currentTarget.value)}
+      >
+        {Object.values(domains).map((domain) => (
+          <option value={domain} key={domain}>
+            {domain}
+          </option>
+        ))}
+      </select>
 
       <ConditionBuilder
         enabled={true}

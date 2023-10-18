@@ -1,0 +1,14 @@
+{
+  "extends": "../../../tsconfig.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "references": [
+    {
+      "path": "../../../packages/pre/tsconfig.es.json"
+    }
+  ]
+}

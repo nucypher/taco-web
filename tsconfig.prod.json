@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "lib": ["ES2018"],
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "strict": true,
+    "target": "ES2018",
+    "sourceMap": true,
+    "composite": true,
+    "incremental": true,
+    "stripInternal": true
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/pre/tsconfig.es.json"
+    },
+    {
+      "path": "./packages/pre/tsconfig.cjs.json"
+    },
+    {
+      "path": "./packages/shared/tsconfig.es.json"
+    },
+    {
+      "path": "./packages/shared/tsconfig.cjs.json"
+    },
+    {
+      "path": "./packages/taco/tsconfig.es.json"
+    },
+    {
+      "path": "./packages/taco/tsconfig.cjs.json"
+    },
+    {
+      "path": "./packages/test-utils/tsconfig.es.json"
+    },
+    {
+      "path": "./packages/test-utils/tsconfig.cjs.json"
+    }
+  ]
+}

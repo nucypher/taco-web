@@ -5,60 +5,29 @@ Download, install, build, and test with:
 ```bash
 git clone https://github.com/nucypher/nucypher-ts
 cd nucypher-ts
-yarn install
-yarn build
-yarn test
+pnpm install
 ```
 
 ## Development
 
-Install git hooks
+Execute common tasks with:
 
 ```bash
-npx husky install
-```
-
-Generate contract typings
-
-```bash
-yarn typechain
-```
-
-Prepare a new release
-
-```bash
-yarn run prepare-release
+pnpm build
+pnpm test
+pnpm lint
+pnpm fix
 ```
 
 ## Documentation
 
-To launch a local development version of the documentation:
+Build and publish documentation with:
 
 ```bash
-cd website
-yarn run start
-```
-
-This will launch a local server, available at `http://localhost:3000`.
-
-To release a new version of the documentation:
-
-```bash
-yarn run docusaurus docs:version 1.1.0
+pnpm doc
+pnpm doc:publish
 ```
 
 ## Publishing
 
-Publish a new release on NPM.
-
-Pay attention to the output of these commands and fix your release if needed.
-
-To build and publish a release, run
-
-```bash
-yarn prepare-release
-# Or, to publish an alpha release
-yarn prepare-release:alpha
-```
-
-Follow instructions from the command output to finalize the process.
+TODO: Update after implementing publishing.

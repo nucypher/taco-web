@@ -1,18 +1,18 @@
 **Type of PR:**
+
 - [ ] Bugfix
 - [ ] Feature
 - [ ] Documentation
-- [ ] Refactor
 - [ ] Other
 
-**Required reviews:** 
-> How many reviews does the PR author need?
+**Required reviews:**
+
 - [ ] 1
 - [ ] 2
 - [X] 3
 
 **What this does:**
-> High-level idea of the changes introduced in this PR. 
+> High-level idea of the changes introduced in this PR.
 > List relevant API changes (if any), as well as related PRs and issues.
 
 **Issues fixed/closed:**
@@ -23,5 +23,5 @@
 > E.g., if this PR address a `nucypher/productdev` issue, let reviewers know!
 
 **Notes for reviewers:**
-> What should reviewers focus on? 
+> What should reviewers focus on?
 > Is there a particular commit/function/section of your PR that requires more attention from reviewers?

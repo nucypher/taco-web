@@ -1,0 +1,64 @@
+{
+  "name": "@nucypher/shared",
+  "version": "0.1.0-rc.2",
+  "keywords": [
+    "pre",
+    "taco",
+    "threshold",
+    "access control"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nucypher/nucypher-ts"
+  },
+  "license": "GPL-3.0-only",
+  "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
+  "exports": {
+    ".": {
+      "import": "./dist/es/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/es/index.js",
+  "types": "./dist/cjs/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prebuild": "pnpm typechain && pnpm clean",
+    "build": "pnpm build:module && pnpm build:cjs",
+    "build:cjs": "tsc --build ./tsconfig.cjs.json --verbose",
+    "build:module": "tsc --build ./tsconfig.es.json --verbose",
+    "clean": "rm -rf dist",
+    "exports:lint": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
+    "lint": "eslint --ext .ts src",
+    "lint:fix": "pnpm lint --fix",
+    "package-check": "package-check",
+    "typechain": "ts-node scripts/typechain.ts",
+    "typedoc": "typedoc"
+  },
+  "dependencies": {
+    "@ethersproject/abi": "^5.7.0",
+    "@ethersproject/providers": "^5.7.2",
+    "@nucypher/nucypher-contracts": "^7.0.0-rc.1",
+    "@nucypher/nucypher-core": "0.13.0-alpha.1",
+    "axios": "^1.5.0",
+    "deep-equal": "^2.2.1",
+    "ethers": "^5.7.2",
+    "qs": "^6.10.1"
+  },
+  "devDependencies": {
+    "@typechain/ethers-v5": "^11.1.1",
+    "@types/deep-equal": "^1.0.1",
+    "@types/qs": "^6.9.7",
+    "@types/tmp": "^0.2.4",
+    "cz-conventional-changelog": "^3.0.1",
+    "standard-version": "^9.0.0",
+    "typechain": "^8.3.1"
+  },
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8.0.0"
+  }
+}

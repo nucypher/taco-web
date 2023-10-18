@@ -5,8 +5,6 @@ import {
 } from '../base';
 import { USER_ADDRESS_PARAM } from '../const';
 
-// TODO: Rewrite these using Zod schemas?
-
 type ERC721OwnershipFields = 'contractAddress' | 'chain' | 'parameters';
 
 const ERC721OwnershipDefaults: Omit<

@@ -187,5 +187,4 @@ const makeDecryptionRequests = async (
 };
 
 // Moving to a separate function to make it easier to mock
-// TODO: Reconsider this
 const makeSessionKey = () => SessionStaticSecret.random();

@@ -43,7 +43,7 @@
     "@ethersproject/providers": "^5.7.2",
     "@nucypher/nucypher-contracts": "^7.0.0-rc.1",
     "@nucypher/nucypher-core": "0.13.0-alpha.1",
-    "axios": "^1.5.0",
+    "axios": "^1.5.1",
     "deep-equal": "^2.2.1",
     "ethers": "^5.7.2",
     "qs": "^6.10.1"

@@ -2,7 +2,8 @@ import { Context, Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { fromJSON, toJSON } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
-import { Condition } from '../condition';
+import { CompoundConditionType } from "../compound-condition";
+import {Condition, ConditionProps} from '../condition';
 import { ConditionExpression } from '../condition-expr';
 import { USER_ADDRESS_PARAM } from '../const';
 
@@ -59,7 +60,11 @@ export class ConditionContext {
   }
 
   public toObj = async (): Promise<Record<string, ContextParam>> => {
-    const requestedParameters = this.findRequestedParameters();
+    const condObjects = this.conditions.map((cnd) => cnd.toObj());
+    const parsedCondObjects = fromJSON(
+      new WASMConditions(toJSON(condObjects)).toString(),
+    );
+    const requestedParameters = this.findRequestedParameters(parsedCondObjects);
     const parameters = await this.fillContextParameters(requestedParameters);
 
     // Ok, so at this point we should have all the parameters we need
@@ -70,6 +75,16 @@ export class ConditionContext {
     if (missingParameters.length > 0) {
       throw new Error(
         `Missing custom context parameter(s): ${missingParameters.join(', ')}`,
+      );
+    }
+
+    // We may also have some parameters that are not used
+    const unknownParameters = Object.keys(parameters).filter(
+      (key) => !requestedParameters.has(key) && !RESERVED_CONTEXT_PARAMS.includes(key),
+    );
+    if (unknownParameters.length > 0) {
+      throw new Error(
+        `Unknown custom context parameter(s): ${unknownParameters.join(', ')}`,
       );
     }
 
@@ -100,28 +115,37 @@ export class ConditionContext {
     return parameters;
   }
 
-  private findRequestedParameters() {
+  private isContextParameter(param: unknown): boolean {
+    return typeof param === 'string' && param.startsWith(CONTEXT_PARAM_PREFIX);
+  }
+
+  private findRequestedParameters(conditions: Array<ConditionProps>) {
     // First, we want to find all the parameters we need to add
     const requestedParameters = new Set<string>();
 
     // Search conditions for parameters
-    const conditions = this.conditions.map((cnd) => cnd.toObj());
-    const conditionsToCheck = fromJSON(
-      new WASMConditions(toJSON(conditions)).toString(),
-    );
-    for (const cond of conditionsToCheck) {
+    for (const cond of conditions) {
       // Check return value test
-      const rvt = cond.returnValueTest.value;
-      if (typeof rvt === 'string' && rvt.startsWith(CONTEXT_PARAM_PREFIX)) {
-        requestedParameters.add(rvt);
+      if (cond.returnValueTest) {
+        const rvt = cond.returnValueTest.value;
+        if (this.isContextParameter(rvt)) {
+          requestedParameters.add(rvt);
+        }
       }
 
       // Check condition parameters
       for (const param of cond.parameters ?? []) {
-        if (
-          typeof param === 'string' &&
-          param.startsWith(CONTEXT_PARAM_PREFIX)
-        ) {
+        if (this.isContextParameter(param)) {
+          requestedParameters.add(param);
+        }
+      }
+
+      // If it's a compound condition, check operands
+      if (cond.conditionType === CompoundConditionType) {
+        const innerParams = this.findRequestedParameters(
+          cond.operands,
+        );
+        for (const param of innerParams) {
           requestedParameters.add(param);
         }
       }

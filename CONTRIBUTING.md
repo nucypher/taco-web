@@ -30,4 +30,4 @@ pnpm doc:publish
 
 ## Publishing
 
-TODO: Update after implementing publishing.
+TODO: Update after implementing automated publishing.

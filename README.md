@@ -8,7 +8,7 @@ Full documentation can be found [here](https://docs.threshold.network/app-develo
 >
 > `nucypher-ts` is under [active development](https://github.com/nucypher/nucypher-ts/pulls):
 >
-> - SDK does not support policy revocation.
+> - SDK does not support access revocation.
 > - We expect breaking changes.
 
 ## Installation
@@ -25,12 +25,12 @@ To learn more, follow the tutorial at Threshold Network's [docs](https://docs.th
 
 See [`nucypher-ts/examples`](https://github.com/nucypher/nucypher-ts/tree/main/examples) to find out how to integrate `nucypher-ts` into your favorite web framework.
 
-We also provide two code samples of TAC applications:
+We also provide demos of TACo applications:
 
-- [nucypher/tdec-sandbox](https://github.com/nucypher/tdec-sandbox)
-- [nucypher/tdec-nft-example](https://github.com/nucypher/tdec-nft-example)
+- [taco-demo](https://github.com/nucypher/nucypher-ts/tree/main/demos/taco-demo)
+- [taco-nft-demo](https://github.com/nucypher/nucypher-ts/tree/main/demos/taco-nft-demo)
 
-These examples showcase integration with React-based web application and an end-to-end flow of creating conditioned encryption, and encrypting & decrypting data.
+These examples showcase integration with web applications and an end-to-end flow of creating conditioned encryption, and encrypting & decrypting data.
 
 # Contributing
 

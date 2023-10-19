@@ -1,6 +1,6 @@
-import {conditions} from '@nucypher/taco';
-import {Mumbai, useEthers} from '@usedapp/core';
-import React, {useState} from 'react';
+import { conditions } from '@nucypher/taco';
+import { Mumbai, useEthers } from '@usedapp/core';
+import React, { useState } from 'react';
 
 interface Props {
   condition?: conditions.Condition | undefined;
@@ -20,11 +20,11 @@ const rpcCondition = new conditions.RpcCondition({
 });
 
 export const ConditionBuilder = ({
-                                   condition,
-                                   setConditions,
-                                   enabled,
-                                 }: Props) => {
-  const {library} = useEthers();
+  condition,
+  setConditions,
+  enabled,
+}: Props) => {
+  const { library } = useEthers();
 
   const demoCondition = JSON.stringify((condition ?? rpcCondition).toObj());
   const [conditionString, setConditionString] = useState(demoCondition);

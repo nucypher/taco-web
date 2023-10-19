@@ -10,10 +10,6 @@ on:
     #   - epic-*
   workflow_dispatch:
 
-env:  # TODO: Use variables when GH supports it for forks. See https://github.com/orgs/community/discussions/44322
-  RPC_PROVIDER_URL: "https://polygon-mumbai.infura.io/v3/3747007a284045d483c342fb39889a30"
-  PRIVATE_KEY: "0x900edb9e8214b2353f82aa195e915128f419a92cfb8bbc0f4784f10ef4112b86"
-
 jobs:
   build_project:
     name: '🔎 Lynx Testnet Example on Node ${{ matrix.node }} and ${{ matrix.os }}'
@@ -37,16 +33,15 @@ jobs:
           cache: 'pnpm'
 
       - name: Lynx testnet node-js script installation
-        working-directory: ./examples/taco/nodejs 
+        working-directory: ./examples/taco/nodejs
         run: pnpm install
 
       - name: Lynx testnet node-js script environment
-        working-directory: ./examples/taco/nodejs 
-        run: |
-          echo RPC_PROVIDER_URL=$RPC_PROVIDER_URL > .env
-          echo PRIVATE_KEY=$PRIVATE_KEY >> .env
+        working-directory: ./examples/taco/nodejs
+        # TODO: Use variables when GH supports it for forks. See https://github.com/orgs/community/discussions/44322
+        run: cp .env.example .env
 
       - name: Lynx testnet node-js script execution
         id: lynx_script
-        working-directory: ./examples/taco/nodejs 
+        working-directory: ./examples/taco/nodejs
         run: pnpm start

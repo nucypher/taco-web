@@ -113,7 +113,12 @@ export const NFTConditionBuilder = ({
         {condition && (
           <div>
             <h3>Condition JSON:</h3>
-            <textarea readOnly={true} disabled={true} rows={15}>{prettyPrint(condition?.toObj() ?? {})}</textarea>
+            <textarea
+              readOnly={true}
+              disabled={true}
+              rows={15}
+              value={prettyPrint(condition?.toObj() ?? {})}
+            />
           </div>
         )}
       </div>

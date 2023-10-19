@@ -1,4 +1,6 @@
-# taco-nft-example
+# taco-nft-demo
+
+See this demo in action at https://taco-nft-demo.netlify.app/
 
 ## Installation
 

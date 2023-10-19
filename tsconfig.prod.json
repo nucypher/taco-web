@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "lib": ["ES2018"],
+    "lib": [
+      "ES2018"
+    ],
     "module": "CommonJS",
     "moduleResolution": "node",
     "strict": true,
@@ -13,17 +15,18 @@
   },
   "files": [],
   "references": [
-    {
-      "path": "./packages/pre/tsconfig.es.json"
-    },
-    {
-      "path": "./packages/pre/tsconfig.cjs.json"
-    },
+    // Order matters
     {
       "path": "./packages/shared/tsconfig.es.json"
     },
     {
       "path": "./packages/shared/tsconfig.cjs.json"
+    },
+    {
+      "path": "./packages/pre/tsconfig.es.json"
+    },
+    {
+      "path": "./packages/pre/tsconfig.cjs.json"
     },
     {
       "path": "./packages/taco/tsconfig.es.json"

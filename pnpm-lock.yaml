@@ -103,7 +103,7 @@ importers:
   demos/taco-demo:
     dependencies:
       '@nucypher/taco':
-        specifier: workspace:*
+        specifier: 0.1.0-rc.3
         version: link:../../packages/taco
       '@usedapp/core':
         specifier: ^1.2.13
@@ -176,7 +176,7 @@ importers:
   demos/taco-nft-demo:
     dependencies:
       '@nucypher/taco':
-        specifier: workspace:*
+        specifier: 0.1.0-rc.3
         version: link:../../packages/taco
       '@usedapp/core':
         specifier: ^1.2.13

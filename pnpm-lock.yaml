@@ -82,17 +82,17 @@ importers:
         specifier: ^10.0.1
         version: 10.0.1(typescript@5.2.2)
       typedoc:
-        specifier: ^0.25.1
-        version: 0.25.1(typescript@5.2.2)
+        specifier: ^0.25.2
+        version: 0.25.2(typescript@5.2.2)
       typedoc-plugin-coverage:
         specifier: ^2.2.0
-        version: 2.2.0(typedoc@0.25.1)
+        version: 2.2.0(typedoc@0.25.2)
       typedoc-plugin-missing-exports:
         specifier: ^2.1.0
-        version: 2.1.0(typedoc@0.25.1)
+        version: 2.1.0(typedoc@0.25.2)
       typedoc-plugin-zod:
         specifier: ^1.1.0
-        version: 1.1.0(typedoc@0.25.1)
+        version: 1.1.0(typedoc@0.25.2)
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -104,7 +104,7 @@ importers:
     dependencies:
       '@nucypher/taco':
         specifier: 0.1.0-rc.3
-        version: link:../../packages/taco
+        version: 0.1.0-rc.3(ethers@5.7.2)
       '@usedapp/core':
         specifier: ^1.2.13
         version: 1.2.13(ethers@5.7.2)(react@18.2.0)
@@ -177,7 +177,7 @@ importers:
     dependencies:
       '@nucypher/taco':
         specifier: 0.1.0-rc.3
-        version: link:../../packages/taco
+        version: 0.1.0-rc.3(ethers@5.7.2)
       '@usedapp/core':
         specifier: ^1.2.13
         version: 1.2.13(ethers@5.7.2)(react@18.2.0)
@@ -3370,6 +3370,43 @@ packages:
 
   /@nucypher/nucypher-core@0.13.0-alpha.1:
     resolution: {integrity: sha512-uKu/YLTZ6mqkQ2kaQMJs/USUiw9EYFtaZU6FaD8zAN8XKLpHYuYD13BDfU7idR1nZIKjL/E5xIoVJFV3Dx0x2w==}
+    dev: false
+
+  /@nucypher/shared@0.1.0-rc.2:
+    resolution: {integrity: sha512-2JptL6yy2BdggxHQ9RYw+WDtUvp6vfk5duogX6wVZqfaAEnuySrcebGSF/g5zZsi4fZRK+ZNZ3660n9ret6TGA==}
+    engines: {node: '>=18', pnpm: '>=8.0.0'}
+    dependencies:
+      '@ethersproject/abi': 5.7.0
+      '@ethersproject/providers': 5.7.2
+      '@nucypher/nucypher-contracts': 7.0.0-rc.1
+      '@nucypher/nucypher-core': 0.13.0-alpha.1
+      axios: 1.5.0
+      deep-equal: 2.2.2
+      ethers: 5.7.2
+      qs: 6.11.2
+    transitivePeerDependencies:
+      - bufferutil
+      - debug
+      - utf-8-validate
+    dev: false
+
+  /@nucypher/taco@0.1.0-rc.3(ethers@5.7.2):
+    resolution: {integrity: sha512-XoliK3rhVhzWx+U48q84jf5dkygiAIITpsYHciNjuaATKi2u0bxydtzLFHWykVUSomDvFOvLXdd/6DFF1emUUA==}
+    engines: {node: '>=18', pnpm: '>=8.0.0'}
+    deprecated: This version is no longer supported
+    peerDependencies:
+      ethers: ^5.7.2
+    dependencies:
+      '@ethersproject/abstract-signer': 5.7.0
+      '@nucypher/nucypher-core': 0.13.0-alpha.1
+      '@nucypher/shared': 0.1.0-rc.2
+      ethers: 5.7.2
+      semver: 7.5.4
+      zod: 3.22.4
+    transitivePeerDependencies:
+      - bufferutil
+      - debug
+      - utf-8-validate
     dev: false
 
   /@pmmmwh/react-refresh-webpack-plugin@0.5.11(react-refresh@0.11.0)(webpack-dev-server@4.15.1)(webpack@5.88.2):
@@ -13320,33 +13357,33 @@ packages:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
     dev: true
 
-  /typedoc-plugin-coverage@2.2.0(typedoc@0.25.1):
+  /typedoc-plugin-coverage@2.2.0(typedoc@0.25.2):
     resolution: {integrity: sha512-/hq9nwSNBz2p7+VYfljT/zFSmaxN8tlfcIp6CCAaQN6VIxXCciYFIqR+pcckRhjmfHIeSJ5uy2OpCt5F683npA==}
     engines: {node: '>= 16'}
     peerDependencies:
       typedoc: ^0.22.12 || 0.23.x || 0.24.x || 0.25.x
     dependencies:
-      typedoc: 0.25.1(typescript@5.2.2)
+      typedoc: 0.25.2(typescript@5.2.2)
     dev: true
 
-  /typedoc-plugin-missing-exports@2.1.0(typedoc@0.25.1):
+  /typedoc-plugin-missing-exports@2.1.0(typedoc@0.25.2):
     resolution: {integrity: sha512-+1DhqZCEu7Vu5APnrqpPwl31D+hXpt1fV0Le9ycCRL1eLVdatdl6KVt4SEVwPxnEpKwgOn2dNX6I9+0F1aO2aA==}
     peerDependencies:
       typedoc: 0.24.x || 0.25.x
     dependencies:
-      typedoc: 0.25.1(typescript@5.2.2)
+      typedoc: 0.25.2(typescript@5.2.2)
     dev: true
 
-  /typedoc-plugin-zod@1.1.0(typedoc@0.25.1):
+  /typedoc-plugin-zod@1.1.0(typedoc@0.25.2):
     resolution: {integrity: sha512-LaQdkYyVVL8CX+4R0GJuOyDa1meiG3M85FiBTPvlikCGaRkTNGSEBZTbx3gQHAsNQ5NWJpLvYJQB6gMhcO8bWw==}
     peerDependencies:
       typedoc: 0.23.x || 0.24.x || 0.25.x
     dependencies:
-      typedoc: 0.25.1(typescript@5.2.2)
+      typedoc: 0.25.2(typescript@5.2.2)
     dev: true
 
-  /typedoc@0.25.1(typescript@5.2.2):
-    resolution: {integrity: sha512-c2ye3YUtGIadxN2O6YwPEXgrZcvhlZ6HlhWZ8jQRNzwLPn2ylhdGqdR8HbyDRyALP8J6lmSANILCkkIdNPFxqA==}
+  /typedoc@0.25.2(typescript@5.2.2):
+    resolution: {integrity: sha512-286F7BeATBiWe/qC4PCOCKlSTwfnsLbC/4cZ68oGBbvAqb9vV33quEOXx7q176OXotD+JdEerdQ1OZGJ818lnA==}
     engines: {node: '>= 16'}
     hasBin: true
     peerDependencies:

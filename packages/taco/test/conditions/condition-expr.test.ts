@@ -240,7 +240,7 @@ describe('condition set', () => {
             version: ConditionExpression.version,
             condition: conditionObj,
           });
-        }).toThrow(`Invalid conditionType: ${invalidConditionType}`);
+        }).toThrow(`Invalid condition type: ${invalidConditionType}`);
       },
     );
 

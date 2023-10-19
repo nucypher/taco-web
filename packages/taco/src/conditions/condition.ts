@@ -22,6 +22,11 @@ import { USER_ADDRESS_PARAM } from './const';
 type ConditionSchema = z.ZodSchema;
 export type ConditionProps = z.infer<ConditionSchema>;
 
+const ERR_INVALID_CONDITION = (error: z.ZodError) =>
+  `Invalid condition: ${JSON.stringify(error.issues)}`;
+const ERR_INVALID_CONDITION_TYPE = (type: string) =>
+  `Invalid condition type: ${type}`;
+
 class ConditionFactory {
   public static conditionFromProps(obj: ConditionProps): Condition {
     switch (obj.conditionType) {
@@ -34,7 +39,7 @@ class ConditionFactory {
       case CompoundConditionType:
         return new CompoundCondition(obj as CompoundConditionProps);
       default:
-        throw new Error(`Invalid conditionType: ${obj.conditionType}`);
+        throw new Error(ERR_INVALID_CONDITION_TYPE(obj.conditionType));
     }
   }
 }
@@ -46,7 +51,7 @@ export class Condition {
   ) {
     const { data, error } = Condition.validate(schema, value);
     if (error) {
-      throw new Error(`Invalid condition: ${JSON.stringify(error.issues)}`);
+      throw new Error(ERR_INVALID_CONDITION(error));
     }
     this.value = data;
   }
@@ -72,7 +77,7 @@ export class Condition {
   public toObj() {
     const { data, error } = Condition.validate(this.schema, this.value);
     if (error) {
-      throw new Error(`Invalid condition: ${JSON.stringify(error.issues)}`);
+      throw new Error(ERR_INVALID_CONDITION(error));
     }
     return data;
   }

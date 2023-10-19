@@ -2,8 +2,8 @@ import { Context, Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { fromJSON, toJSON } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
-import { CompoundConditionType } from "../compound-condition";
-import {Condition, ConditionProps} from '../condition';
+import { CompoundConditionType } from '../compound-condition';
+import { Condition, ConditionProps } from '../condition';
 import { ConditionExpression } from '../condition-expr';
 import { USER_ADDRESS_PARAM } from '../const';
 
@@ -15,12 +15,22 @@ export type ContextParam = CustomContextParam | TypedSignature;
 export const RESERVED_CONTEXT_PARAMS = [USER_ADDRESS_PARAM];
 export const CONTEXT_PARAM_PREFIX = ':';
 
+const ERR_RESERVED_PARAM = (key: string) =>
+  `Cannot use reserved parameter name ${key} as custom parameter`;
+const ERR_INVALID_CUSTOM_PARAM = (key: string) =>
+  `Custom parameter ${key} must start with ${CONTEXT_PARAM_PREFIX}`;
+const ERR_SIGNER_REQUIRED = `Signer required to satisfy ${USER_ADDRESS_PARAM} context variable in condition`;
+const ERR_MISSING_CONTEXT_PARAMS = (params: string[]) =>
+  `Missing custom context parameter(s): ${params.join(', ')}`;
+const ERR_UNKNOWN_CONTEXT_PARAMS = (params: string[]) =>
+  `Unknown custom context parameter(s): ${params.join(', ')}`;
+
 export class ConditionContext {
   private readonly walletAuthProvider?: WalletAuthenticationProvider;
 
   constructor(
     private readonly provider: ethers.providers.Provider,
-    private readonly conditions: ReadonlyArray<Condition>,
+    private readonly condition: Condition,
     public readonly customParameters: Record<string, CustomContextParam> = {},
     private readonly signer?: ethers.Signer,
   ) {
@@ -33,38 +43,27 @@ export class ConditionContext {
     this.validate();
   }
 
-  private validate() {
+  private validate(): void {
     Object.keys(this.customParameters).forEach((key) => {
       if (RESERVED_CONTEXT_PARAMS.includes(key)) {
-        throw new Error(
-          `Cannot use reserved parameter name ${key} as custom parameter`,
-        );
+        throw new Error(ERR_RESERVED_PARAM(key));
       }
       if (!key.startsWith(CONTEXT_PARAM_PREFIX)) {
-        throw new Error(
-          `Custom parameter ${key} must start with ${CONTEXT_PARAM_PREFIX}`,
-        );
+        throw new Error(ERR_INVALID_CUSTOM_PARAM(key));
       }
     });
 
-    const conditionRequiresSigner = this.conditions.some((c) =>
-      c.requiresSigner(),
-    );
-    if (conditionRequiresSigner && !this.signer) {
-      throw new Error(
-        `Signer required to satisfy ${USER_ADDRESS_PARAM} context variable in condition`,
-      );
+    if (this.condition.requiresSigner() && !this.signer) {
+      throw new Error(ERR_SIGNER_REQUIRED);
     }
-
-    return this;
   }
 
   public toObj = async (): Promise<Record<string, ContextParam>> => {
-    const condObjects = this.conditions.map((cnd) => cnd.toObj());
-    const parsedCondObjects = fromJSON(
-      new WASMConditions(toJSON(condObjects)).toString(),
+    const condObject = this.condition.toObj();
+    const parsedCondObject = fromJSON(
+      new WASMConditions(toJSON(condObject)).toString(),
     );
-    const requestedParameters = this.findRequestedParameters(parsedCondObjects);
+    const requestedParameters = this.findRequestedParameters(parsedCondObject);
     const parameters = await this.fillContextParameters(requestedParameters);
 
     // Ok, so at this point we should have all the parameters we need
@@ -73,34 +72,31 @@ export class ConditionContext {
       (key) => !parameters[key],
     );
     if (missingParameters.length > 0) {
-      throw new Error(
-        `Missing custom context parameter(s): ${missingParameters.join(', ')}`,
-      );
+      throw new Error(ERR_MISSING_CONTEXT_PARAMS(missingParameters));
     }
 
     // We may also have some parameters that are not used
     const unknownParameters = Object.keys(parameters).filter(
-      (key) => !requestedParameters.has(key) && !RESERVED_CONTEXT_PARAMS.includes(key),
+      (key) =>
+        !requestedParameters.has(key) && !RESERVED_CONTEXT_PARAMS.includes(key),
     );
     if (unknownParameters.length > 0) {
-      throw new Error(
-        `Unknown custom context parameter(s): ${unknownParameters.join(', ')}`,
-      );
+      throw new Error(ERR_UNKNOWN_CONTEXT_PARAMS(unknownParameters));
     }
 
     return parameters;
   };
 
-  private async fillContextParameters(requestedParameters: Set<string>) {
+  private async fillContextParameters(
+    requestedParameters: Set<string>,
+  ): Promise<Record<string, ContextParam>> {
     // Now, we can safely add all the parameters
     const parameters: Record<string, ContextParam> = {};
 
     // Fill in predefined context parameters
     if (requestedParameters.has(USER_ADDRESS_PARAM)) {
       if (!this.walletAuthProvider) {
-        throw new Error(
-          `Condition contains ${USER_ADDRESS_PARAM} context variable and requires a signer to populate`,
-        );
+        throw new Error(ERR_SIGNER_REQUIRED);
       }
       parameters[USER_ADDRESS_PARAM] =
         await this.walletAuthProvider.getOrCreateWalletSignature();
@@ -119,37 +115,38 @@ export class ConditionContext {
     return typeof param === 'string' && param.startsWith(CONTEXT_PARAM_PREFIX);
   }
 
-  private findRequestedParameters(conditions: Array<ConditionProps>) {
+  private findRequestedParameters(condition: ConditionProps) {
     // First, we want to find all the parameters we need to add
     const requestedParameters = new Set<string>();
 
     // Search conditions for parameters
-    for (const cond of conditions) {
-      // Check return value test
-      if (cond.returnValueTest) {
-        const rvt = cond.returnValueTest.value;
-        if (this.isContextParameter(rvt)) {
-          requestedParameters.add(rvt);
-        }
+    // Check return value test
+    if (condition.returnValueTest) {
+      const rvt = condition.returnValueTest.value;
+      if (this.isContextParameter(rvt)) {
+        requestedParameters.add(rvt);
       }
+    }
 
-      // Check condition parameters
-      for (const param of cond.parameters ?? []) {
-        if (this.isContextParameter(param)) {
-          requestedParameters.add(param);
-        }
+    // Check condition parameters
+    for (const param of condition.parameters ?? []) {
+      if (this.isContextParameter(param)) {
+        requestedParameters.add(param);
       }
+    }
 
-      // If it's a compound condition, check operands
-      if (cond.conditionType === CompoundConditionType) {
+    // If it's a compound condition, check operands
+    if (condition.conditionType === CompoundConditionType) {
+      for (const key in condition.operands) {
         const innerParams = this.findRequestedParameters(
-          cond.operands,
+          condition.operands[key],
         );
         for (const param of innerParams) {
           requestedParameters.add(param);
         }
       }
     }
+
     return requestedParameters;
   }
 
@@ -163,7 +160,7 @@ export class ConditionContext {
   ): ConditionContext {
     return new ConditionContext(
       this.provider,
-      this.conditions,
+      this.condition,
       params,
       this.signer,
     );
@@ -180,9 +177,13 @@ export class ConditionContext {
     signer?: ethers.Signer,
     customParameters?: Record<string, CustomContextParam>,
   ): ConditionContext {
-    const innerConditions = [
-      ConditionExpression.fromWASMConditions(conditions).condition,
-    ];
-    return new ConditionContext(provider, innerConditions, customParameters, signer);
+    const innerCondition =
+      ConditionExpression.fromWASMConditions(conditions).condition;
+    return new ConditionContext(
+      provider,
+      innerCondition,
+      customParameters,
+      signer,
+    );
   }
 }

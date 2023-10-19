@@ -6,6 +6,13 @@ import { SemVer } from 'semver';
 import { Condition } from './condition';
 import { ConditionContext, CustomContextParam } from './context';
 
+const ERR_VERSION = (provided: string, current: string) =>
+  `Version provided, ${provided}, is incompatible with current version, ${current}`;
+const ERR_CONDITION = (condition: Record<string, unknown>) =>
+  `Invalid condition: unrecognized condition data ${JSON.stringify(
+    condition,
+  )}`;
+
 export type ConditionExpressionJSON = {
   version: string;
   condition: Record<string, unknown>;
@@ -31,17 +38,11 @@ export class ConditionExpression {
     const receivedVersion = new SemVer(obj.version);
     const currentVersion = new SemVer(ConditionExpression.version);
     if (receivedVersion.major > currentVersion.major) {
-      throw new Error(
-        `Version provided, ${obj.version}, is incompatible with current version, ${ConditionExpression.version}`,
-      );
+      throw new Error(ERR_VERSION(obj.version, ConditionExpression.version));
     }
 
     if (!obj.condition) {
-      throw new Error(
-        `Invalid condition: unrecognized condition data ${JSON.stringify(
-          obj.condition,
-        )}`,
-      );
+      throw new Error(ERR_CONDITION(obj.condition));
     }
 
     const condition = Condition.fromObj(obj.condition);
@@ -71,7 +72,7 @@ export class ConditionExpression {
   ): ConditionContext {
     return new ConditionContext(
       provider,
-      [this.condition],
+      this.condition,
       customParameters,
       signer,
     );

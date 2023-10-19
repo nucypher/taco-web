@@ -39,7 +39,7 @@ describe('conditions', () => {
 
     const context = new ConditionContext(
       fakeProvider(),
-      [condition],
+      condition,
       {':time': 100},
       fakeSigner()
     );

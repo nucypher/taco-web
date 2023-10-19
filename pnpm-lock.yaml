@@ -15,8 +15,8 @@ importers:
   .:
     dependencies:
       '@nucypher/nucypher-core':
-        specifier: 0.13.0-alpha.1
-        version: 0.13.0-alpha.1
+        specifier: 0.13.0
+        version: 0.13.0
     devDependencies:
       '@skypack/package-check':
         specifier: ^0.2.2
@@ -104,7 +104,7 @@ importers:
     dependencies:
       '@nucypher/taco':
         specifier: 0.1.0-rc.3
-        version: link:../../packages/taco
+        version: 0.1.0-rc.3(ethers@5.7.2)
       '@usedapp/core':
         specifier: ^1.2.13
         version: 1.2.13(ethers@5.7.2)(react@18.2.0)
@@ -177,7 +177,7 @@ importers:
     dependencies:
       '@nucypher/taco':
         specifier: 0.1.0-rc.3
-        version: link:../../packages/taco
+        version: 0.1.0-rc.3(ethers@5.7.2)
       '@usedapp/core':
         specifier: ^1.2.13
         version: 1.2.13(ethers@5.7.2)(react@18.2.0)
@@ -451,8 +451,8 @@ importers:
   packages/pre:
     dependencies:
       '@nucypher/nucypher-core':
-        specifier: 0.13.0-alpha.1
-        version: 0.13.0-alpha.1
+        specifier: 0.13.0
+        version: 0.13.0
       '@nucypher/shared':
         specifier: workspace:*
         version: link:../shared
@@ -476,8 +476,8 @@ importers:
         specifier: ^7.0.0-rc.1
         version: 7.0.0-rc.1
       '@nucypher/nucypher-core':
-        specifier: 0.13.0-alpha.1
-        version: 0.13.0-alpha.1
+        specifier: 0.13.0
+        version: 0.13.0
       axios:
         specifier: ^1.5.0
         version: 1.5.0
@@ -519,8 +519,8 @@ importers:
         specifier: ^5.7.0
         version: 5.7.0
       '@nucypher/nucypher-core':
-        specifier: 0.13.0-alpha.1
-        version: 0.13.0-alpha.1
+        specifier: 0.13.0
+        version: 0.13.0
       '@nucypher/shared':
         specifier: 0.1.0-rc.2
         version: link:../shared
@@ -544,8 +544,8 @@ importers:
   packages/test-utils:
     dependencies:
       '@nucypher/nucypher-core':
-        specifier: 0.13.0-alpha.1
-        version: 0.13.0-alpha.1
+        specifier: 0.13.0
+        version: 0.13.0
       '@nucypher/shared':
         specifier: workspace:*
         version: link:../shared
@@ -3368,8 +3368,49 @@ packages:
     resolution: {integrity: sha512-4fZZfwQIqyhNmPbrIAUX8WB6rW9d2t2fCX3eFfcMOIwjCl144jab6fTAGjJx3ea1vXysq1bk9Ydvp93R82EtVg==}
     dev: false
 
+  /@nucypher/nucypher-core@0.13.0:
+    resolution: {integrity: sha512-HfEbrQvngOHIn0bMAdqPIF7WzkLdb5+sMhmX7bQl2SINABQ6FGGN8G+Arb+pbkYgru5qeQ+RTTbCBwBNaxFKEg==}
+    dev: false
+
   /@nucypher/nucypher-core@0.13.0-alpha.1:
     resolution: {integrity: sha512-uKu/YLTZ6mqkQ2kaQMJs/USUiw9EYFtaZU6FaD8zAN8XKLpHYuYD13BDfU7idR1nZIKjL/E5xIoVJFV3Dx0x2w==}
+    dev: false
+
+  /@nucypher/shared@0.1.0-rc.2:
+    resolution: {integrity: sha512-2JptL6yy2BdggxHQ9RYw+WDtUvp6vfk5duogX6wVZqfaAEnuySrcebGSF/g5zZsi4fZRK+ZNZ3660n9ret6TGA==}
+    engines: {node: '>=18', pnpm: '>=8.0.0'}
+    dependencies:
+      '@ethersproject/abi': 5.7.0
+      '@ethersproject/providers': 5.7.2
+      '@nucypher/nucypher-contracts': 7.0.0-rc.1
+      '@nucypher/nucypher-core': 0.13.0-alpha.1
+      axios: 1.5.0
+      deep-equal: 2.2.2
+      ethers: 5.7.2
+      qs: 6.11.2
+    transitivePeerDependencies:
+      - bufferutil
+      - debug
+      - utf-8-validate
+    dev: false
+
+  /@nucypher/taco@0.1.0-rc.3(ethers@5.7.2):
+    resolution: {integrity: sha512-XoliK3rhVhzWx+U48q84jf5dkygiAIITpsYHciNjuaATKi2u0bxydtzLFHWykVUSomDvFOvLXdd/6DFF1emUUA==}
+    engines: {node: '>=18', pnpm: '>=8.0.0'}
+    deprecated: This version is no longer supported
+    peerDependencies:
+      ethers: ^5.7.2
+    dependencies:
+      '@ethersproject/abstract-signer': 5.7.0
+      '@nucypher/nucypher-core': 0.13.0-alpha.1
+      '@nucypher/shared': 0.1.0-rc.2
+      ethers: 5.7.2
+      semver: 7.5.4
+      zod: 3.22.4
+    transitivePeerDependencies:
+      - bufferutil
+      - debug
+      - utf-8-validate
     dev: false
 
   /@pmmmwh/react-refresh-webpack-plugin@0.5.11(react-refresh@0.11.0)(webpack-dev-server@4.15.1)(webpack@5.88.2):

@@ -25,7 +25,7 @@
     "check-examples": "pnpm run --parallel --aggregate-output --reporter append-only --filter './examples/**' --filter './demos/**' check"
   },
   "dependencies": {
-    "@nucypher/nucypher-core": "0.13.0-alpha.1"
+    "@nucypher/nucypher-core": "0.13.0"
   },
   "devDependencies": {
     "@skypack/package-check": "^0.2.2",

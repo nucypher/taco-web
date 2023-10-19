@@ -8,7 +8,6 @@ Full documentation can be found [here](https://docs.threshold.network/app-develo
 >
 > `nucypher-ts` is under [active development](https://github.com/nucypher/nucypher-ts/pulls):
 >
-> - SDK does not support access revocation.
 > - We expect breaking changes.
 
 ## Installation

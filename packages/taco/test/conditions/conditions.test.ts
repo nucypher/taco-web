@@ -4,12 +4,12 @@ import {beforeAll, describe, expect, it} from "vitest";
 import { initialize } from "../../src";
 import { CompoundCondition, ConditionContext } from "../../src/conditions";
 
-describe('compound condition', () => {
+describe('conditions', () => {
   beforeAll(async () => {
     await initialize();
   });
 
-  it('can be created', () => {
+  it('creates a complex condition with custom parameters', async () => {
     const hasPositiveBalance = {
       chain: 80001,
       method: 'eth_getBalance',
@@ -39,13 +39,14 @@ describe('compound condition', () => {
 
     const context = new ConditionContext(
       fakeProvider(),
-      [condition],
+      condition,
       {':time': 100},
       fakeSigner()
     );
     expect(context).toBeDefined();
 
-    const asObj = condition.toObj();
+    const asObj = await context.toObj();
     expect(asObj).toBeDefined();
+    expect(asObj[':time']).toBe(100);
   });
 });

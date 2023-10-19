@@ -63,11 +63,11 @@ describe('context', () => {
     };
     const contractCondition = new ContractCondition(contractConditionObj);
     const conditionExpr = new ConditionExpression(contractCondition);
-    const conditionContext = conditionExpr.buildContext(provider, {}, signer);
+    const context = conditionExpr.buildContext(provider, {}, signer);
 
     describe('return value test', () => {
       it('accepts on a custom context parameters', async () => {
-        const asObj = await conditionContext
+        const asObj = await context
           .withCustomParams(customParams)
           .toObj();
         expect(asObj).toBeDefined();
@@ -75,7 +75,7 @@ describe('context', () => {
       });
 
       it('rejects on a missing custom context parameter', async () => {
-        await expect(conditionContext.toObj()).rejects.toThrow(
+        await expect(context.toObj()).rejects.toThrow(
           `Missing custom context parameter(s): ${customParamKey}`,
         );
       });
@@ -86,11 +86,21 @@ describe('context', () => {
       RESERVED_CONTEXT_PARAMS.forEach((reservedParam) => {
         badCustomParams[reservedParam] = 'this-will-throw';
         expect(() =>
-          conditionContext.withCustomParams(badCustomParams),
+          context.withCustomParams(badCustomParams),
         ).toThrow(
           `Cannot use reserved parameter name ${reservedParam} as custom parameter`,
         );
       });
+    });
+
+    it('rejects on using a custom parameter that was not requested', async () => {
+      const badCustomParamKey = ':notRequested';
+      const badCustomParams: Record<string, CustomContextParam> = {};
+      badCustomParams[':customParam'] = 'this-is-fine';
+      badCustomParams[badCustomParamKey] = 'this-will-throw';
+      await expect(context.withCustomParams(badCustomParams).toObj()).rejects.toThrow(
+        `Unknown custom context parameter(s): ${badCustomParamKey}`,
+      );
     });
 
     it('detects if a signer is required', () => {

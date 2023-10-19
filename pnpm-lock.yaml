@@ -104,7 +104,7 @@ importers:
     dependencies:
       '@nucypher/taco':
         specifier: 0.1.0-rc.3
-        version: link:../../packages/taco
+        version: 0.1.0-rc.3(ethers@5.7.2)
       '@usedapp/core':
         specifier: ^1.2.13
         version: 1.2.13(ethers@5.7.2)(react@18.2.0)
@@ -140,8 +140,8 @@ importers:
         specifier: ^5.0.4
         version: 5.0.5
       '@types/react-dom':
-        specifier: ^18.0.6
-        version: 18.2.7
+        specifier: ^18.2.14
+        version: 18.2.14
       copy-webpack-plugin:
         specifier: ^11.0.0
         version: 11.0.0(webpack@5.88.2)
@@ -177,7 +177,7 @@ importers:
     dependencies:
       '@nucypher/taco':
         specifier: 0.1.0-rc.3
-        version: link:../../packages/taco
+        version: 0.1.0-rc.3(ethers@5.7.2)
       '@usedapp/core':
         specifier: ^1.2.13
         version: 1.2.13(ethers@5.7.2)(react@18.2.0)
@@ -213,8 +213,8 @@ importers:
         specifier: ^5.0.4
         version: 5.0.5
       '@types/react-dom':
-        specifier: ^18.0.6
-        version: 18.2.7
+        specifier: ^18.2.14
+        version: 18.2.14
       copy-webpack-plugin:
         specifier: ^11.0.0
         version: 11.0.0(webpack@5.88.2)
@@ -258,8 +258,8 @@ importers:
         specifier: 18.2.22
         version: 18.2.22
       '@types/react-dom':
-        specifier: 18.2.7
-        version: 18.2.7
+        specifier: 18.2.14
+        version: 18.2.14
       eslint:
         specifier: 8.49.0
         version: 8.49.0
@@ -316,8 +316,8 @@ importers:
         specifier: ^18.2.21
         version: 18.2.22
       '@types/react-dom':
-        specifier: ^18.2.7
-        version: 18.2.7
+        specifier: ^18.2.14
+        version: 18.2.14
       react-scripts:
         specifier: ^5.0.1
         version: 5.0.1(@babel/plugin-syntax-flow@7.22.5)(@babel/plugin-transform-react-jsx@7.22.15)(eslint@8.49.0)(react@18.2.0)(ts-node@10.9.1)(typescript@5.2.2)
@@ -359,8 +359,8 @@ importers:
         specifier: 18.2.22
         version: 18.2.22
       '@types/react-dom':
-        specifier: 18.2.7
-        version: 18.2.7
+        specifier: 18.2.14
+        version: 18.2.14
       eslint:
         specifier: 8.49.0
         version: 8.49.0
@@ -417,8 +417,8 @@ importers:
         specifier: ^18.2.21
         version: 18.2.22
       '@types/react-dom':
-        specifier: ^18.2.7
-        version: 18.2.7
+        specifier: ^18.2.14
+        version: 18.2.14
       react-scripts:
         specifier: ^5.0.1
         version: 5.0.1(@babel/plugin-syntax-flow@7.22.5)(@babel/plugin-transform-react-jsx@7.22.15)(eslint@8.49.0)(react@18.2.0)(ts-node@10.9.1)(typescript@5.2.2)
@@ -3372,6 +3372,43 @@ packages:
     resolution: {integrity: sha512-uKu/YLTZ6mqkQ2kaQMJs/USUiw9EYFtaZU6FaD8zAN8XKLpHYuYD13BDfU7idR1nZIKjL/E5xIoVJFV3Dx0x2w==}
     dev: false
 
+  /@nucypher/shared@0.1.0-rc.2:
+    resolution: {integrity: sha512-2JptL6yy2BdggxHQ9RYw+WDtUvp6vfk5duogX6wVZqfaAEnuySrcebGSF/g5zZsi4fZRK+ZNZ3660n9ret6TGA==}
+    engines: {node: '>=18', pnpm: '>=8.0.0'}
+    dependencies:
+      '@ethersproject/abi': 5.7.0
+      '@ethersproject/providers': 5.7.2
+      '@nucypher/nucypher-contracts': 7.0.0-rc.1
+      '@nucypher/nucypher-core': 0.13.0-alpha.1
+      axios: 1.5.0
+      deep-equal: 2.2.2
+      ethers: 5.7.2
+      qs: 6.11.2
+    transitivePeerDependencies:
+      - bufferutil
+      - debug
+      - utf-8-validate
+    dev: false
+
+  /@nucypher/taco@0.1.0-rc.3(ethers@5.7.2):
+    resolution: {integrity: sha512-XoliK3rhVhzWx+U48q84jf5dkygiAIITpsYHciNjuaATKi2u0bxydtzLFHWykVUSomDvFOvLXdd/6DFF1emUUA==}
+    engines: {node: '>=18', pnpm: '>=8.0.0'}
+    deprecated: This version is no longer supported
+    peerDependencies:
+      ethers: ^5.7.2
+    dependencies:
+      '@ethersproject/abstract-signer': 5.7.0
+      '@nucypher/nucypher-core': 0.13.0-alpha.1
+      '@nucypher/shared': 0.1.0-rc.2
+      ethers: 5.7.2
+      semver: 7.5.4
+      zod: 3.22.4
+    transitivePeerDependencies:
+      - bufferutil
+      - debug
+      - utf-8-validate
+    dev: false
+
   /@pmmmwh/react-refresh-webpack-plugin@0.5.11(react-refresh@0.11.0)(webpack-dev-server@4.15.1)(webpack@5.88.2):
     resolution: {integrity: sha512-7j/6vdTym0+qZ6u4XbSAxrWBGYSdCfTzySkj7WAFgDLmSyWlOrWvpyzxlFh5jtw9dn0oL/jtW+06XfFiisN3JQ==}
     engines: {node: '>= 10.13'}
@@ -3907,8 +3944,8 @@ packages:
       '@types/react': 18.2.22
     dev: true
 
-  /@types/react-dom@18.2.7:
-    resolution: {integrity: sha512-GRaAEriuT4zp9N4p1i8BDBYmEyfo+xQ3yHjJU4eiK5NDa1RmUZG+unZABUTK4/Ox/M+GaHwb6Ow8rUITrtjszA==}
+  /@types/react-dom@18.2.14:
+    resolution: {integrity: sha512-V835xgdSVmyQmI1KLV2BEIUgqEuinxp9O4G6g3FqO/SqLac049E53aysv0oEFD2kHfejeKU+ZqL2bcFWj9gLAQ==}
     dependencies:
       '@types/react': 18.2.22
 

@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@nucypher/taco": "workspace:*",
+    "@nucypher/taco": "0.1.0-rc.3",
     "@usedapp/core": "^1.2.13",
     "buffer": "^6.0.3",
     "ethers": "^5.7.1",
@@ -21,6 +21,9 @@
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.2.0",
     "react-spinners": "^0.13.6"
+  },
+  "peerDependencies": {
+    "@nucypher/taco": "workspace:*"
   },
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",

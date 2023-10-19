@@ -4,7 +4,7 @@
   "license": "GPL-3.0-only",
   "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
   "scripts": {
-    "postinstall": "pnpm build || true && echo 'Ignoring build errors on setup until we publish the first version'",
+    "postinstall": "pnpm build",
     "typedoc": "typedoc",
     "typedoc:all": "pnpm run --parallel --aggregate-output --reporter append-only typedoc",
     "typedoc:publish": "gh-pages -m \"[ci skip] Update typedoc docs\" -d docs",

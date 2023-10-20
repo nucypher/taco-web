@@ -57,7 +57,6 @@
     "typescript": "^5.2.2",
     "vitest": "^0.34.4"
   },
-  "packageManager": "^pnpm@8.7.1",
   "bundlemon": {
     "baseDir": ".",
     "files": [

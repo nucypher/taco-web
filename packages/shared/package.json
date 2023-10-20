@@ -35,6 +35,7 @@
     "lint": "eslint --ext .ts src",
     "lint:fix": "pnpm lint --fix",
     "package-check": "package-check",
+    "test": "vitest run",
     "typechain": "ts-node scripts/typechain.ts",
     "typedoc": "typedoc"
   },

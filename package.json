@@ -55,7 +55,7 @@
     "typedoc-plugin-missing-exports": "^2.1.0",
     "typedoc-plugin-zod": "^1.1.0",
     "typescript": "^5.2.2",
-    "vitest": "^0.34.4"
+    "vitest": "^0.34.6"
   },
   "bundlemon": {
     "baseDir": ".",

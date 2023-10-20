@@ -59,7 +59,11 @@ describe('story: alice creates a policy but someone else enacts it', () => {
       ).toBeTruthy();
       expect(preEnactedPolicy.label).toBe(label);
 
-      const enacted = await preEnactedPolicy.enact(provider, fakeSigner(), domains.DEV);
+      const enacted = await preEnactedPolicy.enact(
+        provider,
+        fakeSigner(),
+        domains.DEV,
+      );
       expect(enacted.txHash).toBeDefined();
 
       expect(getUrsulasSpy).toHaveBeenCalled();

@@ -67,9 +67,7 @@ describe('context', () => {
 
     describe('return value test', () => {
       it('accepts on a custom context parameters', async () => {
-        const asObj = await context
-          .withCustomParams(customParams)
-          .toObj();
+        const asObj = await context.withCustomParams(customParams).toObj();
         expect(asObj).toBeDefined();
         expect(asObj[customParamKey]).toEqual(1234);
       });
@@ -85,9 +83,7 @@ describe('context', () => {
       const badCustomParams: Record<string, CustomContextParam> = {};
       RESERVED_CONTEXT_PARAMS.forEach((reservedParam) => {
         badCustomParams[reservedParam] = 'this-will-throw';
-        expect(() =>
-          context.withCustomParams(badCustomParams),
-        ).toThrow(
+        expect(() => context.withCustomParams(badCustomParams)).toThrow(
           `Cannot use reserved parameter name ${reservedParam} as custom parameter`,
         );
       });
@@ -98,7 +94,9 @@ describe('context', () => {
       const badCustomParams: Record<string, CustomContextParam> = {};
       badCustomParams[':customParam'] = 'this-is-fine';
       badCustomParams[badCustomParamKey] = 'this-will-throw';
-      await expect(context.withCustomParams(badCustomParams).toObj()).rejects.toThrow(
+      await expect(
+        context.withCustomParams(badCustomParams).toObj(),
+      ).rejects.toThrow(
         `Unknown custom context parameter(s): ${badCustomParamKey}`,
       );
     });

@@ -140,8 +140,8 @@ importers:
         specifier: ^5.0.4
         version: 5.0.5
       '@types/react-dom':
-        specifier: ^18.0.6
-        version: 18.2.7
+        specifier: ^18.2.14
+        version: 18.2.14
       copy-webpack-plugin:
         specifier: ^11.0.0
         version: 11.0.0(webpack@5.88.2)
@@ -213,8 +213,8 @@ importers:
         specifier: ^5.0.4
         version: 5.0.5
       '@types/react-dom':
-        specifier: ^18.0.6
-        version: 18.2.7
+        specifier: ^18.2.14
+        version: 18.2.14
       copy-webpack-plugin:
         specifier: ^11.0.0
         version: 11.0.0(webpack@5.88.2)
@@ -258,8 +258,8 @@ importers:
         specifier: 18.2.22
         version: 18.2.22
       '@types/react-dom':
-        specifier: 18.2.7
-        version: 18.2.7
+        specifier: 18.2.14
+        version: 18.2.14
       eslint:
         specifier: 8.49.0
         version: 8.49.0
@@ -316,8 +316,8 @@ importers:
         specifier: ^18.2.21
         version: 18.2.22
       '@types/react-dom':
-        specifier: ^18.2.7
-        version: 18.2.7
+        specifier: ^18.2.14
+        version: 18.2.14
       react-scripts:
         specifier: ^5.0.1
         version: 5.0.1(@babel/plugin-syntax-flow@7.22.5)(@babel/plugin-transform-react-jsx@7.22.15)(eslint@8.49.0)(react@18.2.0)(ts-node@10.9.1)(typescript@5.2.2)
@@ -359,8 +359,8 @@ importers:
         specifier: 18.2.22
         version: 18.2.22
       '@types/react-dom':
-        specifier: 18.2.7
-        version: 18.2.7
+        specifier: 18.2.14
+        version: 18.2.14
       eslint:
         specifier: 8.49.0
         version: 8.49.0
@@ -417,8 +417,8 @@ importers:
         specifier: ^18.2.21
         version: 18.2.22
       '@types/react-dom':
-        specifier: ^18.2.7
-        version: 18.2.7
+        specifier: ^18.2.14
+        version: 18.2.14
       react-scripts:
         specifier: ^5.0.1
         version: 5.0.1(@babel/plugin-syntax-flow@7.22.5)(@babel/plugin-transform-react-jsx@7.22.15)(eslint@8.49.0)(react@18.2.0)(ts-node@10.9.1)(typescript@5.2.2)
@@ -3944,8 +3944,8 @@ packages:
       '@types/react': 18.2.22
     dev: true
 
-  /@types/react-dom@18.2.7:
-    resolution: {integrity: sha512-GRaAEriuT4zp9N4p1i8BDBYmEyfo+xQ3yHjJU4eiK5NDa1RmUZG+unZABUTK4/Ox/M+GaHwb6Ow8rUITrtjszA==}
+  /@types/react-dom@18.2.14:
+    resolution: {integrity: sha512-V835xgdSVmyQmI1KLV2BEIUgqEuinxp9O4G6g3FqO/SqLac049E53aysv0oEFD2kHfejeKU+ZqL2bcFWj9gLAQ==}
     dependencies:
       '@types/react': 18.2.22
 

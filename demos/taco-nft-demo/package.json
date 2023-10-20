@@ -29,7 +29,7 @@
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",
     "@types/react": "^18.0.20",
     "@types/react-copy-to-clipboard": "^5.0.4",
-    "@types/react-dom": "^18.0.6",
+    "@types/react-dom": "^18.2.14",
     "copy-webpack-plugin": "^11.0.0",
     "esbuild-loader": "^2.20.0",
     "html-webpack-plugin": "^5.5.0",

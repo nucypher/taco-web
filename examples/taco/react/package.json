@@ -30,7 +30,7 @@
   "devDependencies": {
     "@types/node": "^16.18.50",
     "@types/react": "^18.2.21",
-    "@types/react-dom": "^18.2.7",
+    "@types/react-dom": "^18.2.14",
     "react-scripts": "^5.0.1"
   },
   "peerDependencies": {

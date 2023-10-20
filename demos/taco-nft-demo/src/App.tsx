@@ -11,6 +11,7 @@ import { Mumbai, useEthers } from '@usedapp/core';
 import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
 
+import { DEFAULT_DOMAIN, DEFAULT_RITUAL_ID } from './config';
 import { Decrypt } from './Decrypt';
 import { Encrypt } from './Encrypt';
 import { NFTConditionBuilder } from './NFTConditionBuilder';
@@ -26,8 +27,8 @@ export default function App() {
     useState<ThresholdMessageKit>();
   const [decryptedMessage, setDecryptedMessage] = useState<string>();
   const [decryptionErrors, setDecryptionErrors] = useState<string[]>([]);
-  const [ritualId, setRitualId] = useState<number>(2);
-  const [domain, setDomain] = useState<string>(domains.TESTNET);
+  const [ritualId, setRitualId] = useState<number>(DEFAULT_RITUAL_ID);
+  const [domain, setDomain] = useState<string>(DEFAULT_DOMAIN);
 
   useEffect(() => {
     initialize();

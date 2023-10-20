@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@nucypher/taco": "0.1.0-rc.3",
+    "@nucypher/taco": "0.1.0-rc.4",
     "@usedapp/core": "^1.2.13",
     "buffer": "^6.0.3",
     "ethers": "^5.7.1",

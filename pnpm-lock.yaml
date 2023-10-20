@@ -498,8 +498,8 @@ importers:
         specifier: ^11.1.1
         version: 11.1.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2)(ethers@5.7.2)(typechain@8.3.1)(typescript@5.2.2)
       '@types/deep-equal':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.0.3
+        version: 1.0.3
       '@types/qs':
         specifier: ^6.9.7
         version: 6.9.8
@@ -4010,8 +4010,8 @@ packages:
     dependencies:
       '@types/node': 20.6.3
 
-  /@types/deep-equal@1.0.1:
-    resolution: {integrity: sha512-mMUu4nWHLBlHtxXY17Fg6+ucS/MnndyOWyOe7MmwkoMYxvfQU2ajtRaEvqSUv+aVkMqH/C0NCI8UoVfRNQ10yg==}
+  /@types/deep-equal@1.0.3:
+    resolution: {integrity: sha512-xP1pB67eLrRdMLKpXUXhYN/3uiJN1gNalcVOSY5kdJbxhGuZTTE8awSWOD9LCJDzQZVsuZZcnMMLRrbf+nOUSQ==}
     dev: true
 
   /@types/eslint-scope@3.7.5:

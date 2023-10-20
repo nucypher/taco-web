@@ -525,7 +525,7 @@ importers:
         specifier: 0.13.0-alpha.1
         version: 0.13.0-alpha.1
       '@nucypher/shared':
-        specifier: 0.1.0-rc.2
+        specifier: 0.1.0-rc.3
         version: link:../shared
       ethers:
         specifier: ^5.7.2

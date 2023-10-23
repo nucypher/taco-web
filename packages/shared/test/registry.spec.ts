@@ -5,8 +5,10 @@ import { ChainId, ContractName, getContract } from '../src';
 const testCases: [string, number, ContractName][] = [
   ['lynx', ChainId.MUMBAI, 'Coordinator'],
   ['lynx', ChainId.MUMBAI, 'GlobalAllowList'],
+  ['lynx', ChainId.MUMBAI, 'SubscriptionManager'],
   ['tapir', ChainId.MUMBAI, 'Coordinator'],
   ['tapir', ChainId.MUMBAI, 'GlobalAllowList'],
+  ['tapir', ChainId.MUMBAI, 'SubscriptionManager'],
 ];
 
 describe('registry', () => {

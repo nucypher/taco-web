@@ -106,8 +106,8 @@ importers:
   demos/taco-demo:
     dependencies:
       '@nucypher/taco':
-        specifier: 0.1.0-rc.4
-        version: link:../../packages/taco
+        specifier: 0.1.0-rc.5
+        version: 0.1.0-rc.5(ethers@5.7.2)
       '@usedapp/core':
         specifier: ^1.2.13
         version: 1.2.13(ethers@5.7.2)(react@18.2.0)
@@ -179,8 +179,8 @@ importers:
   demos/taco-nft-demo:
     dependencies:
       '@nucypher/taco':
-        specifier: 0.1.0-rc.4
-        version: link:../../packages/taco
+        specifier: 0.1.0-rc.5
+        version: 0.1.0-rc.5(ethers@5.7.2)
       '@usedapp/core':
         specifier: ^1.2.13
         version: 1.2.13(ethers@5.7.2)(react@18.2.0)
@@ -3589,6 +3589,20 @@ packages:
 
   /@nucypher/nucypher-core@0.13.0-alpha.1:
     resolution: {integrity: sha512-uKu/YLTZ6mqkQ2kaQMJs/USUiw9EYFtaZU6FaD8zAN8XKLpHYuYD13BDfU7idR1nZIKjL/E5xIoVJFV3Dx0x2w==}
+    dev: false
+
+  /@nucypher/taco@0.1.0-rc.5(ethers@5.7.2):
+    resolution: {integrity: sha512-MkP5NFOePgiaMkbWnzLTOudbqasUAYkhWqwdJOYp03GKJVEhB2oKGqSBAjn91l4V19hFFTUiLNagKTG3dUicLA==}
+    engines: {node: '>=18', pnpm: '>=8.0.0'}
+    peerDependencies:
+      '@nucypher/shared': workspace:*
+      ethers: ^5.7.2
+    dependencies:
+      '@ethersproject/abstract-signer': 5.7.0
+      '@nucypher/nucypher-core': 0.13.0-alpha.1
+      ethers: 5.7.2
+      semver: 7.5.4
+      zod: 3.22.4
     dev: false
 
   /@pkgjs/parseargs@0.11.0:

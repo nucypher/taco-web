@@ -1,8 +1,8 @@
-import { fakeProvider, fakeSigner } from "@nucypher/test-utils";
-import {beforeAll, describe, expect, it} from "vitest";
+import { fakeProvider, fakeSigner } from '@nucypher/test-utils';
+import { beforeAll, describe, expect, it } from 'vitest';
 
-import { initialize } from "../../src";
-import { CompoundCondition, ConditionContext } from "../../src/conditions";
+import { initialize } from '../../src';
+import { CompoundCondition, ConditionContext } from '../../src/conditions';
 
 describe('conditions', () => {
   beforeAll(async () => {
@@ -36,12 +36,11 @@ describe('conditions', () => {
     expect(condition).toBeDefined();
     expect(condition.requiresSigner()).toBeTruthy();
 
-
     const context = new ConditionContext(
       fakeProvider(),
       condition,
-      {':time': 100},
-      fakeSigner()
+      { ':time': 100 },
+      fakeSigner(),
     );
     expect(context).toBeDefined();
 

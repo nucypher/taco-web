@@ -9,9 +9,7 @@ import { ConditionContext, CustomContextParam } from './context';
 const ERR_VERSION = (provided: string, current: string) =>
   `Version provided, ${provided}, is incompatible with current version, ${current}`;
 const ERR_CONDITION = (condition: Record<string, unknown>) =>
-  `Invalid condition: unrecognized condition data ${JSON.stringify(
-    condition,
-  )}`;
+  `Invalid condition: unrecognized condition data ${JSON.stringify(condition)}`;
 
 export type ConditionExpressionJSON = {
   version: string;

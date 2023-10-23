@@ -117,7 +117,12 @@ export class DkgClient {
           reject();
         }
       };
-      DkgCoordinatorAgent.onRitualEndEvent(provider, domain, ritualId, callback);
+      DkgCoordinatorAgent.onRitualEndEvent(
+        provider,
+        domain,
+        ritualId,
+        callback,
+      );
     });
   };
 
@@ -131,7 +136,11 @@ export class DkgClient {
       domain,
       ritualId,
     );
-    const ritual = await DkgCoordinatorAgent.getRitual(provider, domain, ritualId);
+    const ritual = await DkgCoordinatorAgent.getRitual(
+      provider,
+      domain,
+      ritualId,
+    );
     const dkgPkBytes = new Uint8Array([
       ...fromHexString(ritual.publicKey.word0),
       ...fromHexString(ritual.publicKey.word1),

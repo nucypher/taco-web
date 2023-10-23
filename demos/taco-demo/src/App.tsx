@@ -12,6 +12,7 @@ import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
 
 import { ConditionBuilder } from './ConditionBuilder';
+import { DEFAULT_DOMAIN, DEFAULT_RITUAL_ID } from './config';
 import { Decrypt } from './Decrypt';
 import { Encrypt } from './Encrypt';
 import { Spinner } from './Spinner';
@@ -26,8 +27,8 @@ export default function App() {
     useState<ThresholdMessageKit>();
   const [decryptedMessage, setDecryptedMessage] = useState<string>();
   const [decryptionErrors, setDecryptionErrors] = useState<string[]>([]);
-  const [ritualId, setRitualId] = useState<number>(2);
-  const [domain, setDomain] = useState<string>(domains.TESTNET);
+  const [ritualId, setRitualId] = useState<number>(DEFAULT_RITUAL_ID);
+  const [domain, setDomain] = useState<string>(DEFAULT_DOMAIN);
 
   useEffect(() => {
     initialize();
@@ -97,6 +98,17 @@ export default function App() {
         <button onClick={deactivate}> Disconnect Wallet</button>
         {account && <p>Account: {account}</p>}
       </div>
+
+      <h2>Notice</h2>
+      <p>
+        In order to access this demo, make sure to allow-list your wallet
+        address first.
+      </p>
+      <p>
+        Connect with us on our{' '}
+        <a href={'https://discord.gg/threshold'}>Discord server</a> at{' '}
+        <b>#taco</b> channel to get your wallet address allow-listed
+      </p>
 
       <h2>Ritual ID</h2>
       <p>Replace with your own ritual ID</p>

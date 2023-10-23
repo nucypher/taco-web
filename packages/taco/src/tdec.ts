@@ -26,7 +26,7 @@ import { arrayify, keccak256 } from 'ethers/lib/utils';
 import {
   ConditionContext,
   ConditionExpression,
-  CustomContextParam
+  CustomContextParam,
 } from './conditions';
 
 export const encryptMessage = async (

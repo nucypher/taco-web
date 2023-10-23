@@ -19,7 +19,7 @@ import { keccak256 } from 'ethers/lib/utils';
 import {
   Condition,
   ConditionExpression,
-  CustomContextParam
+  CustomContextParam,
 } from './conditions';
 import { DkgClient } from './dkg';
 import { retrieveAndDecrypt } from './tdec';
@@ -44,7 +44,11 @@ export const encrypt = async (
   //   // Given that we just initialized the ritual, this should never happen
   //   throw new Error('Ritual ID is undefined');
   // }
-  const dkgRitual = await DkgClient.getFinalizedRitual(provider, domain, ritualId);
+  const dkgRitual = await DkgClient.getFinalizedRitual(
+    provider,
+    domain,
+    ritualId,
+  );
 
   return await encryptWithPublicKey(
     message,
@@ -91,7 +95,7 @@ export const decrypt = async (
   customParameters?: Record<string, CustomContextParam>,
 ): Promise<Uint8Array> => {
   if (!porterUri) {
-    porterUri = getPorterUri(domain)
+    porterUri = getPorterUri(domain);
   }
 
   const ritualId = await DkgCoordinatorAgent.getRitualIdFromPublicKey(
@@ -108,7 +112,7 @@ export const decrypt = async (
     ritualId,
     ritual.threshold,
     signer,
-    customParameters
+    customParameters,
   );
 };
 
@@ -117,7 +121,13 @@ export const isAuthorized = async (
   domain: Domain,
   messageKit: ThresholdMessageKit,
   ritualId: number,
-) => DkgCoordinatorAgent.isEncryptionAuthorized(provider, domain, ritualId, messageKit);
+) =>
+  DkgCoordinatorAgent.isEncryptionAuthorized(
+    provider,
+    domain,
+    ritualId,
+    messageKit,
+  );
 
 export const registerEncrypters = async (
   provider: ethers.providers.Provider,

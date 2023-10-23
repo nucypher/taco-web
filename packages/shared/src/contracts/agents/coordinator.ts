@@ -5,7 +5,7 @@ import {
 } from '@nucypher/nucypher-core';
 import { BigNumberish, ethers } from 'ethers';
 
-import {Domain} from "../../porter";
+import { Domain } from '../../porter';
 import { ChecksumAddress } from '../../types';
 import { fromHexString } from '../../utils';
 import { Coordinator__factory } from '../ethers-typechain';
@@ -147,7 +147,10 @@ export class DkgCoordinatorAgent {
     );
   }
 
-  private static async connectReadOnly(provider: ethers.providers.Provider, domain: Domain) {
+  private static async connectReadOnly(
+    provider: ethers.providers.Provider,
+    domain: Domain,
+  ) {
     return await this.connect(provider, domain);
   }
 

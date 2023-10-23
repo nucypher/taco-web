@@ -50,6 +50,13 @@ const runExample = async () => {
   await initialize();
 
   const provider = new ethers.providers.JsonRpcProvider(rpcProviderUrl);
+
+  // Make sure the provider is connected to Mumbai testnet
+  const network = await provider.getNetwork();
+  if (network.chainId !== 80001) {
+    console.error('Please connect to Mumbai testnet');
+  }
+
   const signer = new ethers.Wallet(privateKey);
   const policyParams = {
     bob: makeRemoteBob(),

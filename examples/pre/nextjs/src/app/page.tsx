@@ -10,6 +10,7 @@ import {
   toHexString,
 } from '@nucypher/pre';
 import { ethers } from 'ethers';
+import { hexlify } from "ethers/lib/utils";
 import { useEffect, useState } from 'react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -31,16 +32,17 @@ function App() {
 
   const loadWeb3Provider = async () => {
     if (!window.ethereum) {
-      console.error('You need to connect to the MetaMask extension');
+      console.error('You need to connect to your wallet first');
     }
     const provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
 
     const { chainId } = await provider.getNetwork();
-    if (chainId !== 80001) {
-      // Switch to Matic Mumbai testnet
+    const mumbaiChainId = 80001;
+    if (chainId !== mumbaiChainId) {
+      // Switch to Polygon Mumbai testnet
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0x13881' }],
+        params: [{ chainId: hexlify(mumbaiChainId) }],
       });
     }
 

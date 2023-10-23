@@ -9,6 +9,7 @@ import {
   toBytes,
 } from '@nucypher/taco';
 import { ethers } from 'ethers';
+import { hexlify } from "ethers/lib/utils";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const window: any;
@@ -20,6 +21,15 @@ const runExample = async () => {
   await provider.send('eth_requestAccounts', []);
   const signer = provider.getSigner();
 
+  const { chainId } = await provider.getNetwork();
+  const mumbaiChainId = 80001;
+  if (chainId !== mumbaiChainId) {
+    // Switch to Polygon Mumbai testnet
+    await window.ethereum!.request!({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: hexlify(mumbaiChainId) }],
+    });
+  }
   console.log("Signer's address:", await signer.getAddress());
 
   console.log('Encrypting message...');

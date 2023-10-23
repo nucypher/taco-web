@@ -7,6 +7,7 @@ import {
   SecretKey,
 } from '@nucypher/pre';
 import { ethers } from 'ethers';
+import { hexlify } from "ethers/lib/utils";
 
 declare global {
   interface Window {
@@ -42,7 +43,7 @@ const getRandomLabel = () => `label-${new Date().getTime()}`;
 
 const runExample = async () => {
   if (!window.ethereum) {
-    console.error('You need to connect to the MetaMask extension');
+    console.error('You need to connect to your wallet first');
   }
 
   await initialize();
@@ -51,6 +52,16 @@ const runExample = async () => {
 
   const provider = new ethers.providers.Web3Provider(window.ethereum!, 'any');
   await provider.send('eth_requestAccounts', []);
+
+  const { chainId } = await provider.getNetwork();
+  const mumbaiChainId = 80001;
+  if (chainId !== mumbaiChainId) {
+    // Switch to Polygon Mumbai testnet
+    await window.ethereum!.request!({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: hexlify(mumbaiChainId) }],
+    });
+  }
 
   const remoteBob = makeRemoteBob();
   const threshold = 2;

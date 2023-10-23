@@ -29,6 +29,12 @@ const runExample = async () => {
   const signer = new ethers.Wallet(privateKey);
   const provider = new ethers.providers.JsonRpcProvider(rpcProviderUrl);
 
+  // Make sure the provider is connected to Mumbai testnet
+  const network = await provider.getNetwork();
+  if (network.chainId !== 80001) {
+    console.error('Please connect to Mumbai testnet');
+  }
+
   console.log("Signer's address:", await signer.getAddress());
 
   console.log('Encrypting message...');

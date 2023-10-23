@@ -110,7 +110,7 @@ importers:
         version: link:../../packages/shared
       '@nucypher/taco':
         specifier: 0.1.0-rc.5
-        version: 0.1.0-rc.5(@nucypher/shared@packages+shared)(ethers@5.7.2)
+        version: link:../../packages/taco
       '@usedapp/core':
         specifier: ^1.2.13
         version: 1.2.13(ethers@5.7.2)(react@18.2.0)
@@ -186,7 +186,7 @@ importers:
         version: link:../../packages/shared
       '@nucypher/taco':
         specifier: 0.1.0-rc.5
-        version: 0.1.0-rc.5(@nucypher/shared@packages+shared)(ethers@5.7.2)
+        version: link:../../packages/taco
       '@usedapp/core':
         specifier: ^1.2.13
         version: 1.2.13(ethers@5.7.2)(react@18.2.0)
@@ -507,8 +507,8 @@ importers:
         specifier: ^1.0.3
         version: 1.0.3
       '@types/qs':
-        specifier: ^6.9.7
-        version: 6.9.8
+        specifier: ^6.9.9
+        version: 6.9.9
       '@types/tmp':
         specifier: ^0.2.4
         version: 0.2.4
@@ -3597,21 +3597,6 @@ packages:
     resolution: {integrity: sha512-uKu/YLTZ6mqkQ2kaQMJs/USUiw9EYFtaZU6FaD8zAN8XKLpHYuYD13BDfU7idR1nZIKjL/E5xIoVJFV3Dx0x2w==}
     dev: false
 
-  /@nucypher/taco@0.1.0-rc.5(@nucypher/shared@packages+shared)(ethers@5.7.2):
-    resolution: {integrity: sha512-MkP5NFOePgiaMkbWnzLTOudbqasUAYkhWqwdJOYp03GKJVEhB2oKGqSBAjn91l4V19hFFTUiLNagKTG3dUicLA==}
-    engines: {node: '>=18', pnpm: '>=8.0.0'}
-    peerDependencies:
-      '@nucypher/shared': workspace:*
-      ethers: ^5.7.2
-    dependencies:
-      '@ethersproject/abstract-signer': 5.7.0
-      '@nucypher/nucypher-core': 0.13.0-alpha.1
-      '@nucypher/shared': link:packages/shared
-      ethers: 5.7.2
-      semver: 7.5.4
-      zod: 3.22.4
-    dev: false
-
   /@pkgjs/parseargs@0.11.0:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
@@ -4040,7 +4025,7 @@ packages:
     resolution: {integrity: sha512-ZohaCYTgGFcOP7u6aJOhY9uIZQgZ2vxC2yWoArY+FeDXlqeH66ZVBjgvg+RLVAS/DWNq4Ap9ZXu1+SUQiiWYMg==}
     dependencies:
       '@types/node': 20.6.3
-      '@types/qs': 6.9.8
+      '@types/qs': 6.9.9
       '@types/range-parser': 1.2.4
       '@types/send': 0.17.1
 
@@ -4049,7 +4034,7 @@ packages:
     dependencies:
       '@types/body-parser': 1.19.3
       '@types/express-serve-static-core': 4.17.37
-      '@types/qs': 6.9.8
+      '@types/qs': 6.9.9
       '@types/serve-static': 1.15.2
 
   /@types/graceful-fs@4.1.7:
@@ -4150,8 +4135,8 @@ packages:
     resolution: {integrity: sha512-IKjZ8RjTSwD4/YG+2gtj7BPFRB/lNbWKTiSj3M7U/TD2B7HfYCxvp2Zz6xA2WIY7pAuL1QOUPw8gQRbUrrq4fQ==}
     dev: true
 
-  /@types/qs@6.9.8:
-    resolution: {integrity: sha512-u95svzDlTysU5xecFNTgfFG5RUWu1A9P0VzgpcIiGZA9iraHOdSzcxMxQ55DyeRaGCSxQi7LxXDI4rzq/MYfdg==}
+  /@types/qs@6.9.9:
+    resolution: {integrity: sha512-wYLxw35euwqGvTDx6zfY1vokBFnsK0HNrzc6xNHchxfO2hpuRg74GbkEW7e3sSmPvj0TjCDT1VCa6OtHXnubsg==}
 
   /@types/range-parser@1.2.4:
     resolution: {integrity: sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==}

@@ -1,6 +1,6 @@
-import * as lynxRegistryJson from '@nucypher/nucypher-contracts/deployment/artifacts/lynx.json';
-import * as mainnetRegistryJson from '@nucypher/nucypher-contracts/deployment/artifacts/mainnet.json';
-import * as tapirRegistryJson from '@nucypher/nucypher-contracts/deployment/artifacts/tapir.json';
+import lynxRegistryJson from '@nucypher/nucypher-contracts/deployment/artifacts/lynx.json';
+import mainnetRegistryJson from '@nucypher/nucypher-contracts/deployment/artifacts/mainnet.json';
+import tapirRegistryJson from '@nucypher/nucypher-contracts/deployment/artifacts/tapir.json';
 
 import { Domain } from '../porter';
 import { ChecksumAddress } from '../types';

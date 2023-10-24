@@ -32,8 +32,6 @@ import {
   TEST_CHAIN_ID,
   TEST_CONTRACT_ADDR,
 } from '@nucypher/test-utils';
-import { ethers } from 'ethers';
-import { keccak256 } from 'ethers/lib/utils';
 import { SpyInstance, vi } from 'vitest';
 
 import {
@@ -105,25 +103,28 @@ export const fakeDkgTDecFlowE2E: (
 };
 
 export const fakeCoordinatorRitual = async (
-  ritualId: number,
 ): Promise<CoordinatorRitual> => {
   const ritual = await fakeDkgTDecFlowE2E();
   const dkgPkBytes = ritual.dkg.publicKey().toBytes();
   return {
-    id: ritualId,
     initiator: ritual.validators[0].address.toString(),
     dkgSize: ritual.sharesNum,
     initTimestamp: 0,
     totalTranscripts: ritual.receivedMessages.length,
     totalAggregations: ritual.sharesNum, // Assuming the ritual is finished
-    aggregatedTranscriptHash: keccak256(ritual.serverAggregate.toBytes()),
     aggregationMismatch: false, // Assuming the ritual is correct
     aggregatedTranscript: toHexString(ritual.serverAggregate.toBytes()),
     publicKey: {
       word0: toHexString(dkgPkBytes.slice(0, 32)),
       word1: toHexString(dkgPkBytes.slice(32, 48)),
+    } as [string, string] & { // Casting to satisfy the type checker
+      word0: string;
+      word1: string;
     },
-    publicKeyHash: keccak256(ritual.dkg.publicKey().toBytes()),
+    endTimestamp: 0,
+    authority: "0x0",
+    threshold: ritual.threshold,
+    accessController: "0x0",
   };
 };
 
@@ -178,8 +179,8 @@ export const mockGetRitual = (): SpyInstance => {
   return vi
     .spyOn(DkgCoordinatorAgent, 'getRitual')
     .mockImplementation(
-      (_provider: ethers.providers.Provider, _ritualId: number) => {
-        return Promise.resolve(fakeCoordinatorRitual(fakeRitualId));
+      () => {
+        return Promise.resolve(fakeCoordinatorRitual());
       },
     );
 };

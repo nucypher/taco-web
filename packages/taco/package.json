@@ -35,6 +35,7 @@
     "lint:fix": "pnpm lint --fix",
     "package-check": "package-check",
     "test": "vitest run",
+    "type-check": "tsc --noEmit",
     "typedoc": "typedoc"
   },
   "dependencies": {

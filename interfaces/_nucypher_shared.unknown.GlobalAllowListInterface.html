@@ -24,7 +24,7 @@
 <ul class="tsd-hierarchy">
 <li><span class="target">GlobalAllowListInterface</span></li></ul></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L29">contracts/ethers-typechain/GlobalAllowList.ts:29</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L29">contracts/ethers-typechain/GlobalAllowList.ts:29</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -66,7 +66,7 @@
 <h5><span class="tsd-kind-property">Role<wbr/>Revoked(bytes32,address,address)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">EventFragment</span></h5></li></ul></div><aside class="tsd-sources">
 <p>Overrides utils.Interface.events</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L261">contracts/ethers-typechain/GlobalAllowList.ts:261</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L261">contracts/ethers-typechain/GlobalAllowList.ts:261</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member"><a id="functions" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>functions</span><a href="#functions" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">functions</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">DEFAULT_ADMIN_ROLE()</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">acceptDefaultAdminTransfer()</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">authorize(uint32,address[])</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">beginDefaultAdminTransfer(address)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">cancelDefaultAdminTransfer()</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">changeDefaultAdminDelay(uint48)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">coordinator()</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">deauthorize(uint32,address[])</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">defaultAdmin()</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">defaultAdminDelay()</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">defaultAdminDelayIncreaseWait()</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">getRoleAdmin(bytes32)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">grantRole(bytes32,address)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">hasRole(bytes32,address)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">isAddressAuthorized(uint32,address)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">isAuthorized(uint32,bytes,bytes)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">owner()</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">pendingDefaultAdmin()</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">pendingDefaultAdminDelay()</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">renounceRole(bytes32,address)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">revokeRole(bytes32,address)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">rollbackDefaultAdminDelay()</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">setCoordinator(address)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">supportsInterface(bytes4)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></div>
@@ -123,7 +123,7 @@
 <h5><span class="tsd-kind-property">supports<wbr/>Interface(bytes4)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">FunctionFragment</span></h5></li></ul></div><aside class="tsd-sources">
 <p>Overrides utils.Interface.functions</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L30">contracts/ethers-typechain/GlobalAllowList.ts:30</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L30">contracts/ethers-typechain/GlobalAllowList.ts:30</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member"><a id="decodeFunctionResult" class="tsd-anchor"></a>
@@ -141,7 +141,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L179">contracts/ethers-typechain/GlobalAllowList.ts:179</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L179">contracts/ethers-typechain/GlobalAllowList.ts:179</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-2"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -154,7 +154,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L183">contracts/ethers-typechain/GlobalAllowList.ts:183</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L183">contracts/ethers-typechain/GlobalAllowList.ts:183</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-3"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-3" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -167,7 +167,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L187">contracts/ethers-typechain/GlobalAllowList.ts:187</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L187">contracts/ethers-typechain/GlobalAllowList.ts:187</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-4"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-4" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -180,7 +180,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L188">contracts/ethers-typechain/GlobalAllowList.ts:188</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L188">contracts/ethers-typechain/GlobalAllowList.ts:188</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-5"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-5" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -193,7 +193,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L192">contracts/ethers-typechain/GlobalAllowList.ts:192</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L192">contracts/ethers-typechain/GlobalAllowList.ts:192</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-6"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-6" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -206,7 +206,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L196">contracts/ethers-typechain/GlobalAllowList.ts:196</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L196">contracts/ethers-typechain/GlobalAllowList.ts:196</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-7"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-7" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -219,7 +219,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L200">contracts/ethers-typechain/GlobalAllowList.ts:200</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L200">contracts/ethers-typechain/GlobalAllowList.ts:200</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-8"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-8" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -232,7 +232,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L204">contracts/ethers-typechain/GlobalAllowList.ts:204</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L204">contracts/ethers-typechain/GlobalAllowList.ts:204</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-9"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-9" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -245,7 +245,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L208">contracts/ethers-typechain/GlobalAllowList.ts:208</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L208">contracts/ethers-typechain/GlobalAllowList.ts:208</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-10"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-10" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -258,7 +258,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L212">contracts/ethers-typechain/GlobalAllowList.ts:212</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L212">contracts/ethers-typechain/GlobalAllowList.ts:212</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-11"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-11" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -271,7 +271,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L216">contracts/ethers-typechain/GlobalAllowList.ts:216</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L216">contracts/ethers-typechain/GlobalAllowList.ts:216</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-12"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-12" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -284,7 +284,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L220">contracts/ethers-typechain/GlobalAllowList.ts:220</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L220">contracts/ethers-typechain/GlobalAllowList.ts:220</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-13"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-13" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -297,7 +297,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L224">contracts/ethers-typechain/GlobalAllowList.ts:224</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L224">contracts/ethers-typechain/GlobalAllowList.ts:224</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-14"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-14" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -310,7 +310,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L225">contracts/ethers-typechain/GlobalAllowList.ts:225</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L225">contracts/ethers-typechain/GlobalAllowList.ts:225</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-15"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-15" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -323,7 +323,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L226">contracts/ethers-typechain/GlobalAllowList.ts:226</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L226">contracts/ethers-typechain/GlobalAllowList.ts:226</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-16"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-16" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -336,7 +336,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L230">contracts/ethers-typechain/GlobalAllowList.ts:230</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L230">contracts/ethers-typechain/GlobalAllowList.ts:230</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-17"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-17" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -349,7 +349,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L234">contracts/ethers-typechain/GlobalAllowList.ts:234</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L234">contracts/ethers-typechain/GlobalAllowList.ts:234</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-18"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-18" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -362,7 +362,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L235">contracts/ethers-typechain/GlobalAllowList.ts:235</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L235">contracts/ethers-typechain/GlobalAllowList.ts:235</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-19"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-19" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -375,7 +375,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L239">contracts/ethers-typechain/GlobalAllowList.ts:239</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L239">contracts/ethers-typechain/GlobalAllowList.ts:239</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-20"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-20" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -388,7 +388,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L243">contracts/ethers-typechain/GlobalAllowList.ts:243</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L243">contracts/ethers-typechain/GlobalAllowList.ts:243</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-21"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-21" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -401,7 +401,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L247">contracts/ethers-typechain/GlobalAllowList.ts:247</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L247">contracts/ethers-typechain/GlobalAllowList.ts:247</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-22"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-22" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -414,7 +414,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L248">contracts/ethers-typechain/GlobalAllowList.ts:248</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L248">contracts/ethers-typechain/GlobalAllowList.ts:248</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-23"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-23" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -427,7 +427,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L252">contracts/ethers-typechain/GlobalAllowList.ts:252</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L252">contracts/ethers-typechain/GlobalAllowList.ts:252</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="decodeFunctionResult.decodeFunctionResult-24"><span class="tsd-kind-call-signature">decode<wbr/>Function<wbr/>Result</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><a href="#decodeFunctionResult.decodeFunctionResult-24" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -440,7 +440,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.decodeFunctionResult</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L256">contracts/ethers-typechain/GlobalAllowList.ts:256</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L256">contracts/ethers-typechain/GlobalAllowList.ts:256</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="encodeFunctionData" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>encode<wbr/>Function<wbr/>Data</span><a href="#encodeFunctionData" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -456,7 +456,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L85">contracts/ethers-typechain/GlobalAllowList.ts:85</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L85">contracts/ethers-typechain/GlobalAllowList.ts:85</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-2"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -469,7 +469,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L89">contracts/ethers-typechain/GlobalAllowList.ts:89</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L89">contracts/ethers-typechain/GlobalAllowList.ts:89</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-3"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-3" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -482,7 +482,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L93">contracts/ethers-typechain/GlobalAllowList.ts:93</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L93">contracts/ethers-typechain/GlobalAllowList.ts:93</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-4"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-4" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -495,7 +495,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L97">contracts/ethers-typechain/GlobalAllowList.ts:97</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L97">contracts/ethers-typechain/GlobalAllowList.ts:97</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-5"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-5" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -508,7 +508,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L101">contracts/ethers-typechain/GlobalAllowList.ts:101</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L101">contracts/ethers-typechain/GlobalAllowList.ts:101</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-6"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-6" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -521,7 +521,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L105">contracts/ethers-typechain/GlobalAllowList.ts:105</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L105">contracts/ethers-typechain/GlobalAllowList.ts:105</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-7"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-7" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -534,7 +534,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L109">contracts/ethers-typechain/GlobalAllowList.ts:109</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L109">contracts/ethers-typechain/GlobalAllowList.ts:109</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-8"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-8" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -547,7 +547,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L113">contracts/ethers-typechain/GlobalAllowList.ts:113</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L113">contracts/ethers-typechain/GlobalAllowList.ts:113</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-9"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-9" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -560,7 +560,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L117">contracts/ethers-typechain/GlobalAllowList.ts:117</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L117">contracts/ethers-typechain/GlobalAllowList.ts:117</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-10"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-10" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -573,7 +573,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L121">contracts/ethers-typechain/GlobalAllowList.ts:121</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L121">contracts/ethers-typechain/GlobalAllowList.ts:121</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-11"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-11" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -586,7 +586,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L125">contracts/ethers-typechain/GlobalAllowList.ts:125</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L125">contracts/ethers-typechain/GlobalAllowList.ts:125</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-12"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-12" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -599,7 +599,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L129">contracts/ethers-typechain/GlobalAllowList.ts:129</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L129">contracts/ethers-typechain/GlobalAllowList.ts:129</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-13"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-13" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -612,7 +612,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L133">contracts/ethers-typechain/GlobalAllowList.ts:133</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L133">contracts/ethers-typechain/GlobalAllowList.ts:133</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-14"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-14" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -625,7 +625,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L137">contracts/ethers-typechain/GlobalAllowList.ts:137</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L137">contracts/ethers-typechain/GlobalAllowList.ts:137</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-15"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-15" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -638,7 +638,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L141">contracts/ethers-typechain/GlobalAllowList.ts:141</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L141">contracts/ethers-typechain/GlobalAllowList.ts:141</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-16"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-16" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -651,7 +651,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L145">contracts/ethers-typechain/GlobalAllowList.ts:145</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L145">contracts/ethers-typechain/GlobalAllowList.ts:145</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-17"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-17" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -664,7 +664,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L149">contracts/ethers-typechain/GlobalAllowList.ts:149</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L149">contracts/ethers-typechain/GlobalAllowList.ts:149</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-18"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-18" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -677,7 +677,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L150">contracts/ethers-typechain/GlobalAllowList.ts:150</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L150">contracts/ethers-typechain/GlobalAllowList.ts:150</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-19"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-19" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -690,7 +690,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L154">contracts/ethers-typechain/GlobalAllowList.ts:154</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L154">contracts/ethers-typechain/GlobalAllowList.ts:154</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-20"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-20" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -703,7 +703,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L158">contracts/ethers-typechain/GlobalAllowList.ts:158</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L158">contracts/ethers-typechain/GlobalAllowList.ts:158</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-21"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-21" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -716,7 +716,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L162">contracts/ethers-typechain/GlobalAllowList.ts:162</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L162">contracts/ethers-typechain/GlobalAllowList.ts:162</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-22"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-22" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -729,7 +729,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L166">contracts/ethers-typechain/GlobalAllowList.ts:166</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L166">contracts/ethers-typechain/GlobalAllowList.ts:166</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-23"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-23" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -742,7 +742,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L170">contracts/ethers-typechain/GlobalAllowList.ts:170</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L170">contracts/ethers-typechain/GlobalAllowList.ts:170</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="encodeFunctionData.encodeFunctionData-24"><span class="tsd-kind-call-signature">encode<wbr/>Function<wbr/>Data</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">functionFragment</span>, <span class="tsd-kind-parameter">values</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#encodeFunctionData.encodeFunctionData-24" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -755,7 +755,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.encodeFunctionData</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L174">contracts/ethers-typechain/GlobalAllowList.ts:174</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L174">contracts/ethers-typechain/GlobalAllowList.ts:174</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getEvent" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Event</span><a href="#getEvent" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -769,7 +769,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">EventFragment</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.getEvent</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L271">contracts/ethers-typechain/GlobalAllowList.ts:271</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L271">contracts/ethers-typechain/GlobalAllowList.ts:271</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="getEvent.getEvent-2"><span class="tsd-kind-call-signature">get<wbr/>Event</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">nameOrSignatureOrTopic</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">EventFragment</span><a href="#getEvent.getEvent-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -780,7 +780,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">EventFragment</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.getEvent</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L274">contracts/ethers-typechain/GlobalAllowList.ts:274</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L274">contracts/ethers-typechain/GlobalAllowList.ts:274</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="getEvent.getEvent-3"><span class="tsd-kind-call-signature">get<wbr/>Event</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">nameOrSignatureOrTopic</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">EventFragment</span><a href="#getEvent.getEvent-3" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -791,7 +791,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">EventFragment</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.getEvent</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L277">contracts/ethers-typechain/GlobalAllowList.ts:277</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L277">contracts/ethers-typechain/GlobalAllowList.ts:277</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="getEvent.getEvent-4"><span class="tsd-kind-call-signature">get<wbr/>Event</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">nameOrSignatureOrTopic</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">EventFragment</span><a href="#getEvent.getEvent-4" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -802,7 +802,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">EventFragment</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.getEvent</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L280">contracts/ethers-typechain/GlobalAllowList.ts:280</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L280">contracts/ethers-typechain/GlobalAllowList.ts:280</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="getEvent.getEvent-5"><span class="tsd-kind-call-signature">get<wbr/>Event</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">nameOrSignatureOrTopic</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">EventFragment</span><a href="#getEvent.getEvent-5" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -813,7 +813,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">EventFragment</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.getEvent</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L283">contracts/ethers-typechain/GlobalAllowList.ts:283</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L283">contracts/ethers-typechain/GlobalAllowList.ts:283</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="getEvent.getEvent-6"><span class="tsd-kind-call-signature">get<wbr/>Event</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">nameOrSignatureOrTopic</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">EventFragment</span><a href="#getEvent.getEvent-6" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -824,7 +824,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">EventFragment</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.getEvent</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L284">contracts/ethers-typechain/GlobalAllowList.ts:284</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L284">contracts/ethers-typechain/GlobalAllowList.ts:284</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="getEvent.getEvent-7"><span class="tsd-kind-call-signature">get<wbr/>Event</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">nameOrSignatureOrTopic</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">EventFragment</span><a href="#getEvent.getEvent-7" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -835,7 +835,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">EventFragment</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.getEvent</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L285">contracts/ethers-typechain/GlobalAllowList.ts:285</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L285">contracts/ethers-typechain/GlobalAllowList.ts:285</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getFunction" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Function</span><a href="#getFunction" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -849,7 +849,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">FunctionFragment</span></h4><aside class="tsd-sources">
 <p>Overrides utils.Interface.getFunction</p>
 <ul>
-<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/4922a89/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L57">contracts/ethers-typechain/GlobalAllowList.ts:57</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/piotr-roslaniec/nucypher-ts/blob/5657641/packages/shared/src/contracts/ethers-typechain/GlobalAllowList.ts#L57">contracts/ethers-typechain/GlobalAllowList.ts:57</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">

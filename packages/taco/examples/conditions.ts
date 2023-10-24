@@ -38,7 +38,10 @@ const ownsNFTRaw = new conditions.base.ContractCondition({
     value: 0,
   },
 });
-console.assert(ownsNFTRaw.requiresSigner(), 'ContractCondition requires signer');
+console.assert(
+  ownsNFTRaw.requiresSigner(),
+  'ContractCondition requires signer',
+);
 
 const hasAnyNativeAsset = new conditions.base.RpcCondition({
   conditionType: 'rpc',

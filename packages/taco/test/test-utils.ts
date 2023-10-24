@@ -102,8 +102,7 @@ export const fakeDkgTDecFlowE2E: (
   };
 };
 
-export const fakeCoordinatorRitual = async (
-): Promise<CoordinatorRitual> => {
+export const fakeCoordinatorRitual = async (): Promise<CoordinatorRitual> => {
   const ritual = await fakeDkgTDecFlowE2E();
   const dkgPkBytes = ritual.dkg.publicKey().toBytes();
   return {
@@ -117,14 +116,15 @@ export const fakeCoordinatorRitual = async (
     publicKey: {
       word0: toHexString(dkgPkBytes.slice(0, 32)),
       word1: toHexString(dkgPkBytes.slice(32, 48)),
-    } as [string, string] & { // Casting to satisfy the type checker
+    } as [string, string] & {
+      // Casting to satisfy the type checker
       word0: string;
       word1: string;
     },
     endTimestamp: 0,
-    authority: "0x0",
+    authority: '0x0',
     threshold: ritual.threshold,
-    accessController: "0x0",
+    accessController: '0x0',
   };
 };
 
@@ -176,13 +176,9 @@ export const fakeDkgRitual = (ritual: {
 };
 
 export const mockGetRitual = (): SpyInstance => {
-  return vi
-    .spyOn(DkgCoordinatorAgent, 'getRitual')
-    .mockImplementation(
-      () => {
-        return Promise.resolve(fakeCoordinatorRitual());
-      },
-    );
+  return vi.spyOn(DkgCoordinatorAgent, 'getRitual').mockImplementation(() => {
+    return Promise.resolve(fakeCoordinatorRitual());
+  });
 };
 
 export const mockGetFinalizedRitual = (dkgRitual: DkgRitual): SpyInstance => {
@@ -267,13 +263,18 @@ export const testFunctionAbi: FunctionAbiProps = {
   ],
 };
 
-export const fakeConditionExpr = () => {
-  const condition = new ERC721Balance({
+export const fakeCondition = () =>
+  new ERC721Balance({
     chain: TEST_CHAIN_ID,
     contractAddress: TEST_CONTRACT_ADDR,
+    returnValueTest: {
+      index: 0,
+      comparator: '>=',
+      value: 0,
+    },
   });
-  return new ConditionExpression(condition);
-};
+
+export const fakeConditionExpr = () => new ConditionExpression(fakeCondition());
 
 export const mockGetParticipants = (
   participants: DkgParticipant[],

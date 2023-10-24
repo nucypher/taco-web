@@ -13,8 +13,8 @@ $ yarn add @nucypher/taco ethers@5.7.2
 ### Encrypt your data
 
 ```typescript
-import {initialize, encrypt, conditions, domains} from '@nucypher/taco';
-import {ethers} from "ethers";
+import { conditions, domains, encrypt, initialize } from '@nucypher/taco';
+import { ethers } from 'ethers';
 
 // We have to initialize the TACo library first
 await initialize();
@@ -27,7 +27,7 @@ const ownsNFT = new conditions.predefined.ERC721Ownership({
   chain: 5,
 });
 
-const message = "my secret message";
+const message = 'my secret message';
 
 const messageKit = await encrypt(
   web3Provider,
@@ -35,15 +35,15 @@ const messageKit = await encrypt(
   message,
   ownsNFT,
   ritualId,
-  web3Provider.getSigner()
+  web3Provider.getSigner(),
 );
 ```
 
 ### Decrypt your data
 
 ```typescript
-import {initialize, decrypt, domains, getPorterUri} from '@nucypher/taco';
-import {ethers} from "ethers";
+import { decrypt, domains, getPorterUri, initialize } from '@nucypher/taco';
+import { ethers } from 'ethers';
 
 // We have to initialize the TACo library first
 await initialize();
@@ -55,6 +55,6 @@ const decryptedMessage = await decrypt(
   domains.TESTNET,
   messageKit,
   getPorterUri(domains.TESTNET),
-  web3Provider.getSigner()
+  web3Provider.getSigner(),
 );
 ```

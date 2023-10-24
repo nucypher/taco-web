@@ -19,7 +19,11 @@ describe('DkgCoordinatorAgent', () => {
   it('fetches transcripts from the coordinator', async () => {
     const provider = fakeProvider();
     const getRitualSpy = mockGetRitual();
-    const ritual = await DkgCoordinatorAgent.getRitual(provider, domains.TEST_DOMAIN, fakeRitualId);
+    const ritual = await DkgCoordinatorAgent.getRitual(
+      provider,
+      domains.TEST_DOMAIN,
+      fakeRitualId,
+    );
     expect(ritual).toBeDefined();
     expect(getRitualSpy).toHaveBeenCalled();
   });

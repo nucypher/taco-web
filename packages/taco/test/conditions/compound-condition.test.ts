@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import { CompoundCondition, Condition } from '../../src/conditions';
 import {
-  CompoundConditionType,
   compoundConditionSchema,
+  CompoundConditionType,
 } from '../../src/conditions/compound-condition';
 import {
   testContractConditionObj,

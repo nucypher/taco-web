@@ -13,5 +13,6 @@ contracts/compiled
 examples/*/pnpm-lock.yaml
 pnpm-debug.log
 docs-json
-./docs
 .next
+packages/docs
+docs

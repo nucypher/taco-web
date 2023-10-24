@@ -27,7 +27,7 @@ export class ERC721Ownership extends ContractCondition {
   }
 }
 
-type ERC721BalanceFields = 'contractAddress' | 'chain';
+type ERC721BalanceFields = 'contractAddress' | 'chain' | 'returnValueTest';
 
 const ERC721BalanceDefaults: Omit<ContractConditionProps, ERC721BalanceFields> =
   {
@@ -35,11 +35,6 @@ const ERC721BalanceDefaults: Omit<ContractConditionProps, ERC721BalanceFields> =
     method: 'balanceOf',
     parameters: [USER_ADDRESS_PARAM],
     standardContractType: 'ERC721',
-    returnValueTest: {
-      index: 0,
-      comparator: '>',
-      value: '0',
-    },
   };
 
 export class ERC721Balance extends ContractCondition {

@@ -45,7 +45,9 @@ describe('validation', () => {
   });
 
   it('infers condition type from constructor', ()=> {
-    const condition = new ContractCondition(testContractConditionObj);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { conditionType, ...withoutType } = testContractConditionObj;
+    const condition = new ContractCondition(withoutType);
     expect(condition.value.conditionType).toEqual(ContractConditionType);
   })
 });

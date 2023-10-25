@@ -9,13 +9,13 @@ import { ContractConditionProps, contractConditionSchema, ContractConditionType 
 import { RpcConditionProps, rpcConditionSchema, RpcConditionType } from './rpc';
 import { TimeConditionProps, timeConditionSchema, TimeConditionType } from './time';
 
-type OmitType<T> = Omit<T, 'conditionType'>
+type OmitConditionType<T> = Omit<T, 'conditionType'>
 
 // Exporting classes here instead of their respective schema files to
 // avoid circular dependency on Condition class.
 
 export class CompoundCondition extends Condition {
-  constructor(value: OmitType<CompoundConditionProps>) {
+  constructor(value: OmitConditionType<CompoundConditionProps>) {
     super(compoundConditionSchema, {
       conditionType: CompoundConditionType,
       ...value,
@@ -42,7 +42,7 @@ export class CompoundCondition extends Condition {
 }
 
 export class ContractCondition extends Condition {
-  constructor(value: OmitType<ContractConditionProps>) {
+  constructor(value: OmitConditionType<ContractConditionProps>) {
     super(contractConditionSchema, {
       conditionType: ContractConditionType,
       ...value
@@ -51,7 +51,7 @@ export class ContractCondition extends Condition {
 }
 
 export class RpcCondition extends Condition {
-  constructor(value: OmitType<RpcConditionProps>) {
+  constructor(value: OmitConditionType<RpcConditionProps>) {
     super(rpcConditionSchema, {
       conditionType: RpcConditionType,
       ...value
@@ -60,7 +60,7 @@ export class RpcCondition extends Condition {
 }
 
 export class TimeCondition extends Condition {
-  constructor(value: OmitType<TimeConditionProps>) {
+  constructor(value: OmitConditionType<TimeConditionProps>) {
     super(timeConditionSchema, {
       conditionType: TimeConditionType,
       ...value

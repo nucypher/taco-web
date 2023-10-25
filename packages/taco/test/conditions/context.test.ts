@@ -3,6 +3,7 @@ import { fakeProvider, fakeSigner } from '@nucypher/test-utils';
 import { ethers } from 'ethers';
 import { beforeAll, describe, expect, it } from 'vitest';
 
+import { toBytes, toHexString } from '../../src';
 import {
   ConditionExpression,
   ContractCondition,
@@ -64,6 +65,20 @@ describe('context', () => {
     const contractCondition = new ContractCondition(contractConditionObj);
     const conditionExpr = new ConditionExpression(contractCondition);
     const context = conditionExpr.buildContext(provider, {}, signer);
+
+    describe('custom parameters', () => {
+      it("serializes bytes as hex strings", async () => {
+        const customParamsWithBytes: Record<string, CustomContextParam> = {};
+        const customParam = toBytes('hello');
+        // Uint8Array is not a valid CustomContextParam, override the type:
+        customParamsWithBytes[customParamKey] = customParam as unknown as string;
+
+        const asJson = await context.withCustomParams(customParamsWithBytes).toJson();
+        const asObj = JSON.parse(asJson);
+        expect(asObj).toBeDefined();
+        expect(asObj[customParamKey]).toEqual(`0x${toHexString(customParam)}`);
+      });
+    });
 
     describe('return value test', () => {
       it('accepts on a custom context parameters', async () => {

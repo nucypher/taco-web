@@ -200,6 +200,25 @@ describe('context', () => {
         expect(asObj).toBeDefined();
         expect(asObj[USER_ADDRESS_PARAM]).toBeDefined();
       });
+
+      it.each([0, ''])('accepts on a falsy parameter value: %s', async (falsyParam) => {
+        const customParamKey = ':customParam';
+        const customContractCondition = new ContractCondition({
+          ...contractConditionObj,
+          parameters: [USER_ADDRESS_PARAM, customParamKey],
+        });
+        const customParameters: Record<string, CustomContextParam> = {};
+        customParameters[customParamKey] = falsyParam;
+        const conditionContext = new ConditionExpression(
+          customContractCondition,
+        ).buildContext(provider, customParameters, signer);
+
+        const asObj = await conditionContext.toObj();
+        expect(asObj).toBeDefined();
+        expect(asObj[USER_ADDRESS_PARAM]).toBeDefined();
+        expect(asObj[customParamKey]).toBeDefined();
+        expect(asObj[customParamKey]).toEqual(falsyParam);
+      });
     });
   });
 });

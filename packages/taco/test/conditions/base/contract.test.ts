@@ -5,7 +5,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import {
   ConditionExpression,
   ContractCondition,
-  ContractConditionProps,
+  ContractConditionProps, ContractConditionType,
   CustomContextParam,
   FunctionAbiProps,
 } from '../../../src/conditions';
@@ -43,6 +43,11 @@ describe('validation', () => {
       },
     });
   });
+
+  it('infers condition type from constructor', ()=> {
+    const condition = new ContractCondition(testContractConditionObj);
+    expect(condition.value.conditionType).toEqual(ContractConditionType);
+  })
 });
 
 describe('accepts either standardContractType or functionAbi but not both or none', () => {

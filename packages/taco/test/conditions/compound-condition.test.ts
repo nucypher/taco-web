@@ -28,7 +28,6 @@ describe('validation', () => {
 
   it('accepts and operator', () => {
     const conditionObj = {
-      conditionType: CompoundConditionType,
       operator: 'and',
       operands: [testContractConditionObj, testTimeConditionObj],
     };
@@ -189,5 +188,13 @@ describe('validation', () => {
       operator: 'and',
       operands: [testContractConditionObj, testTimeConditionObj],
     });
+  });
+
+  it('infers condition type from constructor', () => {
+    const condition = new CompoundCondition({
+      operator: 'and',
+      operands: [testContractConditionObj, testTimeConditionObj],
+    });
+    expect(condition.value.conditionType).toEqual(CompoundConditionType);
   });
 });

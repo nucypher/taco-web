@@ -41,7 +41,6 @@ const runExample = async () => {
   const messageString = 'this is a secret';
   const message = toBytes(messageString);
   const hasPositiveBalance = new conditions.RpcCondition({
-    conditionType: 'rpc',
     chain: 80001,
     method: 'eth_getBalance',
     parameters: [':userAddress', 'latest'],

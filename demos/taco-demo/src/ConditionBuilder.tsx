@@ -9,7 +9,6 @@ interface Props {
 }
 
 const rpcCondition = new conditions.RpcCondition({
-  conditionType: 'rpc',
   chain: Mumbai.chainId,
   method: 'eth_getBalance',
   parameters: [':userAddress'],

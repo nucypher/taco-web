@@ -24,7 +24,6 @@ console.assert(
 
 const ownsNFTRaw = new conditions.base.ContractCondition({
   // Provided by the `predefined.ERC721Balance`
-  conditionType: ContractConditionType,
   method: 'balanceOf',
   parameters: [':userAddress'],
   standardContractType: 'ERC721',
@@ -43,7 +42,6 @@ console.assert(
 );
 
 const hasAnyNativeAsset = new conditions.base.RpcCondition({
-  conditionType: 'rpc',
   chain: 5,
   method: 'eth_getBalance',
   parameters: [':userAddress'],
@@ -65,7 +63,6 @@ const ownsNFTOnChain5 = new conditions.predefined.ERC721Ownership({
 });
 
 const hasAnyNativeAssetOnChain1 = new conditions.base.RpcCondition({
-  conditionType: 'rpc',
   chain: 1, // The second network we target
   method: 'eth_getBalance',
   parameters: [':userAddress'],
@@ -77,7 +74,6 @@ const hasAnyNativeAssetOnChain1 = new conditions.base.RpcCondition({
 });
 
 const multichainCondition = new conditions.base.CompoundCondition({
-  conditionType: 'compound',
   operator: 'and',
   operands: [ownsNFTOnChain5, hasAnyNativeAssetOnChain1],
 });

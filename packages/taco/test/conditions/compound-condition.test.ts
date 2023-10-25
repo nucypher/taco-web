@@ -166,4 +166,28 @@ describe('validation', () => {
     expect(result.error).toBeDefined();
     expect(result.data).toBeUndefined();
   });
+
+  it('accepts shorthand for "or" operator', () => {
+    const compoundCondition = CompoundCondition.or([
+      testContractConditionObj,
+      testTimeConditionObj,
+    ]);
+    expect(compoundCondition.toObj()).toEqual({
+      conditionType: CompoundConditionType,
+      operator: 'or',
+      operands: [testContractConditionObj, testTimeConditionObj],
+    });
+  });
+
+  it('accepts shorthand for "and" operator', () => {
+    const compoundCondition = CompoundCondition.and([
+      testContractConditionObj,
+      testTimeConditionObj,
+    ]);
+    expect(compoundCondition.toObj()).toEqual({
+      conditionType: CompoundConditionType,
+      operator: 'and',
+      operands: [testContractConditionObj, testTimeConditionObj],
+    });
+  });
 });

@@ -1,8 +1,9 @@
 import {
   CompoundConditionProps,
   compoundConditionSchema,
+  CompoundConditionType,
 } from '../compound-condition';
-import { Condition } from '../condition';
+import { Condition, ConditionProps } from '../condition';
 
 import { ContractConditionProps, contractConditionSchema } from './contract';
 import { RpcConditionProps, rpcConditionSchema } from './rpc';
@@ -14,6 +15,25 @@ import { TimeConditionProps, timeConditionSchema } from './time';
 export class CompoundCondition extends Condition {
   constructor(value: CompoundConditionProps) {
     super(compoundConditionSchema, value);
+  }
+
+  private static withOperator(
+    operands: ConditionProps[],
+    operator: 'or' | 'and',
+  ): CompoundCondition {
+    return new CompoundCondition({
+      conditionType: CompoundConditionType,
+      operator,
+      operands,
+    });
+  }
+
+  public static or(conditions: ConditionProps[]): CompoundCondition {
+    return CompoundCondition.withOperator(conditions, 'or');
+  }
+
+  public static and(conditions: ConditionProps[]): CompoundCondition {
+    return CompoundCondition.withOperator(conditions, 'and');
   }
 }
 

@@ -69,7 +69,7 @@ export class ConditionContext {
     // Ok, so at this point we should have all the parameters we need
     // If we don't, we have a problem and we should throw
     const missingParameters = Array.from(requestedParameters).filter(
-      (key) => !parameters[key],
+      (key) => parameters[key] === undefined,
     );
     if (missingParameters.length > 0) {
       throw new Error(ERR_MISSING_CONTEXT_PARAMS(missingParameters));

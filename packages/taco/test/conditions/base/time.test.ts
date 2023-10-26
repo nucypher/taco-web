@@ -62,5 +62,4 @@ describe('validation', () => {
     });
     expect(condition.value.conditionType).toEqual(TimeConditionType);
   });
-
 });

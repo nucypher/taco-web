@@ -5,7 +5,8 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import {
   ConditionExpression,
   ContractCondition,
-  ContractConditionProps, ContractConditionType,
+  ContractConditionProps,
+  ContractConditionType,
   CustomContextParam,
   FunctionAbiProps,
 } from '../../../src/conditions';
@@ -44,12 +45,12 @@ describe('validation', () => {
     });
   });
 
-  it('infers condition type from constructor', ()=> {
+  it('infers condition type from constructor', () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { conditionType, ...withoutType } = testContractConditionObj;
     const condition = new ContractCondition(withoutType);
     expect(condition.value.conditionType).toEqual(ContractConditionType);
-  })
+  });
 });
 
 describe('accepts either standardContractType or functionAbi but not both or none', () => {

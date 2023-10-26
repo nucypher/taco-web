@@ -1,5 +1,4 @@
 import { conditions } from '../src';
-import { ContractConditionType } from '../src/conditions';
 
 const ownsNFT = new conditions.predefined.ERC721Ownership({
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',

@@ -36,7 +36,7 @@
     "lint:fix": "pnpm lint --fix",
     "package-check": "package-check",
     "test": "vitest run",
-    "typechain": "ts-node scripts/typechain.ts",
+    "typechain": "ts-node scripts/typechain.ts && prettier -w src/contracts/ethers-typechain",
     "typedoc": "typedoc"
   },
   "dependencies": {

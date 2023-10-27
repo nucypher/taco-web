@@ -74,7 +74,7 @@ export const contractConditionSchema = rpcConditionSchema
     conditionType: z
       .literal(ContractConditionType)
       .default(ContractConditionType),
-    contractAddress: z.string().regex(ETH_ADDRESS_REGEXP),
+    contractAddress: z.string().regex(ETH_ADDRESS_REGEXP).length(42),
     standardContractType: z.enum(['ERC20', 'ERC721']).optional(),
     method: z.string(),
     functionAbi: functionAbiSchema.optional(),

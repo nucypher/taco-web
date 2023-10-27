@@ -23,7 +23,10 @@ describe('validation', () => {
       operator,
       operands: [testContractConditionObj, testTimeConditionObj],
     };
-    const result = CompoundCondition.validate(compoundConditionSchema, conditionObj);
+    const result = CompoundCondition.validate(
+      compoundConditionSchema,
+      conditionObj,
+    );
 
     expect(result.error).toBeUndefined();
     expect(result.data).toEqual({

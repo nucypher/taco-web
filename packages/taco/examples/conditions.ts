@@ -72,12 +72,55 @@ const hasAnyNativeAssetOnChain1 = new conditions.base.RpcCondition({
   },
 });
 
-const multichainCondition = new conditions.base.CompoundCondition({
-  operator: 'and',
-  operands: [ownsNFTOnChain5, hasAnyNativeAssetOnChain1],
-});
+const multichainCondition = conditions.base.CompoundCondition.and([
+  ownsNFTOnChain5,
+  hasAnyNativeAssetOnChain1,
+]);
 
 console.assert(
   multichainCondition.requiresSigner(),
   'CompoundCondition requires signer',
+);
+
+const myFunctionAbi: conditions.FunctionAbiProps = {
+  name: 'myFunction',
+  type: 'function',
+  stateMutability: 'view',
+  inputs: [
+    {
+      internalType: 'address',
+      name: 'account',
+      type: 'address',
+    },
+    {
+      internalType: 'uint256',
+      name: 'myCustomParam',
+      type: 'uint256',
+    },
+  ],
+  outputs: [
+    {
+      internalType: 'uint256',
+      name: 'someValue',
+      type: 'uint256',
+    },
+  ],
+};
+
+const myContractCallCondition = new conditions.base.ContractCondition({
+  method: 'myFunctionAbi', // `myMethodAbi.name`
+  parameters: [':userAddress', ':myCustomParam'], // `myMethodAbi.inputs`
+  functionAbi: myFunctionAbi,
+  contractAddress: '0x0...1',
+  chain: 5,
+  returnValueTest: {
+    index: 0,
+    comparator: '>',
+    value: 0,
+  },
+});
+
+console.assert(
+  !myContractCallCondition.requiresSigner(),
+  'ContractCondition does not require a signer',
 );

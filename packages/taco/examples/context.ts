@@ -1,6 +1,5 @@
 import { conditions } from '../src';
-import {CustomContextParam} from "../src/conditions";
-
+import { CustomContextParam } from '../src/conditions';
 
 const ownsNFTRaw = new conditions.base.ContractCondition({
   method: 'balanceOf',
@@ -14,8 +13,10 @@ const ownsNFTRaw = new conditions.base.ContractCondition({
     value: ':selectedBalance',
   },
 });
-console.assert(ownsNFTRaw.requiresSigner(), 'ContractCondition requires a signer');
-
+console.assert(
+  ownsNFTRaw.requiresSigner(),
+  'ContractCondition requires a signer',
+);
 
 const customParameters: Record<string, CustomContextParam> = {
   ':selectedBalance': 2,

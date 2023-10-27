@@ -50,6 +50,7 @@ const functionAbiSchema = z
     },
     {
       message: '"functionAbi" must contain a single function definition',
+      path: ['functionAbi'],
     },
   )
   .refine(
@@ -62,6 +63,7 @@ const functionAbiSchema = z
     },
     {
       message: '"parameters" must have the same length as "functionAbi.inputs"',
+      path: ['parameters'],
     },
   );
 
@@ -88,6 +90,7 @@ export const contractConditionSchema = rpcConditionSchema
     {
       message:
         "At most one of the fields 'standardContractType' and 'functionAbi' must be defined",
+      path: ['standardContractType'],
     },
   );
 

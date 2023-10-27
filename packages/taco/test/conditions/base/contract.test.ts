@@ -119,9 +119,11 @@ describe('accepts either standardContractType or functionAbi but not both or non
     expect(result.error).toBeDefined();
     expect(result.data).toBeUndefined();
     expect(result.error?.format()).toMatchObject({
-      _errors: [
-        "At most one of the fields 'standardContractType' and 'functionAbi' must be defined",
-      ],
+      standardContractType: {
+        _errors: [
+          "At most one of the fields 'standardContractType' and 'functionAbi' must be defined",
+        ],
+      },
     });
   });
 
@@ -139,9 +141,11 @@ describe('accepts either standardContractType or functionAbi but not both or non
     expect(result.error).toBeDefined();
     expect(result.data).toBeUndefined();
     expect(result.error?.format()).toMatchObject({
-      _errors: [
-        "At most one of the fields 'standardContractType' and 'functionAbi' must be defined",
-      ],
+      standardContractType: {
+        _errors: [
+          "At most one of the fields 'standardContractType' and 'functionAbi' must be defined",
+        ],
+      },
     });
   });
 });

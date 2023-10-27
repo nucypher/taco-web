@@ -73,7 +73,7 @@ function App() {
 
     console.log('Encrypting message...');
     const hasPositiveBalance = new conditions.RpcCondition({
-      chain: 5,
+      chain: 80001,
       method: 'eth_getBalance',
       parameters: [':userAddress', 'latest'],
       returnValueTest: {
@@ -81,7 +81,7 @@ function App() {
         value: 0,
       },
     });
-    const ritualId = 2; // Replace with your own ritual ID
+    const ritualId = 5; // Replace with your own ritual ID
     const messageKit = await encrypt(
       provider,
       domains.TESTNET,

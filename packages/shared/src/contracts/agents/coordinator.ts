@@ -1,3 +1,4 @@
+import { getContract } from '@nucypher/nucypher-contracts'
 import {
   DkgPublicKey,
   SessionStaticKey,
@@ -8,9 +9,9 @@ import { BigNumberish, ethers } from 'ethers';
 import { Domain } from '../../porter';
 import { ChecksumAddress } from '../../types';
 import { fromHexString } from '../../utils';
+import { DEFAULT_WAIT_N_CONFIRMATIONS } from '../const';
 import { Coordinator__factory } from '../ethers-typechain';
 import { BLS12381, Coordinator } from '../ethers-typechain/Coordinator';
-import { DEFAULT_WAIT_N_CONFIRMATIONS, getContract } from '../registry';
 
 export interface CoordinatorRitual {
   initiator: string;

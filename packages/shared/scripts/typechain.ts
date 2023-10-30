@@ -1,16 +1,16 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import * as tmp from 'tmp';
-import { glob, runTypeChain } from 'typechain';
-
 import {
   Contract,
   ContractName,
   contractNames,
   ContractRegistry,
   domainRegistry,
-} from '../src';
+} from '@nucypher/nucypher-contracts';
+import * as tmp from 'tmp';
+import { glob, runTypeChain } from 'typechain';
+
 
 const parseContractRegistry = (registry: ContractRegistry): Contract[] =>
   Object.keys(registry)

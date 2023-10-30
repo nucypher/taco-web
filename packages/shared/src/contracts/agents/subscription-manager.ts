@@ -1,3 +1,4 @@
+import { getContract } from '@nucypher/nucypher-contracts';
 import {
   BigNumber,
   ContractTransaction,
@@ -7,11 +8,11 @@ import {
 
 import { Domain } from '../../porter';
 import { ChecksumAddress } from '../../types';
+import { DEFAULT_WAIT_N_CONFIRMATIONS } from '../const';
 import {
   SubscriptionManager,
   SubscriptionManager__factory,
 } from '../ethers-typechain';
-import { DEFAULT_WAIT_N_CONFIRMATIONS, getContract } from '../registry';
 
 export class PreSubscriptionManagerAgent {
   public static async createPolicy(

@@ -6,6 +6,7 @@ import {
   ConditionExpression,
   ContractCondition,
   ContractConditionProps,
+  ContractConditionType,
   CustomContextParam,
   FunctionAbiProps,
 } from '../../../src/conditions';
@@ -42,6 +43,13 @@ describe('validation', () => {
         _errors: ['Required'],
       },
     });
+  });
+
+  it('infers condition type from constructor', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { conditionType, ...withoutType } = testContractConditionObj;
+    const condition = new ContractCondition(withoutType);
+    expect(condition.value.conditionType).toEqual(ContractConditionType);
   });
 });
 

@@ -35,8 +35,7 @@ const runExample = async () => {
   console.log('Encrypting message...');
   const message = toBytes('this is a secret');
   const hasPositiveBalance = new conditions.RpcCondition({
-    conditionType: 'rpc',
-    chain: 5,
+    chain: 80001,
     method: 'eth_getBalance',
     parameters: [':userAddress', 'latest'],
     returnValueTest: {
@@ -48,7 +47,7 @@ const runExample = async () => {
     hasPositiveBalance.requiresSigner(),
     'Condition requires signer',
   );
-  const ritualId = 2; // Replace with your own ritual ID
+  const ritualId = 5; // Replace with your own ritual ID
   const messageKit = await encrypt(
     provider,
     domains.TESTNET,

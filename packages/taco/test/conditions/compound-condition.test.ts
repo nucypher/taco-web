@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { CompoundCondition, Condition } from '../../src/conditions';
+import {
+  CompoundCondition,
+  CompoundConditionProps,
+  ContractCondition,
+  TimeCondition,
+} from '../../src/conditions';
 import {
   compoundConditionSchema,
   CompoundConditionType,
@@ -12,24 +17,10 @@ import {
 } from '../test-utils';
 
 describe('validation', () => {
-  it('accepts or operator', () => {
-    const conditionObj = {
-      operator: 'or',
-      operands: [testContractConditionObj, testTimeConditionObj],
-    };
-    const result = Condition.validate(compoundConditionSchema, conditionObj);
-
-    expect(result.error).toBeUndefined();
-    expect(result.data).toEqual({
-      ...conditionObj,
+  it.each(['and', 'or'])('accepts "%s" operator', (operator) => {
+    const conditionObj: CompoundConditionProps = {
       conditionType: CompoundConditionType,
-    });
-  });
-
-  it('accepts and operator', () => {
-    const conditionObj = {
-      conditionType: CompoundConditionType,
-      operator: 'and',
+      operator,
       operands: [testContractConditionObj, testTimeConditionObj],
     };
     const result = CompoundCondition.validate(
@@ -46,7 +37,6 @@ describe('validation', () => {
 
   it('rejects an invalid operator', () => {
     const result = CompoundCondition.validate(compoundConditionSchema, {
-      conditionType: CompoundConditionType,
       operator: 'not-an-operator',
       operands: [testRpcConditionObj, testTimeConditionObj],
     });
@@ -126,7 +116,7 @@ describe('validation', () => {
     });
   });
 
-  const multichainCondition = {
+  const multichainCondition: CompoundConditionProps = {
     conditionType: CompoundConditionType,
     operator: 'and',
     operands: [1, 137, 5, 80001].map((chain) => ({
@@ -165,5 +155,41 @@ describe('validation', () => {
 
     expect(result.error).toBeDefined();
     expect(result.data).toBeUndefined();
+  });
+
+  const condObjects = [testContractConditionObj, testTimeConditionObj];
+  const conditions = [
+    new ContractCondition(testContractConditionObj),
+    new TimeCondition(testTimeConditionObj),
+  ];
+  const mixed = [
+    new ContractCondition(testContractConditionObj),
+    testTimeConditionObj,
+  ];
+  it.each([
+    ['and', condObjects],
+    ['and', conditions],
+    ['and', mixed],
+    ['or', condObjects],
+    ['or', conditions],
+    ['or', mixed],
+  ])('accepts shorthand for "%s" operator', (operator, operands) => {
+    const compoundCondition =
+      'or' === operator
+        ? CompoundCondition.or(operands)
+        : CompoundCondition.and(operands);
+    expect(compoundCondition.toObj()).toEqual({
+      conditionType: CompoundConditionType,
+      operator,
+      operands: [testContractConditionObj, testTimeConditionObj],
+    });
+  });
+
+  it('infers condition type from constructor', () => {
+    const condition = new CompoundCondition({
+      operator: 'and',
+      operands: [testContractConditionObj, testTimeConditionObj],
+    });
+    expect(condition.value.conditionType).toEqual(CompoundConditionType);
   });
 });

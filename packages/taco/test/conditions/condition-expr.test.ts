@@ -28,6 +28,11 @@ describe('condition set', () => {
   const erc721Balance = new ERC721Balance({
     chain: TEST_CHAIN_ID,
     contractAddress: TEST_CONTRACT_ADDR,
+    returnValueTest: {
+      index: 0,
+      comparator: '>',
+      value: 0,
+    },
   });
 
   const contractConditionNoAbi = new ContractCondition(

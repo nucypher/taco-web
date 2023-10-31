@@ -1,37 +1,86 @@
 import {
   CompoundConditionProps,
   compoundConditionSchema,
+  CompoundConditionType,
 } from '../compound-condition';
-import { Condition } from '../condition';
+import { Condition, ConditionProps } from '../condition';
 
-import { ContractConditionProps, contractConditionSchema } from './contract';
-import { RpcConditionProps, rpcConditionSchema } from './rpc';
-import { TimeConditionProps, timeConditionSchema } from './time';
+import {
+  ContractConditionProps,
+  contractConditionSchema,
+  ContractConditionType,
+} from './contract';
+import { RpcConditionProps, rpcConditionSchema, RpcConditionType } from './rpc';
+import {
+  TimeConditionProps,
+  timeConditionSchema,
+  TimeConditionType,
+} from './time';
+
+type OmitConditionType<T> = Omit<T, 'conditionType'>;
 
 // Exporting classes here instead of their respective schema files to
 // avoid circular dependency on Condition class.
 
+type ConditionOrProps = Condition | ConditionProps;
+
 export class CompoundCondition extends Condition {
-  constructor(value: CompoundConditionProps) {
-    super(compoundConditionSchema, value);
+  constructor(value: OmitConditionType<CompoundConditionProps>) {
+    super(compoundConditionSchema, {
+      conditionType: CompoundConditionType,
+      ...value,
+    });
+  }
+
+  private static withOperator(
+    operands: ConditionOrProps[],
+    operator: 'or' | 'and',
+  ): CompoundCondition {
+    const asObjects = operands.map((operand) => {
+      if (operand instanceof Condition) {
+        return operand.toObj();
+      }
+      return operand;
+    });
+    return new CompoundCondition({
+      operator,
+      operands: asObjects,
+    });
+  }
+
+  public static or(conditions: ConditionOrProps[]): CompoundCondition {
+    return CompoundCondition.withOperator(conditions, 'or');
+  }
+
+  public static and(conditions: ConditionOrProps[]): CompoundCondition {
+    return CompoundCondition.withOperator(conditions, 'and');
   }
 }
 
 export class ContractCondition extends Condition {
-  constructor(value: ContractConditionProps) {
-    super(contractConditionSchema, value);
+  constructor(value: OmitConditionType<ContractConditionProps>) {
+    super(contractConditionSchema, {
+      conditionType: ContractConditionType,
+      ...value,
+    });
   }
 }
 
 export class RpcCondition extends Condition {
-  constructor(value: RpcConditionProps) {
-    super(rpcConditionSchema, value);
+  constructor(value: OmitConditionType<RpcConditionProps>) {
+    super(rpcConditionSchema, {
+      conditionType: RpcConditionType,
+      ...value,
+    });
   }
 }
 
 export class TimeCondition extends Condition {
-  constructor(value: TimeConditionProps) {
-    super(timeConditionSchema, value);
+  constructor(value: OmitConditionType<TimeConditionProps>) {
+    super(timeConditionSchema, {
+      conditionType: TimeConditionType,
+      ...value,
+    });
   }
 }
 

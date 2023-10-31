@@ -53,4 +53,13 @@ describe('validation', () => {
       },
     });
   });
+
+  it('infers condition type from constructor', () => {
+    const condition = new TimeCondition({
+      returnValueTest,
+      method: TimeConditionMethod,
+      chain: 5,
+    });
+    expect(condition.value.conditionType).toEqual(TimeConditionType);
+  });
 });

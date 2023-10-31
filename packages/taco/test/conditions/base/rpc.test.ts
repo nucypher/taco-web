@@ -1,7 +1,7 @@
 import { TEST_CONTRACT_ADDR } from '@nucypher/test-utils';
 import { describe, expect, it } from 'vitest';
 
-import { RpcCondition } from '../../../src/conditions';
+import { RpcCondition, RpcConditionType } from '../../../src/conditions';
 import { rpcConditionSchema } from '../../../src/conditions/base/rpc';
 import { testRpcConditionObj } from '../../test-utils';
 
@@ -34,6 +34,13 @@ describe('validation', () => {
         ],
       },
     });
+  });
+
+  it('infers condition type from constructor', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { conditionType, ...withoutType } = testRpcConditionObj;
+    const condition = new RpcCondition(testRpcConditionObj);
+    expect(condition.value.conditionType).toEqual(RpcConditionType);
   });
 
   describe('parameters', () => {

@@ -26,8 +26,15 @@ module.exports = {
     }),
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
-      // process: 'process/browser',
     }),
+    new webpack.DefinePlugin({
+      process: {
+        env: {
+          DEFAULT_RITUAL_ID: JSON.stringify(process.env.DEFAULT_RITUAL_ID),
+          DEFAULT_DOMAIN: JSON.stringify(process.env.DEFAULT_DOMAIN),
+        },
+      }
+    })
   ].filter(Boolean),
   module: {
     rules: [

@@ -341,8 +341,8 @@ importers:
         version: 5.7.2
     devDependencies:
       copy-webpack-plugin:
-        specifier: ^10.2.4
-        version: 10.2.4(webpack@5.88.2)
+        specifier: ^11.0.0
+        version: 11.0.0(webpack@5.88.2)
       esbuild-loader:
         specifier: ^2.11.0
         version: 2.21.0(webpack@5.88.2)
@@ -442,8 +442,8 @@ importers:
         version: 5.7.2
     devDependencies:
       copy-webpack-plugin:
-        specifier: ^10.2.4
-        version: 10.2.4(webpack@5.88.2)
+        specifier: ^11.0.0
+        version: 11.0.0(webpack@5.88.2)
       esbuild-loader:
         specifier: ^2.11.0
         version: 2.21.0(webpack@5.88.2)
@@ -4971,11 +4971,6 @@ packages:
     resolution: {integrity: sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==}
     engines: {node: '>=8'}
 
-  /array-union@3.0.1:
-    resolution: {integrity: sha512-1OvF9IbWwaeiM9VhzYXVQacMibxpXOMYVNIvMtKRyX9SImBXpKcFr8XvFDeEslCyuH/t6KRt7HEO94AlP8Iatw==}
-    engines: {node: '>=12'}
-    dev: true
-
   /array-uniq@1.0.3:
     resolution: {integrity: sha512-MNha4BWQ6JbwhFhj03YK552f7cb3AzoE8SzeljgChvL1dl3IcvggXVz1DilzySZkCja+CXuZbdW7yATchWn8/Q==}
     engines: {node: '>=0.10.0'}
@@ -6078,21 +6073,6 @@ packages:
     dependencies:
       toggle-selection: 1.0.6
     dev: false
-
-  /copy-webpack-plugin@10.2.4(webpack@5.88.2):
-    resolution: {integrity: sha512-xFVltahqlsRcyyJqQbDY6EYTtyQZF9rf+JPjwHObLdPFMEISqkFkr7mFoVOC6BfYS/dNThyoQKvziugm+OnwBg==}
-    engines: {node: '>= 12.20.0'}
-    peerDependencies:
-      webpack: ^5.1.0
-    dependencies:
-      fast-glob: 3.3.1
-      glob-parent: 6.0.2
-      globby: 12.2.0
-      normalize-path: 3.0.0
-      schema-utils: 4.2.0
-      serialize-javascript: 6.0.1
-      webpack: 5.88.2(webpack-cli@5.1.4)
-    dev: true
 
   /copy-webpack-plugin@11.0.0(webpack@5.88.2):
     resolution: {integrity: sha512-fX2MWpamkW0hZxMEg0+mYnA40LTosOSa5TqZ9GYIBzyJa9C3QUaMPSE2xAi/buNr8u89SfD9wHSQVBzrRa/SOQ==}
@@ -8473,18 +8453,6 @@ packages:
       ignore: 5.2.4
       merge2: 1.4.1
       slash: 3.0.0
-
-  /globby@12.2.0:
-    resolution: {integrity: sha512-wiSuFQLZ+urS9x2gGPl1H5drc5twabmm4m2gTR27XDFyjUHJUNsS8o/2aKyIF6IoBaR630atdher0XJ5g6OMmA==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-    dependencies:
-      array-union: 3.0.1
-      dir-glob: 3.0.1
-      fast-glob: 3.3.1
-      ignore: 5.2.4
-      merge2: 1.4.1
-      slash: 4.0.0
-    dev: true
 
   /globby@13.2.2:
     resolution: {integrity: sha512-Y1zNGV+pzQdh7H39l9zgB4PJqjRNqydvdYCDG4HFXM4XuvSaQQlEc91IU1yALL8gUTDomgBAfz3XJdmUS+oo0w==}

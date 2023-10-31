@@ -1,9 +1,10 @@
+import { getContract } from '@nucypher/nucypher-contracts';
 import { ethers } from 'ethers';
 
 import { Domain } from '../../porter';
 import { ChecksumAddress } from '../../types';
+import { DEFAULT_WAIT_N_CONFIRMATIONS } from '../const';
 import { GlobalAllowList, GlobalAllowList__factory } from '../ethers-typechain';
-import { DEFAULT_WAIT_N_CONFIRMATIONS, getContract } from '../registry';
 
 export class GlobalAllowListAgent {
   public static async registerEncrypters(

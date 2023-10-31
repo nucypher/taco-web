@@ -34,7 +34,7 @@ export class CompoundCondition extends Condition {
 
   private static withOperator(
     operands: ConditionOrProps[],
-    operator: 'or' | 'and',
+    operator: 'or' | 'and' | 'not',
   ): CompoundCondition {
     const asObjects = operands.map((operand) => {
       if (operand instanceof Condition) {
@@ -54,6 +54,10 @@ export class CompoundCondition extends Condition {
 
   public static and(conditions: ConditionOrProps[]): CompoundCondition {
     return CompoundCondition.withOperator(conditions, 'and');
+  }
+
+  public static not(condition: ConditionOrProps): CompoundCondition {
+    return CompoundCondition.withOperator([condition], 'not');
   }
 }
 

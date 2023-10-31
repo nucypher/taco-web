@@ -17,11 +17,20 @@ import {
 } from '../test-utils';
 
 describe('validation', () => {
-  it.each(['and', 'or'])('accepts "%s" operator', (operator) => {
+  it.each([{
+    operator: 'and',
+    operands: [testContractConditionObj, testTimeConditionObj]
+  }, {
+    operator: 'or',
+    operands: [testContractConditionObj, testTimeConditionObj]
+  }, {
+    operator: 'not',
+    operands: [testContractConditionObj]
+  }])('accepts "$operator" operator', ({operator, operands}) => {
     const conditionObj: CompoundConditionProps = {
       conditionType: CompoundConditionType,
       operator,
-      operands: [testContractConditionObj, testTimeConditionObj],
+      operands,
     };
     const result = CompoundCondition.validate(
       compoundConditionSchema,
@@ -46,37 +55,34 @@ describe('validation', () => {
     expect(result.error?.format()).toMatchObject({
       operator: {
         _errors: [
-          "Invalid enum value. Expected 'and' | 'or', received 'not-an-operator'",
+          "Invalid enum value. Expected 'and' | 'or' | 'not', received 'not-an-operator'",
         ],
       },
     });
   });
 
-  it('rejects invalid number of operands = 0', () => {
+  it.each([{
+    operator: 'and',
+    nrOfOperands: 1,
+  }, {
+    operator: 'or',
+    nrOfOperands: 1,
+  }, {
+    operator: 'not',
+    nrOfOperands: 2,
+  }])('rejects invalid number of operands $nrOfOperands for operator $operator', ({operator, nrOfOperands}) => {
     const result = CompoundCondition.validate(compoundConditionSchema, {
-      operator: 'or',
-      operands: [],
+      operator,
+      operands: Array(nrOfOperands).fill(testRpcConditionObj)
     });
 
     expect(result.error).toBeDefined();
     expect(result.data).toBeUndefined();
     expect(result.error?.format()).toMatchObject({
       operands: {
-        _errors: ['Array must contain at least 2 element(s)'],
-      },
-    });
-  });
-
-  it('rejects invalid number of operands = 1', () => {
-    const result = CompoundCondition.validate(compoundConditionSchema, {
-      operator: 'or',
-      operands: [testRpcConditionObj],
-    });
-    expect(result.error).toBeDefined();
-    expect(result.data).toBeUndefined();
-    expect(result.error?.format()).toMatchObject({
-      operands: {
-        _errors: ['Array must contain at least 2 element(s)'],
+        _errors: [
+          `Invalid number of operands ${nrOfOperands} for operator "${operator}"`,
+        ],
       },
     });
   });
@@ -167,21 +173,28 @@ describe('validation', () => {
     testTimeConditionObj,
   ];
   it.each([
-    ['and', condObjects],
-    ['and', conditions],
-    ['and', mixed],
-    ['or', condObjects],
-    ['or', conditions],
-    ['or', mixed],
-  ])('accepts shorthand for "%s" operator', (operator, operands) => {
-    const compoundCondition =
-      'or' === operator
-        ? CompoundCondition.or(operands)
-        : CompoundCondition.and(operands);
+    ['and', condObjects, condObjects],
+    ['and', conditions, condObjects],
+    ['and', mixed, condObjects],
+    ['or', condObjects, condObjects],
+    ['or', conditions, condObjects],
+    ['or', mixed, condObjects],
+    ['not', condObjects[0], condObjects.slice(0, 1)],
+    ['not', conditions[0], condObjects.slice(0, 1)],
+    ['not', mixed[0], condObjects.slice(0, 1)],
+  ])('accepts shorthand for "%s" operator', (operator, operands, expected) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const compoundConditionShorthands: Record<string, any> = {
+      'and': CompoundCondition.and,
+      'or': CompoundCondition.or,
+      'not': CompoundCondition.not,
+    };
+    const compoundCondition = compoundConditionShorthands[operator](operands);
+
     expect(compoundCondition.toObj()).toEqual({
       conditionType: CompoundConditionType,
       operator,
-      operands: [testContractConditionObj, testTimeConditionObj],
+      operands: expected,
     });
   });
 

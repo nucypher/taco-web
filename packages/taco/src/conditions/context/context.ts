@@ -112,7 +112,7 @@ export class ConditionContext {
   }
 
   private isContextParameter(param: unknown): boolean {
-    return typeof param === 'string' && param.startsWith(CONTEXT_PARAM_PREFIX);
+    return String(param).startsWith(CONTEXT_PARAM_PREFIX);
   }
 
   private findRequestedParameters(condition: ConditionProps) {

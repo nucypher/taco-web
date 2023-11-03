@@ -17,16 +17,20 @@ import {
 } from '../test-utils';
 
 describe('validation', () => {
-  it.each([{
-    operator: 'and',
-    operands: [testContractConditionObj, testTimeConditionObj]
-  }, {
-    operator: 'or',
-    operands: [testContractConditionObj, testTimeConditionObj]
-  }, {
-    operator: 'not',
-    operands: [testContractConditionObj]
-  }])('accepts "$operator" operator', ({operator, operands}) => {
+  it.each([
+    {
+      operator: 'and',
+      operands: [testContractConditionObj, testTimeConditionObj],
+    },
+    {
+      operator: 'or',
+      operands: [testContractConditionObj, testTimeConditionObj],
+    },
+    {
+      operator: 'not',
+      operands: [testContractConditionObj],
+    },
+  ])('accepts "$operator" operator', ({ operator, operands }) => {
     const conditionObj: CompoundConditionProps = {
       conditionType: CompoundConditionType,
       operator,
@@ -61,31 +65,38 @@ describe('validation', () => {
     });
   });
 
-  it.each([{
-    operator: 'and',
-    nrOfOperands: 1,
-  }, {
-    operator: 'or',
-    nrOfOperands: 1,
-  }, {
-    operator: 'not',
-    nrOfOperands: 2,
-  }])('rejects invalid number of operands $nrOfOperands for operator $operator', ({operator, nrOfOperands}) => {
-    const result = CompoundCondition.validate(compoundConditionSchema, {
-      operator,
-      operands: Array(nrOfOperands).fill(testRpcConditionObj)
-    });
+  it.each([
+    {
+      operator: 'and',
+      nrOfOperands: 1,
+    },
+    {
+      operator: 'or',
+      nrOfOperands: 1,
+    },
+    {
+      operator: 'not',
+      nrOfOperands: 2,
+    },
+  ])(
+    'rejects invalid number of operands $nrOfOperands for operator $operator',
+    ({ operator, nrOfOperands }) => {
+      const result = CompoundCondition.validate(compoundConditionSchema, {
+        operator,
+        operands: Array(nrOfOperands).fill(testRpcConditionObj),
+      });
 
-    expect(result.error).toBeDefined();
-    expect(result.data).toBeUndefined();
-    expect(result.error?.format()).toMatchObject({
-      operands: {
-        _errors: [
-          `Invalid number of operands ${nrOfOperands} for operator "${operator}"`,
-        ],
-      },
-    });
-  });
+      expect(result.error).toBeDefined();
+      expect(result.data).toBeUndefined();
+      expect(result.error?.format()).toMatchObject({
+        operands: {
+          _errors: [
+            `Invalid number of operands ${nrOfOperands} for operator "${operator}"`,
+          ],
+        },
+      });
+    },
+  );
 
   it('accepts recursive compound conditions', () => {
     const conditionObj = {
@@ -185,9 +196,9 @@ describe('validation', () => {
   ])('accepts shorthand for "%s" operator', (operator, operands, expected) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const compoundConditionShorthands: Record<string, any> = {
-      'and': CompoundCondition.and,
-      'or': CompoundCondition.or,
-      'not': CompoundCondition.not,
+      and: CompoundCondition.and,
+      or: CompoundCondition.or,
+      not: CompoundCondition.not,
     };
     const compoundCondition = compoundConditionShorthands[operator](operands);
 

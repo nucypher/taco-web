@@ -206,7 +206,7 @@ export const mockMakeSessionKey = (secret: SessionStaticSecret) => {
 export const testReturnValueTest: ReturnValueTestProps = {
   index: 0,
   comparator: '>',
-  value: '100',
+  value: 100,
 };
 
 export const testTimeConditionObj: TimeConditionProps = {
@@ -214,7 +214,7 @@ export const testTimeConditionObj: TimeConditionProps = {
   returnValueTest: {
     index: 0,
     comparator: '>',
-    value: '100',
+    value: 100,
   },
   method: TimeConditionMethod,
   chain: 5,

@@ -67,13 +67,16 @@ describe('context', () => {
     const context = conditionExpr.buildContext(provider, {}, signer);
 
     describe('custom parameters', () => {
-      it("serializes bytes as hex strings", async () => {
+      it('serializes bytes as hex strings', async () => {
         const customParamsWithBytes: Record<string, CustomContextParam> = {};
         const customParam = toBytes('hello');
         // Uint8Array is not a valid CustomContextParam, override the type:
-        customParamsWithBytes[customParamKey] = customParam as unknown as string;
+        customParamsWithBytes[customParamKey] =
+          customParam as unknown as string;
 
-        const asJson = await context.withCustomParams(customParamsWithBytes).toJson();
+        const asJson = await context
+          .withCustomParams(customParamsWithBytes)
+          .toJson();
         const asObj = JSON.parse(asJson);
         expect(asObj).toBeDefined();
         expect(asObj[customParamKey]).toEqual(`0x${toHexString(customParam)}`);
@@ -216,24 +219,27 @@ describe('context', () => {
         expect(asObj[USER_ADDRESS_PARAM]).toBeDefined();
       });
 
-      it.each([0, ''])('accepts on a falsy parameter value: %s', async (falsyParam) => {
-        const customParamKey = ':customParam';
-        const customContractCondition = new ContractCondition({
-          ...contractConditionObj,
-          parameters: [USER_ADDRESS_PARAM, customParamKey],
-        });
-        const customParameters: Record<string, CustomContextParam> = {};
-        customParameters[customParamKey] = falsyParam;
-        const conditionContext = new ConditionExpression(
-          customContractCondition,
-        ).buildContext(provider, customParameters, signer);
+      it.each([0, ''])(
+        'accepts on a falsy parameter value: %s',
+        async (falsyParam) => {
+          const customParamKey = ':customParam';
+          const customContractCondition = new ContractCondition({
+            ...contractConditionObj,
+            parameters: [USER_ADDRESS_PARAM, customParamKey],
+          });
+          const customParameters: Record<string, CustomContextParam> = {};
+          customParameters[customParamKey] = falsyParam;
+          const conditionContext = new ConditionExpression(
+            customContractCondition,
+          ).buildContext(provider, customParameters, signer);
 
-        const asObj = await conditionContext.toObj();
-        expect(asObj).toBeDefined();
-        expect(asObj[USER_ADDRESS_PARAM]).toBeDefined();
-        expect(asObj[customParamKey]).toBeDefined();
-        expect(asObj[customParamKey]).toEqual(falsyParam);
-      });
+          const asObj = await conditionContext.toObj();
+          expect(asObj).toBeDefined();
+          expect(asObj[USER_ADDRESS_PARAM]).toBeDefined();
+          expect(asObj[customParamKey]).toBeDefined();
+          expect(asObj[customParamKey]).toEqual(falsyParam);
+        },
+      );
     });
   });
 });

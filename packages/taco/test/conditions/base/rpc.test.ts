@@ -85,7 +85,12 @@ describe('validation', () => {
       expect(result.data).toBeUndefined();
       expect(result.error?.format()).toMatchObject({
         parameters: {
-          _errors: ['Array must contain exactly 1 element(s)'],
+          '1': {
+            _errors: ['Invalid'],
+          },
+          '2': {
+            _errors: ['Invalid'],
+          },
         },
       });
     });

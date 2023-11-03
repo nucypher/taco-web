@@ -45,6 +45,7 @@ const runExample = async () => {
     method: 'eth_getBalance',
     parameters: [':userAddress', 'latest'],
     returnValueTest: {
+      index: 0,
       comparator: '>',
       value: 0,
     },

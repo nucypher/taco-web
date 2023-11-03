@@ -1,11 +1,26 @@
 import { z } from 'zod';
 
-import { ETH_ADDRESS_REGEXP, USER_ADDRESS_PARAM } from '../const';
+import {
+  CONTEXT_PARAM_REGEXP,
+  ETH_ADDRESS_REGEXP,
+  USER_ADDRESS_PARAM,
+} from '../const';
+
+export const ContextParamSchema = z.string().regex(CONTEXT_PARAM_REGEXP);
+export const ParamSchema = z.union([z.number(), z.string()]);
+export const ParamOrContextParamSchema = z.union([
+  ParamSchema,
+  ContextParamSchema,
+]);
+export const ContextParamOrNumberSchema = z.union([
+  z.number(),
+  ContextParamSchema,
+]);
 
 export const returnValueTestSchema = z.object({
-  index: z.number().optional(),
+  index: z.number(),
   comparator: z.enum(['==', '>', '<', '>=', '<=', '!=']),
-  value: z.unknown(),
+  value: ParamOrContextParamSchema,
 });
 
 export type ReturnValueTestProps = z.infer<typeof returnValueTestSchema>;

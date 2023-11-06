@@ -18,7 +18,7 @@ export const ContextParamOrNumberSchema = z.union([
 ]);
 
 export const returnValueTestSchema = z.object({
-  index: z.number(),
+  index: z.number().optional(),
   comparator: z.enum(['==', '>', '<', '>=', '<=', '!=']),
   value: ParamOrContextParamSchema,
 });

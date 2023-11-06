@@ -58,6 +58,7 @@ export const NFTConditionBuilder = ({
         method: 'ownerOf',
         parameters: [parseInt(tokenId, 10)],
         returnValueTest: {
+          index: 0,
           comparator: '==',
           value: ':userAddress',
         },
@@ -71,7 +72,7 @@ export const NFTConditionBuilder = ({
       parameters: [':userAddress'],
       returnValueTest: {
         comparator: '>',
-        value: '0',
+        value: 0,
       },
     });
   };

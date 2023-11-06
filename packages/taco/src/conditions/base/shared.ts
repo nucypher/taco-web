@@ -7,13 +7,9 @@ import {
 } from '../const';
 
 export const ContextParamSchema = z.string().regex(CONTEXT_PARAM_REGEXP);
-export const ParamSchema = z.union([z.number(), z.string()]);
+export const ParamSchema = z.union([z.number(), z.string(), z.boolean()]);
 export const ParamOrContextParamSchema = z.union([
   ParamSchema,
-  ContextParamSchema,
-]);
-export const ContextParamOrNumberSchema = z.union([
-  z.number(),
   ContextParamSchema,
 ]);
 

@@ -62,7 +62,7 @@ export class DkgRitual {
   }
 }
 
-const ERR_RITUAL_FAILED = (ritualId: number, ritual: DkgRitual) =>
+const ERR_RITUAL_NOT_FINALIZED = (ritualId: number, ritual: DkgRitual) =>
   `Ritual ${ritualId} is not finalized. State: ${ritual.state}`;
 
 export class DkgClient {
@@ -164,7 +164,7 @@ export class DkgClient {
   ): Promise<DkgRitual> {
     const ritual = await DkgClient.getRitual(provider, domain, ritualId);
     if (ritual.state !== DkgRitualState.FINALIZED) {
-      throw new Error(ERR_RITUAL_FAILED(ritualId, ritual));
+      throw new Error(ERR_RITUAL_NOT_FINALIZED(ritualId, ritual));
     }
     return ritual;
   }

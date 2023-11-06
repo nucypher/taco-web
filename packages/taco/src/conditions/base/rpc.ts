@@ -4,7 +4,6 @@ import { SUPPORTED_CHAIN_IDS } from '../const';
 import createUnionSchema from '../zod';
 
 import {
-  ContextParamOrNumberSchema,
   EthAddressOrUserAddressSchema,
   ParamOrContextParamSchema,
   returnValueTestSchema,
@@ -21,9 +20,7 @@ export const rpcConditionSchema = z.object({
     // Using tuple here because ordering matters
     z.tuple([EthAddressOrUserAddressSchema, ParamOrContextParamSchema]),
   ]),
-  returnValueTest: returnValueTestSchema.extend({
-    value: ContextParamOrNumberSchema,
-  }),
+  returnValueTest: returnValueTestSchema,
 });
 
 export type RpcConditionProps = z.infer<typeof rpcConditionSchema>;

@@ -29,7 +29,7 @@ import {
   CustomContextParam,
 } from './conditions';
 
-const ERR_TDEC_FAILED = (errors: unknown) =>
+const ERR_DECRYPTION_FAILED = (errors: unknown) =>
   `Threshold of responses not met; TACo decryption failed with errors: ${JSON.stringify(
     errors,
   )}`;
@@ -120,7 +120,7 @@ const retrieve = async (
     threshold,
   );
   if (Object.keys(encryptedResponses).length < threshold) {
-    throw new Error(ERR_TDEC_FAILED(errors));
+    throw new Error(ERR_DECRYPTION_FAILED(errors));
   }
 
   return makeDecryptionShares(encryptedResponses, sharedSecrets, ritualId);

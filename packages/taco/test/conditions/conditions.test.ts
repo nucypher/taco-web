@@ -15,7 +15,6 @@ describe('conditions', () => {
       method: 'eth_getBalance',
       parameters: [':userAddress', 'latest'],
       returnValueTest: {
-        index: 0,
         comparator: '>',
         value: 0,
       },
@@ -24,7 +23,6 @@ describe('conditions', () => {
       chain: 5,
       method: 'blocktime',
       returnValueTest: {
-        index: 0,
         comparator: '>',
         value: ':time',
       },

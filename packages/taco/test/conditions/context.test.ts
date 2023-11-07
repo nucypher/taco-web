@@ -35,7 +35,6 @@ describe('context', () => {
         ...testRpcConditionObj,
         parameters: [USER_ADDRESS_PARAM],
         returnValueTest: {
-          index: 0,
           comparator: '==',
           value: USER_ADDRESS_PARAM,
         },

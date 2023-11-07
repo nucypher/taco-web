@@ -204,7 +204,6 @@ export const mockMakeSessionKey = (secret: SessionStaticSecret) => {
 };
 
 export const testReturnValueTest: ReturnValueTestProps = {
-  index: 0,
   comparator: '>',
   value: 100,
 };
@@ -212,7 +211,6 @@ export const testReturnValueTest: ReturnValueTestProps = {
 export const testTimeConditionObj: TimeConditionProps = {
   conditionType: TimeConditionType,
   returnValueTest: {
-    index: 0,
     comparator: '>',
     value: 100,
   },
@@ -268,7 +266,6 @@ export const fakeCondition = () =>
     chain: TEST_CHAIN_ID,
     contractAddress: TEST_CONTRACT_ADDR,
     returnValueTest: {
-      index: 0,
       comparator: '>=',
       value: 0,
     },

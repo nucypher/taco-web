@@ -11,7 +11,6 @@ import { timeConditionSchema } from '../../../src/conditions/base/time';
 
 describe('validation', () => {
   const returnValueTest: ReturnValueTestProps = {
-    index: 0,
     comparator: '>',
     value: 100,
   };

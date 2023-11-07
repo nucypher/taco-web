@@ -158,7 +158,6 @@ describe('supports custom function abi', () => {
     method: 'myFunction',
     parameters: [USER_ADDRESS_PARAM, ':customParam'],
     returnValueTest: {
-      index: 0,
       comparator: '==',
       value: USER_ADDRESS_PARAM,
     },

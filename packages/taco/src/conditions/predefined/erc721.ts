@@ -15,7 +15,6 @@ const ERC721OwnershipDefaults: Omit<
   method: 'ownerOf',
   standardContractType: 'ERC721',
   returnValueTest: {
-    index: 0,
     comparator: '==',
     value: USER_ADDRESS_PARAM,
   },

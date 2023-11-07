@@ -11,7 +11,6 @@ const hasAtLeastTwoNFTs = new conditions.predefined.ERC721Balance({
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
   chain: 5,
   returnValueTest: {
-    index: 0,
     comparator: '>=',
     value: 2,
   },
@@ -30,7 +29,6 @@ const ownsNFTRaw = new conditions.base.ContractCondition({
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
   chain: 5,
   returnValueTest: {
-    index: 0,
     comparator: '>',
     value: 0,
   },
@@ -45,7 +43,6 @@ const hasAnyNativeAsset = new conditions.base.RpcCondition({
   method: 'eth_getBalance',
   parameters: [':userAddress'],
   returnValueTest: {
-    index: 0,
     comparator: '>',
     value: 0,
   },
@@ -66,7 +63,6 @@ const hasAnyNativeAssetOnChain1 = new conditions.base.RpcCondition({
   method: 'eth_getBalance',
   parameters: [':userAddress'],
   returnValueTest: {
-    index: 0,
     comparator: '>',
     value: 0,
   },
@@ -114,7 +110,6 @@ const myContractCallCondition = new conditions.base.ContractCondition({
   contractAddress: '0x0...1',
   chain: 5,
   returnValueTest: {
-    index: 0,
     comparator: '>',
     value: 0,
   },

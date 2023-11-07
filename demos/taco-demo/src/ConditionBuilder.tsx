@@ -8,7 +8,7 @@ interface Props {
   enabled: boolean;
 }
 
-const rpcCondition = new conditions.RpcCondition({
+const rpcCondition = new conditions.base.RpcCondition({
   chain: Mumbai.chainId,
   method: 'eth_getBalance',
   parameters: [':userAddress'],

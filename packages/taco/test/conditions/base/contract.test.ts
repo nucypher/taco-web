@@ -4,13 +4,14 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 import {
   ConditionExpression,
-  ContractCondition,
-  ContractConditionProps,
-  ContractConditionType,
   CustomContextParam,
-  FunctionAbiProps,
 } from '../../../src/conditions';
-import { contractConditionSchema } from '../../../src/conditions/base/contract';
+import {ContractCondition} from "../../../src/conditions/base";
+import {
+  ContractConditionProps,
+  contractConditionSchema,
+  ContractConditionType, FunctionAbiProps
+} from '../../../src/conditions/base/contract';
 import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
 import { testContractConditionObj, testFunctionAbi } from '../../test-utils';
 

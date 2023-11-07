@@ -4,23 +4,18 @@ import { ethers } from 'ethers';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { toBytes, toHexString } from '../../src';
-import {
-  ConditionExpression,
-  ContractCondition,
-  ContractConditionProps,
-  CustomContextParam,
-  ReturnValueTestProps,
-  RpcCondition,
-} from '../../src/conditions';
+import {ContractCondition,
+  ContractConditionProps, ReturnValueTestProps, RpcCondition} from "../../src/conditions/base";
 import { paramOrContextParamSchema } from '../../src/conditions/base/shared';
 import { USER_ADDRESS_PARAM } from '../../src/conditions/const';
-import { RESERVED_CONTEXT_PARAMS } from '../../src/conditions/context/context';
+import {CustomContextParam, RESERVED_CONTEXT_PARAMS} from '../../src/conditions/context/context';
 import {
   testContractConditionObj,
   testFunctionAbi,
   testReturnValueTest,
   testRpcConditionObj,
 } from '../test-utils';
+import {ConditionExpression} from "../../src/conditions/condition-expr";
 
 describe('context', () => {
   let provider: ethers.providers.Provider;

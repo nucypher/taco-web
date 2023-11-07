@@ -5,17 +5,17 @@ import { SemVer } from 'semver';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import {
-  CompoundCondition,
   ConditionExpression,
+} from '../../src/conditions';
+import {
+  CompoundCondition,
   ContractCondition,
   ContractConditionProps,
-  ERC721Balance,
-  RpcCondition,
-  RpcConditionType,
-  TimeCondition,
-  TimeConditionProps,
-} from '../../src/conditions';
+  RpcCondition, RpcConditionType,
+  TimeCondition, TimeConditionProps
+} from "../../src/conditions/base";
 import { USER_ADDRESS_PARAM } from '../../src/conditions/const';
+import {ERC721Balance} from "../../src/conditions/predefined";
 import {
   testContractConditionObj,
   testFunctionAbi,

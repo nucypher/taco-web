@@ -1,9 +1,6 @@
 import * as base from './base';
 import * as predefined from './predefined';
 
-export * from './base';
-export * from './predefined';
-
 export {
   CompoundConditionProps,
   CompoundConditionType,

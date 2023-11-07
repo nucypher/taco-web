@@ -3,9 +3,9 @@ import { describe, expect, it } from 'vitest';
 
 import {
   Condition,
-  ContractCondition,
-  ERC721Ownership,
 } from '../../../src/conditions';
+import {ContractCondition} from "../../../src/conditions/base";
+import {ERC721Ownership} from "../../../src/conditions/predefined";
 import { fakeCondition, testContractConditionObj } from '../../test-utils';
 
 describe('validation', () => {

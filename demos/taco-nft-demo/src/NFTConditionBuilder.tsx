@@ -51,7 +51,7 @@ export const NFTConditionBuilder = ({
 
   const makeCondition = (): conditions.Condition => {
     if (tokenId) {
-      return new conditions.ContractCondition({
+      return new conditions.base.ContractCondition({
         contractAddress,
         chain,
         standardContractType: 'ERC721',
@@ -63,7 +63,7 @@ export const NFTConditionBuilder = ({
         },
       });
     }
-    return new conditions.ContractCondition({
+    return new conditions.base.ContractCondition({
       contractAddress,
       chain,
       standardContractType: 'ERC721',

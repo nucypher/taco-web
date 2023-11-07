@@ -1,11 +1,9 @@
 import { TEST_CONTRACT_ADDR } from '@nucypher/test-utils';
 import { describe, expect, it } from 'vitest';
 
-import {
-  Condition,
-} from '../../../src/conditions';
-import {ContractCondition} from "../../../src/conditions/base";
-import {ERC721Ownership} from "../../../src/conditions/predefined";
+import { Condition } from '../../../src/conditions';
+import { ContractCondition } from '../../../src/conditions/base';
+import { ERC721Ownership } from '../../../src/conditions/predefined';
 import { fakeCondition, testContractConditionObj } from '../../test-utils';
 
 describe('validation', () => {

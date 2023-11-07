@@ -6,11 +6,12 @@ import {
   ConditionExpression,
   CustomContextParam,
 } from '../../../src/conditions';
-import {ContractCondition} from "../../../src/conditions/base";
+import { ContractCondition } from '../../../src/conditions/base';
 import {
   ContractConditionProps,
   contractConditionSchema,
-  ContractConditionType, FunctionAbiProps
+  ContractConditionType,
+  FunctionAbiProps,
 } from '../../../src/conditions/base/contract';
 import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
 import { testContractConditionObj, testFunctionAbi } from '../../test-utils';

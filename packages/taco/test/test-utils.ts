@@ -34,18 +34,19 @@ import {
 } from '@nucypher/test-utils';
 import { SpyInstance, vi } from 'vitest';
 
+import { ConditionExpression } from '../src/conditions';
 import {
-  ConditionExpression,
-} from '../src/conditions';
-import {
-  ContractConditionProps, ContractConditionType, FunctionAbiProps,
+  ContractConditionProps,
+  ContractConditionType,
+  FunctionAbiProps,
   ReturnValueTestProps,
-  RpcConditionProps, RpcConditionType,
+  RpcConditionProps,
+  RpcConditionType,
   TimeConditionMethod,
   TimeConditionProps,
-  TimeConditionType
-} from "../src/conditions/base";
-import {ERC721Balance} from "../src/conditions/predefined";
+  TimeConditionType,
+} from '../src/conditions/base';
+import { ERC721Balance } from '../src/conditions/predefined';
 import { DkgClient, DkgRitual } from '../src/dkg';
 import { encryptMessage } from '../src/tdec';
 

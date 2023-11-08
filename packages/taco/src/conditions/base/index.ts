@@ -1,10 +1,10 @@
+import { Condition, ConditionProps } from '../condition';
+
 import {
   CompoundConditionProps,
   compoundConditionSchema,
   CompoundConditionType,
-} from '../compound-condition';
-import { Condition, ConditionProps } from '../condition';
-
+} from './compound-condition';
 import {
   ContractConditionProps,
   contractConditionSchema,

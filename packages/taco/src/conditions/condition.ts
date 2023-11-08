@@ -16,7 +16,7 @@ import {
 import {
   CompoundConditionProps,
   CompoundConditionType,
-} from './compound-condition';
+} from './base/compound-condition';
 import { USER_ADDRESS_PARAM } from './const';
 
 type ConditionSchema = z.ZodSchema;

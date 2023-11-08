@@ -2,7 +2,7 @@ import { Context, Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { fromJSON, toJSON } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
-import { CompoundConditionType } from '../compound-condition';
+import { CompoundConditionType } from '../base/compound-condition';
 import { Condition, ConditionProps } from '../condition';
 import { ConditionExpression } from '../condition-expr';
 import {

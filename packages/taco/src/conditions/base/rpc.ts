@@ -14,7 +14,7 @@ export const RpcConditionType = 'rpc';
 export const rpcConditionSchema = z.object({
   conditionType: z.literal(RpcConditionType).default(RpcConditionType),
   chain: createUnionSchema(SUPPORTED_CHAIN_IDS),
-  method: z.enum(['eth_getBalance', 'balanceOf']),
+  method: z.enum(['eth_getBalance']),
   parameters: z.union([
     z.array(EthAddressOrUserAddressSchema).nonempty(),
     // Using tuple here because ordering matters

@@ -30,7 +30,7 @@ describe('validation', () => {
     expect(result.error?.format()).toMatchObject({
       method: {
         _errors: [
-          "Invalid enum value. Expected 'eth_getBalance' | 'balanceOf', received 'fake_invalid_method'",
+          "Invalid enum value. Expected 'eth_getBalance', received 'fake_invalid_method'",
         ],
       },
     });

@@ -7,6 +7,7 @@ import {
   getPorterUri,
   initialize,
   toBytes,
+  toHexString
 } from '@nucypher/taco';
 import * as dotenv from 'dotenv';
 import { ethers } from 'ethers';
@@ -62,6 +63,7 @@ const runExample = async () => {
     ritualId,
     signer,
   );
+  console.log('Ciphertext: ', toHexString(messageKit.toBytes()));
 
   console.log('Decrypting message...');
   const decryptedBytes = await decrypt(

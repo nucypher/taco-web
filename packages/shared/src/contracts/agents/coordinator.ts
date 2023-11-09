@@ -93,7 +93,7 @@ export class DkgCoordinatorAgent {
     ritualId: number,
   ): Promise<CoordinatorRitual> {
     const coordinator = await this.connectReadOnly(provider, domain);
-    return coordinator.rituals(ritualId);
+    return await coordinator.rituals(ritualId);
   }
 
   public static async getRitualState(

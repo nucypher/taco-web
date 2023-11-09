@@ -96,7 +96,6 @@ export {
 export { RpcConditionType, type RpcConditionProps } from './rpc';
 export { ReturnValueTestProps } from './shared';
 export {
-  TimeConditionMethod,
   TimeConditionType,
   type TimeConditionProps,
 } from './time';

@@ -42,10 +42,10 @@ import {
   ReturnValueTestProps,
   RpcConditionProps,
   RpcConditionType,
-  TimeConditionMethod,
   TimeConditionProps,
   TimeConditionType,
 } from '../src/conditions/base';
+import { TimeConditionMethod } from "../src/conditions/base/time";
 import { ERC721Balance } from '../src/conditions/predefined';
 import { DkgClient, DkgRitual } from '../src/dkg';
 import { encryptMessage } from '../src/tdec';

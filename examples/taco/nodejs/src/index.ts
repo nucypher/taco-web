@@ -82,7 +82,4 @@ const runExample = async () => {
 runExample()
   .then(() => {
     console.log('Example finished');
-  })
-  .catch((err) => {
-    console.error('Example failed:', err);
   });

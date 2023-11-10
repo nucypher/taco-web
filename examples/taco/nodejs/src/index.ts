@@ -20,9 +20,9 @@ if (!rpcProviderUrl) {
   throw new Error('RPC_PROVIDER_URL is not set.');
 }
 
-const creatorPrivateKey = process.env.CREATOR_PRIVATE_KEY;
-if (!creatorPrivateKey) {
-  throw new Error('CREATOR_PRIVATE_KEY is not set.');
+const encryptorPrivateKey = process.env.ENCRYPTOR_PRIVATE_KEY;
+if (!encryptorPrivateKey) {
+  throw new Error('ENCRYPTOR_PRIVATE_KEY is not set.');
 }
 
 const consumerPrivateKey = process.env.CONSUMER_PRIVATE_KEY;
@@ -47,8 +47,8 @@ const runExample = async () => {
   // Encryption
   ////
 
-  const creatorSigner = new ethers.Wallet(creatorPrivateKey);
-  console.log("Creator signer's address:", await creatorSigner.getAddress());
+  const encryptorSigner = new ethers.Wallet(encryptorPrivateKey);
+  console.log("Encryptor signer's address:", await encryptorSigner.getAddress());
 
   const messageString = 'This is a secret 🤐';
   const message = toBytes(messageString);
@@ -74,7 +74,7 @@ const runExample = async () => {
     message,
     hasPositiveBalance,
     ritualId,
-    creatorSigner,
+    encryptorSigner,
   );
   console.log('Ciphertext: ', toHexString(messageKit.toBytes()));
 

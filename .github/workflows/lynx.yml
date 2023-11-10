@@ -12,7 +12,7 @@ on:
 
 env:  # TODO: Use variables when GH supports it for forks. See https://github.com/orgs/community/discussions/44322
   RPC_PROVIDER_URL: "https://polygon-mumbai.infura.io/v3/3747007a284045d483c342fb39889a30"
-  CREATOR_PRIVATE_KEY: "0x900edb9e8214b2353f82aa195e915128f419a92cfb8bbc0f4784f10ef4112b86"
+  ENCRYPTOR_PRIVATE_KEY: "0x900edb9e8214b2353f82aa195e915128f419a92cfb8bbc0f4784f10ef4112b86"
   CONSUMER_PRIVATE_KEY: "0xf307e165339cb5deb2b8ec59c31a5c0a957b8e8453ce7fe8a19d9a4c8acf36d4"
 
 jobs:
@@ -46,7 +46,7 @@ jobs:
         # TODO: Use variables when GH supports it for forks. See https://github.com/orgs/community/discussions/44322
         run: |
           echo RPC_PROVIDER_URL=$RPC_PROVIDER_URL > .env
-          echo CREATOR_PRIVATE_KEY=$CREATOR_PRIVATE_KEY >> .env
+          echo ENCRYPTOR_PRIVATE_KEY=$ENCRYPTOR_PRIVATE_KEY >> .env
           echo CONSUMER_PRIVATE_KEY=$CONSUMER_PRIVATE_KEY >> .env
 
       - name: Lynx testnet node-js script execution

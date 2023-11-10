@@ -65,6 +65,8 @@ function App() {
     }
 
     await initialize();
+    const ritualId = 5; // Replace with your own ritual ID
+    const domain = domains.TESTNET;
 
     const provider = new ethers.providers.Web3Provider(window.ethereum!, 'any');
     await provider.send('eth_requestAccounts', []);
@@ -80,10 +82,9 @@ function App() {
         value: 0,
       },
     });
-    const ritualId = 5; // Replace with your own ritual ID
     const messageKit = await encrypt(
       provider,
-      domains.TESTNET,
+      domain,
       message,
       hasPositiveBalance,
       ritualId,
@@ -93,9 +94,9 @@ function App() {
     console.log('Decrypting message...');
     const decryptedMessage = await decrypt(
       provider,
-      domains.TESTNET,
+      domain,
       messageKit,
-      getPorterUri(domains.TESTNET),
+      getPorterUri(domain),
       signer,
     );
 

@@ -12,10 +12,10 @@ import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
 
 import { ConditionBuilder } from './ConditionBuilder';
-import { DEFAULT_DOMAIN, DEFAULT_RITUAL_ID } from './config';
 import { Decrypt } from './Decrypt';
 import { Encrypt } from './Encrypt';
 import { Spinner } from './Spinner';
+import { DEFAULT_DOMAIN, DEFAULT_RITUAL_ID } from './config';
 
 export default function App() {
   const { activateBrowserWallet, deactivate, account, switchNetwork } =

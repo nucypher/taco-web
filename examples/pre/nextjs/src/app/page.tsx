@@ -105,7 +105,6 @@ function App() {
       startDate,
       endDate,
     };
-
     const policy = await alice.grant(
       provider,
       provider.getSigner(),

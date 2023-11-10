@@ -11,11 +11,11 @@ import { Mumbai, useEthers } from '@usedapp/core';
 import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
 
-import { DEFAULT_DOMAIN, DEFAULT_RITUAL_ID } from './config';
 import { Decrypt } from './Decrypt';
 import { Encrypt } from './Encrypt';
 import { NFTConditionBuilder } from './NFTConditionBuilder';
 import { Spinner } from './Spinner';
+import { DEFAULT_DOMAIN, DEFAULT_RITUAL_ID } from './config';
 
 export default function App() {
   const { activateBrowserWallet, deactivate, account, switchNetwork } =
@@ -45,7 +45,7 @@ export default function App() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const encryptedMessage = await encrypt(
       provider,
-      domains.TESTNET,
+      domain,
       message,
       condition,
       ritualId,
@@ -67,9 +67,9 @@ export default function App() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const decryptedMessage = await decrypt(
       provider,
-      domains.TESTNET,
+      domain,
       encryptedMessage,
-      getPorterUri(domains.TESTNET),
+      getPorterUri(domain),
       provider.getSigner(),
     );
 

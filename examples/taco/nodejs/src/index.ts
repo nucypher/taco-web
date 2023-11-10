@@ -11,6 +11,7 @@ import {
 } from '@nucypher/taco';
 import * as dotenv from 'dotenv';
 import { ethers } from 'ethers';
+import { format } from 'node:util';
 
 dotenv.config();
 
@@ -49,9 +50,10 @@ const runExample = async () => {
   const creatorSigner = new ethers.Wallet(creatorPrivateKey);
   console.log("Creator signer's address:", await creatorSigner.getAddress());
 
-  console.log('Encrypting message...');
-  const messageString = 'this is a secret';
+  const messageString = 'This is a secret 🤐';
   const message = toBytes(messageString);
+  console.log(format('Encrypting message ("%s") ...', messageString));
+
   const hasPositiveBalance = new conditions.RpcCondition({
     chain: 80001,
     method: 'eth_getBalance',
@@ -84,7 +86,7 @@ const runExample = async () => {
   const consumerSigner = new ethers.Wallet(consumerPrivateKey);
   console.log("\nConsumer signer's address:", await consumerSigner.getAddress());
 
-  console.log('Decrypting message...');
+  console.log('Decrypting message ...');
   const decryptedBytes = await decrypt(
     provider,
     domain,

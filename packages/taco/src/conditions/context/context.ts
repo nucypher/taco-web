@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import { CompoundConditionType } from '../compound-condition';
 import { Condition, ConditionProps } from '../condition';
 import { ConditionExpression } from '../condition-expr';
-import {CONTEXT_PARAM_REGEXP, USER_ADDRESS_PARAM} from '../const';
+import { CONTEXT_PARAM_REGEXP, USER_ADDRESS_PARAM } from '../const';
 
 import { TypedSignature, WalletAuthenticationProvider } from './providers';
 

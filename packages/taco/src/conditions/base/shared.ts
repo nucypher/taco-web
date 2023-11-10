@@ -3,15 +3,35 @@ import { z } from 'zod';
 import {
   CONTEXT_PARAM_REGEXP,
   ETH_ADDRESS_REGEXP,
-  USER_ADDRESS_PARAM
+  USER_ADDRESS_PARAM,
 } from '../const';
+import { CONTEXT_PARAM_PREFIX } from '../context/context';
 
 export const ContextParamSchema = z.string().regex(CONTEXT_PARAM_REGEXP);
-// Using unknown here because we don't know what the type of the parameter is
-// It could be a string, number, boolean, an array, etc.
-// We'll leave it up to the user to validate the type of the parameter.
-// In the `nucypher` implementation, we use an obfuscated `fields.Raw` type to denote this.
-export const ParamSchema = z.unknown();
+// We want to discriminate between ContextParams and plain strings
+// If a string starts with `:`, it's a ContextParam
+export const PlainStringSchema = z.string().refine(
+  (str) => {
+    if (str.startsWith(CONTEXT_PARAM_PREFIX)) {
+      return str.match(CONTEXT_PARAM_REGEXP);
+    }
+    return true;
+  },
+  {
+    message: 'Context parameters must start with ":"',
+  },
+);
+
+export const ParamPrimitiveTypeSchema = z.union([
+  PlainStringSchema,
+  z.boolean(),
+  z.number(),
+]);
+export const ParamSchema = z.union([
+  ParamPrimitiveTypeSchema,
+  z.array(ParamPrimitiveTypeSchema),
+]);
+
 export const ParamOrContextParamSchema = z.union([
   ParamSchema,
   ContextParamSchema,

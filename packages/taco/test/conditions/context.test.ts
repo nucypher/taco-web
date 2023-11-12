@@ -267,6 +267,18 @@ describe('param or context param schema', () => {
     ).toBe(true);
   });
 
+  it('accepts nested arrays', () => {
+    expect(
+      ParamOrContextParamSchema.safeParse([1, "hello", [123, 456, "hello", true]]).success,
+    ).toBe(true);
+  });
+
+  it('accepts nested arrays', () => {
+    expect(
+      ParamOrContextParamSchema.safeParse([1, "hello", [123, ":hello"]]).success,
+    ).toBe(true);
+  });
+
   it('rejects an object', () => {
     expect(ParamOrContextParamSchema.safeParse({}).success).toBe(false);
   });

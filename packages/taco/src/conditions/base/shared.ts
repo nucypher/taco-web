@@ -32,9 +32,10 @@ export const ParamSchema = z.union([
   z.array(ParamPrimitiveTypeSchema),
 ]);
 
-export const ParamOrContextParamSchema = z.union([
+export const ParamOrContextParamSchema: z.ZodSchema = z.union([
   ParamSchema,
   ContextParamSchema,
+  z.lazy(() => z.array(ParamOrContextParamSchema)),
 ]);
 
 export const returnValueTestSchema = z.object({

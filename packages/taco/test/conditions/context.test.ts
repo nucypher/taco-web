@@ -10,7 +10,7 @@ import {
   CustomContextParam,
   RpcCondition,
 } from '../../src/conditions';
-import { ParamOrContextParamSchema } from '../../src/conditions/base/shared';
+import { paramOrContextParamSchema } from '../../src/conditions/base/shared';
 import { USER_ADDRESS_PARAM } from '../../src/conditions/const';
 import { RESERVED_CONTEXT_PARAMS } from '../../src/conditions/context/context';
 import {
@@ -246,45 +246,45 @@ describe('context', () => {
 
 describe('param or context param schema', () => {
   it('accepts a plain string', () => {
-    expect(ParamOrContextParamSchema.safeParse('hello').success).toBe(true);
+    expect(paramOrContextParamSchema.safeParse('hello').success).toBe(true);
   });
 
   it('accepts a context param', () => {
-    expect(ParamOrContextParamSchema.safeParse(':hello').success).toBe(true);
+    expect(paramOrContextParamSchema.safeParse(':hello').success).toBe(true);
   });
 
   it('accepts a number', () => {
-    expect(ParamOrContextParamSchema.safeParse(123).success).toBe(true);
+    expect(paramOrContextParamSchema.safeParse(123).success).toBe(true);
   });
 
   it('accepts a boolean', () => {
-    expect(ParamOrContextParamSchema.safeParse(true).success).toBe(true);
+    expect(paramOrContextParamSchema.safeParse(true).success).toBe(true);
   });
 
   it('accepts an array', () => {
     expect(
-      ParamOrContextParamSchema.safeParse([1, 'hello', true]).success,
+      paramOrContextParamSchema.safeParse([1, 'hello', true]).success,
     ).toBe(true);
   });
 
   it('accepts nested arrays', () => {
     expect(
-      ParamOrContextParamSchema.safeParse([1, "hello", [123, 456, "hello", true]]).success,
+      paramOrContextParamSchema.safeParse([1, "hello", [123, 456, "hello", true]]).success,
     ).toBe(true);
   });
 
   it('accepts nested arrays', () => {
     expect(
-      ParamOrContextParamSchema.safeParse([1, "hello", [123, ":hello"]]).success,
+      paramOrContextParamSchema.safeParse([1, "hello", [123, ":hello"]]).success,
     ).toBe(true);
   });
 
   it('rejects an object', () => {
-    expect(ParamOrContextParamSchema.safeParse({}).success).toBe(false);
+    expect(paramOrContextParamSchema.safeParse({}).success).toBe(false);
   });
 
   it('rejects a context param with illegal character', () => {
     const badString = ':hello#';
-    expect(ParamOrContextParamSchema.safeParse(badString).success).toBe(false);
+    expect(paramOrContextParamSchema.safeParse(badString).success).toBe(false);
   });
 });

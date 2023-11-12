@@ -5,7 +5,7 @@ import createUnionSchema from '../zod';
 
 import {
   EthAddressOrUserAddressSchema,
-  ParamOrContextParamSchema,
+  paramOrContextParamSchema,
   returnValueTestSchema,
 } from './shared';
 
@@ -18,7 +18,7 @@ export const rpcConditionSchema = z.object({
   parameters: z.union([
     z.array(EthAddressOrUserAddressSchema).nonempty(),
     // Using tuple here because ordering matters
-    z.tuple([EthAddressOrUserAddressSchema, ParamOrContextParamSchema]),
+    z.tuple([EthAddressOrUserAddressSchema, paramOrContextParamSchema]),
   ]),
   returnValueTest: returnValueTestSchema,
 });

@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { ETH_ADDRESS_REGEXP } from '../const';
 
 import { rpcConditionSchema } from './rpc';
-import { ParamOrContextParamSchema } from './shared';
+import { paramOrContextParamSchema } from './shared';
 
 // TODO: Consider replacing with `z.unknown`:
 //    Since Solidity types are tied to Solidity version, we may not be able to accurately represent them in Zod.
@@ -81,7 +81,7 @@ export const contractConditionSchema = rpcConditionSchema
     standardContractType: z.enum(['ERC20', 'ERC721']).optional(),
     method: z.string(),
     functionAbi: functionAbiSchema.optional(),
-    parameters: z.array(ParamOrContextParamSchema),
+    parameters: z.array(paramOrContextParamSchema),
   })
   // Adding this custom logic causes the return type to be ZodEffects instead of ZodObject
   // https://github.com/colinhacks/zod/issues/2474

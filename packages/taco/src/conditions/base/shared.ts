@@ -7,10 +7,10 @@ import {
 } from '../const';
 import { CONTEXT_PARAM_PREFIX } from '../context/context';
 
-export const ContextParamSchema = z.string().regex(CONTEXT_PARAM_REGEXP);
+export const contextParamSchema = z.string().regex(CONTEXT_PARAM_REGEXP);
 // We want to discriminate between ContextParams and plain strings
 // If a string starts with `:`, it's a ContextParam
-export const PlainStringSchema = z.string().refine(
+export const plainStringSchema = z.string().refine(
   (str) => {
     if (str.startsWith(CONTEXT_PARAM_PREFIX)) {
       return str.match(CONTEXT_PARAM_REGEXP);
@@ -22,26 +22,26 @@ export const PlainStringSchema = z.string().refine(
   },
 );
 
-export const ParamPrimitiveTypeSchema = z.union([
-  PlainStringSchema,
+export const paramPrimitiveTypeSchema = z.union([
+  plainStringSchema,
   z.boolean(),
   z.number(),
 ]);
-export const ParamSchema = z.union([
-  ParamPrimitiveTypeSchema,
-  z.array(ParamPrimitiveTypeSchema),
+export const paramSchema = z.union([
+  paramPrimitiveTypeSchema,
+  z.array(paramPrimitiveTypeSchema),
 ]);
 
-export const ParamOrContextParamSchema: z.ZodSchema = z.union([
-  ParamSchema,
-  ContextParamSchema,
-  z.lazy(() => z.array(ParamOrContextParamSchema)),
+export const paramOrContextParamSchema: z.ZodSchema = z.union([
+  paramSchema,
+  contextParamSchema,
+  z.lazy(() => z.array(paramOrContextParamSchema)),
 ]);
 
 export const returnValueTestSchema = z.object({
   index: z.number().int().nonnegative().optional(),
   comparator: z.enum(['==', '>', '<', '>=', '<=', '!=']),
-  value: ParamOrContextParamSchema,
+  value: paramOrContextParamSchema,
 });
 
 export type ReturnValueTestProps = z.infer<typeof returnValueTestSchema>;

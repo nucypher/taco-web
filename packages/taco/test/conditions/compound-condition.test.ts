@@ -216,4 +216,36 @@ describe('validation', () => {
     });
     expect(condition.value.conditionType).toEqual(CompoundConditionType);
   });
+
+  it('rejects invalid operator', () => {
+    const badObj = {
+      operator: 'invalid-operator',
+      operands: [testContractConditionObj, testTimeConditionObj],
+    };
+    expect(() => new CompoundCondition(badObj)).toThrow();
+  });
+
+  it('rejects empty operands', () => {
+    const badObj = {
+      operator: 'and',
+      operands: [],
+    };
+    expect(() => new CompoundCondition(badObj)).toThrow();
+  });
+
+  it('rejects non-array operands for "and" and "or" operators', () => {
+    const badObj = {
+      operator: 'and',
+      operands: testContractConditionObj,
+    };
+    expect(() => new CompoundCondition(badObj)).toThrow();
+  });
+
+  it('rejects array operands for "not" operator', () => {
+    const badObj = {
+      operator: 'not',
+      operands: [testContractConditionObj, testTimeConditionObj],
+    };
+    expect(() => new CompoundCondition(badObj)).toThrow();
+  });
 });

@@ -308,4 +308,25 @@ describe('supports custom function abi', () => {
       });
     },
   );
+
+  it.each([
+    {
+      contractAddress: '0x123',
+      error: ['Invalid', 'String must contain exactly 42 character(s)'],
+    },
+    { contractAddress: undefined, error: ['Required'] },
+  ])('rejects invalid contract address', async ({ contractAddress, error }) => {
+    const result = ContractCondition.validate(contractConditionSchema, {
+      ...testContractConditionObj,
+      contractAddress,
+    });
+
+    expect(result.error).toBeDefined();
+    expect(result.data).toBeUndefined();
+    expect(result.error?.format()).toMatchObject({
+      contractAddress: {
+        _errors: error,
+      },
+    });
+  });
 });

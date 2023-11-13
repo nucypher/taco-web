@@ -94,5 +94,41 @@ describe('validation', () => {
         },
       });
     });
+
+    it('rejects empty parameters', () => {
+      const rpcObj = {
+        ...testRpcConditionObj,
+        parameters: [],
+      };
+
+      const result = RpcCondition.validate(rpcConditionSchema, rpcObj);
+      expect(result.error).toBeDefined();
+      expect(result.data).toBeUndefined();
+      expect(result.error?.format()).toMatchObject({
+        parameters: {
+          _errors: ['Array must contain at least 1 element(s)'],
+        },
+      });
+    });
+
+    it('rejects non-array parameters', () => {
+      const badRpcObj = {
+        ...testRpcConditionObj,
+        parameters: 'not an array',
+      };
+
+      const result = RpcCondition.validate(rpcConditionSchema, badRpcObj);
+      expect(result.error).toBeDefined();
+      expect(result.data).toBeUndefined();
+      expect(result.error?.format()).toMatchObject({
+        parameters: {
+          _errors: [
+            // Expecting two errors here because of the nested array-tuple in the parameters schema
+            'Expected array, received string',
+            'Expected array, received string',
+          ],
+        },
+      });
+    });
   });
 });

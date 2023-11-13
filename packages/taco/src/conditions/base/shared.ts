@@ -12,10 +12,7 @@ export const contextParamSchema = z.string().regex(CONTEXT_PARAM_REGEXP);
 // If a string starts with `:`, it's a ContextParam
 export const plainStringSchema = z.string().refine(
   (str) => {
-    if (str.startsWith(CONTEXT_PARAM_PREFIX)) {
-      return str.match(CONTEXT_PARAM_REGEXP);
-    }
-    return true;
+    return !str.startsWith(CONTEXT_PARAM_PREFIX);
   },
   {
     message: 'Context parameters must start with ":"',

@@ -502,7 +502,7 @@ importers:
     devDependencies:
       '@typechain/ethers-v5':
         specifier: ^11.1.2
-        version: 11.1.2(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2)(ethers@5.7.2)(typechain@8.3.1)(typescript@5.2.2)
+        version: 11.1.2(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2)(ethers@5.7.2)(typechain@8.3.2)(typescript@5.2.2)
       '@types/deep-equal':
         specifier: ^1.0.3
         version: 1.0.3
@@ -519,8 +519,8 @@ importers:
         specifier: ^9.0.0
         version: 9.5.0
       typechain:
-        specifier: ^8.3.1
-        version: 8.3.1(typescript@5.2.2)
+        specifier: ^8.3.2
+        version: 8.3.2(typescript@5.2.2)
 
   packages/taco:
     dependencies:
@@ -3918,7 +3918,7 @@ packages:
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
     dev: true
 
-  /@typechain/ethers-v5@11.1.2(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2)(ethers@5.7.2)(typechain@8.3.1)(typescript@5.2.2):
+  /@typechain/ethers-v5@11.1.2(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2)(ethers@5.7.2)(typechain@8.3.2)(typescript@5.2.2):
     resolution: {integrity: sha512-ID6pqWkao54EuUQa0P5RgjvfA3MYqxUQKpbGKERbsjBW5Ra7EIXvbMlPp2pcP5IAdUkyMCFYsP2SN5q7mPdLDQ==}
     peerDependencies:
       '@ethersproject/abi': ^5.0.0
@@ -3935,7 +3935,7 @@ packages:
       ethers: 5.7.2
       lodash: 4.17.21
       ts-essentials: 7.0.3(typescript@5.2.2)
-      typechain: 8.3.1(typescript@5.2.2)
+      typechain: 8.3.2(typescript@5.2.2)
       typescript: 5.2.2
     dev: true
 
@@ -13808,8 +13808,8 @@ packages:
       media-typer: 0.3.0
       mime-types: 2.1.35
 
-  /typechain@8.3.1(typescript@5.2.2):
-    resolution: {integrity: sha512-fA7clol2IP/56yq6vkMTR+4URF1nGjV82Wx6Rf09EsqD4tkzMAvEaqYxVFCavJm/1xaRga/oD55K+4FtuXwQOQ==}
+  /typechain@8.3.2(typescript@5.2.2):
+    resolution: {integrity: sha512-x/sQYr5w9K7yv3es7jo4KTX05CLxOf7TRWwoHlrjRh8H82G64g+k7VuWPJlgMo6qrjfCulOdfBjiaDtmhFYD/Q==}
     hasBin: true
     peerDependencies:
       typescript: '>=4.3.0'

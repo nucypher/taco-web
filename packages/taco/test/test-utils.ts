@@ -26,11 +26,11 @@ import {
   zip,
 } from '@nucypher/shared';
 import {
+  TEST_CHAIN_ID,
+  TEST_CONTRACT_ADDR,
   fakeDkgFlow,
   fakeSigner,
   fakeTDecFlow,
-  TEST_CHAIN_ID,
-  TEST_CONTRACT_ADDR,
 } from '@nucypher/test-utils';
 import { SpyInstance, vi } from 'vitest';
 

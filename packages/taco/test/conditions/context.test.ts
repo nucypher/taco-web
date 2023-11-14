@@ -1,18 +1,18 @@
-import {initialize} from '@nucypher/nucypher-core';
-import {fakeProvider, fakeSigner} from '@nucypher/test-utils';
-import {ethers} from 'ethers';
-import {beforeAll, describe, expect, it} from 'vitest';
+import { initialize } from '@nucypher/nucypher-core';
+import { fakeProvider, fakeSigner } from '@nucypher/test-utils';
+import { ethers } from 'ethers';
+import { beforeAll, describe, expect, it } from 'vitest';
 
-import {toBytes, toHexString} from '../../src';
+import { toBytes, toHexString } from '../../src';
 import {
   ConditionExpression,
   ContractCondition,
   CustomContextParam,
   RpcCondition,
 } from '../../src/conditions';
-import {paramOrContextParamSchema} from '../../src/conditions/base/shared';
-import {USER_ADDRESS_PARAM} from '../../src/conditions/const';
-import {RESERVED_CONTEXT_PARAMS} from '../../src/conditions/context/context';
+import { paramOrContextParamSchema } from '../../src/conditions/base/shared';
+import { USER_ADDRESS_PARAM } from '../../src/conditions/const';
+import { RESERVED_CONTEXT_PARAMS } from '../../src/conditions/context/context';
 import {
   testContractConditionObj,
   testFunctionAbi,
@@ -262,15 +262,21 @@ describe('param or context param schema', () => {
   });
 
   it('accepts a hex string', () => {
-    expect(paramOrContextParamSchema.safeParse("deadbeef").success).toBe(true);
+    expect(paramOrContextParamSchema.safeParse('deadbeef').success).toBe(true);
   });
 
   it('accepts a 0x-prefixed hex string', () => {
-    expect(paramOrContextParamSchema.safeParse("0xdeadbeef").success).toBe(true);
+    expect(paramOrContextParamSchema.safeParse('0xdeadbeef').success).toBe(
+      true,
+    );
   });
 
   it('accepts a hex-encoded-bytes', () => {
-    expect(paramOrContextParamSchema.safeParse(toHexString(new Uint8Array([1, 2, 3]))).success).toBe(true);
+    expect(
+      paramOrContextParamSchema.safeParse(
+        toHexString(new Uint8Array([1, 2, 3])),
+      ).success,
+    ).toBe(true);
   });
 
   it('accepts a boolean', () => {
@@ -285,13 +291,18 @@ describe('param or context param schema', () => {
 
   it('accepts nested arrays', () => {
     expect(
-      paramOrContextParamSchema.safeParse([1, "hello", [123, 456, "hello", true]]).success,
+      paramOrContextParamSchema.safeParse([
+        1,
+        'hello',
+        [123, 456, 'hello', true],
+      ]).success,
     ).toBe(true);
   });
 
   it('accepts nested arrays', () => {
     expect(
-      paramOrContextParamSchema.safeParse([1, "hello", [123, ":hello"]]).success,
+      paramOrContextParamSchema.safeParse([1, 'hello', [123, ':hello']])
+        .success,
     ).toBe(true);
   });
 
@@ -305,6 +316,8 @@ describe('param or context param schema', () => {
   });
 
   it('rejects raw bytes', () => {
-      expect(paramOrContextParamSchema.safeParse(new Uint8Array([1, 2, 3])).success).toBe(false);
+    expect(
+      paramOrContextParamSchema.safeParse(new Uint8Array([1, 2, 3])).success,
+    ).toBe(false);
   });
 });

@@ -20,7 +20,7 @@ export const rpcConditionSchema = z.object({
     // Using tuple here because ordering matters
     z.tuple([EthAddressOrUserAddressSchema, paramOrContextParamSchema]),
   ]),
-  returnValueTest: returnValueTestSchema,
+  returnValueTest: returnValueTestSchema, // Update to allow multiple return values after expanding supported methods
 });
 
 export type RpcConditionProps = z.infer<typeof rpcConditionSchema>;

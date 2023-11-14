@@ -15,7 +15,7 @@ export const plainStringSchema = z.string().refine(
     return !str.startsWith(CONTEXT_PARAM_PREFIX);
   },
   {
-    message: 'Context parameters must start with ":"',
+    message: 'String must not be a context parameter i.e. not start with ":"',
   },
 );
 

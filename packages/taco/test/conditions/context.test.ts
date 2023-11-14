@@ -6,8 +6,9 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { toBytes, toHexString } from '../../src';
 import {
   ConditionExpression,
-  ContractCondition,
+  ContractCondition, ContractConditionProps,
   CustomContextParam,
+  ReturnValueTestProps,
   RpcCondition,
 } from '../../src/conditions';
 import { paramOrContextParamSchema } from '../../src/conditions/base/shared';
@@ -119,13 +120,14 @@ describe('context', () => {
       );
     });
 
-    it('detects if a signer is required', () => {
+    it('detects when signer is required by parameters', () => {
       const conditionObj = {
         ...testContractConditionObj,
+        parameters: [USER_ADDRESS_PARAM],
         returnValueTest: {
-          ...testReturnValueTest,
-          value: USER_ADDRESS_PARAM,
-        },
+          comparator: '==',
+          value: 100,
+        } as ReturnValueTestProps,
       };
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
@@ -136,7 +138,27 @@ describe('context', () => {
       );
     });
 
-    it('detects if a signer is not required', () => {
+    it('detects when signer is required by return value test', () => {
+      const conditionObj = {
+        ...testContractConditionObj,
+        standardContractType: 'ERC721',
+        method: 'ownerOf',
+        parameters: [3591],
+        returnValueTest: {
+          comparator: '==',
+          value: USER_ADDRESS_PARAM,
+        },
+      } as ContractConditionProps;
+      const condition = new ContractCondition(conditionObj);
+      const conditionExpr = new ConditionExpression(condition);
+      expect(conditionExpr.contextRequiresSigner()).toBe(true);
+      expect(conditionExpr.buildContext(provider, {}, signer)).toBeDefined();
+      expect(() => conditionExpr.buildContext(provider, {})).toThrow(
+        `Signer required to satisfy ${USER_ADDRESS_PARAM} context variable in condition`,
+      );
+    });
+
+    it('detects when signer is not required', () => {
       const condition = new RpcCondition(testRpcConditionObj);
       const conditionExpr = new ConditionExpression(condition);
       expect(
@@ -261,7 +283,7 @@ describe('param or context param schema', () => {
     expect(paramOrContextParamSchema.safeParse(123.4).success).toBe(true);
   });
 
-  it('accepts a hex string', () => {
+  it('accepts a string', () => {
     expect(paramOrContextParamSchema.safeParse('deadbeef').success).toBe(true);
   });
 
@@ -304,6 +326,24 @@ describe('param or context param schema', () => {
       paramOrContextParamSchema.safeParse([1, 'hello', [123, ':hello']])
         .success,
     ).toBe(true);
+
+    expect(
+      paramOrContextParamSchema.safeParse([
+        1,
+        [
+          2,
+          [true, [1.23, ':hi', '0xdeadbeef'], ':my_name_is', 1],
+          ':slim_shady',
+          false,
+        ],
+      ]).success,
+    ).toBe(true);
+  });
+
+  it('rejects a nested array with a bad context variable', () => {
+    expect(
+      paramOrContextParamSchema.safeParse([1, 'hello', [123, ':1234']]).success,
+    ).toBe(false);
   });
 
   it('rejects an object', () => {

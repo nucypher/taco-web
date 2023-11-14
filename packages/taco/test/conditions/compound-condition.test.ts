@@ -7,8 +7,8 @@ import {
   TimeCondition,
 } from '../../src/conditions';
 import {
-  CompoundConditionType,
   compoundConditionSchema,
+  CompoundConditionType,
 } from '../../src/conditions/compound-condition';
 import {
   testContractConditionObj,

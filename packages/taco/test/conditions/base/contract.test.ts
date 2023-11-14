@@ -159,7 +159,7 @@ describe('supports custom function abi', () => {
     parameters: [USER_ADDRESS_PARAM, ':customParam'],
     returnValueTest: {
       comparator: '==',
-      value: USER_ADDRESS_PARAM,
+      value: 100,
     },
   };
   const contractCondition = new ContractCondition(contractConditionObj);

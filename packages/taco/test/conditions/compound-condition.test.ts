@@ -225,27 +225,58 @@ describe('validation', () => {
     expect(() => new CompoundCondition(badObj)).toThrow();
   });
 
-  it('rejects empty operands', () => {
-    const badObj = {
-      operator: 'and',
-      operands: [],
-    };
-    expect(() => new CompoundCondition(badObj)).toThrow();
-  });
+  it.each(['or', 'and', 'not'])(
+    'rejects empty operands for "%s" operator',
+    (operator) => {
+      const badObj = {
+        operator,
+        operands: [],
+      };
+      expect(() => new CompoundCondition(badObj)).toThrow();
+    },
+  );
 
-  it('rejects non-array operands for "and" and "or" operators', () => {
-    const badObj = {
-      operator: 'and',
-      operands: testContractConditionObj,
-    };
-    expect(() => new CompoundCondition(badObj)).toThrow();
-  });
+  it.each(['or', 'and', 'not'])(
+    'rejects non-array operands for "%s" operator',
+    (operator) => {
+      const badObj = {
+        operator,
+        operands: testContractConditionObj,
+      };
+      expect(() => new CompoundCondition(badObj)).toThrow();
+    },
+  );
 
-  it('rejects array operands for "not" operator', () => {
+  it('rejects array operands with non-one length for "not" operator', () => {
     const badObj = {
       operator: 'not',
       operands: [testContractConditionObj, testTimeConditionObj],
     };
     expect(() => new CompoundCondition(badObj)).toThrow();
   });
+
+  it.each(['or', 'and'])(
+    'accepts array operands for "%s" operator',
+    (operator) => {
+      const obj = {
+        operator,
+        operands: [testContractConditionObj, testTimeConditionObj],
+      };
+      expect(new CompoundCondition(obj).toObj()).toEqual({
+        conditionType: CompoundConditionType,
+        ...obj,
+      });
+    },
+  );
+
+  it.each(['or', 'and'])(
+    'rejects array operands with non-greater-than-one length for "%s" operator',
+    (operator) => {
+      const badObj = {
+        operator,
+        operands: [testContractConditionObj],
+      };
+      expect(() => new CompoundCondition(badObj)).toThrow();
+    },
+  );
 });

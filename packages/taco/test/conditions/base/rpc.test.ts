@@ -98,7 +98,7 @@ describe('validation', () => {
     it('rejects empty parameters', () => {
       const rpcObj = {
         ...testRpcConditionObj,
-        parameters: [],
+        parameters: [], // Update this after updating available RPC methods
       };
 
       const result = RpcCondition.validate(rpcConditionSchema, rpcObj);

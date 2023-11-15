@@ -157,13 +157,13 @@ export class DkgClient {
     );
   }
 
-  public static async getFinalizedRitual(
+  public static async getActiveRitual(
     provider: ethers.providers.Provider,
     domain: Domain,
     ritualId: number,
   ): Promise<DkgRitual> {
     const ritual = await DkgClient.getRitual(provider, domain, ritualId);
-    if (ritual.state !== DkgRitualState.FINALIZED) {
+    if (ritual.state !== DkgRitualState.ACTIVE) {
       throw new Error(ERR_RITUAL_NOT_FINALIZED(ritualId, ritual));
     }
     return ritual;

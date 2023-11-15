@@ -36,11 +36,12 @@ export type DkgParticipant = {
 
 export enum DkgRitualState {
   NON_INITIATED,
-  AWAITING_TRANSCRIPTS,
-  AWAITING_AGGREGATIONS,
-  TIMEOUT,
-  INVALID,
-  FINALIZED,
+  DKG_AWAITING_TRANSCRIPTS,
+  DKG_AWAITING_AGGREGATIONS,
+  DKG_TIMEOUT,
+  DKG_INVALID,
+  ACTIVE,
+  EXPIRED,
 }
 
 export class DkgCoordinatorAgent {

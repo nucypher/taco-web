@@ -3,8 +3,8 @@
 Download, install, build, and test with:
 
 ```bash
-git clone https://github.com/nucypher/nucypher-ts
-cd nucypher-ts
+git clone https://github.com/nucypher/taco-web
+cd taco-web
 pnpm install
 ```
 

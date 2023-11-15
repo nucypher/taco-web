@@ -1,6 +1,6 @@
 # `@nucypher/taco`
 
-### [`nucypher/nucypher-ts`](../../README.md)
+### [`nucypher/taco-web`](../../README.md)
 
 ## Usage
 

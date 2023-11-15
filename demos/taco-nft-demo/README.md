@@ -2,7 +2,7 @@
 
 See this demo in action at https://taco-nft-demo.netlify.app/
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/nucypher/nucypher-ts/tree/main/demos/taco-nft-demo)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/nucypher/taco-web/tree/main/demos/taco-nft-demo)
 
 ## Installation
 

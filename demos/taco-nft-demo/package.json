@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@nucypher/taco": "0.1.0-rc.6",
+    "@nucypher/shared": "0.1.0-rc.4",
     "@usedapp/core": "^1.2.13",
     "buffer": "^6.0.3",
     "ethers": "^5.7.1",
@@ -21,10 +22,6 @@
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.2.0",
     "react-spinners": "^0.13.6"
-  },
-  "peerDependencies": {
-    "@nucypher/taco": "workspace:*",
-    "@nucypher/shared": "workspace:*"
   },
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",

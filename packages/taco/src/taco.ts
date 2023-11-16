@@ -16,11 +16,9 @@ import {
 import { ethers } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 
-import {
-  Condition,
-  ConditionExpression,
-  CustomContextParam,
-} from './conditions';
+import { Condition } from './conditions/condition';
+import { ConditionExpression } from './conditions/condition-expr';
+import { CustomContextParam } from './conditions/context';
 import { DkgClient } from './dkg';
 import { retrieveAndDecrypt } from './tdec';
 

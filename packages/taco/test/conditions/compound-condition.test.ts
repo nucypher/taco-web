@@ -9,7 +9,7 @@ import {
 import {
   compoundConditionSchema,
   CompoundConditionType,
-} from '../../src/conditions/base/compound-condition';
+} from '../../src/conditions/compound-condition';
 import {
   testContractConditionObj,
   testRpcConditionObj,

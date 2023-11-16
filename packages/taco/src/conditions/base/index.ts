@@ -1,10 +1,10 @@
-import { Condition, ConditionProps } from '../condition';
-
 import {
   CompoundConditionProps,
   compoundConditionSchema,
   CompoundConditionType,
-} from './compound-condition';
+} from '../compound-condition';
+import { Condition, ConditionProps } from '../condition';
+
 import {
   ContractConditionProps,
   contractConditionSchema,
@@ -95,7 +95,4 @@ export {
 } from './contract';
 export { RpcConditionType, type RpcConditionProps } from './rpc';
 export { ReturnValueTestProps } from './shared';
-export {
-  TimeConditionType,
-  type TimeConditionProps,
-} from './time';
+export { TimeConditionType, type TimeConditionProps } from './time';

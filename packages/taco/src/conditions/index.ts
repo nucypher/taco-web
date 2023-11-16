@@ -1,11 +1,8 @@
 import * as base from './base';
 import * as predefined from './predefined';
 
-export {
-  CompoundConditionProps,
-  CompoundConditionType,
-} from './base/compound-condition';
-export { Condition, ConditionProps } from './condition';
-export { ConditionExpression, ConditionExpressionJSON } from './condition-expr';
-export { ConditionContext, CustomContextParam } from './context';
+export * as compound from './compound-condition';
+export * as condition from './condition';
+export * as conditionExpr from './condition-expr';
+export * as context from './context';
 export { base, predefined };

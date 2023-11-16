@@ -4,7 +4,6 @@ import { TEST_CHAIN_ID, TEST_CONTRACT_ADDR } from '@nucypher/test-utils';
 import { SemVer } from 'semver';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { ConditionExpression } from '../../src/conditions';
 import {
   CompoundCondition,
   ContractCondition,
@@ -14,8 +13,9 @@ import {
   TimeCondition,
   TimeConditionProps,
 } from '../../src/conditions/base';
+import { ConditionExpression } from '../../src/conditions/condition-expr';
 import { USER_ADDRESS_PARAM } from '../../src/conditions/const';
-import { ERC721Balance } from '../../src/conditions/predefined';
+import { ERC721Balance } from '../../src/conditions/predefined/erc721';
 import {
   testContractConditionObj,
   testFunctionAbi,

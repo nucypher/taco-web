@@ -3,9 +3,9 @@ import { fakeProvider, fakeSigner } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { initialize } from '../../src';
-import { ConditionContext } from '../../src/conditions';
 import { CompoundCondition } from '../../src/conditions/base';
 import { SUPPORTED_CHAIN_IDS } from '../../src/conditions/const';
+import { ConditionContext } from '../../src/conditions/context';
 
 describe('conditions', () => {
   beforeAll(async () => {

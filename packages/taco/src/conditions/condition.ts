@@ -16,7 +16,7 @@ import {
 import {
   CompoundConditionProps,
   CompoundConditionType,
-} from './base/compound-condition';
+} from './compound-condition';
 import { USER_ADDRESS_PARAM } from './const';
 
 type ConditionSchema = z.ZodSchema;
@@ -27,7 +27,7 @@ const ERR_INVALID_CONDITION = (error: z.ZodError) =>
 const ERR_INVALID_CONDITION_TYPE = (type: string) =>
   `Invalid condition type: ${type}`;
 
-class ConditionFactory {
+export class ConditionFactory {
   public static conditionFromProps(obj: ConditionProps): Condition {
     switch (obj.conditionType) {
       case RpcConditionType:

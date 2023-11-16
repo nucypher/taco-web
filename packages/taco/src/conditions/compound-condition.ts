@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-import { contractConditionSchema } from './contract';
-import { rpcConditionSchema } from './rpc';
-import { timeConditionSchema } from './time';
+import { contractConditionSchema } from './base/contract';
+import { rpcConditionSchema } from './base/rpc';
+import { timeConditionSchema } from './base/time';
 
 export const CompoundConditionType = 'compound';
 

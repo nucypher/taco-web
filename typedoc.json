@@ -6,5 +6,5 @@
     "packages/taco"
   ],
   "entryPointStrategy": "packages",
-  "name": "@nucypher/nucypher-ts"
+  "name": "@nucypher/taco-web"
 }

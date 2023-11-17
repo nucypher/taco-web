@@ -25,7 +25,7 @@ import { DkgClient } from './dkg';
 import { retrieveAndDecrypt } from './tdec';
 
 /**
- * Encrypts a message under given conditions using a public key from a finalized DKG ritual.
+ * Encrypts a message under given conditions using a public key from an active DKG ritual.
  *
  * @export
  * @param {ethers.providers.Provider} provider - Instance of ethers provider which is used to interact with
@@ -42,7 +42,7 @@ import { retrieveAndDecrypt } from './tdec';
  * @returns {Promise<ThresholdMessageKit>} Returns Promise that resolves with an instance of ThresholdMessageKit.
  * It represents the encrypted message.
  *
- * @throws {Error} If the finalized DKG Ritual cannot be retrieved an error is thrown.
+ * @throws {Error} If the active DKG Ritual cannot be retrieved an error is thrown.
  */
 export const encrypt = async (
   provider: ethers.providers.Provider,
@@ -64,11 +64,7 @@ export const encrypt = async (
   //   // Given that we just initialized the ritual, this should never happen
   //   throw new Error('Ritual ID is undefined');
   // }
-  const dkgRitual = await DkgClient.getFinalizedRitual(
-    provider,
-    domain,
-    ritualId,
-  );
+  const dkgRitual = await DkgClient.getActiveRitual(provider, domain, ritualId);
 
   return await encryptWithPublicKey(
     message,
@@ -85,7 +81,7 @@ export const encrypt = async (
  * @param {Uint8Array | string} message  - The message to be encrypted.
  * @param {Condition} condition - Condition under which the message will be encrypted. Those conditions must be
  * satisfied in order to decrypt the message.
- * @param {DkgPublicKey} dkgPublicKey - The public key of a finalized DKG Ritual to be used for encryption
+ * @param {DkgPublicKey} dkgPublicKey - The public key of an active DKG Ritual to be used for encryption
  * @param {ethers.Signer} authSigner - The signer that will be used to sign the encrypter authorization.
  *
  * @returns {Promise<ThresholdMessageKit>} Returns Promise that resolves with an instance of ThresholdMessageKit.
@@ -138,7 +134,7 @@ export const encryptWithPublicKey = async (
  *
  * @returns {Promise<Uint8Array>} Returns Promise that resolves with a decrypted message
  *
- * @throws {Error} If the finalized DKG Ritual cannot be retrieved or decryption process throws an error,
+ * @throws {Error} If the active DKG Ritual cannot be retrieved or decryption process throws an error,
  * an error is thrown.
  */
 export const decrypt = async (
@@ -158,7 +154,7 @@ export const decrypt = async (
     domain,
     messageKit.acp.publicKey,
   );
-  const ritual = await DkgClient.getFinalizedRitual(provider, domain, ritualId);
+  const ritual = await DkgClient.getActiveRitual(provider, domain, ritualId);
   return retrieveAndDecrypt(
     provider,
     domain,

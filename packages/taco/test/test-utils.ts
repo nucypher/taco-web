@@ -171,7 +171,7 @@ export const fakeDkgRitual = (ritual: {
     ritual.dkg.publicKey(),
     ritual.sharesNum,
     ritual.threshold,
-    DkgRitualState.FINALIZED,
+    DkgRitualState.ACTIVE,
   );
 };
 
@@ -181,8 +181,8 @@ export const mockGetRitual = (): SpyInstance => {
   });
 };
 
-export const mockGetFinalizedRitual = (dkgRitual: DkgRitual): SpyInstance => {
-  return vi.spyOn(DkgClient, 'getFinalizedRitual').mockImplementation(() => {
+export const mockGetActiveRitual = (dkgRitual: DkgRitual): SpyInstance => {
+  return vi.spyOn(DkgClient, 'getActiveRitual').mockImplementation(() => {
     return Promise.resolve(dkgRitual);
   });
 };

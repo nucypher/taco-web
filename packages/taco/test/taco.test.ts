@@ -21,7 +21,7 @@ import { conditions, domains, toBytes } from '../src';
 import {
   fakeDkgRitual,
   mockDkgParticipants,
-  mockGetFinalizedRitual,
+  mockGetActiveRitual,
   mockGetParticipants,
   mockMakeSessionKey,
 } from './test-utils';
@@ -44,7 +44,7 @@ describe('taco', () => {
     const mockedDkgRitual = fakeDkgRitual(mockedDkg);
     const provider = fakeProvider(aliceSecretKeyBytes);
     const signer = fakeSigner(aliceSecretKeyBytes);
-    const getFinalizedRitualSpy = mockGetFinalizedRitual(mockedDkgRitual);
+    const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);
 
     const messageKit = await taco.encrypt(
       provider,
@@ -77,7 +77,7 @@ describe('taco', () => {
     const getRitualIdFromPublicKey = mockGetRitualIdFromPublicKey(
       mockedDkg.ritualId,
     );
-    const getRitualSpy = mockGetFinalizedRitual(mockedDkgRitual);
+    const getRitualSpy = mockGetActiveRitual(mockedDkgRitual);
 
     const decryptedMessage = await taco.decrypt(
       provider,

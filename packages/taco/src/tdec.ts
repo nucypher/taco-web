@@ -29,6 +29,15 @@ import {
   CustomContextParam,
 } from './conditions';
 
+const ERR_DECRYPTION_FAILED = (errors: unknown) =>
+  `Threshold of responses not met; TACo decryption failed with errors: ${JSON.stringify(
+    errors,
+  )}`;
+const ERR_RITUAL_ID_MISMATCH = (
+  expectedRitualId: number,
+  ritualIds: number[],
+) => `Ritual id mismatch. Expected ${expectedRitualId}, got ${ritualIds}`;
+
 export const encryptMessage = async (
   plaintext: Uint8Array | string,
   encryptingKey: DkgPublicKey,
@@ -111,11 +120,7 @@ const retrieve = async (
     threshold,
   );
   if (Object.keys(encryptedResponses).length < threshold) {
-    throw new Error(
-      `Threshold of responses not met; TACo decryption failed with errors: ${JSON.stringify(
-        errors,
-      )}`,
-    );
+    throw new Error(ERR_DECRYPTION_FAILED(errors));
   }
 
   return makeDecryptionShares(encryptedResponses, sharedSecrets, ritualId);
@@ -132,9 +137,7 @@ const makeDecryptionShares = (
 
   const ritualIds = decryptedResponses.map(({ ritualId }) => ritualId);
   if (ritualIds.some((ritualId) => ritualId !== expectedRitualId)) {
-    throw new Error(
-      `Ritual id mismatch. Expected ${expectedRitualId}, got ${ritualIds}`,
-    );
+    throw new Error(ERR_RITUAL_ID_MISMATCH(expectedRitualId, ritualIds));
   }
 
   return decryptedResponses.map(({ decryptionShare }) =>

@@ -62,6 +62,9 @@ export class DkgRitual {
   }
 }
 
+const ERR_RITUAL_NOT_FINALIZED = (ritualId: number, ritual: DkgRitual) =>
+  `Ritual ${ritualId} is not finalized. State: ${ritual.state}`;
+
 export class DkgClient {
   public static async initializeRitual(
     provider: ethers.providers.Provider,
@@ -77,7 +80,7 @@ export class DkgClient {
       provider,
       signer,
       domain,
-      ursulas.sort(),
+      ursulas.sort(), // Contract call requires sorted addresses
       authority,
       duration,
       accessController,
@@ -161,9 +164,7 @@ export class DkgClient {
   ): Promise<DkgRitual> {
     const ritual = await DkgClient.getRitual(provider, domain, ritualId);
     if (ritual.state !== DkgRitualState.FINALIZED) {
-      throw new Error(
-        `Ritual ${ritualId} is not finalized. State: ${ritual.state}`,
-      );
+      throw new Error(ERR_RITUAL_NOT_FINALIZED(ritualId, ritual));
     }
     return ritual;
   }

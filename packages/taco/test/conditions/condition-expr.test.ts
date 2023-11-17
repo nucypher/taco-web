@@ -29,7 +29,6 @@ describe('condition set', () => {
     chain: TEST_CHAIN_ID,
     contractAddress: TEST_CONTRACT_ADDR,
     returnValueTest: {
-      index: 0,
       comparator: '>',
       value: 0,
     },

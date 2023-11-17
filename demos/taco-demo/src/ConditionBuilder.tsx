@@ -14,7 +14,7 @@ const rpcCondition = new conditions.RpcCondition({
   parameters: [':userAddress'],
   returnValueTest: {
     comparator: '>',
-    value: '0',
+    value: 0,
   },
 });
 

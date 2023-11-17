@@ -3,20 +3,24 @@ import { z } from 'zod';
 import { SUPPORTED_CHAIN_IDS } from '../const';
 import createUnionSchema from '../zod';
 
-import { EthAddressOrUserAddressSchema, returnValueTestSchema } from './shared';
+import {
+  EthAddressOrUserAddressSchema,
+  paramOrContextParamSchema,
+  returnValueTestSchema,
+} from './shared';
 
 export const RpcConditionType = 'rpc';
 
 export const rpcConditionSchema = z.object({
   conditionType: z.literal(RpcConditionType).default(RpcConditionType),
   chain: createUnionSchema(SUPPORTED_CHAIN_IDS),
-  method: z.enum(['eth_getBalance', 'balanceOf']),
+  method: z.enum(['eth_getBalance']),
   parameters: z.union([
-    z.array(EthAddressOrUserAddressSchema).length(1),
+    z.array(EthAddressOrUserAddressSchema).nonempty(),
     // Using tuple here because ordering matters
-    z.tuple([EthAddressOrUserAddressSchema, z.union([z.string(), z.number()])]),
+    z.tuple([EthAddressOrUserAddressSchema, paramOrContextParamSchema]),
   ]),
-  returnValueTest: returnValueTestSchema,
+  returnValueTest: returnValueTestSchema, // Update to allow multiple return values after expanding supported methods
 });
 
 export type RpcConditionProps = z.infer<typeof rpcConditionSchema>;

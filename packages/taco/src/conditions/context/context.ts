@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import { CompoundConditionType } from '../compound-condition';
 import { Condition, ConditionProps } from '../condition';
 import { ConditionExpression } from '../condition-expr';
-import { USER_ADDRESS_PARAM } from '../const';
+import { CONTEXT_PARAM_REGEXP, USER_ADDRESS_PARAM } from '../const';
 
 import { TypedSignature, WalletAuthenticationProvider } from './providers';
 
@@ -112,7 +112,7 @@ export class ConditionContext {
   }
 
   private isContextParameter(param: unknown): boolean {
-    return typeof param === 'string' && param.startsWith(CONTEXT_PARAM_PREFIX);
+    return !!String(param).match(CONTEXT_PARAM_REGEXP);
   }
 
   private findRequestedParameters(condition: ConditionProps) {

@@ -8,8 +8,8 @@
     "start": "webpack serve --mode development",
     "build": "pnpm clean && webpack --mode production --progress",
     "clean": "rimraf build",
-    "check": "pnpm typecheck && pnpm build",
-    "typecheck": "tsc --noEmit"
+    "check": "pnpm type-check && pnpm build",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@nucypher/taco": "0.1.0-rc.6",

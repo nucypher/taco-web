@@ -71,7 +71,7 @@ export const NFTConditionBuilder = ({
       parameters: [':userAddress'],
       returnValueTest: {
         comparator: '>',
-        value: '0',
+        value: 0,
       },
     });
   };

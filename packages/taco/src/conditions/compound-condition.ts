@@ -40,11 +40,10 @@ export const compoundConditionSchema: z.ZodSchema = z
       // We test positive cases exhaustively, so we return false here:
       return false;
     },
-    ({ operands, operator  }) => ({
-        message: `Invalid number of operands ${operands.length} for operator "${operator}"`,
-        path: ['operands'],
-    })
+    ({ operands, operator }) => ({
+      message: `Invalid number of operands ${operands.length} for operator "${operator}"`,
+      path: ['operands'],
+    }),
   );
-
 
 export type CompoundConditionProps = z.infer<typeof compoundConditionSchema>;

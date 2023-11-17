@@ -40,8 +40,9 @@
   },
   "dependencies": {
     "@ethersproject/abstract-signer": "^5.7.0",
-    "@nucypher/nucypher-core": "0.13.0-alpha.1",
+    "@nucypher/nucypher-core": "^0.13.0-alpha.1",
     "@nucypher/shared": "^0.1.0-rc.4",
+    "ethers": "^5.7.2",
     "semver": "^7.5.2",
     "zod": "^3.22.4"
   },
@@ -50,8 +51,7 @@
     "@types/semver": "^7.5.4"
   },
   "peerDependencies": {
-    "@nucypher/shared": "workspace:*",
-    "ethers": "^5.7.2"
+    "@nucypher/shared": "workspace:*"
   },
   "engines": {
     "node": ">=18",

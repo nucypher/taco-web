@@ -7,7 +7,7 @@ import {
   SecretKey,
 } from '@nucypher/pre';
 import { ethers } from 'ethers';
-import { hexlify } from "ethers/lib/utils";
+import { hexlify } from 'ethers/lib/utils';
 
 declare global {
   interface Window {

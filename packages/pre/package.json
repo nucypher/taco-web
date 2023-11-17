@@ -39,13 +39,11 @@
   },
   "dependencies": {
     "@nucypher/nucypher-core": "^0.13.0-alpha.1",
-    "@nucypher/shared": "workspace:*"
+    "@nucypher/shared": "workspace:*",
+    "ethers": "^5.7.2"
   },
   "devDependencies": {
     "@nucypher/test-utils": "workspace:*"
-  },
-  "peerDependencies": {
-    "ethers": "^5.7.2"
   },
   "engines": {
     "node": ">=18",

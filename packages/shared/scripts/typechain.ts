@@ -11,7 +11,6 @@ import {
 import * as tmp from 'tmp';
 import { glob, runTypeChain } from 'typechain';
 
-
 const parseContractRegistry = (registry: ContractRegistry): Contract[] =>
   Object.keys(registry)
     .map((chainId) => {

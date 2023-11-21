@@ -1,15 +1,16 @@
+import { ChainId } from '@nucypher/shared';
 import { conditions } from '../src';
 
 const ownsNFT = new conditions.predefined.erc721.ERC721Ownership({
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
   parameters: [3591],
-  chain: 5,
+  chain: ChainId.SEPOLIA,
 });
 console.assert(ownsNFT.requiresSigner(), 'ERC721Ownership requires signer');
 
 const hasAtLeastTwoNFTs = new conditions.predefined.erc721.ERC721Balance({
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
-  chain: 5,
+  chain: ChainId.SEPOLIA,
   returnValueTest: {
     comparator: '>=',
     value: 2,
@@ -27,7 +28,7 @@ const ownsNFTRaw = new conditions.base.contract.ContractCondition({
   standardContractType: 'ERC721',
   // User-provided
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
-  chain: 5,
+  chain: ChainId.SEPOLIA,
   returnValueTest: {
     comparator: '>',
     value: 0,
@@ -39,7 +40,7 @@ console.assert(
 );
 
 const hasAnyNativeAsset = new conditions.base.rpc.RpcCondition({
-  chain: 5,
+  chain: ChainId.SEPOLIA,
   method: 'eth_getBalance',
   parameters: [':userAddress'],
   returnValueTest: {
@@ -55,7 +56,7 @@ console.assert(
 const ownsNFTOnChain5 = new conditions.predefined.erc721.ERC721Ownership({
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
   parameters: [3591],
-  chain: 5, // The first network we target
+  chain: ChainId.SEPOLIA, // The first network we target
 });
 
 const hasAnyNativeAssetOnChain1 = new conditions.base.rpc.RpcCondition({
@@ -108,7 +109,7 @@ const myContractCallCondition = new conditions.base.contract.ContractCondition({
   parameters: [':userAddress', ':myCustomParam'], // `myMethodAbi.inputs`
   functionAbi: myFunctionAbi,
   contractAddress: '0x0...1',
-  chain: 5,
+  chain: ChainId.SEPOLIA,
   returnValueTest: {
     comparator: '>',
     value: 0,

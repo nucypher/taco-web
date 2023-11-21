@@ -12,6 +12,7 @@ import {
   fakeTDecFlow,
   mockGetRitualIdFromPublicKey,
   mockTacoDecrypt,
+  TEST_CHAIN_ID,
 } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
@@ -31,7 +32,7 @@ const message = 'this is a secret';
 const ownsNFT = new conditions.predefined.erc721.ERC721Ownership({
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
   parameters: [3591],
-  chain: 5,
+  chain: TEST_CHAIN_ID,
 });
 
 describe('taco', () => {

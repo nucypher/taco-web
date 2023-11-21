@@ -14,7 +14,7 @@ describe('conditions', () => {
 
   it('creates a complex condition with custom parameters', async () => {
     const hasPositiveBalance = {
-      chain: 80001,
+      chain: ChainId.MUMBAI,
       method: 'eth_getBalance',
       parameters: [':userAddress', 'latest'],
       returnValueTest: {
@@ -23,7 +23,7 @@ describe('conditions', () => {
       },
     };
     const timeIsGreaterThan = {
-      chain: 5,
+      chain: ChainId.SEPOLIA,
       method: 'blocktime',
       returnValueTest: {
         comparator: '>',

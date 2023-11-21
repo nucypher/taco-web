@@ -1,3 +1,5 @@
+import { ChainId } from '@nucypher/shared';
+
 export const aliceSecretKeyBytes = new Uint8Array([
   55, 82, 190, 189, 203, 164, 60, 148, 36, 86, 46, 123, 63, 152, 215, 113, 174,
   86, 244, 44, 23, 227, 197, 68, 5, 85, 116, 31, 208, 152, 88, 53,
@@ -11,4 +13,4 @@ export const bobSecretKeyBytes = new Uint8Array([
 export const TEST_CONTRACT_ADDR = '0x0000000000000000000000000000000000000001';
 export const TEST_CONTRACT_ADDR_2 =
   '0x0000000000000000000000000000000000000002';
-export const TEST_CHAIN_ID = 5;
+export const TEST_CHAIN_ID = ChainId.SEPOLIA;

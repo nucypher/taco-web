@@ -12,7 +12,6 @@ export const CONTEXT_PARAM_PREFIX = ':';
 export const SUPPORTED_CHAIN_IDS = [
   ChainId.POLYGON,
   ChainId.MUMBAI,
-  ChainId.GOERLI,
   ChainId.SEPOLIA,
   ChainId.ETHEREUM_MAINNET,
 ];

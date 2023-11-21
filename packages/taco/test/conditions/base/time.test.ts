@@ -61,4 +61,21 @@ describe('validation', () => {
     });
     expect(condition.value.conditionType).toEqual(TimeConditionType);
   });
+
+  it('rejects non-existing method', () => {
+    const badObj = {
+      ...returnValueTest,
+      method: 'non-existing-method',
+      chain: 5,
+    } as unknown as TimeConditionProps;
+    const result = TimeCondition.validate(timeConditionSchema, badObj);
+
+    expect(result.error).toBeDefined();
+    expect(result.data).toBeUndefined();
+    expect(result.error?.format()).toMatchObject({
+      method: {
+        _errors: ['Invalid literal value, expected "blocktime"'],
+      },
+    });
+  });
 });

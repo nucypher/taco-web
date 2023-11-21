@@ -336,7 +336,8 @@ describe('param or context param schema', () => {
           ':slim_shady',
           false,
         ],
-      ]).success,
+      ])
+        .success,
     ).toBe(true);
   });
 
@@ -358,6 +359,23 @@ describe('param or context param schema', () => {
   it('rejects raw bytes', () => {
     expect(
       paramOrContextParamSchema.safeParse(new Uint8Array([1, 2, 3])).success,
+    ).toBe(false);
+  });
+
+  it('rejects a null value', () => {
+    expect(paramOrContextParamSchema.safeParse(null).success).toBe(false);
+  });
+
+  it('rejects an undefined value', () => {
+    expect(paramOrContextParamSchema.safeParse(undefined).success).toBe(false);
+  });
+
+  it('rejects a date object', () => {
+    expect(paramOrContextParamSchema.safeParse(new Date()).success).toBe(false);
+  });
+
+  it('rejects a function', () => {
+    expect(paramOrContextParamSchema.safeParse(() => {}).success,
     ).toBe(false);
   });
 });

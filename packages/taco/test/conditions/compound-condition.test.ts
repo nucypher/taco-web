@@ -216,4 +216,67 @@ describe('validation', () => {
     });
     expect(condition.value.conditionType).toEqual(CompoundConditionType);
   });
+
+  it('rejects invalid operator', () => {
+    const badObj = {
+      operator: 'invalid-operator',
+      operands: [testContractConditionObj, testTimeConditionObj],
+    };
+    expect(() => new CompoundCondition(badObj)).toThrow();
+  });
+
+  it.each(['or', 'and', 'not'])(
+    'rejects empty operands for "%s" operator',
+    (operator) => {
+      const badObj = {
+        operator,
+        operands: [],
+      };
+      expect(() => new CompoundCondition(badObj)).toThrow();
+    },
+  );
+
+  it.each(['or', 'and', 'not'])(
+    'rejects non-array operands for "%s" operator',
+    (operator) => {
+      const badObj = {
+        operator,
+        operands: testContractConditionObj,
+      };
+      expect(() => new CompoundCondition(badObj)).toThrow();
+    },
+  );
+
+  it('rejects array operands with non-one length for "not" operator', () => {
+    const badObj = {
+      operator: 'not',
+      operands: [testContractConditionObj, testTimeConditionObj],
+    };
+    expect(() => new CompoundCondition(badObj)).toThrow();
+  });
+
+  it.each(['or', 'and'])(
+    'accepts array operands for "%s" operator',
+    (operator) => {
+      const obj = {
+        operator,
+        operands: [testContractConditionObj, testTimeConditionObj],
+      };
+      expect(new CompoundCondition(obj).toObj()).toEqual({
+        conditionType: CompoundConditionType,
+        ...obj,
+      });
+    },
+  );
+
+  it.each(['or', 'and'])(
+    'rejects array operands with non-greater-than-one length for "%s" operator',
+    (operator) => {
+      const badObj = {
+        operator,
+        operands: [testContractConditionObj],
+      };
+      expect(() => new CompoundCondition(badObj)).toThrow();
+    },
+  );
 });

@@ -46,6 +46,7 @@ describe('validation', () => {
           'Invalid literal value, expected 137',
           'Invalid literal value, expected 80001',
           'Invalid literal value, expected 5',
+          'Invalid literal value, expected 11155111',
           'Invalid literal value, expected 1',
         ],
       },

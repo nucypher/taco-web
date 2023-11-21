@@ -1,8 +1,10 @@
+import { ChainId } from '@nucypher/shared';
 import { fakeProvider, fakeSigner } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { initialize } from '../../src';
 import { CompoundCondition, ConditionContext } from '../../src/conditions';
+import { SUPPORTED_CHAIN_IDS } from '../../src/conditions/const';
 
 describe('conditions', () => {
   beforeAll(async () => {
@@ -45,5 +47,11 @@ describe('conditions', () => {
     const asObj = await context.toObj();
     expect(asObj).toBeDefined();
     expect(asObj[':time']).toBe(100);
+  });
+
+  it('has supported chains consistent with shared', async () => {
+    const chainIdsAndNames = Object.values(ChainId);
+    const chainIds = chainIdsAndNames.filter((id) => typeof id === 'number');
+    expect(SUPPORTED_CHAIN_IDS).toEqual(chainIds);
   });
 });

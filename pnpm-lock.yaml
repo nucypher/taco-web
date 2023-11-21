@@ -18,7 +18,7 @@ importers:
         specifier: ^2.26.2
         version: 2.26.2
       '@nucypher/nucypher-core':
-        specifier: 0.13.0-alpha.1
+        specifier: ^0.13.0-alpha.1
         version: 0.13.0-alpha.1
     devDependencies:
       '@skypack/package-check':
@@ -106,10 +106,10 @@ importers:
   demos/taco-demo:
     dependencies:
       '@nucypher/shared':
-        specifier: 0.1.0-rc.4
+        specifier: ^0.1.0-rc.4
         version: link:../../packages/shared
       '@nucypher/taco':
-        specifier: 0.1.0-rc.6
+        specifier: ^0.1.0-rc.6
         version: link:../../packages/taco
       '@usedapp/core':
         specifier: ^1.2.13
@@ -182,10 +182,10 @@ importers:
   demos/taco-nft-demo:
     dependencies:
       '@nucypher/shared':
-        specifier: 0.1.0-rc.4
+        specifier: ^0.1.0-rc.4
         version: link:../../packages/shared
       '@nucypher/taco':
-        specifier: 0.1.0-rc.6
+        specifier: ^0.1.0-rc.6
         version: link:../../packages/taco
       '@usedapp/core':
         specifier: ^1.2.13
@@ -287,9 +287,6 @@ importers:
       react-dom:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
-      typescript:
-        specifier: 5.2.2
-        version: 5.2.2
 
   examples/pre/nodejs:
     dependencies:
@@ -336,9 +333,6 @@ importers:
       '@nucypher/pre':
         specifier: workspace:*
         version: link:../../../packages/pre
-      ethers:
-        specifier: ^5.7.2
-        version: 5.7.2
     devDependencies:
       copy-webpack-plugin:
         specifier: ^11.0.0
@@ -346,6 +340,9 @@ importers:
       esbuild-loader:
         specifier: ^2.11.0
         version: 2.21.0(webpack@5.88.2)
+      ethers:
+        specifier: ^5.7.2
+        version: 5.7.2
       webpack:
         specifier: ^5.4.0
         version: 5.88.2(webpack-cli@5.1.4)
@@ -460,7 +457,7 @@ importers:
   packages/pre:
     dependencies:
       '@nucypher/nucypher-core':
-        specifier: 0.13.0-alpha.1
+        specifier: ^0.13.0-alpha.1
         version: 0.13.0-alpha.1
       '@nucypher/shared':
         specifier: workspace:*
@@ -482,10 +479,10 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       '@nucypher/nucypher-contracts':
-        specifier: 0.12.0
+        specifier: ^0.12.0
         version: 0.12.0
       '@nucypher/nucypher-core':
-        specifier: 0.13.0-alpha.1
+        specifier: ^0.13.0-alpha.1
         version: 0.13.0-alpha.1
       axios:
         specifier: ^1.6.2
@@ -528,10 +525,10 @@ importers:
         specifier: ^5.7.0
         version: 5.7.0
       '@nucypher/nucypher-core':
-        specifier: 0.13.0-alpha.1
+        specifier: ^0.13.0-alpha.1
         version: 0.13.0-alpha.1
       '@nucypher/shared':
-        specifier: 0.1.0-rc.4
+        specifier: ^0.1.0-rc.4
         version: link:../shared
       ethers:
         specifier: ^5.7.2
@@ -553,7 +550,7 @@ importers:
   packages/test-utils:
     dependencies:
       '@nucypher/nucypher-core':
-        specifier: 0.13.0-alpha.1
+        specifier: ^0.13.0-alpha.1
         version: 0.13.0-alpha.1
       '@nucypher/shared':
         specifier: workspace:*

@@ -42,8 +42,8 @@
   "dependencies": {
     "@ethersproject/abi": "^5.7.0",
     "@ethersproject/providers": "^5.7.2",
-    "@nucypher/nucypher-contracts": "0.12.0",
-    "@nucypher/nucypher-core": "0.13.0-alpha.1",
+    "@nucypher/nucypher-contracts": "^0.12.0",
+    "@nucypher/nucypher-core": "^0.13.0-alpha.1",
     "axios": "^1.6.2",
     "deep-equal": "^2.2.1",
     "ethers": "^5.7.2",

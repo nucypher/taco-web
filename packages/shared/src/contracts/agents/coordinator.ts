@@ -1,4 +1,4 @@
-import { getContract } from '@nucypher/nucypher-contracts'
+import { getContract } from '@nucypher/nucypher-contracts';
 import {
   DkgPublicKey,
   SessionStaticKey,

@@ -25,15 +25,13 @@
   "dependencies": {
     "@nucypher/pre": "workspace:*",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "ethers": "^5.7.2"
   },
   "devDependencies": {
     "@types/node": "^16.18.50",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.14",
     "react-scripts": "^5.0.1"
-  },
-  "peerDependencies": {
-    "ethers": "^5.7.2"
   }
 }

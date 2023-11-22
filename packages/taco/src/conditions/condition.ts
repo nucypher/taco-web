@@ -1,22 +1,6 @@
 import { objectEquals } from '@nucypher/shared';
 import { z } from 'zod';
 
-import {
-  CompoundCondition,
-  ContractCondition,
-  ContractConditionProps,
-  ContractConditionType,
-  RpcCondition,
-  RpcConditionProps,
-  RpcConditionType,
-  TimeCondition,
-  TimeConditionProps,
-  TimeConditionType,
-} from './base';
-import {
-  CompoundConditionProps,
-  CompoundConditionType,
-} from './compound-condition';
 import { USER_ADDRESS_PARAM } from './const';
 
 type ConditionSchema = z.ZodSchema;
@@ -24,25 +8,6 @@ export type ConditionProps = z.infer<ConditionSchema>;
 
 const ERR_INVALID_CONDITION = (error: z.ZodError) =>
   `Invalid condition: ${JSON.stringify(error.issues)}`;
-const ERR_INVALID_CONDITION_TYPE = (type: string) =>
-  `Invalid condition type: ${type}`;
-
-export class ConditionFactory {
-  public static conditionFromProps(obj: ConditionProps): Condition {
-    switch (obj.conditionType) {
-      case RpcConditionType:
-        return new RpcCondition(obj as RpcConditionProps);
-      case TimeConditionType:
-        return new TimeCondition(obj as TimeConditionProps);
-      case ContractConditionType:
-        return new ContractCondition(obj as ContractConditionProps);
-      case CompoundConditionType:
-        return new CompoundCondition(obj as CompoundConditionProps);
-      default:
-        throw new Error(ERR_INVALID_CONDITION_TYPE(obj.conditionType));
-    }
-  }
-}
 
 export class Condition {
   constructor(
@@ -80,10 +45,6 @@ export class Condition {
       throw new Error(ERR_INVALID_CONDITION(error));
     }
     return data;
-  }
-
-  public static fromObj(obj: ConditionProps): Condition {
-    return ConditionFactory.conditionFromProps(obj);
   }
 
   public equals(other: Condition) {

@@ -4,6 +4,7 @@ import { ethers } from 'ethers';
 import { SemVer } from 'semver';
 
 import { Condition } from './condition';
+import { ConditionFactory } from './condition-factory';
 import { ConditionContext, CustomContextParam } from './context';
 
 const ERR_VERSION = (provided: string, current: string) =>
@@ -43,7 +44,7 @@ export class ConditionExpression {
       throw new Error(ERR_CONDITION(obj.condition));
     }
 
-    const condition = Condition.fromObj(obj.condition);
+    const condition = ConditionFactory.conditionFromProps(obj.condition);
     return new ConditionExpression(condition, obj.version);
   }
 

@@ -16,3 +16,5 @@ export const SUPPORTED_CHAIN_IDS = [
   ChainId.SEPOLIA,
   ChainId.ETHEREUM_MAINNET,
 ];
+
+export const RESERVED_CONTEXT_PARAMS = [USER_ADDRESS_PARAM];

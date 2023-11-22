@@ -8,7 +8,7 @@ interface Props {
   enabled: boolean;
 }
 
-const rpcCondition = new conditions.base.RpcCondition({
+const rpcCondition = new conditions.base.rpc.RpcCondition({
   chain: Mumbai.chainId,
   method: 'eth_getBalance',
   parameters: [':userAddress'],
@@ -59,7 +59,7 @@ export const ConditionBuilder = ({
 
   const onCreateCondition = (e: any) => {
     e.preventDefault();
-    setConditions(conditions.condition.Condition.fromObj(JSON.parse(conditionString)));
+    setConditions(conditions.ConditionFactory.conditionFromProps(JSON.parse(conditionString)));
   };
 
   return (

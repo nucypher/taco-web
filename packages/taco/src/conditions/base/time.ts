@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+import { Condition } from '../condition';
+import { OmitConditionType } from '../shared';
+
 import { rpcConditionSchema } from './rpc';
 
 // TimeCondition is an RpcCondition with the method set to 'blocktime' and no parameters
@@ -16,3 +19,12 @@ export const timeConditionSchema = z.object({
 });
 
 export type TimeConditionProps = z.infer<typeof timeConditionSchema>;
+
+export class TimeCondition extends Condition {
+  constructor(value: OmitConditionType<TimeConditionProps>) {
+    super(timeConditionSchema, {
+      conditionType: TimeConditionType,
+      ...value,
+    });
+  }
+}

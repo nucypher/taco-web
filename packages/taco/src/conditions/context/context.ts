@@ -8,6 +8,7 @@ import { ConditionExpression } from '../condition-expr';
 import {
   CONTEXT_PARAM_PREFIX,
   CONTEXT_PARAM_REGEXP,
+  RESERVED_CONTEXT_PARAMS,
   USER_ADDRESS_PARAM,
 } from '../const';
 
@@ -15,8 +16,6 @@ import { TypedSignature, WalletAuthenticationProvider } from './providers';
 
 export type CustomContextParam = string | number | boolean;
 export type ContextParam = CustomContextParam | TypedSignature;
-
-export const RESERVED_CONTEXT_PARAMS = [USER_ADDRESS_PARAM];
 
 const ERR_RESERVED_PARAM = (key: string) =>
   `Cannot use reserved parameter name ${key} as custom parameter`;

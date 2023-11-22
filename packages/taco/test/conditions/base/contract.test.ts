@@ -2,8 +2,8 @@ import { initialize } from '@nucypher/nucypher-core';
 import { fakeProvider, fakeSigner } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { ContractCondition } from '../../../src/conditions/base';
 import {
+  ContractCondition,
   ContractConditionProps,
   contractConditionSchema,
   ContractConditionType,

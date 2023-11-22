@@ -20,7 +20,7 @@ console.assert(
   'ERC721Balance requires signer',
 );
 
-const ownsNFTRaw = new conditions.base.ContractCondition({
+const ownsNFTRaw = new conditions.base.contract.ContractCondition({
   // Provided by the `predefined.ERC721Balance`
   method: 'balanceOf',
   parameters: [':userAddress'],
@@ -38,7 +38,7 @@ console.assert(
   'ContractCondition requires a signer',
 );
 
-const hasAnyNativeAsset = new conditions.base.RpcCondition({
+const hasAnyNativeAsset = new conditions.base.rpc.RpcCondition({
   chain: 5,
   method: 'eth_getBalance',
   parameters: [':userAddress'],
@@ -58,7 +58,7 @@ const ownsNFTOnChain5 = new conditions.predefined.erc721.ERC721Ownership({
   chain: 5, // The first network we target
 });
 
-const hasAnyNativeAssetOnChain1 = new conditions.base.RpcCondition({
+const hasAnyNativeAssetOnChain1 = new conditions.base.rpc.RpcCondition({
   chain: 1, // The second network we target
   method: 'eth_getBalance',
   parameters: [':userAddress'],
@@ -68,7 +68,7 @@ const hasAnyNativeAssetOnChain1 = new conditions.base.RpcCondition({
   },
 });
 
-const multichainCondition = conditions.base.CompoundCondition.and([
+const multichainCondition = conditions.compound.CompoundCondition.and([
   ownsNFTOnChain5,
   hasAnyNativeAssetOnChain1,
 ]);
@@ -78,7 +78,7 @@ console.assert(
   'CompoundCondition requires signer',
 );
 
-const myFunctionAbi: conditions.base.FunctionAbiProps = {
+const myFunctionAbi: conditions.base.contract.FunctionAbiProps = {
   name: 'myFunction',
   type: 'function',
   stateMutability: 'view',
@@ -103,7 +103,7 @@ const myFunctionAbi: conditions.base.FunctionAbiProps = {
   ],
 };
 
-const myContractCallCondition = new conditions.base.ContractCondition({
+const myContractCallCondition = new conditions.base.contract.ContractCondition({
   method: 'myFunctionAbi', // `myMethodAbi.name`
   parameters: [':userAddress', ':myCustomParam'], // `myMethodAbi.inputs`
   functionAbi: myFunctionAbi,

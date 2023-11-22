@@ -7,18 +7,18 @@ import { toBytes, toHexString } from '../../src';
 import {
   ContractCondition,
   ContractConditionProps,
-  RpcCondition,
-} from '../../src/conditions/base';
+} from '../../src/conditions/base/contract';
+import { RpcCondition } from '../../src/conditions/base/rpc';
+import { ConditionExpression } from '../../src/conditions/condition-expr';
+import {
+  RESERVED_CONTEXT_PARAMS,
+  USER_ADDRESS_PARAM,
+} from '../../src/conditions/const';
+import { CustomContextParam } from '../../src/conditions/context';
 import {
   paramOrContextParamSchema,
   ReturnValueTestProps,
-} from '../../src/conditions/base/shared';
-import { ConditionExpression } from '../../src/conditions/condition-expr';
-import { USER_ADDRESS_PARAM } from '../../src/conditions/const';
-import {
-  CustomContextParam,
-  RESERVED_CONTEXT_PARAMS,
-} from '../../src/conditions/context/context';
+} from '../../src/conditions/shared';
 import {
   testContractConditionObj,
   testFunctionAbi,

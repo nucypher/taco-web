@@ -3,8 +3,8 @@ import { Mumbai, useEthers } from '@usedapp/core';
 import React, { useState } from 'react';
 
 interface Props {
-  condition?: conditions.Condition | undefined;
-  setConditions: (value: conditions.Condition) => void;
+  condition?: conditions.condition.Condition | undefined;
+  setConditions: (value: conditions.condition.Condition) => void;
   enabled: boolean;
 }
 
@@ -59,7 +59,7 @@ export const ConditionBuilder = ({
 
   const onCreateCondition = (e: any) => {
     e.preventDefault();
-    setConditions(conditions.Condition.fromObj(JSON.parse(conditionString)));
+    setConditions(conditions.condition.Condition.fromObj(JSON.parse(conditionString)));
   };
 
   return (

@@ -21,7 +21,7 @@ const run = async () => {
 
     // @ts-ignore
     const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
-    const ownsNFT = new conditions.predefined.ERC721Ownership({
+    const ownsNFT = new conditions.predefined.erc721.ERC721Ownership({
       contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
       parameters: [3591],
       chain: 5,

@@ -3,8 +3,8 @@ import { useEthers } from '@usedapp/core';
 import React, { useState } from 'react';
 
 interface Props {
-  condition?: conditions.Condition | undefined;
-  setConditions: (value: conditions.Condition) => void;
+  condition?: conditions.condition.Condition | undefined;
+  setConditions: (value: conditions.condition.Condition) => void;
   enabled: boolean;
 }
 
@@ -49,7 +49,7 @@ export const NFTConditionBuilder = ({
   const tokenIdInput = makeInput(setTokenId);
   const chainInput = makeChainInput(setChain, 5);
 
-  const makeCondition = (): conditions.Condition => {
+  const makeCondition = (): conditions.condition.Condition => {
     if (tokenId) {
       return new conditions.base.ContractCondition({
         contractAddress,

@@ -1,5 +1,5 @@
 import { conditions } from '../src';
-import { CustomContextParam } from '../src/conditions';
+import { CustomContextParam } from '../src/conditions/context';
 
 const ownsNFTRaw = new conditions.base.ContractCondition({
   method: 'balanceOf',

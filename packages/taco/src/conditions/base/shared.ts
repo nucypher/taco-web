@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 import {
+  CONTEXT_PARAM_PREFIX,
   CONTEXT_PARAM_REGEXP,
   ETH_ADDRESS_REGEXP,
   USER_ADDRESS_PARAM,
 } from '../const';
-import { CONTEXT_PARAM_PREFIX } from '../context/context';
 
 export const contextParamSchema = z.string().regex(CONTEXT_PARAM_REGEXP);
 // We want to discriminate between ContextParams and plain strings

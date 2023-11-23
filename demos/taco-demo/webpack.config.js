@@ -11,7 +11,7 @@ module.exports = {
   entry: './src',
   devtool: isDevelopment ? 'eval-source-map' : 'source-map',
   plugins: [
-    // isDevelopment && new ReactRefreshWebpackPlugin(), // TODO: Investigate why ConditionContext can't be loaded here
+    isDevelopment && new ReactRefreshWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: './src/index.html',
     }),

@@ -1,11 +1,15 @@
-import { Context, Conditions as WASMConditions } from '@nucypher/nucypher-core';
+import { Conditions as WASMConditions, Context } from '@nucypher/nucypher-core';
 import { fromJSON, toJSON } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
 import { CompoundConditionType } from '../compound-condition';
 import { Condition, ConditionProps } from '../condition';
 import { ConditionExpression } from '../condition-expr';
-import { CONTEXT_PARAM_REGEXP, USER_ADDRESS_PARAM } from '../const';
+import {
+  CONTEXT_PARAM_PREFIX,
+  CONTEXT_PARAM_REGEXP,
+  USER_ADDRESS_PARAM,
+} from '../const';
 
 import { TypedSignature, WalletAuthenticationProvider } from './providers';
 
@@ -13,7 +17,6 @@ export type CustomContextParam = string | number | boolean;
 export type ContextParam = CustomContextParam | TypedSignature;
 
 export const RESERVED_CONTEXT_PARAMS = [USER_ADDRESS_PARAM];
-export const CONTEXT_PARAM_PREFIX = ':';
 
 const ERR_RESERVED_PARAM = (key: string) =>
   `Cannot use reserved parameter name ${key} as custom parameter`;

@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@ethersproject/abstract-signer": "^5.7.0",
-    "@nucypher/nucypher-core": "^0.13.0-alpha.1",
+    "@nucypher/nucypher-core": "*",
     "@nucypher/shared": "^0.1.0-rc.4",
     "ethers": "^5.7.2",
     "semver": "^7.5.2",

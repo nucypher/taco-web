@@ -9,6 +9,7 @@ overrides:
   node-forge@<1.3.0: '>=1.3.0'
   glob-parent@<5.1.2: '>=5.1.2'
   nth-check@<2.0.1: '>=2.0.1'
+  '@nucypher/nucypher-core': 0.13.0-alpha.1
 
 importers:
 
@@ -18,7 +19,7 @@ importers:
         specifier: ^2.26.2
         version: 2.26.2
       '@nucypher/nucypher-core':
-        specifier: ^0.13.0-alpha.1
+        specifier: 0.13.0-alpha.1
         version: 0.13.0-alpha.1
     devDependencies:
       '@skypack/package-check':
@@ -463,7 +464,7 @@ importers:
   packages/pre:
     dependencies:
       '@nucypher/nucypher-core':
-        specifier: ^0.13.0-alpha.1
+        specifier: 0.13.0-alpha.1
         version: 0.13.0-alpha.1
       '@nucypher/shared':
         specifier: workspace:*
@@ -488,7 +489,7 @@ importers:
         specifier: ^0.13.0
         version: 0.13.0
       '@nucypher/nucypher-core':
-        specifier: ^0.13.0-alpha.1
+        specifier: 0.13.0-alpha.1
         version: 0.13.0-alpha.1
       axios:
         specifier: ^1.6.2
@@ -531,7 +532,7 @@ importers:
         specifier: ^5.7.0
         version: 5.7.0
       '@nucypher/nucypher-core':
-        specifier: ^0.13.0-alpha.1
+        specifier: 0.13.0-alpha.1
         version: 0.13.0-alpha.1
       '@nucypher/shared':
         specifier: ^0.1.0-rc.4
@@ -556,7 +557,7 @@ importers:
   packages/test-utils:
     dependencies:
       '@nucypher/nucypher-core':
-        specifier: ^0.13.0-alpha.1
+        specifier: 0.13.0-alpha.1
         version: 0.13.0-alpha.1
       '@nucypher/shared':
         specifier: workspace:*

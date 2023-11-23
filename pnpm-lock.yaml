@@ -355,6 +355,9 @@ importers:
 
   examples/taco/nextjs:
     dependencies:
+      '@nucypher/shared':
+        specifier: workspace:*
+        version: link:../../../packages/shared
       '@nucypher/taco':
         specifier: workspace:*
         version: link:../../../packages/taco
@@ -403,6 +406,9 @@ importers:
 
   examples/taco/react:
     dependencies:
+      '@nucypher/shared':
+        specifier: workspace:*
+        version: link:../../../packages/shared
       '@nucypher/taco':
         specifier: workspace:*
         version: link:../../../packages/taco

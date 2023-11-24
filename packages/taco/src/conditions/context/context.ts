@@ -1,4 +1,4 @@
-import { Conditions as WASMConditions, Context } from '@nucypher/nucypher-core';
+import { Context, Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { fromJSON, toJSON } from '@nucypher/shared';
 import { ethers } from 'ethers';
 

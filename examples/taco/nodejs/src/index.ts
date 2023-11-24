@@ -1,3 +1,6 @@
+import { format } from 'node:util';
+
+import { ThresholdMessageKit } from '@nucypher/nucypher-core';
 import {
   conditions,
   decrypt,
@@ -7,11 +10,10 @@ import {
   getPorterUri,
   initialize,
   toBytes,
-  toHexString
+  toHexString,
 } from '@nucypher/taco';
 import * as dotenv from 'dotenv';
 import { ethers } from 'ethers';
-import { format } from 'node:util';
 
 dotenv.config();
 
@@ -30,27 +32,17 @@ if (!consumerPrivateKey) {
   throw new Error('CONSUMER_PRIVATE_KEY is not set.');
 }
 
-const runExample = async () => {
-  await initialize();
+const domain = domains.TESTNET;
+const ritualId = 5; // Replace with your own ritual ID
+const provider = new ethers.providers.JsonRpcProvider(rpcProviderUrl);
 
-  const domain = domains.TESTNET
-  const ritualId = 5; // Replace with your own ritual ID
-  const provider = new ethers.providers.JsonRpcProvider(rpcProviderUrl);
-
-  // Make sure the provider is connected to Mumbai testnet
-  const network = await provider.getNetwork();
-  if (network.chainId !== 80001) {
-    console.error('Please connect to Mumbai testnet');
-  }
-  
-  ////
-  // Encryption
-  ////
-
+const encryptToBytes = async (messageString: string) => {
   const encryptorSigner = new ethers.Wallet(encryptorPrivateKey);
-  console.log("Encryptor signer's address:", await encryptorSigner.getAddress());
+  console.log(
+    "Encryptor signer's address:",
+    await encryptorSigner.getAddress(),
+  );
 
-  const messageString = 'This is a secret 🤐';
   const message = toBytes(messageString);
   console.log(format('Encrypting message ("%s") ...', messageString));
 
@@ -67,7 +59,7 @@ const runExample = async () => {
     hasPositiveBalance.requiresSigner(),
     'Condition requires signer',
   );
-  
+
   const messageKit = await encrypt(
     provider,
     domain,
@@ -76,33 +68,49 @@ const runExample = async () => {
     ritualId,
     encryptorSigner,
   );
-  console.log('Ciphertext: ', toHexString(messageKit.toBytes()));
 
+  return messageKit.toBytes();
+};
 
-  ////
-  // Decryption
-  ////
-
+const decryptFromBytes = async (encryptedBytes: Uint8Array) => {
   const consumerSigner = new ethers.Wallet(consumerPrivateKey);
-  console.log("\nConsumer signer's address:", await consumerSigner.getAddress());
-
+  console.log(
+    "\nConsumer signer's address:",
+    await consumerSigner.getAddress(),
+  );
+  const messageKit = ThresholdMessageKit.fromBytes(encryptedBytes);
   console.log('Decrypting message ...');
-  const decryptedBytes = await decrypt(
+  return decrypt(
     provider,
     domain,
     messageKit,
     getPorterUri(domain),
     consumerSigner,
   );
+};
+
+const runExample = async () => {
+  // Make sure the provider is connected to Mumbai testnet
+  const network = await provider.getNetwork();
+  if (network.chainId !== 80001) {
+    console.error('Please connect to Mumbai testnet');
+  }
+  await initialize();
+
+  const messageString = 'This is a secret 🤐';
+  const encryptedBytes = await encryptToBytes(messageString);
+  console.log('Ciphertext: ', toHexString(encryptedBytes));
+
+  const decryptedBytes = await decryptFromBytes(encryptedBytes);
   const decryptedMessageString = fromBytes(decryptedBytes);
   console.log('Decrypted message:', decryptedMessageString);
+
   console.assert(
     decryptedMessageString === messageString,
     'Decrypted message is different to original message',
   );
 };
 
-runExample()
-  .then(() => {
-    console.log('Example finished');
-  });
+runExample().then(() => {
+  console.log('Example finished');
+});

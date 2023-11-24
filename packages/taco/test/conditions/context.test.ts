@@ -6,7 +6,8 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { toBytes, toHexString } from '../../src';
 import {
   ConditionExpression,
-  ContractCondition, ContractConditionProps,
+  ContractCondition,
+  ContractConditionProps,
   CustomContextParam,
   ReturnValueTestProps,
   RpcCondition,
@@ -336,8 +337,7 @@ describe('param or context param schema', () => {
           ':slim_shady',
           false,
         ],
-      ])
-        .success,
+      ]).success,
     ).toBe(true);
   });
 
@@ -375,7 +375,6 @@ describe('param or context param schema', () => {
   });
 
   it('rejects a function', () => {
-    expect(paramOrContextParamSchema.safeParse(() => {}).success,
-    ).toBe(false);
+    expect(paramOrContextParamSchema.safeParse(() => {}).success).toBe(false);
   });
 });

@@ -19,11 +19,7 @@ export const plainStringSchema = z.string().refine(
   },
 );
 
-const paramSchema = z.union([
-  plainStringSchema,
-  z.boolean(),
-  z.number(),
-]);
+const paramSchema = z.union([plainStringSchema, z.boolean(), z.number()]);
 
 export const paramOrContextParamSchema: z.ZodSchema = z.union([
   paramSchema,

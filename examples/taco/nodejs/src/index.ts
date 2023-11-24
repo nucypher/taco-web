@@ -78,6 +78,7 @@ const decryptFromBytes = async (encryptedBytes: Uint8Array) => {
     "\nConsumer signer's address:",
     await consumerSigner.getAddress(),
   );
+
   const messageKit = ThresholdMessageKit.fromBytes(encryptedBytes);
   console.log('Decrypting message ...');
   return decrypt(

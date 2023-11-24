@@ -58,3 +58,8 @@ const decryptedMessage = await decrypt(
   web3Provider.getSigner(),
 );
 ```
+
+## Learn more
+
+Please find developer documentation for
+TACo [here](https://docs.threshold.network/app-development/threshold-access-control-tac).

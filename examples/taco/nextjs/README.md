@@ -27,6 +27,9 @@ automatically optimize and load Inter, a custom Google Font.
 
 ## Learn More
 
+Please find developer documentation for
+TACo [here](https://docs.threshold.network/app-development/threshold-access-control-tac).
+
 To learn more about Next.js, take a look at the following resources:
 
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js

@@ -29,7 +29,13 @@ export default function useTaco({
     async (encryptedBytes: Uint8Array, signer?: ethers.Signer) => {
       if (!isInit || !provider) return;
       const messageKit = ThresholdMessageKit.fromBytes(encryptedBytes);
-      return decrypt(provider, domain, messageKit, getPorterUri(domain), signer);
+      return decrypt(
+        provider,
+        domain,
+        messageKit,
+        getPorterUri(domain),
+        signer,
+      );
     },
     [isInit, provider, domain],
   );

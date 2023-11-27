@@ -10,6 +10,7 @@
     "type-check": "tsc -p tsconfig.build.json"
   },
   "dependencies": {
+    "@nucypher/shared": "workspace:*",
     "@nucypher/taco": "workspace:*",
     "@types/node": "20.6.3",
     "@types/react": "18.2.37",

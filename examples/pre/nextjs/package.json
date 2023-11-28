@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@nucypher/pre": "workspace:*",
-    "@types/node": "20.6.3",
+    "@types/node": "20.10.0",
     "@types/react": "18.2.37",
     "@types/react-dom": "18.2.14",
     "eslint": "8.53.0",

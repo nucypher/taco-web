@@ -13,7 +13,7 @@ pnpm start
 
 ## Usage
 
-In order to run this demo will need a MetaMask with an account funded with some
+In order to run this demo will need a browser wallet with an account funded with some
 $MATIC.
 
 In order to connect with the network, the demo uses a public instances of
@@ -24,12 +24,14 @@ In order to connect with the network, the demo uses a public instances of
 `@nucypher/taco` is in an early release. We recommend **not** using it in
 production _just yet_.
 
-### Tapir - Mumbai Testnet
+### Lynx Testnet
 
-The current release of `@nucypher/taco` supports Ursulas working on Tapir
+The current release of `@nucypher/taco` supports Ursulas working on Lynx (bleeding-edge) test
 network and contracts deployed on Mumbai testnet.
 
 ## References
+
+Please find developer documentation [here](https://docs.threshold.network/app-development/threshold-access-control-tac).
 
 This dApp is based on
 [`useDapp` example](https://github.com/EthWorks/useDapp/tree/master/packages/example).

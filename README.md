@@ -31,10 +31,9 @@ We also provide demos of TACo applications:
 - [taco-demo](https://github.com/nucypher/taco-web/tree/main/demos/taco-demo)
 - [taco-nft-demo](https://github.com/nucypher/taco-web/tree/main/demos/taco-nft-demo)
 
-These examples showcase integration with web applications and an end-to-end flow of creating conditioned encryption, and
-encrypting & decrypting data.
+These examples showcase integration with web applications utilizing an end-to-end flow of creating encrypted data with associated conditions and enacting access-controlled decryption.
 
 # Contributing
 
 If you would like to contribute to the development of `taco-web`, please see our [Contributing Guide](CONTRIBUTING.md).
-You can also join our [Discord](http://discord.gg/threshold) and say hello!
+You can also join our [Discord](https://discord.gg/threshold) and say hello!

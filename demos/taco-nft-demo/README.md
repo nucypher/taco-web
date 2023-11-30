@@ -24,9 +24,9 @@ In order to connect with the network, the demo uses a public instances of
 `@nucypher/taco` is in an early release. We recommend **not** using it in
 production _just yet_.
 
-### Lynx - Mumbai Testnet
+### Lynx Testnet
 
-The current release of `@nucypher/taco` supports Ursulas working on Lynx (bleeding-edge test)
+The current release of `@nucypher/taco` supports Ursulas working on Lynx (bleeding-edge) test
 network and contracts deployed on Mumbai testnet.
 
 ## References

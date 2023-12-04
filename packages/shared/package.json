@@ -46,7 +46,7 @@
     "@nucypher/nucypher-core": "*",
     "axios": "^1.6.2",
     "deep-equal": "^2.2.1",
-    "ethers": "^5.7.2",
+    "ethers": "^6.9.0",
     "qs": "^6.10.1"
   },
   "devDependencies": {

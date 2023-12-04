@@ -514,8 +514,8 @@ importers:
         specifier: ^6.9.10
         version: 6.9.10
       '@types/tmp':
-        specifier: ^0.2.5
-        version: 0.2.5
+        specifier: ^0.2.6
+        version: 0.2.6
       cz-conventional-changelog:
         specifier: ^3.0.1
         version: 3.3.0
@@ -4199,8 +4199,8 @@ packages:
     resolution: {integrity: sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==}
     dev: true
 
-  /@types/tmp@0.2.5:
-    resolution: {integrity: sha512-KodRrjqWrk/3VyzfR4aeXkf2n5Ssg+bvVUhXlvHVffLiIHriLlrO3vYobB+Kvnr9DkNzMiyWHT3G6hT/xX0ryQ==}
+  /@types/tmp@0.2.6:
+    resolution: {integrity: sha512-chhaNf2oKHlRkDGt+tiKE2Z5aJ6qalm7Z9rlLdBwmOiAAf09YQvvoLXjWK4HWPF1xU/fqvMgfNfpVoBscA/tKA==}
     dev: true
 
   /@types/trusted-types@2.0.4:

@@ -7,17 +7,17 @@ import {
   initialize,
   ThresholdMessageKit,
 } from '@nucypher/taco';
-import { ethers } from 'ethers';
 import { useCallback, useEffect, useState } from 'react';
+import { PublicClient, WalletClient } from 'viem';
 
 export default function useTaco({
   ritualId,
   domain,
-  provider,
 }: {
   ritualId: number;
   domain: Domain;
-  provider: ethers.providers.Provider | undefined;
+  publicClient?: PublicClient;
+  walletClient?: WalletClient;
 }) {
   const [isInit, setIsInit] = useState(false);
 
@@ -26,38 +26,47 @@ export default function useTaco({
   }, []);
 
   const decryptDataFromBytes = useCallback(
-    async (encryptedBytes: Uint8Array, signer?: ethers.Signer) => {
-      if (!isInit || !provider) return;
+    async (
+      encryptedBytes: Uint8Array,
+      publicClient?: PublicClient,
+      walletClient?: WalletClient,
+    ) => {
+      if (!isInit || !publicClient || !walletClient) {
+        return;
+      }
       const messageKit = ThresholdMessageKit.fromBytes(encryptedBytes);
       return decrypt(
-        provider,
+        publicClient,
         domain,
         messageKit,
         getPorterUri(domain),
-        signer,
+        walletClient,
       );
     },
-    [isInit, provider, domain],
+    [isInit, domain],
   );
 
   const encryptDataToBytes = useCallback(
     async (
       message: string,
       condition: conditions.Condition,
-      encryptorSigner: ethers.Signer,
+      publicClient?: PublicClient,
+      walletClient?: WalletClient,
     ) => {
-      if (!isInit || !provider) return;
+      if (!isInit || !publicClient || !walletClient) {
+        return;
+      }
       const messageKit = await encrypt(
-        provider,
+        publicClient,
         domain,
         message,
         condition,
         ritualId,
-        encryptorSigner,
+        walletClient,
       );
       return messageKit.toBytes();
     },
-    [isInit, provider, domain, ritualId],
+    [isInit, domain, ritualId],
   );
 
   return {

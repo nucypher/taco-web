@@ -1,5 +1,5 @@
 import { initialize } from '@nucypher/nucypher-core';
-import { fakeProvider, fakeSigner } from '@nucypher/test-utils';
+import { fakePublicClient, fakeWalletClient } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import {
@@ -174,7 +174,7 @@ describe('supports custom function abi', () => {
 
   it('accepts custom function abi with a custom parameter', async () => {
     const asJson = await conditionExpr
-      .buildContext(fakeProvider(), {}, fakeSigner())
+      .buildContext(fakePublicClient, {}, fakeWalletClient)
       .withCustomParams(customParams)
       .toJson();
 

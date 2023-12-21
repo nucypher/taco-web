@@ -5,8 +5,10 @@ import {
   DkgRitualState,
   Domain,
   fromHexString,
+  toPublicClient,
 } from '@nucypher/shared';
-import { BigNumberish, ethers } from 'ethers';
+import { BigNumberish } from 'ethers';
+import { PublicClient, WalletClient } from 'viem';
 
 export interface DkgRitualJSON {
   id: number;
@@ -67,8 +69,7 @@ const ERR_RITUAL_NOT_FINALIZED = (ritualId: number, ritual: DkgRitual) =>
 
 export class DkgClient {
   public static async initializeRitual(
-    provider: ethers.providers.Provider,
-    signer: ethers.Signer,
+    walletClient: WalletClient,
     domain: Domain,
     ursulas: ChecksumAddress[],
     authority: string,
@@ -76,9 +77,9 @@ export class DkgClient {
     accessController: string,
     waitUntilEnd = false,
   ): Promise<number | undefined> {
+    const publicClient = toPublicClient(walletClient);
     const ritualId = await DkgCoordinatorAgent.initializeRitual(
-      provider,
-      signer,
+      walletClient,
       domain,
       ursulas.sort(), // Contract call requires sorted addresses
       authority,
@@ -88,13 +89,13 @@ export class DkgClient {
 
     if (waitUntilEnd) {
       const isSuccessful = await DkgClient.waitUntilRitualEnd(
-        provider,
+        publicClient,
         domain,
         ritualId,
       );
       if (!isSuccessful) {
         const ritualState = await DkgCoordinatorAgent.getRitualState(
-          provider,
+          publicClient,
           domain,
           ritualId,
         );
@@ -108,7 +109,7 @@ export class DkgClient {
   }
 
   private static waitUntilRitualEnd = async (
-    provider: ethers.providers.Provider,
+    publicClient: PublicClient,
     domain: Domain,
     ritualId: number,
   ): Promise<boolean> => {
@@ -121,7 +122,7 @@ export class DkgClient {
         }
       };
       DkgCoordinatorAgent.onRitualEndEvent(
-        provider,
+        publicClient,
         domain,
         ritualId,
         callback,
@@ -130,17 +131,17 @@ export class DkgClient {
   };
 
   public static async getRitual(
-    provider: ethers.providers.Provider,
+    publicClient: PublicClient,
     domain: Domain,
     ritualId: number,
   ): Promise<DkgRitual> {
     const ritualState = await DkgCoordinatorAgent.getRitualState(
-      provider,
+      publicClient,
       domain,
       ritualId,
     );
     const ritual = await DkgCoordinatorAgent.getRitual(
-      provider,
+      publicClient,
       domain,
       ritualId,
     );
@@ -158,11 +159,11 @@ export class DkgClient {
   }
 
   public static async getActiveRitual(
-    provider: ethers.providers.Provider,
+    publicClient: PublicClient,
     domain: Domain,
     ritualId: number,
   ): Promise<DkgRitual> {
-    const ritual = await DkgClient.getRitual(provider, domain, ritualId);
+    const ritual = await DkgClient.getRitual(publicClient, domain, ritualId);
     if (ritual.state !== DkgRitualState.ACTIVE) {
       throw new Error(ERR_RITUAL_NOT_FINALIZED(ritualId, ritual));
     }
@@ -172,14 +173,14 @@ export class DkgClient {
   // TODO: Without Validator public key in Coordinator, we cannot verify the
   //    transcript. We need to add it to the Coordinator (nucypher-contracts #77).
   // public async verifyRitual(ritualId: number): Promise<boolean> {
-  //   const ritual = await DkgCoordinatorAgent.getRitual(this.provider, ritualId);
+  //   const ritual = await DkgCoordinatorAgent.getRitual(this.publicClient, ritualId);
   //   const participants = await DkgCoordinatorAgent.getParticipants(
-  //     this.provider,
+  //     this.publicClient,
   //     ritualId
   //   );
   //
   //   const validatorMessages = participants.map((p) => {
-  //     const validatorAddress = EthereumAddress.fromString(p.provider);
+  //     const validatorAddress = EthereumAddress.fromString(p.publicClient);
   //     const publicKey = FerveoPublicKey.fromBytes(fromHexString(p.???));
   //     const validator = new Validator(validatorAddress, publicKey);
   //     const transcript = Transcript.fromBytes(fromHexString(p.transcript));

@@ -8,7 +8,8 @@ import {
   toBytes,
 } from '@nucypher/pre';
 import * as dotenv from 'dotenv';
-import { ethers } from 'ethers';
+import { createWalletClient, Hex, http } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
 
 dotenv.config();
 
@@ -49,15 +50,18 @@ const getRandomLabel = () => `label-${new Date().getTime()}`;
 const runExample = async () => {
   await initialize();
 
-  const provider = new ethers.providers.JsonRpcProvider(rpcProviderUrl);
+  const account = privateKeyToAccount(<Hex>privateKey);
+  const walletClient = createWalletClient({
+    transport: http(rpcProviderUrl),
+    account,
+  });
 
   // Make sure the provider is connected to Mumbai testnet
-  const network = await provider.getNetwork();
-  if (network.chainId !== 80001) {
+  const chainId = await walletClient.getChainId();
+  if (chainId !== 80001) {
     console.error('Please connect to Mumbai testnet');
   }
 
-  const signer = new ethers.Wallet(privateKey);
   const policyParams = {
     bob: makeRemoteBob(),
     label: getRandomLabel(),
@@ -70,8 +74,7 @@ const runExample = async () => {
 
   console.log('Creating policy...');
   const policy = await alice.grant(
-    provider,
-    signer,
+    walletClient,
     domains.TESTNET,
     getPorterUri(domains.TESTNET),
     policyParams,

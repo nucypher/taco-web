@@ -36,11 +36,14 @@ import {
   RetrieveCFragsResult,
   TacoDecryptResult,
   toHexString,
+  toPublicClient,
   Ursula,
   zip,
 } from '@nucypher/shared';
 import axios from 'axios';
-import { ethers, providers, Wallet } from 'ethers';
+import { providers } from 'ethers';
+import { createWalletClient, http, PublicClient } from 'viem';
+import { polygonMumbai } from 'viem/chains';
 import { expect, SpyInstance, vi } from 'vitest';
 
 export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
@@ -52,48 +55,13 @@ export const fromBytes = (bytes: Uint8Array): string =>
 
 export const fakePorterUri = 'https://_this_should_crash.com/';
 
-const makeFakeProvider = (timestamp: number, blockNumber: number) => {
-  const block = { timestamp };
-  return {
-    getBlockNumber: () => Promise.resolve(blockNumber),
-    getBlock: () => Promise.resolve(block),
-    _isProvider: true,
-    getNetwork: () => Promise.resolve({ name: 'mockNetwork', chainId: -1 }),
-  };
-};
+export const fakeWalletClient = createWalletClient({
+  chain: polygonMumbai,
+  transport: http(),
+  account: '0x0000000000000000000000000000000000000000',
+});
 
-export const fakeSigner = (
-  secretKeyBytes = SecretKey.random().toBEBytes(),
-  blockNumber = 1000,
-  blockTimestamp = 1000,
-) => {
-  const provider = makeFakeProvider(blockNumber, blockTimestamp);
-  return {
-    ...new Wallet(secretKeyBytes),
-    provider: provider,
-    _signTypedData: () => Promise.resolve('fake-typed-signature'),
-    signMessage: () => Promise.resolve('fake-signature'),
-    getAddress: () =>
-      Promise.resolve('0x0000000000000000000000000000000000000000'),
-  } as unknown as ethers.providers.JsonRpcSigner;
-};
-
-export const fakeProvider = (
-  secretKeyBytes = SecretKey.random().toBEBytes(),
-  blockNumber = 1000,
-  blockTimestamp = 1000,
-): ethers.providers.Web3Provider => {
-  const fakeProvider = makeFakeProvider(blockTimestamp, blockNumber);
-  const fakeSignerWithProvider = fakeSigner(
-    secretKeyBytes,
-    blockNumber,
-    blockTimestamp,
-  );
-  return {
-    ...fakeProvider,
-    getSigner: () => fakeSignerWithProvider,
-  } as unknown as ethers.providers.Web3Provider;
-};
+export const fakePublicClient: PublicClient = toPublicClient(fakeWalletClient);
 
 const genChecksumAddress = (i: number): ChecksumAddress =>
   `0x${'0'.repeat(40 - i.toString(16).length)}${i.toString(

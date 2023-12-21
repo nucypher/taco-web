@@ -1,6 +1,5 @@
 import deepEqual from 'deep-equal';
 
-// TODO: Replace byte and hex manipulation with ethers.js
 export const toBytes = (str: string): Uint8Array =>
   new TextEncoder().encode(str);
 

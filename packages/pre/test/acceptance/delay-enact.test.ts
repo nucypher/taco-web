@@ -1,9 +1,8 @@
 import {
   bytesEqual,
   fakePorterUri,
-  fakeProvider,
-  fakeSigner,
   fakeUrsulas,
+  fakeWalletClient,
   mockGetUrsulas,
 } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -30,7 +29,6 @@ describe('story: alice creates a policy but someone else enacts it', () => {
     });
 
     it('alice generates a new policy', async () => {
-      const provider = fakeProvider();
       const getUrsulasSpy = mockGetUrsulas(fakeUrsulas(shares));
       const generateKFragsSpy = mockGenerateKFrags();
       const publishToBlockchainSpy = mockPublishToBlockchain();
@@ -47,7 +45,7 @@ describe('story: alice creates a policy but someone else enacts it', () => {
       };
 
       const preEnactedPolicy = await alice.generatePreEnactedPolicy(
-        provider,
+        fakeWalletClient,
         fakePorterUri,
         policyParams,
       );
@@ -60,8 +58,7 @@ describe('story: alice creates a policy but someone else enacts it', () => {
       expect(preEnactedPolicy.label).toBe(label);
 
       const enacted = await preEnactedPolicy.enact(
-        provider,
-        fakeSigner(),
+        fakeWalletClient,
         domains.DEVNET,
       );
       expect(enacted.txHash).toBeDefined();

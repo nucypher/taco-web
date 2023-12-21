@@ -1,5 +1,5 @@
 import { ChainId } from '@nucypher/shared';
-import { fakeProvider, fakeSigner } from '@nucypher/test-utils';
+import { fakePublicClient, fakeWalletClient } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { initialize } from '../../src';
@@ -37,10 +37,12 @@ describe('conditions', () => {
     expect(condition.requiresSigner()).toBeTruthy();
 
     const context = new ConditionContext(
-      fakeProvider(),
+      fakePublicClient,
       condition,
-      { ':time': 100 },
-      fakeSigner(),
+      {
+        ':time': 100,
+      },
+      fakeWalletClient,
     );
     expect(context).toBeDefined();
 

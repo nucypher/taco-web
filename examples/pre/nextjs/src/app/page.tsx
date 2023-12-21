@@ -9,18 +9,13 @@ import {
   SecretKey,
   toHexString,
 } from '@nucypher/pre';
-import { ethers } from 'ethers';
-import { hexlify } from "ethers/lib/utils";
 import { useEffect, useState } from 'react';
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare const window: any;
+import { createWalletClient, custom, toHex, WalletClient } from 'viem';
+import 'viem/window';
 
 function App() {
   const [isInit, setIsInit] = useState<boolean>(false);
-  const [provider, setProvider] = useState<
-    ethers.providers.Web3Provider | undefined
-  >();
+  const [walletClient, setWalletClient] = useState<WalletClient | undefined>();
   const [alice, setAlice] = useState<Alice | undefined>();
   const [bob, setBob] = useState<Bob | undefined>();
   const [policy, setPolicy] = useState<EnactedPolicy>();
@@ -30,32 +25,33 @@ function App() {
     setIsInit(true);
   };
 
-  const loadWeb3Provider = async () => {
+  const loadWalletClient = async () => {
     if (!window.ethereum) {
       console.error('You need to connect to your wallet first');
+      return;
     }
-    const provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
-
-    const { chainId } = await provider.getNetwork();
+    const walletClient = createWalletClient({
+      transport: custom(window.ethereum),
+    });
+    const chainId = await walletClient.getChainId();
     const mumbaiChainId = 80001;
     if (chainId !== mumbaiChainId) {
       // Switch to Polygon Mumbai testnet
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: hexlify(mumbaiChainId) }],
+        params: [{ chainId: toHex(mumbaiChainId) }],
       });
     }
 
-    await provider.send('eth_requestAccounts', []);
-    setProvider(provider);
+    setWalletClient(walletClient);
   };
 
   useEffect(() => {
     initNucypher();
-    loadWeb3Provider();
+    loadWalletClient();
   }, []);
 
-  if (!isInit || !provider) {
+  if (!isInit || !walletClient) {
     return <div>Loading...</div>;
   }
 
@@ -82,7 +78,7 @@ function App() {
   const getRandomLabel = () => `label-${new Date().getTime()}`;
 
   const runExample = async () => {
-    if (!provider) {
+    if (!walletClient) {
       console.error('You need to connect to your wallet first');
       return;
     }
@@ -106,8 +102,7 @@ function App() {
       endDate,
     };
     const policy = await alice.grant(
-      provider,
-      provider.getSigner(),
+      walletClient,
       domains.TESTNET,
       getPorterUri(domains.TESTNET),
       policyParams,

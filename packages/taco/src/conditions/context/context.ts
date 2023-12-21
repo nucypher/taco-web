@@ -1,6 +1,6 @@
 import { Context, Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { fromJSON, toJSON } from '@nucypher/shared';
-import { ethers } from 'ethers';
+import { PublicClient, WalletClient } from 'viem';
 
 import { CompoundConditionType } from '../compound-condition';
 import { Condition, ConditionProps } from '../condition';
@@ -32,15 +32,14 @@ export class ConditionContext {
   private readonly walletAuthProvider?: WalletAuthenticationProvider;
 
   constructor(
-    private readonly provider: ethers.providers.Provider,
+    private readonly publicClient: PublicClient,
     private readonly condition: Condition,
     public readonly customParameters: Record<string, CustomContextParam> = {},
-    private readonly signer?: ethers.Signer,
+    public readonly walletClient?: WalletClient,
   ) {
-    if (this.signer) {
+    if (this.walletClient) {
       this.walletAuthProvider = new WalletAuthenticationProvider(
-        this.provider,
-        this.signer,
+        this.walletClient,
       );
     }
     this.validate();
@@ -56,7 +55,7 @@ export class ConditionContext {
       }
     });
 
-    if (this.condition.requiresSigner() && !this.signer) {
+    if (this.condition.requiresSigner() && !this.walletClient) {
       throw new Error(ERR_SIGNER_REQUIRED);
     }
   }
@@ -162,10 +161,10 @@ export class ConditionContext {
     params: Record<string, CustomContextParam>,
   ): ConditionContext {
     return new ConditionContext(
-      this.provider,
+      this.publicClient,
       this.condition,
       params,
-      this.signer,
+      this.walletClient,
     );
   }
 
@@ -175,18 +174,16 @@ export class ConditionContext {
   }
 
   public static fromConditions(
-    provider: ethers.providers.Provider,
+    publicClient: PublicClient,
     conditions: WASMConditions,
-    signer?: ethers.Signer,
+    walletClient?: WalletClient,
     customParameters?: Record<string, CustomContextParam>,
   ): ConditionContext {
-    const innerCondition =
-      ConditionExpression.fromWASMConditions(conditions).condition;
     return new ConditionContext(
-      provider,
-      innerCondition,
+      publicClient,
+      ConditionExpression.fromWASMConditions(conditions).condition,
       customParameters,
-      signer,
+      walletClient,
     );
   }
 }

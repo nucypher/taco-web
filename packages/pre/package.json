@@ -40,7 +40,8 @@
   "dependencies": {
     "@nucypher/nucypher-core": "*",
     "@nucypher/shared": "workspace:*",
-    "ethers": "^5.7.2"
+    "ethers": "^5.7.2",
+    "viem": "^1.19.9"
   },
   "devDependencies": {
     "@nucypher/test-utils": "workspace:*"

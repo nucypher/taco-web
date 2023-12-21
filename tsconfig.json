@@ -13,7 +13,8 @@
     "composite": true,
     "incremental": true,
     "exactOptionalPropertyTypes": true,
-    "noImplicitOverride": true
+    "noImplicitOverride": true,
+    "skipLibCheck": true,
   },
   "include": [
     "**/*.ts",

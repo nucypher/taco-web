@@ -1,6 +1,5 @@
 import { initialize } from '@nucypher/nucypher-core';
-import { fakeProvider, fakeSigner } from '@nucypher/test-utils';
-import { ethers } from 'ethers';
+import { fakePublicClient, fakeWalletClient } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { toBytes, toHexString } from '../../src';
@@ -23,13 +22,8 @@ import {
 } from '../test-utils';
 
 describe('context', () => {
-  let provider: ethers.providers.Provider;
-  let signer: ethers.Signer;
-
   beforeAll(async () => {
     await initialize();
-    provider = fakeProvider();
-    signer = fakeSigner();
   });
 
   describe('serialization', () => {
@@ -44,7 +38,7 @@ describe('context', () => {
       });
       const conditionContext = new ConditionExpression(
         rpcCondition,
-      ).buildContext(provider, {}, signer);
+      ).buildContext(fakePublicClient, {}, fakeWalletClient);
       const asJson = await conditionContext.toJson();
 
       expect(asJson).toBeDefined();
@@ -66,7 +60,11 @@ describe('context', () => {
     };
     const contractCondition = new ContractCondition(contractConditionObj);
     const conditionExpr = new ConditionExpression(contractCondition);
-    const context = conditionExpr.buildContext(provider, {}, signer);
+    const context = conditionExpr.buildContext(
+      fakePublicClient,
+      {},
+      fakeWalletClient,
+    );
 
     describe('custom parameters', () => {
       it('serializes bytes as hex strings', async () => {
@@ -133,8 +131,10 @@ describe('context', () => {
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
       expect(conditionExpr.contextRequiresSigner()).toBe(true);
-      expect(conditionExpr.buildContext(provider, {}, signer)).toBeDefined();
-      expect(() => conditionExpr.buildContext(provider, {})).toThrow(
+      expect(
+        conditionExpr.buildContext(fakePublicClient, {}, fakeWalletClient),
+      ).toBeDefined();
+      expect(() => conditionExpr.buildContext(fakePublicClient, {})).toThrow(
         `Signer required to satisfy ${USER_ADDRESS_PARAM} context variable in condition`,
       );
     });
@@ -153,8 +153,10 @@ describe('context', () => {
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
       expect(conditionExpr.contextRequiresSigner()).toBe(true);
-      expect(conditionExpr.buildContext(provider, {}, signer)).toBeDefined();
-      expect(() => conditionExpr.buildContext(provider, {})).toThrow(
+      expect(
+        conditionExpr.buildContext(fakePublicClient, {}, fakeWalletClient),
+      ).toBeDefined();
+      expect(() => conditionExpr.buildContext(fakePublicClient, {})).toThrow(
         `Signer required to satisfy ${USER_ADDRESS_PARAM} context variable in condition`,
       );
     });
@@ -166,8 +168,10 @@ describe('context', () => {
         JSON.stringify(condition.toObj()).includes(USER_ADDRESS_PARAM),
       ).toBe(false);
       expect(conditionExpr.contextRequiresSigner()).toBe(false);
-      expect(conditionExpr.buildContext(provider, {}, signer)).toBeDefined();
-      expect(conditionExpr.buildContext(provider, {})).toBeDefined();
+      expect(
+        conditionExpr.buildContext(fakePublicClient, {}, fakeWalletClient),
+      ).toBeDefined();
+      expect(conditionExpr.buildContext(fakePublicClient, {})).toBeDefined();
     });
 
     it('rejects on a missing signer', () => {
@@ -181,7 +185,9 @@ describe('context', () => {
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
       expect(conditionExpr.contextRequiresSigner()).toBe(true);
-      expect(() => conditionExpr.buildContext(provider, {}, undefined)).toThrow(
+      expect(() =>
+        conditionExpr.buildContext(fakePublicClient, {}, undefined),
+      ).toThrow(
         `Signer required to satisfy ${USER_ADDRESS_PARAM} context variable in condition`,
       );
     });
@@ -197,7 +203,9 @@ describe('context', () => {
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
       expect(conditionExpr.contextRequiresSigner()).toBe(true);
-      expect(() => conditionExpr.buildContext(provider, {}, undefined)).toThrow(
+      expect(() =>
+        conditionExpr.buildContext(fakePublicClient, {}, undefined),
+      ).toThrow(
         `Signer required to satisfy ${USER_ADDRESS_PARAM} context variable in condition`,
       );
     });
@@ -221,7 +229,7 @@ describe('context', () => {
         });
         const conditionContext = new ConditionExpression(
           customContractCondition,
-        ).buildContext(provider, {}, signer);
+        ).buildContext(fakePublicClient, {}, fakeWalletClient);
 
         await expect(async () => conditionContext.toObj()).rejects.toThrow(
           `Missing custom context parameter(s): ${customParamKey}`,
@@ -235,7 +243,7 @@ describe('context', () => {
         });
         const conditionContext = new ConditionExpression(
           customContractCondition,
-        ).buildContext(provider, {}, signer);
+        ).buildContext(fakePublicClient, {}, fakeWalletClient);
 
         const asObj = await conditionContext.toObj();
         expect(asObj).toBeDefined();
@@ -254,7 +262,7 @@ describe('context', () => {
           customParameters[customParamKey] = falsyParam;
           const conditionContext = new ConditionExpression(
             customContractCondition,
-          ).buildContext(provider, customParameters, signer);
+          ).buildContext(fakePublicClient, customParameters, fakeWalletClient);
 
           const asObj = await conditionContext.toObj();
           expect(asObj).toBeDefined();

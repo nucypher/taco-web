@@ -13,7 +13,9 @@ import {
   toHexString,
 } from '@nucypher/taco';
 import * as dotenv from 'dotenv';
-import { ethers } from 'ethers';
+import { Hex, createPublicClient, createWalletClient, http } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import { polygonMumbai } from 'viem/chains';
 
 dotenv.config();
 
@@ -33,24 +35,44 @@ if (!consumerPrivateKey) {
 }
 
 const domain = process.env.DOMAIN || domains.TESTNET;
-const ritualId = parseInt(process.env.RITUAL_ID || "5");
-const provider = new ethers.providers.JsonRpcProvider(rpcProviderUrl);
+const ritualId = parseInt(process.env.RITUAL_ID || '5');
+
+const publicClient = createPublicClient({
+  transport: http(rpcProviderUrl),
+  chain: polygonMumbai,
+});
+
+const encryptorAccount = privateKeyToAccount(<Hex>encryptorPrivateKey);
+const encryptorWalletClient = createWalletClient({
+  transport: http(rpcProviderUrl),
+  account: encryptorAccount,
+  chain: polygonMumbai,
+});
+
+const consumerAccount = privateKeyToAccount(<Hex>consumerPrivateKey);
+const consumerWalletClient = createWalletClient({
+  transport: http(rpcProviderUrl),
+  account: consumerAccount,
+  chain: polygonMumbai,
+});
 
 console.log('Domain:', domain);
 console.log('Ritual ID:', ritualId);
 
 const encryptToBytes = async (messageString: string) => {
-  const encryptorSigner = new ethers.Wallet(encryptorPrivateKey);
-  console.log(
-    "Encryptor signer's address:",
-    await encryptorSigner.getAddress(),
-  );
+  // Make sure the provider is connected to Mumbai testnet
+  const chainId = await encryptorWalletClient.getChainId();
+  if (chainId !== polygonMumbai.id) {
+    console.error('Please connect to Mumbai testnet');
+  }
+
+  console.log("Encryptor signer's address:", encryptorAccount.address);
 
   const message = toBytes(messageString);
   console.log(format('Encrypting message ("%s") ...', messageString));
 
   const hasPositiveBalance = new conditions.RpcCondition({
-    chain: 80001,
+    chain: polygonMumbai.id,
     method: 'eth_getBalance',
     parameters: [':userAddress', 'latest'],
     returnValueTest: {
@@ -64,39 +86,35 @@ const encryptToBytes = async (messageString: string) => {
   );
 
   const messageKit = await encrypt(
-    provider,
+    publicClient,
     domain,
     message,
     hasPositiveBalance,
     ritualId,
-    encryptorSigner,
+    encryptorWalletClient,
   );
 
   return messageKit.toBytes();
 };
 
 const decryptFromBytes = async (encryptedBytes: Uint8Array) => {
-  const consumerSigner = new ethers.Wallet(consumerPrivateKey);
-  console.log(
-    "\nConsumer signer's address:",
-    await consumerSigner.getAddress(),
-  );
+  console.log("\nConsumer signer's address:", consumerAccount.address);
 
   const messageKit = ThresholdMessageKit.fromBytes(encryptedBytes);
   console.log('Decrypting message ...');
   return decrypt(
-    provider,
+    publicClient,
     domain,
     messageKit,
     getPorterUri(domain),
-    consumerSigner,
+    consumerWalletClient,
   );
 };
 
 const runExample = async () => {
   // Make sure the provider is connected to Mumbai testnet
-  const network = await provider.getNetwork();
-  if (network.chainId !== 80001) {
+  const chainId = await publicClient.getChainId();
+  if (chainId !== polygonMumbai.id) {
     console.error('Please connect to Mumbai testnet');
   }
   await initialize();

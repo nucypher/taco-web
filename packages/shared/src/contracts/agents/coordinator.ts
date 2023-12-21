@@ -4,11 +4,13 @@ import {
   SessionStaticKey,
   ThresholdMessageKit,
 } from '@nucypher/nucypher-core';
-import { BigNumberish, ethers } from 'ethers';
+import { BigNumberish } from 'ethers';
+import { PublicClient, WalletClient } from 'viem';
 
 import { Domain } from '../../porter';
 import { ChecksumAddress } from '../../types';
 import { fromHexString } from '../../utils';
+import { publicClientToProvider, walletClientToSigner } from '../../viem';
 import { DEFAULT_WAIT_N_CONFIRMATIONS } from '../const';
 import { Coordinator__factory } from '../ethers-typechain';
 import { BLS12381, Coordinator } from '../ethers-typechain/Coordinator';
@@ -46,11 +48,11 @@ export enum DkgRitualState {
 
 export class DkgCoordinatorAgent {
   public static async getParticipants(
-    provider: ethers.providers.Provider,
+    publicClient: PublicClient,
     domain: Domain,
     ritualId: number,
   ): Promise<DkgParticipant[]> {
-    const coordinator = await this.connectReadOnly(provider, domain);
+    const coordinator = await this.connectReadOnly(publicClient, domain);
     const participants = await coordinator.getParticipants(ritualId);
 
     return participants.map((participant) => {
@@ -65,15 +67,14 @@ export class DkgCoordinatorAgent {
   }
 
   public static async initializeRitual(
-    provider: ethers.providers.Provider,
-    signer: ethers.Signer,
+    walletClient: WalletClient,
     domain: Domain,
     providers: ChecksumAddress[],
     authority: string,
     duration: BigNumberish,
     accessController: string,
   ): Promise<number> {
-    const coordinator = await this.connectReadWrite(provider, domain, signer);
+    const coordinator = await this.connectReadWrite(walletClient, domain);
     const tx = await coordinator.initiateRitual(
       providers,
       authority,
@@ -89,30 +90,30 @@ export class DkgCoordinatorAgent {
   }
 
   public static async getRitual(
-    provider: ethers.providers.Provider,
+    publicClient: PublicClient,
     domain: Domain,
     ritualId: number,
   ): Promise<CoordinatorRitual> {
-    const coordinator = await this.connectReadOnly(provider, domain);
+    const coordinator = await this.connectReadOnly(publicClient, domain);
     return await coordinator.rituals(ritualId);
   }
 
   public static async getRitualState(
-    provider: ethers.providers.Provider,
+    publicClient: PublicClient,
     domain: Domain,
     ritualId: number,
   ): Promise<DkgRitualState> {
-    const coordinator = await this.connectReadOnly(provider, domain);
+    const coordinator = await this.connectReadOnly(publicClient, domain);
     return await coordinator.getRitualState(ritualId);
   }
 
   public static async onRitualEndEvent(
-    provider: ethers.providers.Provider,
+    publicClient: PublicClient,
     domain: Domain,
     ritualId: number,
     callback: (successful: boolean) => void,
   ): Promise<void> {
-    const coordinator = await this.connectReadOnly(provider, domain);
+    const coordinator = await this.connectReadOnly(publicClient, domain);
     // We leave `initiator` undefined because we don't care who the initiator is
     // We leave `successful` undefined because we don't care if the ritual was successful
     const eventFilter = coordinator.filters.EndRitual(ritualId, undefined);
@@ -122,11 +123,11 @@ export class DkgCoordinatorAgent {
   }
 
   public static async getRitualIdFromPublicKey(
-    provider: ethers.providers.Provider,
+    publicClient: PublicClient,
     domain: Domain,
     dkgPublicKey: DkgPublicKey,
   ): Promise<number> {
-    const coordinator = await this.connectReadOnly(provider, domain);
+    const coordinator = await this.connectReadOnly(publicClient, domain);
     const dkgPublicKeyBytes = dkgPublicKey.toBytes();
     const pointStruct: BLS12381.G1PointStruct = {
       word0: dkgPublicKeyBytes.slice(0, 32),
@@ -136,12 +137,12 @@ export class DkgCoordinatorAgent {
   }
 
   public static async isEncryptionAuthorized(
-    provider: ethers.providers.Provider,
+    publicClient: PublicClient,
     domain: Domain,
     ritualId: number,
     thresholdMessageKit: ThresholdMessageKit,
   ): Promise<boolean> {
-    const coordinator = await this.connectReadOnly(provider, domain);
+    const coordinator = await this.connectReadOnly(publicClient, domain);
     return await coordinator.isEncryptionAuthorized(
       ritualId,
       thresholdMessageKit.acp.authorization,
@@ -150,27 +151,26 @@ export class DkgCoordinatorAgent {
   }
 
   private static async connectReadOnly(
-    provider: ethers.providers.Provider,
+    publicClient: PublicClient,
     domain: Domain,
-  ) {
-    return await this.connect(provider, domain);
+  ): Promise<Coordinator> {
+    const chainId = await publicClient.getChainId();
+    const contractAddress = getContract(domain, chainId, 'Coordinator');
+    return Coordinator__factory.connect(
+      contractAddress,
+      publicClientToProvider(publicClient),
+    );
   }
 
   private static async connectReadWrite(
-    provider: ethers.providers.Provider,
+    walletClient: WalletClient,
     domain: Domain,
-    signer: ethers.Signer,
-  ) {
-    return await this.connect(provider, domain, signer);
-  }
-
-  private static async connect(
-    provider: ethers.providers.Provider,
-    domain: Domain,
-    signer?: ethers.Signer,
   ): Promise<Coordinator> {
-    const network = await provider.getNetwork();
-    const contractAddress = getContract(domain, network.chainId, 'Coordinator');
-    return Coordinator__factory.connect(contractAddress, signer ?? provider);
+    const chainId = await walletClient.getChainId();
+    const contractAddress = getContract(domain, chainId, 'Coordinator');
+    return Coordinator__factory.connect(
+      contractAddress,
+      walletClientToSigner(walletClient),
+    );
   }
 }

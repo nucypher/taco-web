@@ -1,8 +1,31 @@
-import type { TypedDataSigner } from '@ethersproject/abstract-signer';
-import { ethers } from 'ethers';
-import { utils as ethersUtils } from 'ethers/lib/ethers';
+import { bytesToHex, WalletClient } from 'viem';
+import { getBlock, getBlockNumber, signTypedData } from 'viem/actions';
 
-import { Eip712TypedData, FormattedTypedData } from '../../web3';
+const ERR_NO_ACCOUNT = 'No account found';
+const ERR_NO_CHAIN_ID = 'No chain ID found';
+
+const makeSalt = () => {
+  const randomBytes = crypto.getRandomValues(new Uint8Array(32));
+  return bytesToHex(randomBytes);
+};
+
+interface Eip712TypedData {
+  types: {
+    Wallet: { name: string; type: string }[];
+  };
+  domain: {
+    salt: string;
+    chainId: number;
+    name: string;
+    version: string;
+  };
+  message: {
+    blockHash: string;
+    address: string;
+    blockNumber: number;
+    signatureText: string;
+  };
+}
 
 export interface TypedSignature {
   signature: string;
@@ -19,13 +42,10 @@ interface ChainData {
 export class WalletAuthenticationProvider {
   private walletSignature?: Record<string, string>;
 
-  constructor(
-    private readonly provider: ethers.providers.Provider,
-    private readonly signer: ethers.Signer,
-  ) {}
+  constructor(private readonly client: WalletClient) {}
 
   public async getOrCreateWalletSignature(): Promise<TypedSignature> {
-    const address = await this.signer.getAddress();
+    const { address } = await this.getAccount();
     const storageKey = `wallet-signature-${address}`;
 
     // If we have a signature in localStorage, return it
@@ -63,38 +83,43 @@ export class WalletAuthenticationProvider {
   private async createWalletSignature(): Promise<TypedSignature> {
     // Ensure freshness of the signature
     const { blockNumber, blockHash, chainId } = await this.getChainData();
-    const address = await this.signer.getAddress();
+    const account = await this.getAccount();
+    const { address } = account;
     const signatureText = `I'm the owner of address ${address} as of block number ${blockNumber}`;
-    const salt = ethersUtils.hexlify(ethersUtils.randomBytes(32));
+    const salt = makeSalt();
 
-    const typedData: Eip712TypedData = {
-      types: {
-        Wallet: [
-          { name: 'address', type: 'address' },
-          { name: 'signatureText', type: 'string' },
-          { name: 'blockNumber', type: 'uint256' },
-          { name: 'blockHash', type: 'bytes32' },
-        ],
-      },
-      domain: {
-        name: 'taco',
-        version: '1',
-        chainId,
-        salt,
-      },
-      message: {
-        address,
-        signatureText,
-        blockNumber,
-        blockHash,
-      },
+    const types = {
+      Wallet: [
+        { name: 'name', type: 'string' },
+        { name: 'version', type: 'string' },
+        { name: 'chainId', type: 'uint256' },
+        { name: 'salt', type: 'bytes32' },
+      ],
     };
-    // https://github.com/ethers-io/ethers.js/issues/1431#issuecomment-813950552
-    const signature = await (
-      this.signer as unknown as TypedDataSigner
-    )._signTypedData(typedData.domain, typedData.types, typedData.message);
+    const domain = {
+      name: 'cbd',
+      version: '1',
+      chainId,
+      salt,
+    };
+    const message = {
+      address,
+      signatureText,
+      blockNumber,
+      blockHash,
+    };
+    const typedData = {
+      // Normally, we would pass an account address here, but viem needs the account object to figure out whether
+      // to sign locally or to call JSON-RPC (see {'type': 'local'} field in `account`).
+      account,
+      types,
+      primaryType: 'EIP712Domain',
+      domain,
+      message,
+    } as const;
+    const signature = await signTypedData(this.client, typedData);
 
-    const formattedTypedData: FormattedTypedData = {
+    const formattedTypedData = {
       ...typedData,
       primaryType: 'Wallet',
       types: {
@@ -119,13 +144,25 @@ export class WalletAuthenticationProvider {
         ],
       },
     };
+
     return { signature, typedData: formattedTypedData, address };
   }
 
+  private async getAccount() {
+    const account = this.client.account;
+    if (!account) {
+      throw new Error(ERR_NO_ACCOUNT);
+    }
+    return account;
+  }
+
   private async getChainData(): Promise<ChainData> {
-    const blockNumber = await this.provider.getBlockNumber();
-    const blockHash = (await this.provider.getBlock(blockNumber)).hash;
-    const chainId = (await this.provider.getNetwork()).chainId;
+    const blockNumber = Number(await getBlockNumber(this.client));
+    const blockHash = (await getBlock(this.client)).hash;
+    const chainId = this.client.chain?.id;
+    if (!chainId) {
+      throw new Error(ERR_NO_CHAIN_ID);
+    }
     return { blockNumber, blockHash, chainId };
   }
 }

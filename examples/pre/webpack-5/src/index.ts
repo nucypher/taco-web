@@ -6,14 +6,8 @@ import {
   initialize,
   SecretKey,
 } from '@nucypher/pre';
-import { ethers } from 'ethers';
-import { hexlify } from 'ethers/lib/utils';
-
-declare global {
-  interface Window {
-    ethereum?: ethers.providers.ExternalProvider;
-  }
-}
+import { createWalletClient, custom, toHex } from 'viem';
+import 'viem/window';
 
 const txtEncoder = new TextEncoder();
 
@@ -44,22 +38,23 @@ const getRandomLabel = () => `label-${new Date().getTime()}`;
 const runExample = async () => {
   if (!window.ethereum) {
     console.error('You need to connect to your wallet first');
+    return;
   }
 
   await initialize();
 
   alert('Sign a transaction to create a policy.');
 
-  const provider = new ethers.providers.Web3Provider(window.ethereum!, 'any');
-  await provider.send('eth_requestAccounts', []);
-
-  const { chainId } = await provider.getNetwork();
+  const walletClient = createWalletClient({
+    transport: custom(window.ethereum),
+  });
+  const chainId = await walletClient.getChainId();
   const mumbaiChainId = 80001;
   if (chainId !== mumbaiChainId) {
     // Switch to Polygon Mumbai testnet
-    await window.ethereum!.request!({
+    await window.ethereum.request!({
       method: 'wallet_switchEthereumChain',
-      params: [{ chainId: hexlify(mumbaiChainId) }],
+      params: [{ chainId: toHex(mumbaiChainId) }],
     });
   }
 
@@ -79,8 +74,7 @@ const runExample = async () => {
 
   const alice = makeAlice();
   const policy = await alice.grant(
-    provider,
-    provider.getSigner(),
+    walletClient,
     domains.TESTNET,
     getPorterUri(domains.TESTNET),
     policyParams,

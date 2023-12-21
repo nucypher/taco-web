@@ -9,9 +9,8 @@ import { ChecksumAddress, domains, initialize, Ursula } from '@nucypher/shared';
 import {
   bytesEqual,
   fakePorterUri,
-  fakeProvider,
-  fakeSigner,
   fakeUrsulas,
+  fakeWalletClient,
   fromBytes,
   mockGetUrsulas,
   mockRetrieveCFragsRequest,
@@ -71,8 +70,7 @@ describe('story: alice shares message with bob through policy', () => {
       endDate,
     };
     policy = await alice.grant(
-      fakeProvider(),
-      fakeSigner(),
+      fakeWalletClient,
       domains.DEVNET,
       fakePorterUri,
       policyParams,

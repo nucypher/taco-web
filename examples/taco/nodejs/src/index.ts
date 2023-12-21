@@ -32,9 +32,12 @@ if (!consumerPrivateKey) {
   throw new Error('CONSUMER_PRIVATE_KEY is not set.');
 }
 
-const domain = domains.DEVNET;
-const ritualId = 0; // Replace with your own ritual ID
+const domain = process.env.DOMAIN || domains.TESTNET;
+const ritualId = parseInt(process.env.RITUAL_ID || "5");
 const provider = new ethers.providers.JsonRpcProvider(rpcProviderUrl);
+
+console.log('Domain:', domain);
+console.log('Ritual ID:', ritualId);
 
 const encryptToBytes = async (messageString: string) => {
   const encryptorSigner = new ethers.Wallet(encryptorPrivateKey);

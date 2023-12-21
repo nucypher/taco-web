@@ -32,8 +32,8 @@ if (!consumerPrivateKey) {
   throw new Error('CONSUMER_PRIVATE_KEY is not set.');
 }
 
-const domain = domains.TESTNET;
-const ritualId = 5; // Replace with your own ritual ID
+const domain = domains.DEVNET;
+const ritualId = 0; // Replace with your own ritual ID
 const provider = new ethers.providers.JsonRpcProvider(rpcProviderUrl);
 
 const encryptToBytes = async (messageString: string) => {

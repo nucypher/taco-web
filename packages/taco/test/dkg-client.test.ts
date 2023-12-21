@@ -1,5 +1,5 @@
 import { DkgCoordinatorAgent } from '@nucypher/shared';
-import { fakeProvider } from '@nucypher/test-utils';
+import { fakePublicClient } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { domains, initialize } from '../src';
@@ -17,10 +17,9 @@ describe('DkgCoordinatorAgent', () => {
   });
 
   it('fetches transcripts from the coordinator', async () => {
-    const provider = fakeProvider();
     const getRitualSpy = mockGetRitual();
     const ritual = await DkgCoordinatorAgent.getRitual(
-      provider,
+      fakePublicClient,
       domains.TEST_DOMAIN,
       fakeRitualId,
     );
@@ -29,12 +28,11 @@ describe('DkgCoordinatorAgent', () => {
   });
 
   it('fetches participants from the coordinator', async () => {
-    const provider = fakeProvider();
     const getParticipantsSpy = mockGetParticipants(
       (await mockDkgParticipants(fakeRitualId)).participants,
     );
     const participants = await DkgCoordinatorAgent.getParticipants(
-      provider,
+      fakePublicClient,
       domains.TEST_DOMAIN,
       fakeRitualId,
     );
@@ -48,7 +46,7 @@ describe('DkgCoordinatorAgent', () => {
 //   it('verifies the dkg ritual', async () => {
 //     const provider = fakeWeb3Provider(SecretKey.random().toBEBytes());
 //
-//     const dkgClient = new DkgClient(provider);
+//     const dkgClient = new DkgClient(fakePublicClient);
 //     const isValid = await dkgClient.verifyRitual(fakeRitualId);
 //     expect(isValid).toBeTruthy();
 //   });

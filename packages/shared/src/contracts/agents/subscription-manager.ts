@@ -1,23 +1,16 @@
 import { getContract } from '@nucypher/nucypher-contracts';
-import {
-  BigNumber,
-  ContractTransaction,
-  ethers,
-  utils as ethersUtils,
-} from 'ethers';
+import { BigNumber, ContractTransaction, utils as ethersUtils } from 'ethers';
+import { PublicClient, WalletClient } from 'viem';
 
 import { Domain } from '../../porter';
 import { ChecksumAddress } from '../../types';
+import { publicClientToProvider, walletClientToSigner } from '../../viem';
 import { DEFAULT_WAIT_N_CONFIRMATIONS } from '../const';
-import {
-  SubscriptionManager,
-  SubscriptionManager__factory,
-} from '../ethers-typechain';
+import { SubscriptionManager__factory } from '../ethers-typechain';
 
 export class PreSubscriptionManagerAgent {
   public static async createPolicy(
-    provider: ethers.providers.Provider,
-    signer: ethers.Signer,
+    walletClient: WalletClient,
     domain: Domain,
     valueInWei: BigNumber,
     policyId: Uint8Array,
@@ -27,9 +20,8 @@ export class PreSubscriptionManagerAgent {
     ownerAddress: ChecksumAddress,
   ): Promise<ContractTransaction> {
     const subscriptionManager = await this.connectReadWrite(
-      provider,
+      walletClient,
       domain,
-      signer,
     );
     const overrides = {
       value: valueInWei.toString(),
@@ -55,13 +47,16 @@ export class PreSubscriptionManagerAgent {
   }
 
   public static async getPolicyCost(
-    provider: ethers.providers.Provider,
+    publicClient: PublicClient,
     domain: Domain,
     size: number,
     startTimestamp: number,
     endTimestamp: number,
   ): Promise<BigNumber> {
-    const subscriptionManager = await this.connectReadOnly(provider, domain);
+    const subscriptionManager = await this.connectReadOnly(
+      publicClient,
+      domain,
+    );
     return await subscriptionManager.getPolicyCost(
       size,
       startTimestamp,
@@ -70,34 +65,26 @@ export class PreSubscriptionManagerAgent {
   }
 
   private static async connectReadOnly(
-    provider: ethers.providers.Provider,
+    publicClient: PublicClient,
     domain: Domain,
   ) {
-    return await this.connect(provider, domain);
+    const chainId = await publicClient.getChainId();
+    const contractAddress = getContract(domain, chainId, 'SubscriptionManager');
+    return SubscriptionManager__factory.connect(
+      contractAddress,
+      publicClientToProvider(publicClient),
+    );
   }
 
   private static async connectReadWrite(
-    provider: ethers.providers.Provider,
+    walletClient: WalletClient,
     domain: Domain,
-    signer: ethers.Signer,
   ) {
-    return await this.connect(provider, domain, signer);
-  }
-
-  private static async connect(
-    provider: ethers.providers.Provider,
-    domain: Domain,
-    signer?: ethers.Signer,
-  ): Promise<SubscriptionManager> {
-    const network = await provider.getNetwork();
-    const contractAddress = getContract(
-      domain,
-      network.chainId,
-      'SubscriptionManager',
-    );
+    const chainId = await walletClient.getChainId();
+    const contractAddress = getContract(domain, chainId, 'SubscriptionManager');
     return SubscriptionManager__factory.connect(
       contractAddress,
-      signer ?? provider,
+      walletClientToSigner(walletClient),
     );
   }
 }

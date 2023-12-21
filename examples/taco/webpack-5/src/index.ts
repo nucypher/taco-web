@@ -8,8 +8,7 @@ import {
   initialize,
   toBytes,
 } from '@nucypher/taco';
-import { ethers } from 'ethers';
-import { hexlify } from 'ethers/lib/utils';
+import { createPublicClient, createWalletClient, custom, toHex } from 'viem';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const window: any;
@@ -20,20 +19,24 @@ const runExample = async () => {
   const ritualId = 5; // Replace with your own ritual ID
   const domain = domains.TESTNET;
 
-  const provider = new ethers.providers.Web3Provider(window.ethereum!, 'any');
-  await provider.send('eth_requestAccounts', []);
-  const signer = provider.getSigner();
+  const publicClient = createPublicClient({
+    transport: custom(window.ethereum),
+  });
+  const walletClient = createWalletClient({
+    transport: custom(window.ethereum),
+  });
+  const chainId = await walletClient.getChainId();
+  const [address] = await walletClient.getAddresses();
 
-  const { chainId } = await provider.getNetwork();
   const mumbaiChainId = 80001;
   if (chainId !== mumbaiChainId) {
     // Switch to Polygon Mumbai testnet
     await window.ethereum!.request!({
       method: 'wallet_switchEthereumChain',
-      params: [{ chainId: hexlify(mumbaiChainId) }],
+      params: [{ chainId: toHex(mumbaiChainId) }],
     });
   }
-  console.log("Signer's address:", await signer.getAddress());
+  console.log("Signer's address:", address);
 
   console.log('Encrypting message...');
   const message = toBytes('this is a secret');
@@ -51,21 +54,21 @@ const runExample = async () => {
     'Condition requires signer',
   );
   const messageKit = await encrypt(
-    provider,
+    publicClient,
     domain,
     message,
     hasPositiveBalance,
     ritualId,
-    signer,
+    walletClient,
   );
 
   console.log('Decrypting message...');
   const decryptedBytes = await decrypt(
-    provider,
+    publicClient,
     domain,
     messageKit,
     getPorterUri(domain),
-    signer,
+    walletClient,
   );
   const decryptedMessage = fromBytes(decryptedBytes);
   console.log('Decrypted message:', decryptedMessage);

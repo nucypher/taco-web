@@ -10,7 +10,12 @@ This script needs 3 environment variables, that you can set in the `.env` file:
 * `ENCRYPTOR_PRIVATE_KEY` and `CONSUMER_PRIVATE_KEY`: Hex-encoded private keys for the Encryptor and the Consumer,
   respectively.
 
-Default values for these variables are provided in `.env.example`, so you can run:
+- `RPC_PROVIDER_URL`: For TACo testnet you should use a Polygon Mumbai endpoint.
+- `ENCRYPTOR_PRIVATE_KEY` and `CONSUMER_PRIVATE_KEY`: Hex-encoded private keys
+  for the Encryptor and the Consumer, respectively.
+
+Default values for these variables are provided in `.env.example`, so you can
+run:
 
 ```bash
 cp .env.example .env

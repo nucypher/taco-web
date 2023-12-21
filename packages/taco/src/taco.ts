@@ -13,8 +13,9 @@ import {
   GlobalAllowListAgent,
   toBytes,
 } from '@nucypher/shared';
-import { ethers } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
+import { PublicClient, WalletClient } from 'viem';
+import { signMessage } from 'viem/actions';
 
 import {
   Condition,
@@ -28,7 +29,7 @@ import { retrieveAndDecrypt } from './tdec';
  * Encrypts a message under given conditions using a public key from an active DKG ritual.
  *
  * @export
- * @param {ethers.providers.Provider} provider - Instance of ethers provider which is used to interact with
+ * @param {PublicClient} publicClient - Instance of viem's PublicClient which is used to interact with
  * your selected network.
  * @param {Domain} domain - Represents the logical network in which the encryption will be performed.
  * Must match the `ritualId`.
@@ -37,7 +38,7 @@ import { retrieveAndDecrypt } from './tdec';
  * satisfied in order to decrypt the message.
  * @param {number} ritualId - The ID of the DKG Ritual to be used for encryption. The message will be encrypted
  * under the public key of this ritual.
- * @param {ethers.Signer} authSigner - The signer that will be used to sign the encrypter authorization.
+ * @param {WalletClient} walletClient - The signer that will be used to sign the encrypter authorization.
  *
  * @returns {Promise<ThresholdMessageKit>} Returns Promise that resolves with an instance of ThresholdMessageKit.
  * It represents the encrypted message.
@@ -45,12 +46,12 @@ import { retrieveAndDecrypt } from './tdec';
  * @throws {Error} If the active DKG Ritual cannot be retrieved an error is thrown.
  */
 export const encrypt = async (
-  provider: ethers.providers.Provider,
+  publicClient: PublicClient,
   domain: Domain,
   message: Uint8Array | string,
   condition: Condition,
   ritualId: number,
-  authSigner: ethers.Signer,
+  walletClient: WalletClient, // TODO: remove?
 ): Promise<ThresholdMessageKit> => {
   // TODO(#264): Enable ritual initialization
   // if (ritualId === undefined) {
@@ -64,13 +65,17 @@ export const encrypt = async (
   //   // Given that we just initialized the ritual, this should never happen
   //   throw new Error('Ritual ID is undefined');
   // }
-  const dkgRitual = await DkgClient.getActiveRitual(provider, domain, ritualId);
+  const dkgRitual = await DkgClient.getActiveRitual(
+    publicClient,
+    domain,
+    ritualId,
+  );
 
   return await encryptWithPublicKey(
     message,
     condition,
     dkgRitual.dkgPublicKey,
-    authSigner,
+    walletClient,
   );
 };
 
@@ -82,7 +87,7 @@ export const encrypt = async (
  * @param {Condition} condition - Condition under which the message will be encrypted. Those conditions must be
  * satisfied in order to decrypt the message.
  * @param {DkgPublicKey} dkgPublicKey - The public key of an active DKG Ritual to be used for encryption
- * @param {ethers.Signer} authSigner - The signer that will be used to sign the encrypter authorization.
+ * @param {WalletClient} walletClient - The signer that will be used to sign the encrypter authorization.
  *
  * @returns {Promise<ThresholdMessageKit>} Returns Promise that resolves with an instance of ThresholdMessageKit.
  * It represents the encrypted message.
@@ -93,7 +98,7 @@ export const encryptWithPublicKey = async (
   message: Uint8Array | string,
   condition: Condition,
   dkgPublicKey: DkgPublicKey,
-  authSigner: ethers.Signer,
+  walletClient: WalletClient, // TODO: remove?
 ): Promise<ThresholdMessageKit> => {
   if (typeof message === 'string') {
     message = toBytes(message);
@@ -108,7 +113,14 @@ export const encryptWithPublicKey = async (
   );
 
   const headerHash = keccak256(ciphertext.header.toBytes());
-  const authorization = await authSigner.signMessage(fromHexString(headerHash));
+  const account = walletClient.account;
+  if (!account) {
+    throw new Error('WalletClient must be initialized with an account');
+  }
+  const authorization = await signMessage(walletClient, {
+    account,
+    message: headerHash,
+  });
   const acp = new AccessControlPolicy(
     authenticatedData,
     fromHexString(authorization),
@@ -121,14 +133,14 @@ export const encryptWithPublicKey = async (
  * Decrypts an encrypted message.
  *
  * @export
- * @param {ethers.providers.Provider} provider - Instance of ethers provider which is used to interact with
+ * @param {PublicClient} publicClient - Instance of viem's PublicClient which is used to interact with
  * your selected network.
  * @param {Domain} domain - Represents the logical network in which the decryption will be performed.
  * Must match the `ritualId`.
  * @param {ThresholdMessageKit} messageKit - The kit containing the message to be decrypted
  * @param {string} [porterUri] - The URI for the Porter service. If not provided, a value will be obtained
  * from the Domain
- * @param {ethers.Signer} [signer] - An optional signer for the decryption
+ * @param {WalletClient} [walletClient] - An optional signer for the decryption
  * @param {Record<string, CustomContextParam>} [customParameters] - Optional custom parameters that may be required
  * depending on the condition used
  *
@@ -138,11 +150,11 @@ export const encryptWithPublicKey = async (
  * an error is thrown.
  */
 export const decrypt = async (
-  provider: ethers.providers.Provider,
+  publicClient: PublicClient,
   domain: Domain,
   messageKit: ThresholdMessageKit,
   porterUri?: string,
-  signer?: ethers.Signer,
+  walletClient?: WalletClient,
   customParameters?: Record<string, CustomContextParam>,
 ): Promise<Uint8Array> => {
   if (!porterUri) {
@@ -150,19 +162,23 @@ export const decrypt = async (
   }
 
   const ritualId = await DkgCoordinatorAgent.getRitualIdFromPublicKey(
-    provider,
+    publicClient,
     domain,
     messageKit.acp.publicKey,
   );
-  const ritual = await DkgClient.getActiveRitual(provider, domain, ritualId);
+  const ritual = await DkgClient.getActiveRitual(
+    publicClient,
+    domain,
+    ritualId,
+  );
   return retrieveAndDecrypt(
-    provider,
+    publicClient,
     domain,
     porterUri,
     messageKit,
     ritualId,
     ritual.threshold,
-    signer,
+    walletClient,
     customParameters,
   );
 };
@@ -171,7 +187,7 @@ export const decrypt = async (
  * Checks if the encryption from the provided messageKit is authorized for the specified ritual.
  *
  * @export
- * @param {ethers.providers.Provider} provider - Instance of ethers provider which is used to interact with
+ * @param {PublicClient} publicClient - Instance of viem's PublicClient which is used to interact with
  * your selected network.
  * @param {Domain} domain - The domain which was used to encrypt the network. Must match the `ritualId`.
  * @param {ThresholdMessageKit} messageKit - The encrypted message kit to be checked.
@@ -181,28 +197,26 @@ export const decrypt = async (
  * True if authorized, false otherwise
  */
 export const isAuthorized = async (
-  provider: ethers.providers.Provider,
+  publicClient: PublicClient,
   domain: Domain,
   messageKit: ThresholdMessageKit,
   ritualId: number,
 ) =>
   DkgCoordinatorAgent.isEncryptionAuthorized(
-    provider,
+    publicClient,
     domain,
     ritualId,
     messageKit,
   );
 
 export const registerEncrypters = async (
-  provider: ethers.providers.Provider,
-  signer: ethers.Signer,
+  walletClient: WalletClient,
   domain: Domain,
   ritualId: number,
   encrypters: ChecksumAddress[],
 ): Promise<void> => {
   await GlobalAllowListAgent.registerEncrypters(
-    provider,
-    signer,
+    walletClient,
     domain,
     ritualId,
     encrypters,

@@ -4,12 +4,11 @@ import {
   SessionStaticSecret,
 } from '@nucypher/nucypher-core';
 import {
-  aliceSecretKeyBytes,
   fakeDkgFlow,
   fakePorterUri,
-  fakeProvider,
-  fakeSigner,
+  fakePublicClient,
   fakeTDecFlow,
+  fakeWalletClient,
   mockGetRitualIdFromPublicKey,
   mockTacoDecrypt,
 } from '@nucypher/test-utils';
@@ -42,17 +41,15 @@ describe('taco', () => {
   it('encrypts and decrypts', async () => {
     const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
     const mockedDkgRitual = fakeDkgRitual(mockedDkg);
-    const provider = fakeProvider(aliceSecretKeyBytes);
-    const signer = fakeSigner(aliceSecretKeyBytes);
     const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);
 
     const messageKit = await taco.encrypt(
-      provider,
-      domains.DEV,
+      fakePublicClient,
+      domains.DEVNET,
       message,
       ownsNFT,
       mockedDkg.ritualId,
-      signer,
+      fakeWalletClient,
     );
     expect(getFinalizedRitualSpy).toHaveBeenCalled();
 
@@ -80,11 +77,11 @@ describe('taco', () => {
     const getRitualSpy = mockGetActiveRitual(mockedDkgRitual);
 
     const decryptedMessage = await taco.decrypt(
-      provider,
-      domains.DEV,
+      fakePublicClient,
+      domains.DEVNET,
       messageKit,
       fakePorterUri,
-      signer,
+      fakeWalletClient,
     );
     expect(getParticipantsSpy).toHaveBeenCalled();
     expect(sessionKeySpy).toHaveBeenCalled();

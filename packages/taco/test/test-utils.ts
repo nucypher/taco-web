@@ -27,8 +27,8 @@ import {
 } from '@nucypher/shared';
 import {
   fakeDkgFlow,
-  fakeSigner,
   fakeTDecFlow,
+  fakeWalletClient,
   TEST_CHAIN_ID,
   TEST_CONTRACT_ADDR,
 } from '@nucypher/test-utils';
@@ -84,7 +84,7 @@ export const fakeDkgTDecFlowE2E: (
     message,
     dkgPublicKey,
     conditionExpr,
-    fakeSigner(),
+    fakeWalletClient,
   );
 
   const { decryptionShares } = fakeTDecFlow({

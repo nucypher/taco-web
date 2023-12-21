@@ -12,7 +12,9 @@
     "type-check": "tsc"
   },
   "dependencies": {
-    "@nucypher/taco": "workspace:*"
+    "@nucypher/taco": "workspace:*",
+    "viem": "^1.19.9",
+    "ethers": "^5.7.2"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^11.0.0",
@@ -20,8 +22,5 @@
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.7.4"
-  },
-  "peerDependencies": {
-    "ethers": "^5.7.2"
   }
 }

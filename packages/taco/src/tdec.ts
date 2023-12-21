@@ -20,8 +20,9 @@ import {
   PorterClient,
   toBytes,
 } from '@nucypher/shared';
-import { ethers } from 'ethers';
-import { arrayify, keccak256 } from 'ethers/lib/utils';
+import { keccak256 } from 'ethers/lib/utils';
+import { PublicClient, WalletClient } from 'viem';
+import { signMessage } from 'viem/actions';
 
 import {
   ConditionContext,
@@ -37,12 +38,13 @@ const ERR_RITUAL_ID_MISMATCH = (
   expectedRitualId: number,
   ritualIds: number[],
 ) => `Ritual id mismatch. Expected ${expectedRitualId}, got ${ritualIds}`;
+const ERR_NO_ACCOUNT_FOUND = 'No account found in WalletClient';
 
 export const encryptMessage = async (
   plaintext: Uint8Array | string,
   encryptingKey: DkgPublicKey,
   conditions: ConditionExpression,
-  authSigner: ethers.Signer,
+  walletClient: WalletClient,
 ): Promise<ThresholdMessageKit> => {
   const [ciphertext, authenticatedData] = encryptForDkg(
     plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext),
@@ -51,7 +53,14 @@ export const encryptMessage = async (
   );
 
   const headerHash = keccak256(ciphertext.header.toBytes());
-  const authorization = await authSigner.signMessage(arrayify(headerHash));
+  const account = walletClient.account;
+  if (!account) {
+    throw new Error(ERR_NO_ACCOUNT_FOUND);
+  }
+  const authorization = await signMessage(walletClient, {
+    message: headerHash,
+    account,
+  });
   const acp = new AccessControlPolicy(
     authenticatedData,
     toBytes(authorization),
@@ -62,23 +71,23 @@ export const encryptMessage = async (
 
 // Retrieve and decrypt ciphertext using provider and condition expression
 export const retrieveAndDecrypt = async (
-  provider: ethers.providers.Provider,
+  publicClient: PublicClient,
   domain: Domain,
   porterUri: string,
   thresholdMessageKit: ThresholdMessageKit,
   ritualId: number,
   threshold: number,
-  signer?: ethers.Signer,
+  walletClient?: WalletClient,
   customParameters?: Record<string, CustomContextParam>,
 ): Promise<Uint8Array> => {
   const decryptionShares = await retrieve(
-    provider,
+    publicClient,
     domain,
     porterUri,
     thresholdMessageKit,
     ritualId,
     threshold,
-    signer,
+    walletClient,
     customParameters,
   );
   const sharedSecret = combineDecryptionSharesSimple(decryptionShares);
@@ -87,24 +96,24 @@ export const retrieveAndDecrypt = async (
 
 // Retrieve decryption shares
 const retrieve = async (
-  provider: ethers.providers.Provider,
+  publicClient: PublicClient,
   domain: Domain,
   porterUri: string,
   thresholdMessageKit: ThresholdMessageKit,
   ritualId: number,
   threshold: number,
-  signer?: ethers.Signer,
+  walletClient?: WalletClient,
   customParameters?: Record<string, CustomContextParam>,
 ): Promise<DecryptionShareSimple[]> => {
   const dkgParticipants = await DkgCoordinatorAgent.getParticipants(
-    provider,
+    publicClient,
     domain,
     ritualId,
   );
   const wasmContext = await ConditionContext.fromConditions(
-    provider,
+    publicClient,
     thresholdMessageKit.acp.conditions,
-    signer,
+    walletClient,
     customParameters,
   ).toWASMContext();
   const { sharedSecrets, encryptedRequests } = await makeDecryptionRequests(

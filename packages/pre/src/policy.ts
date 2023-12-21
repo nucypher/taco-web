@@ -13,10 +13,11 @@ import {
   toBytes,
   toCanonicalAddress,
   toEpoch,
+  toPublicClient,
   Ursula,
   zip,
 } from '@nucypher/shared';
-import { ethers } from 'ethers';
+import { WalletClient } from 'viem';
 
 import { Alice, RemoteBob } from './characters';
 
@@ -47,11 +48,10 @@ export class PreEnactedPolicy implements IPreEnactedPolicy {
   ) {}
 
   public async enact(
-    provider: ethers.providers.Provider,
-    signer: ethers.Signer,
+    walletClient: WalletClient,
     domain: Domain,
   ): Promise<EnactedPolicy> {
-    const txHash = await this.publish(provider, signer, domain);
+    const txHash = await this.publish(walletClient, domain);
     return {
       ...this,
       txHash,
@@ -59,23 +59,25 @@ export class PreEnactedPolicy implements IPreEnactedPolicy {
   }
 
   private async publish(
-    provider: ethers.providers.Provider,
-    signer: ethers.Signer,
+    walletClient: WalletClient,
     domain: Domain,
   ): Promise<string> {
+    const publicClient = toPublicClient(walletClient);
     const startTimestamp = toEpoch(this.startTimestamp);
     const endTimestamp = toEpoch(this.endTimestamp);
-    const ownerAddress = await signer.getAddress();
+    const ownerAddress = await walletClient.account?.address;
+    if (!ownerAddress) {
+      throw new Error('No account set');
+    }
     const value = await PreSubscriptionManagerAgent.getPolicyCost(
-      provider,
+      publicClient,
       domain,
       this.size,
       startTimestamp,
       endTimestamp,
     );
     const tx = await PreSubscriptionManagerAgent.createPolicy(
-      provider,
-      signer,
+      walletClient,
       domain,
       value,
       this.id.toBytes(),
@@ -119,13 +121,12 @@ export class BlockchainPolicy {
   }
 
   public async enact(
-    provider: ethers.providers.Provider,
-    signer: ethers.Signer,
+    walletClient: WalletClient,
     domain: Domain,
     ursulas: readonly Ursula[],
   ): Promise<EnactedPolicy> {
     const preEnacted = await this.generatePreEnactedPolicy(ursulas);
-    return await preEnacted.enact(provider, signer, domain);
+    return await preEnacted.enact(walletClient, domain);
   }
 
   public async generatePreEnactedPolicy(

@@ -44,14 +44,13 @@
     "@nucypher/shared": "^0.1.0-rc.4",
     "ethers": "^5.7.2",
     "semver": "^7.5.2",
+    "viem": "^1.19.9",
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@nucypher/shared": "workspace:*",
     "@nucypher/test-utils": "workspace:*",
     "@types/semver": "^7.5.6"
-  },
-  "peerDependencies": {
-    "@nucypher/shared": "workspace:*"
   },
   "engines": {
     "node": ">=18",

@@ -42,12 +42,13 @@
   "dependencies": {
     "@ethersproject/abi": "^5.7.0",
     "@ethersproject/providers": "^5.7.2",
-    "@nucypher/nucypher-contracts": "^0.13.0",
+    "@nucypher/nucypher-contracts": "^0.15.0",
     "@nucypher/nucypher-core": "*",
     "axios": "^1.6.2",
     "deep-equal": "^2.2.3",
     "ethers": "^5.7.2",
-    "qs": "^6.10.1"
+    "qs": "^6.10.1",
+    "viem": "^1.19.9"
   },
   "devDependencies": {
     "@typechain/ethers-v5": "^11.1.2",

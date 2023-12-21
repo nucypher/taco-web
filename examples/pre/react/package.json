@@ -26,7 +26,7 @@
     "@nucypher/pre": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "ethers": "^5.7.2"
+    "viem": "^1.19.9"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

@@ -8,14 +8,16 @@ import {
   ThresholdMessageKit,
 } from '@nucypher/taco';
 import { Mumbai, useEthers } from '@usedapp/core';
-import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
+import 'viem/window';
+
+import { createPublicClient, createWalletClient, custom } from 'viem';
 
 import { ConditionBuilder } from './ConditionBuilder';
+import { DEFAULT_DOMAIN, DEFAULT_RITUAL_ID } from './config';
 import { Decrypt } from './Decrypt';
 import { Encrypt } from './Encrypt';
 import { Spinner } from './Spinner';
-import { DEFAULT_DOMAIN, DEFAULT_RITUAL_ID } from './config';
 
 export default function App() {
   const { activateBrowserWallet, deactivate, account, switchNetwork } =
@@ -36,6 +38,10 @@ export default function App() {
   }, []);
 
   const encryptMessage = async (message: string) => {
+    if (!window.ethereum) {
+      console.error('You need to connect to your wallet first');
+      return;
+    }
     if (!condition) {
       return;
     }
@@ -43,14 +49,19 @@ export default function App() {
 
     await switchNetwork(Mumbai.chainId);
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const publicClient = createPublicClient({
+      transport: custom(window.ethereum),
+    });
+    const walletClient = createWalletClient({
+      transport: custom(window.ethereum),
+    });
     const encryptedMessage = await encrypt(
-      provider,
+      publicClient,
       domain,
       message,
       condition,
       ritualId,
-      provider.getSigner(),
+      walletClient,
     );
 
     setEncryptedMessage(encryptedMessage);
@@ -58,6 +69,10 @@ export default function App() {
   };
 
   const decryptMessage = async (encryptedMessage: ThresholdMessageKit) => {
+    if (!window.ethereum) {
+      console.error('You need to connect to your wallet first');
+      return;
+    }
     if (!condition) {
       return;
     }
@@ -65,13 +80,18 @@ export default function App() {
     setDecryptedMessage('');
     setDecryptionErrors([]);
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const publicClient = createPublicClient({
+      transport: custom(window.ethereum),
+    });
+    const walletClient = createWalletClient({
+      transport: custom(window.ethereum),
+    });
     const decryptedMessage = await decrypt(
-      provider,
+      publicClient,
       domain,
       encryptedMessage,
       getPorterUri(domain),
-      provider.getSigner(),
+      walletClient,
     );
 
     setDecryptedMessage(new TextDecoder().decode(decryptedMessage));

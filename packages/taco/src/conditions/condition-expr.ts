@@ -1,7 +1,7 @@
 import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { toJSON } from '@nucypher/shared';
-import { ethers } from 'ethers';
 import { SemVer } from 'semver';
+import { PublicClient, WalletClient } from 'viem';
 
 import { Condition } from './condition';
 import { ConditionContext, CustomContextParam } from './context';
@@ -64,15 +64,15 @@ export class ConditionExpression {
   }
 
   public buildContext(
-    provider: ethers.providers.Provider,
+    publicClient: PublicClient,
     customParameters: Record<string, CustomContextParam> = {},
-    signer?: ethers.Signer,
+    walletClient?: WalletClient,
   ): ConditionContext {
     return new ConditionContext(
-      provider,
+      publicClient,
       this.condition,
       customParameters,
-      signer,
+      walletClient,
     );
   }
 

@@ -65,8 +65,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0(@typescript-eslint/eslint-plugin@6.14.0)(eslint@8.54.0)
       gh-pages:
-        specifier: ^6.0.0
-        version: 6.0.0
+        specifier: ^6.1.1
+        version: 6.1.1
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
@@ -8493,8 +8493,8 @@ packages:
       resolve-pkg-maps: 1.0.0
     dev: false
 
-  /gh-pages@6.0.0:
-    resolution: {integrity: sha512-FXZWJRsvP/fK2HJGY+Di6FRNHvqFF6gOIELaopDjXXgjeOYSNURcuYwEO/6bwuq6koP5Lnkvnr5GViXzuOB89g==}
+  /gh-pages@6.1.1:
+    resolution: {integrity: sha512-upnohfjBwN5hBP9w2dPE7HO5JJTHzSGMV1JrLrHvNuqmjoYHg6TBrCcnEoorjG/e0ejbuvnwyKMdTyM40PEByw==}
     engines: {node: '>=10'}
     hasBin: true
     dependencies:

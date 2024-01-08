@@ -3,12 +3,12 @@ import { Mumbai, useEthers } from '@usedapp/core';
 import React, { useState } from 'react';
 
 interface Props {
-  condition?: conditions.Condition | undefined;
-  setConditions: (value: conditions.Condition) => void;
+  condition?: conditions.condition.Condition | undefined;
+  setConditions: (value: conditions.condition.Condition) => void;
   enabled: boolean;
 }
 
-const rpcCondition = new conditions.RpcCondition({
+const rpcCondition = new conditions.base.rpc.RpcCondition({
   chain: Mumbai.chainId,
   method: 'eth_getBalance',
   parameters: [':userAddress'],
@@ -59,7 +59,7 @@ export const ConditionBuilder = ({
 
   const onCreateCondition = (e: any) => {
     e.preventDefault();
-    setConditions(conditions.Condition.fromObj(JSON.parse(conditionString)));
+    setConditions(conditions.ConditionFactory.conditionFromProps(JSON.parse(conditionString)));
   };
 
   return (

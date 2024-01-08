@@ -5,7 +5,7 @@ import {
   CONTEXT_PARAM_REGEXP,
   ETH_ADDRESS_REGEXP,
   USER_ADDRESS_PARAM,
-} from '../const';
+} from './const';
 
 export const contextParamSchema = z.string().regex(CONTEXT_PARAM_REGEXP);
 // We want to discriminate between ContextParams and plain strings
@@ -41,3 +41,5 @@ export const EthAddressOrUserAddressSchema = z.union([
   EthAddressSchema,
   UserAddressSchema,
 ]);
+
+export type OmitConditionType<T> = Omit<T, 'conditionType'>;

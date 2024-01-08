@@ -43,7 +43,7 @@ export default function useTaco({
   const encryptDataToBytes = useCallback(
     async (
       message: string,
-      condition: conditions.Condition,
+      condition: conditions.condition.Condition,
       encryptorSigner: ethers.Signer,
     ) => {
       if (!isInit || !provider) return;

@@ -5,16 +5,20 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 import { toBytes, toHexString } from '../../src';
 import {
-  ConditionExpression,
   ContractCondition,
   ContractConditionProps,
-  CustomContextParam,
+} from '../../src/conditions/base/contract';
+import { RpcCondition } from '../../src/conditions/base/rpc';
+import { ConditionExpression } from '../../src/conditions/condition-expr';
+import {
+  RESERVED_CONTEXT_PARAMS,
+  USER_ADDRESS_PARAM,
+} from '../../src/conditions/const';
+import { CustomContextParam } from '../../src/conditions/context';
+import {
+  paramOrContextParamSchema,
   ReturnValueTestProps,
-  RpcCondition,
-} from '../../src/conditions';
-import { paramOrContextParamSchema } from '../../src/conditions/base/shared';
-import { USER_ADDRESS_PARAM } from '../../src/conditions/const';
-import { RESERVED_CONTEXT_PARAMS } from '../../src/conditions/context/context';
+} from '../../src/conditions/shared';
 import {
   testContractConditionObj,
   testFunctionAbi,

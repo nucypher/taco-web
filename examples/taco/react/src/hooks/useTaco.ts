@@ -1,4 +1,5 @@
 import {
+  conditions,
   decrypt,
   Domain,
   encrypt,
@@ -6,7 +7,6 @@ import {
   initialize,
   ThresholdMessageKit,
 } from '@nucypher/taco';
-import { Condition } from '@nucypher/taco/src/conditions';
 import { ethers } from 'ethers';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -43,7 +43,7 @@ export default function useTaco({
   const encryptDataToBytes = useCallback(
     async (
       message: string,
-      condition: Condition,
+      condition: conditions.condition.Condition,
       encryptorSigner: ethers.Signer,
     ) => {
       if (!isInit || !provider) return;

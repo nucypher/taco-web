@@ -35,18 +35,22 @@ import {
 import { SpyInstance, vi } from 'vitest';
 
 import {
-  ConditionExpression,
   ContractConditionProps,
   ContractConditionType,
-  ERC721Balance,
   FunctionAbiProps,
-  ReturnValueTestProps,
+} from '../src/conditions/base/contract';
+import {
   RpcConditionProps,
   RpcConditionType,
+} from '../src/conditions/base/rpc';
+import {
   TimeConditionMethod,
   TimeConditionProps,
   TimeConditionType,
-} from '../src/conditions';
+} from '../src/conditions/base/time';
+import { ConditionExpression } from '../src/conditions/condition-expr';
+import { ERC721Balance } from '../src/conditions/predefined/erc721';
+import { ReturnValueTestProps } from '../src/conditions/shared';
 import { DkgClient, DkgRitual } from '../src/dkg';
 import { encryptMessage } from '../src/tdec';
 

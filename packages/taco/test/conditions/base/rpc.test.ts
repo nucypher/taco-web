@@ -1,8 +1,11 @@
 import { TEST_CONTRACT_ADDR } from '@nucypher/test-utils';
 import { describe, expect, it } from 'vitest';
 
-import { RpcCondition, RpcConditionType } from '../../../src/conditions';
-import { rpcConditionSchema } from '../../../src/conditions/base/rpc';
+import {
+  RpcCondition,
+  rpcConditionSchema,
+  RpcConditionType,
+} from '../../../src/conditions/base/rpc';
 import { testRpcConditionObj } from '../../test-utils';
 
 describe('validation', () => {

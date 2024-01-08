@@ -3,15 +3,15 @@ import { fakeProvider, fakeSigner } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import {
-  ConditionExpression,
   ContractCondition,
   ContractConditionProps,
+  contractConditionSchema,
   ContractConditionType,
-  CustomContextParam,
   FunctionAbiProps,
-} from '../../../src/conditions';
-import { contractConditionSchema } from '../../../src/conditions/base/contract';
+} from '../../../src/conditions/base/contract';
+import { ConditionExpression } from '../../../src/conditions/condition-expr';
 import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
+import { CustomContextParam } from '../../../src/conditions/context';
 import { testContractConditionObj, testFunctionAbi } from '../../test-utils';
 
 describe('validation', () => {

@@ -1,7 +1,7 @@
 import { conditions } from '../src';
-import { CustomContextParam } from '../src/conditions';
+import { CustomContextParam } from '../src/conditions/context';
 
-const ownsNFTRaw = new conditions.base.ContractCondition({
+const ownsNFTRaw = new conditions.base.contract.ContractCondition({
   method: 'balanceOf',
   parameters: [':userAddress'],
   standardContractType: 'ERC721',

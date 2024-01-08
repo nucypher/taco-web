@@ -22,7 +22,7 @@ export default function App() {
     useEthers();
 
   const [loading, setLoading] = useState(false);
-  const [condition, setCondition] = useState<conditions.Condition>();
+  const [condition, setCondition] = useState<conditions.condition.Condition>();
   const [encryptedMessage, setEncryptedMessage] =
     useState<ThresholdMessageKit>();
   const [decryptedMessage, setDecryptedMessage] = useState<string>();

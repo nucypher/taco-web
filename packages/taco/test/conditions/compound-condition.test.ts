@@ -1,12 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
+import { ContractCondition } from '../../src/conditions/base/contract';
+import { TimeCondition } from '../../src/conditions/base/time';
 import {
   CompoundCondition,
   CompoundConditionProps,
-  ContractCondition,
-  TimeCondition,
-} from '../../src/conditions';
-import {
   compoundConditionSchema,
   CompoundConditionType,
 } from '../../src/conditions/compound-condition';

@@ -19,157 +19,59 @@ const _abi = [
         type: 'address',
         internalType: 'contract Coordinator',
       },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'ECDSAInvalidSignature',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'ECDSAInvalidSignatureLength',
+    inputs: [
       {
-        name: '_admin',
-        type: 'address',
-        internalType: 'address',
+        name: 'length',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'ECDSAInvalidSignatureS',
+    inputs: [
+      {
+        name: 's',
+        type: 'bytes32',
+        internalType: 'bytes32',
       },
     ],
   },
   {
     type: 'event',
-    name: 'DefaultAdminDelayChangeCanceled',
-    inputs: [],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'DefaultAdminDelayChangeScheduled',
+    name: 'AddressAuthorizationSet',
     inputs: [
       {
-        name: 'newDelay',
-        type: 'uint48',
-        internalType: 'uint48',
-        indexed: false,
+        name: 'ritualId',
+        type: 'uint32',
+        internalType: 'uint32',
+        indexed: true,
       },
       {
-        name: 'effectSchedule',
-        type: 'uint48',
-        internalType: 'uint48',
-        indexed: false,
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'DefaultAdminTransferCanceled',
-    inputs: [],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'DefaultAdminTransferScheduled',
-    inputs: [
-      {
-        name: 'newAdmin',
+        name: '_address',
         type: 'address',
         internalType: 'address',
         indexed: true,
       },
       {
-        name: 'acceptSchedule',
-        type: 'uint48',
-        internalType: 'uint48',
+        name: 'isAuthorized',
+        type: 'bool',
+        internalType: 'bool',
         indexed: false,
       },
     ],
     anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'RoleAdminChanged',
-    inputs: [
-      {
-        name: 'role',
-        type: 'bytes32',
-        internalType: 'bytes32',
-        indexed: true,
-      },
-      {
-        name: 'previousAdminRole',
-        type: 'bytes32',
-        internalType: 'bytes32',
-        indexed: true,
-      },
-      {
-        name: 'newAdminRole',
-        type: 'bytes32',
-        internalType: 'bytes32',
-        indexed: true,
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'RoleGranted',
-    inputs: [
-      {
-        name: 'role',
-        type: 'bytes32',
-        internalType: 'bytes32',
-        indexed: true,
-      },
-      {
-        name: 'account',
-        type: 'address',
-        internalType: 'address',
-        indexed: true,
-      },
-      {
-        name: 'sender',
-        type: 'address',
-        internalType: 'address',
-        indexed: true,
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'RoleRevoked',
-    inputs: [
-      {
-        name: 'role',
-        type: 'bytes32',
-        internalType: 'bytes32',
-        indexed: true,
-      },
-      {
-        name: 'account',
-        type: 'address',
-        internalType: 'address',
-        indexed: true,
-      },
-      {
-        name: 'sender',
-        type: 'address',
-        internalType: 'address',
-        indexed: true,
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'function',
-    name: 'DEFAULT_ADMIN_ROLE',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [
-      {
-        name: '',
-        type: 'bytes32',
-        internalType: 'bytes32',
-      },
-    ],
-  },
-  {
-    type: 'function',
-    name: 'acceptDefaultAdminTransfer',
-    stateMutability: 'nonpayable',
-    inputs: [],
-    outputs: [],
   },
   {
     type: 'function',
@@ -185,39 +87,6 @@ const _abi = [
         name: 'addresses',
         type: 'address[]',
         internalType: 'address[]',
-      },
-    ],
-    outputs: [],
-  },
-  {
-    type: 'function',
-    name: 'beginDefaultAdminTransfer',
-    stateMutability: 'nonpayable',
-    inputs: [
-      {
-        name: 'newAdmin',
-        type: 'address',
-        internalType: 'address',
-      },
-    ],
-    outputs: [],
-  },
-  {
-    type: 'function',
-    name: 'cancelDefaultAdminTransfer',
-    stateMutability: 'nonpayable',
-    inputs: [],
-    outputs: [],
-  },
-  {
-    type: 'function',
-    name: 'changeDefaultAdminDelay',
-    stateMutability: 'nonpayable',
-    inputs: [
-      {
-        name: 'newDelay',
-        type: 'uint48',
-        internalType: 'uint48',
       },
     ],
     outputs: [],
@@ -252,106 +121,6 @@ const _abi = [
       },
     ],
     outputs: [],
-  },
-  {
-    type: 'function',
-    name: 'defaultAdmin',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [
-      {
-        name: '',
-        type: 'address',
-        internalType: 'address',
-      },
-    ],
-  },
-  {
-    type: 'function',
-    name: 'defaultAdminDelay',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [
-      {
-        name: '',
-        type: 'uint48',
-        internalType: 'uint48',
-      },
-    ],
-  },
-  {
-    type: 'function',
-    name: 'defaultAdminDelayIncreaseWait',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [
-      {
-        name: '',
-        type: 'uint48',
-        internalType: 'uint48',
-      },
-    ],
-  },
-  {
-    type: 'function',
-    name: 'getRoleAdmin',
-    stateMutability: 'view',
-    inputs: [
-      {
-        name: 'role',
-        type: 'bytes32',
-        internalType: 'bytes32',
-      },
-    ],
-    outputs: [
-      {
-        name: '',
-        type: 'bytes32',
-        internalType: 'bytes32',
-      },
-    ],
-  },
-  {
-    type: 'function',
-    name: 'grantRole',
-    stateMutability: 'nonpayable',
-    inputs: [
-      {
-        name: 'role',
-        type: 'bytes32',
-        internalType: 'bytes32',
-      },
-      {
-        name: 'account',
-        type: 'address',
-        internalType: 'address',
-      },
-    ],
-    outputs: [],
-  },
-  {
-    type: 'function',
-    name: 'hasRole',
-    stateMutability: 'view',
-    inputs: [
-      {
-        name: 'role',
-        type: 'bytes32',
-        internalType: 'bytes32',
-      },
-      {
-        name: 'account',
-        type: 'address',
-        internalType: 'address',
-      },
-    ],
-    outputs: [
-      {
-        name: '',
-        type: 'bool',
-        internalType: 'bool',
-      },
-    ],
   },
   {
     type: 'function',
@@ -396,130 +165,6 @@ const _abi = [
         name: 'ciphertextHeader',
         type: 'bytes',
         internalType: 'bytes',
-      },
-    ],
-    outputs: [
-      {
-        name: '',
-        type: 'bool',
-        internalType: 'bool',
-      },
-    ],
-  },
-  {
-    type: 'function',
-    name: 'owner',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [
-      {
-        name: '',
-        type: 'address',
-        internalType: 'address',
-      },
-    ],
-  },
-  {
-    type: 'function',
-    name: 'pendingDefaultAdmin',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [
-      {
-        name: 'newAdmin',
-        type: 'address',
-        internalType: 'address',
-      },
-      {
-        name: 'schedule',
-        type: 'uint48',
-        internalType: 'uint48',
-      },
-    ],
-  },
-  {
-    type: 'function',
-    name: 'pendingDefaultAdminDelay',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [
-      {
-        name: 'newDelay',
-        type: 'uint48',
-        internalType: 'uint48',
-      },
-      {
-        name: 'schedule',
-        type: 'uint48',
-        internalType: 'uint48',
-      },
-    ],
-  },
-  {
-    type: 'function',
-    name: 'renounceRole',
-    stateMutability: 'nonpayable',
-    inputs: [
-      {
-        name: 'role',
-        type: 'bytes32',
-        internalType: 'bytes32',
-      },
-      {
-        name: 'account',
-        type: 'address',
-        internalType: 'address',
-      },
-    ],
-    outputs: [],
-  },
-  {
-    type: 'function',
-    name: 'revokeRole',
-    stateMutability: 'nonpayable',
-    inputs: [
-      {
-        name: 'role',
-        type: 'bytes32',
-        internalType: 'bytes32',
-      },
-      {
-        name: 'account',
-        type: 'address',
-        internalType: 'address',
-      },
-    ],
-    outputs: [],
-  },
-  {
-    type: 'function',
-    name: 'rollbackDefaultAdminDelay',
-    stateMutability: 'nonpayable',
-    inputs: [],
-    outputs: [],
-  },
-  {
-    type: 'function',
-    name: 'setCoordinator',
-    stateMutability: 'nonpayable',
-    inputs: [
-      {
-        name: '_coordinator',
-        type: 'address',
-        internalType: 'contract Coordinator',
-      },
-    ],
-    outputs: [],
-  },
-  {
-    type: 'function',
-    name: 'supportsInterface',
-    stateMutability: 'view',
-    inputs: [
-      {
-        name: 'interfaceId',
-        type: 'bytes4',
-        internalType: 'bytes4',
       },
     ],
     outputs: [

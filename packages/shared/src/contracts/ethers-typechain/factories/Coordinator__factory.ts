@@ -17,21 +17,6 @@ const _abi = [
         internalType: 'contract ITACoChildApplication',
       },
       {
-        name: '_timeout',
-        type: 'uint32',
-        internalType: 'uint32',
-      },
-      {
-        name: '_maxDkgSize',
-        type: 'uint16',
-        internalType: 'uint16',
-      },
-      {
-        name: '_admin',
-        type: 'address',
-        internalType: 'address',
-      },
-      {
         name: '_currency',
         type: 'address',
         internalType: 'contract IERC20',
@@ -40,6 +25,118 @@ const _abi = [
         name: '_feeRatePerSecond',
         type: 'uint256',
         internalType: 'uint256',
+      },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'AccessControlBadConfirmation',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'AccessControlEnforcedDefaultAdminDelay',
+    inputs: [
+      {
+        name: 'schedule',
+        type: 'uint48',
+        internalType: 'uint48',
+      },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'AccessControlEnforcedDefaultAdminRules',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'AccessControlInvalidDefaultAdmin',
+    inputs: [
+      {
+        name: 'defaultAdmin',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'AccessControlUnauthorizedAccount',
+    inputs: [
+      {
+        name: 'account',
+        type: 'address',
+        internalType: 'address',
+      },
+      {
+        name: 'neededRole',
+        type: 'bytes32',
+        internalType: 'bytes32',
+      },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'AddressEmptyCode',
+    inputs: [
+      {
+        name: 'target',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'AddressInsufficientBalance',
+    inputs: [
+      {
+        name: 'account',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'FailedInnerCall',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'InvalidInitialization',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'NotInitializing',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'SafeCastOverflowedUintDowncast',
+    inputs: [
+      {
+        name: 'bits',
+        type: 'uint8',
+        internalType: 'uint8',
+      },
+      {
+        name: 'value',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'SafeERC20FailedOperation',
+    inputs: [
+      {
+        name: 'token',
+        type: 'address',
+        internalType: 'address',
       },
     ],
   },
@@ -139,6 +236,19 @@ const _abi = [
   },
   {
     type: 'event',
+    name: 'Initialized',
+    inputs: [
+      {
+        name: 'version',
+        type: 'uint64',
+        internalType: 'uint64',
+        indexed: false,
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
     name: 'MaxDkgSizeChanged',
     inputs: [
       {
@@ -194,6 +304,44 @@ const _abi = [
         ],
         internalType: 'struct BLS12381.G2Point',
         indexed: false,
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'ReimbursementPoolSet',
+    inputs: [
+      {
+        name: 'pool',
+        type: 'address',
+        internalType: 'address',
+        indexed: true,
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'RitualAuthorityTransferred',
+    inputs: [
+      {
+        name: 'ritualId',
+        type: 'uint32',
+        internalType: 'uint32',
+        indexed: true,
+      },
+      {
+        name: 'previousAuthority',
+        type: 'address',
+        internalType: 'address',
+        indexed: true,
+      },
+      {
+        name: 'newAuthority',
+        type: 'address',
+        internalType: 'address',
+        indexed: true,
       },
     ],
     anonymous: false,
@@ -865,6 +1013,29 @@ const _abi = [
   },
   {
     type: 'function',
+    name: 'initialize',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
+        name: '_timeout',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
+      {
+        name: '_maxDkgSize',
+        type: 'uint16',
+        internalType: 'uint16',
+      },
+      {
+        name: '_admin',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    outputs: [],
+  },
+  {
+    type: 'function',
     name: 'initiateRitual',
     stateMutability: 'nonpayable',
     inputs: [
@@ -960,7 +1131,7 @@ const _abi = [
   },
   {
     type: 'function',
-    name: 'isRitualFinalized',
+    name: 'isRitualActive',
     stateMutability: 'view',
     inputs: [
       {
@@ -1147,7 +1318,13 @@ const _abi = [
         internalType: 'uint32',
       },
     ],
-    outputs: [],
+    outputs: [
+      {
+        name: 'refundableFee',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
   },
   {
     type: 'function',
@@ -1336,24 +1513,6 @@ const _abi = [
   },
   {
     type: 'function',
-    name: 'setRitualAuthority',
-    stateMutability: 'nonpayable',
-    inputs: [
-      {
-        name: 'ritualId',
-        type: 'uint32',
-        internalType: 'uint32',
-      },
-      {
-        name: 'authority',
-        type: 'address',
-        internalType: 'address',
-      },
-    ],
-    outputs: [],
-  },
-  {
-    type: 'function',
     name: 'setTimeout',
     stateMutability: 'nonpayable',
     inputs: [
@@ -1409,6 +1568,24 @@ const _abi = [
         internalType: 'uint256',
       },
     ],
+  },
+  {
+    type: 'function',
+    name: 'transferRitualAuthority',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
+        name: 'ritualId',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
+      {
+        name: 'newAuthority',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    outputs: [],
   },
   {
     type: 'function',

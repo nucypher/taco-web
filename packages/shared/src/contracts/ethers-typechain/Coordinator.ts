@@ -91,11 +91,12 @@ export interface CoordinatorInterface extends utils.Interface {
     'getThresholdForRitualSize(uint16)': FunctionFragment;
     'grantRole(bytes32,address)': FunctionFragment;
     'hasRole(bytes32,address)': FunctionFragment;
+    'initialize(uint32,uint16,address)': FunctionFragment;
     'initiateRitual(address[],address,uint32,address)': FunctionFragment;
     'isEncryptionAuthorized(uint32,bytes,bytes)': FunctionFragment;
     'isInitiationPublic()': FunctionFragment;
     'isProviderPublicKeySet(address)': FunctionFragment;
-    'isRitualFinalized(uint32)': FunctionFragment;
+    'isRitualActive(uint32)': FunctionFragment;
     'makeInitiationPublic()': FunctionFragment;
     'maxDkgSize()': FunctionFragment;
     'numberOfRituals()': FunctionFragment;
@@ -113,11 +114,11 @@ export interface CoordinatorInterface extends utils.Interface {
     'setMaxDkgSize(uint16)': FunctionFragment;
     'setProviderPublicKey((bytes32,bytes32,bytes32))': FunctionFragment;
     'setReimbursementPool(address)': FunctionFragment;
-    'setRitualAuthority(uint32,address)': FunctionFragment;
     'setTimeout(uint32)': FunctionFragment;
     'supportsInterface(bytes4)': FunctionFragment;
     'timeout()': FunctionFragment;
     'totalPendingFees()': FunctionFragment;
+    'transferRitualAuthority(uint32,address)': FunctionFragment;
     'withdrawTokens(address,uint256)': FunctionFragment;
   };
 
@@ -149,11 +150,12 @@ export interface CoordinatorInterface extends utils.Interface {
       | 'getThresholdForRitualSize'
       | 'grantRole'
       | 'hasRole'
+      | 'initialize'
       | 'initiateRitual'
       | 'isEncryptionAuthorized'
       | 'isInitiationPublic'
       | 'isProviderPublicKeySet'
-      | 'isRitualFinalized'
+      | 'isRitualActive'
       | 'makeInitiationPublic'
       | 'maxDkgSize'
       | 'numberOfRituals'
@@ -171,11 +173,11 @@ export interface CoordinatorInterface extends utils.Interface {
       | 'setMaxDkgSize'
       | 'setProviderPublicKey'
       | 'setReimbursementPool'
-      | 'setRitualAuthority'
       | 'setTimeout'
       | 'supportsInterface'
       | 'timeout'
       | 'totalPendingFees'
+      | 'transferRitualAuthority'
       | 'withdrawTokens',
   ): FunctionFragment;
 
@@ -281,6 +283,10 @@ export interface CoordinatorInterface extends utils.Interface {
     values: [BytesLike, string],
   ): string;
   encodeFunctionData(
+    functionFragment: 'initialize',
+    values: [BigNumberish, BigNumberish, string],
+  ): string;
+  encodeFunctionData(
     functionFragment: 'initiateRitual',
     values: [string[], string, BigNumberish, string],
   ): string;
@@ -297,7 +303,7 @@ export interface CoordinatorInterface extends utils.Interface {
     values: [string],
   ): string;
   encodeFunctionData(
-    functionFragment: 'isRitualFinalized',
+    functionFragment: 'isRitualActive',
     values: [BigNumberish],
   ): string;
   encodeFunctionData(
@@ -366,10 +372,6 @@ export interface CoordinatorInterface extends utils.Interface {
     values: [string],
   ): string;
   encodeFunctionData(
-    functionFragment: 'setRitualAuthority',
-    values: [BigNumberish, string],
-  ): string;
-  encodeFunctionData(
     functionFragment: 'setTimeout',
     values: [BigNumberish],
   ): string;
@@ -381,6 +383,10 @@ export interface CoordinatorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: 'totalPendingFees',
     values?: undefined,
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'transferRitualAuthority',
+    values: [BigNumberish, string],
   ): string;
   encodeFunctionData(
     functionFragment: 'withdrawTokens',
@@ -482,6 +488,7 @@ export interface CoordinatorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: 'grantRole', data: BytesLike): Result;
   decodeFunctionResult(functionFragment: 'hasRole', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'initialize', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'initiateRitual',
     data: BytesLike,
@@ -499,7 +506,7 @@ export interface CoordinatorInterface extends utils.Interface {
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'isRitualFinalized',
+    functionFragment: 'isRitualActive',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
@@ -558,10 +565,6 @@ export interface CoordinatorInterface extends utils.Interface {
     functionFragment: 'setReimbursementPool',
     data: BytesLike,
   ): Result;
-  decodeFunctionResult(
-    functionFragment: 'setRitualAuthority',
-    data: BytesLike,
-  ): Result;
   decodeFunctionResult(functionFragment: 'setTimeout', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'supportsInterface',
@@ -570,6 +573,10 @@ export interface CoordinatorInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: 'timeout', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'totalPendingFees',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'transferRitualAuthority',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
@@ -584,8 +591,11 @@ export interface CoordinatorInterface extends utils.Interface {
     'DefaultAdminTransferCanceled()': EventFragment;
     'DefaultAdminTransferScheduled(address,uint48)': EventFragment;
     'EndRitual(uint32,bool)': EventFragment;
+    'Initialized(uint64)': EventFragment;
     'MaxDkgSizeChanged(uint16,uint16)': EventFragment;
     'ParticipantPublicKeySet(uint32,address,(bytes32,bytes32,bytes32))': EventFragment;
+    'ReimbursementPoolSet(address)': EventFragment;
+    'RitualAuthorityTransferred(uint32,address,address)': EventFragment;
     'RoleAdminChanged(bytes32,bytes32,bytes32)': EventFragment;
     'RoleGranted(bytes32,address,address)': EventFragment;
     'RoleRevoked(bytes32,address,address)': EventFragment;
@@ -609,8 +619,11 @@ export interface CoordinatorInterface extends utils.Interface {
     nameOrSignatureOrTopic: 'DefaultAdminTransferScheduled',
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'EndRitual'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Initialized'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'MaxDkgSizeChanged'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'ParticipantPublicKeySet'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'ReimbursementPoolSet'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'RitualAuthorityTransferred'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'RoleAdminChanged'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'RoleGranted'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'RoleRevoked'): EventFragment;
@@ -686,6 +699,13 @@ export type EndRitualEvent = TypedEvent<
 
 export type EndRitualEventFilter = TypedEventFilter<EndRitualEvent>;
 
+export interface InitializedEventObject {
+  version: BigNumber;
+}
+export type InitializedEvent = TypedEvent<[BigNumber], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
+
 export interface MaxDkgSizeChangedEventObject {
   oldSize: number;
   newSize: number;
@@ -710,6 +730,30 @@ export type ParticipantPublicKeySetEvent = TypedEvent<
 
 export type ParticipantPublicKeySetEventFilter =
   TypedEventFilter<ParticipantPublicKeySetEvent>;
+
+export interface ReimbursementPoolSetEventObject {
+  pool: string;
+}
+export type ReimbursementPoolSetEvent = TypedEvent<
+  [string],
+  ReimbursementPoolSetEventObject
+>;
+
+export type ReimbursementPoolSetEventFilter =
+  TypedEventFilter<ReimbursementPoolSetEvent>;
+
+export interface RitualAuthorityTransferredEventObject {
+  ritualId: number;
+  previousAuthority: string;
+  newAuthority: string;
+}
+export type RitualAuthorityTransferredEvent = TypedEvent<
+  [number, string, string],
+  RitualAuthorityTransferredEventObject
+>;
+
+export type RitualAuthorityTransferredEventFilter =
+  TypedEventFilter<RitualAuthorityTransferredEvent>;
 
 export interface RoleAdminChangedEventObject {
   role: string;
@@ -929,6 +973,13 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<[boolean]>;
 
+    initialize(
+      _timeout: BigNumberish,
+      _maxDkgSize: BigNumberish,
+      _admin: string,
+      overrides?: Overrides & { from?: string },
+    ): Promise<ContractTransaction>;
+
     initiateRitual(
       providers: string[],
       authority: string,
@@ -951,7 +1002,7 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<[boolean]>;
 
-    isRitualFinalized(
+    isRitualActive(
       ritualId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<[boolean]>;
@@ -1062,12 +1113,6 @@ export interface Coordinator extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
-    setRitualAuthority(
-      ritualId: BigNumberish,
-      authority: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
-
     setTimeout(
       newTimeout: BigNumberish,
       overrides?: Overrides & { from?: string },
@@ -1081,6 +1126,12 @@ export interface Coordinator extends BaseContract {
     timeout(overrides?: CallOverrides): Promise<[number]>;
 
     totalPendingFees(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    transferRitualAuthority(
+      ritualId: BigNumberish,
+      newAuthority: string,
+      overrides?: Overrides & { from?: string },
+    ): Promise<ContractTransaction>;
 
     withdrawTokens(
       token: string,
@@ -1192,6 +1243,13 @@ export interface Coordinator extends BaseContract {
     overrides?: CallOverrides,
   ): Promise<boolean>;
 
+  initialize(
+    _timeout: BigNumberish,
+    _maxDkgSize: BigNumberish,
+    _admin: string,
+    overrides?: Overrides & { from?: string },
+  ): Promise<ContractTransaction>;
+
   initiateRitual(
     providers: string[],
     authority: string,
@@ -1214,7 +1272,7 @@ export interface Coordinator extends BaseContract {
     overrides?: CallOverrides,
   ): Promise<boolean>;
 
-  isRitualFinalized(
+  isRitualActive(
     ritualId: BigNumberish,
     overrides?: CallOverrides,
   ): Promise<boolean>;
@@ -1325,12 +1383,6 @@ export interface Coordinator extends BaseContract {
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
-  setRitualAuthority(
-    ritualId: BigNumberish,
-    authority: string,
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
   setTimeout(
     newTimeout: BigNumberish,
     overrides?: Overrides & { from?: string },
@@ -1344,6 +1396,12 @@ export interface Coordinator extends BaseContract {
   timeout(overrides?: CallOverrides): Promise<number>;
 
   totalPendingFees(overrides?: CallOverrides): Promise<BigNumber>;
+
+  transferRitualAuthority(
+    ritualId: BigNumberish,
+    newAuthority: string,
+    overrides?: Overrides & { from?: string },
+  ): Promise<ContractTransaction>;
 
   withdrawTokens(
     token: string,
@@ -1451,6 +1509,13 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<boolean>;
 
+    initialize(
+      _timeout: BigNumberish,
+      _maxDkgSize: BigNumberish,
+      _admin: string,
+      overrides?: CallOverrides,
+    ): Promise<void>;
+
     initiateRitual(
       providers: string[],
       authority: string,
@@ -1473,7 +1538,7 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<boolean>;
 
-    isRitualFinalized(
+    isRitualActive(
       ritualId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<boolean>;
@@ -1516,7 +1581,7 @@ export interface Coordinator extends BaseContract {
     processPendingFee(
       ritualId: BigNumberish,
       overrides?: CallOverrides,
-    ): Promise<void>;
+    ): Promise<BigNumber>;
 
     renounceRole(
       role: BytesLike,
@@ -1580,12 +1645,6 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<void>;
 
-    setRitualAuthority(
-      ritualId: BigNumberish,
-      authority: string,
-      overrides?: CallOverrides,
-    ): Promise<void>;
-
     setTimeout(
       newTimeout: BigNumberish,
       overrides?: CallOverrides,
@@ -1599,6 +1658,12 @@ export interface Coordinator extends BaseContract {
     timeout(overrides?: CallOverrides): Promise<number>;
 
     totalPendingFees(overrides?: CallOverrides): Promise<BigNumber>;
+
+    transferRitualAuthority(
+      ritualId: BigNumberish,
+      newAuthority: string,
+      overrides?: CallOverrides,
+    ): Promise<void>;
 
     withdrawTokens(
       token: string,
@@ -1652,6 +1717,9 @@ export interface Coordinator extends BaseContract {
       successful?: null,
     ): EndRitualEventFilter;
 
+    'Initialized(uint64)'(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
+
     'MaxDkgSizeChanged(uint16,uint16)'(
       oldSize?: null,
       newSize?: null,
@@ -1671,6 +1739,22 @@ export interface Coordinator extends BaseContract {
       participant?: string | null,
       publicKey?: null,
     ): ParticipantPublicKeySetEventFilter;
+
+    'ReimbursementPoolSet(address)'(
+      pool?: string | null,
+    ): ReimbursementPoolSetEventFilter;
+    ReimbursementPoolSet(pool?: string | null): ReimbursementPoolSetEventFilter;
+
+    'RitualAuthorityTransferred(uint32,address,address)'(
+      ritualId?: BigNumberish | null,
+      previousAuthority?: string | null,
+      newAuthority?: string | null,
+    ): RitualAuthorityTransferredEventFilter;
+    RitualAuthorityTransferred(
+      ritualId?: BigNumberish | null,
+      previousAuthority?: string | null,
+      newAuthority?: string | null,
+    ): RitualAuthorityTransferredEventFilter;
 
     'RoleAdminChanged(bytes32,bytes32,bytes32)'(
       role?: BytesLike | null,
@@ -1853,6 +1937,13 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
+    initialize(
+      _timeout: BigNumberish,
+      _maxDkgSize: BigNumberish,
+      _admin: string,
+      overrides?: Overrides & { from?: string },
+    ): Promise<BigNumber>;
+
     initiateRitual(
       providers: string[],
       authority: string,
@@ -1875,7 +1966,7 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
-    isRitualFinalized(
+    isRitualActive(
       ritualId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
@@ -1951,12 +2042,6 @@ export interface Coordinator extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
-    setRitualAuthority(
-      ritualId: BigNumberish,
-      authority: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
-
     setTimeout(
       newTimeout: BigNumberish,
       overrides?: Overrides & { from?: string },
@@ -1970,6 +2055,12 @@ export interface Coordinator extends BaseContract {
     timeout(overrides?: CallOverrides): Promise<BigNumber>;
 
     totalPendingFees(overrides?: CallOverrides): Promise<BigNumber>;
+
+    transferRitualAuthority(
+      ritualId: BigNumberish,
+      newAuthority: string,
+      overrides?: Overrides & { from?: string },
+    ): Promise<BigNumber>;
 
     withdrawTokens(
       token: string,
@@ -2089,6 +2180,13 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
+    initialize(
+      _timeout: BigNumberish,
+      _maxDkgSize: BigNumberish,
+      _admin: string,
+      overrides?: Overrides & { from?: string },
+    ): Promise<PopulatedTransaction>;
+
     initiateRitual(
       providers: string[],
       authority: string,
@@ -2113,7 +2211,7 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
-    isRitualFinalized(
+    isRitualActive(
       ritualId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
@@ -2196,12 +2294,6 @@ export interface Coordinator extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
-    setRitualAuthority(
-      ritualId: BigNumberish,
-      authority: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
     setTimeout(
       newTimeout: BigNumberish,
       overrides?: Overrides & { from?: string },
@@ -2215,6 +2307,12 @@ export interface Coordinator extends BaseContract {
     timeout(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     totalPendingFees(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    transferRitualAuthority(
+      ritualId: BigNumberish,
+      newAuthority: string,
+      overrides?: Overrides & { from?: string },
+    ): Promise<PopulatedTransaction>;
 
     withdrawTokens(
       token: string,

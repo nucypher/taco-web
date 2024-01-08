@@ -111,7 +111,7 @@ export const fakeUrsulas = (n = 4): Ursula[] =>
     uri: `https://example.${i}.com:9151`,
   }));
 
-export const mockGetUrsulas = (ursulas: Ursula[] = fakeUrsulas()) => {
+export const mockGetUrsulas = (ursulas: Ursula[] = fakeUrsulas()): SpyInstance => {
   const fakePorterUrsulas = (
     mockUrsulas: readonly Ursula[],
   ): GetUrsulasResult => {

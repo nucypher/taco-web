@@ -1,5 +1,5 @@
 import { conditions } from '@nucypher/taco';
-import { useEthers } from '@usedapp/core';
+import { Sepolia, useEthers} from '@usedapp/core';
 import React, { useState } from 'react';
 
 interface Props {
@@ -14,10 +14,10 @@ export const NFTConditionBuilder = ({
   enabled,
 }: Props) => {
   const { library } = useEthers();
-  const goerliNFTAddress = '0x932Ca55B9Ef0b3094E8Fa82435b3b4c50d713043'; // https://goerli-nfts.vercel.app/
-  const [contractAddress, setContractAddress] = useState(goerliNFTAddress);
+  const nftAddress = '0x0'; // Create a new NFT here https://nfts2me.com/create/generative/
+  const [contractAddress, setContractAddress] = useState(nftAddress);
   const [tokenId, setTokenId] = useState('');
-  const [chain, setChain] = useState(5);
+  const [chain, setChain] = useState(Sepolia.chainId);
 
   if (!enabled || !library) {
     return <></>;
@@ -45,9 +45,9 @@ export const NFTConditionBuilder = ({
     />
   );
 
-  const contractAddressInput = makeInput(setContractAddress, goerliNFTAddress);
+  const contractAddressInput = makeInput(setContractAddress, nftAddress);
   const tokenIdInput = makeInput(setTokenId);
-  const chainInput = makeChainInput(setChain, 5);
+  const chainInput = makeChainInput(setChain, Sepolia.chainId);
 
   const makeCondition = (): conditions.condition.Condition => {
     if (tokenId) {
@@ -97,7 +97,7 @@ export const NFTConditionBuilder = ({
           <div>
             <p>
               You can mint an NFT{' '}
-              <a href="https://goerli-nfts.vercel.app/">here</a> or use your own
+              <a href="https://nfts2me.com/create/generative/">here</a> or use your own
               contract.
             </p>
           </div>

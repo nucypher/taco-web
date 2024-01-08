@@ -1,3 +1,5 @@
+import { ChainId } from '@nucypher/shared';
+import { TEST_CHAIN_ID } from '@nucypher/test-utils';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -20,7 +22,7 @@ describe('validation', () => {
       conditionType: TimeConditionType,
       returnValueTest,
       method: TimeConditionMethod,
-      chain: 1,
+      chain: ChainId.ETHEREUM_MAINNET,
     };
     const result = TimeCondition.validate(timeConditionSchema, conditionObj);
 
@@ -36,7 +38,7 @@ describe('validation', () => {
         ...returnValueTest,
         comparator: 'not-a-comparator',
       },
-      chain: 5,
+      chain: TEST_CHAIN_ID,
     } as unknown as TimeConditionProps;
     const result = TimeCondition.validate(timeConditionSchema, badObj);
 
@@ -57,7 +59,7 @@ describe('validation', () => {
     const condition = new TimeCondition({
       returnValueTest,
       method: TimeConditionMethod,
-      chain: 5,
+      chain: TEST_CHAIN_ID,
     });
     expect(condition.value.conditionType).toEqual(TimeConditionType);
   });
@@ -66,7 +68,7 @@ describe('validation', () => {
     const badObj = {
       ...returnValueTest,
       method: 'non-existing-method',
-      chain: 5,
+      chain: TEST_CHAIN_ID,
     } as unknown as TimeConditionProps;
     const result = TimeCondition.validate(timeConditionSchema, badObj);
 

@@ -8,6 +8,7 @@ import {
   compoundConditionSchema,
   CompoundConditionType,
 } from '../../src/conditions/compound-condition';
+import { SUPPORTED_CHAIN_IDS } from '../../src/conditions/const';
 import {
   testContractConditionObj,
   testRpcConditionObj,
@@ -134,7 +135,7 @@ describe('validation', () => {
   const multichainCondition: CompoundConditionProps = {
     conditionType: CompoundConditionType,
     operator: 'and',
-    operands: [1, 137, 5, 80001].map((chain) => ({
+    operands: SUPPORTED_CHAIN_IDS.map((chain) => ({
       ...testRpcConditionObj,
       chain,
     })),

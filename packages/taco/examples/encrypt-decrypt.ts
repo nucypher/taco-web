@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 
+import { ChainId } from '@nucypher/shared';
 import {
   conditions,
   decrypt,
@@ -24,7 +25,7 @@ const run = async () => {
     const ownsNFT = new conditions.predefined.erc721.ERC721Ownership({
       contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
       parameters: [3591],
-      chain: 5,
+      chain: ChainId.SEPOLIA,
     });
     const messageKit = await encrypt(
       web3Provider,

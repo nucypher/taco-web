@@ -1,3 +1,4 @@
+import { ChainId } from '@nucypher/shared';
 import { conditions } from '../src';
 import { CustomContextParam } from '../src/conditions/context';
 
@@ -6,7 +7,7 @@ const ownsNFTRaw = new conditions.base.contract.ContractCondition({
   parameters: [':userAddress'],
   standardContractType: 'ERC721',
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
-  chain: 5,
+  chain: ChainId.SEPOLIA,
   returnValueTest: {
     comparator: '>',
     value: ':selectedBalance',

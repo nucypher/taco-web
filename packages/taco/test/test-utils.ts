@@ -219,7 +219,7 @@ export const testTimeConditionObj: TimeConditionProps = {
     value: 100,
   },
   method: TimeConditionMethod,
-  chain: 5,
+  chain: TEST_CHAIN_ID,
 };
 
 export const testRpcConditionObj: RpcConditionProps = {
@@ -233,7 +233,7 @@ export const testRpcConditionObj: RpcConditionProps = {
 export const testContractConditionObj: ContractConditionProps = {
   conditionType: ContractConditionType,
   contractAddress: '0x0000000000000000000000000000000000000000',
-  chain: 5,
+  chain: TEST_CHAIN_ID,
   standardContractType: 'ERC20',
   method: 'balanceOf',
   parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],

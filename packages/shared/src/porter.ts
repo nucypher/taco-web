@@ -22,7 +22,7 @@ const porterUri: Record<string, string> = {
 export type Domain = keyof typeof porterUri;
 
 export const domains: Record<string, Domain> = {
-  DEV: 'lynx',
+  DEVNET: 'lynx',
   TESTNET: 'tapir',
   MAINNET: 'mainnet',
 };

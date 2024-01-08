@@ -48,7 +48,7 @@ describe('taco', () => {
 
     const messageKit = await taco.encrypt(
       provider,
-      domains.DEV,
+      domains.DEVNET,
       message,
       ownsNFT,
       mockedDkg.ritualId,
@@ -81,7 +81,7 @@ describe('taco', () => {
 
     const decryptedMessage = await taco.decrypt(
       provider,
-      domains.DEV,
+      domains.DEVNET,
       messageKit,
       fakePorterUri,
       signer,

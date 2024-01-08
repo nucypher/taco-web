@@ -73,7 +73,7 @@ describe('story: alice shares message with bob through policy', () => {
     policy = await alice.grant(
       fakeProvider(),
       fakeSigner(),
-      domains.DEV,
+      domains.DEVNET,
       fakePorterUri,
       policyParams,
     );

@@ -62,7 +62,7 @@ describe('story: alice creates a policy but someone else enacts it', () => {
       const enacted = await preEnactedPolicy.enact(
         provider,
         fakeSigner(),
-        domains.DEV,
+        domains.DEVNET,
       );
       expect(enacted.txHash).toBeDefined();
 

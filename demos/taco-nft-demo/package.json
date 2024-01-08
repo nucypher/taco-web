@@ -1,6 +1,6 @@
 {
   "name": "taco-nft-demo",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A usage example for @nucypher/taco",
   "private": true,
   "author": "Piotr Rosłaniec <p.roslaniec@gmail.com>",
@@ -12,13 +12,13 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@nucypher/taco": "^0.1.0-rc.6",
-    "@nucypher/shared": "^0.1.0-rc.4",
+    "@nucypher/taco": "^1.0.0",
+    "@nucypher/shared": "^0.1.0",
     "@usedapp/core": "^1.2.13",
     "buffer": "^6.0.3",
     "ethers": "^5.7.1",
     "file-loader": "^6.2.0",
-    "react": "^18.2.0",
+    "react": "^0.0.1",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.2.0",
     "react-spinners": "^0.13.6"

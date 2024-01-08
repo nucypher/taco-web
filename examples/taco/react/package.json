@@ -1,6 +1,6 @@
 {
   "name": "react",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "build": "react-scripts build",
@@ -25,7 +25,7 @@
   "dependencies": {
     "@nucypher/shared": "workspace:*",
     "@nucypher/taco": "workspace:*",
-    "react": "^18.2.0",
+    "react": "^0.0.1",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {

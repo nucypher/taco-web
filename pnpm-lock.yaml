@@ -107,10 +107,10 @@ importers:
   demos/taco-demo:
     dependencies:
       '@nucypher/shared':
-        specifier: ^0.1.0-rc.4
+        specifier: ^0.1.0
         version: link:../../packages/shared
       '@nucypher/taco':
-        specifier: ^0.1.0-rc.6
+        specifier: ^0.1.0
         version: link:../../packages/taco
       '@usedapp/core':
         specifier: ^1.2.13
@@ -183,10 +183,10 @@ importers:
   demos/taco-nft-demo:
     dependencies:
       '@nucypher/shared':
-        specifier: ^0.1.0-rc.4
+        specifier: ^0.1.0
         version: link:../../packages/shared
       '@nucypher/taco':
-        specifier: ^0.1.0-rc.6
+        specifier: ^0.1.0
         version: link:../../packages/taco
       '@usedapp/core':
         specifier: ^1.2.13

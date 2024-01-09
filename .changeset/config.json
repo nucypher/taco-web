@@ -14,7 +14,15 @@
   "updateInternalDependencies": "patch",
   "ignore": [
     "@nucypher/pre",
-    "*-demo",
-    "*-example"
+    "taco-demo",
+    "taco-nft-demo",
+    "pre-nextjs-example",
+    "pre-nodejs-example",
+    "pre-react-example",
+    "pre-webpack-5-example",
+    "taco-nextjs-example",
+    "taco-nodejs-example",
+    "taco-react-example",
+    "taco-webpack-5-example"
   ]
 }

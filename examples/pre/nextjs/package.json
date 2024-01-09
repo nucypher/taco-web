@@ -1,5 +1,5 @@
 {
-  "name": "pre-nextjs",
+  "name": "pre-nextjs-example",
   "private": true,
   "scripts": {
     "build": "next build",

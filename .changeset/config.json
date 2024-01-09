@@ -13,6 +13,8 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": [
-    "@nucypher/pre"
+    "@nucypher/pre",
+    "*-demo",
+    "*-example"
   ]
 }

@@ -29,7 +29,7 @@
     "ethers": "^5.7.2"
   },
   "devDependencies": {
-    "@types/node": "^20.10.0",
+    "@types/node": "^20.10.7",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.14",
     "react-scripts": "^5.0.1"

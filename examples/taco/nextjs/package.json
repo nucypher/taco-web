@@ -13,7 +13,7 @@
   "dependencies": {
     "@nucypher/shared": "workspace:*",
     "@nucypher/taco": "workspace:*",
-    "@types/node": "20.10.0",
+    "@types/node": "20.10.7",
     "@types/react": "18.2.45",
     "@types/react-dom": "18.2.14",
     "eslint": "8.54.0",

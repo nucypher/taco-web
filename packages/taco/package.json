@@ -1,6 +1,6 @@
 {
   "name": "@nucypher/taco",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "keywords": [
     "taco",
     "threshold",
@@ -41,7 +41,7 @@
   "dependencies": {
     "@ethersproject/abstract-signer": "^5.7.0",
     "@nucypher/nucypher-core": "*",
-    "@nucypher/shared": "^0.1.0",
+    "@nucypher/shared": "^0.2.0",
     "ethers": "^5.7.2",
     "semver": "^7.5.2",
     "zod": "^3.22.4"

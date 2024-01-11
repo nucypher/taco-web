@@ -107,11 +107,11 @@ importers:
   demos/taco-demo:
     dependencies:
       '@nucypher/shared':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.2.0
+        version: link:../../packages/shared
       '@nucypher/taco':
-        specifier: ^0.1.0
-        version: 0.1.0(@nucypher/shared@0.1.0)
+        specifier: ^0.2.0
+        version: link:../../packages/taco
       '@usedapp/core':
         specifier: ^1.2.13
         version: 1.2.13(ethers@5.7.2)(react@18.2.0)
@@ -183,11 +183,11 @@ importers:
   demos/taco-nft-demo:
     dependencies:
       '@nucypher/shared':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.2.0
+        version: link:../../packages/shared
       '@nucypher/taco':
-        specifier: ^0.1.0
-        version: 0.1.0(@nucypher/shared@0.1.0)
+        specifier: ^0.2.0
+        version: link:../../packages/taco
       '@usedapp/core':
         specifier: ^1.2.13
         version: 1.2.13(ethers@5.7.2)(react@18.2.0)
@@ -3606,51 +3606,12 @@ packages:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.16.0
 
-  /@nucypher/nucypher-contracts@0.15.0:
-    resolution: {integrity: sha512-AVAAJfCdymvaIPnT2fGCL096fNhw70a9OaHGgr6oTMqOeXmyl/ojHHW6FfFOcTToWVsnA5000dTbLe0lfFhrOg==}
-    dev: false
-
   /@nucypher/nucypher-contracts@0.16.0:
     resolution: {integrity: sha512-kS2emMiYWXT63HHzS4MFimyOsw2W0XHw8NYrUFOvNuDWVGe33WAcrSND1iFTSm1wiGaMPT/zQhoaYw7Kg/s7qw==}
     dev: false
 
   /@nucypher/nucypher-core@0.13.0-alpha.1:
     resolution: {integrity: sha512-uKu/YLTZ6mqkQ2kaQMJs/USUiw9EYFtaZU6FaD8zAN8XKLpHYuYD13BDfU7idR1nZIKjL/E5xIoVJFV3Dx0x2w==}
-    dev: false
-
-  /@nucypher/shared@0.1.0:
-    resolution: {integrity: sha512-bdtAC9TF8gha/qiKhqhIcGjdzHDqur5SnWOyYSbuZcgafTpxzDlF+qh6Xt5r2pCEeeBZinw9HSCTFHJJkW7TNg==}
-    engines: {node: '>=18', pnpm: '>=8.0.0'}
-    dependencies:
-      '@ethersproject/abi': 5.7.0
-      '@ethersproject/providers': 5.7.2
-      '@nucypher/nucypher-contracts': 0.15.0
-      '@nucypher/nucypher-core': 0.13.0-alpha.1
-      axios: 1.6.5
-      deep-equal: 2.2.3
-      ethers: 5.7.2
-      qs: 6.11.2
-    transitivePeerDependencies:
-      - bufferutil
-      - debug
-      - utf-8-validate
-    dev: false
-
-  /@nucypher/taco@0.1.0(@nucypher/shared@0.1.0):
-    resolution: {integrity: sha512-aEjmbq5RgtIoBWPhk2VMTtOSE0uXUMKNWQi/Lu7Bm9TvchTIp70isF5kjPeTy6f5Jr7yC+t6bW0roPFQXxq+Ig==}
-    engines: {node: '>=18', pnpm: '>=8.0.0'}
-    peerDependencies:
-      '@nucypher/shared': workspace:*
-    dependencies:
-      '@ethersproject/abstract-signer': 5.7.0
-      '@nucypher/nucypher-core': 0.13.0-alpha.1
-      '@nucypher/shared': 0.1.0
-      ethers: 5.7.2
-      semver: 7.5.4
-      zod: 3.22.4
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
     dev: false
 
   /@pkgjs/parseargs@0.11.0:

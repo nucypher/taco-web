@@ -33,7 +33,7 @@ if (!consumerPrivateKey) {
 }
 
 const domain = process.env.DOMAIN || domains.TESTNET;
-const ritualId = parseInt(process.env.RITUAL_ID || '5');
+const ritualId = parseInt(process.env.RITUAL_ID || '0');
 const provider = new ethers.providers.JsonRpcProvider(rpcProviderUrl);
 
 console.log('Domain:', domain);

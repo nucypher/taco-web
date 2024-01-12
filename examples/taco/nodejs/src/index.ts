@@ -1,6 +1,5 @@
 import { format } from 'node:util';
 
-import { ThresholdMessageKit } from '@nucypher/nucypher-core';
 import {
   conditions,
   decrypt,
@@ -9,6 +8,7 @@ import {
   fromBytes,
   getPorterUri,
   initialize,
+  ThresholdMessageKit,
   toBytes,
   toHexString,
 } from '@nucypher/taco';

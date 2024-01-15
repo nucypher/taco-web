@@ -12,7 +12,7 @@
   "dependencies": {
     "@nucypher/pre": "workspace:*",
     "@types/node": "20.10.7",
-    "@types/react": "18.2.45",
+    "@types/react": "18.2.48",
     "@types/react-dom": "18.2.14",
     "eslint": "8.56.0",
     "eslint-config-next": "14.0.4",

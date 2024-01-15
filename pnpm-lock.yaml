@@ -9,7 +9,7 @@ overrides:
   node-forge@<1.3.0: '>=1.3.0'
   glob-parent@<5.1.2: '>=5.1.2'
   nth-check@<2.0.1: '>=2.0.1'
-  '@nucypher/nucypher-core': 0.13.0-alpha.1
+  '@nucypher/nucypher-core': ^0.14.1
 
 importers:
 
@@ -19,8 +19,8 @@ importers:
         specifier: ^2.26.2
         version: 2.27.1
       '@nucypher/nucypher-core':
-        specifier: 0.13.0-alpha.1
-        version: 0.13.0-alpha.1
+        specifier: ^0.14.1
+        version: 0.14.1
     devDependencies:
       '@skypack/package-check':
         specifier: ^0.2.2
@@ -106,11 +106,8 @@ importers:
 
   demos/taco-demo:
     dependencies:
-      '@nucypher/shared':
-        specifier: ^0.1.0
-        version: link:../../packages/shared
       '@nucypher/taco':
-        specifier: ^0.1.0
+        specifier: ^0.2.2
         version: link:../../packages/taco
       '@usedapp/core':
         specifier: ^1.2.13
@@ -182,11 +179,8 @@ importers:
 
   demos/taco-nft-demo:
     dependencies:
-      '@nucypher/shared':
-        specifier: ^0.1.0
-        version: link:../../packages/shared
       '@nucypher/taco':
-        specifier: ^0.1.0
+        specifier: ^0.2.2
         version: link:../../packages/taco
       '@usedapp/core':
         specifier: ^1.2.13
@@ -464,8 +458,8 @@ importers:
   packages/pre:
     dependencies:
       '@nucypher/nucypher-core':
-        specifier: 0.13.0-alpha.1
-        version: 0.13.0-alpha.1
+        specifier: ^0.14.1
+        version: 0.14.1
       '@nucypher/shared':
         specifier: workspace:*
         version: link:../shared
@@ -489,8 +483,8 @@ importers:
         specifier: ^0.16.0
         version: 0.16.0
       '@nucypher/nucypher-core':
-        specifier: 0.13.0-alpha.1
-        version: 0.13.0-alpha.1
+        specifier: ^0.14.1
+        version: 0.14.1
       axios:
         specifier: ^1.6.2
         version: 1.6.5
@@ -532,10 +526,10 @@ importers:
         specifier: ^5.7.0
         version: 5.7.0
       '@nucypher/nucypher-core':
-        specifier: 0.13.0-alpha.1
-        version: 0.13.0-alpha.1
+        specifier: ^0.14.1
+        version: 0.14.1
       '@nucypher/shared':
-        specifier: ^0.1.0
+        specifier: ^0.2.0
         version: link:../shared
       ethers:
         specifier: ^5.7.2
@@ -557,8 +551,8 @@ importers:
   packages/test-utils:
     dependencies:
       '@nucypher/nucypher-core':
-        specifier: 0.13.0-alpha.1
-        version: 0.13.0-alpha.1
+        specifier: ^0.14.1
+        version: 0.14.1
       '@nucypher/shared':
         specifier: workspace:*
         version: link:../shared
@@ -3610,8 +3604,8 @@ packages:
     resolution: {integrity: sha512-kS2emMiYWXT63HHzS4MFimyOsw2W0XHw8NYrUFOvNuDWVGe33WAcrSND1iFTSm1wiGaMPT/zQhoaYw7Kg/s7qw==}
     dev: false
 
-  /@nucypher/nucypher-core@0.13.0-alpha.1:
-    resolution: {integrity: sha512-uKu/YLTZ6mqkQ2kaQMJs/USUiw9EYFtaZU6FaD8zAN8XKLpHYuYD13BDfU7idR1nZIKjL/E5xIoVJFV3Dx0x2w==}
+  /@nucypher/nucypher-core@0.14.1:
+    resolution: {integrity: sha512-V/yCrjgQ8VFAeWhx9xtU1N3B8boSRA3y6+wriyaEb6kpMb4Cit+mWNiwNz9Xw0qdUcOtsoYlwb41RoZJKNOEAQ==}
     dev: false
 
   /@pkgjs/parseargs@0.11.0:

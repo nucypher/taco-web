@@ -15,7 +15,7 @@
     "@nucypher/taco": "^0.2.2",
     "@usedapp/core": "^1.2.13",
     "buffer": "^6.0.3",
-    "ethers": "^5.7.1",
+    "ethers": "^6.10.0",
     "file-loader": "^6.2.0",
     "react": "^18.2.0",
     "react-copy-to-clipboard": "^5.1.0",

@@ -42,7 +42,7 @@
     "@ethersproject/abstract-signer": "^5.7.0",
     "@nucypher/nucypher-core": "*",
     "@nucypher/shared": "^0.2.0",
-    "ethers": "^5.7.2",
+    "ethers": "^6.10.0",
     "semver": "^7.5.2",
     "zod": "^3.22.4"
   },

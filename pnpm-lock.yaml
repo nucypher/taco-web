@@ -529,7 +529,7 @@ importers:
         specifier: ^0.14.1
         version: 0.14.1
       '@nucypher/shared':
-        specifier: ^0.2.0
+        specifier: workspace:*
         version: link:../shared
       ethers:
         specifier: ^5.7.2

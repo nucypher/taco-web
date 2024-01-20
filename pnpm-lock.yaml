@@ -107,7 +107,7 @@ importers:
   demos/taco-demo:
     dependencies:
       '@nucypher/taco':
-        specifier: ^0.2.2
+        specifier: ^0.2.4
         version: link:../../packages/taco
       '@usedapp/core':
         specifier: ^1.2.13
@@ -180,7 +180,7 @@ importers:
   demos/taco-nft-demo:
     dependencies:
       '@nucypher/taco':
-        specifier: ^0.2.2
+        specifier: ^0.2.4
         version: link:../../packages/taco
       '@usedapp/core':
         specifier: ^1.2.13
@@ -529,7 +529,7 @@ importers:
         specifier: ^0.14.1
         version: 0.14.1
       '@nucypher/shared':
-        specifier: ^0.2.0
+        specifier: workspace:*
         version: link:../shared
       ethers:
         specifier: ^5.7.2

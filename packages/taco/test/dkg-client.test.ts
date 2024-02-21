@@ -30,6 +30,7 @@ describe('DkgCoordinatorAgent', () => {
 
   it('fetches participants from the coordinator', async () => {
     const provider = fakeProvider();
+    const sharesNum = 3;
     const getParticipantsSpy = mockGetParticipants(
       (await mockDkgParticipants(fakeRitualId)).participants,
     );
@@ -37,6 +38,7 @@ describe('DkgCoordinatorAgent', () => {
       provider,
       domains.TEST_DOMAIN,
       fakeRitualId,
+      sharesNum,
     );
     expect(getParticipantsSpy).toHaveBeenCalled();
     expect(participants.length).toBeGreaterThan(0);

@@ -668,6 +668,30 @@ const _abi = [
   },
   {
     type: 'function',
+    name: 'feeDeduction',
+    stateMutability: 'pure',
+    inputs: [
+      {
+        name: '',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: '',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+  },
+  {
+    type: 'function',
     name: 'feeRatePerSecond',
     stateMutability: 'view',
     inputs: [],
@@ -695,6 +719,57 @@ const _abi = [
         name: '',
         type: 'address',
         internalType: 'address',
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'getParticipant',
+    stateMutability: 'view',
+    inputs: [
+      {
+        name: 'ritualId',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
+      {
+        name: 'provider',
+        type: 'address',
+        internalType: 'address',
+      },
+      {
+        name: 'transcript',
+        type: 'bool',
+        internalType: 'bool',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'tuple',
+        components: [
+          {
+            name: 'provider',
+            type: 'address',
+            internalType: 'address',
+          },
+          {
+            name: 'aggregated',
+            type: 'bool',
+            internalType: 'bool',
+          },
+          {
+            name: 'transcript',
+            type: 'bytes',
+            internalType: 'bytes',
+          },
+          {
+            name: 'decryptionRequestStaticKey',
+            type: 'bytes',
+            internalType: 'bytes',
+          },
+        ],
+        internalType: 'struct Coordinator.Participant',
       },
     ],
   },
@@ -787,16 +862,72 @@ const _abi = [
   },
   {
     type: 'function',
+    name: 'getParticipants',
+    stateMutability: 'view',
+    inputs: [
+      {
+        name: 'ritualId',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
+      {
+        name: 'startIndex',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: 'maxParticipants',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: 'includeTranscript',
+        type: 'bool',
+        internalType: 'bool',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'tuple[]',
+        components: [
+          {
+            name: 'provider',
+            type: 'address',
+            internalType: 'address',
+          },
+          {
+            name: 'aggregated',
+            type: 'bool',
+            internalType: 'bool',
+          },
+          {
+            name: 'transcript',
+            type: 'bytes',
+            internalType: 'bytes',
+          },
+          {
+            name: 'decryptionRequestStaticKey',
+            type: 'bytes',
+            internalType: 'bytes',
+          },
+        ],
+        internalType: 'struct Coordinator.Participant[]',
+      },
+    ],
+  },
+  {
+    type: 'function',
     name: 'getProviderPublicKey',
     stateMutability: 'view',
     inputs: [
       {
-        name: '_provider',
+        name: 'provider',
         type: 'address',
         internalType: 'address',
       },
       {
-        name: '_ritualId',
+        name: 'ritualId',
         type: 'uint256',
         internalType: 'uint256',
       },
@@ -828,6 +959,25 @@ const _abi = [
   },
   {
     type: 'function',
+    name: 'getProviders',
+    stateMutability: 'view',
+    inputs: [
+      {
+        name: 'ritualId',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'address[]',
+        internalType: 'address[]',
+      },
+    ],
+  },
+  {
+    type: 'function',
     name: 'getPublicKeyFromRitualId',
     stateMutability: 'view',
     inputs: [
@@ -839,7 +989,7 @@ const _abi = [
     ],
     outputs: [
       {
-        name: 'dkgPublicKey',
+        name: '',
         type: 'tuple',
         components: [
           {
@@ -1112,11 +1262,35 @@ const _abi = [
   },
   {
     type: 'function',
+    name: 'isParticipant',
+    stateMutability: 'view',
+    inputs: [
+      {
+        name: 'ritualId',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
+      {
+        name: 'provider',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'bool',
+        internalType: 'bool',
+      },
+    ],
+  },
+  {
+    type: 'function',
     name: 'isProviderPublicKeySet',
     stateMutability: 'view',
     inputs: [
       {
-        name: '_provider',
+        name: 'provider',
         type: 'address',
         internalType: 'address',
       },
@@ -1474,7 +1648,7 @@ const _abi = [
     stateMutability: 'nonpayable',
     inputs: [
       {
-        name: '_publicKey',
+        name: 'publicKey',
         type: 'tuple',
         components: [
           {

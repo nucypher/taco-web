@@ -49,9 +49,12 @@ export class DkgCoordinatorAgent {
     provider: ethers.providers.Provider,
     domain: Domain,
     ritualId: number,
+    maxParticipants: number,
   ): Promise<DkgParticipant[]> {
     const coordinator = await this.connectReadOnly(provider, domain);
-    const participants = await coordinator.getParticipants(ritualId);
+    const participants = await coordinator[
+      'getParticipants(uint32,uint256,uint256,bool)'
+    ](ritualId, 0, maxParticipants, false);
 
     return participants.map((participant) => {
       return {

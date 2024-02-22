@@ -159,6 +159,7 @@ export const decrypt = async (
     porterUri,
     messageKit,
     ritualId,
+    ritual.sharesNum,
     ritual.threshold,
     signer,
     customParameters,

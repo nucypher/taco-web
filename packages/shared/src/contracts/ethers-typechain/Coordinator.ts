@@ -78,11 +78,15 @@ export interface CoordinatorInterface extends utils.Interface {
     'defaultAdmin()': FunctionFragment;
     'defaultAdminDelay()': FunctionFragment;
     'defaultAdminDelayIncreaseWait()': FunctionFragment;
+    'feeDeduction(uint256,uint256)': FunctionFragment;
     'feeRatePerSecond()': FunctionFragment;
     'getAuthority(uint32)': FunctionFragment;
+    'getParticipant(uint32,address,bool)': FunctionFragment;
     'getParticipantFromProvider(uint32,address)': FunctionFragment;
     'getParticipants(uint32)': FunctionFragment;
+    'getParticipants(uint32,uint256,uint256,bool)': FunctionFragment;
     'getProviderPublicKey(address,uint256)': FunctionFragment;
+    'getProviders(uint32)': FunctionFragment;
     'getPublicKeyFromRitualId(uint32)': FunctionFragment;
     'getRitualIdFromPublicKey((bytes32,bytes16))': FunctionFragment;
     'getRitualInitiationCost(address[],uint32)': FunctionFragment;
@@ -95,6 +99,7 @@ export interface CoordinatorInterface extends utils.Interface {
     'initiateRitual(address[],address,uint32,address)': FunctionFragment;
     'isEncryptionAuthorized(uint32,bytes,bytes)': FunctionFragment;
     'isInitiationPublic()': FunctionFragment;
+    'isParticipant(uint32,address)': FunctionFragment;
     'isProviderPublicKeySet(address)': FunctionFragment;
     'isRitualActive(uint32)': FunctionFragment;
     'makeInitiationPublic()': FunctionFragment;
@@ -137,11 +142,15 @@ export interface CoordinatorInterface extends utils.Interface {
       | 'defaultAdmin'
       | 'defaultAdminDelay'
       | 'defaultAdminDelayIncreaseWait'
+      | 'feeDeduction'
       | 'feeRatePerSecond'
       | 'getAuthority'
+      | 'getParticipant'
       | 'getParticipantFromProvider'
-      | 'getParticipants'
+      | 'getParticipants(uint32)'
+      | 'getParticipants(uint32,uint256,uint256,bool)'
       | 'getProviderPublicKey'
+      | 'getProviders'
       | 'getPublicKeyFromRitualId'
       | 'getRitualIdFromPublicKey'
       | 'getRitualInitiationCost'
@@ -154,6 +163,7 @@ export interface CoordinatorInterface extends utils.Interface {
       | 'initiateRitual'
       | 'isEncryptionAuthorized'
       | 'isInitiationPublic'
+      | 'isParticipant'
       | 'isProviderPublicKeySet'
       | 'isRitualActive'
       | 'makeInitiationPublic'
@@ -231,6 +241,10 @@ export interface CoordinatorInterface extends utils.Interface {
     values?: undefined,
   ): string;
   encodeFunctionData(
+    functionFragment: 'feeDeduction',
+    values: [BigNumberish, BigNumberish],
+  ): string;
+  encodeFunctionData(
     functionFragment: 'feeRatePerSecond',
     values?: undefined,
   ): string;
@@ -239,16 +253,28 @@ export interface CoordinatorInterface extends utils.Interface {
     values: [BigNumberish],
   ): string;
   encodeFunctionData(
+    functionFragment: 'getParticipant',
+    values: [BigNumberish, string, boolean],
+  ): string;
+  encodeFunctionData(
     functionFragment: 'getParticipantFromProvider',
     values: [BigNumberish, string],
   ): string;
   encodeFunctionData(
-    functionFragment: 'getParticipants',
+    functionFragment: 'getParticipants(uint32)',
     values: [BigNumberish],
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'getParticipants(uint32,uint256,uint256,bool)',
+    values: [BigNumberish, BigNumberish, BigNumberish, boolean],
   ): string;
   encodeFunctionData(
     functionFragment: 'getProviderPublicKey',
     values: [string, BigNumberish],
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'getProviders',
+    values: [BigNumberish],
   ): string;
   encodeFunctionData(
     functionFragment: 'getPublicKeyFromRitualId',
@@ -297,6 +323,10 @@ export interface CoordinatorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: 'isInitiationPublic',
     values?: undefined,
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'isParticipant',
+    values: [BigNumberish, string],
   ): string;
   encodeFunctionData(
     functionFragment: 'isProviderPublicKeySet',
@@ -443,6 +473,10 @@ export interface CoordinatorInterface extends utils.Interface {
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
+    functionFragment: 'feeDeduction',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
     functionFragment: 'feeRatePerSecond',
     data: BytesLike,
   ): Result;
@@ -451,15 +485,27 @@ export interface CoordinatorInterface extends utils.Interface {
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
+    functionFragment: 'getParticipant',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
     functionFragment: 'getParticipantFromProvider',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'getParticipants',
+    functionFragment: 'getParticipants(uint32)',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'getParticipants(uint32,uint256,uint256,bool)',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: 'getProviderPublicKey',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'getProviders',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
@@ -499,6 +545,10 @@ export interface CoordinatorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: 'isInitiationPublic',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'isParticipant',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
@@ -905,6 +955,12 @@ export interface Coordinator extends BaseContract {
 
     defaultAdminDelayIncreaseWait(overrides?: CallOverrides): Promise<[number]>;
 
+    feeDeduction(
+      arg0: BigNumberish,
+      arg1: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<[BigNumber]>;
+
     feeRatePerSecond(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getAuthority(
@@ -912,31 +968,47 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<[string]>;
 
+    getParticipant(
+      ritualId: BigNumberish,
+      provider: string,
+      transcript: boolean,
+      overrides?: CallOverrides,
+    ): Promise<[Coordinator.ParticipantStructOutput]>;
+
     getParticipantFromProvider(
       ritualId: BigNumberish,
       provider: string,
       overrides?: CallOverrides,
     ): Promise<[Coordinator.ParticipantStructOutput]>;
 
-    getParticipants(
+    'getParticipants(uint32)'(
       ritualId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<[Coordinator.ParticipantStructOutput[]]>;
 
+    'getParticipants(uint32,uint256,uint256,bool)'(
+      ritualId: BigNumberish,
+      startIndex: BigNumberish,
+      maxParticipants: BigNumberish,
+      includeTranscript: boolean,
+      overrides?: CallOverrides,
+    ): Promise<[Coordinator.ParticipantStructOutput[]]>;
+
     getProviderPublicKey(
-      _provider: string,
-      _ritualId: BigNumberish,
+      provider: string,
+      ritualId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<[BLS12381.G2PointStructOutput]>;
+
+    getProviders(
+      ritualId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<[string[]]>;
 
     getPublicKeyFromRitualId(
       ritualId: BigNumberish,
       overrides?: CallOverrides,
-    ): Promise<
-      [BLS12381.G1PointStructOutput] & {
-        dkgPublicKey: BLS12381.G1PointStructOutput;
-      }
-    >;
+    ): Promise<[BLS12381.G1PointStructOutput]>;
 
     getRitualIdFromPublicKey(
       dkgPublicKey: BLS12381.G1PointStruct,
@@ -997,8 +1069,14 @@ export interface Coordinator extends BaseContract {
 
     isInitiationPublic(overrides?: CallOverrides): Promise<[boolean]>;
 
+    isParticipant(
+      ritualId: BigNumberish,
+      provider: string,
+      overrides?: CallOverrides,
+    ): Promise<[boolean]>;
+
     isProviderPublicKeySet(
-      _provider: string,
+      provider: string,
       overrides?: CallOverrides,
     ): Promise<[boolean]>;
 
@@ -1104,7 +1182,7 @@ export interface Coordinator extends BaseContract {
     ): Promise<ContractTransaction>;
 
     setProviderPublicKey(
-      _publicKey: BLS12381.G2PointStruct,
+      publicKey: BLS12381.G2PointStruct,
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
@@ -1179,6 +1257,12 @@ export interface Coordinator extends BaseContract {
 
   defaultAdminDelayIncreaseWait(overrides?: CallOverrides): Promise<number>;
 
+  feeDeduction(
+    arg0: BigNumberish,
+    arg1: BigNumberish,
+    overrides?: CallOverrides,
+  ): Promise<BigNumber>;
+
   feeRatePerSecond(overrides?: CallOverrides): Promise<BigNumber>;
 
   getAuthority(
@@ -1186,22 +1270,42 @@ export interface Coordinator extends BaseContract {
     overrides?: CallOverrides,
   ): Promise<string>;
 
+  getParticipant(
+    ritualId: BigNumberish,
+    provider: string,
+    transcript: boolean,
+    overrides?: CallOverrides,
+  ): Promise<Coordinator.ParticipantStructOutput>;
+
   getParticipantFromProvider(
     ritualId: BigNumberish,
     provider: string,
     overrides?: CallOverrides,
   ): Promise<Coordinator.ParticipantStructOutput>;
 
-  getParticipants(
+  'getParticipants(uint32)'(
     ritualId: BigNumberish,
     overrides?: CallOverrides,
   ): Promise<Coordinator.ParticipantStructOutput[]>;
 
+  'getParticipants(uint32,uint256,uint256,bool)'(
+    ritualId: BigNumberish,
+    startIndex: BigNumberish,
+    maxParticipants: BigNumberish,
+    includeTranscript: boolean,
+    overrides?: CallOverrides,
+  ): Promise<Coordinator.ParticipantStructOutput[]>;
+
   getProviderPublicKey(
-    _provider: string,
-    _ritualId: BigNumberish,
+    provider: string,
+    ritualId: BigNumberish,
     overrides?: CallOverrides,
   ): Promise<BLS12381.G2PointStructOutput>;
+
+  getProviders(
+    ritualId: BigNumberish,
+    overrides?: CallOverrides,
+  ): Promise<string[]>;
 
   getPublicKeyFromRitualId(
     ritualId: BigNumberish,
@@ -1267,8 +1371,14 @@ export interface Coordinator extends BaseContract {
 
   isInitiationPublic(overrides?: CallOverrides): Promise<boolean>;
 
+  isParticipant(
+    ritualId: BigNumberish,
+    provider: string,
+    overrides?: CallOverrides,
+  ): Promise<boolean>;
+
   isProviderPublicKeySet(
-    _provider: string,
+    provider: string,
     overrides?: CallOverrides,
   ): Promise<boolean>;
 
@@ -1374,7 +1484,7 @@ export interface Coordinator extends BaseContract {
   ): Promise<ContractTransaction>;
 
   setProviderPublicKey(
-    _publicKey: BLS12381.G2PointStruct,
+    publicKey: BLS12381.G2PointStruct,
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
@@ -1445,6 +1555,12 @@ export interface Coordinator extends BaseContract {
 
     defaultAdminDelayIncreaseWait(overrides?: CallOverrides): Promise<number>;
 
+    feeDeduction(
+      arg0: BigNumberish,
+      arg1: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>;
+
     feeRatePerSecond(overrides?: CallOverrides): Promise<BigNumber>;
 
     getAuthority(
@@ -1452,22 +1568,42 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<string>;
 
+    getParticipant(
+      ritualId: BigNumberish,
+      provider: string,
+      transcript: boolean,
+      overrides?: CallOverrides,
+    ): Promise<Coordinator.ParticipantStructOutput>;
+
     getParticipantFromProvider(
       ritualId: BigNumberish,
       provider: string,
       overrides?: CallOverrides,
     ): Promise<Coordinator.ParticipantStructOutput>;
 
-    getParticipants(
+    'getParticipants(uint32)'(
       ritualId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<Coordinator.ParticipantStructOutput[]>;
 
+    'getParticipants(uint32,uint256,uint256,bool)'(
+      ritualId: BigNumberish,
+      startIndex: BigNumberish,
+      maxParticipants: BigNumberish,
+      includeTranscript: boolean,
+      overrides?: CallOverrides,
+    ): Promise<Coordinator.ParticipantStructOutput[]>;
+
     getProviderPublicKey(
-      _provider: string,
-      _ritualId: BigNumberish,
+      provider: string,
+      ritualId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<BLS12381.G2PointStructOutput>;
+
+    getProviders(
+      ritualId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<string[]>;
 
     getPublicKeyFromRitualId(
       ritualId: BigNumberish,
@@ -1533,8 +1669,14 @@ export interface Coordinator extends BaseContract {
 
     isInitiationPublic(overrides?: CallOverrides): Promise<boolean>;
 
+    isParticipant(
+      ritualId: BigNumberish,
+      provider: string,
+      overrides?: CallOverrides,
+    ): Promise<boolean>;
+
     isProviderPublicKeySet(
-      _provider: string,
+      provider: string,
       overrides?: CallOverrides,
     ): Promise<boolean>;
 
@@ -1636,7 +1778,7 @@ export interface Coordinator extends BaseContract {
     ): Promise<void>;
 
     setProviderPublicKey(
-      _publicKey: BLS12381.G2PointStruct,
+      publicKey: BLS12381.G2PointStruct,
       overrides?: CallOverrides,
     ): Promise<void>;
 
@@ -1870,10 +2012,23 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
+    feeDeduction(
+      arg0: BigNumberish,
+      arg1: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>;
+
     feeRatePerSecond(overrides?: CallOverrides): Promise<BigNumber>;
 
     getAuthority(
       ritualId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>;
+
+    getParticipant(
+      ritualId: BigNumberish,
+      provider: string,
+      transcript: boolean,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
@@ -1883,14 +2038,27 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
-    getParticipants(
+    'getParticipants(uint32)'(
       ritualId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
+    'getParticipants(uint32,uint256,uint256,bool)'(
+      ritualId: BigNumberish,
+      startIndex: BigNumberish,
+      maxParticipants: BigNumberish,
+      includeTranscript: boolean,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>;
+
     getProviderPublicKey(
-      _provider: string,
-      _ritualId: BigNumberish,
+      provider: string,
+      ritualId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>;
+
+    getProviders(
+      ritualId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
@@ -1961,8 +2129,14 @@ export interface Coordinator extends BaseContract {
 
     isInitiationPublic(overrides?: CallOverrides): Promise<BigNumber>;
 
+    isParticipant(
+      ritualId: BigNumberish,
+      provider: string,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>;
+
     isProviderPublicKeySet(
-      _provider: string,
+      provider: string,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
@@ -2033,7 +2207,7 @@ export interface Coordinator extends BaseContract {
     ): Promise<BigNumber>;
 
     setProviderPublicKey(
-      _publicKey: BLS12381.G2PointStruct,
+      publicKey: BLS12381.G2PointStruct,
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
@@ -2113,10 +2287,23 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
+    feeDeduction(
+      arg0: BigNumberish,
+      arg1: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>;
+
     feeRatePerSecond(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getAuthority(
       ritualId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>;
+
+    getParticipant(
+      ritualId: BigNumberish,
+      provider: string,
+      transcript: boolean,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
@@ -2126,14 +2313,27 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
-    getParticipants(
+    'getParticipants(uint32)'(
       ritualId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
+    'getParticipants(uint32,uint256,uint256,bool)'(
+      ritualId: BigNumberish,
+      startIndex: BigNumberish,
+      maxParticipants: BigNumberish,
+      includeTranscript: boolean,
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>;
+
     getProviderPublicKey(
-      _provider: string,
-      _ritualId: BigNumberish,
+      provider: string,
+      ritualId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>;
+
+    getProviders(
+      ritualId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
@@ -2206,8 +2406,14 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
+    isParticipant(
+      ritualId: BigNumberish,
+      provider: string,
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>;
+
     isProviderPublicKeySet(
-      _provider: string,
+      provider: string,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
@@ -2285,7 +2491,7 @@ export interface Coordinator extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     setProviderPublicKey(
-      _publicKey: BLS12381.G2PointStruct,
+      publicKey: BLS12381.G2PointStruct,
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 

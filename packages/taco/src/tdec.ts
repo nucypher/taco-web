@@ -64,6 +64,7 @@ export const retrieveAndDecrypt = async (
   porterUri: string,
   thresholdMessageKit: ThresholdMessageKit,
   ritualId: number,
+  sharesNum: number,
   threshold: number,
   signer?: ethers.Signer,
   customParameters?: Record<string, CustomContextParam>,
@@ -74,6 +75,7 @@ export const retrieveAndDecrypt = async (
     porterUri,
     thresholdMessageKit,
     ritualId,
+    sharesNum,
     threshold,
     signer,
     customParameters,
@@ -89,6 +91,7 @@ const retrieve = async (
   porterUri: string,
   thresholdMessageKit: ThresholdMessageKit,
   ritualId: number,
+  sharesNum: number,
   threshold: number,
   signer?: ethers.Signer,
   customParameters?: Record<string, CustomContextParam>,
@@ -97,6 +100,7 @@ const retrieve = async (
     provider,
     domain,
     ritualId,
+    sharesNum,
   );
   const wasmContext = await ConditionContext.fromConditions(
     provider,

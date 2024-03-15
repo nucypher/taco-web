@@ -486,8 +486,8 @@ importers:
         specifier: ^0.14.1
         version: 0.14.1
       axios:
-        specifier: ^1.6.2
-        version: 1.6.5
+        specifier: ^1.6.7
+        version: 1.6.7
       deep-equal:
         specifier: ^2.2.3
         version: 2.2.3
@@ -557,8 +557,8 @@ importers:
         specifier: workspace:*
         version: link:../shared
       axios:
-        specifier: ^1.6.2
-        version: 1.6.5
+        specifier: ^1.6.7
+        version: 1.6.7
       ethers:
         specifier: ^5.7.2
         version: 5.7.2
@@ -5253,8 +5253,8 @@ packages:
       is-retry-allowed: 2.2.0
     dev: true
 
-  /axios@1.6.5:
-    resolution: {integrity: sha512-Ii012v05KEVuUoFWmMW/UQv9aRIc3ZwkWDcM+h5Il8izZCtRVpDUfwpoFf7eOtajT3QiGR4yDUx7lPqHJULgbg==}
+  /axios@1.6.7:
+    resolution: {integrity: sha512-/hDJGff6/c7u0hDkvkGxR/oy6CbCs8ziCsC7SqmhjfozqiJGc8Z11wrv9z9lYfY4K8l+H9TpjcMDX0xOZmx+RA==}
     dependencies:
       follow-redirects: 1.15.4
       form-data: 4.0.0
@@ -5607,7 +5607,7 @@ packages:
     engines: {node: '>=14.16'}
     hasBin: true
     dependencies:
-      axios: 1.6.5
+      axios: 1.6.7
       axios-retry: 3.9.1
       brotli-size: 4.0.0
       bundlemon-utils: 1.2.0

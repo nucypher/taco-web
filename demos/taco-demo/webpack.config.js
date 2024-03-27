@@ -26,6 +26,7 @@ module.exports = {
     }),
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
+      process: 'process/browser.js',
     }),
     new webpack.DefinePlugin({
       process: {
@@ -33,8 +34,8 @@ module.exports = {
           DEFAULT_RITUAL_ID: JSON.stringify(process.env.DEFAULT_RITUAL_ID),
           DEFAULT_DOMAIN: JSON.stringify(process.env.DEFAULT_DOMAIN),
         },
-      }
-    })
+      },
+    }),
   ].filter(Boolean),
   module: {
     rules: [
@@ -56,8 +57,9 @@ module.exports = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
     fallback: {
-      // stream: require.resolve('stream-browserify'),
-      // buffer: require.resolve('buffer/'),
+      stream: require.resolve('stream-browserify'),
+      vm: require.resolve('vm-browserify'),
+      crypto: require.resolve('crypto-browserify'),
     },
   },
   output: {

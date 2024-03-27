@@ -59,7 +59,11 @@ export const ConditionBuilder = ({
 
   const onCreateCondition = (e: any) => {
     e.preventDefault();
-    setConditions(conditions.ConditionFactory.conditionFromProps(JSON.parse(conditionString)));
+    setConditions(
+      conditions.ConditionFactory.conditionFromProps(
+        JSON.parse(conditionString),
+      ),
+    );
   };
 
   return (

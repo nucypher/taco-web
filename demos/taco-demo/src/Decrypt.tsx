@@ -1,9 +1,8 @@
-import { ThresholdMessageKit } from '@nucypher/taco';
 import React, { useState } from 'react';
 
 interface Props {
   enabled: boolean;
-  decrypt: (encryptedMessage: ThresholdMessageKit) => void;
+  decrypt: (encryptedMessageId: string) => void;
   decryptedMessage?: string | undefined;
   decryptionErrors: string[];
 }
@@ -14,19 +13,17 @@ export const Decrypt = ({
   decryptionErrors,
   enabled,
 }: Props) => {
-  const [encryptedMessage, setEncryptedMessage] = useState('');
+  const [encryptedMessageId, setEncryptedMessageId] = useState('');
 
   if (!enabled) {
     return <></>;
   }
 
   const onDecrypt = () => {
-    if (!encryptedMessage) {
+    if (!encryptedMessageId) {
       return;
     }
-    const mkBytes = Buffer.from(encryptedMessage, 'base64');
-    const mk = ThresholdMessageKit.fromBytes(mkBytes);
-    decrypt(mk);
+    decrypt(encryptedMessageId);
   };
 
   const DecryptedMessage = () => {
@@ -64,9 +61,9 @@ export const Decrypt = ({
     <div>
       <h2>Step 3 - Decrypt Encrypted Message</h2>
       <input
-        value={encryptedMessage}
-        placeholder="Enter encrypted message"
-        onChange={(e) => setEncryptedMessage(e.currentTarget.value)}
+        value={encryptedMessageId}
+        placeholder="Enter encrypted message id"
+        onChange={(e) => setEncryptedMessageId(e.currentTarget.value)}
       />
       <button onClick={onDecrypt}>Decrypt</button>
       {DecryptedMessage()}

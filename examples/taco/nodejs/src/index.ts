@@ -50,7 +50,7 @@ const encryptToBytes = async (messageString: string) => {
   console.log(format('Encrypting message ("%s") ...', messageString));
 
   const hasPositiveBalance = new conditions.base.rpc.RpcCondition({
-    chain: 80001,
+    chain: 80002,
     method: 'eth_getBalance',
     parameters: [':userAddress', 'latest'],
     returnValueTest: {

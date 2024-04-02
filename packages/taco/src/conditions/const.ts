@@ -11,7 +11,8 @@ export const CONTEXT_PARAM_PREFIX = ':';
 
 export const SUPPORTED_CHAIN_IDS = [
   ChainId.POLYGON,
-  ChainId.MUMBAI,
+  ChainId.MUMBAI, // TODO(#506): Deprecate MUMBAI
+  ChainId.AMOY,
   ChainId.SEPOLIA,
   ChainId.ETHEREUM_MAINNET,
 ];

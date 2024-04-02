@@ -480,8 +480,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       '@nucypher/nucypher-contracts':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: file:../../../nucypher-contracts
+        version: file:../nucypher-contracts
       '@nucypher/nucypher-core':
         specifier: ^0.14.1
         version: 0.14.1
@@ -3599,10 +3599,6 @@ packages:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.16.0
-
-  /@nucypher/nucypher-contracts@0.20.0:
-    resolution: {integrity: sha512-v+Jcixp7gpKIh7mFWyeTgEy2bxjMLI3/bD/o88x9tTEeZuxD2mEfViUzfhtLuTatQRQLBFBvy+AFPd8re8L72A==}
-    dev: false
 
   /@nucypher/nucypher-core@0.14.1:
     resolution: {integrity: sha512-V/yCrjgQ8VFAeWhx9xtU1N3B8boSRA3y6+wriyaEb6kpMb4Cit+mWNiwNz9Xw0qdUcOtsoYlwb41RoZJKNOEAQ==}
@@ -15242,4 +15238,9 @@ packages:
 
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
+    dev: false
+
+  file:../nucypher-contracts:
+    resolution: {directory: ../nucypher-contracts, type: directory}
+    name: '@nucypher/nucypher-contracts'
     dev: false

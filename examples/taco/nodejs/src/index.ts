@@ -49,8 +49,11 @@ const encryptToBytes = async (messageString: string) => {
   const message = toBytes(messageString);
   console.log(format('Encrypting message ("%s") ...', messageString));
 
+  // TODO: Remove after fixing #506
+  const chain = domain === 'lynx' ? 80002 : 80001;
+
   const hasPositiveBalance = new conditions.base.rpc.RpcCondition({
-    chain: 80002,
+    chain,
     method: 'eth_getBalance',
     parameters: [':userAddress', 'latest'],
     returnValueTest: {

@@ -42,7 +42,8 @@ describe('validation', () => {
       chain: {
         _errors: [
           'Invalid literal value, expected 137',
-          'Invalid literal value, expected 80001',
+          'Invalid literal value, expected 80001', // TODO(#506): Deprecate MUMBAI
+          'Invalid literal value, expected 80002',
           'Invalid literal value, expected 11155111',
           'Invalid literal value, expected 1',
         ],

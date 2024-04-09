@@ -5,7 +5,7 @@ import * as ReactDOMClient from 'react-dom/client';
 import App from './App';
 
 const config: Config = {
-  networks: [],
+  readOnlyChainId: 80002,
 };
 const rootElement = document.getElementById('root');
 

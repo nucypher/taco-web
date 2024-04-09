@@ -7,7 +7,7 @@ import {
   initialize,
   ThresholdMessageKit,
 } from '@nucypher/taco';
-import { Mumbai, useEthers } from '@usedapp/core';
+import { useEthers } from '@usedapp/core';
 import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
 
@@ -40,7 +40,7 @@ export default function App() {
     }
     setLoading(true);
 
-    await switchNetwork(Mumbai.chainId);
+    await switchNetwork(80002);
 
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const encryptedMessage = await encrypt(

@@ -51,10 +51,10 @@ const runExample = async () => {
 
   const provider = new ethers.providers.JsonRpcProvider(rpcProviderUrl);
 
-  // Make sure the provider is connected to Mumbai testnet
+  // Make sure the provider is connected to Polygon Amoy testnet
   const network = await provider.getNetwork();
-  if (network.chainId !== 80001) {
-    console.error('Please connect to Mumbai testnet');
+  if (network.chainId !== 80002) {
+    console.error('Please connect to Polygon Amoy testnet');
   }
 
   const signer = new ethers.Wallet(privateKey);

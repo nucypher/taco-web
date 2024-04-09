@@ -49,11 +49,8 @@ const encryptToBytes = async (messageString: string) => {
   const message = toBytes(messageString);
   console.log(format('Encrypting message ("%s") ...', messageString));
 
-  // TODO: Remove after fixing #506
-  const chain = domain === 'lynx' ? 80002 : 80001;
-
   const hasPositiveBalance = new conditions.base.rpc.RpcCondition({
-    chain,
+    chain: 80002,
     method: 'eth_getBalance',
     parameters: [':userAddress', 'latest'],
     returnValueTest: {
@@ -97,10 +94,10 @@ const decryptFromBytes = async (encryptedBytes: Uint8Array) => {
 };
 
 const runExample = async () => {
-  // Make sure the provider is connected to Mumbai testnet
+  // Make sure the provider is connected to Polygon Amoy testnet
   const network = await provider.getNetwork();
-  if (network.chainId !== 80001) {
-    console.error('Please connect to Mumbai testnet');
+  if (network.chainId !== 80002) {
+    console.error('Please connect to Polygon Amoy testnet');
   }
   await initialize();
 

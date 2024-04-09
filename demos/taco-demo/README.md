@@ -27,7 +27,7 @@ production _just yet_.
 ### Lynx Testnet
 
 The current release of `@nucypher/taco` supports Ursulas working on Lynx (bleeding-edge) test
-network and contracts deployed on Mumbai testnet.
+network and contracts deployed on Polygon Amoy testnet.
 
 ## References
 

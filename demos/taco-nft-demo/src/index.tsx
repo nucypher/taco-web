@@ -1,11 +1,11 @@
-import { Config, DAppProvider, Mumbai } from '@usedapp/core';
+import { Config, DAppProvider } from '@usedapp/core';
 import React, { StrictMode } from 'react';
 import * as ReactDOMClient from 'react-dom/client';
 
 import App from './App';
 
 const config: Config = {
-  networks: [Mumbai],
+  networks: [],
 };
 const rootElement = document.getElementById('root');
 

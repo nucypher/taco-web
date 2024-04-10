@@ -54,12 +54,12 @@ const runExample = async () => {
   await provider.send('eth_requestAccounts', []);
 
   const { chainId } = await provider.getNetwork();
-  const mumbaiChainId = 80001;
-  if (chainId !== mumbaiChainId) {
-    // Switch to Polygon Mumbai testnet
+  const amoyChainId = 80002;
+  if (chainId !== amoyChainId) {
+    // Switch to Polygon Amoy testnet
     await window.ethereum!.request!({
       method: 'wallet_switchEthereumChain',
-      params: [{ chainId: hexlify(mumbaiChainId) }],
+      params: [{ chainId: hexlify(amoyChainId) }],
     });
   }
 

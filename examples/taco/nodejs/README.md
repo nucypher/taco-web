@@ -6,7 +6,7 @@ This example shows how to use `@nucypher/taco` in Node.js.
 
 This script needs 3 environment variables, that you can set in the `.env` file:
 
-* `RPC_PROVIDER_URL`: For TACo testnet you should use a Polygon Mumbai endpoint.
+* `RPC_PROVIDER_URL`: For TACo testnet you should use a Polygon Amoy endpoint.
 * `ENCRYPTOR_PRIVATE_KEY` and `CONSUMER_PRIVATE_KEY`: Hex-encoded private keys for the Encryptor and the Consumer,
   respectively.
 

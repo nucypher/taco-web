@@ -25,12 +25,12 @@ const runExample = async () => {
   const signer = provider.getSigner();
 
   const { chainId } = await provider.getNetwork();
-  const mumbaiChainId = 80001;
-  if (chainId !== mumbaiChainId) {
-    // Switch to Polygon Mumbai testnet
+  const amoyChainId = 80002;
+  if (chainId !== amoyChainId) {
+    // Switch to Polygon Amoy testnet
     await window.ethereum!.request!({
       method: 'wallet_switchEthereumChain',
-      params: [{ chainId: hexlify(mumbaiChainId) }],
+      params: [{ chainId: hexlify(amoyChainId) }],
     });
   }
   console.log("Signer's address:", await signer.getAddress());
@@ -38,7 +38,7 @@ const runExample = async () => {
   console.log('Encrypting message...');
   const message = toBytes('this is a secret');
   const hasPositiveBalance = new conditions.base.rpc.RpcCondition({
-    chain: 80001,
+    chain: 80002,
     method: 'eth_getBalance',
     parameters: [':userAddress', 'latest'],
     returnValueTest: {

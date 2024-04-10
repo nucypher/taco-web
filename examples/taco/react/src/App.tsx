@@ -33,12 +33,12 @@ function App() {
     const provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
 
     const { chainId } = await provider.getNetwork();
-    const mumbaiChainId = 80001;
-    if (chainId !== mumbaiChainId) {
-      // Switch to Polygon Mumbai testnet
+    const amoyChainId = 80002;
+    if (chainId !== amoyChainId) {
+      // Switch to Polygon Amoy testnet
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: hexlify(mumbaiChainId) }],
+        params: [{ chainId: hexlify(amoyChainId) }],
       });
     }
 
@@ -61,12 +61,14 @@ function App() {
   }
 
   const encryptMessage = async () => {
-    if(!provider) return;
-    setEncrypting(true)
+    if (!provider) {
+      return;
+    }
+    setEncrypting(true);
     try {
       const signer = provider.getSigner();
       const hasPositiveBalance = new conditions.base.rpc.RpcCondition({
-        chain: 80001,
+        chain: 80002,
         method: 'eth_getBalance',
         parameters: [':userAddress', 'latest'],
         returnValueTest: {
@@ -91,9 +93,11 @@ function App() {
   }
 
   const decryptMessage = async () => {
-    if(!encryptedText || !provider) return
+    if (!encryptedText || !provider) {
+      return;
+    }
     try {
-      setDecrypting(true)
+      setDecrypting(true);
       const signer = provider.getSigner();
 
       console.log('Decrypting message...');

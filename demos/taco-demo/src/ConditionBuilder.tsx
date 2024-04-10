@@ -1,5 +1,5 @@
 import { conditions } from '@nucypher/taco';
-import { Mumbai, useEthers } from '@usedapp/core';
+import { useEthers } from '@usedapp/core';
 import React, { useState } from 'react';
 
 interface Props {
@@ -9,7 +9,7 @@ interface Props {
 }
 
 const rpcCondition = new conditions.base.rpc.RpcCondition({
-  chain: Mumbai.chainId,
+  chain: 80002,
   method: 'eth_getBalance',
   parameters: [':userAddress'],
   returnValueTest: {

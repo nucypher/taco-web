@@ -10,10 +10,10 @@ on:
 
 # TODO: Use variables when GH supports it for forks. See https://github.com/orgs/community/discussions/44322
 env:
-  RPC_PROVIDER_URL: "https://mainnet.infura.io/v3/3747007a284045d483c342fb39889a30"
+  RPC_PROVIDER_URL: "https://eth.llamarpc.com"
   ENCRYPTOR_PRIVATE_KEY: ${{ secrets.MAINNET_ENCRYPTOR_PRIVATE_KEY }}
   CONSUMER_PRIVATE_KEY: ${{ secrets.MAINNET_CONSUMER_PRIVATE_KEY }}
-  RITUAL_ID: "1"
+  RITUAL_ID: "9"
 
 jobs:
   networks:

@@ -17,6 +17,12 @@ import { NFTConditionBuilder } from './NFTConditionBuilder';
 import { Spinner } from './Spinner';
 import { DEFAULT_DOMAIN, DEFAULT_RITUAL_ID } from './config';
 
+const chainIdForDomain = {
+  [domains.DEVNET]: 80002,
+  [domains.TESTNET]: 80002,
+  [domains.MAINNET]: 137,
+};
+
 export default function App() {
   const { activateBrowserWallet, deactivate, account, switchNetwork } =
     useEthers();
@@ -30,9 +36,13 @@ export default function App() {
   const [ritualId, setRitualId] = useState<number>(DEFAULT_RITUAL_ID);
   const [domain, setDomain] = useState<string>(DEFAULT_DOMAIN);
 
+  const chainId = chainIdForDomain[domain];
+
   useEffect(() => {
     initialize();
-  }, []);
+    switchNetwork(chainId);
+  }, [chainId]);
+
 
   const encryptMessage = async (message: string) => {
     if (!condition) {
@@ -40,7 +50,7 @@ export default function App() {
     }
     setLoading(true);
 
-    await switchNetwork(80002);
+    await switchNetwork(chainId);
 
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const encryptedMessage = await encrypt(

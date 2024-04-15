@@ -1,0 +1,28 @@
+name: 'Test npmjs.com package'
+
+on:
+  schedule:
+    - cron: "0 * * * *"  # Every hour
+  workflow_dispatch:
+
+jobs:
+  npm:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [ '18.x' ]
+        version: [ 'latest', 'mainnet', 'devnet', 'testnet' ]
+
+    steps:
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 8.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Init new package
+        run: pnpm init
+
+      - name: Install @nucypher/taco
+        run: pnpm install @nucypher/taco:${{ matrix.version }}

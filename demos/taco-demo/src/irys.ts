@@ -20,6 +20,6 @@ export const uploadData = async (webIrys: WebIrys, data: unknown): Promise<strin
 
 export const downloadData = async (receiptId: string): Promise<unknown> => {
   const response = await fetch(`https://gateway.irys.xyz/${receiptId}`);
-  const dataJson = await response.json();
+  const dataJson = await response.text();
   return JSON.parse(dataJson);
 };

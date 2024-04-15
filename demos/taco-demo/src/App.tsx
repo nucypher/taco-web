@@ -13,11 +13,11 @@ import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
 
 import { ConditionBuilder } from './ConditionBuilder';
-import { DEFAULT_DOMAIN, DEFAULT_RITUAL_ID } from './config';
 import { Decrypt } from './Decrypt';
 import { Encrypt } from './Encrypt';
-import { downloadData, getWebIrys, uploadData } from './irys';
 import { Spinner } from './Spinner';
+import { DEFAULT_DOMAIN, DEFAULT_RITUAL_ID } from './config';
+import { downloadData, getWebIrys, uploadData } from './irys';
 
 const chainIdForDomain = {
   [domains.DEVNET]: 80002,

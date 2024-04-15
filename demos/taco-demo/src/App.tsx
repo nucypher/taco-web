@@ -6,6 +6,7 @@ import {
   getPorterUri,
   initialize,
   ThresholdMessageKit,
+  toHexString,
 } from '@nucypher/taco';
 import { useEthers } from '@usedapp/core';
 import { ethers } from 'ethers';
@@ -16,6 +17,7 @@ import { Decrypt } from './Decrypt';
 import { Encrypt } from './Encrypt';
 import { Spinner } from './Spinner';
 import { DEFAULT_DOMAIN, DEFAULT_RITUAL_ID } from './config';
+import { downloadData, getWebIrys, uploadData } from './irys';
 
 const chainIdForDomain = {
   [domains.DEVNET]: 80002,
@@ -29,14 +31,14 @@ export default function App() {
 
   const [loading, setLoading] = useState(false);
   const [condition, setCondition] = useState<conditions.condition.Condition>();
-  const [encryptedMessage, setEncryptedMessage] =
-    useState<ThresholdMessageKit>();
+  const [encryptedMessageId, setEncryptedMessageIdId] = useState<string>();
   const [decryptedMessage, setDecryptedMessage] = useState<string>();
   const [decryptionErrors, setDecryptionErrors] = useState<string[]>([]);
   const [ritualId, setRitualId] = useState<number>(DEFAULT_RITUAL_ID);
   const [domain, setDomain] = useState<string>(DEFAULT_DOMAIN);
 
   const chainId = chainIdForDomain[domain];
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
 
   useEffect(() => {
     initialize();
@@ -51,7 +53,6 @@ export default function App() {
 
     await switchNetwork(chainId);
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
     const encryptedMessage = await encrypt(
       provider,
       domain,
@@ -61,11 +62,15 @@ export default function App() {
       provider.getSigner(),
     );
 
-    setEncryptedMessage(encryptedMessage);
+    const encryptedMessageHex = toHexString(encryptedMessage.toBytes());
+    const webIrys = await getWebIrys(provider);
+    const receiptId = await uploadData(webIrys, encryptedMessageHex);
+
+    setEncryptedMessageIdId(receiptId);
     setLoading(false);
   };
 
-  const decryptMessage = async (encryptedMessage: ThresholdMessageKit) => {
+  const decryptMessage = async (encryptedMessageId: string) => {
     if (!condition) {
       return;
     }
@@ -73,7 +78,11 @@ export default function App() {
     setDecryptedMessage('');
     setDecryptionErrors([]);
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const encryptedMessageHex = await downloadData(encryptedMessageId) as string;
+    const encryptedMessage = ThresholdMessageKit.fromBytes(
+      Buffer.from(encryptedMessageHex, 'hex'),
+    );
+
     const decryptedMessage = await decrypt(
       provider,
       domain,
@@ -148,11 +157,11 @@ export default function App() {
       <Encrypt
         enabled={!!condition}
         encrypt={encryptMessage}
-        encryptedMessage={encryptedMessage!}
+        encryptedMessageId={encryptedMessageId!}
       />
 
       <Decrypt
-        enabled={!!encryptedMessage}
+        enabled={!!encryptedMessageId}
         decrypt={decryptMessage}
         decryptedMessage={decryptedMessage}
         decryptionErrors={decryptionErrors}

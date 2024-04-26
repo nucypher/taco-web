@@ -14,6 +14,7 @@ const EthBaseTypes: [string, ...string[]] = [
   'bool',
   'string',
   'address',
+  'address payable',
   ...Array.from({ length: 32 }, (_v, i) => `bytes${i + 1}`), // bytes1 through bytes32
   'bytes',
   ...Array.from({ length: 32 }, (_v, i) => `uint${8 * (i + 1)}`), // uint8 through uint256

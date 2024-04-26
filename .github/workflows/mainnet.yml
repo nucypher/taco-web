@@ -3,9 +3,6 @@ name: '🔎 Mainnet Example'
 on:
   schedule:
     - cron: "0 * * * *"  # Every hour
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 # TODO: Use variables when GH supports it for forks. See https://github.com/orgs/community/discussions/44322

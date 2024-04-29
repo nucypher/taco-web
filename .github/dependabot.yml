@@ -8,5 +8,5 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "monrhly"
+      interval: "monthly"
     open-pull-requests-limit: 5

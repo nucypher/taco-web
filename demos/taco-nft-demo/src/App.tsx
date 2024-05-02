@@ -110,8 +110,10 @@ export default function App() {
 
       <h2>Notice</h2>
       <p>
-        In order to access this demo, make sure to allow-list your wallet
-        address first.
+        In production (mainnet domain), your wallet address (encryptor) will also have
+        to be allow-listed for this specific ritual. However, we have 
+        <a href={'https://docs.threshold.network/app-development/threshold-access-control-tac/integration-guide/get-started-with-tac#testnet-configuration'}>publicly available testnet rituals</a>
+        for use when developing your apps.
       </p>
       <p>
         Connect with us on our{' '}

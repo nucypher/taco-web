@@ -115,8 +115,7 @@ export default function App() {
       </p>
       <p>
         Connect with us on our{' '}
-        <a href={'https://discord.gg/threshold'}>Discord server</a> at{' '}
-        <b>#taco</b> channel to get your wallet address allow-listed
+        <a href={'https://discord.gg/threshold'}>Discord server</a> for more info!
       </p>
 
       <h2>Ritual ID</h2>

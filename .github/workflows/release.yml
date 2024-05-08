@@ -2,14 +2,14 @@ name: Release
 on:
   push:
     branches:
-      - "main"
+      - 'main'
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   publish:
     name: Publish NPM package using changesets
-    runs-on: "ubuntu-latest"
+    runs-on: 'ubuntu-latest'
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v3

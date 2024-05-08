@@ -11,11 +11,11 @@ import { useEthers } from '@usedapp/core';
 import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
 
+import { DEFAULT_DOMAIN, DEFAULT_RITUAL_ID } from './config';
 import { Decrypt } from './Decrypt';
 import { Encrypt } from './Encrypt';
 import { NFTConditionBuilder } from './NFTConditionBuilder';
 import { Spinner } from './Spinner';
-import { DEFAULT_DOMAIN, DEFAULT_RITUAL_ID } from './config';
 
 const chainIdForDomain = {
   [domains.DEVNET]: 80002,
@@ -42,7 +42,6 @@ export default function App() {
     initialize();
     switchNetwork(chainId);
   }, [chainId]);
-
 
   const encryptMessage = async (message: string) => {
     if (!condition) {

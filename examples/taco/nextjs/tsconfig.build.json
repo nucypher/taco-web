@@ -9,6 +9,9 @@
   "references": [
     {
       "path": "../../../packages/taco/tsconfig.es.json"
+    },
+    {
+      "path": "../../../packages/taco-auth/tsconfig.es.json"
     }
   ]
 }

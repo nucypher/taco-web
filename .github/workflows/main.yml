@@ -1,5 +1,5 @@
 name: CI
-on: [ push, pull_request ]
+on: [push, pull_request]
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -9,14 +9,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node: [ '18.x' ]
-        os: [ ubuntu-latest ]
+        node: ['18.x']
+        os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v3
         with:
-          version: 8.1
+          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
@@ -41,7 +41,6 @@ jobs:
         with:
           # https://community.codecov.com/t/upload-issues-unable-to-locate-build-via-github-actions-api/3954/21
           fail_ci_if_error: false
-
 # TODO: Fix or replace bundlemon on CI
 #      - name: Analyze bundle size
 #        uses: lironer/bundlemon-action@v1

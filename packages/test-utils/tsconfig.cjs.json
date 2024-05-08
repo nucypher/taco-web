@@ -2,6 +2,6 @@
   "extends": "./tsconfig.es.json",
   "compilerOptions": {
     "outDir": "dist/cjs",
-    "module": "CommonJS",
+    "module": "CommonJS"
   }
 }

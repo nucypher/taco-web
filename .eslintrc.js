@@ -1,54 +1,51 @@
 /** @type {import('eslint').Linter.Config} */
 module.exports = {
-  'root': true,
-  'parser': '@typescript-eslint/parser',
-  'env': {
-    'es6': true,
+  root: true,
+  parser: '@typescript-eslint/parser',
+  env: {
+    es6: true,
   },
-  'ignorePatterns': [
+  ignorePatterns: [
     'node_modules',
     'build',
     'coverage',
     'src/contracts/ethers-typechain',
   ],
-  'plugins': [
-    'import',
-    'eslint-comments',
-  ],
-  'extends': [
+  plugins: ['import', 'eslint-comments'],
+  extends: [
     'eslint:recommended',
     'plugin:eslint-comments/recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:import/typescript',
     'prettier',
   ],
-  'globals': {
-    'BigInt': true,
-    'console': true,
-    'WebAssembly': true,
+  globals: {
+    BigInt: true,
+    console: true,
+    WebAssembly: true,
   },
-  'rules': {
+  rules: {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     'eslint-comments/disable-enable-pair': [
       'error',
       {
-        'allowWholeFile': true,
+        allowWholeFile: true,
       },
     ],
     'import/order': [
       'error',
       {
         'newlines-between': 'always',
-        'alphabetize': {
-          'order': 'asc',
+        alphabetize: {
+          order: 'asc',
         },
       },
     ],
     'sort-imports': [
       'error',
       {
-        'ignoreDeclarationSort': true,
-        'ignoreCase': true,
+        ignoreDeclarationSort: true,
+        ignoreCase: true,
       },
     ],
   },

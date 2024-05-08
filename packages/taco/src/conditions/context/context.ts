@@ -1,5 +1,9 @@
 import { Context, Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { fromJSON, toJSON } from '@nucypher/shared';
+import {
+  TypedSignature,
+  WalletAuthenticationProvider,
+} from '@nucypher/taco-auth';
 import { ethers } from 'ethers';
 
 import { CompoundConditionType } from '../compound-condition';
@@ -11,8 +15,6 @@ import {
   RESERVED_CONTEXT_PARAMS,
   USER_ADDRESS_PARAM,
 } from '../const';
-
-import { TypedSignature, WalletAuthenticationProvider } from './providers';
 
 export type CustomContextParam = string | number | boolean;
 export type ContextParam = CustomContextParam | TypedSignature;

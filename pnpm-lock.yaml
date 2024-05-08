@@ -21,6 +21,9 @@ importers:
       '@nucypher/nucypher-core':
         specifier: ^0.14.5
         version: 0.14.5
+      ethers:
+        specifier: ^5.7.2
+        version: 5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
     devDependencies:
       '@skypack/package-check':
         specifier: ^0.2.2
@@ -504,7 +507,7 @@ importers:
         specifier: ^2.2.3
         version: 2.2.3
       ethers:
-        specifier: ^5.7.2
+        specifier: '*'
         version: 5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       qs:
         specifier: ^6.12.1
@@ -534,17 +537,17 @@ importers:
 
   packages/taco:
     dependencies:
-      '@ethersproject/abstract-signer':
-        specifier: ^5.7.0
-        version: 5.7.0
       '@nucypher/nucypher-core':
         specifier: ^0.14.5
         version: 0.14.5
       '@nucypher/shared':
         specifier: workspace:*
         version: link:../shared
+      '@nucypher/taco-auth':
+        specifier: workspace:*
+        version: link:../taco-auth
       ethers:
-        specifier: ^5.7.2
+        specifier: '*'
         version: 5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       semver:
         specifier: ^7.5.2
@@ -559,6 +562,19 @@ importers:
       '@types/semver':
         specifier: ^7.5.6
         version: 7.5.8
+
+  packages/taco-auth:
+    dependencies:
+      '@ethersproject/abstract-signer':
+        specifier: ^5.7.0
+        version: 5.7.0
+      '@nucypher/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      '@nucypher/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
 
   packages/test-utils:
     dependencies:

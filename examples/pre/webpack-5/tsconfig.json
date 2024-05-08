@@ -4,11 +4,11 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "noEmit": true
+    "noEmit": true,
   },
   "references": [
     {
-      "path": "../../../packages/pre/tsconfig.es.json"
-    }
-  ]
+      "path": "../../../packages/pre/tsconfig.es.json",
+    },
+  ],
 }

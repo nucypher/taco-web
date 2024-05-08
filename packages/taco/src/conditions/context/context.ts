@@ -1,9 +1,6 @@
 import { Context, Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { fromJSON, toJSON } from '@nucypher/shared';
-import {
-  TypedSignature,
-  WalletAuthenticationProvider,
-} from '@nucypher/taco-auth';
+import { EIP712SignatureProvider, TypedSignature } from '@nucypher/taco-auth';
 import { ethers } from 'ethers';
 
 import { CompoundConditionType } from '../compound-condition';
@@ -30,7 +27,7 @@ const ERR_UNKNOWN_CONTEXT_PARAMS = (params: string[]) =>
   `Unknown custom context parameter(s): ${params.join(', ')}`;
 
 export class ConditionContext {
-  private readonly walletAuthProvider?: WalletAuthenticationProvider;
+  private readonly eip712SignatureProvider?: EIP712SignatureProvider;
 
   constructor(
     private readonly provider: ethers.providers.Provider,
@@ -39,7 +36,7 @@ export class ConditionContext {
     private readonly signer?: ethers.Signer,
   ) {
     if (this.signer) {
-      this.walletAuthProvider = new WalletAuthenticationProvider(
+      this.eip712SignatureProvider = new EIP712SignatureProvider(
         this.provider,
         this.signer,
       );
@@ -99,11 +96,11 @@ export class ConditionContext {
 
     // Fill in predefined context parameters
     if (requestedParameters.has(USER_ADDRESS_PARAM)) {
-      if (!this.walletAuthProvider) {
+      if (!this.eip712SignatureProvider) {
         throw new Error(ERR_SIGNER_REQUIRED);
       }
       parameters[USER_ADDRESS_PARAM] =
-        await this.walletAuthProvider.getOrCreateWalletSignature();
+        await this.eip712SignatureProvider.getOrCreateWalletSignature();
       // Remove from requested parameters
       requestedParameters.delete(USER_ADDRESS_PARAM);
     }

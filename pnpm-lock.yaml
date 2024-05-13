@@ -507,8 +507,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       qs:
-        specifier: ^6.12.0
-        version: 6.12.0
+        specifier: ^6.12.1
+        version: 6.12.1
     devDependencies:
       '@typechain/ethers-v5':
         specifier: ^11.1.2
@@ -517,8 +517,8 @@ importers:
         specifier: ^1.0.3
         version: 1.0.4
       '@types/qs':
-        specifier: ^6.9.12
-        version: 6.9.12
+        specifier: ^6.9.15
+        version: 6.9.15
       '@types/tmp':
         specifier: ^0.2.6
         version: 0.2.6
@@ -4452,7 +4452,7 @@ packages:
     resolution: {integrity: sha512-OaJ7XLaelTgrvlZD8/aa0vvvxZdUmlCn6MtWeB7TkiKW70BQLc9XEPpDLPdbo52ZhXUCrznlWdCHWxJWtdyajA==}
     dependencies:
       '@types/node': 20.11.30
-      '@types/qs': 6.9.12
+      '@types/qs': 6.9.15
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
 
@@ -4461,7 +4461,7 @@ packages:
     dependencies:
       '@types/body-parser': 1.19.5
       '@types/express-serve-static-core': 4.17.41
-      '@types/qs': 6.9.12
+      '@types/qs': 6.9.15
       '@types/serve-static': 1.15.5
 
   /@types/graceful-fs@4.1.9:
@@ -4563,8 +4563,8 @@ packages:
     resolution: {integrity: sha512-hroOstUScF6zhIi+5+x0dzqrHA1EJi+Irri6b1fxolMTqqHIV/Cg77EtnQcZqZCu8hR3mX2BzIxN4/GzI68Kfw==}
     dev: true
 
-  /@types/qs@6.9.12:
-    resolution: {integrity: sha512-bZcOkJ6uWrL0Qb2NAWKa7TBU+mJHPzhx9jjLL1KHF+XpzEcR7EXHvjbHlGtR/IsP1vyPrehuS6XqkmaePy//mg==}
+  /@types/qs@6.9.15:
+    resolution: {integrity: sha512-uXHQKES6DQKKCLh441Xv/dwxOq1TVS3JPUMlEqoEglvlhR6Mxnlew/Xq/LRVHpLyk7iK3zODe1qYHIMltO7XGg==}
 
   /@types/range-parser@1.2.7:
     resolution: {integrity: sha512-hKormJbkJqzQGhziax5PItDUTMAM9uE2XXQmM37dyd4hVM+5aVl7oVxMVUiVQn2oCQFN/LKCZdvSM0pFRqbSmQ==}
@@ -13234,8 +13234,8 @@ packages:
     dependencies:
       side-channel: 1.0.6
 
-  /qs@6.12.0:
-    resolution: {integrity: sha512-trVZiI6RMOkO476zLGaBIzszOdFPnCCXHPG9kn0yuS1uz6xdVxPfZdB3vUig9pxPFDM9BRAgz/YUIVQ1/vuiUg==}
+  /qs@6.12.1:
+    resolution: {integrity: sha512-zWmv4RSuB9r2mYQw3zxQuHWeU+42aKi1wWig/j4ele4ygELZ7PEO6MM7rim9oAQH2A5MWfsAVf/jPvTPgCbvUQ==}
     engines: {node: '>=0.6'}
     dependencies:
       side-channel: 1.0.6

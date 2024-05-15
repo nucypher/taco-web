@@ -3,11 +3,11 @@
   "include": ["src", "test"],
   "compilerOptions": {
     "esModuleInterop": true,
-    "skipLibCheck": true,
+    "skipLibCheck": true
   },
   "references": [
     {
-      "path": "../test-utils/tsconfig.es.json",
-    },
-  ],
+      "path": "../test-utils/tsconfig.es.json"
+    }
+  ]
 }

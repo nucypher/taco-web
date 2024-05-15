@@ -39,6 +39,7 @@
     "typedoc": "typedoc"
   },
   "dependencies": {
+    "@didtools/cacao": "^3.0.1",
     "@ethersproject/abstract-signer": "^5.7.0",
     "@nucypher/shared": "workspace:*"
   },

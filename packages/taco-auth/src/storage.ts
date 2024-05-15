@@ -14,7 +14,6 @@ class BrowserStorage implements IStorage {
   }
 }
 
-
 class NodeStorage implements IStorage {
   private storage: Record<string, string> = {};
 
@@ -31,7 +30,10 @@ export class LocalStorage {
   private storage: IStorage;
 
   constructor() {
-    this.storage = typeof localStorage === 'undefined' ? new NodeStorage() : new BrowserStorage();
+    this.storage =
+      typeof localStorage === 'undefined'
+        ? new NodeStorage()
+        : new BrowserStorage();
   }
 
   getItem(key: string): string | null {

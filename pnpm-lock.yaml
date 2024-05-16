@@ -411,6 +411,18 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
 
+  examples/taco/nodejs-anyonewiththelink:
+    dependencies:
+      '@nucypher/taco':
+        specifier: workspace:*
+        version: link:../../../packages/taco
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.3.1
+      ethers:
+        specifier: ^5.7.2
+        version: 5.7.2
+
   examples/taco/react:
     dependencies:
       '@nucypher/shared':
@@ -7737,7 +7749,6 @@ packages:
       inherits: 2.0.4
       minimalistic-assert: 1.0.1
       minimalistic-crypto-utils: 1.0.1
-    dev: true
 
   /email-addresses@5.0.0:
     resolution: {integrity: sha512-4OIPYlA6JXqtVn8zpHpGiI7vE6EQOAg16aGnDMIAlZVinnoZ8208tW1hAbjWydgN/4PLTT9q+O1K6AH/vALJGw==}
@@ -14005,7 +14016,7 @@ packages:
     engines: {node: '>=14.0.0'}
     requiresBuild: true
     dependencies:
-      elliptic: 6.5.4
+      elliptic: 6.5.5
       node-addon-api: 5.1.0
       node-gyp-build: 4.8.0
     dev: false

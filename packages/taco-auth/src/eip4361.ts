@@ -13,7 +13,7 @@ export class EIP4361SignatureProvider {
     this.storage = new LocalStorage();
   }
 
-  public async getOrCreateSignInMessage(): Promise<string> {
+  public async getOrCreateSiweMessage(): Promise<string> {
     const address = await this.signer.getAddress();
     const storageKey = `eth-signin-message-${address}`;
 
@@ -24,12 +24,12 @@ export class EIP4361SignatureProvider {
     }
 
     // If at this point we didn't return, we need to create a new message
-    const message = await this.crateSiweMessage();
+    const message = await this.createSiweMessage();
     this.storage.setItem(storageKey, message);
     return message;
   }
 
-  private async crateSiweMessage(): Promise<string> {
+  private async createSiweMessage(): Promise<string> {
     const { blockNumber, chainId } = await this.getChainData();
     const address = await this.signer.getAddress();
     // TODO: Expose these as parameters

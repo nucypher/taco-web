@@ -1,6 +1,6 @@
 import { Context, Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { fromJSON, toJSON } from '@nucypher/shared';
-import { EIP712SignatureProvider, TypedSignature } from '@nucypher/taco-auth';
+import { EIP4361SignatureProvider, TypedSignature } from '@nucypher/taco-auth';
 import { ethers } from 'ethers';
 
 import { CompoundConditionType } from '../compound-condition';
@@ -12,6 +12,7 @@ import {
   RESERVED_CONTEXT_PARAMS,
   USER_ADDRESS_PARAM,
 } from '../const';
+import { version } from 'os';
 
 export type CustomContextParam = string | number | boolean;
 export type ContextParam = CustomContextParam | TypedSignature;
@@ -27,7 +28,7 @@ const ERR_UNKNOWN_CONTEXT_PARAMS = (params: string[]) =>
   `Unknown custom context parameter(s): ${params.join(', ')}`;
 
 export class ConditionContext {
-  private readonly eip712SignatureProvider?: EIP712SignatureProvider;
+  private readonly eip4361SignatureProvider?: EIP4361SignatureProvider;
 
   constructor(
     private readonly provider: ethers.providers.Provider,
@@ -36,7 +37,7 @@ export class ConditionContext {
     private readonly signer?: ethers.Signer,
   ) {
     if (this.signer) {
-      this.eip712SignatureProvider = new EIP712SignatureProvider(
+      this.eip4361SignatureProvider = new EIP4361SignatureProvider(
         this.provider,
         this.signer,
       );
@@ -91,16 +92,21 @@ export class ConditionContext {
   private async fillContextParameters(
     requestedParameters: Set<string>,
   ): Promise<Record<string, ContextParam>> {
+    const domain = "";
+    const version = "";
+    const nonce = "";
+    const uri = "";
+
     // Now, we can safely add all the parameters
     const parameters: Record<string, ContextParam> = {};
 
     // Fill in predefined context parameters
     if (requestedParameters.has(USER_ADDRESS_PARAM)) {
-      if (!this.eip712SignatureProvider) {
+      if (!this.eip4361SignatureProvider) {
         throw new Error(ERR_SIGNER_REQUIRED);
       }
       parameters[USER_ADDRESS_PARAM] =
-        await this.eip712SignatureProvider.getOrCreateWalletSignature();
+        await this.eip4361SignatureProvider.getOrCreateSiweMessage(domain, version, nonce, uri);
       // Remove from requested parameters
       requestedParameters.delete(USER_ADDRESS_PARAM);
     }

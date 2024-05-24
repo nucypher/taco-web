@@ -13,7 +13,12 @@ export class EIP4361SignatureProvider {
     this.storage = new LocalStorage();
   }
 
-  public async getOrCreateSiweMessage(): Promise<string> {
+  public async getOrCreateSiweMessage(
+    domain: string,
+    version: string,
+    nonce: string,
+    uri: string,
+  ): Promise<string> {
     const address = await this.signer.getAddress();
     const storageKey = `eth-signin-message-${address}`;
 
@@ -24,25 +29,24 @@ export class EIP4361SignatureProvider {
     }
 
     // If at this point we didn't return, we need to create a new message
-    const message = await this.createSiweMessage();
+    const message = await this.createSiweMessage(domain, version, nonce, uri);
     this.storage.setItem(storageKey, message);
     return message;
   }
 
-  private async createSiweMessage(): Promise<string> {
-    const { blockNumber, chainId } = await this.getChainData();
+  private async createSiweMessage(
+    domain: string,
+    version: string,
+    nonce: string,
+    uri: string,
+  ): Promise<string> {
+    const chainId = (await this.provider.getNetwork()).chainId;
     const address = await this.signer.getAddress();
-    // TODO: Expose these as parameters
-    const domain = 'yourdomain.com'; // replace with your domain
-    const version = '1';
-    const nonce = '0'; // replace with your nonce
-    const uri = 'did:key:z6MkrBdNdwUPnXDVD1DCxedzVVBpaGi8aSmoXFAeKNgtAer8'; // replace with your uri
 
     const siweMessage = new SiweMessage({
       domain,
       address,
-      // TODO: Is this statement application-specific?
-      statement: `I'm signing in to ${domain} as of block number ${blockNumber}`,
+      statement: `${domain} wants you to sign in with your Ethereum account: ${address}`,
       uri,
       version,
       nonce,
@@ -50,11 +54,5 @@ export class EIP4361SignatureProvider {
     });
 
     return siweMessage.toMessage();
-  }
-
-  private async getChainData(): Promise<{ blockNumber: number, chainId: number }> {
-    const blockNumber = await this.provider.getBlockNumber();
-    const chainId = (await this.provider.getNetwork()).chainId;
-    return { blockNumber, chainId };
   }
 }

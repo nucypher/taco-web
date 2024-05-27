@@ -1,7 +1,16 @@
-import { bobSecretKeyBytes, fakeProvider, fakeSigner } from '@nucypher/test-utils';
+import { SiweMessage } from '@didtools/cacao';
+import {
+  bobSecretKeyBytes,
+  fakeProvider,
+  fakeSigner,
+} from '@nucypher/test-utils';
 import { describe, expect, it } from 'vitest';
 
-import { EIP4361SignatureProvider, EIP712SignatureProvider, FormattedEip712 } from '../src';
+import {
+  EIP4361SignatureProvider,
+  EIP712SignatureProvider,
+  FormattedEip712,
+} from '../src';
 
 describe('taco authorization', () => {
   it('creates a new EIP-712 message', async () => {
@@ -31,38 +40,52 @@ describe('taco authorization', () => {
     expect(typedData.types.Wallet).toBeDefined();
     expect(typedData.domain.name).toEqual('taco');
     expect(typedData.domain.version).toEqual('1');
-    expect(typedData.domain.chainId).toEqual((await provider.getNetwork()).chainId);
+    expect(typedData.domain.chainId).toEqual(
+      (await provider.getNetwork()).chainId,
+    );
     expect(typedData.domain.salt).toBeDefined();
     expect(typedData.message.address).toEqual(await signer.getAddress());
-    expect(typedData.message.blockNumber).toEqual(await provider.getBlockNumber());
+    expect(typedData.message.blockNumber).toEqual(
+      await provider.getBlockNumber(),
+    );
     expect(typedData.message).toHaveProperty('blockHash');
   });
 
-  it('hello-world', async () => {
-    const wallet = Wallet.createRandom();
-    const address = wallet.address;
+  it('creates a new SIWE message', async () => {
+    const provider = fakeProvider(bobSecretKeyBytes);
+    const signer = fakeSigner(bobSecretKeyBytes);
 
-    const siweMessage = new SiweMessage({
-      domain: 'service.org',
-      address: address,
-      statement:
-        'I accept the ServiceOrg Terms of Service: https://service.org/tos',
-      uri: 'did:key:z6MkrBdNdwUPnXDVD1DCxedzVVBpaGi8aSmoXFAeKNgtAer8',
-      version: '1',
-      nonce: '32891757',
-      issuedAt: '2021-09-30T16:25:24.000Z',
-      chainId: '1',
-      resources: [
-        'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
-        'https://example.com/my-web2-claim.json',
-        'ceramic://k2t6wyfsu4pg040dpjpbla1ybxof65baldb7fvmeam4m3n71q0w1nslz609u2d',
-      ],
-    });
+    const eip4361Provider = new EIP4361SignatureProvider(provider, signer);
+    const siweMessage = await eip4361Provider.getOrCreateSiweMessage();
 
-    const cacao = Cacao.fromSiweMessage(siweMessage);
-    const siweMessage2 = SiweMessage.fromCacao(cacao);
+    // Expected format:
+    // {
+    //   ":userAddress":
+    //     {
+    //       "signature": "<signature>",
+    //       "address": "<address>",
+    //       "scheme": "EIP712" | "SIWE" | ...
+    //       "typeData": ...
+    //     }
+    // }
 
-    const signature = await wallet.signMessage(siweMessage.toMessage());
-    siweMessage2.signature = signature;
+    expect(siweMessage.signature).toBeDefined();
+    expect(siweMessage.address).toEqual(await signer.getAddress());
+    expect(siweMessage.scheme).toEqual('SIWE');
+
+    const typedData = siweMessage.typedData as SiweMessage;
+    expect(typedData).toBeDefined();
+    expect(typedData.domain).toEqual('https://login.xyz');
+    expect(typedData.version).toEqual('1');
+    expect(typedData.nonce).toEqual('0');
+    expect(typedData.uri).toEqual(
+      'did:key:z6MkrBdNdwUPnXDVD1DCxedzVVBpaGi8aSmoXFAeKNgtAer8',
+    );
+    expect(typedData.chainId).toEqual(
+      (await provider.getNetwork()).chainId.toString(),
+    );
+    expect(typedData.statement).toEqual(
+      `${typedData.domain} wants you to sign in with your Ethereum account: ${await signer.getAddress()}`,
+    );
   });
 });

@@ -25,7 +25,7 @@ describe('taco authorization', () => {
 
     expect(eip712Message.signature).toBeDefined();
     expect(eip712Message.address).toEqual(await signer.getAddress());
-    // expect(eip712Mjessage.scheme).toEqual('EIP712');
+    expect(eip712Message.scheme).toEqual('EIP712');
     expect(eip712Message.typedData).toBeDefined();
     expect(eip712Message.typedData.types.Wallet).toBeDefined();
     expect(eip712Message.typedData.domain.name).toEqual('taco');

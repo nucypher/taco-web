@@ -32,8 +32,9 @@ interface FormattedEip712 extends Eip712 {
 
 export interface TypedSignature {
   signature: string;
-  typedData: Eip712;
   address: string;
+  scheme: 'EIP712' | 'SIWE';
+  typedData: Eip712;
 }
 
 interface ChainData {
@@ -94,6 +95,8 @@ export class EIP712SignatureProvider {
     const signatureText = `I'm the owner of address ${address} as of block number ${blockNumber}`;
     const salt = ethersUtils.hexlify(ethersUtils.randomBytes(32));
 
+    const scheme = 'EIP712';
+
     const typedData: Eip712 = {
       types: {
         Wallet: [
@@ -129,7 +132,7 @@ export class EIP712SignatureProvider {
         EIP712Domain,
       },
     };
-    return { signature, typedData: formattedTypedData, address };
+    return { signature, address, scheme, typedData: formattedTypedData };
   }
 
   private async getChainData(): Promise<ChainData> {

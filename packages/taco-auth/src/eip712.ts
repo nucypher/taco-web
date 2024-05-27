@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 import { utils as ethersUtils } from 'ethers/lib/ethers';
 
 import { LocalStorage } from './storage';
+import type { TypedSignature } from './typedSignature';
 
 interface Eip712 {
   types: {
@@ -22,19 +23,12 @@ interface Eip712 {
   };
 }
 
-interface FormattedEip712 extends Eip712 {
+export interface FormattedEip712 extends Eip712 {
   primaryType: 'Wallet';
   types: {
     EIP712Domain: { name: string; type: string }[];
     Wallet: { name: string; type: string }[];
   };
-}
-
-export interface TypedSignature {
-  signature: string;
-  address: string;
-  scheme: 'EIP712' | 'SIWE';
-  typedData: Eip712;
 }
 
 interface ChainData {

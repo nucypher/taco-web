@@ -114,7 +114,7 @@ importers:
         version: 0.1.24(arweave@1.15.1)(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@nucypher/taco':
         specifier: ^0.2.4
-        version: 0.2.6(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+        version: 0.2.7(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@usedapp/core':
         specifier: ^1.2.13
         version: 1.2.15(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(node-fetch@2.7.0)(react@18.2.0)
@@ -196,7 +196,7 @@ importers:
     dependencies:
       '@nucypher/taco':
         specifier: ^0.2.4
-        version: 0.2.6(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+        version: 0.2.7(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@usedapp/core':
         specifier: ^1.2.13
         version: 1.2.15(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(node-fetch@2.7.0)(react@18.2.0)
@@ -2208,12 +2208,12 @@ packages:
   '@nucypher/nucypher-core@0.14.5':
     resolution: {integrity: sha512-Q3kBuJL0qtTtnxrM5DEQauQUvDlXmwubm9u1h7gbyLhs+aZNC9WDyjEUbE43+uahlHu4k1hKEMxD1gjV165ChA==}
 
-  '@nucypher/shared@0.2.2':
-    resolution: {integrity: sha512-T8nIo1cn7WOFpmx67SZQTuxzOTNe1A6XgcfCa2vX+WiLWZagqHFhByoVqCAbKM2PX6F78qziZmxKNBLSszEjUw==}
+  '@nucypher/shared@0.2.3':
+    resolution: {integrity: sha512-byKAtM3isz3RIztc3tEETivS7fFnlLqu9wWiqJaK6EtyCs9BGhb5c4+2ASrJilpJ5E2zQGjxkBdpTa2yWuCZgQ==}
     engines: {node: '>=18', pnpm: '>=8.0.0'}
 
-  '@nucypher/taco@0.2.6':
-    resolution: {integrity: sha512-BSEByDVSxUvlHWcoDxpM+ogNMzDdC38sHH5uYCCAnrs5TJokA4htwQH+CrrOCbaWuHp6thXYVUVX7UhulXscTw==}
+  '@nucypher/taco@0.2.7':
+    resolution: {integrity: sha512-6K+Vstq0rVO+waMiLhSK3deLD9tKqTZgoTgXRTofKqT4HEqNomnIIE0HpwrsVwBUWNTLaeQFT51srfG2ymy9QQ==}
     engines: {node: '>=18', pnpm: '>=8.0.0'}
 
   '@pkgjs/parseargs@0.11.0':
@@ -6325,8 +6325,8 @@ packages:
     resolution: {integrity: sha512-2eznPJP8z2BFLX50tf0LuODrpINqP1RVIm/CObbTcBRITQgmC/TjcREF1NeTBzIcR5XO/ukWo+YHOjBbFwIupg==}
     hasBin: true
 
-  multiformats@13.1.1:
-    resolution: {integrity: sha512-JiptvwMmlxlzIlLLwhCi/srf/nk409UL0eUBr0kioRJq15hqqKyg68iftrBvhCRjR6Rw4fkNnSc4ZJXJDuta/Q==}
+  multiformats@13.1.0:
+    resolution: {integrity: sha512-HzdtdBwxsIkzpeXzhQ5mAhhuxcHbjEHH+JQoxt7hG/2HGFjjwyolLo7hbaexcnhoEuV4e0TNJ8kkpMjiEYY4VQ==}
 
   multistream@4.1.0:
     resolution: {integrity: sha512-J1XDiAmmNpRCBfIWJv+n0ymC4ABcf/Pl+5YvC5B/D2f/2+8PtHvCNxMPKiQcZyi922Hq69J2YOpb1pTywfifyw==}
@@ -10176,7 +10176,7 @@ snapshots:
       '@didtools/siwx': 2.0.0
       '@ipld/dag-cbor': 9.2.0
       caip: 1.1.1
-      multiformats: 13.1.1
+      multiformats: 13.1.0
       uint8arrays: 5.1.0
       viem: 1.21.4(bufferutil@4.0.8)(typescript@5.2.2)(utf-8-validate@5.0.10)(zod@3.23.8)
     transitivePeerDependencies:
@@ -10188,7 +10188,7 @@ snapshots:
   '@didtools/codecs@3.0.0':
     dependencies:
       codeco: 1.2.3
-      multiformats: 13.1.1
+      multiformats: 13.1.0
       uint8arrays: 5.1.0
 
   '@didtools/siwx@2.0.0':
@@ -10627,7 +10627,7 @@ snapshots:
   '@ipld/dag-cbor@9.2.0':
     dependencies:
       cborg: 4.2.0
-      multiformats: 13.1.1
+      multiformats: 13.1.0
 
   '@irys/arweave@0.0.2':
     dependencies:
@@ -11091,7 +11091,7 @@ snapshots:
 
   '@nucypher/nucypher-core@0.14.5': {}
 
-  '@nucypher/shared@0.2.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@nucypher/shared@0.2.3(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
     dependencies:
       '@ethersproject/abi': 5.7.0
       '@ethersproject/providers': 5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
@@ -11106,11 +11106,11 @@ snapshots:
       - debug
       - utf-8-validate
 
-  '@nucypher/taco@0.2.6(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@nucypher/taco@0.2.7(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
     dependencies:
       '@ethersproject/abstract-signer': 5.7.0
       '@nucypher/nucypher-core': 0.14.5
-      '@nucypher/shared': 0.2.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@nucypher/shared': 0.2.3(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       ethers: 5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       semver: 7.6.2
       zod: 3.23.8
@@ -16301,7 +16301,7 @@ snapshots:
       dns-packet: 5.6.1
       thunky: 1.1.0
 
-  multiformats@13.1.1: {}
+  multiformats@13.1.0: {}
 
   multistream@4.1.0:
     dependencies:
@@ -18624,7 +18624,7 @@ snapshots:
 
   uint8arrays@5.1.0:
     dependencies:
-      multiformats: 13.1.1
+      multiformats: 13.1.0
 
   unbox-primitive@1.0.2:
     dependencies:

@@ -2,7 +2,7 @@ import { TEST_CHAIN_ID, TEST_CONTRACT_ADDR } from '@nucypher/test-utils';
 import { describe, expect, it } from 'vitest';
 
 import { ContractConditionProps } from '../../../src/conditions/base/contract';
-import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
+import { USER_ADDRESS_PARAM_DEFAULT } from '../../../src/conditions/const';
 import {
   ERC721Balance,
   ERC721Ownership,
@@ -16,7 +16,7 @@ describe('ERC721Ownership', () => {
     > = {
       contractAddress: TEST_CONTRACT_ADDR,
       chain: TEST_CHAIN_ID,
-      parameters: [USER_ADDRESS_PARAM],
+      parameters: [USER_ADDRESS_PARAM_DEFAULT],
     };
 
     const instance = new ERC721Ownership(props);

@@ -15,7 +15,7 @@ import {
 } from '../../src/conditions/base/time';
 import { CompoundCondition } from '../../src/conditions/compound-condition';
 import { ConditionExpression } from '../../src/conditions/condition-expr';
-import { USER_ADDRESS_PARAM } from '../../src/conditions/const';
+import { USER_ADDRESS_PARAM_DEFAULT } from '../../src/conditions/const';
 import { ERC721Balance } from '../../src/conditions/predefined/erc721';
 import {
   testContractConditionObj,
@@ -45,7 +45,7 @@ describe('condition set', () => {
     standardContractType: undefined,
     functionAbi: testFunctionAbi,
     method: testFunctionAbi.name,
-    parameters: [USER_ADDRESS_PARAM, customParamKey],
+    parameters: [USER_ADDRESS_PARAM_DEFAULT, customParamKey],
     returnValueTest: {
       ...testReturnValueTest,
     },

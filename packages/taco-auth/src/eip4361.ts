@@ -2,7 +2,7 @@ import { SiweMessage } from '@didtools/cacao';
 import { ethers } from 'ethers';
 
 import { LocalStorage } from './storage';
-import { TypedSignature } from './typedSignature';
+import { TypedSignature } from './types';
 
 export class EIP4361SignatureProvider {
   private readonly storage: LocalStorage;

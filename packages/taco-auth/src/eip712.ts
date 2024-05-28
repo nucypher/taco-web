@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { utils as ethersUtils } from 'ethers/lib/ethers';
 
 import { LocalStorage } from './storage';
-import type { TypedSignature } from './typedSignature';
+import type { TypedSignature } from './types';
 
 interface Eip712 {
   types: {

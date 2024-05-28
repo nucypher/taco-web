@@ -10,7 +10,7 @@ import {
   FunctionAbiProps,
 } from '../../../src/conditions/base/contract';
 import { ConditionExpression } from '../../../src/conditions/condition-expr';
-import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
+import { USER_ADDRESS_PARAM_DEFAULT } from '../../../src/conditions/const';
 import { CustomContextParam } from '../../../src/conditions/context';
 import { testContractConditionObj, testFunctionAbi } from '../../test-utils';
 
@@ -156,7 +156,7 @@ describe('supports custom function abi', () => {
     standardContractType: undefined,
     functionAbi: testFunctionAbi,
     method: 'myFunction',
-    parameters: [USER_ADDRESS_PARAM, ':customParam'],
+    parameters: [USER_ADDRESS_PARAM_DEFAULT, ':customParam'],
     returnValueTest: {
       comparator: '==',
       value: 100,
@@ -179,7 +179,7 @@ describe('supports custom function abi', () => {
       .toJson();
 
     expect(asJson).toBeDefined();
-    expect(asJson).toContain(USER_ADDRESS_PARAM);
+    expect(asJson).toContain(USER_ADDRESS_PARAM_DEFAULT);
     expect(asJson).toContain(myCustomParam);
   });
 

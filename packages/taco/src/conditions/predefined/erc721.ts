@@ -3,7 +3,7 @@ import {
   ContractConditionProps,
   ContractConditionType,
 } from '../base/contract';
-import { USER_ADDRESS_PARAM } from '../const';
+import { USER_ADDRESS_PARAM_DEFAULT } from '../const';
 
 type ERC721OwnershipFields = 'contractAddress' | 'chain' | 'parameters';
 
@@ -16,7 +16,7 @@ const ERC721OwnershipDefaults: Omit<
   standardContractType: 'ERC721',
   returnValueTest: {
     comparator: '==',
-    value: USER_ADDRESS_PARAM,
+    value: USER_ADDRESS_PARAM_DEFAULT,
   },
 };
 
@@ -32,7 +32,7 @@ const ERC721BalanceDefaults: Omit<ContractConditionProps, ERC721BalanceFields> =
   {
     conditionType: ContractConditionType,
     method: 'balanceOf',
-    parameters: [USER_ADDRESS_PARAM],
+    parameters: [USER_ADDRESS_PARAM_DEFAULT],
     standardContractType: 'ERC721',
   };
 

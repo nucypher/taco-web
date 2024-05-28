@@ -3,14 +3,14 @@ import {
   ContractConditionProps,
   ContractConditionType,
 } from '../base/contract';
-import { USER_ADDRESS_PARAM } from '../const';
+import { USER_ADDRESS_PARAM_DEFAULT } from '../const';
 
 type ERC20BalanceFields = 'contractAddress' | 'chain' | 'returnValueTest';
 
 const ERC20BalanceDefaults: Omit<ContractConditionProps, ERC20BalanceFields> = {
   conditionType: ContractConditionType,
   method: 'balanceOf',
-  parameters: [USER_ADDRESS_PARAM],
+  parameters: [USER_ADDRESS_PARAM_DEFAULT],
   standardContractType: 'ERC20',
 };
 

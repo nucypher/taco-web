@@ -1,9 +1,12 @@
 import { initialize } from '@nucypher/nucypher-core';
+import {
+  EIP4361SignatureProvider,
+  EIP712SignatureProvider,
+} from '@nucypher/taco-auth';
 import { fakeProvider, fakeSigner } from '@nucypher/test-utils';
 import { ethers } from 'ethers';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
-import { EIP4361SignatureProvider, EIP712SignatureProvider } from '@nucypher/taco-auth';
 import { toBytes, toHexString } from '../../src';
 import {
   ContractCondition,
@@ -19,8 +22,8 @@ import {
 } from '../../src/conditions/const';
 import { CustomContextParam } from '../../src/conditions/context';
 import {
-  ReturnValueTestProps,
   paramOrContextParamSchema,
+  ReturnValueTestProps,
 } from '../../src/conditions/shared';
 import {
   testContractConditionObj,
@@ -299,7 +302,7 @@ describe('authentication provider', () => {
       expect(() => conditionExpr.buildContext(provider, {}, undefined)).toThrow(
         `Signer required to satisfy ${userAddressParam} context variable in condition`,
       );
-    })
+    });
   });
 
   it('it supports just one provider at a time', () => {
@@ -313,7 +316,9 @@ describe('authentication provider', () => {
     const condition = new ContractCondition(conditionObj);
     const conditionExpr = new ConditionExpression(condition);
     expect(conditionExpr.contextRequiresSigner()).toBe(true);
-    expect(() => conditionExpr.buildContext(provider, {}, signer)).not.toThrow();
+    expect(() =>
+      conditionExpr.buildContext(provider, {}, signer),
+    ).not.toThrow();
   });
 
   it('supports multiple providers when needed', () => {
@@ -328,13 +333,18 @@ describe('authentication provider', () => {
     const condition = new ContractCondition(conditionObj);
     const conditionExpr = new ConditionExpression(condition);
     expect(conditionExpr.contextRequiresSigner()).toBe(true);
-    expect(() => conditionExpr.buildContext(provider, {}, signer)).not.toThrow();
+    expect(() =>
+      conditionExpr.buildContext(provider, {}, signer),
+    ).not.toThrow();
   });
 
   // TODO: Consider rewriting those tests to be a bit more comprehensive and deduplicate them
 
   it('supports default auth method (eip712)', () => {
-    const eip712Spy = vi.spyOn(EIP712SignatureProvider.prototype, "getOrCreateWalletSignature");
+    const eip712Spy = vi.spyOn(
+      EIP712SignatureProvider.prototype,
+      'getOrCreateWalletSignature',
+    );
     const conditionObj = {
       ...testContractConditionObj,
       returnValueTest: {
@@ -345,12 +355,17 @@ describe('authentication provider', () => {
     const condition = new ContractCondition(conditionObj);
     const conditionExpr = new ConditionExpression(condition);
     expect(conditionExpr.contextRequiresSigner()).toBe(true);
-    expect(() => conditionExpr.buildContext(provider, {}, signer).toObj()).not.toThrow();
+    expect(() =>
+      conditionExpr.buildContext(provider, {}, signer).toObj(),
+    ).not.toThrow();
     expect(eip712Spy).toHaveBeenCalledOnce();
   });
 
   it('supports eip712', () => {
-    const eip712Spy = vi.spyOn(EIP712SignatureProvider.prototype, "getOrCreateWalletSignature");
+    const eip712Spy = vi.spyOn(
+      EIP712SignatureProvider.prototype,
+      'getOrCreateWalletSignature',
+    );
     const conditionObj = {
       ...testContractConditionObj,
       returnValueTest: {
@@ -361,12 +376,17 @@ describe('authentication provider', () => {
     const condition = new ContractCondition(conditionObj);
     const conditionExpr = new ConditionExpression(condition);
     expect(conditionExpr.contextRequiresSigner()).toBe(true);
-    expect(() => conditionExpr.buildContext(provider, {}, signer).toObj()).not.toThrow();
+    expect(() =>
+      conditionExpr.buildContext(provider, {}, signer).toObj(),
+    ).not.toThrow();
     expect(eip712Spy).toHaveBeenCalledOnce();
   });
 
   it('supports eip4361', () => {
-    const eip4361Spy = vi.spyOn(EIP4361SignatureProvider.prototype, "getOrCreateSiweMessage");
+    const eip4361Spy = vi.spyOn(
+      EIP4361SignatureProvider.prototype,
+      'getOrCreateSiweMessage',
+    );
     const conditionObj = {
       ...testContractConditionObj,
       returnValueTest: {
@@ -377,10 +397,12 @@ describe('authentication provider', () => {
     const condition = new ContractCondition(conditionObj);
     const conditionExpr = new ConditionExpression(condition);
     expect(conditionExpr.contextRequiresSigner()).toBe(true);
-    expect(() => conditionExpr.buildContext(provider, {}, signer).toObj()).not.toThrow();
+    expect(() =>
+      conditionExpr.buildContext(provider, {}, signer).toObj(),
+    ).not.toThrow();
     expect(eip4361Spy).toHaveBeenCalledOnce();
   });
-})
+});
 
 describe('param or context param schema', () => {
   it('accepts a plain string', () => {

@@ -1,7 +1,7 @@
 import { objectEquals } from '@nucypher/shared';
 import { z } from 'zod';
 
-import { USER_ADDRESS_PARAMS, USER_ADDRESS_PARAM_DEFAULT } from './const';
+import { USER_ADDRESS_PARAMS } from './const';
 
 type ConditionSchema = z.ZodSchema;
 export type ConditionProps = z.infer<ConditionSchema>;
@@ -43,11 +43,11 @@ export class Condition {
         return param;
       }
     }
-    return null
+    return null;
   }
 
   public requiresSigner(): boolean {
-    return Boolean(this.findParamWithSigner())
+    return Boolean(this.findParamWithSigner());
   }
 
   public toObj() {

@@ -71,11 +71,9 @@ describe('taco authorization', () => {
     expect(typedData).toBeDefined();
     expect(typedData.domain).toEqual('TACo');
     expect(typedData.version).toEqual('1');
-    expect(typedData.nonce).toBeDefined();  // random
+    expect(typedData.nonce).toBeDefined(); // random
     expect(typedData.uri).toEqual('taco://');
-    expect(typedData.chainId).toEqual(
-      (await provider.getNetwork()).chainId,
-    );
+    expect(typedData.chainId).toEqual((await provider.getNetwork()).chainId);
     expect(typedData.statement).toEqual(
       `${typedData.domain} wants you to sign in with your Ethereum account: ${await signer.getAddress()}`,
     );

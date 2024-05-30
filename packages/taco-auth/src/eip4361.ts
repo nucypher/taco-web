@@ -47,7 +47,7 @@ export class EIP4361SignatureProvider {
       chainId,
     });
 
-    const scheme = 'SIWE';
+    const scheme = 'EIP4361';
     const signature = await this.signer.signMessage(siweMessage.toMessage());
 
     return { signature, address, scheme, typedData: siweMessage };

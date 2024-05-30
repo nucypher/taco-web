@@ -1,5 +1,5 @@
-import { SiweMessage } from '@didtools/cacao';
 import { ethers } from 'ethers';
+import { generateNonce, SiweMessage } from 'siwe';
 
 import { LocalStorage } from './storage';
 import { TypedSignature } from './types';
@@ -32,10 +32,10 @@ export class EIP4361SignatureProvider {
 
   private async createSiweMessage(): Promise<TypedSignature> {
     const address = await this.signer.getAddress();
-    const domain = 'https://login.xyz';
+    const domain = 'TACo';
     const version = '1';
-    const nonce = '0';
-    const uri = 'did:key:z6MkrBdNdwUPnXDVD1DCxedzVVBpaGi8aSmoXFAeKNgtAer8';
+    const nonce = generateNonce();
+    const uri = 'taco://';
     const chainId = (await this.provider.getNetwork()).chainId;
     const siweMessage = new SiweMessage({
       domain,
@@ -44,7 +44,7 @@ export class EIP4361SignatureProvider {
       uri,
       version,
       nonce,
-      chainId: chainId.toString(),
+      chainId,
     });
 
     const scheme = 'SIWE';

@@ -38,7 +38,7 @@ describe('taco authorization', () => {
     const typedData = eip712Message.typedData as FormattedEip712;
     expect(typedData).toBeDefined();
     expect(typedData.types.Wallet).toBeDefined();
-    expect(typedData.domain.name).toEqual('taco');
+    expect(typedData.domain.name).toEqual('TACo');
     expect(typedData.domain.version).toEqual('1');
     expect(typedData.domain.chainId).toEqual(
       (await provider.getNetwork()).chainId,
@@ -75,14 +75,12 @@ describe('taco authorization', () => {
 
     const typedData = siweMessage.typedData as SiweMessage;
     expect(typedData).toBeDefined();
-    expect(typedData.domain).toEqual('https://login.xyz');
+    expect(typedData.domain).toEqual('TACo');
     expect(typedData.version).toEqual('1');
-    expect(typedData.nonce).toEqual('0');
-    expect(typedData.uri).toEqual(
-      'did:key:z6MkrBdNdwUPnXDVD1DCxedzVVBpaGi8aSmoXFAeKNgtAer8',
-    );
+    expect(typedData.nonce).toBeDefined();  // random
+    expect(typedData.uri).toEqual('taco://');
     expect(typedData.chainId).toEqual(
-      (await provider.getNetwork()).chainId.toString(),
+      (await provider.getNetwork()).chainId,
     );
     expect(typedData.statement).toEqual(
       `${typedData.domain} wants you to sign in with your Ethereum account: ${await signer.getAddress()}`,

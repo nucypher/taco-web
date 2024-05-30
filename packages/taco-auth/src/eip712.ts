@@ -105,7 +105,7 @@ export class EIP712SignatureProvider {
         ],
       },
       domain: {
-        name: 'taco',
+        name: 'TACo',
         version: '1',
         chainId,
         salt,

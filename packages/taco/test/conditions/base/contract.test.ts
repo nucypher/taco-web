@@ -10,7 +10,7 @@ import {
   FunctionAbiProps,
 } from '../../../src/conditions/base/contract';
 import { ConditionExpression } from '../../../src/conditions/condition-expr';
-import { USER_ADDRESS_PARAM_DEFAULT } from '../../../src/conditions/const';
+import { USER_ADDRESS_PARAMS, USER_ADDRESS_PARAM_DEFAULT } from '../../../src/conditions/const';
 import { CustomContextParam } from '../../../src/conditions/context';
 import { testContractConditionObj, testFunctionAbi } from '../../test-utils';
 
@@ -147,6 +147,24 @@ describe('accepts either standardContractType or functionAbi but not both or non
         ],
       },
     });
+  });
+});
+
+describe('supports various user address params', () => {
+  it.each(
+    USER_ADDRESS_PARAMS
+  )("handles different user address context params", (userAddressContextParam) => {
+    const contractConditionObj: ContractConditionProps = {
+      ...testContractConditionObj,
+      parameters: [userAddressContextParam],
+    }
+
+    const result = ContractCondition.validate(
+      contractConditionSchema,
+      contractConditionObj,
+    );
+
+    expect(result.error).toBeUndefined();
   });
 });
 

@@ -15,7 +15,6 @@ import {
   USER_ADDRESS_PARAM_EIP4361,
   USER_ADDRESS_PARAM_EIP712,
 } from '../const';
-import { version } from 'os';
 
 export type CustomContextParam = string | number | boolean;
 export type ContextParam = CustomContextParam | TypedSignature;
@@ -68,11 +67,9 @@ export class ConditionContext {
     // Currently doesn't find anything (returns "null")
     // But when it does return something, use it on the line 72
     const requiredParam = this.condition.findParamWithSigner();
-    console.log({requiredParam});
-    // if (requiredParam && !this.signer) {
-    if (this.condition.requiresSigner() && !this.signer) {
+    if (requiredParam && !this.signer) {
       // throw new Error(requiredParam);
-      throw new Error("placeholder");
+      throw new Error(ERR_SIGNER_REQUIRED(requiredParam));
     }
   }
 

@@ -21,15 +21,12 @@ describe('taco authorization', () => {
     const eip712Message = await eip712Provider.getOrCreateWalletSignature();
 
     // Expected format:
-    // {
-    //   ":userAddress":
     //     {
     //       "signature": "<signature>",
     //       "address": "<address>",
-    //       "scheme": "EIP712" | "SIWE" | ...
+    //       "scheme": "EIP712" | "EIP4361" | ...
     //       "typeData": ...
     //     }
-    // }
 
     expect(eip712Message.signature).toBeDefined();
     expect(eip712Message.address).toEqual(await signer.getAddress());
@@ -59,19 +56,16 @@ describe('taco authorization', () => {
     const siweMessage = await eip4361Provider.getOrCreateSiweMessage();
 
     // Expected format:
-    // {
-    //   ":userAddress":
     //     {
     //       "signature": "<signature>",
     //       "address": "<address>",
-    //       "scheme": "EIP712" | "SIWE" | ...
+    //       "scheme": "EIP712" | "EIP4361" | ...
     //       "typeData": ...
     //     }
-    // }
 
     expect(siweMessage.signature).toBeDefined();
     expect(siweMessage.address).toEqual(await signer.getAddress());
-    expect(siweMessage.scheme).toEqual('SIWE');
+    expect(siweMessage.scheme).toEqual('EIP4361');
 
     const typedData = siweMessage.typedData as SiweMessage;
     expect(typedData).toBeDefined();

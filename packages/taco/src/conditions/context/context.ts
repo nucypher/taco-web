@@ -67,12 +67,8 @@ export class ConditionContext {
       }
     });
 
-    // TODO: Use this `requiredParam` to throw an error
-    // Currently doesn't find anything (returns "null")
-    // But when it does return something, use it on the line 72
     const requiredParam = this.condition.findParamWithSigner();
     if (requiredParam && !this.signer) {
-      // throw new Error(requiredParam);
       throw new Error(ERR_SIGNER_REQUIRED(requiredParam));
     }
   }

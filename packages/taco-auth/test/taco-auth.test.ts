@@ -1,9 +1,9 @@
-import { SiweMessage } from '@didtools/cacao';
 import {
   bobSecretKeyBytes,
   fakeProvider,
   fakeSigner,
 } from '@nucypher/test-utils';
+import { SiweMessage } from 'siwe';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -53,29 +53,32 @@ describe('taco authorization', () => {
     const signer = fakeSigner(bobSecretKeyBytes);
 
     const eip4361Provider = new EIP4361SignatureProvider(provider, signer);
-    const siweMessage = await eip4361Provider.getOrCreateSiweMessage();
+    const typedSignature = await eip4361Provider.getOrCreateSiweMessage();
 
     // Expected format:
     //     {
     //       "signature": "<signature>",
     //       "address": "<address>",
     //       "scheme": "EIP712" | "EIP4361" | ...
-    //       "typeData": ...
+    //       "typedData": ...
     //     }
 
-    expect(siweMessage.signature).toBeDefined();
-    expect(siweMessage.address).toEqual(await signer.getAddress());
-    expect(siweMessage.scheme).toEqual('EIP4361');
+    expect(typedSignature.signature).toBeDefined();
+    expect(typedSignature.address).toEqual(await signer.getAddress());
+    expect(typedSignature.scheme).toEqual('EIP4361');
 
-    const typedData = siweMessage.typedData as SiweMessage;
-    expect(typedData).toBeDefined();
-    expect(typedData.domain).toEqual('TACo');
-    expect(typedData.version).toEqual('1');
-    expect(typedData.nonce).toBeDefined(); // random
-    expect(typedData.uri).toEqual('taco://');
-    expect(typedData.chainId).toEqual((await provider.getNetwork()).chainId);
-    expect(typedData.statement).toEqual(
-      `${typedData.domain} wants you to sign in with your Ethereum account: ${await signer.getAddress()}`,
+    console.log(typedSignature.typedData);
+    const typedDataSiweMessage = new SiweMessage(`${typedSignature.typedData}`);
+    expect(typedDataSiweMessage).toBeDefined();
+    expect(typedDataSiweMessage.domain).toEqual('TACo');
+    expect(typedDataSiweMessage.version).toEqual('1');
+    expect(typedDataSiweMessage.nonce).toBeDefined(); // random
+    expect(typedDataSiweMessage.uri).toEqual('https://TACo');
+    expect(typedDataSiweMessage.chainId).toEqual(
+      (await provider.getNetwork()).chainId,
+    );
+    expect(typedDataSiweMessage.statement).toEqual(
+      `${typedDataSiweMessage.domain} wants you to sign in with your Ethereum account: ${await signer.getAddress()}`,
     );
   });
 });

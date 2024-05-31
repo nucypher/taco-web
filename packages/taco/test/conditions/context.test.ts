@@ -396,7 +396,9 @@ describe('authentication provider', () => {
     const builtContext = conditionExpr.buildContext(provider, {}, signer);
     const resolvedContextRecords = await builtContext.toObj();
 
-    const typedSignature = resolvedContextRecords[USER_ADDRESS_PARAM_EIP712] as AuthSignature;
+    const typedSignature = resolvedContextRecords[
+      USER_ADDRESS_PARAM_EIP712
+    ] as AuthSignature;
     expect(typedSignature).toBeDefined();
     expect(typedSignature.signature).toBeDefined();
     expect(typedSignature.scheme).toEqual('EIP712');
@@ -404,16 +406,14 @@ describe('authentication provider', () => {
 
     const typedData = typedSignature.typedData as FormattedEIP712;
     expect(typedData.domain.name).toEqual('TACo');
-    expect(typedData.message.address).toEqual(
-      await signer.getAddress(),
-    );
+    expect(typedData.message.address).toEqual(await signer.getAddress());
     expect(eip712Spy).toHaveBeenCalledOnce();
   });
 
   it('supports eip4361', async () => {
     const eip4361Spy = vi.spyOn(
       EIP4361SignatureProvider.prototype,
-      'getOrCreateSiweMessage',
+      'getOrCreateWalletSignature',
     );
     const conditionObj = {
       ...testContractConditionObj,
@@ -429,8 +429,9 @@ describe('authentication provider', () => {
     const builtContext = conditionExpr.buildContext(provider, {}, signer);
     const resolvedContextRecords = await builtContext.toObj();
 
-    const typedSignature: ContextParam =
-      resolvedContextRecords[USER_ADDRESS_PARAM_EIP4361] as AuthSignature;
+    const typedSignature: ContextParam = resolvedContextRecords[
+      USER_ADDRESS_PARAM_EIP4361
+    ] as AuthSignature;
     expect(typedSignature).toBeDefined();
     expect(typedSignature.signature).toBeDefined();
     expect(typedSignature.scheme).toEqual('EIP4361');

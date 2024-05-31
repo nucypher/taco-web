@@ -161,7 +161,7 @@ export class ConditionContext {
         throw new Error(ERR_SIGNER_REQUIRED(USER_ADDRESS_PARAM_EIP4361));
       }
       parameters[USER_ADDRESS_PARAM_EIP4361] =
-        await this.eip4361SignatureProvider.getOrCreateSiweMessage();
+        await this.eip4361SignatureProvider.getOrCreateWalletSignature();
       // Remove from requested parameters
       requestedParameters.delete(USER_ADDRESS_PARAM_EIP4361);
     }

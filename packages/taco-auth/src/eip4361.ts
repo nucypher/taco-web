@@ -16,7 +16,7 @@ export class EIP4361SignatureProvider {
     this.storage = new LocalStorage();
   }
 
-  public async getOrCreateSiweMessage(): Promise<AuthSignature> {
+  public async getOrCreateWalletSignature(): Promise<AuthSignature> {
     const address = await this.signer.getAddress();
     const storageKey = `eth-signin-message-${address}`;
 

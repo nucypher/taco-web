@@ -53,7 +53,7 @@ describe('taco authorization', () => {
     const signer = fakeSigner(bobSecretKeyBytes);
 
     const eip4361Provider = new EIP4361SignatureProvider(provider, signer);
-    const typedSignature = await eip4361Provider.getOrCreateSiweMessage();
+    const typedSignature = await eip4361Provider.getOrCreateWalletSignature();
 
     // Expected format:
     //     {

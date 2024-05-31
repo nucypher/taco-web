@@ -3,9 +3,9 @@ import { ethers } from 'ethers';
 import { utils as ethersUtils } from 'ethers/lib/ethers';
 
 import { LocalStorage } from './storage';
-import type { TypedSignature } from './types';
+import type { AuthSignature } from './types';
 
-interface Eip712 {
+interface EIP712 {
   types: {
     Wallet: { name: string; type: string }[];
   };
@@ -23,7 +23,7 @@ interface Eip712 {
   };
 }
 
-export interface FormattedEip712 extends Eip712 {
+export interface FormattedEIP712 extends EIP712 {
   primaryType: 'Wallet';
   types: {
     EIP712Domain: { name: string; type: string }[];
@@ -66,7 +66,7 @@ export class EIP712SignatureProvider {
     this.storage = new LocalStorage();
   }
 
-  public async getOrCreateWalletSignature(): Promise<TypedSignature> {
+  public async getOrCreateWalletSignature(): Promise<AuthSignature> {
     const address = await this.signer.getAddress();
     const storageKey = `eip712-signature-${address}`;
 
@@ -82,16 +82,14 @@ export class EIP712SignatureProvider {
     return typedSignature;
   }
 
-  private async createWalletSignature(): Promise<TypedSignature> {
+  private async createWalletSignature(): Promise<AuthSignature> {
     // Ensure freshness of the signature
     const { blockNumber, blockHash, chainId } = await this.getChainData();
     const address = await this.signer.getAddress();
     const signatureText = `I'm the owner of address ${address} as of block number ${blockNumber}`;
     const salt = ethersUtils.hexlify(ethersUtils.randomBytes(32));
 
-    const scheme = 'EIP712';
-
-    const typedData: Eip712 = {
+    const typedData: EIP712 = {
       types: {
         Wallet: [
           { name: 'address', type: 'address' },
@@ -118,7 +116,7 @@ export class EIP712SignatureProvider {
       this.signer as unknown as TypedDataSigner
     )._signTypedData(typedData.domain, typedData.types, typedData.message);
 
-    const formattedTypedData: FormattedEip712 = {
+    const formattedTypedData: FormattedEIP712 = {
       ...typedData,
       primaryType: 'Wallet',
       types: {
@@ -126,6 +124,7 @@ export class EIP712SignatureProvider {
         EIP712Domain,
       },
     };
+    const scheme = 'EIP712';
     return { signature, address, scheme, typedData: formattedTypedData };
   }
 

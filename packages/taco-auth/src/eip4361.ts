@@ -34,10 +34,10 @@ export class EIP4361SignatureProvider {
 
   private async createSiweMessage(): Promise<AuthSignature> {
     const address = await this.signer.getAddress();
-    const domain = 'TACo';
+    const domain = (window?.location?.origin || '').split('//')[1].split('.')[0];
     const version = '1';
     const nonce = generateNonce();
-    const uri = 'https://TACo';
+    const uri = window?.location?.origin || '';
     const chainId = (await this.provider.getNetwork()).chainId;
     const siweMessage = new SiweMessage({
       domain,

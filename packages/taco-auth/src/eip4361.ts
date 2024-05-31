@@ -42,7 +42,7 @@ export class EIP4361SignatureProvider {
     const siweMessage = new SiweMessage({
       domain,
       address,
-      statement: `${domain} wants you to sign in with your Ethereum account: ${address}`,
+      statement: `TACo wants you to verify ownership of Ethereum account: ${address}`,
       uri,
       version,
       nonce,

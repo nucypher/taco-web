@@ -340,7 +340,7 @@ describe('authentication provider', () => {
 
   // TODO: Consider rewriting those tests to be a bit more comprehensive and deduplicate them
 
-  it('supports default auth method (eip712)', () => {
+  it('supports default auth method (eip712)', async () => {
     const eip712Spy = vi.spyOn(
       EIP712SignatureProvider.prototype,
       'getOrCreateWalletSignature',
@@ -355,13 +355,23 @@ describe('authentication provider', () => {
     const condition = new ContractCondition(conditionObj);
     const conditionExpr = new ConditionExpression(condition);
     expect(conditionExpr.contextRequiresSigner()).toBe(true);
-    expect(() =>
-      conditionExpr.buildContext(provider, {}, signer).toObj(),
-    ).not.toThrow();
+    const builtContext = conditionExpr.buildContext(provider, {}, signer);
+
+    const resolvedContextRecords = await builtContext.toObj();
+
+    const typeSignature = resolvedContextRecords[USER_ADDRESS_PARAM_DEFAULT];
+    expect(typeSignature).toBeDefined();
+    expect(typeSignature.signature).toBeDefined();
+    expect(typeSignature.scheme).toEqual('EIP712');
+    expect(typeSignature.address).toEqual(await signer.getAddress());
+    expect(typeSignature.typedData.domain.name).toEqual('TACo');
+    expect(typeSignature.typedData.message.address).toEqual(
+      await signer.getAddress(),
+    );
     expect(eip712Spy).toHaveBeenCalledOnce();
   });
 
-  it('supports eip712', () => {
+  it('supports eip712', async () => {
     const eip712Spy = vi.spyOn(
       EIP712SignatureProvider.prototype,
       'getOrCreateWalletSignature',
@@ -376,13 +386,23 @@ describe('authentication provider', () => {
     const condition = new ContractCondition(conditionObj);
     const conditionExpr = new ConditionExpression(condition);
     expect(conditionExpr.contextRequiresSigner()).toBe(true);
-    expect(() =>
-      conditionExpr.buildContext(provider, {}, signer).toObj(),
-    ).not.toThrow();
+
+    const builtContext = conditionExpr.buildContext(provider, {}, signer);
+    const resolvedContextRecords = await builtContext.toObj();
+
+    const typeSignature = resolvedContextRecords[USER_ADDRESS_PARAM_EIP712];
+    expect(typeSignature).toBeDefined();
+    expect(typeSignature.signature).toBeDefined();
+    expect(typeSignature.scheme).toEqual('EIP712');
+    expect(typeSignature.address).toEqual(await signer.getAddress());
+    expect(typeSignature.typedData.domain.name).toEqual('TACo');
+    expect(typeSignature.typedData.message.address).toEqual(
+      await signer.getAddress(),
+    );
     expect(eip712Spy).toHaveBeenCalledOnce();
   });
 
-  it('supports eip4361', () => {
+  it('supports eip4361', async () => {
     const eip4361Spy = vi.spyOn(
       EIP4361SignatureProvider.prototype,
       'getOrCreateSiweMessage',
@@ -397,9 +417,26 @@ describe('authentication provider', () => {
     const condition = new ContractCondition(conditionObj);
     const conditionExpr = new ConditionExpression(condition);
     expect(conditionExpr.contextRequiresSigner()).toBe(true);
-    expect(() =>
-      conditionExpr.buildContext(provider, {}, signer).toObj(),
-    ).not.toThrow();
+
+    const builtContext = conditionExpr.buildContext(provider, {}, signer);
+    const resolvedContextRecords = await builtContext.toObj();
+
+    const typeSignature = resolvedContextRecords[USER_ADDRESS_PARAM_EIP4361];
+    expect(typeSignature).toBeDefined();
+    expect(typeSignature.signature).toBeDefined();
+    expect(typeSignature.scheme).toEqual('EIP4361');
+
+    const signerAddress = await signer.getAddress();
+    expect(typeSignature.address).toEqual(signerAddress);
+
+    expect(typeSignature.typedData).toContain(
+      `TACo wants you to sign in with your Ethereum account:\n${signerAddress}`,
+    );
+    expect(typeSignature.typedData).toContain('URI: https://TACo');
+
+    const chainId = (await provider.getNetwork()).chainId;
+    expect(typeSignature.typedData).toContain(`Chain ID: ${chainId}`);
+
     expect(eip4361Spy).toHaveBeenCalledOnce();
   });
 });

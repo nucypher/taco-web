@@ -1,9 +1,9 @@
 import { Context, Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { fromJSON, toJSON } from '@nucypher/shared';
 import {
+  AuthSignature,
   EIP4361SignatureProvider,
   EIP712SignatureProvider,
-  TypedSignature,
 } from '@nucypher/taco-auth';
 import { ethers } from 'ethers';
 
@@ -20,7 +20,7 @@ import {
 } from '../const';
 
 export type CustomContextParam = string | number | boolean;
-export type ContextParam = CustomContextParam | TypedSignature;
+export type ContextParam = CustomContextParam | AuthSignature;
 
 const ERR_RESERVED_PARAM = (key: string) =>
   `Cannot use reserved parameter name ${key} as custom parameter`;

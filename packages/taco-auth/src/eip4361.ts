@@ -2,7 +2,9 @@ import { ethers } from 'ethers';
 import { generateNonce, SiweMessage } from 'siwe';
 
 import { LocalStorage } from './storage';
-import { TypedSignature } from './types';
+import { AuthSignature } from './types';
+
+export type FormattedEIP4361 = string;
 
 export class EIP4361SignatureProvider {
   private readonly storage: LocalStorage;
@@ -14,7 +16,7 @@ export class EIP4361SignatureProvider {
     this.storage = new LocalStorage();
   }
 
-  public async getOrCreateSiweMessage(): Promise<TypedSignature> {
+  public async getOrCreateSiweMessage(): Promise<AuthSignature> {
     const address = await this.signer.getAddress();
     const storageKey = `eth-signin-message-${address}`;
 
@@ -30,7 +32,7 @@ export class EIP4361SignatureProvider {
     return typedSignature;
   }
 
-  private async createSiweMessage(): Promise<TypedSignature> {
+  private async createSiweMessage(): Promise<AuthSignature> {
     const address = await this.signer.getAddress();
     const domain = 'TACo';
     const version = '1';

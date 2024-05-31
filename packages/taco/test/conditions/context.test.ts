@@ -1,7 +1,9 @@
 import { initialize } from '@nucypher/nucypher-core';
 import {
+  AuthSignature,
   EIP4361SignatureProvider,
   EIP712SignatureProvider,
+  FormattedEIP712,
 } from '@nucypher/taco-auth';
 import { fakeProvider, fakeSigner } from '@nucypher/test-utils';
 import { ethers } from 'ethers';
@@ -21,6 +23,7 @@ import {
   USER_ADDRESS_PARAM_EIP712,
 } from '../../src/conditions/const';
 import { CustomContextParam } from '../../src/conditions/context';
+import { ContextParam } from '../../src/conditions/context/context';
 import {
   paramOrContextParamSchema,
   ReturnValueTestProps,
@@ -357,17 +360,20 @@ describe('authentication provider', () => {
     expect(conditionExpr.contextRequiresSigner()).toBe(true);
     const builtContext = conditionExpr.buildContext(provider, {}, signer);
 
-    const resolvedContextRecords = await builtContext.toObj();
+    const contextVars = await builtContext.toObj();
 
-    const typeSignature = resolvedContextRecords[USER_ADDRESS_PARAM_DEFAULT];
-    expect(typeSignature).toBeDefined();
-    expect(typeSignature.signature).toBeDefined();
-    expect(typeSignature.scheme).toEqual('EIP712');
-    expect(typeSignature.address).toEqual(await signer.getAddress());
-    expect(typeSignature.typedData.domain.name).toEqual('TACo');
-    expect(typeSignature.typedData.message.address).toEqual(
-      await signer.getAddress(),
-    );
+    const typedSignature = contextVars[
+      USER_ADDRESS_PARAM_DEFAULT
+    ] as AuthSignature;
+    expect(typedSignature).toBeDefined();
+    expect(typedSignature.signature).toBeDefined();
+    expect(typedSignature.scheme).toEqual('EIP712');
+    expect(typedSignature.address).toEqual(await signer.getAddress());
+
+    const typedData = typedSignature.typedData as FormattedEIP712;
+    expect(typedData).toBeDefined();
+    expect(typedData.domain.name).toEqual('TACo');
+    expect(typedData.message.address).toEqual(await signer.getAddress());
     expect(eip712Spy).toHaveBeenCalledOnce();
   });
 
@@ -390,13 +396,15 @@ describe('authentication provider', () => {
     const builtContext = conditionExpr.buildContext(provider, {}, signer);
     const resolvedContextRecords = await builtContext.toObj();
 
-    const typeSignature = resolvedContextRecords[USER_ADDRESS_PARAM_EIP712];
-    expect(typeSignature).toBeDefined();
-    expect(typeSignature.signature).toBeDefined();
-    expect(typeSignature.scheme).toEqual('EIP712');
-    expect(typeSignature.address).toEqual(await signer.getAddress());
-    expect(typeSignature.typedData.domain.name).toEqual('TACo');
-    expect(typeSignature.typedData.message.address).toEqual(
+    const typedSignature = resolvedContextRecords[USER_ADDRESS_PARAM_EIP712] as AuthSignature;
+    expect(typedSignature).toBeDefined();
+    expect(typedSignature.signature).toBeDefined();
+    expect(typedSignature.scheme).toEqual('EIP712');
+    expect(typedSignature.address).toEqual(await signer.getAddress());
+
+    const typedData = typedSignature.typedData as FormattedEIP712;
+    expect(typedData.domain.name).toEqual('TACo');
+    expect(typedData.message.address).toEqual(
       await signer.getAddress(),
     );
     expect(eip712Spy).toHaveBeenCalledOnce();
@@ -421,21 +429,22 @@ describe('authentication provider', () => {
     const builtContext = conditionExpr.buildContext(provider, {}, signer);
     const resolvedContextRecords = await builtContext.toObj();
 
-    const typeSignature = resolvedContextRecords[USER_ADDRESS_PARAM_EIP4361];
-    expect(typeSignature).toBeDefined();
-    expect(typeSignature.signature).toBeDefined();
-    expect(typeSignature.scheme).toEqual('EIP4361');
+    const typedSignature: ContextParam =
+      resolvedContextRecords[USER_ADDRESS_PARAM_EIP4361] as AuthSignature;
+    expect(typedSignature).toBeDefined();
+    expect(typedSignature.signature).toBeDefined();
+    expect(typedSignature.scheme).toEqual('EIP4361');
 
     const signerAddress = await signer.getAddress();
-    expect(typeSignature.address).toEqual(signerAddress);
+    expect(typedSignature.address).toEqual(signerAddress);
 
-    expect(typeSignature.typedData).toContain(
+    expect(typedSignature.typedData).toContain(
       `TACo wants you to sign in with your Ethereum account:\n${signerAddress}`,
     );
-    expect(typeSignature.typedData).toContain('URI: https://TACo');
+    expect(typedSignature.typedData).toContain('URI: https://TACo');
 
     const chainId = (await provider.getNetwork()).chainId;
-    expect(typeSignature.typedData).toContain(`Chain ID: ${chainId}`);
+    expect(typedSignature.typedData).toContain(`Chain ID: ${chainId}`);
 
     expect(eip4361Spy).toHaveBeenCalledOnce();
   });

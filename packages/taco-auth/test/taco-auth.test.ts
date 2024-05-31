@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest';
 import {
   EIP4361SignatureProvider,
   EIP712SignatureProvider,
-  FormattedEip712,
+  FormattedEIP712,
 } from '../src';
 
 describe('taco authorization', () => {
@@ -32,7 +32,7 @@ describe('taco authorization', () => {
     expect(eip712Message.address).toEqual(await signer.getAddress());
     expect(eip712Message.scheme).toEqual('EIP712');
 
-    const typedData = eip712Message.typedData as FormattedEip712;
+    const typedData = eip712Message.typedData as FormattedEIP712;
     expect(typedData).toBeDefined();
     expect(typedData.types.Wallet).toBeDefined();
     expect(typedData.domain.name).toEqual('TACo');

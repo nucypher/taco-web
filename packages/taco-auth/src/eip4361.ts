@@ -35,7 +35,7 @@ export class EIP4361SignatureProvider {
     const domain = 'TACo';
     const version = '1';
     const nonce = generateNonce();
-    const uri = 'taco://';
+    const uri = 'https://TACo';
     const chainId = (await this.provider.getNetwork()).chainId;
     const siweMessage = new SiweMessage({
       domain,
@@ -48,8 +48,9 @@ export class EIP4361SignatureProvider {
     });
 
     const scheme = 'EIP4361';
-    const signature = await this.signer.signMessage(siweMessage.toMessage());
+    const message = siweMessage.prepareMessage();
+    const signature = await this.signer.signMessage(message);
 
-    return { signature, address, scheme, typedData: siweMessage };
+    return { signature, address, scheme, typedData: message };
   }
 }

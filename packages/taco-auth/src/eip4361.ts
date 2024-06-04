@@ -34,25 +34,38 @@ export class EIP4361SignatureProvider {
 
   private async createSiweMessage(): Promise<AuthSignature> {
     const address = await this.signer.getAddress();
-    const domain = (window?.location?.origin || '').split('//')[1].split('.')[0];
+    const { domain, uri } = this.getParametersOrDefault();
     const version = '1';
     const nonce = generateNonce();
-    const uri = window?.location?.origin || '';
     const chainId = (await this.provider.getNetwork()).chainId;
     const siweMessage = new SiweMessage({
       domain,
       address,
-      statement: `TACo wants you to verify ownership of Ethereum account: ${address}`,
+      statement: `${domain} wants you to sign in with your Ethereum account: ${address}`,
       uri,
       version,
       nonce,
       chainId,
     });
-
     const scheme = 'EIP4361';
     const message = siweMessage.prepareMessage();
     const signature = await this.signer.signMessage(message);
-
     return { signature, address, scheme, typedData: message };
+  }
+
+  private getParametersOrDefault() {
+    // If we are in a browser environment, we can get the domain and uri from the window object
+    if (typeof window !== 'undefined') {
+      const maybeOrigin = window?.location?.origin;
+      return {
+        domain: maybeOrigin.split('//')[1].split('.')[0],
+        uri: maybeOrigin,
+      };
+    }
+    // TODO: Add a facility to manage this case
+    return {
+      domain: 'localhost',
+      uri: 'http://localhost:3000',
+    };
   }
 }

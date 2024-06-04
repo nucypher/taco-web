@@ -67,13 +67,12 @@ describe('taco authorization', () => {
     expect(typedSignature.address).toEqual(await signer.getAddress());
     expect(typedSignature.scheme).toEqual('EIP4361');
 
-    console.log(typedSignature.typedData);
     const typedDataSiweMessage = new SiweMessage(`${typedSignature.typedData}`);
     expect(typedDataSiweMessage).toBeDefined();
-    expect(typedDataSiweMessage.domain).toEqual('TACo');
+    expect(typedDataSiweMessage.domain).toEqual('localhost');
     expect(typedDataSiweMessage.version).toEqual('1');
     expect(typedDataSiweMessage.nonce).toBeDefined(); // random
-    expect(typedDataSiweMessage.uri).toEqual('https://TACo');
+    expect(typedDataSiweMessage.uri).toEqual('http://localhost:3000');
     expect(typedDataSiweMessage.chainId).toEqual(
       (await provider.getNetwork()).chainId,
     );

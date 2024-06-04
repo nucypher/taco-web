@@ -23,7 +23,6 @@ import {
   USER_ADDRESS_PARAM_EIP712,
 } from '../../src/conditions/const';
 import { CustomContextParam } from '../../src/conditions/context';
-import { ContextParam } from '../../src/conditions/context/context';
 import {
   paramOrContextParamSchema,
   ReturnValueTestProps,
@@ -341,73 +340,51 @@ describe('authentication provider', () => {
     ).not.toThrow();
   });
 
-  // TODO: Consider rewriting those tests to be a bit more comprehensive and deduplicate them
-
-  it('supports default auth method (eip712)', async () => {
-    const eip712Spy = vi.spyOn(
-      EIP712SignatureProvider.prototype,
-      'getOrCreateWalletSignature',
-    );
+  async function makeAuthSignature(authMethod: string) {
     const conditionObj = {
       ...testContractConditionObj,
       returnValueTest: {
         ...testReturnValueTest,
-        value: USER_ADDRESS_PARAM_DEFAULT,
+        value: authMethod,
       },
     };
     const condition = new ContractCondition(conditionObj);
     const conditionExpr = new ConditionExpression(condition);
     expect(conditionExpr.contextRequiresSigner()).toBe(true);
+
     const builtContext = conditionExpr.buildContext(provider, {}, signer);
-
     const contextVars = await builtContext.toObj();
+    const authSignature = contextVars[authMethod] as AuthSignature;
+    expect(authSignature).toBeDefined();
 
-    const typedSignature = contextVars[
-      USER_ADDRESS_PARAM_DEFAULT
-    ] as AuthSignature;
-    expect(typedSignature).toBeDefined();
-    expect(typedSignature.signature).toBeDefined();
-    expect(typedSignature.scheme).toEqual('EIP712');
-    expect(typedSignature.address).toEqual(await signer.getAddress());
+    return authSignature;
+  }
 
-    const typedData = typedSignature.typedData as FormattedEIP712;
+  async function testEIP712AuthMethod(authMethod: string) {
+    const eip712Spy = vi.spyOn(
+      EIP712SignatureProvider.prototype,
+      'getOrCreateWalletSignature',
+    );
+
+    const authSignature = await makeAuthSignature(authMethod);
+    expect(authSignature).toBeDefined();
+    expect(authSignature.signature).toBeDefined();
+    expect(authSignature.scheme).toEqual('EIP712');
+    expect(authSignature.address).toEqual(await signer.getAddress());
+
+    const typedData = authSignature.typedData as FormattedEIP712;
     expect(typedData).toBeDefined();
     expect(typedData.domain.name).toEqual('TACo');
     expect(typedData.message.address).toEqual(await signer.getAddress());
     expect(eip712Spy).toHaveBeenCalledOnce();
+  }
+
+  it('supports default auth method (eip712)', async () => {
+    await testEIP712AuthMethod(USER_ADDRESS_PARAM_DEFAULT);
   });
 
   it('supports eip712', async () => {
-    const eip712Spy = vi.spyOn(
-      EIP712SignatureProvider.prototype,
-      'getOrCreateWalletSignature',
-    );
-    const conditionObj = {
-      ...testContractConditionObj,
-      returnValueTest: {
-        ...testReturnValueTest,
-        value: USER_ADDRESS_PARAM_EIP712,
-      },
-    };
-    const condition = new ContractCondition(conditionObj);
-    const conditionExpr = new ConditionExpression(condition);
-    expect(conditionExpr.contextRequiresSigner()).toBe(true);
-
-    const builtContext = conditionExpr.buildContext(provider, {}, signer);
-    const resolvedContextRecords = await builtContext.toObj();
-
-    const typedSignature = resolvedContextRecords[
-      USER_ADDRESS_PARAM_EIP712
-    ] as AuthSignature;
-    expect(typedSignature).toBeDefined();
-    expect(typedSignature.signature).toBeDefined();
-    expect(typedSignature.scheme).toEqual('EIP712');
-    expect(typedSignature.address).toEqual(await signer.getAddress());
-
-    const typedData = typedSignature.typedData as FormattedEIP712;
-    expect(typedData.domain.name).toEqual('TACo');
-    expect(typedData.message.address).toEqual(await signer.getAddress());
-    expect(eip712Spy).toHaveBeenCalledOnce();
+    await testEIP712AuthMethod(USER_ADDRESS_PARAM_EIP712);
   });
 
   it('supports eip4361', async () => {
@@ -415,37 +392,21 @@ describe('authentication provider', () => {
       EIP4361SignatureProvider.prototype,
       'getOrCreateWalletSignature',
     );
-    const conditionObj = {
-      ...testContractConditionObj,
-      returnValueTest: {
-        ...testReturnValueTest,
-        value: USER_ADDRESS_PARAM_EIP4361,
-      },
-    };
-    const condition = new ContractCondition(conditionObj);
-    const conditionExpr = new ConditionExpression(condition);
-    expect(conditionExpr.contextRequiresSigner()).toBe(true);
-
-    const builtContext = conditionExpr.buildContext(provider, {}, signer);
-    const resolvedContextRecords = await builtContext.toObj();
-
-    const typedSignature: ContextParam = resolvedContextRecords[
-      USER_ADDRESS_PARAM_EIP4361
-    ] as AuthSignature;
-    expect(typedSignature).toBeDefined();
-    expect(typedSignature.signature).toBeDefined();
-    expect(typedSignature.scheme).toEqual('EIP4361');
+    const authSignature = await makeAuthSignature(USER_ADDRESS_PARAM_EIP4361);
+    expect(authSignature).toBeDefined();
+    expect(authSignature.signature).toBeDefined();
+    expect(authSignature.scheme).toEqual('EIP4361');
 
     const signerAddress = await signer.getAddress();
-    expect(typedSignature.address).toEqual(signerAddress);
+    expect(authSignature.address).toEqual(signerAddress);
 
-    expect(typedSignature.typedData).toContain(
+    expect(authSignature.typedData).toContain(
       `localhost wants you to sign in with your Ethereum account:\n${signerAddress}`,
     );
-    expect(typedSignature.typedData).toContain('URI: http://localhost:3000');
+    expect(authSignature.typedData).toContain('URI: http://localhost:3000');
 
     const chainId = (await provider.getNetwork()).chainId;
-    expect(typedSignature.typedData).toContain(`Chain ID: ${chainId}`);
+    expect(authSignature.typedData).toContain(`Chain ID: ${chainId}`);
 
     expect(eip4361Spy).toHaveBeenCalledOnce();
   });

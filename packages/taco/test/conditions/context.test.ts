@@ -440,9 +440,9 @@ describe('authentication provider', () => {
     expect(typedSignature.address).toEqual(signerAddress);
 
     expect(typedSignature.typedData).toContain(
-      `TACo wants you to sign in with your Ethereum account:\n${signerAddress}`,
+      `localhost wants you to sign in with your Ethereum account:\n${signerAddress}`,
     );
-    expect(typedSignature.typedData).toContain('URI: https://TACo');
+    expect(typedSignature.typedData).toContain('URI: http://localhost:3000');
 
     const chainId = (await provider.getNetwork()).chainId;
     expect(typedSignature.typedData).toContain(`Chain ID: ${chainId}`);

@@ -30,7 +30,7 @@ interface FormattedEip712 extends Eip712 {
   };
 }
 
-interface TypedSignature {
+export interface TypedSignature {
   signature: string;
   typedData: Eip712;
   address: string;

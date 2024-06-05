@@ -1,6 +1,10 @@
 import { Context, Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { fromJSON, toJSON } from '@nucypher/shared';
-import { EIP712SignatureProvider, TypedSignature } from '@nucypher/taco-auth';
+import {
+  AuthSignature,
+  EIP4361SignatureProvider,
+  EIP712SignatureProvider,
+} from '@nucypher/taco-auth';
 import { ethers } from 'ethers';
 
 import { CompoundConditionType } from '../compound-condition';
@@ -10,17 +14,20 @@ import {
   CONTEXT_PARAM_PREFIX,
   CONTEXT_PARAM_REGEXP,
   RESERVED_CONTEXT_PARAMS,
-  USER_ADDRESS_PARAM,
+  USER_ADDRESS_PARAM_DEFAULT,
+  USER_ADDRESS_PARAM_EIP4361,
+  USER_ADDRESS_PARAM_EIP712,
 } from '../const';
 
 export type CustomContextParam = string | number | boolean;
-export type ContextParam = CustomContextParam | TypedSignature;
+export type ContextParam = CustomContextParam | AuthSignature;
 
 const ERR_RESERVED_PARAM = (key: string) =>
   `Cannot use reserved parameter name ${key} as custom parameter`;
 const ERR_INVALID_CUSTOM_PARAM = (key: string) =>
   `Custom parameter ${key} must start with ${CONTEXT_PARAM_PREFIX}`;
-const ERR_SIGNER_REQUIRED = `Signer required to satisfy ${USER_ADDRESS_PARAM} context variable in condition`;
+const ERR_SIGNER_REQUIRED = (key: string) =>
+  `Signer required to satisfy ${key} context variable in condition`;
 const ERR_MISSING_CONTEXT_PARAMS = (params: string[]) =>
   `Missing custom context parameter(s): ${params.join(', ')}`;
 const ERR_UNKNOWN_CONTEXT_PARAMS = (params: string[]) =>
@@ -28,6 +35,7 @@ const ERR_UNKNOWN_CONTEXT_PARAMS = (params: string[]) =>
 
 export class ConditionContext {
   private readonly eip712SignatureProvider?: EIP712SignatureProvider;
+  private readonly eip4361SignatureProvider?: EIP4361SignatureProvider;
 
   constructor(
     private readonly provider: ethers.providers.Provider,
@@ -37,6 +45,11 @@ export class ConditionContext {
   ) {
     if (this.signer) {
       this.eip712SignatureProvider = new EIP712SignatureProvider(
+        this.provider,
+        this.signer,
+      );
+
+      this.eip4361SignatureProvider = new EIP4361SignatureProvider(
         this.provider,
         this.signer,
       );
@@ -54,8 +67,9 @@ export class ConditionContext {
       }
     });
 
-    if (this.condition.requiresSigner() && !this.signer) {
-      throw new Error(ERR_SIGNER_REQUIRED);
+    const requiredParam = this.condition.findParamWithSigner();
+    if (requiredParam && !this.signer) {
+      throw new Error(ERR_SIGNER_REQUIRED(requiredParam));
     }
   }
 
@@ -88,6 +102,26 @@ export class ConditionContext {
     return parameters;
   };
 
+  // today
+  // :user_address -> (:user_address, eip712)
+
+  // in future
+  // :user_address -> (:user_address, schema: eip712)
+  // :user_address_eip712 -> (:user_address, schema: eip712)
+  // :user_address_eip4361 -> (:user_address, schema: eip4361)
+
+  // HasNFTBalance({
+  //   balanceOf(":user_address") > 10
+  // })
+
+  // HasNFTBalance({
+  //   balanceOf(":user_address_eip712") > 10
+  // })
+
+  // HasNFTBalance({
+  //   balanceOf(":user_address_eip4361") > 10
+  // })
+
   private async fillContextParameters(
     requestedParameters: Set<string>,
   ): Promise<Record<string, ContextParam>> {
@@ -95,14 +129,41 @@ export class ConditionContext {
     const parameters: Record<string, ContextParam> = {};
 
     // Fill in predefined context parameters
-    if (requestedParameters.has(USER_ADDRESS_PARAM)) {
+
+    // TODO: Figure out if we can simplify/deduplicate this logic for every
+    // authentication method we use
+
+    // Handle legacy EIP712 signature denoted by ":userAddress"
+    if (requestedParameters.has(USER_ADDRESS_PARAM_DEFAULT)) {
       if (!this.eip712SignatureProvider) {
-        throw new Error(ERR_SIGNER_REQUIRED);
+        throw new Error(ERR_SIGNER_REQUIRED(USER_ADDRESS_PARAM_EIP712));
       }
-      parameters[USER_ADDRESS_PARAM] =
+      parameters[USER_ADDRESS_PARAM_DEFAULT] =
         await this.eip712SignatureProvider.getOrCreateWalletSignature();
       // Remove from requested parameters
-      requestedParameters.delete(USER_ADDRESS_PARAM);
+      requestedParameters.delete(USER_ADDRESS_PARAM_DEFAULT);
+    }
+
+    // Handle a new alias for EIP712, ":userAddressEIP712"
+    if (requestedParameters.has(USER_ADDRESS_PARAM_EIP712)) {
+      if (!this.eip712SignatureProvider) {
+        throw new Error(ERR_SIGNER_REQUIRED(USER_ADDRESS_PARAM_EIP712));
+      }
+      parameters[USER_ADDRESS_PARAM_EIP712] =
+        await this.eip712SignatureProvider.getOrCreateWalletSignature();
+      // Remove from requested parameters
+      requestedParameters.delete(USER_ADDRESS_PARAM_EIP712);
+    }
+
+    // Handle a new method, EIP4361, with a ":userAddressEIP4361" alias
+    if (requestedParameters.has(USER_ADDRESS_PARAM_EIP4361)) {
+      if (!this.eip4361SignatureProvider) {
+        throw new Error(ERR_SIGNER_REQUIRED(USER_ADDRESS_PARAM_EIP4361));
+      }
+      parameters[USER_ADDRESS_PARAM_EIP4361] =
+        await this.eip4361SignatureProvider.getOrCreateWalletSignature();
+      // Remove from requested parameters
+      requestedParameters.delete(USER_ADDRESS_PARAM_EIP4361);
     }
 
     // Fill in custom parameters

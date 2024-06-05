@@ -58,7 +58,7 @@ const makeFakeProvider = (timestamp: number, blockNumber: number) => {
     getBlockNumber: () => Promise.resolve(blockNumber),
     getBlock: () => Promise.resolve(block),
     _isProvider: true,
-    getNetwork: () => Promise.resolve({ name: 'mockNetwork', chainId: -1 }),
+    getNetwork: () => Promise.resolve({ name: 'mockNetwork', chainId: 1234 }),
   };
 };
 

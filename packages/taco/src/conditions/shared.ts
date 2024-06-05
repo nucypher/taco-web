@@ -4,7 +4,9 @@ import {
   CONTEXT_PARAM_PREFIX,
   CONTEXT_PARAM_REGEXP,
   ETH_ADDRESS_REGEXP,
-  USER_ADDRESS_PARAM,
+  USER_ADDRESS_PARAM_DEFAULT,
+  USER_ADDRESS_PARAM_EIP4361,
+  USER_ADDRESS_PARAM_EIP712,
 } from './const';
 
 export const contextParamSchema = z.string().regex(CONTEXT_PARAM_REGEXP);
@@ -36,7 +38,12 @@ export const returnValueTestSchema = z.object({
 export type ReturnValueTestProps = z.infer<typeof returnValueTestSchema>;
 
 const EthAddressSchema = z.string().regex(ETH_ADDRESS_REGEXP);
-const UserAddressSchema = z.literal(USER_ADDRESS_PARAM);
+
+const UserAddressSchema = z.enum([
+  USER_ADDRESS_PARAM_EIP712,
+  USER_ADDRESS_PARAM_EIP4361,
+  USER_ADDRESS_PARAM_DEFAULT,
+]);
 export const EthAddressOrUserAddressSchema = z.union([
   EthAddressSchema,
   UserAddressSchema,

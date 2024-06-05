@@ -10,7 +10,10 @@ import {
   FunctionAbiProps,
 } from '../../../src/conditions/base/contract';
 import { ConditionExpression } from '../../../src/conditions/condition-expr';
-import { USER_ADDRESS_PARAM } from '../../../src/conditions/const';
+import {
+  USER_ADDRESS_PARAM_DEFAULT,
+  USER_ADDRESS_PARAMS,
+} from '../../../src/conditions/const';
 import { CustomContextParam } from '../../../src/conditions/context';
 import { testContractConditionObj, testFunctionAbi } from '../../test-utils';
 
@@ -150,13 +153,32 @@ describe('accepts either standardContractType or functionAbi but not both or non
   });
 });
 
+describe('supports various user address params', () => {
+  it.each(USER_ADDRESS_PARAMS)(
+    'handles different user address context params',
+    (userAddressContextParam) => {
+      const contractConditionObj: ContractConditionProps = {
+        ...testContractConditionObj,
+        parameters: [userAddressContextParam],
+      };
+
+      const result = ContractCondition.validate(
+        contractConditionSchema,
+        contractConditionObj,
+      );
+
+      expect(result.error).toBeUndefined();
+    },
+  );
+});
+
 describe('supports custom function abi', () => {
   const contractConditionObj: ContractConditionProps = {
     ...testContractConditionObj,
     standardContractType: undefined,
     functionAbi: testFunctionAbi,
     method: 'myFunction',
-    parameters: [USER_ADDRESS_PARAM, ':customParam'],
+    parameters: [USER_ADDRESS_PARAM_DEFAULT, ':customParam'],
     returnValueTest: {
       comparator: '==',
       value: 100,
@@ -179,7 +201,7 @@ describe('supports custom function abi', () => {
       .toJson();
 
     expect(asJson).toBeDefined();
-    expect(asJson).toContain(USER_ADDRESS_PARAM);
+    expect(asJson).toContain(USER_ADDRESS_PARAM_DEFAULT);
     expect(asJson).toContain(myCustomParam);
   });
 

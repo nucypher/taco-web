@@ -40,7 +40,8 @@
   },
   "dependencies": {
     "@ethersproject/abstract-signer": "^5.7.0",
-    "@nucypher/shared": "workspace:*"
+    "@nucypher/shared": "workspace:*",
+    "siwe": "^2.3.2"
   },
   "devDependencies": {
     "@nucypher/test-utils": "workspace:*"

@@ -1,7 +1,7 @@
 import { objectEquals } from '@nucypher/shared';
 import { z } from 'zod';
 
-import { USER_ADDRESS_PARAM } from './const';
+import { USER_ADDRESS_PARAMS } from './const';
 
 type ConditionSchema = z.ZodSchema;
 export type ConditionProps = z.infer<ConditionSchema>;
@@ -35,8 +35,19 @@ export class Condition {
     return { error: result.error };
   }
 
+  // TODO: Fix this method and add a test for it
+  public findParamWithSigner(): string | null {
+    const serialized = JSON.stringify(this.value);
+    for (const param of USER_ADDRESS_PARAMS) {
+      if (serialized.includes(param)) {
+        return param;
+      }
+    }
+    return null;
+  }
+
   public requiresSigner(): boolean {
-    return JSON.stringify(this.value).includes(USER_ADDRESS_PARAM);
+    return Boolean(this.findParamWithSigner());
   }
 
   public toObj() {

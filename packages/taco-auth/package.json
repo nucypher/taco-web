@@ -1,11 +1,11 @@
 {
-  "name": "@nucypher/shared",
-  "version": "0.2.2",
+  "name": "@nucypher/taco-auth",
+  "version": "0.0.0",
   "keywords": [
     "pre",
-    "taco",
     "threshold",
-    "access control"
+    "access control",
+    "authentication"
   ],
   "repository": {
     "type": "git",
@@ -26,37 +26,24 @@
     "dist"
   ],
   "scripts": {
-    "prebuild": "pnpm typechain && pnpm clean",
+    "prebuild": "pnpm clean",
     "build": "pnpm build:module && pnpm build:cjs",
     "build:cjs": "tsc --build ./tsconfig.cjs.json --verbose",
     "build:module": "tsc --build ./tsconfig.es.json --verbose",
     "clean": "rm -rf dist",
     "exports:lint": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
-    "lint": "eslint --ext .ts src",
+    "lint": "eslint --ext .ts src test",
     "lint:fix": "pnpm lint --fix",
     "package-check": "package-check",
     "test": "vitest run",
-    "typechain": "ts-node scripts/typechain.ts && prettier -w src/contracts/ethers-typechain",
     "typedoc": "typedoc"
   },
   "dependencies": {
-    "@ethersproject/abi": "^5.7.0",
-    "@ethersproject/providers": "^5.7.2",
-    "@nucypher/nucypher-contracts": "^0.22.0",
-    "@nucypher/nucypher-core": "*",
-    "axios": "^1.6.8",
-    "deep-equal": "^2.2.3",
-    "ethers": "*",
-    "qs": "^6.12.1"
+    "@ethersproject/abstract-signer": "^5.7.0",
+    "@nucypher/shared": "workspace:*"
   },
   "devDependencies": {
-    "@typechain/ethers-v5": "^11.1.2",
-    "@types/deep-equal": "^1.0.3",
-    "@types/qs": "^6.9.15",
-    "@types/tmp": "^0.2.6",
-    "cz-conventional-changelog": "^3.0.1",
-    "standard-version": "^9.0.0",
-    "typechain": "^8.3.2"
+    "@nucypher/test-utils": "workspace:*"
   },
   "engines": {
     "node": ">=18",

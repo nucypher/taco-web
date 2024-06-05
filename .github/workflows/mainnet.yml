@@ -2,15 +2,15 @@ name: '🔎 Mainnet Example'
 
 on:
   schedule:
-    - cron: "0 * * * *"  # Every hour
+    - cron: '0 * * * *' # Every hour
   workflow_dispatch:
 
 # TODO: Use variables when GH supports it for forks. See https://github.com/orgs/community/discussions/44322
 env:
-  RPC_PROVIDER_URL: "https://rpc-mainnet.maticvigil.com"
+  RPC_PROVIDER_URL: 'https://rpc-mainnet.maticvigil.com'
   ENCRYPTOR_PRIVATE_KEY: ${{ secrets.MAINNET_ENCRYPTOR_PRIVATE_KEY }}
   CONSUMER_PRIVATE_KEY: ${{ secrets.MAINNET_CONSUMER_PRIVATE_KEY }}
-  RITUAL_ID: "9"
+  RITUAL_ID: '9'
 
 jobs:
   networks:
@@ -19,8 +19,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node: [ '18.x' ]
-        os: [ ubuntu-latest ]
+        node: ['18.x']
+        os: [ubuntu-latest]
 
     steps:
       - uses: actions/checkout@v4

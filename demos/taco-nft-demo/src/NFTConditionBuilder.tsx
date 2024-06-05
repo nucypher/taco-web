@@ -1,5 +1,5 @@
 import { conditions } from '@nucypher/taco';
-import { Sepolia, useEthers} from '@usedapp/core';
+import { Sepolia, useEthers } from '@usedapp/core';
 import React, { useState } from 'react';
 
 interface Props {
@@ -97,8 +97,8 @@ export const NFTConditionBuilder = ({
           <div>
             <p>
               You can mint an NFT{' '}
-              <a href="https://nfts2me.com/create/generative/">here</a> or use your own
-              contract.
+              <a href="https://nfts2me.com/create/generative/">here</a> or use
+              your own contract.
             </p>
           </div>
           <div>

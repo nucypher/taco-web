@@ -1,7 +1,7 @@
 import { initialize } from '@nucypher/nucypher-core';
 import {
   AuthProviders,
-  AuthSignature,
+  AuthSignature, EIP4361_AUTH_METHOD,
   EIP4361AuthProvider,
   EIP712AuthProvider, EIP712TypedData,
   makeAuthProviders,
@@ -24,6 +24,7 @@ import { RpcCondition } from '../../src/conditions/base/rpc';
 import { ConditionExpression } from '../../src/conditions/condition-expr';
 import {
   RESERVED_CONTEXT_PARAMS,
+  USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
 } from '../../src/conditions/const';
 import { CustomContextParam } from '../../src/conditions/context';
 import {
@@ -151,7 +152,7 @@ describe('context', () => {
       const conditionExpr = new ConditionExpression(condition);
       expect(conditionExpr.buildContext({}, authProviders)).toBeDefined();
       expect(() => conditionExpr.buildContext({})).toThrow(
-        `Authentication provider required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
+        `No authentication provider required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
       );
     });
 
@@ -170,7 +171,7 @@ describe('context', () => {
       const conditionExpr = new ConditionExpression(condition);
       expect(conditionExpr.buildContext( {}, authProviders)).toBeDefined();
       expect(() => conditionExpr.buildContext( {})).toThrow(
-        `Authentication provider required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
+        `No authentication provider required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
       );
     });
 
@@ -195,7 +196,7 @@ describe('context', () => {
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
       expect(() => conditionExpr.buildContext( {}, undefined)).toThrow(
-        `Authentication provider required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
+        `No authentication provider required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
       );
     });
 
@@ -210,7 +211,7 @@ describe('context', () => {
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
       expect(() => conditionExpr.buildContext( {}, undefined)).toThrow(
-        `Authentication provider required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
+        `No authentication provider required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
       );
     });
 
@@ -286,10 +287,28 @@ describe('context', () => {
   });
 });
 
-describe('authentication provider', () => {
+// TODO: Move to a separate file
+describe('No authentication provider', () => {
   let provider: ethers.providers.Provider;
   let signer: ethers.Signer;
   let authProviders: AuthProviders;
+
+  async function testEIP4361AuthSignature(authSignature: AuthSignature) {
+    expect(authSignature).toBeDefined();
+    expect(authSignature.signature).toBeDefined();
+    expect(authSignature.scheme).toEqual('EIP4361');
+
+    const signerAddress = await signer.getAddress();
+    expect(authSignature.address).toEqual(signerAddress);
+
+    expect(authSignature.typedData).toContain(
+      `localhost wants you to sign in with your Ethereum account:\n${signerAddress}`,
+    );
+    expect(authSignature.typedData).toContain('URI: http://localhost:3000');
+
+    const chainId = (await provider.getNetwork()).chainId;
+    expect(authSignature.typedData).toContain(`Chain ID: ${chainId}`);
+  }
 
   beforeAll(async () => {
     await initialize();
@@ -310,7 +329,7 @@ describe('authentication provider', () => {
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
       expect(() => conditionExpr.buildContext( {}, {})).toThrow(
-        `Authentication provider required to satisfy ${userAddressParam} context variable in condition`,
+        `No authentication provider required to satisfy ${userAddressParam} context variable in condition`,
       );
     });
   });
@@ -397,23 +416,63 @@ describe('authentication provider', () => {
       EIP4361AuthProvider.prototype,
       'getOrCreateAuthSignature',
     );
+
     const authSignature = await makeAuthSignature(USER_ADDRESS_PARAM_EIP4361);
-    expect(authSignature).toBeDefined();
-    expect(authSignature.signature).toBeDefined();
-    expect(authSignature.scheme).toEqual('EIP4361');
-
-    const signerAddress = await signer.getAddress();
-    expect(authSignature.address).toEqual(signerAddress);
-
-    expect(authSignature.typedData).toContain(
-      `localhost wants you to sign in with your Ethereum account:\n${signerAddress}`,
-    );
-    expect(authSignature.typedData).toContain('URI: http://localhost:3000');
-
-    const chainId = (await provider.getNetwork()).chainId;
-    expect(authSignature.typedData).toContain(`Chain ID: ${chainId}`);
+    await testEIP4361AuthSignature(authSignature);
 
     expect(eip4361Spy).toHaveBeenCalledOnce();
+  });
+
+  it('supports reusing external eip4361', async () => {
+    // Because we are reusing an existing SIWE auth message, we have to pass it as a custom parameter
+    const authMessage = await makeAuthSignature(USER_ADDRESS_PARAM_EIP4361);
+    const customParams: Record<string, CustomContextParam> = {
+      [USER_ADDRESS_PARAM_EXTERNAL_EIP4361]: authMessage as CustomContextParam,
+    };
+
+    // Spying on the EIP4361 provider to make sure it's not called
+    const eip4361Spy = vi.spyOn(
+      EIP4361AuthProvider.prototype,
+      'getOrCreateAuthSignature',
+    );
+
+    // Now, creating the condition context to run the actual test
+    const conditionObj = {
+      ...testContractConditionObj,
+      returnValueTest: {
+        ...testReturnValueTest,
+        value: USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
+      },
+    };
+    const condition = new ContractCondition(conditionObj);
+    const conditionExpr = new ConditionExpression(condition);
+
+    // Make sure we remove the EIP4361 auth method from the auth providers first
+    delete authProviders[EIP4361_AUTH_METHOD];
+    // Should throw an error if we don't pass the custom parameter
+    expect(
+      () => conditionExpr.buildContext( {}, authProviders)
+    ).toThrow(
+      `No custom parameter for requested context parameter: ${USER_ADDRESS_PARAM_EXTERNAL_EIP4361}`,
+    );
+
+    // Remembering to pass in customParams here:
+    const builtContext = conditionExpr.buildContext(
+      customParams,
+      authProviders,
+    );
+    const contextVars = await builtContext.toContextParameters();
+    expect(eip4361Spy).not.toHaveBeenCalledOnce();
+
+    // Now, we expect that the auth signature will be available in the context variables
+    const authSignature = contextVars[
+      USER_ADDRESS_PARAM_EXTERNAL_EIP4361
+    ] as AuthSignature;
+    expect(authSignature).toBeDefined();
+    await testEIP4361AuthSignature(authSignature);
+
+    // TODO: Should we enforce that? It does not affect the server-side verification of the signature
+    // expect(contextVars[USER_ADDRESS_PARAM_EXTERNAL_EIP4361]).not.toBeDefined();
   });
 });
 

@@ -6,10 +6,10 @@ import { CoreConditions, CoreContext } from '../../types';
 import { CompoundConditionType } from '../compound-condition';
 import { Condition, ConditionProps } from '../condition';
 import { ConditionExpression } from '../condition-expr';
-import { CONTEXT_PARAM_PREFIX, CONTEXT_PARAM_REGEXP, RESERVED_CONTEXT_PARAMS } from '../const';
+import { CONTEXT_PARAM_PREFIX, CONTEXT_PARAM_REGEXP, RESERVED_CONTEXT_PARAMS, USER_ADDRESS_PARAMS } from '../const';
 
 
-export type CustomContextParam = string | number | boolean;
+export type CustomContextParam = string | number | boolean | AuthSignature;
 export type ContextParam = CustomContextParam | AuthSignature;
 
 const ERR_RESERVED_PARAM = (key: string) =>
@@ -17,11 +17,13 @@ const ERR_RESERVED_PARAM = (key: string) =>
 const ERR_INVALID_CUSTOM_PARAM = (key: string) =>
   `Custom parameter ${key} must start with ${CONTEXT_PARAM_PREFIX}`;
 const ERR_AUTH_PROVIDER_REQUIRED = (key: string) =>
-  `Authentication provider required to satisfy ${key} context variable in condition`;
+  `No authentication provider required to satisfy ${key} context variable in condition`;
 const ERR_MISSING_CONTEXT_PARAMS = (params: string[]) =>
   `Missing custom context parameter(s): ${params.join(', ')}`;
 const ERR_UNKNOWN_CONTEXT_PARAMS = (params: string[]) =>
   `Unknown custom context parameter(s): ${params.join(', ')}`;
+const ERR_NO_AUTH_PROVIDER_FOR_PARAM = (param: string) =>
+  `No custom parameter for requested context parameter: ${param}`;
 
 export class ConditionContext {
   public requestedParameters: Set<string>;
@@ -86,16 +88,24 @@ export class ConditionContext {
   }
 
   private validateAuthProviders(requestedParameters: Set<string>): void {
-    requestedParameters
-      .forEach(param => {
-        const maybeAuthMethod = AUTH_METHOD_FOR_PARAM[param];
-        if (!maybeAuthMethod) {
-          return;
-        }
-        if (!this.authProviders[maybeAuthMethod]) {
-          throw new Error(ERR_AUTH_PROVIDER_REQUIRED(param));
-        }
-      });
+    for (const param of requestedParameters) {
+      // If it's not a user address parameter, we can skip
+      if (!USER_ADDRESS_PARAMS.includes(param)) {
+        continue;
+      }
+
+      // If it's a user address parameter, we need to check if we have an auth provider
+      const authMethod = AUTH_METHOD_FOR_PARAM[param];
+      if (!authMethod && !this.customParameters[param]) {
+        // If we don't have an auth method, and we don't have a custom parameter, we have a problem
+        throw new Error(ERR_NO_AUTH_PROVIDER_FOR_PARAM(param));
+      }
+
+      // If we have an auth method, but we don't have an auth provider, we have a problem
+      if (authMethod && !this.authProviders[authMethod]) {
+        throw new Error(ERR_AUTH_PROVIDER_REQUIRED(param));
+      }
+    }
   }
 
   private async fillAuthContextParameters(requestedParameters: Set<string>): Promise<Record<string, ContextParam>> {
@@ -119,12 +129,20 @@ export class ConditionContext {
     // First, we want to find all the parameters we need to add
     const requestedParameters = new Set<string>();
 
-    // Search conditions for parameters
     // Check return value test
     if (condition.returnValueTest) {
       const rvt = condition.returnValueTest.value;
-      if (ConditionContext.isContextParameter(rvt)) {
+      // Return value test can be a single parameter or an array of parameters
+      if (Array.isArray(rvt)) {
+        rvt.forEach((value) => {
+          if (ConditionContext.isContextParameter(value)) {
+            requestedParameters.add(value);
+          }
+        });
+      } else if (ConditionContext.isContextParameter(rvt)) {
         requestedParameters.add(rvt);
+      } else {
+        // Not a context parameter, we can skip
       }
     }
 

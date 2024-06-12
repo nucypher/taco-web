@@ -11,7 +11,10 @@ export const getWebIrys = async (provider: providers.Provider) => {
   return webIrys;
 };
 
-export const uploadData = async (webIrys: WebIrys, data: unknown): Promise<string> => {
+export const uploadData = async (
+  webIrys: WebIrys,
+  data: unknown,
+): Promise<string> => {
   const dataToUpload = JSON.stringify(data);
   const receipt = await webIrys.upload(dataToUpload);
   console.log(`Data uploaded ==> https://gateway.irys.xyz/${receipt.id}`);

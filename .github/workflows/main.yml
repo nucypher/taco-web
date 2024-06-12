@@ -9,14 +9,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node: [ '18.x' ]
+        node: [ '18.x', '20.x', '22.x' ]
         os: [ ubuntu-latest ]
     steps:
       - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v4
         with:
-          version: 8.1
+          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}

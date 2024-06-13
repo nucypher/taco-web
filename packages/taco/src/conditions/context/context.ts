@@ -117,8 +117,8 @@ export class ConditionContext {
       .map(async ([param, authMethod]) => {
         const maybeAuthProvider = this.authProviders[authMethod];
         // TODO: Throw here instead of validating in the constructor?
-        // TODO: Hide getOrCreateWalletSignature behind a more generic interface
-        return [param, await maybeAuthProvider!.getOrCreateWalletSignature()];
+        // TODO: Hide getOrCreateAuthSignature behind a more generic interface
+        return [param, await maybeAuthProvider!.getOrCreateAuthSignature()];
       }));
     return Object.fromEntries(entries);
   }

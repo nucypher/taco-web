@@ -1,12 +1,12 @@
 import { ethers } from 'ethers';
 import { generateNonce, SiweMessage } from 'siwe';
 
-import { LocalStorage } from './storage';
-import { AuthSignature } from './types';
+import { LocalStorage } from '../storage';
+import { AuthSignature } from '../types';
 
 export type FormattedEIP4361 = string;
 
-export class EIP4361SignatureProvider {
+export class EIP4361AuthProvider {
   private readonly storage: LocalStorage;
 
   constructor(
@@ -16,7 +16,7 @@ export class EIP4361SignatureProvider {
     this.storage = new LocalStorage();
   }
 
-  public async getOrCreateWalletSignature(): Promise<AuthSignature> {
+  public async getOrCreateAuthSignature(): Promise<AuthSignature> {
     const address = await this.signer.getAddress();
     const storageKey = `eth-signin-message-${address}`;
 

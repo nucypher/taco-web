@@ -3,8 +3,7 @@ import {
   AuthProviders,
   AuthSignature,
   EIP4361AuthProvider,
-  EIP712AuthProvider,
-  FormattedEIP712,
+  EIP712AuthProvider, EIP712TypedData,
   makeAuthProviders,
 } from '@nucypher/taco-auth';
 import {
@@ -378,7 +377,7 @@ describe('authentication provider', () => {
     expect(authSignature.scheme).toEqual('EIP712');
     expect(authSignature.address).toEqual(await signer.getAddress());
 
-    const typedData = authSignature.typedData as FormattedEIP712;
+    const typedData = authSignature.typedData as EIP712TypedData;
     expect(typedData).toBeDefined();
     expect(typedData.domain.name).toEqual('TACo');
     expect(typedData.message.address).toEqual(await signer.getAddress());

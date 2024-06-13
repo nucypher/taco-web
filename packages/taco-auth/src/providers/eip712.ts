@@ -23,7 +23,7 @@ interface EIP712 {
   };
 }
 
-export interface FormattedEIP712 extends EIP712 {
+export interface EIP712TypedData extends EIP712 {
   primaryType: 'Wallet';
   types: {
     EIP712Domain: { name: string; type: string }[];
@@ -60,6 +60,7 @@ export class EIP712AuthProvider implements AuthProvider {
   private readonly storage: LocalStorage;
 
   constructor(
+    // TODO: We only need the provider to fetch the chainId, consider removing it
     private readonly provider: ethers.providers.Provider,
     private readonly signer: ethers.Signer,
   ) {
@@ -77,12 +78,12 @@ export class EIP712AuthProvider implements AuthProvider {
     }
 
     // If at this point we didn't return, we need to create a new signature
-    const typedSignature = await this.createWalletSignature();
-    this.storage.setItem(storageKey, JSON.stringify(typedSignature));
-    return typedSignature;
+    const authMessage = await this.createAuthMessage();
+    this.storage.setItem(storageKey, JSON.stringify(authMessage));
+    return authMessage;
   }
 
-  private async createWalletSignature(): Promise<AuthSignature> {
+  private async createAuthMessage(): Promise<AuthSignature> {
     // Ensure freshness of the signature
     const { blockNumber, blockHash, chainId } = await this.getChainData();
     const address = await this.signer.getAddress();
@@ -116,7 +117,7 @@ export class EIP712AuthProvider implements AuthProvider {
       this.signer as unknown as TypedDataSigner
     )._signTypedData(typedData.domain, typedData.types, typedData.message);
 
-    const formattedTypedData: FormattedEIP712 = {
+    const formattedTypedData: EIP712TypedData = {
       ...typedData,
       primaryType: 'Wallet',
       types: {

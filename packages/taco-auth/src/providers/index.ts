@@ -1,7 +1,7 @@
 import { EIP4361_AUTH_METHOD, EIP712_AUTH_METHOD } from '../types';
 
-import { EIP4361AuthProvider, FormattedEIP4361 } from './eip4361';
-import { EIP712AuthProvider, FormattedEIP712 } from './eip712';
+import { EIP4361AuthProvider, EIP4361TypedData } from './eip4361';
+import { EIP712AuthProvider, EIP712TypedData } from './eip712';
 
 export interface AuthSignatureProvider {
   getOrCreateAuthSignature(): Promise<AuthSignature>;
@@ -18,7 +18,8 @@ export interface AuthSignature {
   signature: string;
   address: string;
   scheme: 'EIP712' | 'EIP4361';
-  typedData: FormattedEIP712 | FormattedEIP4361;
+  typedData: EIP712TypedData | EIP4361TypedData;
 }
 
+// Add other providers here
 export type AuthProvider = AuthSignatureProvider;

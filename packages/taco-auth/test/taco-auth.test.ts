@@ -9,30 +9,21 @@ import { describe, expect, it } from 'vitest';
 import {
   EIP4361AuthProvider,
   EIP712AuthProvider,
-  FormattedEIP712,
+  EIP712TypedData,
 } from '../src';
 
 describe('taco authorization', () => {
   it('creates a new EIP-712 message', async () => {
     const provider = fakeProvider(bobSecretKeyBytes);
     const signer = fakeSigner(bobSecretKeyBytes);
+
     const eip712Provider = new EIP712AuthProvider(provider, signer);
-
     const eip712Message = await eip712Provider.getOrCreateAuthSignature();
-
-    // Expected format:
-    //     {
-    //       "signature": "<signature>",
-    //       "address": "<address>",
-    //       "scheme": "EIP712" | "EIP4361" | ...
-    //       "typeData": ...
-    //     }
-
     expect(eip712Message.signature).toBeDefined();
     expect(eip712Message.address).toEqual(await signer.getAddress());
     expect(eip712Message.scheme).toEqual('EIP712');
 
-    const typedData = eip712Message.typedData as FormattedEIP712;
+    const typedData = eip712Message.typedData as EIP712TypedData;
     expect(typedData).toBeDefined();
     expect(typedData.types.Wallet).toBeDefined();
     expect(typedData.domain.name).toEqual('TACo');
@@ -54,15 +45,6 @@ describe('taco authorization', () => {
 
     const eip4361Provider = new EIP4361AuthProvider(provider, signer);
     const typedSignature = await eip4361Provider.getOrCreateAuthSignature();
-
-    // Expected format:
-    //     {
-    //       "signature": "<signature>",
-    //       "address": "<address>",
-    //       "scheme": "EIP712" | "EIP4361" | ...
-    //       "typedData": ...
-    //     }
-
     expect(typedSignature.signature).toBeDefined();
     expect(typedSignature.address).toEqual(await signer.getAddress());
     expect(typedSignature.scheme).toEqual('EIP4361');

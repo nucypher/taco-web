@@ -43,6 +43,8 @@ import axios from 'axios';
 import { ethers, providers, Wallet } from 'ethers';
 import { expect, SpyInstance, vi } from 'vitest';
 
+import { TEST_USER_ADDRESS } from './variables';
+
 export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
   first.length === second.length &&
   first.every((value, index) => value === second[index]);
@@ -74,7 +76,7 @@ export const fakeSigner = (
     _signTypedData: () => Promise.resolve('fake-typed-signature'),
     signMessage: () => Promise.resolve('fake-signature'),
     getAddress: () =>
-      Promise.resolve('0x0000000000000000000000000000000000000000'),
+      Promise.resolve(TEST_USER_ADDRESS),
   } as unknown as ethers.providers.JsonRpcSigner;
 };
 

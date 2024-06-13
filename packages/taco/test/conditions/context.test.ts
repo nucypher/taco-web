@@ -2,8 +2,8 @@ import { initialize } from '@nucypher/nucypher-core';
 import {
   AuthProviders,
   AuthSignature,
-  EIP4361SignatureProvider,
-  EIP712SignatureProvider,
+  EIP4361AuthProvider,
+  EIP712AuthProvider,
   FormattedEIP712,
   makeAuthProviders,
 } from '@nucypher/taco-auth';
@@ -368,8 +368,8 @@ describe('authentication provider', () => {
 
   async function testEIP712AuthMethod(authMethod: string) {
     const eip712Spy = vi.spyOn(
-      EIP712SignatureProvider.prototype,
-      'getOrCreateWalletSignature',
+      EIP712AuthProvider.prototype,
+      'getOrCreateAuthSignature',
     );
 
     const authSignature = await makeAuthSignature(authMethod);
@@ -395,8 +395,8 @@ describe('authentication provider', () => {
 
   it('supports eip4361', async () => {
     const eip4361Spy = vi.spyOn(
-      EIP4361SignatureProvider.prototype,
-      'getOrCreateWalletSignature',
+      EIP4361AuthProvider.prototype,
+      'getOrCreateAuthSignature',
     );
     const authSignature = await makeAuthSignature(USER_ADDRESS_PARAM_EIP4361);
     expect(authSignature).toBeDefined();

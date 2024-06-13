@@ -1,5 +1,6 @@
 import { initialize } from '@nucypher/nucypher-core';
-import { fakeProvider, fakeSigner } from '@nucypher/test-utils';
+import {USER_ADDRESS_PARAM_DEFAULT} from "@nucypher/taco-auth";
+import { fakeAuthProviders, fakeProvider } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import {
@@ -11,7 +12,6 @@ import {
 } from '../../../src/conditions/base/contract';
 import { ConditionExpression } from '../../../src/conditions/condition-expr';
 import {
-  USER_ADDRESS_PARAM_DEFAULT,
   USER_ADDRESS_PARAMS,
 } from '../../../src/conditions/const';
 import { CustomContextParam } from '../../../src/conditions/context';
@@ -196,7 +196,7 @@ describe('supports custom function abi', () => {
 
   it('accepts custom function abi with a custom parameter', async () => {
     const asJson = await conditionExpr
-      .buildContext(fakeProvider(), {}, fakeSigner())
+      .buildContext(fakeProvider(), {}, fakeAuthProviders())
       .withCustomParams(customParams)
       .toJson();
 

@@ -20,11 +20,12 @@ import {
   PorterClient,
   toBytes,
 } from '@nucypher/shared';
+import {AuthProviders} from "@nucypher/taco-auth";
 import { ethers } from 'ethers';
 import { arrayify, keccak256 } from 'ethers/lib/utils';
 
 import { ConditionExpression } from './conditions/condition-expr';
-import { ConditionContext, CustomContextParam } from './conditions/context';
+import { ConditionContext, CustomContextParam} from './conditions/context';
 
 const ERR_DECRYPTION_FAILED = (errors: unknown) =>
   `Threshold of responses not met; TACo decryption failed with errors: ${JSON.stringify(
@@ -66,7 +67,7 @@ export const retrieveAndDecrypt = async (
   ritualId: number,
   sharesNum: number,
   threshold: number,
-  signer?: ethers.Signer,
+  authProviders?: AuthProviders,
   customParameters?: Record<string, CustomContextParam>,
 ): Promise<Uint8Array> => {
   const decryptionShares = await retrieve(
@@ -77,7 +78,7 @@ export const retrieveAndDecrypt = async (
     ritualId,
     sharesNum,
     threshold,
-    signer,
+    authProviders,
     customParameters,
   );
   const sharedSecret = combineDecryptionSharesSimple(decryptionShares);
@@ -93,7 +94,7 @@ const retrieve = async (
   ritualId: number,
   sharesNum: number,
   threshold: number,
-  signer?: ethers.Signer,
+  authProviders?: AuthProviders,
   customParameters?: Record<string, CustomContextParam>,
 ): Promise<DecryptionShareSimple[]> => {
   const dkgParticipants = await DkgCoordinatorAgent.getParticipants(
@@ -105,7 +106,7 @@ const retrieve = async (
   const wasmContext = await ConditionContext.fromConditions(
     provider,
     thresholdMessageKit.acp.conditions,
-    signer,
+    authProviders,
     customParameters,
   ).toWASMContext();
   const { sharedSecrets, encryptedRequests } = await makeDecryptionRequests(

@@ -9,5 +9,8 @@
     {
       "path": "../shared/tsconfig.es.json",
     },
+    {
+      "path": "../taco-auth/tsconfig.es.json",
+    }
   ],
 }

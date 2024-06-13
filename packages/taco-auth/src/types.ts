@@ -1,5 +1,5 @@
-import {EIP4361AuthProvider, FormattedEIP4361} from './providers/eip4361';
-import {EIP712AuthProvider, FormattedEIP712} from './providers/eip712';
+import {EIP4361AuthProvider, EIP4361TypedData} from './providers/eip4361';
+import {EIP712AuthProvider, EIP712TypedData} from './providers/eip712';
 
 export interface AuthProvider {
   getOrCreateAuthSignature(): Promise<AuthSignature>;
@@ -16,7 +16,7 @@ export interface AuthSignature {
   signature: string;
   address: string;
   scheme: 'EIP712' | 'EIP4361';
-  typedData: FormattedEIP712 | FormattedEIP4361;
+  typedData: EIP712TypedData | EIP4361TypedData;
 }
 
 export const EIP712_AUTH_METHOD = 'EIP712';

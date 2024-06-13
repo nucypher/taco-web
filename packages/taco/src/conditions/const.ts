@@ -1,8 +1,9 @@
-import { ChainId } from '@nucypher/shared';
-
-export const USER_ADDRESS_PARAM_DEFAULT = ':userAddress';
-export const USER_ADDRESS_PARAM_EIP712 = ':userAddressEIP712';
-export const USER_ADDRESS_PARAM_EIP4361 = ':userAddressEIP4361';
+import {ChainId} from '@nucypher/shared';
+import {
+  USER_ADDRESS_PARAM_DEFAULT,
+  USER_ADDRESS_PARAM_EIP4361,
+  USER_ADDRESS_PARAM_EIP712
+} from "@nucypher/taco-auth";
 
 export const ETH_ADDRESS_REGEXP = new RegExp('^0x[a-fA-F0-9]{40}$');
 

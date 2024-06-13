@@ -36,7 +36,7 @@ export class Condition {
   }
 
   // TODO: Fix this method and add a test for it
-  public findParamWithSigner(): string | null {
+  public findParamWithAuthentication(): string | null {
     const serialized = JSON.stringify(this.value);
     for (const param of USER_ADDRESS_PARAMS) {
       if (serialized.includes(param)) {
@@ -46,8 +46,8 @@ export class Condition {
     return null;
   }
 
-  public requiresSigner(): boolean {
-    return Boolean(this.findParamWithSigner());
+  public requiresAuthentication(): boolean {
+    return Boolean(this.findParamWithAuthentication());
   }
 
   public toObj() {

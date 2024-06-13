@@ -1,4 +1,5 @@
 import { ChainId } from '@nucypher/shared';
+
 import { conditions } from '../src';
 
 const ownsNFT = new conditions.predefined.erc721.ERC721Ownership({
@@ -6,7 +7,7 @@ const ownsNFT = new conditions.predefined.erc721.ERC721Ownership({
   parameters: [3591],
   chain: ChainId.SEPOLIA,
 });
-console.assert(ownsNFT.requiresSigner(), 'ERC721Ownership requires signer');
+console.assert(ownsNFT.requiresAuthentication(), 'ERC721Ownership requires authentication');
 
 const hasAtLeastTwoNFTs = new conditions.predefined.erc721.ERC721Balance({
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
@@ -17,8 +18,8 @@ const hasAtLeastTwoNFTs = new conditions.predefined.erc721.ERC721Balance({
   },
 });
 console.assert(
-  hasAtLeastTwoNFTs.requiresSigner(),
-  'ERC721Balance requires signer',
+  hasAtLeastTwoNFTs.requiresAuthentication(),
+  'ERC721Balance requires authentication',
 );
 
 const ownsNFTRaw = new conditions.base.contract.ContractCondition({
@@ -35,7 +36,7 @@ const ownsNFTRaw = new conditions.base.contract.ContractCondition({
   },
 });
 console.assert(
-  ownsNFTRaw.requiresSigner(),
+  ownsNFTRaw.requiresAuthentication(),
   'ContractCondition requires a signer',
 );
 
@@ -49,8 +50,8 @@ const hasAnyNativeAsset = new conditions.base.rpc.RpcCondition({
   },
 });
 console.assert(
-  hasAnyNativeAsset.requiresSigner(),
-  'RpcCondition requires signer',
+  hasAnyNativeAsset.requiresAuthentication(),
+  'RpcCondition requires authentication',
 );
 
 const ownsNFTOnChain5 = new conditions.predefined.erc721.ERC721Ownership({
@@ -75,8 +76,8 @@ const multichainCondition = conditions.compound.CompoundCondition.and([
 ]);
 
 console.assert(
-  multichainCondition.requiresSigner(),
-  'CompoundCondition requires signer',
+  multichainCondition.requiresAuthentication(),
+  'CompoundCondition requires authentication',
 );
 
 const myFunctionAbi: conditions.base.contract.FunctionAbiProps = {
@@ -117,6 +118,6 @@ const myContractCallCondition = new conditions.base.contract.ContractCondition({
 });
 
 console.assert(
-  !myContractCallCondition.requiresSigner(),
+  !myContractCallCondition.requiresAuthentication(),
   'ContractCondition does not require a signer',
 );

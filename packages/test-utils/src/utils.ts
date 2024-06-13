@@ -39,6 +39,7 @@ import {
   Ursula,
   zip,
 } from '@nucypher/shared';
+import {makeAuthProviders} from "@nucypher/taco-auth";
 import axios from 'axios';
 import { ethers, providers, Wallet } from 'ethers';
 import { expect, SpyInstance, vi } from 'vitest';
@@ -77,6 +78,8 @@ export const fakeSigner = (
       Promise.resolve('0x0000000000000000000000000000000000000000'),
   } as unknown as ethers.providers.JsonRpcSigner;
 };
+
+export const fakeAuthProviders = () => makeAuthProviders(fakeProvider(), fakeSigner());
 
 export const fakeProvider = (
   secretKeyBytes = SecretKey.random().toBEBytes(),

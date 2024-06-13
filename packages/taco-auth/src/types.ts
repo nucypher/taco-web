@@ -1,15 +1,14 @@
-import {EIP4361SignatureProvider, FormattedEIP4361} from './eip4361';
-import {EIP712SignatureProvider, FormattedEIP712} from './eip712';
+import {EIP4361AuthProvider, FormattedEIP4361} from './providers/eip4361';
+import {EIP712AuthProvider, FormattedEIP712} from './providers/eip712';
 
-// TODO: Use a generic AuthProvider interface
-export type EIP712AuthProvider = EIP712SignatureProvider;
-export type EIP4361AuthProvider = EIP4361SignatureProvider;
-
-export type AuthProvider = EIP712AuthProvider | EIP4361AuthProvider;
+export interface AuthProvider {
+  getOrCreateAuthSignature(): Promise<AuthSignature>;
+}
 
 export type AuthProviders = {
   [EIP712_AUTH_METHOD]?: EIP712AuthProvider;
   [EIP4361_AUTH_METHOD]?: EIP4361AuthProvider;
+  // Fallback to satisfy type checking
   [key: string]: AuthProvider | undefined;
 };
 

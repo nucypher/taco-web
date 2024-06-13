@@ -2,8 +2,8 @@ import type { TypedDataSigner } from '@ethersproject/abstract-signer';
 import { ethers } from 'ethers';
 import { utils as ethersUtils } from 'ethers/lib/ethers';
 
-import { LocalStorage } from './storage';
-import type { AuthSignature } from './types';
+import { LocalStorage } from '../storage';
+import type { AuthProvider, AuthSignature } from '../types';
 
 interface EIP712 {
   types: {
@@ -56,7 +56,7 @@ const EIP712Domain = [
   },
 ];
 
-export class EIP712SignatureProvider {
+export class EIP712AuthProvider implements AuthProvider {
   private readonly storage: LocalStorage;
 
   constructor(
@@ -66,7 +66,7 @@ export class EIP712SignatureProvider {
     this.storage = new LocalStorage();
   }
 
-  public async getOrCreateWalletSignature(): Promise<AuthSignature> {
+  public async getOrCreateAuthSignature(): Promise<AuthSignature> {
     const address = await this.signer.getAddress();
     const storageKey = `eip712-signature-${address}`;
 

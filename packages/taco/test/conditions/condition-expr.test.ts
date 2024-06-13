@@ -1,5 +1,6 @@
 import { initialize } from '@nucypher/nucypher-core';
 import { objectEquals, toJSON } from '@nucypher/shared';
+import {USER_ADDRESS_PARAM_DEFAULT} from "@nucypher/taco-auth";
 import { TEST_CHAIN_ID, TEST_CONTRACT_ADDR } from '@nucypher/test-utils';
 import { SemVer } from 'semver';
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -15,7 +16,6 @@ import {
 } from '../../src/conditions/base/time';
 import { CompoundCondition } from '../../src/conditions/compound-condition';
 import { ConditionExpression } from '../../src/conditions/condition-expr';
-import { USER_ADDRESS_PARAM_DEFAULT } from '../../src/conditions/const';
 import { ERC721Balance } from '../../src/conditions/predefined/erc721';
 import {
   testContractConditionObj,

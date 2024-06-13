@@ -587,6 +587,9 @@ importers:
       '@nucypher/shared':
         specifier: workspace:*
         version: link:../shared
+      '@nucypher/taco-auth':
+        specifier: workspace:*
+        version: link:../taco-auth
       axios:
         specifier: ^1.6.8
         version: 1.7.2

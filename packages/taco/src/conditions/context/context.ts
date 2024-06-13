@@ -1,10 +1,10 @@
 import { Context, Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { fromJSON, toJSON } from '@nucypher/shared';
 import {
+  AuthProviders,
   AuthSignature,
-  EIP4361SignatureProvider,
-  EIP712SignatureProvider,
 } from '@nucypher/taco-auth';
+import {AUTH_METHOD_FOR_PARAM} from "@nucypher/taco-auth";
 import { ethers } from 'ethers';
 
 import { CompoundConditionType } from '../compound-condition';
@@ -14,9 +14,6 @@ import {
   CONTEXT_PARAM_PREFIX,
   CONTEXT_PARAM_REGEXP,
   RESERVED_CONTEXT_PARAMS,
-  USER_ADDRESS_PARAM_DEFAULT,
-  USER_ADDRESS_PARAM_EIP4361,
-  USER_ADDRESS_PARAM_EIP712,
 } from '../const';
 
 export type CustomContextParam = string | number | boolean;
@@ -26,38 +23,26 @@ const ERR_RESERVED_PARAM = (key: string) =>
   `Cannot use reserved parameter name ${key} as custom parameter`;
 const ERR_INVALID_CUSTOM_PARAM = (key: string) =>
   `Custom parameter ${key} must start with ${CONTEXT_PARAM_PREFIX}`;
-const ERR_SIGNER_REQUIRED = (key: string) =>
-  `Signer required to satisfy ${key} context variable in condition`;
+const ERR_AUTH_PROVIDER_REQUIRED = (key: string) =>
+  `Authentication provider required to satisfy ${key} context variable in condition`;
 const ERR_MISSING_CONTEXT_PARAMS = (params: string[]) =>
   `Missing custom context parameter(s): ${params.join(', ')}`;
 const ERR_UNKNOWN_CONTEXT_PARAMS = (params: string[]) =>
   `Unknown custom context parameter(s): ${params.join(', ')}`;
 
 export class ConditionContext {
-  private readonly eip712SignatureProvider?: EIP712SignatureProvider;
-  private readonly eip4361SignatureProvider?: EIP4361SignatureProvider;
 
   constructor(
     private readonly provider: ethers.providers.Provider,
     private readonly condition: Condition,
     public readonly customParameters: Record<string, CustomContextParam> = {},
-    private readonly signer?: ethers.Signer,
+    private readonly authProviders: AuthProviders = {},
   ) {
-    if (this.signer) {
-      this.eip712SignatureProvider = new EIP712SignatureProvider(
-        this.provider,
-        this.signer,
-      );
-
-      this.eip4361SignatureProvider = new EIP4361SignatureProvider(
-        this.provider,
-        this.signer,
-      );
-    }
-    this.validate();
+    this.validateAuthProviders(this.findRequestedParameters(this.condition.toObj()));
+    this.validateParameters();
   }
 
-  private validate(): void {
+  private validateParameters(): void {
     Object.keys(this.customParameters).forEach((key) => {
       if (RESERVED_CONTEXT_PARAMS.includes(key)) {
         throw new Error(ERR_RESERVED_PARAM(key));
@@ -67,9 +52,9 @@ export class ConditionContext {
       }
     });
 
-    const requiredParam = this.condition.findParamWithSigner();
-    if (requiredParam && !this.signer) {
-      throw new Error(ERR_SIGNER_REQUIRED(requiredParam));
+    const requiredParam = this.condition.findParamWithAuthentication();
+    if (requiredParam && !this.authProviders) {
+      throw new Error(ERR_AUTH_PROVIDER_REQUIRED(requiredParam));
     }
   }
 
@@ -102,75 +87,40 @@ export class ConditionContext {
     return parameters;
   };
 
-  // today
-  // :user_address -> (:user_address, eip712)
-
-  // in future
-  // :user_address -> (:user_address, schema: eip712)
-  // :user_address_eip712 -> (:user_address, schema: eip712)
-  // :user_address_eip4361 -> (:user_address, schema: eip4361)
-
-  // HasNFTBalance({
-  //   balanceOf(":user_address") > 10
-  // })
-
-  // HasNFTBalance({
-  //   balanceOf(":user_address_eip712") > 10
-  // })
-
-  // HasNFTBalance({
-  //   balanceOf(":user_address_eip4361") > 10
-  // })
-
   private async fillContextParameters(
     requestedParameters: Set<string>,
   ): Promise<Record<string, ContextParam>> {
-    // Now, we can safely add all the parameters
-    const parameters: Record<string, ContextParam> = {};
-
-    // Fill in predefined context parameters
-
-    // TODO: Figure out if we can simplify/deduplicate this logic for every
-    // authentication method we use
-
-    // Handle legacy EIP712 signature denoted by ":userAddress"
-    if (requestedParameters.has(USER_ADDRESS_PARAM_DEFAULT)) {
-      if (!this.eip712SignatureProvider) {
-        throw new Error(ERR_SIGNER_REQUIRED(USER_ADDRESS_PARAM_EIP712));
-      }
-      parameters[USER_ADDRESS_PARAM_DEFAULT] =
-        await this.eip712SignatureProvider.getOrCreateWalletSignature();
-      // Remove from requested parameters
-      requestedParameters.delete(USER_ADDRESS_PARAM_DEFAULT);
-    }
-
-    // Handle a new alias for EIP712, ":userAddressEIP712"
-    if (requestedParameters.has(USER_ADDRESS_PARAM_EIP712)) {
-      if (!this.eip712SignatureProvider) {
-        throw new Error(ERR_SIGNER_REQUIRED(USER_ADDRESS_PARAM_EIP712));
-      }
-      parameters[USER_ADDRESS_PARAM_EIP712] =
-        await this.eip712SignatureProvider.getOrCreateWalletSignature();
-      // Remove from requested parameters
-      requestedParameters.delete(USER_ADDRESS_PARAM_EIP712);
-    }
-
-    // Handle a new method, EIP4361, with a ":userAddressEIP4361" alias
-    if (requestedParameters.has(USER_ADDRESS_PARAM_EIP4361)) {
-      if (!this.eip4361SignatureProvider) {
-        throw new Error(ERR_SIGNER_REQUIRED(USER_ADDRESS_PARAM_EIP4361));
-      }
-      parameters[USER_ADDRESS_PARAM_EIP4361] =
-        await this.eip4361SignatureProvider.getOrCreateWalletSignature();
-      // Remove from requested parameters
-      requestedParameters.delete(USER_ADDRESS_PARAM_EIP4361);
-    }
-
-    // Fill in custom parameters
+    const parameters = await this.fillAuthContextParameters(requestedParameters);
     for (const key in this.customParameters) {
       parameters[key] = this.customParameters[key];
     }
     return parameters;
+  }
+
+  private validateAuthProviders(requestedParameters: Set<string>): void {
+    requestedParameters
+      .forEach(param => {
+        const maybeAuthMethod = AUTH_METHOD_FOR_PARAM[param];
+        if (!maybeAuthMethod) {
+          return;
+        }
+        if (!this.authProviders[maybeAuthMethod]) {
+          throw new Error(ERR_AUTH_PROVIDER_REQUIRED(param));
+        }
+      });
+  }
+
+  private async fillAuthContextParameters(requestedParameters: Set<string>): Promise<Record<string, ContextParam>> {
+    const entries = await Promise.all([...requestedParameters]
+      .map(param => [param, AUTH_METHOD_FOR_PARAM[param]])
+      .filter(([, authMethod]) => !!authMethod)
+      .map(async ([param, authMethod]) => {
+        const maybeAuthProvider = this.authProviders[authMethod];
+        // TODO: Throw here instead of validating in the constructor?
+        // TODO: Hide getOrCreateWalletSignature behind a more generic interface
+        return [param, await maybeAuthProvider!.getOrCreateWalletSignature()];
+      }));
+    return Object.fromEntries(entries);
   }
 
   private isContextParameter(param: unknown): boolean {
@@ -224,7 +174,7 @@ export class ConditionContext {
       this.provider,
       this.condition,
       params,
-      this.signer,
+      this.authProviders,
     );
   }
 
@@ -236,14 +186,14 @@ export class ConditionContext {
   public static fromConditions(
     provider: ethers.providers.Provider,
     conditions: WASMConditions,
-    signer?: ethers.Signer,
+    authProviders?: AuthProviders,
     customParameters?: Record<string, CustomContextParam>,
   ): ConditionContext {
     return new ConditionContext(
       provider,
       ConditionExpression.fromWASMConditions(conditions).condition,
       customParameters,
-      signer,
+      authProviders,
     );
   }
 }

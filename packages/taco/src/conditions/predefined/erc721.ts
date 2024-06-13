@@ -1,9 +1,11 @@
+import {USER_ADDRESS_PARAM_DEFAULT} from "@nucypher/taco-auth";
+
 import {
   ContractCondition,
   ContractConditionProps,
   ContractConditionType,
 } from '../base/contract';
-import { USER_ADDRESS_PARAM_DEFAULT } from '../const';
+
 
 type ERC721OwnershipFields = 'contractAddress' | 'chain' | 'parameters';
 

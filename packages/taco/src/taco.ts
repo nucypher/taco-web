@@ -13,12 +13,13 @@ import {
   GlobalAllowListAgent,
   toBytes,
 } from '@nucypher/shared';
+import { makeAuthProviders } from '@nucypher/taco-auth';
 import { ethers } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 
 import { Condition } from './conditions/condition';
 import { ConditionExpression } from './conditions/condition-expr';
-import { CustomContextParam } from './conditions/context';
+import { CustomContextParam} from './conditions/context';
 import { DkgClient } from './dkg';
 import { retrieveAndDecrypt } from './tdec';
 
@@ -153,6 +154,8 @@ export const decrypt = async (
     messageKit.acp.publicKey,
   );
   const ritual = await DkgClient.getActiveRitual(provider, domain, ritualId);
+  // TODO: Temporary helper method to keep the external taco.ts decrypt function simple
+  const authProviders = makeAuthProviders(provider, signer);
   return retrieveAndDecrypt(
     provider,
     domain,
@@ -161,10 +164,11 @@ export const decrypt = async (
     ritualId,
     ritual.sharesNum,
     ritual.threshold,
-    signer,
+    authProviders,
     customParameters,
   );
 };
+
 
 /**
  * Checks if the encryption from the provided messageKit is authorized for the specified ritual.

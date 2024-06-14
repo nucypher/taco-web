@@ -55,11 +55,6 @@ export class ConditionContext {
         throw new Error(ERR_INVALID_CUSTOM_PARAM(key));
       }
     });
-
-    const requiredParam = this.condition.findParamWithAuthentication();
-    if (requiredParam && !this.authProviders) {
-      throw new Error(ERR_AUTH_PROVIDER_REQUIRED(requiredParam));
-    }
   }
 
   public toObj = async (): Promise<Record<string, ContextParam>> => {
@@ -169,17 +164,6 @@ export class ConditionContext {
   public async toJson(): Promise<string> {
     const parameters = await this.toObj();
     return toJSON(parameters);
-  }
-
-  public withCustomParams(
-    params: Record<string, CustomContextParam>,
-  ): ConditionContext {
-    return new ConditionContext(
-      this.provider,
-      this.condition,
-      params,
-      this.authProviders,
-    );
   }
 
   public async toWASMContext(): Promise<Context> {

@@ -1,5 +1,5 @@
 import { ChainId } from '@nucypher/shared';
-import { fakeAuthProviders, fakeProvider } from '@nucypher/test-utils';
+import { fakeAuthProviders } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { initialize } from '../../src';
@@ -38,7 +38,6 @@ describe('conditions', () => {
     expect(condition.requiresAuthentication()).toBeTruthy();
 
     const context = new ConditionContext(
-      fakeProvider(),
       condition,
       { ':time': 100 },
       fakeAuthProviders(),

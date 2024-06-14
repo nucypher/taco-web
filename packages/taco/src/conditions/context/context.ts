@@ -5,7 +5,6 @@ import {
   AuthSignature,
 } from '@nucypher/taco-auth';
 import {AUTH_METHOD_FOR_PARAM} from "@nucypher/taco-auth";
-import { ethers } from 'ethers';
 
 import { CompoundConditionType } from '../compound-condition';
 import { Condition, ConditionProps } from '../condition';
@@ -33,7 +32,6 @@ const ERR_UNKNOWN_CONTEXT_PARAMS = (params: string[]) =>
 export class ConditionContext {
 
   constructor(
-    private readonly provider: ethers.providers.Provider,
     private readonly condition: Condition,
     public readonly customParameters: Record<string, CustomContextParam> = {},
     private readonly authProviders: AuthProviders = {},
@@ -172,13 +170,11 @@ export class ConditionContext {
   }
 
   public static fromConditions(
-    provider: ethers.providers.Provider,
     conditions: WASMConditions,
     authProviders?: AuthProviders,
     customParameters?: Record<string, CustomContextParam>,
   ): ConditionContext {
     return new ConditionContext(
-      provider,
       ConditionExpression.fromWASMConditions(conditions).condition,
       customParameters,
       authProviders,

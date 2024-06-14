@@ -79,7 +79,6 @@ describe('context', () => {
     };
     const contractCondition = new ContractCondition(contractConditionObj);
     const conditionExpr = new ConditionExpression(contractCondition);
-    const context = conditionExpr.buildContext({}, authProviders);
 
     describe('custom parameters', () => {
       it('serializes bytes as hex strings', async () => {
@@ -97,20 +96,21 @@ describe('context', () => {
       });
 
       it('detects when a custom parameter is requested', ()=> {
-        const requestedParams = context.requestedParameters();
-        expect(requestedParams).toContain(customParamKey);
+        const context = conditionExpr.buildContext({}, authProviders);
+        expect(context.requestedParameters).toContain(customParamKey);
       });
     });
 
     describe('return value test', () => {
       it('accepts on a custom context parameters', async () => {
-        const asObj = await conditionExpr.buildContext(customParams).toObj();
+        const asObj = await conditionExpr.buildContext(customParams).toContextParameters();
         expect(asObj).toBeDefined();
         expect(asObj[customParamKey]).toEqual(1234);
       });
 
       it('rejects on a missing custom context parameter', async () => {
-        await expect(context.toObj()).rejects.toThrow(
+        const context = conditionExpr.buildContext({}, authProviders);
+        await expect(context.toContextParameters()).rejects.toThrow(
           `Missing custom context parameter(s): ${customParamKey}`,
         );
       });
@@ -132,7 +132,7 @@ describe('context', () => {
       badCustomParams[customParamKey] = 'this-is-fine';
       badCustomParams[badCustomParamKey] = 'this-will-throw';
       await expect(
-        conditionExpr.buildContext(badCustomParams).toObj(),
+        conditionExpr.buildContext(badCustomParams).toContextParameters(),
       ).rejects.toThrow(
         `Unknown custom context parameter(s): ${badCustomParamKey}`,
       );
@@ -234,7 +234,7 @@ describe('context', () => {
       it('handles both custom and auth context parameters', ()=> {
         const requestedParams = new ConditionExpression(contractCondition)
           .buildContext( {}, authProviders)
-          .requestedParameters();
+          .requestedParameters;
         expect(requestedParams).not.toContain(USER_ADDRESS_PARAM_DEFAULT);
         expect(requestedParams).toContain(customParamKey);
       });
@@ -248,7 +248,7 @@ describe('context', () => {
           customContractCondition,
         ).buildContext( {}, authProviders);
 
-        await expect(async () => conditionContext.toObj()).rejects.toThrow(
+        await expect(async () => conditionContext.toContextParameters()).rejects.toThrow(
           `Missing custom context parameter(s): ${customParamKey}`,
         );
       });
@@ -262,7 +262,7 @@ describe('context', () => {
           customContractCondition,
         ).buildContext( {}, authProviders);
 
-        const asObj = await conditionContext.toObj();
+        const asObj = await conditionContext.toContextParameters();
         expect(asObj).toBeDefined();
         expect(asObj[USER_ADDRESS_PARAM_DEFAULT]).toBeDefined();
       });
@@ -280,7 +280,7 @@ describe('context', () => {
             customContractCondition,
           ).buildContext( customParameters, authProviders);
 
-          const asObj = await conditionContext.toObj();
+          const asObj = await conditionContext.toContextParameters();
           expect(asObj).toBeDefined();
           expect(asObj[USER_ADDRESS_PARAM_DEFAULT]).toBeDefined();
           expect(asObj[customParamKey]).toBeDefined();
@@ -367,7 +367,7 @@ describe('authentication provider', () => {
     expect(conditionExpr.contextRequiresAuthentication()).toBe(true);
 
     const builtContext = conditionExpr.buildContext( {}, authProviders);
-    const contextVars = await builtContext.toObj();
+    const contextVars = await builtContext.toContextParameters();
     const authSignature = contextVars[authMethod] as AuthSignature;
     expect(authSignature).toBeDefined();
 

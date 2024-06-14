@@ -90,11 +90,10 @@ describe('context', () => {
         // Uint8Array is not a valid CustomContextParam, override the type:
         customParamsWithBytes[customParamKey] =
           customParam as unknown as string;
-
-        const asJson = await context
-          .withCustomParams(customParamsWithBytes)
+        const contextAsJson = await conditionExpr
+          .buildContext(provider, customParamsWithBytes)
           .toJson();
-        const asObj = JSON.parse(asJson);
+        const asObj = JSON.parse(contextAsJson);
         expect(asObj).toBeDefined();
         expect(asObj[customParamKey]).toEqual(`0x${toHexString(customParam)}`);
       });
@@ -107,7 +106,7 @@ describe('context', () => {
 
     describe('return value test', () => {
       it('accepts on a custom context parameters', async () => {
-        const asObj = await context.withCustomParams(customParams).toObj();
+        const asObj = await conditionExpr.buildContext(provider, customParams).toObj();
         expect(asObj).toBeDefined();
         expect(asObj[customParamKey]).toEqual(1234);
       });
@@ -123,7 +122,7 @@ describe('context', () => {
       RESERVED_CONTEXT_PARAMS.forEach((reservedParam) => {
         const badCustomParams: Record<string, CustomContextParam> = {};
         badCustomParams[reservedParam] = 'this-will-throw';
-        expect(() => context.withCustomParams(badCustomParams)).toThrow(
+        expect(() => conditionExpr.buildContext(provider, badCustomParams)).toThrow(
           `Cannot use reserved parameter name ${reservedParam} as custom parameter`,
         );
       });
@@ -135,7 +134,7 @@ describe('context', () => {
       badCustomParams[customParamKey] = 'this-is-fine';
       badCustomParams[badCustomParamKey] = 'this-will-throw';
       await expect(
-        context.withCustomParams(badCustomParams).toObj(),
+        conditionExpr.buildContext(provider, badCustomParams).toObj(),
       ).rejects.toThrow(
         `Unknown custom context parameter(s): ${badCustomParamKey}`,
       );
@@ -235,7 +234,9 @@ describe('context', () => {
       };
 
       it('handles both custom and auth context parameters', ()=> {
-        const requestedParams = context.requestedParameters();
+        const requestedParams = new ConditionExpression(contractCondition)
+          .buildContext(provider, {}, authProviders)
+          .requestedParameters();
         expect(requestedParams).not.toContain(USER_ADDRESS_PARAM_DEFAULT);
         expect(requestedParams).toContain(customParamKey);
       });

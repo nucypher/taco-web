@@ -196,8 +196,7 @@ describe('supports custom function abi', () => {
 
   it('accepts custom function abi with a custom parameter', async () => {
     const asJson = await conditionExpr
-      .buildContext(fakeProvider(), {}, fakeAuthProviders())
-      .withCustomParams(customParams)
+      .buildContext(fakeProvider(), customParams, fakeAuthProviders())
       .toJson();
 
     expect(asJson).toBeDefined();

@@ -44,7 +44,7 @@ describe('conditions', () => {
     );
     expect(context).toBeDefined();
 
-    const asObj = await context.toObj();
+    const asObj = await context.toContextParameters();
     expect(asObj).toBeDefined();
     expect(asObj[':time']).toBe(100);
   });

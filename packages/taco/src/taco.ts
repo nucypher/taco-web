@@ -103,7 +103,7 @@ export const encryptWithPublicKey = async (
   const [ciphertext, authenticatedData] = encryptForDkg(
     message,
     dkgPublicKey,
-    conditionExpr.toWASMConditions(),
+    conditionExpr.toCoreCondition(),
   );
 
   const headerHash = keccak256(ciphertext.header.toBytes());

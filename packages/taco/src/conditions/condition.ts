@@ -50,7 +50,7 @@ export class Condition {
     return Boolean(this.findParamWithAuthentication());
   }
 
-  public toObj() {
+  public toObj(): ConditionProps {
     const { data, error } = Condition.validate(this.schema, this.value);
     if (error) {
       throw new Error(ERR_INVALID_CONDITION(error));

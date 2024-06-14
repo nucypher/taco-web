@@ -1,19 +1,11 @@
-import { Context, Conditions as WASMConditions } from '@nucypher/nucypher-core';
-import { fromJSON, toJSON } from '@nucypher/shared';
-import {
-  AuthProviders,
-  AuthSignature,
-} from '@nucypher/taco-auth';
-import {AUTH_METHOD_FOR_PARAM} from "@nucypher/taco-auth";
+import { toJSON } from '@nucypher/shared';
+import { AUTH_METHOD_FOR_PARAM, AuthProviders, AuthSignature } from '@nucypher/taco-auth';
 
+import { CoreConditions, CoreContext } from '../../types';
 import { CompoundConditionType } from '../compound-condition';
 import { Condition, ConditionProps } from '../condition';
 import { ConditionExpression } from '../condition-expr';
-import {
-  CONTEXT_PARAM_PREFIX,
-  CONTEXT_PARAM_REGEXP,
-  RESERVED_CONTEXT_PARAMS,
-} from '../const';
+import { CONTEXT_PARAM_PREFIX, CONTEXT_PARAM_REGEXP, RESERVED_CONTEXT_PARAMS } from '../const';
 
 export type CustomContextParam = string | number | boolean;
 export type ContextParam = CustomContextParam | AuthSignature;
@@ -30,19 +22,19 @@ const ERR_UNKNOWN_CONTEXT_PARAMS = (params: string[]) =>
   `Unknown custom context parameter(s): ${params.join(', ')}`;
 
 export class ConditionContext {
+  public requestedParameters: Set<string>;
 
   constructor(
-    private readonly condition: Condition,
+    condition: Condition,
     public readonly customParameters: Record<string, CustomContextParam> = {},
     private readonly authProviders: AuthProviders = {},
   ) {
-    this.validateAuthProviders(this.findRequestedParameters(this.condition.toObj()));
+    const condProps = condition.toObj();
     this.validateParameters();
+    this.validateCoreConditions(condProps);
+    this.requestedParameters = this.findRequestedParameters(condProps);
+    this.validateAuthProviders(this.requestedParameters);
   }
-
-  public requestedParameters = (): Set<string> => {
-    return this.findRequestedParameters(this.condition.toObj());
-  };
 
   private validateParameters(): void {
     Object.keys(this.customParameters).forEach((key) => {
@@ -55,17 +47,16 @@ export class ConditionContext {
     });
   }
 
-  public toObj = async (): Promise<Record<string, ContextParam>> => {
-    const condObject = this.condition.toObj();
-    const parsedCondObject = fromJSON(
-      new WASMConditions(toJSON(condObject)).toString(),
-    );
-    const requestedParameters = this.findRequestedParameters(parsedCondObject);
-    const parameters = await this.fillContextParameters(requestedParameters);
+  private validateCoreConditions(condObject: ConditionProps) {
+    // Checking whether the condition is compatible with the current version of the library
+    // Intentionally ignoring the return value of the function
+    new CoreConditions(toJSON(condObject));
+  }
 
+  private validateMissingParameters(parameters: Record<string, ContextParam>) {
     // Ok, so at this point we should have all the parameters we need
     // If we don't, we have a problem and we should throw
-    const missingParameters = Array.from(requestedParameters).filter(
+    const missingParameters = Array.from(this.requestedParameters).filter(
       (key) => parameters[key] === undefined,
     );
     if (missingParameters.length > 0) {
@@ -75,14 +66,12 @@ export class ConditionContext {
     // We may also have some parameters that are not used
     const unknownParameters = Object.keys(parameters).filter(
       (key) =>
-        !requestedParameters.has(key) && !RESERVED_CONTEXT_PARAMS.includes(key),
+        !this.requestedParameters.has(key) && !RESERVED_CONTEXT_PARAMS.includes(key),
     );
     if (unknownParameters.length > 0) {
       throw new Error(ERR_UNKNOWN_CONTEXT_PARAMS(unknownParameters));
     }
-
-    return parameters;
-  };
+  }
 
   private async fillContextParameters(
     requestedParameters: Set<string>,
@@ -160,22 +149,28 @@ export class ConditionContext {
   }
 
   public async toJson(): Promise<string> {
-    const parameters = await this.toObj();
+    const parameters = await this.toContextParameters();
     return toJSON(parameters);
   }
 
-  public async toWASMContext(): Promise<Context> {
+  public async toCoreContext(): Promise<CoreContext> {
     const asJson = await this.toJson();
-    return new Context(asJson);
+    return new CoreContext(asJson);
   }
 
+  public toContextParameters = async (): Promise<Record<string, ContextParam>> => {
+    const parameters = await this.fillContextParameters(this.requestedParameters);
+    this.validateMissingParameters(parameters);
+    return parameters;
+  };
+
   public static fromConditions(
-    conditions: WASMConditions,
+    conditions: CoreConditions,
     authProviders?: AuthProviders,
     customParameters?: Record<string, CustomContextParam>,
   ): ConditionContext {
     return new ConditionContext(
-      ConditionExpression.fromWASMConditions(conditions).condition,
+      ConditionExpression.fromCoreConditions(conditions).condition,
       customParameters,
       authProviders,
     );

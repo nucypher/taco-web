@@ -1,4 +1,4 @@
-import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
+import { Conditions as CoreConditions } from '@nucypher/nucypher-core';
 import { toJSON } from '@nucypher/shared';
 import {AuthProviders} from "@nucypher/taco-auth";
 import { SemVer } from 'semver';
@@ -56,11 +56,11 @@ export class ConditionExpression {
     return ConditionExpression.fromObj(JSON.parse(json));
   }
 
-  public toWASMConditions(): WASMConditions {
-    return new WASMConditions(toJSON(this.toObj()));
+  public toCoreCondition(): CoreConditions {
+    return new CoreConditions(toJSON(this.toObj()));
   }
 
-  public static fromWASMConditions(conditions: WASMConditions) {
+  public static fromCoreConditions(conditions: CoreConditions) {
     return ConditionExpression.fromJSON(conditions.toString());
   }
 

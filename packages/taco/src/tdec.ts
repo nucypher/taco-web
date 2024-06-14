@@ -1,7 +1,6 @@
 import {
   AccessControlPolicy,
   combineDecryptionSharesSimple,
-  Context,
   DecryptionShareSimple,
   DkgPublicKey,
   EncryptedThresholdDecryptionRequest,
@@ -45,7 +44,7 @@ export const encryptMessage = async (
   const [ciphertext, authenticatedData] = encryptForDkg(
     plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext),
     encryptingKey,
-    conditions.toWASMConditions(),
+    conditions.toCoreCondition(),
   );
 
   const headerHash = keccak256(ciphertext.header.toBytes());
@@ -103,14 +102,14 @@ const retrieve = async (
     ritualId,
     sharesNum,
   );
-  const wasmContext = await ConditionContext.fromConditions(
+  const conditionContext = await ConditionContext.fromConditions(
     thresholdMessageKit.acp.conditions,
     authProviders,
     customParameters,
-  ).toWASMContext();
+  );
   const { sharedSecrets, encryptedRequests } = await makeDecryptionRequests(
     ritualId,
-    wasmContext,
+    conditionContext,
     dkgParticipants,
     thresholdMessageKit,
   );
@@ -148,19 +147,20 @@ const makeDecryptionShares = (
 
 const makeDecryptionRequests = async (
   ritualId: number,
-  wasmContext: Context,
+  conditionContext: ConditionContext,
   dkgParticipants: Array<DkgParticipant>,
   thresholdMessageKit: ThresholdMessageKit,
 ): Promise<{
   sharedSecrets: Record<string, SessionSharedSecret>;
   encryptedRequests: Record<string, EncryptedThresholdDecryptionRequest>;
 }> => {
+  const coreContext = await conditionContext.toCoreContext();
   const decryptionRequest = new ThresholdDecryptionRequest(
     ritualId,
     FerveoVariant.simple,
     thresholdMessageKit.ciphertextHeader,
     thresholdMessageKit.acp,
-    wasmContext,
+    coreContext,
   );
 
   const ephemeralSessionKey = makeSessionKey();

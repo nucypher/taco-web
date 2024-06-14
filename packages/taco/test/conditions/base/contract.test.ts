@@ -1,6 +1,6 @@
 import { initialize } from '@nucypher/nucypher-core';
 import {USER_ADDRESS_PARAM_DEFAULT} from "@nucypher/taco-auth";
-import { fakeAuthProviders, fakeProvider } from '@nucypher/test-utils';
+import { fakeAuthProviders} from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import {
@@ -196,9 +196,8 @@ describe('supports custom function abi', () => {
 
   it('accepts custom function abi with a custom parameter', async () => {
     const asJson = await conditionExpr
-      .buildContext(fakeProvider(), customParams, fakeAuthProviders())
+      .buildContext(customParams, fakeAuthProviders())
       .toJson();
-
     expect(asJson).toBeDefined();
     expect(asJson).toContain(USER_ADDRESS_PARAM_DEFAULT);
     expect(asJson).toContain(myCustomParam);

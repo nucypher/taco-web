@@ -1,7 +1,6 @@
 import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
 import { toJSON } from '@nucypher/shared';
 import {AuthProviders} from "@nucypher/taco-auth";
-import { ethers } from 'ethers';
 import { SemVer } from 'semver';
 
 import { Condition } from './condition';
@@ -66,12 +65,10 @@ export class ConditionExpression {
   }
 
   public buildContext(
-    provider: ethers.providers.Provider,
     customParameters: Record<string, CustomContextParam> = {},
     authProviders: AuthProviders = {},
   ): ConditionContext {
     return new ConditionContext(
-      provider,
       this.condition,
       customParameters,
       authProviders,

@@ -104,7 +104,6 @@ const retrieve = async (
     sharesNum,
   );
   const wasmContext = await ConditionContext.fromConditions(
-    provider,
     thresholdMessageKit.acp.conditions,
     authProviders,
     customParameters,

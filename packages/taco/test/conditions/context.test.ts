@@ -98,6 +98,11 @@ describe('context', () => {
         expect(asObj).toBeDefined();
         expect(asObj[customParamKey]).toEqual(`0x${toHexString(customParam)}`);
       });
+
+      it('detects when a custom parameter is requested', ()=> {
+        const requestedParams = context.requestedParameters();
+        expect(requestedParams).toContain(customParamKey);
+      });
     });
 
     describe('return value test', () => {
@@ -127,7 +132,7 @@ describe('context', () => {
     it('rejects on using a custom parameter that was not requested', async () => {
       const badCustomParamKey = ':notRequested';
       const badCustomParams: Record<string, CustomContextParam> = {};
-      badCustomParams[':customParam'] = 'this-is-fine';
+      badCustomParams[customParamKey] = 'this-is-fine';
       badCustomParams[badCustomParamKey] = 'this-will-throw';
       await expect(
         context.withCustomParams(badCustomParams).toObj(),
@@ -229,6 +234,12 @@ describe('context', () => {
         },
       };
 
+      it('handles both custom and auth context parameters', ()=> {
+        const requestedParams = context.requestedParameters();
+        expect(requestedParams).not.toContain(USER_ADDRESS_PARAM_DEFAULT);
+        expect(requestedParams).toContain(customParamKey);
+      });
+
       it('rejects on a missing parameter ', async () => {
         const customContractCondition = new ContractCondition({
           ...contractConditionObj,
@@ -260,7 +271,6 @@ describe('context', () => {
       it.each([0, ''])(
         'accepts on a falsy parameter value: %s',
         async (falsyParam) => {
-          const customParamKey = ':customParam';
           const customContractCondition = new ContractCondition({
             ...contractConditionObj,
             parameters: [USER_ADDRESS_PARAM_DEFAULT, customParamKey],

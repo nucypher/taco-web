@@ -42,6 +42,10 @@ export class ConditionContext {
     this.validateParameters();
   }
 
+  public requestedParameters = (): Set<string> => {
+    return this.findRequestedParameters(this.condition.toObj());
+  };
+
   private validateParameters(): void {
     Object.keys(this.customParameters).forEach((key) => {
       if (RESERVED_CONTEXT_PARAMS.includes(key)) {

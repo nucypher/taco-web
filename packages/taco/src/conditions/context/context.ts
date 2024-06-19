@@ -53,7 +53,7 @@ export class ConditionContext {
     new CoreConditions(toJSON(condObject));
   }
 
-  private validateMissingParameters(parameters: Record<string, ContextParam>) {
+  private validateNoMissingParameters(parameters: Record<string, ContextParam>) {
     // Ok, so at this point we should have all the parameters we need
     // If we don't, we have a problem and we should throw
     const missingParameters = Array.from(this.requestedParameters).filter(
@@ -160,7 +160,7 @@ export class ConditionContext {
 
   public toContextParameters = async (): Promise<Record<string, ContextParam>> => {
     const parameters = await this.fillContextParameters(this.requestedParameters);
-    this.validateMissingParameters(parameters);
+    this.validateNoMissingParameters(parameters);
     return parameters;
   };
 

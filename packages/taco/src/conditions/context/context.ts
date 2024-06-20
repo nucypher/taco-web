@@ -1,3 +1,4 @@
+import { ThresholdMessageKit } from '@nucypher/nucypher-core';
 import { toJSON } from '@nucypher/shared';
 import { AUTH_METHOD_FOR_PARAM, AuthProviders, AuthSignature } from '@nucypher/taco-auth';
 
@@ -6,6 +7,7 @@ import { CompoundConditionType } from '../compound-condition';
 import { Condition, ConditionProps } from '../condition';
 import { ConditionExpression } from '../condition-expr';
 import { CONTEXT_PARAM_PREFIX, CONTEXT_PARAM_REGEXP, RESERVED_CONTEXT_PARAMS } from '../const';
+
 
 export type CustomContextParam = string | number | boolean;
 export type ContextParam = CustomContextParam | AuthSignature;
@@ -32,7 +34,7 @@ export class ConditionContext {
     const condProps = condition.toObj();
     this.validateParameters();
     this.validateCoreConditions(condProps);
-    this.requestedParameters = this.findRequestedParameters(condProps);
+    this.requestedParameters = ConditionContext.findRequestedParameters(condProps);
     this.validateAuthProviders(this.requestedParameters);
   }
 
@@ -109,11 +111,11 @@ export class ConditionContext {
     return Object.fromEntries(entries);
   }
 
-  private isContextParameter(param: unknown): boolean {
+  private static isContextParameter(param: unknown): boolean {
     return !!String(param).match(CONTEXT_PARAM_REGEXP);
   }
 
-  private findRequestedParameters(condition: ConditionProps) {
+  public static findRequestedParameters(condition: ConditionProps) {
     // First, we want to find all the parameters we need to add
     const requestedParameters = new Set<string>();
 
@@ -121,7 +123,7 @@ export class ConditionContext {
     // Check return value test
     if (condition.returnValueTest) {
       const rvt = condition.returnValueTest.value;
-      if (this.isContextParameter(rvt)) {
+      if (ConditionContext.isContextParameter(rvt)) {
         requestedParameters.add(rvt);
       }
     }
@@ -174,5 +176,10 @@ export class ConditionContext {
       customParameters,
       authProviders,
     );
+  }
+
+  public static requestedParameters(messageKit: ThresholdMessageKit): Set<string> {
+    const conditionExpr = ConditionExpression.fromCoreConditions(messageKit.acp.conditions);
+    return ConditionContext.findRequestedParameters(conditionExpr.condition.toObj());
   }
 }

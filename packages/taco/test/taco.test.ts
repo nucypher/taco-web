@@ -3,6 +3,7 @@ import {
   initialize,
   SessionStaticSecret,
 } from '@nucypher/nucypher-core';
+import { USER_ADDRESS_PARAM_DEFAULT } from '@nucypher/taco-auth';
 import {
   aliceSecretKeyBytes,
   fakeDkgFlow,
@@ -94,4 +95,33 @@ describe('taco', () => {
     expect(decryptSpy).toHaveBeenCalled();
     expect(decryptedMessage).toEqual(toBytes(message));
   });
+
+  it('exposes requested parameters', async ()=> {
+    const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
+    const mockedDkgRitual = fakeDkgRitual(mockedDkg);
+    const provider = fakeProvider(aliceSecretKeyBytes);
+    const signer = fakeSigner(aliceSecretKeyBytes);
+    const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);
+
+
+    const customParamKey =  ":nftId";
+    const ownsNFTWithCustomParams = new conditions.predefined.erc721.ERC721Ownership({
+      contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
+      parameters: [customParamKey],
+      chain: TEST_CHAIN_ID,
+    });
+
+    const messageKit = await taco.encrypt(
+      provider,
+      domains.DEVNET,
+      message,
+      ownsNFTWithCustomParams,
+      mockedDkg.ritualId,
+      signer,
+    );
+    expect(getFinalizedRitualSpy).toHaveBeenCalled();
+
+    const requestedParameters = taco.conditions.context.ConditionContext.requestedParameters(messageKit);
+    expect(requestedParameters).toEqual(new Set([customParamKey, USER_ADDRESS_PARAM_DEFAULT]));
+  })
 });

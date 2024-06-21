@@ -56,6 +56,9 @@ const EIP712Domain = [
   },
 ];
 
+/**
+ * @deprecated Use EIP4361AuthProvider instead.
+ */
 export class EIP712AuthProvider implements AuthProvider {
   private readonly storage: LocalStorage;
 
@@ -64,6 +67,10 @@ export class EIP712AuthProvider implements AuthProvider {
     private readonly provider: ethers.providers.Provider,
     private readonly signer: ethers.Signer,
   ) {
+    console.warn(
+      'DeprecationWarning: The EIP712AuthProvider authentication provider is deprecated. ' +
+      'Please use EIP4361AuthProvider instead. Refer to the documentation for more details.'
+    );
     this.storage = new LocalStorage();
   }
 

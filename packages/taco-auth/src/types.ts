@@ -19,6 +19,9 @@ export interface AuthSignature {
   typedData: EIP712TypedData | EIP4361TypedData;
 }
 
+/**
+ * @deprecated Use EIP4361_AUTH_METHOD instead.
+ */
 export const EIP712_AUTH_METHOD = 'EIP712';
 export const EIP4361_AUTH_METHOD = 'EIP4361';
 

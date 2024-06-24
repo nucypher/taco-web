@@ -32,13 +32,13 @@ export class ConditionContext {
     private readonly authProviders: AuthProviders = {},
   ) {
     const condProps = condition.toObj();
-    this.validateParameters();
+    this.validateContextParameters();
     this.validateCoreConditions(condProps);
-    this.requestedParameters = ConditionContext.findRequestedParameters(condProps);
+    this.requestedParameters = ConditionContext.findContextParameters(condProps);
     this.validateAuthProviders(this.requestedParameters);
   }
 
-  private validateParameters(): void {
+  private validateContextParameters(): void {
     Object.keys(this.customParameters).forEach((key) => {
       if (RESERVED_CONTEXT_PARAMS.includes(key)) {
         throw new Error(ERR_RESERVED_PARAM(key));
@@ -55,7 +55,7 @@ export class ConditionContext {
     new CoreConditions(toJSON(condObject));
   }
 
-  private validateNoMissingParameters(parameters: Record<string, ContextParam>) {
+  private validateNoMissingContextParameters(parameters: Record<string, ContextParam>) {
     // Ok, so at this point we should have all the parameters we need
     // If we don't, we have a problem and we should throw
     const missingParameters = Array.from(this.requestedParameters).filter(
@@ -115,7 +115,7 @@ export class ConditionContext {
     return !!String(param).match(CONTEXT_PARAM_REGEXP);
   }
 
-  public static findRequestedParameters(condition: ConditionProps) {
+  public static findContextParameters(condition: ConditionProps) {
     // First, we want to find all the parameters we need to add
     const requestedParameters = new Set<string>();
 
@@ -138,7 +138,7 @@ export class ConditionContext {
     // If it's a compound condition, check operands
     if (condition.conditionType === CompoundConditionType) {
       for (const key in condition.operands) {
-        const innerParams = this.findRequestedParameters(
+        const innerParams = this.findContextParameters(
           condition.operands[key],
         );
         for (const param of innerParams) {
@@ -162,7 +162,7 @@ export class ConditionContext {
 
   public toContextParameters = async (): Promise<Record<string, ContextParam>> => {
     const parameters = await this.fillContextParameters(this.requestedParameters);
-    this.validateNoMissingParameters(parameters);
+    this.validateNoMissingContextParameters(parameters);
     return parameters;
   };
 
@@ -178,8 +178,8 @@ export class ConditionContext {
     );
   }
 
-  public static requestedParameters(messageKit: ThresholdMessageKit): Set<string> {
+  public static requestedContextParameters(messageKit: ThresholdMessageKit): Set<string> {
     const conditionExpr = ConditionExpression.fromCoreConditions(messageKit.acp.conditions);
-    return ConditionContext.findRequestedParameters(conditionExpr.condition.toObj());
+    return ConditionContext.findContextParameters(conditionExpr.condition.toObj());
   }
 }

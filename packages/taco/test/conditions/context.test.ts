@@ -149,7 +149,6 @@ describe('context', () => {
       };
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
-      expect(conditionExpr.contextRequiresAuthentication()).toBe(true);
       expect(conditionExpr.buildContext({}, authProviders)).toBeDefined();
       expect(() => conditionExpr.buildContext({})).toThrow(
         `Authentication provider required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
@@ -169,7 +168,6 @@ describe('context', () => {
       } as ContractConditionProps;
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
-      expect(conditionExpr.contextRequiresAuthentication()).toBe(true);
       expect(conditionExpr.buildContext( {}, authProviders)).toBeDefined();
       expect(() => conditionExpr.buildContext( {})).toThrow(
         `Authentication provider required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
@@ -182,7 +180,6 @@ describe('context', () => {
       expect(
         JSON.stringify(condition.toObj()).includes(USER_ADDRESS_PARAM_DEFAULT),
       ).toBe(false);
-      expect(conditionExpr.contextRequiresAuthentication()).toBe(false);
       expect(conditionExpr.buildContext( {}, authProviders)).toBeDefined();
       expect(conditionExpr.buildContext( {})).toBeDefined();
     });
@@ -197,7 +194,6 @@ describe('context', () => {
       };
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
-      expect(conditionExpr.contextRequiresAuthentication()).toBe(true);
       expect(() => conditionExpr.buildContext( {}, undefined)).toThrow(
         `Authentication provider required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
       );
@@ -213,7 +209,6 @@ describe('context', () => {
       };
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
-      expect(conditionExpr.contextRequiresAuthentication()).toBe(true);
       expect(() => conditionExpr.buildContext( {}, undefined)).toThrow(
         `Authentication provider required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
       );
@@ -314,7 +309,6 @@ describe('authentication provider', () => {
       };
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
-      expect(conditionExpr.contextRequiresAuthentication()).toBe(true);
       expect(() => conditionExpr.buildContext( {}, {})).toThrow(
         `Authentication provider required to satisfy ${userAddressParam} context variable in condition`,
       );
@@ -331,7 +325,6 @@ describe('authentication provider', () => {
     };
     const condition = new ContractCondition(conditionObj);
     const conditionExpr = new ConditionExpression(condition);
-    expect(conditionExpr.contextRequiresAuthentication()).toBe(true);
     expect(() =>
       conditionExpr.buildContext( {}, authProviders),
     ).not.toThrow();
@@ -348,7 +341,6 @@ describe('authentication provider', () => {
     };
     const condition = new ContractCondition(conditionObj);
     const conditionExpr = new ConditionExpression(condition);
-    expect(conditionExpr.contextRequiresAuthentication()).toBe(true);
     expect(() =>
       conditionExpr.buildContext( {}, authProviders),
     ).not.toThrow();
@@ -364,7 +356,6 @@ describe('authentication provider', () => {
     };
     const condition = new ContractCondition(conditionObj);
     const conditionExpr = new ConditionExpression(condition);
-    expect(conditionExpr.contextRequiresAuthentication()).toBe(true);
 
     const builtContext = conditionExpr.buildContext( {}, authProviders);
     const contextVars = await builtContext.toContextParameters();

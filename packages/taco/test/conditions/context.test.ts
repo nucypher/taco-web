@@ -470,9 +470,6 @@ describe('No authentication provider', () => {
     ] as AuthSignature;
     expect(authSignature).toBeDefined();
     await testEIP4361AuthSignature(authSignature);
-
-    // TODO: Should we enforce that? It does not affect the server-side verification of the signature
-    // expect(contextVars[USER_ADDRESS_PARAM_EXTERNAL_EIP4361]).not.toBeDefined();
   });
 });
 

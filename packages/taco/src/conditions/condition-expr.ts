@@ -75,10 +75,6 @@ export class ConditionExpression {
     );
   }
 
-  public contextRequiresAuthentication(): boolean {
-    return this.condition.requiresAuthentication();
-  }
-
   public equals(other: ConditionExpression): boolean {
     return [
       this.version === other.version,

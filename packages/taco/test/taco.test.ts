@@ -121,7 +121,7 @@ describe('taco', () => {
     );
     expect(getFinalizedRitualSpy).toHaveBeenCalled();
 
-    const requestedParameters = taco.conditions.context.ConditionContext.requestedParameters(messageKit);
+    const requestedParameters = taco.conditions.context.ConditionContext.requestedContextParameters(messageKit);
     expect(requestedParameters).toEqual(new Set([customParamKey, USER_ADDRESS_PARAM_DEFAULT]));
   })
 });

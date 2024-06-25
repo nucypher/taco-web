@@ -2,7 +2,7 @@ import { format } from 'node:util';
 
 import {
   conditions,
-  decrypt,
+  decryptWithAuthProviders,
   domains,
   encrypt,
   fromBytes,
@@ -13,6 +13,7 @@ import {
   toBytes,
   toHexString,
 } from '@nucypher/taco';
+import { makeAuthProviders } from '@nucypher/taco-auth';
 import * as dotenv from 'dotenv';
 import { ethers } from 'ethers';
 
@@ -104,12 +105,16 @@ const decryptFromBytes = async (encryptedBytes: Uint8Array) => {
 
   const messageKit = ThresholdMessageKit.fromBytes(encryptedBytes);
   console.log('Decrypting message ...');
-  return decrypt(
+  const authProviders = makeAuthProviders(provider, consumerSigner, {
+    domain: 'localhost',
+    uri: 'http://localhost:3000',
+  });
+  return decryptWithAuthProviders(
     provider,
     domain,
     messageKit,
+    authProviders,
     getPorterUri(domain),
-    consumerSigner,
   );
 };
 

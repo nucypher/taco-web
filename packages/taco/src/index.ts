@@ -11,4 +11,4 @@ export {
 
 export * as conditions from './conditions';
 // Expose registerEncrypters from taco API (#324)
-export { decrypt, encrypt, encryptWithPublicKey, isAuthorized } from './taco';
+export { decrypt, decryptWithAuthProviders, encrypt, encryptWithPublicKey, isAuthorized } from './taco';

@@ -18,14 +18,33 @@ const ERR_MISSING_SIWE_PARAMETERS = 'Missing default SIWE parameters';
 
 export class EIP4361AuthProvider {
   private readonly storage: LocalStorage;
+  private readonly providerParams: EIP4361AuthProviderParams;
 
   constructor(
     // TODO: We only need the provider to fetch the chainId, consider removing it
     private readonly provider: ethers.providers.Provider,
     private readonly signer: ethers.Signer,
-    private readonly providerParams?: EIP4361AuthProviderParams,
+    providerParams?: EIP4361AuthProviderParams,
   ) {
     this.storage = new LocalStorage();
+    if (providerParams) {
+      this.providerParams = providerParams;
+    } else {
+      this.providerParams = this.getDefaultParameters();
+    }
+  }
+
+  private getDefaultParameters() {
+    if (typeof window !== 'undefined') {
+      // If we are in a browser environment, we can get the domain and uri from the window object
+      const maybeOrigin = window?.location?.origin;
+      return {
+        domain: maybeOrigin.split('//')[1].split('.')[0],
+        uri: maybeOrigin,
+      };
+    }
+    // If not, we have no choice but to throw an error
+    throw new Error(ERR_MISSING_SIWE_PARAMETERS);
   }
 
   public async getOrCreateAuthSignature(): Promise<AuthSignature> {
@@ -46,7 +65,7 @@ export class EIP4361AuthProvider {
 
   private async createSIWEAuthMessage(): Promise<AuthSignature> {
     const address = await this.signer.getAddress();
-    const { domain, uri } = this.getParametersOrDefault();
+    const { domain, uri } = this.providerParams;
     const version = '1';
     const nonce = generateNonce();
     const chainId = (await this.provider.getNetwork()).chainId;
@@ -63,27 +82,5 @@ export class EIP4361AuthProvider {
     const message = siweMessage.prepareMessage();
     const signature = await this.signer.signMessage(message);
     return { signature, address, scheme, typedData: message };
-  }
-
-  // TODO: Create a facility to set these parameters or expose them to the user
-  private getParametersOrDefault(): {
-    domain: string;
-    uri: string;
-  } {
-    // If we are in a browser environment, we can get the domain and uri from the window object
-    if (typeof window !== 'undefined') {
-      const maybeOrigin = window?.location?.origin;
-      return {
-        domain: maybeOrigin.split('//')[1].split('.')[0],
-        uri: maybeOrigin,
-      };
-    }
-    if (this.providerParams) {
-      return {
-        domain: this.providerParams.domain,
-        uri: this.providerParams.uri,
-      };
-    }
-    throw new Error(ERR_MISSING_SIWE_PARAMETERS);
   }
 }

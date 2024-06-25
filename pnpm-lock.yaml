@@ -407,6 +407,9 @@ importers:
       '@nucypher/taco':
         specifier: workspace:*
         version: link:../../../packages/taco
+      '@nucypher/taco-auth':
+        specifier: workspace:*
+        version: link:../../../packages/taco-auth
       dotenv:
         specifier: ^16.3.1
         version: 16.4.5

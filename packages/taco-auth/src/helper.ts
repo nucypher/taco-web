@@ -7,6 +7,7 @@ import { AuthProviders, EIP4361_AUTH_METHOD, EIP712_AUTH_METHOD } from './types'
 export const makeAuthProviders = (
   provider: ethers.providers.Provider,
   signer?: ethers.Signer,
+  // TODO: Expose these parameters to the user in taco.ts
   siweDefaultParams?: EIP4361AuthProviderParams
 ): AuthProviders => {
   return {

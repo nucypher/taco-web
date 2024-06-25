@@ -1,7 +1,7 @@
 import {
   bobSecretKeyBytes,
   fakeProvider,
-  fakeSigner,
+  fakeSigner, TEST_SIWE_PARAMS,
 } from '@nucypher/test-utils';
 import { SiweMessage } from 'siwe';
 import { describe, expect, it } from 'vitest';
@@ -43,7 +43,7 @@ describe('taco authorization', () => {
     const provider = fakeProvider(bobSecretKeyBytes);
     const signer = fakeSigner(bobSecretKeyBytes);
 
-    const eip4361Provider = new EIP4361AuthProvider(provider, signer);
+    const eip4361Provider = new EIP4361AuthProvider(provider, signer, TEST_SIWE_PARAMS);
     const typedSignature = await eip4361Provider.getOrCreateAuthSignature();
     expect(typedSignature.signature).toBeDefined();
     expect(typedSignature.address).toEqual(await signer.getAddress());

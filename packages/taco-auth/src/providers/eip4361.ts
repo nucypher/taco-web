@@ -6,6 +6,13 @@ import { AuthSignature, EIP4361_AUTH_METHOD } from '../types';
 
 export type EIP4361TypedData = string;
 
+export type EIP4361AuthProviderParams = {
+  domain: string;
+  uri: string;
+}
+
+const ERR_MISSING_SIWE_PARAMETERS = 'Missing default SIWE parameters';
+
 export class EIP4361AuthProvider {
   private readonly storage: LocalStorage;
 
@@ -13,6 +20,7 @@ export class EIP4361AuthProvider {
     // TODO: We only need the provider to fetch the chainId, consider removing it
     private readonly provider: ethers.providers.Provider,
     private readonly signer: ethers.Signer,
+    private readonly providerParams?: EIP4361AuthProviderParams,
   ) {
     this.storage = new LocalStorage();
   }
@@ -55,7 +63,10 @@ export class EIP4361AuthProvider {
   }
 
   // TODO: Create a facility to set these parameters or expose them to the user
-  private getParametersOrDefault() {
+  private getParametersOrDefault(): {
+    domain: string;
+    uri: string;
+  } {
     // If we are in a browser environment, we can get the domain and uri from the window object
     if (typeof window !== 'undefined') {
       const maybeOrigin = window?.location?.origin;
@@ -64,10 +75,12 @@ export class EIP4361AuthProvider {
         uri: maybeOrigin,
       };
     }
-    // TODO: Add a facility to manage this case
-    return {
-      domain: 'localhost',
-      uri: 'http://localhost:3000',
-    };
+    if (this.providerParams) {
+      return {
+        domain: this.providerParams.domain,
+        uri: this.providerParams.uri,
+      }
+    }
+    throw new Error(ERR_MISSING_SIWE_PARAMETERS);
   }
 }

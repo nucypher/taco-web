@@ -11,7 +11,7 @@ import {
   USER_ADDRESS_PARAM_EIP4361,
   USER_ADDRESS_PARAM_EIP712
 } from "@nucypher/taco-auth";
-import {fakeAuthProviders, fakeProvider, fakeSigner} from '@nucypher/test-utils';
+import { fakeAuthProviders, fakeProvider, fakeSigner, TEST_SIWE_PARAMS } from '@nucypher/test-utils';
 import { ethers } from 'ethers';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
@@ -314,7 +314,7 @@ describe('No authentication provider', () => {
     await initialize();
     provider = fakeProvider();
     signer = fakeSigner();
-    authProviders = makeAuthProviders(provider, signer);
+    authProviders = makeAuthProviders(provider, signer, TEST_SIWE_PARAMS);
   });
 
   it('throws an error if there is no auth provider', () => {

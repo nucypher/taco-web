@@ -17,7 +17,7 @@ const ERR_RESERVED_PARAM = (key: string) =>
 const ERR_INVALID_CUSTOM_PARAM = (key: string) =>
   `Custom parameter ${key} must start with ${CONTEXT_PARAM_PREFIX}`;
 const ERR_AUTH_PROVIDER_REQUIRED = (key: string) =>
-  `No authentication provider required to satisfy ${key} context variable in condition`;
+  `No matching authentication provider to satisfy ${key} context variable in condition`;
 const ERR_MISSING_CONTEXT_PARAMS = (params: string[]) =>
   `Missing custom context parameter(s): ${params.join(', ')}`;
 const ERR_UNKNOWN_CONTEXT_PARAMS = (params: string[]) =>

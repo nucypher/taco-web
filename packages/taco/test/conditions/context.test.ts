@@ -152,7 +152,7 @@ describe('context', () => {
       const conditionExpr = new ConditionExpression(condition);
       expect(conditionExpr.buildContext({}, authProviders)).toBeDefined();
       expect(() => conditionExpr.buildContext({})).toThrow(
-        `No authentication provider required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
+        `No matching authentication provider to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
       );
     });
 
@@ -171,7 +171,7 @@ describe('context', () => {
       const conditionExpr = new ConditionExpression(condition);
       expect(conditionExpr.buildContext( {}, authProviders)).toBeDefined();
       expect(() => conditionExpr.buildContext( {})).toThrow(
-        `No authentication provider required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
+        `No matching authentication provider to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
       );
     });
 
@@ -196,7 +196,7 @@ describe('context', () => {
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
       expect(() => conditionExpr.buildContext( {}, undefined)).toThrow(
-        `No authentication provider required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
+        `No matching authentication provider to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
       );
     });
 
@@ -211,7 +211,7 @@ describe('context', () => {
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
       expect(() => conditionExpr.buildContext( {}, undefined)).toThrow(
-        `No authentication provider required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
+        `No matching authentication provider to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
       );
     });
 
@@ -329,7 +329,7 @@ describe('No authentication provider', () => {
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
       expect(() => conditionExpr.buildContext( {}, {})).toThrow(
-        `No authentication provider required to satisfy ${userAddressParam} context variable in condition`,
+        `No matching authentication provider to satisfy ${userAddressParam} context variable in condition`,
       );
     });
   });

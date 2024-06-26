@@ -1,5 +1,6 @@
 import { initialize } from '@nucypher/nucypher-core';
 import { objectEquals, toJSON } from '@nucypher/shared';
+import {USER_ADDRESS_PARAM_DEFAULT} from "@nucypher/taco-auth";
 import { TEST_CHAIN_ID, TEST_CONTRACT_ADDR } from '@nucypher/test-utils';
 import { SemVer } from 'semver';
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -15,7 +16,6 @@ import {
 } from '../../src/conditions/base/time';
 import { CompoundCondition } from '../../src/conditions/compound-condition';
 import { ConditionExpression } from '../../src/conditions/condition-expr';
-import { USER_ADDRESS_PARAM_DEFAULT } from '../../src/conditions/const';
 import { ERC721Balance } from '../../src/conditions/predefined/erc721';
 import {
   testContractConditionObj,
@@ -194,18 +194,18 @@ describe('condition set', () => {
       expect(conditionExprFromJson).toBeDefined();
       expect(conditionExprFromJson.equals(conditionExprFromJson)).toBeTruthy();
 
-      const asWasmConditions = conditionExprFromJson.toWASMConditions();
-      const fromWasmConditions =
-        ConditionExpression.fromWASMConditions(asWasmConditions);
-      expect(fromWasmConditions).toBeDefined();
-      expect(fromWasmConditions.equals(conditionExprFromJson)).toBeTruthy();
+      const asCoreCondition = conditionExprFromJson.toCoreCondition();
+      const fromCoreCondition =
+        ConditionExpression.fromCoreConditions(asCoreCondition);
+      expect(fromCoreCondition).toBeDefined();
+      expect(fromCoreCondition.equals(conditionExprFromJson)).toBeTruthy();
     });
 
     it('serializes to and from WASM conditions', () => {
       const conditionExpr = new ConditionExpression(erc721Balance);
-      const wasmConditions = conditionExpr.toWASMConditions();
-      const fromWasm = ConditionExpression.fromWASMConditions(wasmConditions);
-      expect(conditionExpr.equals(fromWasm)).toBeTruthy();
+      const coreConditions = conditionExpr.toCoreCondition();
+      const fromCoreConditions = ConditionExpression.fromCoreConditions(coreConditions);
+      expect(conditionExpr.equals(fromCoreConditions)).toBeTruthy();
     });
 
     it('incompatible version', () => {

@@ -1,7 +1,6 @@
 import {
   AccessControlPolicy,
   combineDecryptionSharesSimple,
-  Context,
   DecryptionShareSimple,
   DkgPublicKey,
   EncryptedThresholdDecryptionRequest,
@@ -20,11 +19,12 @@ import {
   PorterClient,
   toBytes,
 } from '@nucypher/shared';
+import {AuthProviders} from "@nucypher/taco-auth";
 import { ethers } from 'ethers';
 import { arrayify, keccak256 } from 'ethers/lib/utils';
 
 import { ConditionExpression } from './conditions/condition-expr';
-import { ConditionContext, CustomContextParam } from './conditions/context';
+import { ConditionContext, CustomContextParam} from './conditions/context';
 
 const ERR_DECRYPTION_FAILED = (errors: unknown) =>
   `Threshold of responses not met; TACo decryption failed with errors: ${JSON.stringify(
@@ -44,7 +44,7 @@ export const encryptMessage = async (
   const [ciphertext, authenticatedData] = encryptForDkg(
     plaintext instanceof Uint8Array ? plaintext : toBytes(plaintext),
     encryptingKey,
-    conditions.toWASMConditions(),
+    conditions.toCoreCondition(),
   );
 
   const headerHash = keccak256(ciphertext.header.toBytes());
@@ -66,7 +66,7 @@ export const retrieveAndDecrypt = async (
   ritualId: number,
   sharesNum: number,
   threshold: number,
-  signer?: ethers.Signer,
+  authProviders?: AuthProviders,
   customParameters?: Record<string, CustomContextParam>,
 ): Promise<Uint8Array> => {
   const decryptionShares = await retrieve(
@@ -77,7 +77,7 @@ export const retrieveAndDecrypt = async (
     ritualId,
     sharesNum,
     threshold,
-    signer,
+    authProviders,
     customParameters,
   );
   const sharedSecret = combineDecryptionSharesSimple(decryptionShares);
@@ -93,7 +93,7 @@ const retrieve = async (
   ritualId: number,
   sharesNum: number,
   threshold: number,
-  signer?: ethers.Signer,
+  authProviders?: AuthProviders,
   customParameters?: Record<string, CustomContextParam>,
 ): Promise<DecryptionShareSimple[]> => {
   const dkgParticipants = await DkgCoordinatorAgent.getParticipants(
@@ -102,15 +102,14 @@ const retrieve = async (
     ritualId,
     sharesNum,
   );
-  const wasmContext = await ConditionContext.fromConditions(
-    provider,
+  const conditionContext = await ConditionContext.fromConditions(
     thresholdMessageKit.acp.conditions,
-    signer,
+    authProviders,
     customParameters,
-  ).toWASMContext();
+  );
   const { sharedSecrets, encryptedRequests } = await makeDecryptionRequests(
     ritualId,
-    wasmContext,
+    conditionContext,
     dkgParticipants,
     thresholdMessageKit,
   );
@@ -148,19 +147,20 @@ const makeDecryptionShares = (
 
 const makeDecryptionRequests = async (
   ritualId: number,
-  wasmContext: Context,
+  conditionContext: ConditionContext,
   dkgParticipants: Array<DkgParticipant>,
   thresholdMessageKit: ThresholdMessageKit,
 ): Promise<{
   sharedSecrets: Record<string, SessionSharedSecret>;
   encryptedRequests: Record<string, EncryptedThresholdDecryptionRequest>;
 }> => {
+  const coreContext = await conditionContext.toCoreContext();
   const decryptionRequest = new ThresholdDecryptionRequest(
     ritualId,
     FerveoVariant.simple,
     thresholdMessageKit.ciphertextHeader,
     thresholdMessageKit.acp,
-    wasmContext,
+    coreContext,
   );
 
   const ephemeralSessionKey = makeSessionKey();

@@ -1,24 +1,25 @@
 import { ethers } from 'ethers';
 import { generateNonce, SiweMessage } from 'siwe';
 
-import { LocalStorage } from './storage';
-import { AuthSignature } from './types';
+import { LocalStorage } from '../storage';
+import { AuthSignature, EIP4361_AUTH_METHOD } from '../types';
 
-export type FormattedEIP4361 = string;
+export type EIP4361TypedData = string;
 
-export class EIP4361SignatureProvider {
+export class EIP4361AuthProvider {
   private readonly storage: LocalStorage;
 
   constructor(
+    // TODO: We only need the provider to fetch the chainId, consider removing it
     private readonly provider: ethers.providers.Provider,
     private readonly signer: ethers.Signer,
   ) {
     this.storage = new LocalStorage();
   }
 
-  public async getOrCreateWalletSignature(): Promise<AuthSignature> {
+  public async getOrCreateAuthSignature(): Promise<AuthSignature> {
     const address = await this.signer.getAddress();
-    const storageKey = `eth-signin-message-${address}`;
+    const storageKey = `eth-${EIP4361_AUTH_METHOD}-message-${address}`;
 
     // If we have a message in localStorage, return it
     const maybeMessage = this.storage.getItem(storageKey);
@@ -27,12 +28,12 @@ export class EIP4361SignatureProvider {
     }
 
     // If at this point we didn't return, we need to create a new message
-    const typedSignature = await this.createSiweMessage();
-    this.storage.setItem(storageKey, JSON.stringify(typedSignature));
-    return typedSignature;
+    const authMessage = await this.createSIWEAuthMessage();
+    this.storage.setItem(storageKey, JSON.stringify(authMessage));
+    return authMessage;
   }
 
-  private async createSiweMessage(): Promise<AuthSignature> {
+  private async createSIWEAuthMessage(): Promise<AuthSignature> {
     const address = await this.signer.getAddress();
     const { domain, uri } = this.getParametersOrDefault();
     const version = '1';
@@ -53,6 +54,7 @@ export class EIP4361SignatureProvider {
     return { signature, address, scheme, typedData: message };
   }
 
+  // TODO: Create a facility to set these parameters or expose them to the user
   private getParametersOrDefault() {
     // If we are in a browser environment, we can get the domain and uri from the window object
     if (typeof window !== 'undefined') {

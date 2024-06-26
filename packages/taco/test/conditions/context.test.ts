@@ -1,11 +1,17 @@
 import { initialize } from '@nucypher/nucypher-core';
 import {
+  AuthProviders,
   AuthSignature,
-  EIP4361SignatureProvider,
-  EIP712SignatureProvider,
-  FormattedEIP712,
+  EIP4361AuthProvider,
+  EIP712AuthProvider, EIP712TypedData,
+  makeAuthProviders,
 } from '@nucypher/taco-auth';
-import { fakeProvider, fakeSigner } from '@nucypher/test-utils';
+import {
+  USER_ADDRESS_PARAM_DEFAULT,
+  USER_ADDRESS_PARAM_EIP4361,
+  USER_ADDRESS_PARAM_EIP712
+} from "@nucypher/taco-auth";
+import {fakeAuthProviders, fakeProvider, fakeSigner} from '@nucypher/test-utils';
 import { ethers } from 'ethers';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
@@ -18,9 +24,6 @@ import { RpcCondition } from '../../src/conditions/base/rpc';
 import { ConditionExpression } from '../../src/conditions/condition-expr';
 import {
   RESERVED_CONTEXT_PARAMS,
-  USER_ADDRESS_PARAM_DEFAULT,
-  USER_ADDRESS_PARAM_EIP4361,
-  USER_ADDRESS_PARAM_EIP712,
 } from '../../src/conditions/const';
 import { CustomContextParam } from '../../src/conditions/context';
 import {
@@ -35,13 +38,11 @@ import {
 } from '../test-utils';
 
 describe('context', () => {
-  let provider: ethers.providers.Provider;
-  let signer: ethers.Signer;
+  let authProviders: AuthProviders;
 
   beforeAll(async () => {
     await initialize();
-    provider = fakeProvider();
-    signer = fakeSigner();
+    authProviders = fakeAuthProviders();
   });
 
   describe('serialization', () => {
@@ -56,7 +57,7 @@ describe('context', () => {
       });
       const conditionContext = new ConditionExpression(
         rpcCondition,
-      ).buildContext(provider, {}, signer);
+      ).buildContext({}, authProviders);
       const asJson = await conditionContext.toJson();
 
       expect(asJson).toBeDefined();
@@ -78,7 +79,6 @@ describe('context', () => {
     };
     const contractCondition = new ContractCondition(contractConditionObj);
     const conditionExpr = new ConditionExpression(contractCondition);
-    const context = conditionExpr.buildContext(provider, {}, signer);
 
     describe('custom parameters', () => {
       it('serializes bytes as hex strings', async () => {
@@ -87,25 +87,30 @@ describe('context', () => {
         // Uint8Array is not a valid CustomContextParam, override the type:
         customParamsWithBytes[customParamKey] =
           customParam as unknown as string;
-
-        const asJson = await context
-          .withCustomParams(customParamsWithBytes)
+        const contextAsJson = await conditionExpr
+          .buildContext(customParamsWithBytes)
           .toJson();
-        const asObj = JSON.parse(asJson);
+        const asObj = JSON.parse(contextAsJson);
         expect(asObj).toBeDefined();
         expect(asObj[customParamKey]).toEqual(`0x${toHexString(customParam)}`);
+      });
+
+      it('detects when a custom parameter is requested', ()=> {
+        const context = conditionExpr.buildContext({}, authProviders);
+        expect(context.requestedParameters).toContain(customParamKey);
       });
     });
 
     describe('return value test', () => {
       it('accepts on a custom context parameters', async () => {
-        const asObj = await context.withCustomParams(customParams).toObj();
+        const asObj = await conditionExpr.buildContext(customParams).toContextParameters();
         expect(asObj).toBeDefined();
         expect(asObj[customParamKey]).toEqual(1234);
       });
 
       it('rejects on a missing custom context parameter', async () => {
-        await expect(context.toObj()).rejects.toThrow(
+        const context = conditionExpr.buildContext({}, authProviders);
+        await expect(context.toContextParameters()).rejects.toThrow(
           `Missing custom context parameter(s): ${customParamKey}`,
         );
       });
@@ -115,7 +120,7 @@ describe('context', () => {
       RESERVED_CONTEXT_PARAMS.forEach((reservedParam) => {
         const badCustomParams: Record<string, CustomContextParam> = {};
         badCustomParams[reservedParam] = 'this-will-throw';
-        expect(() => context.withCustomParams(badCustomParams)).toThrow(
+        expect(() => conditionExpr.buildContext(badCustomParams)).toThrow(
           `Cannot use reserved parameter name ${reservedParam} as custom parameter`,
         );
       });
@@ -124,16 +129,16 @@ describe('context', () => {
     it('rejects on using a custom parameter that was not requested', async () => {
       const badCustomParamKey = ':notRequested';
       const badCustomParams: Record<string, CustomContextParam> = {};
-      badCustomParams[':customParam'] = 'this-is-fine';
+      badCustomParams[customParamKey] = 'this-is-fine';
       badCustomParams[badCustomParamKey] = 'this-will-throw';
       await expect(
-        context.withCustomParams(badCustomParams).toObj(),
+        conditionExpr.buildContext(badCustomParams).toContextParameters(),
       ).rejects.toThrow(
         `Unknown custom context parameter(s): ${badCustomParamKey}`,
       );
     });
 
-    it('detects when signer is required by parameters', () => {
+    it('detects when auth provider is required by parameters', () => {
       const conditionObj = {
         ...testContractConditionObj,
         parameters: [USER_ADDRESS_PARAM_DEFAULT],
@@ -144,10 +149,9 @@ describe('context', () => {
       };
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
-      expect(conditionExpr.contextRequiresSigner()).toBe(true);
-      expect(conditionExpr.buildContext(provider, {}, signer)).toBeDefined();
-      expect(() => conditionExpr.buildContext(provider, {})).toThrow(
-        `Signer required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
+      expect(conditionExpr.buildContext({}, authProviders)).toBeDefined();
+      expect(() => conditionExpr.buildContext({})).toThrow(
+        `Authentication provider required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
       );
     });
 
@@ -164,10 +168,9 @@ describe('context', () => {
       } as ContractConditionProps;
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
-      expect(conditionExpr.contextRequiresSigner()).toBe(true);
-      expect(conditionExpr.buildContext(provider, {}, signer)).toBeDefined();
-      expect(() => conditionExpr.buildContext(provider, {})).toThrow(
-        `Signer required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
+      expect(conditionExpr.buildContext( {}, authProviders)).toBeDefined();
+      expect(() => conditionExpr.buildContext( {})).toThrow(
+        `Authentication provider required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
       );
     });
 
@@ -177,9 +180,8 @@ describe('context', () => {
       expect(
         JSON.stringify(condition.toObj()).includes(USER_ADDRESS_PARAM_DEFAULT),
       ).toBe(false);
-      expect(conditionExpr.contextRequiresSigner()).toBe(false);
-      expect(conditionExpr.buildContext(provider, {}, signer)).toBeDefined();
-      expect(conditionExpr.buildContext(provider, {})).toBeDefined();
+      expect(conditionExpr.buildContext( {}, authProviders)).toBeDefined();
+      expect(conditionExpr.buildContext( {})).toBeDefined();
     });
 
     it('rejects on a missing signer', () => {
@@ -192,9 +194,8 @@ describe('context', () => {
       };
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
-      expect(conditionExpr.contextRequiresSigner()).toBe(true);
-      expect(() => conditionExpr.buildContext(provider, {}, undefined)).toThrow(
-        `Signer required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
+      expect(() => conditionExpr.buildContext( {}, undefined)).toThrow(
+        `Authentication provider required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
       );
     });
 
@@ -208,9 +209,8 @@ describe('context', () => {
       };
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
-      expect(conditionExpr.contextRequiresSigner()).toBe(true);
-      expect(() => conditionExpr.buildContext(provider, {}, undefined)).toThrow(
-        `Signer required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
+      expect(() => conditionExpr.buildContext( {}, undefined)).toThrow(
+        `Authentication provider required to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
       );
     });
 
@@ -226,6 +226,14 @@ describe('context', () => {
         },
       };
 
+      it('handles both custom and auth context parameters', ()=> {
+        const requestedParams = new ConditionExpression(contractCondition)
+          .buildContext( {}, authProviders)
+          .requestedParameters;
+        expect(requestedParams).not.toContain(USER_ADDRESS_PARAM_DEFAULT);
+        expect(requestedParams).toContain(customParamKey);
+      });
+
       it('rejects on a missing parameter ', async () => {
         const customContractCondition = new ContractCondition({
           ...contractConditionObj,
@@ -233,9 +241,9 @@ describe('context', () => {
         });
         const conditionContext = new ConditionExpression(
           customContractCondition,
-        ).buildContext(provider, {}, signer);
+        ).buildContext( {}, authProviders);
 
-        await expect(async () => conditionContext.toObj()).rejects.toThrow(
+        await expect(async () => conditionContext.toContextParameters()).rejects.toThrow(
           `Missing custom context parameter(s): ${customParamKey}`,
         );
       });
@@ -247,9 +255,9 @@ describe('context', () => {
         });
         const conditionContext = new ConditionExpression(
           customContractCondition,
-        ).buildContext(provider, {}, signer);
+        ).buildContext( {}, authProviders);
 
-        const asObj = await conditionContext.toObj();
+        const asObj = await conditionContext.toContextParameters();
         expect(asObj).toBeDefined();
         expect(asObj[USER_ADDRESS_PARAM_DEFAULT]).toBeDefined();
       });
@@ -257,7 +265,6 @@ describe('context', () => {
       it.each([0, ''])(
         'accepts on a falsy parameter value: %s',
         async (falsyParam) => {
-          const customParamKey = ':customParam';
           const customContractCondition = new ContractCondition({
             ...contractConditionObj,
             parameters: [USER_ADDRESS_PARAM_DEFAULT, customParamKey],
@@ -266,9 +273,9 @@ describe('context', () => {
           customParameters[customParamKey] = falsyParam;
           const conditionContext = new ConditionExpression(
             customContractCondition,
-          ).buildContext(provider, customParameters, signer);
+          ).buildContext( customParameters, authProviders);
 
-          const asObj = await conditionContext.toObj();
+          const asObj = await conditionContext.toContextParameters();
           expect(asObj).toBeDefined();
           expect(asObj[USER_ADDRESS_PARAM_DEFAULT]).toBeDefined();
           expect(asObj[customParamKey]).toBeDefined();
@@ -282,14 +289,16 @@ describe('context', () => {
 describe('authentication provider', () => {
   let provider: ethers.providers.Provider;
   let signer: ethers.Signer;
+  let authProviders: AuthProviders;
 
   beforeAll(async () => {
     await initialize();
     provider = fakeProvider();
     signer = fakeSigner();
+    authProviders = makeAuthProviders(provider, signer);
   });
 
-  it('throws an error if there is no signer', () => {
+  it('throws an error if there is no auth provider', () => {
     RESERVED_CONTEXT_PARAMS.forEach((userAddressParam) => {
       const conditionObj = {
         ...testContractConditionObj,
@@ -300,9 +309,8 @@ describe('authentication provider', () => {
       };
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
-      expect(conditionExpr.contextRequiresSigner()).toBe(true);
-      expect(() => conditionExpr.buildContext(provider, {}, undefined)).toThrow(
-        `Signer required to satisfy ${userAddressParam} context variable in condition`,
+      expect(() => conditionExpr.buildContext( {}, {})).toThrow(
+        `Authentication provider required to satisfy ${userAddressParam} context variable in condition`,
       );
     });
   });
@@ -317,9 +325,8 @@ describe('authentication provider', () => {
     };
     const condition = new ContractCondition(conditionObj);
     const conditionExpr = new ConditionExpression(condition);
-    expect(conditionExpr.contextRequiresSigner()).toBe(true);
     expect(() =>
-      conditionExpr.buildContext(provider, {}, signer),
+      conditionExpr.buildContext( {}, authProviders),
     ).not.toThrow();
   });
 
@@ -334,9 +341,8 @@ describe('authentication provider', () => {
     };
     const condition = new ContractCondition(conditionObj);
     const conditionExpr = new ConditionExpression(condition);
-    expect(conditionExpr.contextRequiresSigner()).toBe(true);
     expect(() =>
-      conditionExpr.buildContext(provider, {}, signer),
+      conditionExpr.buildContext( {}, authProviders),
     ).not.toThrow();
   });
 
@@ -350,10 +356,9 @@ describe('authentication provider', () => {
     };
     const condition = new ContractCondition(conditionObj);
     const conditionExpr = new ConditionExpression(condition);
-    expect(conditionExpr.contextRequiresSigner()).toBe(true);
 
-    const builtContext = conditionExpr.buildContext(provider, {}, signer);
-    const contextVars = await builtContext.toObj();
+    const builtContext = conditionExpr.buildContext( {}, authProviders);
+    const contextVars = await builtContext.toContextParameters();
     const authSignature = contextVars[authMethod] as AuthSignature;
     expect(authSignature).toBeDefined();
 
@@ -362,8 +367,8 @@ describe('authentication provider', () => {
 
   async function testEIP712AuthMethod(authMethod: string) {
     const eip712Spy = vi.spyOn(
-      EIP712SignatureProvider.prototype,
-      'getOrCreateWalletSignature',
+      EIP712AuthProvider.prototype,
+      'getOrCreateAuthSignature',
     );
 
     const authSignature = await makeAuthSignature(authMethod);
@@ -372,7 +377,7 @@ describe('authentication provider', () => {
     expect(authSignature.scheme).toEqual('EIP712');
     expect(authSignature.address).toEqual(await signer.getAddress());
 
-    const typedData = authSignature.typedData as FormattedEIP712;
+    const typedData = authSignature.typedData as EIP712TypedData;
     expect(typedData).toBeDefined();
     expect(typedData.domain.name).toEqual('TACo');
     expect(typedData.message.address).toEqual(await signer.getAddress());
@@ -389,8 +394,8 @@ describe('authentication provider', () => {
 
   it('supports eip4361', async () => {
     const eip4361Spy = vi.spyOn(
-      EIP4361SignatureProvider.prototype,
-      'getOrCreateWalletSignature',
+      EIP4361AuthProvider.prototype,
+      'getOrCreateAuthSignature',
     );
     const authSignature = await makeAuthSignature(USER_ADDRESS_PARAM_EIP4361);
     expect(authSignature).toBeDefined();

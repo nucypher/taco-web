@@ -1,11 +1,11 @@
-import { Conditions as WASMConditions } from '@nucypher/nucypher-core';
+import { Conditions as CoreConditions } from '@nucypher/nucypher-core';
 import { toJSON } from '@nucypher/shared';
-import { ethers } from 'ethers';
+import {AuthProviders} from "@nucypher/taco-auth";
 import { SemVer } from 'semver';
 
 import { Condition } from './condition';
 import { ConditionFactory } from './condition-factory';
-import { ConditionContext, CustomContextParam } from './context';
+import { ConditionContext, CustomContextParam} from './context';
 
 const ERR_VERSION = (provided: string, current: string) =>
   `Version provided, ${provided}, is incompatible with current version, ${current}`;
@@ -56,29 +56,23 @@ export class ConditionExpression {
     return ConditionExpression.fromObj(JSON.parse(json));
   }
 
-  public toWASMConditions(): WASMConditions {
-    return new WASMConditions(toJSON(this.toObj()));
+  public toCoreCondition(): CoreConditions {
+    return new CoreConditions(toJSON(this.toObj()));
   }
 
-  public static fromWASMConditions(conditions: WASMConditions) {
+  public static fromCoreConditions(conditions: CoreConditions) {
     return ConditionExpression.fromJSON(conditions.toString());
   }
 
   public buildContext(
-    provider: ethers.providers.Provider,
     customParameters: Record<string, CustomContextParam> = {},
-    signer?: ethers.Signer,
+    authProviders: AuthProviders = {},
   ): ConditionContext {
     return new ConditionContext(
-      provider,
       this.condition,
       customParameters,
-      signer,
+      authProviders,
     );
-  }
-
-  public contextRequiresSigner(): boolean {
-    return this.condition.requiresSigner();
   }
 
   public equals(other: ConditionExpression): boolean {

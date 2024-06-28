@@ -1,10 +1,13 @@
 import { ethers } from 'ethers';
 import { generateNonce, SiweMessage } from 'siwe';
+import { z } from 'zod';
 
+import { EIP4361_AUTH_METHOD } from '../auth-provider';
+import { AuthSignature } from '../auth-sig';
 import { LocalStorage } from '../storage';
-import { AuthSignature, EIP4361_AUTH_METHOD } from '../types';
 
-export type EIP4361TypedData = string;
+
+export const EIP4361TypedDataSchema = z.string();
 
 export type EIP4361AuthProviderParams = {
   domain: string;
@@ -29,15 +32,15 @@ export class EIP4361AuthProvider {
     const address = await this.signer.getAddress();
     const storageKey = `eth-${EIP4361_AUTH_METHOD}-message-${address}`;
 
-    // If we have a message in localStorage, return it
-    const maybeMessage = this.storage.getItem(storageKey);
-    if (maybeMessage) {
-      return JSON.parse(maybeMessage);
+    // If we have a signature in localStorage, return it
+    const maybeSignature = this.storage.getAuthSignature(storageKey);
+    if (maybeSignature) {
+      return maybeSignature;
     }
 
     // If at this point we didn't return, we need to create a new message
     const authMessage = await this.createSIWEAuthMessage();
-    this.storage.setItem(storageKey, JSON.stringify(authMessage));
+    this.storage.setAuthSignature(storageKey, authMessage);
     return authMessage;
   }
 
@@ -79,7 +82,7 @@ export class EIP4361AuthProvider {
       return {
         domain: this.providerParams.domain,
         uri: this.providerParams.uri,
-      }
+      };
     }
     throw new Error(ERR_MISSING_SIWE_PARAMETERS);
   }

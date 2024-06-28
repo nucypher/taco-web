@@ -512,6 +512,9 @@ importers:
       qs:
         specifier: ^6.12.1
         version: 6.12.1
+      zod:
+        specifier: '*'
+        version: 3.23.8
     devDependencies:
       '@typechain/ethers-v5':
         specifier: ^11.1.2
@@ -553,7 +556,7 @@ importers:
         specifier: ^7.5.2
         version: 7.6.2
       zod:
-        specifier: ^3.22.4
+        specifier: '*'
         version: 3.23.8
     devDependencies:
       '@nucypher/test-utils':
@@ -574,6 +577,9 @@ importers:
       siwe:
         specifier: ^2.3.2
         version: 2.3.2(ethers@5.7.2)
+      zod:
+        specifier: ^3.22.4
+        version: 3.23.8
     devDependencies:
       '@nucypher/test-utils':
         specifier: workspace:*

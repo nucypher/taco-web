@@ -1,4 +1,4 @@
-export * from './providers/eip4361';
-export * from './providers/eip712';
-export * from './types';
+export * from './providers';
 export * from './helper';
+export * from './auth-sig';
+export * from './auth-provider';

@@ -51,7 +51,7 @@
     "ts-unused-exports": "^10.0.1",
     "typedoc": "^0.25.4",
     "typedoc-plugin-coverage": "^2.2.0",
-    "typedoc-plugin-missing-exports": "^2.1.0",
+    "typedoc-plugin-missing-exports": "^2.3.0",
     "typedoc-plugin-zod": "^1.1.0",
     "typescript": "^5.2.2",
     "vitest": "^1.6.0"

@@ -134,8 +134,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
       react-spinners:
-        specifier: ^0.13.6
-        version: 0.13.8(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: ^0.14.1
+        version: 0.14.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
     devDependencies:
       '@pmmmwh/react-refresh-webpack-plugin':
         specifier: ^0.5.7
@@ -216,8 +216,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
       react-spinners:
-        specifier: ^0.13.6
-        version: 0.13.8(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: ^0.14.1
+        version: 0.14.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
     devDependencies:
       '@pmmmwh/react-refresh-webpack-plugin':
         specifier: ^0.5.7
@@ -7334,8 +7334,8 @@ packages:
       typescript:
         optional: true
 
-  react-spinners@0.13.8:
-    resolution: {integrity: sha512-3e+k56lUkPj0vb5NDXPVFAOkPC//XyhKPJjvcGjyMNPWsBKpplfeyialP74G7H7+It7KzhtET+MvGqbKgAqpZA==}
+  react-spinners@0.14.1:
+    resolution: {integrity: sha512-2Izq+qgQ08HTofCVEdcAQCXFEYfqTDdfeDQJeo/HHQiQJD4imOicNLhkfN2eh1NYEWVOX4D9ok2lhuDB0z3Aag==}
     peerDependencies:
       react: ^16.0.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0
@@ -8750,6 +8750,7 @@ packages:
 
   workbox-google-analytics@6.6.0:
     resolution: {integrity: sha512-p4DJa6OldXWd6M9zRl0H6vB9lkrmqYFkRQ2xEiNdBFp9U0LhsGO7hsBscVEyH9H2/3eZZt8c97NB2FD9U2NJ+Q==}
+    deprecated: It is not compatible with newer versions of GA starting with v4, as long as you are using GAv3 it should be ok, but the package is not longer being maintained
 
   workbox-navigation-preload@6.6.0:
     resolution: {integrity: sha512-utNEWG+uOfXdaZmvhshrh7KzhDu/1iMHyQOV6Aqup8Mm78D286ugu5k9MFD9SzBT5TcwgwSORVvInaXWbvKz9Q==}
@@ -17415,7 +17416,7 @@ snapshots:
       - webpack-hot-middleware
       - webpack-plugin-serve
 
-  react-spinners@0.13.8(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
+  react-spinners@0.14.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)

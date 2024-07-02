@@ -14,7 +14,7 @@ const ownsNFTRaw = new conditions.base.contract.ContractCondition({
   },
 });
 console.assert(
-  ownsNFTRaw.requiresSigner(),
+  ownsNFTRaw.requiresAuthentication(),
   'ContractCondition requires a signer',
 );
 

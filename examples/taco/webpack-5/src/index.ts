@@ -47,8 +47,8 @@ const runExample = async () => {
     },
   });
   console.assert(
-    hasPositiveBalance.requiresSigner(),
-    'Condition requires signer',
+    hasPositiveBalance.requiresAuthentication(),
+    'Condition requires authentication',
   );
   const messageKit = await encrypt(
     provider,

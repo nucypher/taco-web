@@ -4,11 +4,11 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
-    "noEmit": true
+    "noEmit": true,
   },
   "references": [
     {
-      "path": "../../../packages/taco/tsconfig.cjs.json"
-    }
-  ]
+      "path": "../../../packages/taco/tsconfig.cjs.json",
+    },
+  ],
 }

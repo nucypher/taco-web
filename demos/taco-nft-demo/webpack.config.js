@@ -33,8 +33,8 @@ module.exports = {
           DEFAULT_RITUAL_ID: JSON.stringify(process.env.DEFAULT_RITUAL_ID),
           DEFAULT_DOMAIN: JSON.stringify(process.env.DEFAULT_DOMAIN),
         },
-      }
-    })
+      },
+    }),
   ].filter(Boolean),
   module: {
     rules: [

@@ -6,9 +6,5 @@
     "typedoc-plugin-missing-exports",
     "typedoc-plugin-coverage"
   ],
-  "exclude": [
-    "**/node_modules/**/*",
-    "**/test/**/*",
-    "**/dist/**/*"
-  ]
+  "exclude": ["**/node_modules/**/*", "**/test/**/*", "**/dist/**/*"]
 }

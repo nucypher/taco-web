@@ -2,26 +2,27 @@ name: '🔎 Lynx Testnet Example'
 
 on:
   schedule:
-    - cron: "0 * * * *"  # Every hour
+    - cron: '0 * * * *' # Every hour
   pull_request:
   workflow_dispatch:
 
 # TODO: Use variables when GH supports it for forks. See https://github.com/orgs/community/discussions/44322
 env:
-  RPC_PROVIDER_URL: "https://rpc-amoy.polygon.technology"
-  ENCRYPTOR_PRIVATE_KEY: "0x900edb9e8214b2353f82aa195e915128f419a92cfb8bbc0f4784f10ef4112b86"
-  CONSUMER_PRIVATE_KEY: "0xf307e165339cb5deb2b8ec59c31a5c0a957b8e8453ce7fe8a19d9a4c8acf36d4"
-  RITUAL_ID: "0"
+  RPC_PROVIDER_URL: 'https://rpc-amoy.polygon.technology'
+  ENCRYPTOR_PRIVATE_KEY: '0x900edb9e8214b2353f82aa195e915128f419a92cfb8bbc0f4784f10ef4112b86'
+  CONSUMER_PRIVATE_KEY: '0xf307e165339cb5deb2b8ec59c31a5c0a957b8e8453ce7fe8a19d9a4c8acf36d4'
+  RITUAL_ID: '0'
 
 jobs:
   networks:
-    name: '🔎 Lynx Testnet Example on Node ${{ matrix.node }} and ${{ matrix.os }}'
+    name:
+      '🔎 Lynx Testnet Example on Node ${{ matrix.node }} and ${{ matrix.os }}'
 
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node: [ '18.x' ]
-        os: [ ubuntu-latest ]
+        node: ['18.x']
+        os: [ubuntu-latest]
 
     steps:
       - uses: actions/checkout@v4

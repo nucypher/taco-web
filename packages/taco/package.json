@@ -39,10 +39,10 @@
     "typedoc": "typedoc"
   },
   "dependencies": {
-    "@ethersproject/abstract-signer": "^5.7.0",
     "@nucypher/nucypher-core": "*",
     "@nucypher/shared": "workspace:*",
-    "ethers": "^5.7.2",
+    "@nucypher/taco-auth": "workspace:*",
+    "ethers": "*",
     "semver": "^7.5.2",
     "zod": "^3.22.4"
   },

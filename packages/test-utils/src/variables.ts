@@ -14,3 +14,8 @@ export const TEST_CONTRACT_ADDR = '0x0000000000000000000000000000000000000001';
 export const TEST_CONTRACT_ADDR_2 =
   '0x0000000000000000000000000000000000000002';
 export const TEST_CHAIN_ID = ChainId.SEPOLIA;
+
+export const TEST_SIWE_PARAMS = {
+  domain: 'localhost',
+  uri: 'http://localhost:3000',
+};

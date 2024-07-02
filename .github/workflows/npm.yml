@@ -2,7 +2,7 @@ name: 'Test npmjs.com package'
 
 on:
   schedule:
-    - cron: "0 * * * *"  # Every hour
+    - cron: '0 * * * *' # Every hour
   workflow_dispatch:
 
 jobs:
@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ '18.x' ]
-        version: [ 'latest', 'mainnet', 'devnet', 'testnet' ]
+        node: ['18.x']
+        version: ['latest', 'mainnet', 'devnet', 'testnet']
 
     steps:
       - uses: pnpm/action-setup@v4

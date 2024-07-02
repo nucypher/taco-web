@@ -2,12 +2,33 @@ import type { TypedDataSigner } from '@ethersproject/abstract-signer';
 import { ethers } from 'ethers';
 import { utils as ethersUtils } from 'ethers/lib/ethers';
 
-import { Eip712TypedData, FormattedTypedData } from '../../web3';
+import { LocalStorage } from '../storage';
+import type { AuthProvider, AuthSignature } from '../types';
 
-export interface TypedSignature {
-  signature: string;
-  typedData: Eip712TypedData;
-  address: string;
+interface EIP712 {
+  types: {
+    Wallet: { name: string; type: string }[];
+  };
+  domain: {
+    salt: string;
+    chainId: number;
+    name: string;
+    version: string;
+  };
+  message: {
+    blockHash: string;
+    address: string;
+    blockNumber: number;
+    signatureText: string;
+  };
+}
+
+export interface EIP712TypedData extends EIP712 {
+  primaryType: 'Wallet';
+  types: {
+    EIP712Domain: { name: string; type: string }[];
+    Wallet: { name: string; type: string }[];
+  };
 }
 
 interface ChainData {
@@ -16,58 +37,67 @@ interface ChainData {
   blockNumber: number;
 }
 
-export class WalletAuthenticationProvider {
-  private walletSignature?: Record<string, string>;
+const EIP712Domain = [
+  {
+    name: 'name',
+    type: 'string',
+  },
+  {
+    name: 'version',
+    type: 'string',
+  },
+  {
+    name: 'chainId',
+    type: 'uint256',
+  },
+  {
+    name: 'salt',
+    type: 'bytes32',
+  },
+];
+
+/**
+ * @deprecated Use EIP4361AuthProvider instead.
+ */
+export class EIP712AuthProvider implements AuthProvider {
+  private readonly storage: LocalStorage;
 
   constructor(
+    // TODO: We only need the provider to fetch the chainId, consider removing it
     private readonly provider: ethers.providers.Provider,
     private readonly signer: ethers.Signer,
-  ) {}
+  ) {
+    console.warn(
+      'DeprecationWarning: The EIP712AuthProvider authentication provider is deprecated. ' +
+      'Please use EIP4361AuthProvider instead. Refer to the documentation for more details.'
+    );
+    this.storage = new LocalStorage();
+  }
 
-  public async getOrCreateWalletSignature(): Promise<TypedSignature> {
+  public async getOrCreateAuthSignature(): Promise<AuthSignature> {
     const address = await this.signer.getAddress();
-    const storageKey = `wallet-signature-${address}`;
+    const storageKey = `eip712-signature-${address}`;
 
     // If we have a signature in localStorage, return it
-    const isLocalStorage = typeof localStorage !== 'undefined';
-    if (isLocalStorage) {
-      const maybeSignature = localStorage.getItem(storageKey);
-      if (maybeSignature) {
-        return JSON.parse(maybeSignature);
-      }
-    }
-
-    // If not, try returning from memory
-    const maybeSignature = this.walletSignature?.[address];
+    const maybeSignature = this.storage.getItem(storageKey);
     if (maybeSignature) {
-      if (isLocalStorage) {
-        localStorage.setItem(storageKey, maybeSignature);
-      }
       return JSON.parse(maybeSignature);
     }
 
     // If at this point we didn't return, we need to create a new signature
-    const typedSignature = await this.createWalletSignature();
-
-    // Persist where you can
-    if (isLocalStorage) {
-      localStorage.setItem(storageKey, JSON.stringify(typedSignature));
-    }
-    if (!this.walletSignature) {
-      this.walletSignature = {};
-    }
-    this.walletSignature[address] = JSON.stringify(typedSignature);
-    return typedSignature;
+    const authMessage = await this.createAuthMessage();
+    this.storage.setItem(storageKey, JSON.stringify(authMessage));
+    return authMessage;
   }
 
-  private async createWalletSignature(): Promise<TypedSignature> {
+  private async createAuthMessage(): Promise<AuthSignature> {
     // Ensure freshness of the signature
     const { blockNumber, blockHash, chainId } = await this.getChainData();
     const address = await this.signer.getAddress();
     const signatureText = `I'm the owner of address ${address} as of block number ${blockNumber}`;
     const salt = ethersUtils.hexlify(ethersUtils.randomBytes(32));
 
-    const typedData: Eip712TypedData = {
+    const typedData: EIP712 = {
       types: {
         Wallet: [
           { name: 'address', type: 'address' },
@@ -77,7 +107,7 @@ export class WalletAuthenticationProvider {
         ],
       },
       domain: {
-        name: 'taco',
+        name: 'TACo',
         version: '1',
         chainId,
         salt,
@@ -94,32 +124,16 @@ export class WalletAuthenticationProvider {
       this.signer as unknown as TypedDataSigner
     )._signTypedData(typedData.domain, typedData.types, typedData.message);
 
-    const formattedTypedData: FormattedTypedData = {
+    const formattedTypedData: EIP712TypedData = {
       ...typedData,
       primaryType: 'Wallet',
       types: {
         ...typedData.types,
-        EIP712Domain: [
-          {
-            name: 'name',
-            type: 'string',
-          },
-          {
-            name: 'version',
-            type: 'string',
-          },
-          {
-            name: 'chainId',
-            type: 'uint256',
-          },
-          {
-            name: 'salt',
-            type: 'bytes32',
-          },
-        ],
+        EIP712Domain,
       },
     };
-    return { signature, typedData: formattedTypedData, address };
+    const scheme = 'EIP712';
+    return { signature, address, scheme, typedData: formattedTypedData };
   }
 
   private async getChainData(): Promise<ChainData> {

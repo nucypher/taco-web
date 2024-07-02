@@ -1,9 +1,11 @@
 import { initialize } from '@nucypher/nucypher-core';
 import {
   AuthProviders,
-  AuthSignature, EIP4361_AUTH_METHOD,
+  AuthSignature,
+  EIP4361_AUTH_METHOD,
   EIP4361AuthProvider,
-  EIP712AuthProvider, EIP712TypedData,
+  EIP712AuthProvider,
+  EIP712TypedData,
   makeAuthProviders,
 } from '@nucypher/taco-auth';
 import {

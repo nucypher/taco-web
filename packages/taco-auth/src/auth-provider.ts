@@ -1,5 +1,12 @@
-import {EIP4361AuthProvider, EIP4361TypedData} from './providers/eip4361';
-import {EIP712AuthProvider, EIP712TypedData} from './providers/eip712';
+import { AuthSignature } from './auth-sig';
+import { EIP4361AuthProvider, EIP712AuthProvider } from './providers';
+
+/**
+ * @deprecated Use EIP4361_AUTH_METHOD instead.
+ */
+export const EIP712_AUTH_METHOD = 'EIP712';
+export const EIP4361_AUTH_METHOD = 'EIP4361';
+
 
 export interface AuthProvider {
   getOrCreateAuthSignature(): Promise<AuthSignature>;
@@ -11,19 +18,6 @@ export type AuthProviders = {
   // Fallback to satisfy type checking
   [key: string]: AuthProvider | undefined;
 };
-
-export interface AuthSignature {
-  signature: string;
-  address: string;
-  scheme: 'EIP712' | 'EIP4361';
-  typedData: EIP712TypedData | EIP4361TypedData;
-}
-
-/**
- * @deprecated Use EIP4361_AUTH_METHOD instead.
- */
-export const EIP712_AUTH_METHOD = 'EIP712';
-export const EIP4361_AUTH_METHOD = 'EIP4361';
 
 export const USER_ADDRESS_PARAM_DEFAULT = ':userAddress';
 export const USER_ADDRESS_PARAM_EIP712 = `:userAddress${EIP712_AUTH_METHOD}`;

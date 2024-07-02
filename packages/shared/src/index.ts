@@ -3,6 +3,7 @@ export * from './porter';
 export type * from './types';
 export * from './utils';
 export * from './web3';
+export * from './schemas';
 
 // Re-exports
 export {

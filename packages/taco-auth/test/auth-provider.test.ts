@@ -1,7 +1,8 @@
 import {
   bobSecretKeyBytes,
   fakeProvider,
-  fakeSigner, TEST_SIWE_PARAMS,
+  fakeSigner,
+  TEST_SIWE_PARAMS,
 } from '@nucypher/test-utils';
 import { SiweMessage } from 'siwe';
 import { describe, expect, it } from 'vitest';
@@ -12,7 +13,7 @@ import {
   EIP712TypedData,
 } from '../src';
 
-describe('taco authorization', () => {
+describe('auth provider', () => {
   it('creates a new EIP-712 message', async () => {
     const provider = fakeProvider(bobSecretKeyBytes);
     const signer = fakeSigner(bobSecretKeyBytes);
@@ -36,7 +37,7 @@ describe('taco authorization', () => {
     expect(typedData.message.blockNumber).toEqual(
       await provider.getBlockNumber(),
     );
-    expect(typedData.message).toHaveProperty('blockHash');
+    expect(typedData.message['blockHash']).toBeDefined();
   });
 
   it('creates a new SIWE message', async () => {

@@ -1,8 +1,8 @@
+import { ETH_ADDRESS_REGEXP } from '@nucypher/shared';
 import { ethers } from 'ethers';
 import { z } from 'zod';
 
 import { Condition } from '../condition';
-import { ETH_ADDRESS_REGEXP } from '../const';
 import { OmitConditionType, paramOrContextParamSchema } from '../shared';
 
 import { rpcConditionSchema } from './rpc';

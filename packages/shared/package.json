@@ -47,7 +47,8 @@
     "axios": "^1.6.8",
     "deep-equal": "^2.2.3",
     "ethers": "*",
-    "qs": "^6.12.1"
+    "qs": "^6.12.1",
+    "zod": "*"
   },
   "devDependencies": {
     "@typechain/ethers-v5": "^11.1.2",

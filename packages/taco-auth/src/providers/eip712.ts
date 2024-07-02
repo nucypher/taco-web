@@ -1,35 +1,44 @@
 import type { TypedDataSigner } from '@ethersproject/abstract-signer';
 import { ethers } from 'ethers';
 import { utils as ethersUtils } from 'ethers/lib/ethers';
+import { z } from 'zod';
 
+import { AuthProvider } from '../auth-provider';
+import { AuthSignature } from '../auth-sig';
 import { LocalStorage } from '../storage';
-import type { AuthProvider, AuthSignature } from '../types';
 
-interface EIP712 {
-  types: {
-    Wallet: { name: string; type: string }[];
-  };
-  domain: {
-    salt: string;
-    chainId: number;
-    name: string;
-    version: string;
-  };
-  message: {
-    blockHash: string;
-    address: string;
-    blockNumber: number;
-    signatureText: string;
-  };
-}
 
-export interface EIP712TypedData extends EIP712 {
-  primaryType: 'Wallet';
-  types: {
-    EIP712Domain: { name: string; type: string }[];
-    Wallet: { name: string; type: string }[];
-  };
-}
+const typeFieldSchema = z.object({
+  name: z.string(),
+  type: z.string(),
+});
+
+const domain = z.object({
+  salt: z.string(),
+  chainId: z.number(),
+  name: z.string(),
+  version: z.string(),
+});
+
+const messageSchema = z.object({
+  blockHash: z.string(),
+  address: z.string(),
+  blockNumber: z.number(),
+  signatureText: z.string(),
+});
+
+export const EIP712TypedDataSchema = z.object({
+  primaryType: z.literal('Wallet'),
+  types: z.object({
+    EIP712Domain: z.array(typeFieldSchema),
+    Wallet: z.array(typeFieldSchema),
+  }),
+  domain: domain,
+  message: messageSchema,
+});
+
+
+export type EIP712TypedData = z.infer<typeof EIP712TypedDataSchema>;
 
 interface ChainData {
   blockHash: string;
@@ -79,15 +88,15 @@ export class EIP712AuthProvider implements AuthProvider {
     const storageKey = `eip712-signature-${address}`;
 
     // If we have a signature in localStorage, return it
-    const maybeSignature = this.storage.getItem(storageKey);
+    const maybeSignature = this.storage.getAuthSignature(storageKey);
     if (maybeSignature) {
-      return JSON.parse(maybeSignature);
+      return maybeSignature;
     }
 
     // If at this point we didn't return, we need to create a new signature
-    const authMessage = await this.createAuthMessage();
-    this.storage.setItem(storageKey, JSON.stringify(authMessage));
-    return authMessage;
+    const authSignature = await this.createAuthMessage();
+    this.storage.setAuthSignature(storageKey, authSignature);
+    return authSignature;
   }
 
   private async createAuthMessage(): Promise<AuthSignature> {
@@ -97,7 +106,7 @@ export class EIP712AuthProvider implements AuthProvider {
     const signatureText = `I'm the owner of address ${address} as of block number ${blockNumber}`;
     const salt = ethersUtils.hexlify(ethersUtils.randomBytes(32));
 
-    const typedData: EIP712 = {
+    const typedData = {
       types: {
         Wallet: [
           { name: 'address', type: 'address' },
@@ -138,7 +147,8 @@ export class EIP712AuthProvider implements AuthProvider {
 
   private async getChainData(): Promise<ChainData> {
     const blockNumber = await this.provider.getBlockNumber();
-    const blockHash = (await this.provider.getBlock(blockNumber)).hash;
+    const block = await this.provider.getBlock(blockNumber);
+    const blockHash = block.hash;
     const chainId = (await this.provider.getNetwork()).chainId;
     return { blockNumber, blockHash, chainId };
   }

@@ -13,9 +13,8 @@ import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from './types';
 import { fromBase64, fromHexString, toBase64, toHexString } from './utils';
 
 const porterUri: Record<string, string> = {
-  mainnet: 'https://porter.nucypher.community',
-  tapir: 'https://porter-tapir.nucypher.community',
-  oryx: 'https://porter-oryx.nucypher.community',
+  mainnet: 'https://porter.nucypher.io',
+  tapir: 'https://porter-tapir.nucypher.io',
   lynx: 'https://porter-lynx.nucypher.community',
 };
 

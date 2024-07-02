@@ -13,7 +13,7 @@ import {
   GlobalAllowListAgent,
   toBytes,
 } from '@nucypher/shared';
-import { makeAuthProviders } from '@nucypher/taco-auth';
+import { AuthProviders, makeAuthProviders } from '@nucypher/taco-auth';
 import { ethers } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 
@@ -144,6 +144,25 @@ export const decrypt = async (
   signer?: ethers.Signer,
   customParameters?: Record<string, CustomContextParam>,
 ): Promise<Uint8Array> => {
+  const authProviders = makeAuthProviders(provider, signer);
+  return decryptWithAuthProviders(
+    provider,
+    domain,
+    messageKit,
+    authProviders,
+    porterUri,
+    customParameters,
+  );
+};
+
+export const decryptWithAuthProviders = async (
+  provider: ethers.providers.Provider,
+  domain: Domain,
+  messageKit: ThresholdMessageKit,
+  authProviders?: AuthProviders,
+  porterUri?: string,
+  customParameters?: Record<string, CustomContextParam>,
+): Promise<Uint8Array> => {
   if (!porterUri) {
     porterUri = getPorterUri(domain);
   }
@@ -154,8 +173,6 @@ export const decrypt = async (
     messageKit.acp.publicKey,
   );
   const ritual = await DkgClient.getActiveRitual(provider, domain, ritualId);
-  // TODO: Temporary helper method to keep the external taco.ts decrypt function simple
-  const authProviders = makeAuthProviders(provider, signer);
   return retrieveAndDecrypt(
     provider,
     domain,
@@ -188,7 +205,7 @@ export const isAuthorized = async (
   domain: Domain,
   messageKit: ThresholdMessageKit,
   ritualId: number,
-) =>
+): Promise<boolean> =>
   DkgCoordinatorAgent.isEncryptionAuthorized(
     provider,
     domain,

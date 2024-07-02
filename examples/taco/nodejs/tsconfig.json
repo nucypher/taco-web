@@ -10,5 +10,8 @@
     {
       "path": "../../../packages/taco/tsconfig.cjs.json",
     },
+    {
+      "path": "../../../packages/taco-auth/tsconfig.cjs.json",
+    }
   ],
 }

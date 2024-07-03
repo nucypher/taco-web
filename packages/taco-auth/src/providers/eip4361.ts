@@ -6,8 +6,17 @@ import { EIP4361_AUTH_METHOD } from '../auth-provider';
 import { AuthSignature } from '../auth-sig';
 import { LocalStorage } from '../storage';
 
+const isSiweMessage = (message: string): boolean => {
+  try {
+    new SiweMessage(message);
+    return true;
+  } catch {
+    return false;
+  }
+};
 
-export const EIP4361TypedDataSchema = z.string();
+export const EIP4361TypedDataSchema = z.string()
+  .refine(isSiweMessage, { message: 'Invalid SIWE message' });
 
 export type EIP4361AuthProviderParams = {
   domain: string;

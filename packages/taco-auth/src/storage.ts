@@ -43,19 +43,11 @@ export class LocalStorage {
     if (!asJson) {
       return null;
     }
-    return LocalStorage.fromJson(asJson);
+    return authSignatureSchema.parse(JSON.parse(asJson));
   }
 
   public setAuthSignature(key: string, authSignature: AuthSignature): void {
-    const asJson = LocalStorage.toJson(authSignature);
+    const asJson = JSON.stringify(authSignature);
     this.storage.setItem(key, asJson);
-  }
-
-  public static fromJson(json: string): AuthSignature {
-    return authSignatureSchema.parse(JSON.parse(json));
-  }
-
-  public static toJson(signature: AuthSignature): string {
-    return JSON.stringify(signature);
   }
 }

@@ -53,7 +53,11 @@ export const fromBytes = (bytes: Uint8Array): string =>
 
 export const fakePorterUri = 'https://_this_should_crash.com/';
 
-const makeFakeProvider = (timestamp: number, blockNumber: number, blockHash: string) => {
+const makeFakeProvider = (
+  timestamp: number,
+  blockNumber: number,
+  blockHash: string
+) => {
   const block = { timestamp, hash: blockHash };
   return {
     getBlockNumber: () => Promise.resolve(blockNumber),

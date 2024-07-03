@@ -89,10 +89,10 @@ describe('validation', () => {
       expect(result.error?.format()).toMatchObject({
         parameters: {
           '1': {
-            _errors: ['Invalid'],
+            _errors: ['Invalid', 'Invalid Ethereum address'],
           },
           '2': {
-            _errors: ['Invalid'],
+            _errors: ['Invalid', 'Invalid Ethereum address'],
           },
         },
       });

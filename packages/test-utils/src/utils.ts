@@ -53,8 +53,12 @@ export const fromBytes = (bytes: Uint8Array): string =>
 
 export const fakePorterUri = 'https://_this_should_crash.com/';
 
-const makeFakeProvider = (timestamp: number, blockNumber: number) => {
-  const block = { timestamp };
+const makeFakeProvider = (
+  timestamp: number,
+  blockNumber: number,
+  blockHash: string
+) => {
+  const block = { timestamp, hash: blockHash };
   return {
     getBlockNumber: () => Promise.resolve(blockNumber),
     getBlock: () => Promise.resolve(block),
@@ -67,8 +71,9 @@ export const fakeSigner = (
   secretKeyBytes = SecretKey.random().toBEBytes(),
   blockNumber = 1000,
   blockTimestamp = 1000,
+  blockHash = '0x0000000000000000000000000000000000000000',
 ) => {
-  const provider = makeFakeProvider(blockNumber, blockTimestamp);
+  const provider = makeFakeProvider(blockNumber, blockTimestamp, blockHash);
   return {
     ...new Wallet(secretKeyBytes),
     provider: provider,
@@ -85,8 +90,9 @@ export const fakeProvider = (
   secretKeyBytes = SecretKey.random().toBEBytes(),
   blockNumber = 1000,
   blockTimestamp = 1000,
+  blockHash = '0x0000000000000000000000000000000000000000',
 ): ethers.providers.Web3Provider => {
-  const fakeProvider = makeFakeProvider(blockTimestamp, blockNumber);
+  const fakeProvider = makeFakeProvider(blockTimestamp, blockNumber, blockHash);
   const fakeSignerWithProvider = fakeSigner(
     secretKeyBytes,
     blockNumber,

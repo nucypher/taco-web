@@ -1,3 +1,5 @@
+import { AuthSignature, authSignatureSchema } from './index';
+
 interface IStorage {
   getItem(key: string): string | null;
 
@@ -5,11 +7,11 @@ interface IStorage {
 }
 
 class BrowserStorage implements IStorage {
-  getItem(key: string): string | null {
+  public getItem(key: string): string | null {
     return localStorage.getItem(key);
   }
 
-  setItem(key: string, value: string): void {
+  public setItem(key: string, value: string): void {
     localStorage.setItem(key, value);
   }
 }
@@ -17,11 +19,11 @@ class BrowserStorage implements IStorage {
 class NodeStorage implements IStorage {
   private storage: Record<string, string> = {};
 
-  getItem(key: string): string | null {
+  public getItem(key: string): string | null {
     return this.storage[key] || null;
   }
 
-  setItem(key: string, value: string): void {
+  public setItem(key: string, value: string): void {
     this.storage[key] = value;
   }
 }
@@ -36,11 +38,16 @@ export class LocalStorage {
         : new BrowserStorage();
   }
 
-  getItem(key: string): string | null {
-    return this.storage.getItem(key);
+  public getAuthSignature(key: string): AuthSignature | null {
+    const asJson = this.storage.getItem(key);
+    if (!asJson) {
+      return null;
+    }
+    return authSignatureSchema.parse(JSON.parse(asJson));
   }
 
-  setItem(key: string, value: string): void {
-    this.storage.setItem(key, value);
+  public setAuthSignature(key: string, authSignature: AuthSignature): void {
+    const asJson = JSON.stringify(authSignature);
+    this.storage.setItem(key, asJson);
   }
 }

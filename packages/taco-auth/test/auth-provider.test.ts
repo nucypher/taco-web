@@ -8,17 +8,18 @@ import { SiweMessage } from 'siwe';
 import { describe, expect, it } from 'vitest';
 
 import {
-  EIP4361AuthProvider,
+  EIP4361AuthProvider, EIP4361TypedDataSchema,
   EIP712AuthProvider,
   EIP712TypedData,
 } from '../src';
 
 describe('auth provider', () => {
-  it('creates a new EIP-712 message', async () => {
-    const provider = fakeProvider(bobSecretKeyBytes);
-    const signer = fakeSigner(bobSecretKeyBytes);
+  const provider = fakeProvider(bobSecretKeyBytes);
+  const signer = fakeSigner(bobSecretKeyBytes);
+  const eip712Provider = new EIP712AuthProvider(provider, signer);
+  const eip4361Provider = new EIP4361AuthProvider(provider, signer, TEST_SIWE_PARAMS);
 
-    const eip712Provider = new EIP712AuthProvider(provider, signer);
+  it('creates a new EIP-712 message', async () => {
     const eip712Message = await eip712Provider.getOrCreateAuthSignature();
     expect(eip712Message.signature).toBeDefined();
     expect(eip712Message.address).toEqual(await signer.getAddress());
@@ -41,10 +42,6 @@ describe('auth provider', () => {
   });
 
   it('creates a new SIWE message', async () => {
-    const provider = fakeProvider(bobSecretKeyBytes);
-    const signer = fakeSigner(bobSecretKeyBytes);
-
-    const eip4361Provider = new EIP4361AuthProvider(provider, signer, TEST_SIWE_PARAMS);
     const typedSignature = await eip4361Provider.getOrCreateAuthSignature();
     expect(typedSignature.signature).toBeDefined();
     expect(typedSignature.address).toEqual(await signer.getAddress());
@@ -62,5 +59,16 @@ describe('auth provider', () => {
     expect(typedDataSiweMessage.statement).toEqual(
       `${typedDataSiweMessage.domain} wants you to sign in with your Ethereum account: ${await signer.getAddress()}`,
     );
+  });
+
+  it('accepts a valid EIP4361 message', async () => {
+    const typedSignature = await eip4361Provider.getOrCreateAuthSignature();
+    EIP4361TypedDataSchema.parse(typedSignature.typedData);
+  });
+
+  it('rejects an invalid EIP4361 message', async () => {
+    const typedSignature = await eip4361Provider.getOrCreateAuthSignature();
+    typedSignature.typedData = 'invalid-typed-data';
+    expect(() => EIP4361TypedDataSchema.parse(typedSignature.typedData)).toThrow();
   });
 });

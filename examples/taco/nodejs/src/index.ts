@@ -8,6 +8,7 @@ import {
   fromBytes,
   getPorterUri,
   initialize,
+  isAuthorized,
   ThresholdMessageKit,
   toBytes,
   toHexString,
@@ -71,6 +72,17 @@ const encryptToBytes = async (messageString: string) => {
     ritualId,
     encryptorSigner,
   );
+
+  // Calling it after the encryption because we need material from messageKit
+  const isEncryptorAuthenticated = await isAuthorized(
+    provider,
+    domain,
+    messageKit,
+    ritualId,
+  );
+  if (!isEncryptorAuthenticated) {
+    throw new Error('Not authorized');
+  }
 
   return messageKit.toBytes();
 };

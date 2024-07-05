@@ -36,14 +36,16 @@ if (!consumerPrivateKey) {
 const domain = process.env.DOMAIN || domains.TESTNET;
 const ritualId = parseInt(process.env.RITUAL_ID || '0');
 const provider = new ethers.providers.JsonRpcProvider(rpcProviderUrl);
+const chainId = domain === domains.TESTNET ? 80002 : 137;
 
 console.log('Domain:', domain);
 console.log('Ritual ID:', ritualId);
+console.log('Chain ID:', chainId);
 
 const encryptToBytes = async (messageString: string) => {
   const encryptorSigner = new ethers.Wallet(encryptorPrivateKey);
   console.log(
-    "Encryptor signer's address:",
+    'Encryptor signer\'s address:',
     await encryptorSigner.getAddress(),
   );
 
@@ -51,11 +53,11 @@ const encryptToBytes = async (messageString: string) => {
   console.log(format('Encrypting message ("%s") ...', messageString));
 
   const hasPositiveBalance = new conditions.base.rpc.RpcCondition({
-    chain: 80002,
+    chain: chainId,
     method: 'eth_getBalance',
     parameters: [':userAddress', 'latest'],
     returnValueTest: {
-      comparator: '>',
+      comparator: '>=',
       value: 0,
     },
   });
@@ -91,7 +93,7 @@ const encryptToBytes = async (messageString: string) => {
 const decryptFromBytes = async (encryptedBytes: Uint8Array) => {
   const consumerSigner = new ethers.Wallet(consumerPrivateKey);
   console.log(
-    "\nConsumer signer's address:",
+    '\nConsumer signer\'s address:',
     await consumerSigner.getAddress(),
   );
 
@@ -107,10 +109,10 @@ const decryptFromBytes = async (encryptedBytes: Uint8Array) => {
 };
 
 const runExample = async () => {
-  // Make sure the provider is connected to Polygon Amoy testnet
+  // Make sure the provider is connected to the correct network
   const network = await provider.getNetwork();
-  if (network.chainId !== 80002) {
-    console.error('Please connect to Polygon Amoy testnet');
+  if (network.chainId !== chainId) {
+    throw (`Please connect your provider to an appropriate network ${chainId}`);
   }
   await initialize();
 

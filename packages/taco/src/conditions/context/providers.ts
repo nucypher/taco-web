@@ -25,6 +25,10 @@ export class WalletAuthenticationProvider {
   ) {}
 
   public async getOrCreateWalletSignature(): Promise<TypedSignature> {
+    console.warn(
+      'DeprecationWarning: The EIP712 authentication is deprecated and will be replaced ' +
+      'by EIP4361 authentication in the next release.'
+    );
     const address = await this.signer.getAddress();
     const storageKey = `wallet-signature-${address}`;
 

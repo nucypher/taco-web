@@ -73,7 +73,8 @@ const encryptToBytes = async (messageString: string) => {
     encryptorSigner,
   );
 
-  // Calling it after the encryption because we need material from messageKit
+  // Note: Not actually needed but used by CI for checking contract compatibility.
+  // Calling it after the encryption because we need material from messageKit.
   const isEncryptorAuthenticated = await isAuthorized(
     provider,
     domain,

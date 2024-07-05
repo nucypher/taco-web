@@ -110,8 +110,8 @@ importers:
         specifier: ^0.1.16
         version: 0.1.24(arweave@1.15.1)(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@nucypher/taco':
-        specifier: ^0.2.4
-        version: 0.2.6(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+        specifier: ^0.3.0
+        version: 0.3.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@usedapp/core':
         specifier: ^1.2.13
         version: 1.2.16(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(node-fetch@2.7.0)(react@18.2.0)
@@ -192,8 +192,8 @@ importers:
   demos/taco-nft-demo:
     dependencies:
       '@nucypher/taco':
-        specifier: ^0.2.4
-        version: 0.2.6(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+        specifier: ^0.3.0
+        version: 0.3.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@usedapp/core':
         specifier: ^1.2.13
         version: 1.2.16(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(node-fetch@2.7.0)(react@18.2.0)
@@ -2168,12 +2168,12 @@ packages:
   '@nucypher/nucypher-core@0.14.5':
     resolution: {integrity: sha512-Q3kBuJL0qtTtnxrM5DEQauQUvDlXmwubm9u1h7gbyLhs+aZNC9WDyjEUbE43+uahlHu4k1hKEMxD1gjV165ChA==}
 
-  '@nucypher/shared@0.2.2':
-    resolution: {integrity: sha512-T8nIo1cn7WOFpmx67SZQTuxzOTNe1A6XgcfCa2vX+WiLWZagqHFhByoVqCAbKM2PX6F78qziZmxKNBLSszEjUw==}
+  '@nucypher/shared@0.2.3':
+    resolution: {integrity: sha512-byKAtM3isz3RIztc3tEETivS7fFnlLqu9wWiqJaK6EtyCs9BGhb5c4+2ASrJilpJ5E2zQGjxkBdpTa2yWuCZgQ==}
     engines: {node: '>=18', pnpm: '>=8.0.0'}
 
-  '@nucypher/taco@0.2.6':
-    resolution: {integrity: sha512-BSEByDVSxUvlHWcoDxpM+ogNMzDdC38sHH5uYCCAnrs5TJokA4htwQH+CrrOCbaWuHp6thXYVUVX7UhulXscTw==}
+  '@nucypher/taco@0.3.0':
+    resolution: {integrity: sha512-AwkCcV7bdXyINzfrJUkjXoE3BArZorduZlQd/iyyE0J0+ErS9CLVSnbfjCfb1li85buttYgWx7CA8axqk0CqJA==}
     engines: {node: '>=18', pnpm: '>=8.0.0'}
 
   '@pkgjs/parseargs@0.11.0':
@@ -11069,7 +11069,7 @@ snapshots:
 
   '@nucypher/nucypher-core@0.14.5': {}
 
-  '@nucypher/shared@0.2.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@nucypher/shared@0.2.3(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
     dependencies:
       '@ethersproject/abi': 5.7.0
       '@ethersproject/providers': 5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
@@ -11084,11 +11084,11 @@ snapshots:
       - debug
       - utf-8-validate
 
-  '@nucypher/taco@0.2.6(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@nucypher/taco@0.3.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
     dependencies:
       '@ethersproject/abstract-signer': 5.7.0
       '@nucypher/nucypher-core': 0.14.5
-      '@nucypher/shared': 0.2.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@nucypher/shared': 0.2.3(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       ethers: 5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       semver: 7.6.2
       zod: 3.23.8

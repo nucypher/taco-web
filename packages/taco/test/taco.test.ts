@@ -16,7 +16,7 @@ import {
   mockTacoDecrypt,
   TEST_CHAIN_ID, TEST_SIWE_PARAMS,
 } from '@nucypher/test-utils';
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 import * as taco from '../src';
 import { conditions, domains, toBytes } from '../src';
@@ -83,31 +83,20 @@ describe('taco', () => {
     );
     const getRitualSpy = mockGetActiveRitual(mockedDkgRitual);
 
-    const authProviders = tacoAuth.makeAuthProviders(provider, signer,TEST_SIWE_PARAMS);
-    const decryptedMessage1 = await taco.decryptWithAuthProviders(
+    const authProvider = new tacoAuth.EIP4361AuthProvider(provider, signer, TEST_SIWE_PARAMS);
+    const decryptedMessage = await taco.decrypt(
       provider,
       domains.DEVNET,
       messageKit,
-      authProviders,
+      authProvider,
       fakePorterUri,
     );
-    expect(decryptedMessage1).toEqual(toBytes(message));
+    expect(decryptedMessage).toEqual(toBytes(message));
     expect(getParticipantsSpy).toHaveBeenCalled();
     expect(sessionKeySpy).toHaveBeenCalled();
     expect(getRitualIdFromPublicKey).toHaveBeenCalled();
     expect(getRitualSpy).toHaveBeenCalled();
     expect(decryptSpy).toHaveBeenCalled();
-
-    const makeAuthProvidersSpy = vi.spyOn(tacoAuth, 'makeAuthProviders').mockImplementation(() => authProviders);
-    const decryptedMessage2 = await taco.decrypt(
-      provider,
-      domains.DEVNET,
-      messageKit,
-      fakePorterUri,
-      signer,
-    );
-    expect(makeAuthProvidersSpy).toHaveBeenCalled();
-    expect(decryptedMessage2).toEqual(toBytes(message));
   });
 
   it('exposes requested parameters', async () => {

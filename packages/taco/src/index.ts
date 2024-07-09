@@ -10,5 +10,8 @@ export {
 } from '@nucypher/shared';
 
 export * as conditions from './conditions';
-// Expose registerEncrypters from taco API (#324)
-export { decrypt, decryptWithAuthProviders, encrypt, encryptWithPublicKey, isAuthorized } from './taco';
+// TODO(#324): Expose registerEncrypters from taco API
+export { decrypt, encrypt, encryptWithPublicKey, isAuthorized } from './taco';
+
+// TODO: Remove this re-export once `@nucypher/taco-auth` is mature and published
+export { EIP4361AuthProvider } from '@nucypher/taco-auth';

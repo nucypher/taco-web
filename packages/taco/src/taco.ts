@@ -13,7 +13,7 @@ import {
   GlobalAllowListAgent,
   toBytes,
 } from '@nucypher/shared';
-import { AuthProviders, makeAuthProviders } from '@nucypher/taco-auth';
+import { AuthProviders, EIP4361_AUTH_METHOD, EIP4361AuthProvider } from '@nucypher/taco-auth';
 import { ethers } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 
@@ -125,9 +125,9 @@ export const encryptWithPublicKey = async (
  * @param {Domain} domain - Represents the logical network in which the decryption will be performed.
  * Must match the `ritualId`.
  * @param {ThresholdMessageKit} messageKit - The kit containing the message to be decrypted
+ * @param authProvider
  * @param {string} [porterUri] - The URI for the Porter service. If not provided, a value will be obtained
  * from the Domain
- * @param {ethers.Signer} [signer] - An optional signer for the decryption
  * @param {Record<string, CustomContextParam>} [customParameters] - Optional custom parameters that may be required
  * depending on the condition used
  *
@@ -140,26 +140,7 @@ export const decrypt = async (
   provider: ethers.providers.Provider,
   domain: Domain,
   messageKit: ThresholdMessageKit,
-  porterUri?: string,
-  signer?: ethers.Signer,
-  customParameters?: Record<string, CustomContextParam>,
-): Promise<Uint8Array> => {
-  const authProviders = makeAuthProviders(provider, signer);
-  return decryptWithAuthProviders(
-    provider,
-    domain,
-    messageKit,
-    authProviders,
-    porterUri,
-    customParameters,
-  );
-};
-
-export const decryptWithAuthProviders = async (
-  provider: ethers.providers.Provider,
-  domain: Domain,
-  messageKit: ThresholdMessageKit,
-  authProviders?: AuthProviders,
+  authProvider: EIP4361AuthProvider,
   porterUri?: string,
   customParameters?: Record<string, CustomContextParam>,
 ): Promise<Uint8Array> => {
@@ -173,6 +154,9 @@ export const decryptWithAuthProviders = async (
     messageKit.acp.publicKey,
   );
   const ritual = await DkgClient.getActiveRitual(provider, domain, ritualId);
+  const authProviders: AuthProviders = {
+    [EIP4361_AUTH_METHOD]: authProvider,
+  };
   return retrieveAndDecrypt(
     provider,
     domain,

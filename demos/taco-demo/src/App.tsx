@@ -13,11 +13,11 @@ import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
 
 import { ConditionBuilder } from './ConditionBuilder';
-import { DEFAULT_DOMAIN, DEFAULT_RITUAL_ID } from './config';
 import { Decrypt } from './Decrypt';
 import { Encrypt } from './Encrypt';
-import { downloadData, getWebIrys, uploadData } from './irys';
 import { Spinner } from './Spinner';
+import { DEFAULT_DOMAIN, DEFAULT_RITUAL_ID } from './config';
+import { downloadData, getWebIrys, uploadData } from './irys';
 
 const chainIdForDomain = {
   [domains.DEVNET]: 80002,
@@ -121,7 +121,7 @@ export default function App() {
       <h2>Notice</h2>
       <p>
         In production (mainnet domain), your wallet address (encryptor) will also have
-        to be allow-listed for this specific ritual. However, we have 
+        to be allow-listed for this specific ritual. However, we have
         <a href={'https://docs.threshold.network/app-development/threshold-access-control-tac/integration-guide/get-started-with-tac#testnet-configuration'}>publicly available testnet rituals</a>
         for use when developing your apps.
       </p>

@@ -37,10 +37,9 @@ export class EIP4361AuthProvider {
   private getDefaultParameters() {
     if (typeof window !== 'undefined') {
       // If we are in a browser environment, we can get the domain and uri from the window object
-      const maybeOrigin = window?.location?.origin;
       return {
-        domain: maybeOrigin.split('//')[1].split('.')[0],
-        uri: maybeOrigin,
+        domain: window.location?.host,
+        uri: window.location?.origin,
       };
     }
     // If not, we have no choice but to throw an error

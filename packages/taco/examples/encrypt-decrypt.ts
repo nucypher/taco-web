@@ -1,10 +1,10 @@
+import { ChainId } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
-import { ChainId } from '@nucypher/shared';
 import {
   conditions,
   decrypt,
-  domains,
+  domains, EIP4361AuthProvider,
   encrypt,
   getPorterUri,
   initialize,
@@ -45,12 +45,13 @@ const run = async () => {
 
     // @ts-ignore
     const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+    const authProvider = new EIP4361AuthProvider(web3Provider, web3Provider.getSigner());
     const decryptedMessage = await decrypt(
       web3Provider,
       domains.TESTNET,
       messageKit,
+      authProvider,
       getPorterUri(domains.TESTNET),
-      web3Provider.getSigner(),
     );
     return decryptedMessage;
   };

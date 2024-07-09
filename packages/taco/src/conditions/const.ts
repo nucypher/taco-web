@@ -1,9 +1,5 @@
-import {ChainId} from '@nucypher/shared';
-import {
-  USER_ADDRESS_PARAM_DEFAULT,
-  USER_ADDRESS_PARAM_EIP4361,
-  USER_ADDRESS_PARAM_EIP712
-} from "@nucypher/taco-auth";
+import { ChainId } from '@nucypher/shared';
+import { USER_ADDRESS_PARAM_DEFAULT } from "@nucypher/taco-auth";
 
 export const USER_ADDRESS_PARAM_EXTERNAL_EIP4361 =
   ':userAddressExternalEIP4361';
@@ -21,8 +17,6 @@ export const SUPPORTED_CHAIN_IDS = [
 ];
 
 export const USER_ADDRESS_PARAMS = [
-  USER_ADDRESS_PARAM_EIP712,
-  USER_ADDRESS_PARAM_EIP4361,
   USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
   // Ordering matters, this should always be last
   USER_ADDRESS_PARAM_DEFAULT,
@@ -30,7 +24,5 @@ export const USER_ADDRESS_PARAMS = [
 
 export const RESERVED_CONTEXT_PARAMS = [
   USER_ADDRESS_PARAM_DEFAULT,
-  USER_ADDRESS_PARAM_EIP712,
-  USER_ADDRESS_PARAM_EIP4361,
   // USER_ADDRESS_PARAM_EXTERNAL_EIP4361 is not reserved and can be used as a custom context parameter
 ];

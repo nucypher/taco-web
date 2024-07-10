@@ -466,7 +466,7 @@ describe('No authentication provider', () => {
       authProviders,
     );
     const contextVars = await builtContext.toContextParameters();
-    expect(eip4361Spy).not.toHaveBeenCalledOnce();
+    expect(eip4361Spy).not.toHaveBeenCalled();
 
     // Now, we expect that the auth signature will be available in the context variables
     const authSignature = contextVars[

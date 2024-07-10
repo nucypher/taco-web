@@ -4,6 +4,7 @@ import {
   conditions,
   decrypt,
   domains,
+  EIP4361AuthProvider,
   encrypt,
   fromBytes,
   getPorterUri,
@@ -84,12 +85,17 @@ const decryptFromBytes = async (encryptedBytes: Uint8Array) => {
 
   const messageKit = ThresholdMessageKit.fromBytes(encryptedBytes);
   console.log('Decrypting message ...');
+  const siweParams = {
+    domain: 'localhost',
+    uri: 'http://localhost:3000',
+  };
+  const authProvider = new EIP4361AuthProvider(provider, consumerSigner, siweParams);
   return decrypt(
     provider,
     domain,
     messageKit,
+    authProvider,
     getPorterUri(domain),
-    consumerSigner,
   );
 };
 

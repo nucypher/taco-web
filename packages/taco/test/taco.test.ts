@@ -4,6 +4,7 @@ import {
   SessionStaticSecret,
 } from '@nucypher/nucypher-core';
 import { USER_ADDRESS_PARAM_DEFAULT } from '@nucypher/taco-auth';
+import * as tacoAuth from '@nucypher/taco-auth';
 import {
   aliceSecretKeyBytes,
   fakeDkgFlow,
@@ -13,7 +14,7 @@ import {
   fakeTDecFlow,
   mockGetRitualIdFromPublicKey,
   mockTacoDecrypt,
-  TEST_CHAIN_ID,
+  TEST_CHAIN_ID, TEST_SIWE_PARAMS,
 } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
@@ -35,6 +36,7 @@ const ownsNFT = new conditions.predefined.erc721.ERC721Ownership({
   parameters: [3591],
   chain: TEST_CHAIN_ID,
 });
+
 
 describe('taco', () => {
   beforeAll(async () => {
@@ -81,30 +83,30 @@ describe('taco', () => {
     );
     const getRitualSpy = mockGetActiveRitual(mockedDkgRitual);
 
+    const authProvider = new tacoAuth.EIP4361AuthProvider(provider, signer, TEST_SIWE_PARAMS);
     const decryptedMessage = await taco.decrypt(
       provider,
       domains.DEVNET,
       messageKit,
+      authProvider,
       fakePorterUri,
-      signer,
     );
+    expect(decryptedMessage).toEqual(toBytes(message));
     expect(getParticipantsSpy).toHaveBeenCalled();
     expect(sessionKeySpy).toHaveBeenCalled();
     expect(getRitualIdFromPublicKey).toHaveBeenCalled();
     expect(getRitualSpy).toHaveBeenCalled();
     expect(decryptSpy).toHaveBeenCalled();
-    expect(decryptedMessage).toEqual(toBytes(message));
   });
 
-  it('exposes requested parameters', async ()=> {
+  it('exposes requested parameters', async () => {
     const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
     const mockedDkgRitual = fakeDkgRitual(mockedDkg);
     const provider = fakeProvider(aliceSecretKeyBytes);
     const signer = fakeSigner(aliceSecretKeyBytes);
     const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);
 
-
-    const customParamKey =  ":nftId";
+    const customParamKey = ':nftId';
     const ownsNFTWithCustomParams = new conditions.predefined.erc721.ERC721Ownership({
       contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
       parameters: [customParamKey],
@@ -123,5 +125,5 @@ describe('taco', () => {
 
     const requestedParameters = taco.conditions.context.ConditionContext.requestedContextParameters(messageKit);
     expect(requestedParameters).toEqual(new Set([customParamKey, USER_ADDRESS_PARAM_DEFAULT]));
-  })
+  });
 });

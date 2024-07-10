@@ -44,6 +44,8 @@ import axios from 'axios';
 import { ethers, providers, Wallet } from 'ethers';
 import { expect, SpyInstance, vi } from 'vitest';
 
+import { TEST_SIWE_PARAMS } from './variables';
+
 export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
   first.length === second.length &&
   first.every((value, index) => value === second[index]);
@@ -84,7 +86,7 @@ export const fakeSigner = (
   } as unknown as ethers.providers.JsonRpcSigner;
 };
 
-export const fakeAuthProviders = () => makeAuthProviders(fakeProvider(), fakeSigner());
+export const fakeAuthProviders = () => makeAuthProviders(fakeProvider(), fakeSigner(), TEST_SIWE_PARAMS);
 
 export const fakeProvider = (
   secretKeyBytes = SecretKey.random().toBEBytes(),

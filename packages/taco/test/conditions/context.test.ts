@@ -405,8 +405,18 @@ describe('No authentication provider', () => {
     expect(eip712Spy).toHaveBeenCalledOnce();
   }
 
-  it('supports default auth method (eip712)', async () => {
-    await testEIP712AuthMethod(USER_ADDRESS_PARAM_DEFAULT);
+  async function testEIP4361AuthMethod(authMethod: string) {
+    const eip4361Spy = vi.spyOn(
+      EIP4361AuthProvider.prototype,
+      'getOrCreateAuthSignature',
+    );
+    const authSignature = await makeAuthSignature(authMethod);
+    await testEIP4361AuthSignature(authSignature);
+    expect(eip4361Spy).toHaveBeenCalledOnce();
+  }
+
+  it('supports default auth method (eip4361)', async () => {
+    await testEIP4361AuthMethod(USER_ADDRESS_PARAM_DEFAULT);
   });
 
   it('supports eip712', async () => {
@@ -414,15 +424,7 @@ describe('No authentication provider', () => {
   });
 
   it('supports eip4361', async () => {
-    const eip4361Spy = vi.spyOn(
-      EIP4361AuthProvider.prototype,
-      'getOrCreateAuthSignature',
-    );
-
-    const authSignature = await makeAuthSignature(USER_ADDRESS_PARAM_EIP4361);
-    await testEIP4361AuthSignature(authSignature);
-
-    expect(eip4361Spy).toHaveBeenCalledOnce();
+    await testEIP4361AuthMethod(USER_ADDRESS_PARAM_EIP4361);
   });
 
   it('supports reusing external eip4361', async () => {
@@ -464,7 +466,7 @@ describe('No authentication provider', () => {
       authProviders,
     );
     const contextVars = await builtContext.toContextParameters();
-    expect(eip4361Spy).not.toHaveBeenCalledOnce();
+    expect(eip4361Spy).not.toHaveBeenCalled();
 
     // Now, we expect that the auth signature will be available in the context variables
     const authSignature = contextVars[

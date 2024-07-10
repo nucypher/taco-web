@@ -2,6 +2,7 @@ import {
   conditions,
   decrypt,
   domains,
+  EIP4361AuthProvider,
   encrypt,
   fromBytes,
   getPorterUri,
@@ -60,12 +61,13 @@ const runExample = async () => {
   );
 
   console.log('Decrypting message...');
+  const authProvider = new EIP4361AuthProvider(provider, signer);
   const decryptedBytes = await decrypt(
     provider,
     domain,
     messageKit,
+    authProvider,
     getPorterUri(domain),
-    signer,
   );
   const decryptedMessage = fromBytes(decryptedBytes);
   console.log('Decrypted message:', decryptedMessage);

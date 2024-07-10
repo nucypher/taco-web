@@ -13,13 +13,17 @@ import {
   GlobalAllowListAgent,
   toBytes,
 } from '@nucypher/shared';
-import { AuthProviders, EIP4361_AUTH_METHOD, EIP4361AuthProvider } from '@nucypher/taco-auth';
+import {
+  AuthProviders,
+  EIP4361_AUTH_METHOD,
+  EIP4361AuthProvider,
+} from '@nucypher/taco-auth';
 import { ethers } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 
 import { Condition } from './conditions/condition';
 import { ConditionExpression } from './conditions/condition-expr';
-import { CustomContextParam} from './conditions/context';
+import { CustomContextParam } from './conditions/context';
 import { DkgClient } from './dkg';
 import { retrieveAndDecrypt } from './tdec';
 
@@ -125,7 +129,7 @@ export const encryptWithPublicKey = async (
  * @param {Domain} domain - Represents the logical network in which the decryption will be performed.
  * Must match the `ritualId`.
  * @param {ThresholdMessageKit} messageKit - The kit containing the message to be decrypted
- * @param authProvider
+ * @param authProvider - The authentication provider that will be used to provide the authorization
  * @param {string} [porterUri] - The URI for the Porter service. If not provided, a value will be obtained
  * from the Domain
  * @param {Record<string, CustomContextParam>} [customParameters] - Optional custom parameters that may be required
@@ -140,7 +144,7 @@ export const decrypt = async (
   provider: ethers.providers.Provider,
   domain: Domain,
   messageKit: ThresholdMessageKit,
-  authProvider: EIP4361AuthProvider,
+  authProvider?: EIP4361AuthProvider,
   porterUri?: string,
   customParameters?: Record<string, CustomContextParam>,
 ): Promise<Uint8Array> => {
@@ -154,9 +158,11 @@ export const decrypt = async (
     messageKit.acp.publicKey,
   );
   const ritual = await DkgClient.getActiveRitual(provider, domain, ritualId);
-  const authProviders: AuthProviders = {
-    [EIP4361_AUTH_METHOD]: authProvider,
-  };
+  const authProviders: AuthProviders = authProvider
+    ? {
+      [EIP4361_AUTH_METHOD]: authProvider,
+    }
+    : {};
   return retrieveAndDecrypt(
     provider,
     domain,
@@ -169,7 +175,6 @@ export const decrypt = async (
     customParameters,
   );
 };
-
 
 /**
  * Checks if the encryption from the provided messageKit is authorized for the specified ritual.

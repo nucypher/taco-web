@@ -39,7 +39,7 @@ import {
   Ursula,
   zip,
 } from '@nucypher/shared';
-import {makeAuthProviders} from "@nucypher/taco-auth";
+import { EIP4361_AUTH_METHOD, EIP4361AuthProvider } from '@nucypher/taco-auth';
 import axios from 'axios';
 import { ethers, providers, Wallet } from 'ethers';
 import { expect, SpyInstance, vi } from 'vitest';
@@ -58,7 +58,7 @@ export const fakePorterUri = 'https://_this_should_crash.com/';
 const makeFakeProvider = (
   timestamp: number,
   blockNumber: number,
-  blockHash: string
+  blockHash: string,
 ) => {
   const block = { timestamp, hash: blockHash };
   return {
@@ -86,7 +86,11 @@ export const fakeSigner = (
   } as unknown as ethers.providers.JsonRpcSigner;
 };
 
-export const fakeAuthProviders = () => makeAuthProviders(fakeProvider(), fakeSigner(), TEST_SIWE_PARAMS);
+export const fakeAuthProviders = () => {
+  return {
+    [EIP4361_AUTH_METHOD]: new EIP4361AuthProvider(fakeProvider(), fakeSigner(), TEST_SIWE_PARAMS),
+  };
+};
 
 export const fakeProvider = (
   secretKeyBytes = SecretKey.random().toBEBytes(),
@@ -254,14 +258,14 @@ interface FakeDkgRitualFlow {
 }
 
 export const fakeTDecFlow = ({
-  validators,
-  validatorKeypairs,
-  ritualId,
-  sharesNum,
-  threshold,
-  receivedMessages,
-  message,
-  thresholdMessageKit,
+   validators,
+   validatorKeypairs,
+   ritualId,
+   sharesNum,
+   threshold,
+   receivedMessages,
+   message,
+   thresholdMessageKit,
 }: FakeDkgRitualFlow) => {
   // Having aggregated the transcripts, the validators can now create decryption shares
   const decryptionShares: DecryptionShareSimple[] = [];

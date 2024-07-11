@@ -4,16 +4,11 @@ import {
   AuthSignature,
   EIP4361_AUTH_METHOD,
   EIP4361AuthProvider,
-  EIP712AuthProvider,
-  EIP712TypedData,
-  makeAuthProviders,
 } from '@nucypher/taco-auth';
 import {
   USER_ADDRESS_PARAM_DEFAULT,
-  USER_ADDRESS_PARAM_EIP4361,
-  USER_ADDRESS_PARAM_EIP712
 } from "@nucypher/taco-auth";
-import { fakeAuthProviders, fakeProvider, fakeSigner, TEST_SIWE_PARAMS } from '@nucypher/test-utils';
+import { fakeAuthProviders, fakeProvider, fakeSigner } from '@nucypher/test-utils';
 import { ethers } from 'ethers';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
@@ -316,7 +311,7 @@ describe('No authentication provider', () => {
     await initialize();
     provider = fakeProvider();
     signer = fakeSigner();
-    authProviders = makeAuthProviders(provider, signer, TEST_SIWE_PARAMS);
+    authProviders = fakeAuthProviders();
   });
 
   it('throws an error if there is no auth provider', () => {
@@ -351,22 +346,6 @@ describe('No authentication provider', () => {
     ).not.toThrow();
   });
 
-  it('supports multiple providers when needed', () => {
-    const conditionObj = {
-      ...testContractConditionObj,
-      returnValueTest: {
-        ...testReturnValueTest,
-        // TODO: Is it supposed to work? Multiple providers at the same time?
-        value: [USER_ADDRESS_PARAM_EIP712, USER_ADDRESS_PARAM_EIP4361],
-      },
-    };
-    const condition = new ContractCondition(conditionObj);
-    const conditionExpr = new ConditionExpression(condition);
-    expect(() =>
-      conditionExpr.buildContext( {}, authProviders),
-    ).not.toThrow();
-  });
-
   async function makeAuthSignature(authMethod: string) {
     const conditionObj = {
       ...testContractConditionObj,
@@ -386,25 +365,6 @@ describe('No authentication provider', () => {
     return authSignature;
   }
 
-  async function testEIP712AuthMethod(authMethod: string) {
-    const eip712Spy = vi.spyOn(
-      EIP712AuthProvider.prototype,
-      'getOrCreateAuthSignature',
-    );
-
-    const authSignature = await makeAuthSignature(authMethod);
-    expect(authSignature).toBeDefined();
-    expect(authSignature.signature).toBeDefined();
-    expect(authSignature.scheme).toEqual('EIP712');
-    expect(authSignature.address).toEqual(await signer.getAddress());
-
-    const typedData = authSignature.typedData as EIP712TypedData;
-    expect(typedData).toBeDefined();
-    expect(typedData.domain.name).toEqual('TACo');
-    expect(typedData.message.address).toEqual(await signer.getAddress());
-    expect(eip712Spy).toHaveBeenCalledOnce();
-  }
-
   async function testEIP4361AuthMethod(authMethod: string) {
     const eip4361Spy = vi.spyOn(
       EIP4361AuthProvider.prototype,
@@ -419,17 +379,9 @@ describe('No authentication provider', () => {
     await testEIP4361AuthMethod(USER_ADDRESS_PARAM_DEFAULT);
   });
 
-  it('supports eip712', async () => {
-    await testEIP712AuthMethod(USER_ADDRESS_PARAM_EIP712);
-  });
-
-  it('supports eip4361', async () => {
-    await testEIP4361AuthMethod(USER_ADDRESS_PARAM_EIP4361);
-  });
-
   it('supports reusing external eip4361', async () => {
     // Because we are reusing an existing SIWE auth message, we have to pass it as a custom parameter
-    const authMessage = await makeAuthSignature(USER_ADDRESS_PARAM_EIP4361);
+    const authMessage = await makeAuthSignature(USER_ADDRESS_PARAM_DEFAULT);
     const customParams: Record<string, CustomContextParam> = {
       [USER_ADDRESS_PARAM_EXTERNAL_EIP4361]: authMessage as CustomContextParam,
     };

@@ -4,7 +4,8 @@ import { ethers } from 'ethers';
 import {
   conditions,
   decrypt,
-  domains, EIP4361AuthProvider,
+  domains,
+  EIP4361AuthProvider,
   encrypt,
   getPorterUri,
   initialize,
@@ -45,7 +46,10 @@ const run = async () => {
 
     // @ts-ignore
     const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
-    const authProvider = new EIP4361AuthProvider(web3Provider, web3Provider.getSigner());
+    const authProvider = new EIP4361AuthProvider(
+      web3Provider,
+      web3Provider.getSigner(),
+    );
     const decryptedMessage = await decrypt(
       web3Provider,
       domains.TESTNET,

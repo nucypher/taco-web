@@ -1,6 +1,6 @@
 import { initialize } from '@nucypher/nucypher-core';
 import { objectEquals, toJSON } from '@nucypher/shared';
-import {USER_ADDRESS_PARAM_DEFAULT} from "@nucypher/taco-auth";
+import { USER_ADDRESS_PARAM_DEFAULT } from '@nucypher/taco-auth';
 import { TEST_CHAIN_ID, TEST_CONTRACT_ADDR } from '@nucypher/test-utils';
 import { SemVer } from 'semver';
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -204,7 +204,8 @@ describe('condition set', () => {
     it('serializes to and from WASM conditions', () => {
       const conditionExpr = new ConditionExpression(erc721Balance);
       const coreConditions = conditionExpr.toCoreCondition();
-      const fromCoreConditions = ConditionExpression.fromCoreConditions(coreConditions);
+      const fromCoreConditions =
+        ConditionExpression.fromCoreConditions(coreConditions);
       expect(conditionExpr.equals(fromCoreConditions)).toBeTruthy();
     });
 

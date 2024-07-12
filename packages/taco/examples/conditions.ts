@@ -7,7 +7,10 @@ const ownsNFT = new conditions.predefined.erc721.ERC721Ownership({
   parameters: [3591],
   chain: ChainId.SEPOLIA,
 });
-console.assert(ownsNFT.requiresAuthentication(), 'ERC721Ownership requires authentication');
+console.assert(
+  ownsNFT.requiresAuthentication(),
+  'ERC721Ownership requires authentication',
+);
 
 const hasAtLeastTwoNFTs = new conditions.predefined.erc721.ERC721Balance({
   contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',

@@ -54,7 +54,6 @@ import { ReturnValueTestProps } from '../src/conditions/shared';
 import { DkgClient, DkgRitual } from '../src/dkg';
 import { encryptMessage } from '../src/tdec';
 
-
 export const fakeDkgTDecFlowE2E: (
   ritualId?: number,
   variant?: FerveoVariant,

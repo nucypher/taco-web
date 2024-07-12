@@ -109,7 +109,11 @@ const decryptFromBytes = async (encryptedBytes: Uint8Array) => {
     domain: 'localhost',
     uri: 'http://localhost:3000',
   };
-  const authProvider = new EIP4361AuthProvider(provider, consumerSigner, siweParams);
+  const authProvider = new EIP4361AuthProvider(
+    provider,
+    consumerSigner,
+    siweParams,
+  );
   return decrypt(
     provider,
     domain,

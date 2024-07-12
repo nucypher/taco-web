@@ -11,9 +11,7 @@ import {
   FunctionAbiProps,
 } from '../../../src/conditions/base/contract';
 import { ConditionExpression } from '../../../src/conditions/condition-expr';
-import {
-  USER_ADDRESS_PARAMS,
-} from '../../../src/conditions/const';
+import { USER_ADDRESS_PARAMS } from '../../../src/conditions/const';
 import { CustomContextParam } from '../../../src/conditions/context';
 import { testContractConditionObj, testFunctionAbi } from '../../test-utils';
 

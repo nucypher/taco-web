@@ -12,7 +12,11 @@ import { EIP4361AuthProvider, EIP4361TypedDataSchema } from '../src';
 describe('auth provider', () => {
   const provider = fakeProvider(bobSecretKeyBytes);
   const signer = fakeSigner(bobSecretKeyBytes);
-  const eip4361Provider = new EIP4361AuthProvider(provider, signer, TEST_SIWE_PARAMS);
+  const eip4361Provider = new EIP4361AuthProvider(
+    provider,
+    signer,
+    TEST_SIWE_PARAMS,
+  );
 
   it('creates a new SIWE message', async () => {
     const typedSignature = await eip4361Provider.getOrCreateAuthSignature();
@@ -42,6 +46,8 @@ describe('auth provider', () => {
   it('rejects an invalid EIP4361 message', async () => {
     const typedSignature = await eip4361Provider.getOrCreateAuthSignature();
     typedSignature.typedData = 'invalid-typed-data';
-    expect(() => EIP4361TypedDataSchema.parse(typedSignature.typedData)).toThrow();
+    expect(() =>
+      EIP4361TypedDataSchema.parse(typedSignature.typedData),
+    ).toThrow();
   });
 });

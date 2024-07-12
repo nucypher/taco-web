@@ -1,5 +1,5 @@
 import { EthAddressSchema } from '@nucypher/shared';
-import { USER_ADDRESS_PARAM_DEFAULT } from "@nucypher/taco-auth";
+import { USER_ADDRESS_PARAM_DEFAULT } from '@nucypher/taco-auth';
 import { z } from 'zod';
 
 import {

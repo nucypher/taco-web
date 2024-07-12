@@ -14,15 +14,3 @@ export const authSignatureSchema = z.object({
 });
 
 export type AuthSignature = z.infer<typeof authSignatureSchema>;
-
-// TODO: create a AuthSignature class.
-
-// TODO: Where do we get the signature from?
-export const fromSIWEMessage = (siweMessage: SiweMessage, signature: ???): AuthSignature => {
-  return {
-    signature: ???
-    address: siweMessage.address,
-    scheme: EIP4361_AUTH_METHOD,
-    typedData: siweMessage.prepareMessage()
-  }
-}

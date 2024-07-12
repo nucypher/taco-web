@@ -86,7 +86,7 @@ export class EIP4361AuthProvider {
       nonce,
       chainId,
     });
-    const scheme = 'EIP4361';
+    const scheme = EIP4361_AUTH_METHOD;
     const message = siweMessage.prepareMessage();
     const signature = await this.signer.signMessage(message);
     return { signature, address, scheme, typedData: message };

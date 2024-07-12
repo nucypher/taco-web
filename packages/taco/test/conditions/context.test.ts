@@ -4,11 +4,13 @@ import {
   AuthSignature,
   EIP4361_AUTH_METHOD,
   EIP4361AuthProvider,
+  USER_ADDRESS_PARAM_DEFAULT,
 } from '@nucypher/taco-auth';
 import {
-  USER_ADDRESS_PARAM_DEFAULT,
-} from "@nucypher/taco-auth";
-import { fakeAuthProviders, fakeProvider, fakeSigner } from '@nucypher/test-utils';
+  fakeAuthProviders,
+  fakeProvider,
+  fakeSigner,
+} from '@nucypher/test-utils';
 import { ethers } from 'ethers';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
@@ -93,7 +95,7 @@ describe('context', () => {
         expect(asObj[customParamKey]).toEqual(`0x${toHexString(customParam)}`);
       });
 
-      it('detects when a custom parameter is requested', ()=> {
+      it('detects when a custom parameter is requested', () => {
         const context = conditionExpr.buildContext({}, authProviders);
         expect(context.requestedParameters).toContain(customParamKey);
       });
@@ -101,7 +103,9 @@ describe('context', () => {
 
     describe('return value test', () => {
       it('accepts on a custom context parameters', async () => {
-        const asObj = await conditionExpr.buildContext(customParams).toContextParameters();
+        const asObj = await conditionExpr
+          .buildContext(customParams)
+          .toContextParameters();
         expect(asObj).toBeDefined();
         expect(asObj[customParamKey]).toEqual(1234);
       });
@@ -166,8 +170,8 @@ describe('context', () => {
       } as ContractConditionProps;
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
-      expect(conditionExpr.buildContext( {}, authProviders)).toBeDefined();
-      expect(() => conditionExpr.buildContext( {})).toThrow(
+      expect(conditionExpr.buildContext({}, authProviders)).toBeDefined();
+      expect(() => conditionExpr.buildContext({})).toThrow(
         `No matching authentication provider to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
       );
     });
@@ -178,8 +182,8 @@ describe('context', () => {
       expect(
         JSON.stringify(condition.toObj()).includes(USER_ADDRESS_PARAM_DEFAULT),
       ).toBe(false);
-      expect(conditionExpr.buildContext( {}, authProviders)).toBeDefined();
-      expect(conditionExpr.buildContext( {})).toBeDefined();
+      expect(conditionExpr.buildContext({}, authProviders)).toBeDefined();
+      expect(conditionExpr.buildContext({})).toBeDefined();
     });
 
     it('rejects on a missing signer', () => {
@@ -192,7 +196,7 @@ describe('context', () => {
       };
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
-      expect(() => conditionExpr.buildContext( {}, undefined)).toThrow(
+      expect(() => conditionExpr.buildContext({}, undefined)).toThrow(
         `No matching authentication provider to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
       );
     });
@@ -207,7 +211,7 @@ describe('context', () => {
       };
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
-      expect(() => conditionExpr.buildContext( {}, undefined)).toThrow(
+      expect(() => conditionExpr.buildContext({}, undefined)).toThrow(
         `No matching authentication provider to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
       );
     });
@@ -224,10 +228,10 @@ describe('context', () => {
         },
       };
 
-      it('handles both custom and auth context parameters', ()=> {
-        const requestedParams = new ConditionExpression(contractCondition)
-          .buildContext( {}, authProviders)
-          .requestedParameters;
+      it('handles both custom and auth context parameters', () => {
+        const requestedParams = new ConditionExpression(
+          contractCondition,
+        ).buildContext({}, authProviders).requestedParameters;
         expect(requestedParams).not.toContain(USER_ADDRESS_PARAM_DEFAULT);
         expect(requestedParams).toContain(customParamKey);
       });
@@ -239,9 +243,11 @@ describe('context', () => {
         });
         const conditionContext = new ConditionExpression(
           customContractCondition,
-        ).buildContext( {}, authProviders);
+        ).buildContext({}, authProviders);
 
-        await expect(async () => conditionContext.toContextParameters()).rejects.toThrow(
+        await expect(async () =>
+          conditionContext.toContextParameters(),
+        ).rejects.toThrow(
           `Missing custom context parameter(s): ${customParamKey}`,
         );
       });
@@ -253,7 +259,7 @@ describe('context', () => {
         });
         const conditionContext = new ConditionExpression(
           customContractCondition,
-        ).buildContext( {}, authProviders);
+        ).buildContext({}, authProviders);
 
         const asObj = await conditionContext.toContextParameters();
         expect(asObj).toBeDefined();
@@ -271,7 +277,7 @@ describe('context', () => {
           customParameters[customParamKey] = falsyParam;
           const conditionContext = new ConditionExpression(
             customContractCondition,
-          ).buildContext( customParameters, authProviders);
+          ).buildContext(customParameters, authProviders);
 
           const asObj = await conditionContext.toContextParameters();
           expect(asObj).toBeDefined();
@@ -325,7 +331,7 @@ describe('No authentication provider', () => {
       };
       const condition = new ContractCondition(conditionObj);
       const conditionExpr = new ConditionExpression(condition);
-      expect(() => conditionExpr.buildContext( {}, {})).toThrow(
+      expect(() => conditionExpr.buildContext({}, {})).toThrow(
         `No matching authentication provider to satisfy ${userAddressParam} context variable in condition`,
       );
     });
@@ -341,9 +347,7 @@ describe('No authentication provider', () => {
     };
     const condition = new ContractCondition(conditionObj);
     const conditionExpr = new ConditionExpression(condition);
-    expect(() =>
-      conditionExpr.buildContext( {}, authProviders),
-    ).not.toThrow();
+    expect(() => conditionExpr.buildContext({}, authProviders)).not.toThrow();
   });
 
   async function makeAuthSignature(authMethod: string) {
@@ -357,7 +361,7 @@ describe('No authentication provider', () => {
     const condition = new ContractCondition(conditionObj);
     const conditionExpr = new ConditionExpression(condition);
 
-    const builtContext = conditionExpr.buildContext( {}, authProviders);
+    const builtContext = conditionExpr.buildContext({}, authProviders);
     const contextVars = await builtContext.toContextParameters();
     const authSignature = contextVars[authMethod] as AuthSignature;
     expect(authSignature).toBeDefined();
@@ -406,9 +410,7 @@ describe('No authentication provider', () => {
     // Make sure we remove the EIP4361 auth method from the auth providers first
     delete authProviders[EIP4361_AUTH_METHOD];
     // Should throw an error if we don't pass the custom parameter
-    expect(
-      () => conditionExpr.buildContext( {}, authProviders)
-    ).toThrow(
+    expect(() => conditionExpr.buildContext({}, authProviders)).toThrow(
       `No custom parameter for requested context parameter: ${USER_ADDRESS_PARAM_EXTERNAL_EIP4361}`,
     );
 

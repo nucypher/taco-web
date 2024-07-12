@@ -88,7 +88,11 @@ export const fakeSigner = (
 
 export const fakeAuthProviders = () => {
   return {
-    [EIP4361_AUTH_METHOD]: new EIP4361AuthProvider(fakeProvider(), fakeSigner(), TEST_SIWE_PARAMS),
+    [EIP4361_AUTH_METHOD]: new EIP4361AuthProvider(
+      fakeProvider(),
+      fakeSigner(),
+      TEST_SIWE_PARAMS,
+    ),
   };
 };
 
@@ -258,14 +262,14 @@ interface FakeDkgRitualFlow {
 }
 
 export const fakeTDecFlow = ({
-   validators,
-   validatorKeypairs,
-   ritualId,
-   sharesNum,
-   threshold,
-   receivedMessages,
-   message,
-   thresholdMessageKit,
+  validators,
+  validatorKeypairs,
+  ritualId,
+  sharesNum,
+  threshold,
+  receivedMessages,
+  message,
+  thresholdMessageKit,
 }: FakeDkgRitualFlow) => {
   // Having aggregated the transcripts, the validators can now create decryption shares
   const decryptionShares: DecryptionShareSimple[] = [];

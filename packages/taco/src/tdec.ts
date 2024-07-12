@@ -19,12 +19,12 @@ import {
   PorterClient,
   toBytes,
 } from '@nucypher/shared';
-import {AuthProviders} from "@nucypher/taco-auth";
+import { AuthProviders } from '@nucypher/taco-auth';
 import { ethers } from 'ethers';
 import { arrayify, keccak256 } from 'ethers/lib/utils';
 
 import { ConditionExpression } from './conditions/condition-expr';
-import { ConditionContext, CustomContextParam} from './conditions/context';
+import { ConditionContext, CustomContextParam } from './conditions/context';
 
 const ERR_DECRYPTION_FAILED = (errors: unknown) =>
   `Threshold of responses not met; TACo decryption failed with errors: ${JSON.stringify(

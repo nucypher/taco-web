@@ -11,6 +11,7 @@ const isAddress = (address: string) => {
   }
 };
 
-export const EthAddressSchema = z.string()
+export const EthAddressSchema = z
+  .string()
   .regex(ETH_ADDRESS_REGEXP)
   .refine(isAddress, { message: 'Invalid Ethereum address' });

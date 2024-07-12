@@ -3,8 +3,6 @@ import { z } from 'zod';
 
 import { EIP4361_AUTH_METHOD } from './auth-provider';
 import { EIP4361TypedDataSchema } from './providers';
-import { SiweMessage } from 'siwe';
-
 
 export const authSignatureSchema = z.object({
   signature: z.string(),

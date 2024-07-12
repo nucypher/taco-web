@@ -3,8 +3,8 @@ import {
   initialize,
   SessionStaticSecret,
 } from '@nucypher/nucypher-core';
-import { USER_ADDRESS_PARAM_DEFAULT } from '@nucypher/taco-auth';
 import * as tacoAuth from '@nucypher/taco-auth';
+import { USER_ADDRESS_PARAM_DEFAULT } from '@nucypher/taco-auth';
 import {
   aliceSecretKeyBytes,
   fakeDkgFlow,
@@ -14,7 +14,8 @@ import {
   fakeTDecFlow,
   mockGetRitualIdFromPublicKey,
   mockTacoDecrypt,
-  TEST_CHAIN_ID, TEST_SIWE_PARAMS,
+  TEST_CHAIN_ID,
+  TEST_SIWE_PARAMS,
 } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
@@ -36,7 +37,6 @@ const ownsNFT = new conditions.predefined.erc721.ERC721Ownership({
   parameters: [3591],
   chain: TEST_CHAIN_ID,
 });
-
 
 describe('taco', () => {
   beforeAll(async () => {
@@ -83,7 +83,11 @@ describe('taco', () => {
     );
     const getRitualSpy = mockGetActiveRitual(mockedDkgRitual);
 
-    const authProvider = new tacoAuth.EIP4361AuthProvider(provider, signer, TEST_SIWE_PARAMS);
+    const authProvider = new tacoAuth.EIP4361AuthProvider(
+      provider,
+      signer,
+      TEST_SIWE_PARAMS,
+    );
     const decryptedMessage = await taco.decrypt(
       provider,
       domains.DEVNET,
@@ -107,11 +111,12 @@ describe('taco', () => {
     const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);
 
     const customParamKey = ':nftId';
-    const ownsNFTWithCustomParams = new conditions.predefined.erc721.ERC721Ownership({
-      contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
-      parameters: [customParamKey],
-      chain: TEST_CHAIN_ID,
-    });
+    const ownsNFTWithCustomParams =
+      new conditions.predefined.erc721.ERC721Ownership({
+        contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
+        parameters: [customParamKey],
+        chain: TEST_CHAIN_ID,
+      });
 
     const messageKit = await taco.encrypt(
       provider,
@@ -123,7 +128,12 @@ describe('taco', () => {
     );
     expect(getFinalizedRitualSpy).toHaveBeenCalled();
 
-    const requestedParameters = taco.conditions.context.ConditionContext.requestedContextParameters(messageKit);
-    expect(requestedParameters).toEqual(new Set([customParamKey, USER_ADDRESS_PARAM_DEFAULT]));
+    const requestedParameters =
+      taco.conditions.context.ConditionContext.requestedContextParameters(
+        messageKit,
+      );
+    expect(requestedParameters).toEqual(
+      new Set([customParamKey, USER_ADDRESS_PARAM_DEFAULT]),
+    );
   });
 });

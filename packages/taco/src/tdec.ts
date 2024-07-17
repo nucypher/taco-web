@@ -25,6 +25,7 @@ import { arrayify, keccak256 } from 'ethers/lib/utils';
 
 import { ConditionExpression } from './conditions/condition-expr';
 import { ConditionContext, CustomContextParam } from './conditions/context';
+import { DkgClient } from './dkg';
 
 const ERR_DECRYPTION_FAILED = (errors: unknown) =>
   `Threshold of responses not met; TACo decryption failed with errors: ${JSON.stringify(
@@ -64,8 +65,6 @@ export const retrieveAndDecrypt = async (
   porterUris: string[],
   thresholdMessageKit: ThresholdMessageKit,
   ritualId: number,
-  sharesNum: number,
-  threshold: number,
   authProviders?: AuthProviders,
   customParameters?: Record<string, CustomContextParam>,
 ): Promise<Uint8Array> => {
@@ -75,8 +74,6 @@ export const retrieveAndDecrypt = async (
     porterUris,
     thresholdMessageKit,
     ritualId,
-    sharesNum,
-    threshold,
     authProviders,
     customParameters,
   );
@@ -91,16 +88,16 @@ const retrieve = async (
   porterUris: string[],
   thresholdMessageKit: ThresholdMessageKit,
   ritualId: number,
-  sharesNum: number,
-  threshold: number,
   authProviders?: AuthProviders,
   customParameters?: Record<string, CustomContextParam>,
 ): Promise<DecryptionShareSimple[]> => {
+  const ritual = await DkgClient.getActiveRitual(provider, domain, ritualId);
+
   const dkgParticipants = await DkgCoordinatorAgent.getParticipants(
     provider,
     domain,
     ritualId,
-    sharesNum,
+    ritual.sharesNum,
   );
   const conditionContext = await ConditionContext.fromConditions(
     thresholdMessageKit.acp.conditions,
@@ -117,9 +114,9 @@ const retrieve = async (
   const porter = new PorterClient(porterUris);
   const { encryptedResponses, errors } = await porter.tacoDecrypt(
     encryptedRequests,
-    threshold,
+    ritual.threshold,
   );
-  if (Object.keys(encryptedResponses).length < threshold) {
+  if (Object.keys(encryptedResponses).length < ritual.threshold) {
     throw new Error(ERR_DECRYPTION_FAILED(errors));
   }
 

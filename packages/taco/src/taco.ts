@@ -155,7 +155,6 @@ export const decrypt = async (
     domain,
     messageKit.acp.publicKey,
   );
-  const ritual = await DkgClient.getActiveRitual(provider, domain, ritualId);
   const authProviders: AuthProviders = authProvider
     ? {
         [EIP4361_AUTH_METHOD]: authProvider,
@@ -167,8 +166,6 @@ export const decrypt = async (
     porterUrisFull,
     messageKit,
     ritualId,
-    ritual.sharesNum,
-    ritual.threshold,
     authProviders,
     customParameters,
   );
@@ -200,6 +197,7 @@ export const isAuthorized = async (
     messageKit,
   );
 
+// TODO is this still valid and actually needed? should we remove this?
 export const registerEncrypters = async (
   provider: ethers.providers.Provider,
   signer: ethers.Signer,

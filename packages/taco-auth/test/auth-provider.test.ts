@@ -7,7 +7,8 @@ import {
 import { SiweMessage } from 'siwe';
 import { describe, expect, it } from 'vitest';
 
-import { EIP4361AuthProvider, EIP4361TypedDataSchema } from '../src';
+import { EIP4361TypedDataSchema } from '../src/providers/eip4361/common';
+import { EIP4361AuthProvider } from '../src/providers';
 
 describe('auth provider', () => {
   const provider = fakeProvider(bobSecretKeyBytes);

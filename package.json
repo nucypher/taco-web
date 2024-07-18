@@ -6,7 +6,7 @@
   "scripts": {
     "postinstall": "pnpm build",
     "typedoc": "typedoc",
-    "typedoc:publish": "gh-pages -m \"[ci skip] Update typedoc docs\" -d docs --dotfiles",
+    "typedoc:publish": "gh-pages -m \"[ci skip] Update typedoc docs\" -d docs --dotfiles --repo git@github.com:nucypher/taco-web.git",
     "format": "prettier --check \"./**/*.ts\" README.md",
     "format:fix": "prettier --write \"./**/*.ts\" README.md",
     "lint": "pnpm run --parallel --aggregate-output --reporter append-only lint",

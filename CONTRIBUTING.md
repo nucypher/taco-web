@@ -34,8 +34,8 @@ pnpm fix
 Build and publish documentation with:
 
 ```bash
-pnpm doc
-pnpm doc:publish
+pnpm typedoc
+pnpm typedoc:publish
 ```
 
 ### Deployment
@@ -44,5 +44,6 @@ TODO: Update after implementing automated publishing.
 
 # External Api
 This is the api that we expose to developers.
+It is defined in [`packages/taco/src/taco.ts`](https://github.com/nucypher/taco-web/blob/main/packages/taco/src/taco.ts)
 
 # Design and Architecture

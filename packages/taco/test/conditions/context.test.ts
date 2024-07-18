@@ -5,6 +5,7 @@ import {
   EIP4361AuthProvider,
   SingleSignOnEIP4361AuthProvider,
   USER_ADDRESS_PARAM_DEFAULT,
+  USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
 } from '@nucypher/taco-auth';
 import {
   fakeAuthProviders,

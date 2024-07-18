@@ -1,23 +1,12 @@
 import { ethers } from 'ethers';
 import { generateNonce, SiweMessage } from 'siwe';
-import { z } from 'zod';
 
-import { EIP4361_AUTH_METHOD } from '../auth-provider';
-import { AuthSignature } from '../auth-sig';
-import { LocalStorage } from '../storage';
+import { AuthSignature } from '../../auth-sig';
+import { LocalStorage } from '../../storage';
 
-const isSiweMessage = (message: string): boolean => {
-  try {
-    new SiweMessage(message);
-    return true;
-  } catch {
-    return false;
-  }
-};
+import { EIP4361_AUTH_METHOD } from './common';
 
-export const EIP4361TypedDataSchema = z
-  .string()
-  .refine(isSiweMessage, { message: 'Invalid SIWE message' });
+export const USER_ADDRESS_PARAM_DEFAULT = ':userAddress';
 
 export type EIP4361AuthProviderParams = {
   domain: string;

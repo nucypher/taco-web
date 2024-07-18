@@ -21,8 +21,3 @@ export const USER_ADDRESS_PARAMS = [
   // Ordering matters, this should always be last
   USER_ADDRESS_PARAM_DEFAULT,
 ];
-
-export const RESERVED_CONTEXT_PARAMS = [
-  USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
-  USER_ADDRESS_PARAM_DEFAULT,
-];

@@ -22,13 +22,10 @@ import {
 } from '../../src/conditions/base/contract';
 import { RpcCondition } from '../../src/conditions/base/rpc';
 import {
-  RESERVED_CONTEXT_PARAMS,
-  USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
-} from '../../src/conditions/const';
-import {
   ConditionContext,
   CustomContextParam,
 } from '../../src/conditions/context';
+import { RESERVED_CONTEXT_PARAMS } from '../../src/conditions/context/context';
 import {
   paramOrContextParamSchema,
   ReturnValueTestProps,

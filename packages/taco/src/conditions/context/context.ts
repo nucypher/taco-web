@@ -16,8 +16,6 @@ import { ConditionExpression } from '../condition-expr';
 import {
   CONTEXT_PARAM_PREFIX,
   CONTEXT_PARAM_REGEXP,
-  RESERVED_CONTEXT_PARAMS,
-  USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
   USER_ADDRESS_PARAMS,
 } from '../const';
 
@@ -38,6 +36,11 @@ const ERR_INVALID_AUTH_PROVIDER_TYPE = (param: string, expected: string) =>
   `Invalid AuthProvider type for ${param}; expected ${expected}`;
 const ERR_AUTH_PROVIDER_NOT_NEEDED_FOR_CONTEXT_PARAM = (param: string) =>
   `AuthProvider not necessary for context parameter: ${param}`;
+
+export const RESERVED_CONTEXT_PARAMS = [
+  USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
+  USER_ADDRESS_PARAM_DEFAULT,
+];
 
 export class ConditionContext {
   public requestedParameters: Set<string>;

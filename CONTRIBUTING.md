@@ -7,10 +7,12 @@
   - [Publishing](#publishing)
 - [External Api](#external-api)
 - [Design and Architecture](#design-and-architecture)
+  - [Context Parameters](#context-parameters)
+  - [Authentication Providers](#authentication-providers)
 # Quick Start
 
 ### Setup
-Download, install, build, and test with:
+Download and install with:
 
 ```bash
 git clone https://github.com/nucypher/taco-web
@@ -38,7 +40,7 @@ pnpm typedoc
 pnpm typedoc:publish
 ```
 
-### Deployment
+### Publishing
 
 TODO: Update after implementing automated publishing.
 
@@ -48,7 +50,45 @@ It is defined in [`packages/taco/src/taco.ts`](https://github.com/nucypher/taco-
 
 # Design and Architecture
 
-## User Authentication
+## Context Parameters
+When defining conditions for decryption, context parameters are specified to indicate what information is required.
+These parameters are placeholders that will be filled with actual data during the decryption process.
+
+The built in `:userAddress` parameter is defined in `packages/taco-auth/src/auth-provider.ts`.
+Custom context parameters can also be defined and they must always begin with `:`.
+
+[This test](https://github.com/nucypher/taco-web/blob/b689493a37bec0b168f80f43347818095c3dd5ce/packages/taco/test/taco.test.ts#L102) demonstrates the functionality:
+```typescript
+  it('exposes requested parameters', async () => {
+    const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
+    const mockedDkgRitual = fakeDkgRitual(mockedDkg);
+    const provider = fakeProvider(aliceSecretKeyBytes);
+    const signer = fakeSigner(aliceSecretKeyBytes);
+    const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);
+
+    const customParamKey = ':nftId';
+    const ownsNFTWithCustomParams = new conditions.predefined.erc721.ERC721Ownership({
+      contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
+      parameters: [customParamKey],
+      chain: TEST_CHAIN_ID,
+    });
+
+    const messageKit = await taco.encrypt(
+      provider,
+      domains.DEVNET,
+      message,
+      ownsNFTWithCustomParams,
+      mockedDkg.ritualId,
+      signer,
+    );
+    expect(getFinalizedRitualSpy).toHaveBeenCalled();
+
+    const requestedParameters = taco.conditions.context.ConditionContext.requestedContextParameters(messageKit);
+    expect(requestedParameters).toEqual(new Set([customParamKey, USER_ADDRESS_PARAM_DEFAULT]));
+  });
+```
+
+## Authentication Providers
 User authentication is handled by an `AuthProvider` defined in `packages/taco-auth/src`.
 Using authentication providers has several benefits:
 1. Abstraction:
@@ -61,7 +101,7 @@ Using authentication providers has several benefits:
 
 3. User Context Management:
 
-    They help manage user context, including handling authentication tokens and ensuring that users are authenticated only once for multiple actions.
+    They help manage user context, specifically the `:userAddress` parameter. This includes handling authentication tokens and ensuring that users are authenticated only once for multiple actions.
 
 Currently, [SIWE](https://docs.login.xyz/) (Sign In With Ethereum, [EIP-4361](https://eips.ethereum.org/EIPS/eip-4361)) is the only authentication method implemented.
 EIP-712 has previously been supported but is now deprecated.

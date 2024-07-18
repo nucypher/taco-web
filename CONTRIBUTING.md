@@ -1,5 +1,15 @@
 # Contribution Guide
 
+- [Quick Start](#quick-start)
+  - [Setup](#setup)
+  - [Development](#development)
+  - [Documentation](#documentation)
+  - [Publishing](#publishing)
+- [External Api](#external-api)
+- [Design and Architecture](#design-and-architecture)
+# Quick Start
+
+### Setup
 Download, install, build, and test with:
 
 ```bash
@@ -8,7 +18,7 @@ cd taco-web
 pnpm install
 ```
 
-## Development
+### Basic Development Commands
 
 Execute common tasks with:
 
@@ -19,7 +29,7 @@ pnpm lint
 pnpm fix
 ```
 
-## Documentation
+### Documentation
 
 Build and publish documentation with:
 
@@ -28,6 +38,11 @@ pnpm doc
 pnpm doc:publish
 ```
 
-## Publishing
+### Deployment
 
 TODO: Update after implementing automated publishing.
+
+# External Api
+This is the api that we expose to developers.
+
+# Design and Architecture

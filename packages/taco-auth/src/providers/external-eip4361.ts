@@ -22,7 +22,7 @@ export class SingleSignOnEIP4361AuthProvider {
 
   private constructor(
     private readonly existingSiweMessage: string,
-    private readonly address: string,
+    public readonly address: string,
     private readonly signature: string,
   ) {}
 

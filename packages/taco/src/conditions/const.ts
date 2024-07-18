@@ -23,6 +23,6 @@ export const USER_ADDRESS_PARAMS = [
 ];
 
 export const RESERVED_CONTEXT_PARAMS = [
+  USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
   USER_ADDRESS_PARAM_DEFAULT,
-  // USER_ADDRESS_PARAM_EXTERNAL_EIP4361 is not reserved and can be used as a custom context parameter
 ];

@@ -1,5 +1,5 @@
 import { initialize } from '@nucypher/nucypher-core';
-import { USER_ADDRESS_PARAM_DEFAULT } from '@nucypher/taco-auth';
+import { AuthProvider, USER_ADDRESS_PARAM_DEFAULT } from '@nucypher/taco-auth';
 import { fakeAuthProviders } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
@@ -10,9 +10,11 @@ import {
   ContractConditionType,
   FunctionAbiProps,
 } from '../../../src/conditions/base/contract';
-import { ConditionExpression } from '../../../src/conditions/condition-expr';
 import { USER_ADDRESS_PARAMS } from '../../../src/conditions/const';
-import { CustomContextParam } from '../../../src/conditions/context';
+import {
+  ConditionContext,
+  CustomContextParam,
+} from '../../../src/conditions/context';
 import { testContractConditionObj, testFunctionAbi } from '../../test-utils';
 
 describe('validation', () => {
@@ -170,7 +172,7 @@ describe('supports various user address params', () => {
   );
 });
 
-describe('supports custom function abi', () => {
+describe('supports custom function abi', async () => {
   const contractConditionObj: ContractConditionProps = {
     ...testContractConditionObj,
     standardContractType: undefined,
@@ -183,19 +185,26 @@ describe('supports custom function abi', () => {
     },
   };
   const contractCondition = new ContractCondition(contractConditionObj);
-  const conditionExpr = new ConditionExpression(contractCondition);
   const myCustomParam = ':customParam';
   const customParams: Record<string, CustomContextParam> = {};
   customParams[myCustomParam] = 1234;
 
+  let authProviders: Record<string, AuthProvider>;
   beforeAll(async () => {
     await initialize();
+    authProviders = await fakeAuthProviders();
   });
 
   it('accepts custom function abi with a custom parameter', async () => {
-    const asJson = await conditionExpr
-      .buildContext(customParams, fakeAuthProviders())
-      .toJson();
+    const conditionContext = new ConditionContext(contractCondition);
+    conditionContext.addCustomContextParameterValues(customParams);
+
+    conditionContext.addAuthProvider(
+      USER_ADDRESS_PARAM_DEFAULT,
+      authProviders[USER_ADDRESS_PARAM_DEFAULT],
+    );
+
+    const asJson = await conditionContext.toJson();
     expect(asJson).toBeDefined();
     expect(asJson).toContain(USER_ADDRESS_PARAM_DEFAULT);
     expect(asJson).toContain(myCustomParam);

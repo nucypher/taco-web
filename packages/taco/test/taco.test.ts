@@ -21,6 +21,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 import * as taco from '../src';
 import { conditions, domains, toBytes } from '../src';
+import { ConditionContext } from '../src/conditions/context';
 
 import {
   fakeDkgRitual,
@@ -88,11 +89,13 @@ describe('taco', () => {
       signer,
       TEST_SIWE_PARAMS,
     );
+    const conditionContext = ConditionContext.fromMessageKit(messageKit);
+    conditionContext.addAuthProvider(USER_ADDRESS_PARAM_DEFAULT, authProvider);
     const decryptedMessage = await taco.decrypt(
       provider,
       domains.DEVNET,
       messageKit,
-      authProvider,
+      conditionContext,
       [fakePorterUri],
     );
     expect(decryptedMessage).toEqual(toBytes(message));
@@ -128,10 +131,8 @@ describe('taco', () => {
     );
     expect(getFinalizedRitualSpy).toHaveBeenCalled();
 
-    const requestedParameters =
-      taco.conditions.context.ConditionContext.requestedContextParameters(
-        messageKit,
-      );
+    const conditionContext = ConditionContext.fromMessageKit(messageKit);
+    const requestedParameters = conditionContext.requestedParameters;
     expect(requestedParameters).toEqual(
       new Set([customParamKey, USER_ADDRESS_PARAM_DEFAULT]),
     );

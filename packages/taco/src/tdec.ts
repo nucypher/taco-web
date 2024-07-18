@@ -19,12 +19,11 @@ import {
   PorterClient,
   toBytes,
 } from '@nucypher/shared';
-import { AuthProviders } from '@nucypher/taco-auth';
 import { ethers } from 'ethers';
 import { arrayify, keccak256 } from 'ethers/lib/utils';
 
 import { ConditionExpression } from './conditions/condition-expr';
-import { ConditionContext, CustomContextParam } from './conditions/context';
+import { ConditionContext } from './conditions/context';
 import { DkgClient } from './dkg';
 
 const ERR_DECRYPTION_FAILED = (errors: unknown) =>
@@ -65,8 +64,7 @@ export const retrieveAndDecrypt = async (
   porterUris: string[],
   thresholdMessageKit: ThresholdMessageKit,
   ritualId: number,
-  authProviders?: AuthProviders,
-  customParameters?: Record<string, CustomContextParam>,
+  context?: ConditionContext,
 ): Promise<Uint8Array> => {
   const decryptionShares = await retrieve(
     provider,
@@ -74,8 +72,7 @@ export const retrieveAndDecrypt = async (
     porterUris,
     thresholdMessageKit,
     ritualId,
-    authProviders,
-    customParameters,
+    context,
   );
   const sharedSecret = combineDecryptionSharesSimple(decryptionShares);
   return thresholdMessageKit.decryptWithSharedSecret(sharedSecret);
@@ -88,8 +85,7 @@ const retrieve = async (
   porterUris: string[],
   thresholdMessageKit: ThresholdMessageKit,
   ritualId: number,
-  authProviders?: AuthProviders,
-  customParameters?: Record<string, CustomContextParam>,
+  context?: ConditionContext,
 ): Promise<DecryptionShareSimple[]> => {
   const ritual = await DkgClient.getActiveRitual(provider, domain, ritualId);
 
@@ -99,11 +95,10 @@ const retrieve = async (
     ritualId,
     ritual.sharesNum,
   );
-  const conditionContext = await ConditionContext.fromConditions(
-    thresholdMessageKit.acp.conditions,
-    authProviders,
-    customParameters,
-  );
+  const conditionContext = context
+    ? context
+    : ConditionContext.fromMessageKit(thresholdMessageKit);
+
   const { sharedSecrets, encryptedRequests } = await makeDecryptionRequests(
     ritualId,
     conditionContext,

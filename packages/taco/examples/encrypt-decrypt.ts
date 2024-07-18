@@ -7,7 +7,6 @@ import {
   domains,
   EIP4361AuthProvider,
   encrypt,
-  getPorterUri,
   initialize,
   ThresholdMessageKit,
   toBytes,
@@ -55,7 +54,6 @@ const run = async () => {
       domains.TESTNET,
       messageKit,
       authProvider,
-      getPorterUri(domains.TESTNET),
     );
     return decryptedMessage;
   };

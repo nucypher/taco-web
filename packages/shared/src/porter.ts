@@ -16,14 +16,14 @@ import qs from 'qs';
 import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from './types';
 import { fromBase64, fromHexString, toBase64, toHexString } from './utils';
 
-const porterUri: Record<string, string> = {
+const defaultPorterUri: Record<string, string> = {
   mainnet: 'https://porter.nucypher.community',
   tapir: 'https://porter-tapir.nucypher.community',
   oryx: 'https://porter-oryx.nucypher.community',
   lynx: 'https://porter-lynx.nucypher.community',
 };
 
-export type Domain = keyof typeof porterUri;
+export type Domain = keyof typeof defaultPorterUri;
 
 export const domains: Record<string, Domain> = {
   DEVNET: 'lynx',
@@ -32,11 +32,20 @@ export const domains: Record<string, Domain> = {
 };
 
 export const getPorterUri = (domain: Domain): string => {
-  const uri = porterUri[domain];
+  return getPorterUris(domain)[0];
+};
+
+export const getPorterUris = (domain: Domain, porterUri?: string): string[] => {
+  const porterUris: string[] = [];
+  if (porterUri) {
+    porterUris.push(porterUri);
+  }
+  const uri = defaultPorterUri[domain];
   if (!uri) {
     throw new Error(`No default Porter URI found for domain: ${domain}`);
   }
-  return porterUri[domain];
+  porterUris.push(uri);
+  return porterUris;
 };
 
 // /get_ursulas
@@ -126,7 +135,7 @@ export type TacoDecryptResult = {
 export class PorterClient {
   readonly porterUrls: URL[];
 
-  constructor(porterUris: string | [string, ...[string]]) {
+  constructor(porterUris: string | string[]) {
     if (porterUris instanceof Array) {
       this.porterUrls = porterUris.map((uri) => new URL(uri));
     } else {

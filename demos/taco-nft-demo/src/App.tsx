@@ -3,7 +3,6 @@ import {
   decrypt,
   domains,
   encrypt,
-  getPorterUri,
   initialize,
   ThresholdMessageKit,
 } from '@nucypher/taco';
@@ -78,8 +77,8 @@ export default function App() {
       provider,
       domain,
       encryptedMessage,
-      getPorterUri(domain),
-      provider.getSigner(),
+      undefined,
+      provider.getSigner()
     );
 
     setDecryptedMessage(new TextDecoder().decode(decryptedMessage));

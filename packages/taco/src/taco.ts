@@ -9,7 +9,7 @@ import {
   DkgCoordinatorAgent,
   Domain,
   fromHexString,
-  getPorterUri,
+  getPorterUris,
   GlobalAllowListAgent,
   toBytes,
 } from '@nucypher/shared';
@@ -148,9 +148,7 @@ export const decrypt = async (
   porterUri?: string,
   customParameters?: Record<string, CustomContextParam>,
 ): Promise<Uint8Array> => {
-  if (!porterUri) {
-    porterUri = getPorterUri(domain);
-  }
+  const porterUris: string[] = getPorterUris(domain, porterUri);
 
   const ritualId = await DkgCoordinatorAgent.getRitualIdFromPublicKey(
     provider,
@@ -166,7 +164,7 @@ export const decrypt = async (
   return retrieveAndDecrypt(
     provider,
     domain,
-    porterUri,
+    porterUris,
     messageKit,
     ritualId,
     ritual.sharesNum,

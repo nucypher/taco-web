@@ -3,7 +3,6 @@ import {
   decrypt,
   domains,
   encrypt,
-  getPorterUri,
   initialize,
   ThresholdMessageKit,
   toHexString,
@@ -89,7 +88,7 @@ export default function App() {
       provider,
       domain,
       encryptedMessage,
-      getPorterUri(domain),
+      undefined,
       provider.getSigner(),
     );
 

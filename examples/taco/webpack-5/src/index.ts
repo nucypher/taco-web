@@ -8,6 +8,7 @@ import {
   getPorterUri,
   initialize,
   toBytes,
+  USER_ADDRESS_PARAM_DEFAULT,
 } from '@nucypher/taco';
 import { ethers } from 'ethers';
 import { hexlify } from 'ethers/lib/utils';
@@ -62,11 +63,14 @@ const runExample = async () => {
 
   console.log('Decrypting message...');
   const authProvider = new EIP4361AuthProvider(provider, signer);
+  const conditionContext =
+    conditions.context.ConditionContext.fromMessageKit(messageKit);
+  conditionContext.addAuthProvider(USER_ADDRESS_PARAM_DEFAULT, authProvider);
   const decryptedBytes = await decrypt(
     provider,
     domain,
     messageKit,
-    authProvider,
+    conditionContext,
     getPorterUri(domain),
   );
   const decryptedMessage = fromBytes(decryptedBytes);

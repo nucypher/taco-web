@@ -1,11 +1,12 @@
 import { format } from 'node:util';
 
 import {
+  EIP4361AuthProvider,
+  ThresholdMessageKit,
+  USER_ADDRESS_PARAM_DEFAULT,
   conditions,
   decrypt,
   domains,
-  EIP4361AuthProvider,
-  USER_ADDRESS_PARAM_DEFAULT,
   encrypt,
   fromBytes,
   initialize,

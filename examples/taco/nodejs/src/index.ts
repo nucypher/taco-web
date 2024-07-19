@@ -5,6 +5,7 @@ import {
   decrypt,
   domains,
   EIP4361AuthProvider,
+  USER_ADDRESS_PARAM_DEFAULT,
   encrypt,
   fromBytes,
   initialize,
@@ -113,11 +114,14 @@ const decryptFromBytes = async (encryptedBytes: Uint8Array) => {
     consumerSigner,
     siweParams,
   );
+  const conditionContext =
+    conditions.context.ConditionContext.fromMessageKit(messageKit);
+  conditionContext.addAuthProvider(USER_ADDRESS_PARAM_DEFAULT, authProvider);
   return decrypt(
     provider,
     domain,
     messageKit,
-    authProvider,
+    conditionContext,
   );
 };
 

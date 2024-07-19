@@ -143,32 +143,11 @@ export class PorterClient {
     }
   }
 
-  protected async tryAndGet<T, D>(
-    path: string,
-    config?: AxiosRequestConfig<D>,
-  ): Promise<AxiosResponse<T>> {
+  protected async tryAndCall<T, D>(config: AxiosRequestConfig<D>): Promise<AxiosResponse<T>> {
     let resp!: AxiosResponse<T>;
     for (const porterUrl of this.porterUrls) {
-      resp = await axios.get(new URL(path, porterUrl).toString(), config);
-      if (resp.status === HttpStatusCode.Ok) {
-        return resp;
-      }
-    }
-    return resp;
-  }
-
-  protected async tryAndPost<T, D>(
-    path: string,
-    data?: D,
-    config?: AxiosRequestConfig<D>,
-  ): Promise<AxiosResponse<T>> {
-    let resp!: AxiosResponse<T>;
-    for (const porterUrl of this.porterUrls) {
-      resp = await axios.post(
-        new URL(path, porterUrl).toString(),
-        data,
-        config,
-      );
+      config.baseURL = porterUrl.toString();
+      resp = await axios.request(config);
       if (resp.status === HttpStatusCode.Ok) {
         return resp;
       }
@@ -186,14 +165,14 @@ export class PorterClient {
       exclude_ursulas: excludeUrsulas,
       include_ursulas: includeUrsulas,
     };
-    const resp: AxiosResponse<GetUrsulasResult> = await this.tryAndGet(
-      '/get_ursulas',
-      {
-        params,
-        paramsSerializer: (params) => {
-          return qs.stringify(params, { arrayFormat: 'comma' });
-        },
+    const resp: AxiosResponse<GetUrsulasResult> = await this.tryAndCall({
+      url: '/get_ursulas',
+      method: 'get',
+      params: params,
+      paramsSerializer: (params) => {
+        return qs.stringify(params, { arrayFormat: 'comma' });
       },
+    },
     );
     return resp.data.result.ursulas.map((u: UrsulaResponse) => ({
       checksumAddress: u.checksum_address,
@@ -221,7 +200,11 @@ export class PorterClient {
       context: conditionContextJSON,
     };
     const resp: AxiosResponse<PostRetrieveCFragsResponse> =
-      await this.tryAndPost('/retrieve_cfrags', data);
+      await this.tryAndCall({
+        url: '/retrieve_cfrags',
+        method: 'post',
+        data: data
+      });
 
     return resp.data.result.retrieval_results.map(({ cfrags, errors }) => {
       const parsed = Object.keys(cfrags).map((address) => [
@@ -246,10 +229,12 @@ export class PorterClient {
       ),
       threshold,
     };
-    const resp: AxiosResponse<PostTacoDecryptResponse> = await this.tryAndPost(
-      '/decrypt',
-      data,
-    );
+    const resp: AxiosResponse<PostTacoDecryptResponse> =
+      await this.tryAndCall({
+        url: '/decrypt',
+        method: 'post',
+        data: data
+      });
 
     const { encrypted_decryption_responses, errors } =
       resp.data.result.decryption_results;

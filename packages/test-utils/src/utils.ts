@@ -40,7 +40,6 @@ import {
   zip,
 } from '@nucypher/shared';
 import { EIP4361_AUTH_METHOD, EIP4361AuthProvider } from '@nucypher/taco-auth';
-import axios from 'axios';
 import { ethers, providers, Wallet } from 'ethers';
 import { expect, SpyInstance, vi } from 'vitest';
 
@@ -133,23 +132,23 @@ export const fakeUrsulas = (n = 4): Ursula[] =>
 export const mockGetUrsulas = (
   ursulas: Ursula[] = fakeUrsulas(),
 ): SpyInstance => {
-  const fakePorterUrsulas = (
-    mockUrsulas: readonly Ursula[],
-  ): GetUrsulasResult => {
-    return {
-      result: {
-        ursulas: mockUrsulas.map(({ encryptingKey, uri, checksumAddress }) => ({
-          encrypting_key: toHexString(encryptingKey.toCompressedBytes()),
-          uri: uri,
-          checksum_address: checksumAddress,
-        })),
-      },
-      version: '5.2.0',
-    };
-  };
+  // const fakePorterUrsulas = (
+  //   mockUrsulas: readonly Ursula[],
+  // ): GetUrsulasResult => {
+  //   return {
+  //     result: {
+  //       ursulas: mockUrsulas.map(({ encryptingKey, uri, checksumAddress }) => ({
+  //         encrypting_key: toHexString(encryptingKey.toCompressedBytes()),
+  //         uri: uri,
+  //         checksum_address: checksumAddress,
+  //       })),
+  //     },
+  //     version: '5.2.0',
+  //   };
+  // };
 
-  return vi.spyOn(axios, 'get').mockImplementation(async () => {
-    return Promise.resolve({ data: fakePorterUrsulas(ursulas) });
+  return vi.spyOn(PorterClient.prototype, 'getUrsulas').mockImplementation(async () => {
+    return Promise.resolve(ursulas);
   });
 };
 

@@ -40,6 +40,10 @@ import {
   FunctionAbiProps,
 } from '../src/conditions/base/contract';
 import {
+  JsonApiConditionProps,
+  JsonApiConditionType
+} from '../src/conditions/base/json-api';
+import {
   RpcConditionProps,
   RpcConditionType,
 } from '../src/conditions/base/rpc';
@@ -221,6 +225,17 @@ export const testTimeConditionObj: TimeConditionProps = {
   },
   method: TimeConditionMethod,
   chain: TEST_CHAIN_ID,
+};
+
+export const testJsonApiConditionObj = {
+  conditionType: JsonApiConditionType,
+  endpoint: 'https://api.coingecko.com/api/v3/simple/price',
+  parameters: {
+    'ids': 'ethereum',
+    'vs_currencies': 'usd',
+  },
+  query: '$.ethereum.usd',
+  returnValueTest: testReturnValueTest,
 };
 
 export const testRpcConditionObj: RpcConditionProps = {

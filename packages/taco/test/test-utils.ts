@@ -229,7 +229,7 @@ export const testTimeConditionObj: TimeConditionProps = {
 
 export const testJsonApiConditionObj = {
   conditionType: JsonApiConditionType,
-  endpoint: 'https://api.coingecko.com/api/v3/simple/price',
+  endpoint: 'https://_this_would_totally_fail.com',
   parameters: {
     'ids': 'ethereum',
     'vs_currencies': 'usd',

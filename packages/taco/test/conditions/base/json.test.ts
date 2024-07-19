@@ -34,5 +34,29 @@ describe('JsonApiCondition', () => {
         },
       });
     });
+    
+    describe('parameters', () => {
+      it('accepts conditions without query path', () => {
+        const {query, ...noQueryObj} = testJsonApiConditionObj;
+        const result = JsonApiCondition.validate(
+          JsonApiConditionSchema,
+          noQueryObj
+        );
+  
+        expect(result.error).toBeUndefined();
+        expect(result.data).toEqual(noQueryObj);
+      });
+
+      it('accepts conditions without parameters', () => {
+        const {parameters, ...noParamsObj} = testJsonApiConditionObj;
+        const result = JsonApiCondition.validate(
+          JsonApiConditionSchema,
+          noParamsObj
+        );
+  
+        expect(result.error).toBeUndefined();
+        expect(result.data).toEqual(noParamsObj);
+      });
+    });
   });
 });

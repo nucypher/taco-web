@@ -11,8 +11,8 @@ export const JsonApiConditionType = 'json-api';
 export const JsonApiConditionSchema = z.object({
   conditionType: z.literal(JsonApiConditionType).default(JsonApiConditionType),
   endpoint: z.string().url(),
-  parameters: z.record(z.string(), z.unknown()),
-  query: z.string(),
+  parameters: z.record(z.string(), z.unknown()).optional(),
+  query: z.string().optional(),
   returnValueTest: returnValueTestSchema, // Update to allow multiple return values after expanding supported methods
 });
 

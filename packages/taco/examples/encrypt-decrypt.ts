@@ -10,6 +10,7 @@ import {
   initialize,
   ThresholdMessageKit,
   toBytes,
+  USER_ADDRESS_PARAM_DEFAULT,
 } from '../src';
 
 const ritualId = 1;
@@ -49,11 +50,14 @@ const run = async () => {
       web3Provider,
       web3Provider.getSigner(),
     );
+    const conditionContext =
+      conditions.context.ConditionContext.fromMessageKit(messageKit);
+    conditionContext.addAuthProvider(USER_ADDRESS_PARAM_DEFAULT, authProvider);
     const decryptedMessage = await decrypt(
       web3Provider,
       domains.TESTNET,
       messageKit,
-      authProvider,
+      conditionContext,
     );
     return decryptedMessage;
   };

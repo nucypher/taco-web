@@ -3,17 +3,17 @@ import {
   ContractConditionProps,
   ContractConditionType,
 } from './base/contract';
+import {
+  JsonApiCondition,
+  JsonApiConditionProps,
+  JsonApiConditionType,
+} from './base/json-api';
 import { RpcCondition, RpcConditionProps, RpcConditionType } from './base/rpc';
 import {
   TimeCondition,
   TimeConditionProps,
   TimeConditionType,
 } from './base/time';
-import {
-  JsonApiCondition,
-  JsonApiConditionProps,
-  JsonApiConditionType,
-} from './base/json-api';
 import {
   CompoundCondition,
   CompoundConditionProps,

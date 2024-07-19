@@ -1,22 +1,32 @@
+import { JSONPath } from 'jsonpath-plus';
 import { z } from 'zod';
 
 import { Condition } from '../condition';
 import {
-  EthAddressOrUserAddressSchema,
   OmitConditionType,
   paramOrContextParamSchema,
   returnValueTestSchema,
 } from '../shared';
 
-export const JsonApiConditionType = 'json';
+export const JsonApiConditionType = 'json-api';
 
 export const JsonApiConditionSchema = z.object({
   conditionType: z.literal(JsonApiConditionType).default(JsonApiConditionType),
-  parameters: z.union([
-    z.array(EthAddressOrUserAddressSchema).nonempty(),
-    // Using tuple here because ordering matters
-    z.tuple([EthAddressOrUserAddressSchema, paramOrContextParamSchema]),
-  ]),
+  endpoint: z.string().url(),
+  parameters: z.array(paramOrContextParamSchema),
+  query: z.string().refine(
+    (path) => {
+      try {
+        JSONPath.toPathArray(path);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    },
+    {
+      message: "Invalid JSON path",
+    }
+  ),
   returnValueTest: returnValueTestSchema, // Update to allow multiple return values after expanding supported methods
 });
 

@@ -354,6 +354,62 @@ describe('No authentication provider', () => {
     });
   });
 
+  it('rejects auth provider for not applicable context param', () => {
+    const conditionObj = {
+      ...testContractConditionObj,
+      returnValueTest: {
+        ...testReturnValueTest,
+        value: ':myParam',
+      },
+    };
+    const condition = new ContractCondition(conditionObj);
+    const conditionContext = new ConditionContext(condition);
+    expect(() =>
+      conditionContext.addAuthProvider(
+        ':myParam',
+        authProviders[USER_ADDRESS_PARAM_DEFAULT],
+      ),
+    ).toThrow('AuthProvider not necessary for context parameter: :myParam');
+  });
+
+  it('rejects invalid auth provider for :userAddress', () => {
+    const conditionObj = {
+      ...testContractConditionObj,
+      returnValueTest: {
+        ...testReturnValueTest,
+        value: USER_ADDRESS_PARAM_DEFAULT,
+      },
+    };
+    const condition = new ContractCondition(conditionObj);
+    const conditionContext = new ConditionContext(condition);
+    expect(() =>
+      conditionContext.addAuthProvider(
+        USER_ADDRESS_PARAM_DEFAULT,
+        authProviders[USER_ADDRESS_PARAM_EXTERNAL_EIP4361],
+      ),
+    ).toThrow(`Invalid AuthProvider type for ${USER_ADDRESS_PARAM_DEFAULT}`);
+  });
+
+  it('rejects invalid auth provider for :userAddressExternalEIP4361', () => {
+    const conditionObj = {
+      ...testContractConditionObj,
+      returnValueTest: {
+        ...testReturnValueTest,
+        value: USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
+      },
+    };
+    const condition = new ContractCondition(conditionObj);
+    const conditionContext = new ConditionContext(condition);
+    expect(() =>
+      conditionContext.addAuthProvider(
+        USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
+        authProviders[USER_ADDRESS_PARAM_DEFAULT],
+      ),
+    ).toThrow(
+      `Invalid AuthProvider type for ${USER_ADDRESS_PARAM_EXTERNAL_EIP4361}`,
+    );
+  });
+
   it('it supports just one provider at a time', async () => {
     const conditionObj = {
       ...testContractConditionObj,

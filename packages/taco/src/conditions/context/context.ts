@@ -37,6 +37,14 @@ const ERR_INVALID_AUTH_PROVIDER_TYPE = (param: string, expected: string) =>
 const ERR_AUTH_PROVIDER_NOT_NEEDED_FOR_CONTEXT_PARAM = (param: string) =>
   `AuthProvider not necessary for context parameter: ${param}`;
 
+type AuthProviderType =
+  | typeof EIP4361AuthProvider
+  | typeof SingleSignOnEIP4361AuthProvider;
+const EXPECTED_AUTH_PROVIDER_TYPES: Record<string, AuthProviderType> = {
+  [USER_ADDRESS_PARAM_DEFAULT]: EIP4361AuthProvider,
+  [USER_ADDRESS_PARAM_EXTERNAL_EIP4361]: SingleSignOnEIP4361AuthProvider,
+};
+
 export const RESERVED_CONTEXT_PARAMS = [
   USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
   USER_ADDRESS_PARAM_DEFAULT,
@@ -183,26 +191,19 @@ export class ConditionContext {
   }
 
   public addAuthProvider(contextParam: string, authProvider: AuthProvider) {
-    if (!USER_ADDRESS_PARAMS.includes(contextParam)) {
+    if (!(contextParam in EXPECTED_AUTH_PROVIDER_TYPES)) {
       throw new Error(
         ERR_AUTH_PROVIDER_NOT_NEEDED_FOR_CONTEXT_PARAM(contextParam),
       );
     }
 
-    if (contextParam === USER_ADDRESS_PARAM_DEFAULT) {
-      if (authProvider instanceof EIP4361AuthProvider) {
-        this.authProviders[contextParam] = authProvider;
-        return;
-      }
-    } else if (contextParam === USER_ADDRESS_PARAM_EXTERNAL_EIP4361) {
-      if (authProvider instanceof SingleSignOnEIP4361AuthProvider) {
-        this.authProviders[contextParam] = authProvider;
-        return;
-      }
+    if (!(authProvider instanceof EXPECTED_AUTH_PROVIDER_TYPES[contextParam])) {
+      throw new Error(
+        ERR_INVALID_AUTH_PROVIDER_TYPE(contextParam, typeof authProvider),
+      );
     }
-    throw new Error(
-      ERR_INVALID_AUTH_PROVIDER_TYPE(contextParam, typeof authProvider),
-    );
+
+    this.authProviders[contextParam] = authProvider;
   }
 
   public async toJson(): Promise<string> {

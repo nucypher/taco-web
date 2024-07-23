@@ -4,7 +4,6 @@ import { z } from 'zod';
 import { EIP4361_AUTH_METHOD } from './auth-provider';
 import { EIP4361TypedDataSchema } from './providers';
 
-
 export const authSignatureSchema = z.object({
   signature: z.string(),
   address: EthAddressSchema,

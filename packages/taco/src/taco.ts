@@ -160,8 +160,8 @@ export const decrypt = async (
   const ritual = await DkgClient.getActiveRitual(provider, domain, ritualId);
   const authProviders: AuthProviders = authProvider
     ? {
-      [EIP4361_AUTH_METHOD]: authProvider,
-    }
+        [EIP4361_AUTH_METHOD]: authProvider,
+      }
     : {};
   return retrieveAndDecrypt(
     provider,

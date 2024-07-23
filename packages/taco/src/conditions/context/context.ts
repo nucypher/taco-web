@@ -1,13 +1,21 @@
 import { ThresholdMessageKit } from '@nucypher/nucypher-core';
 import { toJSON } from '@nucypher/shared';
-import { AUTH_METHOD_FOR_PARAM, AuthProviders, AuthSignature } from '@nucypher/taco-auth';
+import {
+  AUTH_METHOD_FOR_PARAM,
+  AuthProviders,
+  AuthSignature,
+} from '@nucypher/taco-auth';
 
 import { CoreConditions, CoreContext } from '../../types';
 import { CompoundConditionType } from '../compound-condition';
 import { Condition, ConditionProps } from '../condition';
 import { ConditionExpression } from '../condition-expr';
-import { CONTEXT_PARAM_PREFIX, CONTEXT_PARAM_REGEXP, RESERVED_CONTEXT_PARAMS, USER_ADDRESS_PARAMS } from '../const';
-
+import {
+  CONTEXT_PARAM_PREFIX,
+  CONTEXT_PARAM_REGEXP,
+  RESERVED_CONTEXT_PARAMS,
+  USER_ADDRESS_PARAMS,
+} from '../const';
 
 export type CustomContextParam = string | number | boolean | AuthSignature;
 export type ContextParam = CustomContextParam | AuthSignature;
@@ -36,7 +44,8 @@ export class ConditionContext {
     const condProps = condition.toObj();
     this.validateContextParameters();
     this.validateCoreConditions(condProps);
-    this.requestedParameters = ConditionContext.findContextParameters(condProps);
+    this.requestedParameters =
+      ConditionContext.findContextParameters(condProps);
     this.validateAuthProviders(this.requestedParameters);
   }
 
@@ -57,7 +66,9 @@ export class ConditionContext {
     new CoreConditions(toJSON(condObject));
   }
 
-  private validateNoMissingContextParameters(parameters: Record<string, ContextParam>) {
+  private validateNoMissingContextParameters(
+    parameters: Record<string, ContextParam>,
+  ) {
     // Ok, so at this point we should have all the parameters we need
     // If we don't, we have a problem and we should throw
     const missingParameters = Array.from(this.requestedParameters).filter(
@@ -70,7 +81,8 @@ export class ConditionContext {
     // We may also have some parameters that are not used
     const unknownParameters = Object.keys(parameters).filter(
       (key) =>
-        !this.requestedParameters.has(key) && !RESERVED_CONTEXT_PARAMS.includes(key),
+        !this.requestedParameters.has(key) &&
+        !RESERVED_CONTEXT_PARAMS.includes(key),
     );
     if (unknownParameters.length > 0) {
       throw new Error(ERR_UNKNOWN_CONTEXT_PARAMS(unknownParameters));
@@ -80,7 +92,8 @@ export class ConditionContext {
   private async fillContextParameters(
     requestedParameters: Set<string>,
   ): Promise<Record<string, ContextParam>> {
-    const parameters = await this.fillAuthContextParameters(requestedParameters);
+    const parameters =
+      await this.fillAuthContextParameters(requestedParameters);
     for (const key in this.customParameters) {
       parameters[key] = this.customParameters[key];
     }
@@ -108,16 +121,20 @@ export class ConditionContext {
     }
   }
 
-  private async fillAuthContextParameters(requestedParameters: Set<string>): Promise<Record<string, ContextParam>> {
-    const entries = await Promise.all([...requestedParameters]
-      .map(param => [param, AUTH_METHOD_FOR_PARAM[param]])
-      .filter(([, authMethod]) => !!authMethod)
-      .map(async ([param, authMethod]) => {
-        const maybeAuthProvider = this.authProviders[authMethod];
-        // TODO: Throw here instead of validating in the constructor?
-        // TODO: Hide getOrCreateAuthSignature behind a more generic interface
-        return [param, await maybeAuthProvider!.getOrCreateAuthSignature()];
-      }));
+  private async fillAuthContextParameters(
+    requestedParameters: Set<string>,
+  ): Promise<Record<string, ContextParam>> {
+    const entries = await Promise.all(
+      [...requestedParameters]
+        .map((param) => [param, AUTH_METHOD_FOR_PARAM[param]])
+        .filter(([, authMethod]) => !!authMethod)
+        .map(async ([param, authMethod]) => {
+          const maybeAuthProvider = this.authProviders[authMethod];
+          // TODO: Throw here instead of validating in the constructor?
+          // TODO: Hide getOrCreateAuthSignature behind a more generic interface
+          return [param, await maybeAuthProvider!.getOrCreateAuthSignature()];
+        }),
+    );
     return Object.fromEntries(entries);
   }
 
@@ -156,9 +173,7 @@ export class ConditionContext {
     // If it's a compound condition, check operands
     if (condition.conditionType === CompoundConditionType) {
       for (const key in condition.operands) {
-        const innerParams = this.findContextParameters(
-          condition.operands[key],
-        );
+        const innerParams = this.findContextParameters(condition.operands[key]);
         for (const param of innerParams) {
           requestedParameters.add(param);
         }
@@ -178,8 +193,12 @@ export class ConditionContext {
     return new CoreContext(asJson);
   }
 
-  public toContextParameters = async (): Promise<Record<string, ContextParam>> => {
-    const parameters = await this.fillContextParameters(this.requestedParameters);
+  public toContextParameters = async (): Promise<
+    Record<string, ContextParam>
+  > => {
+    const parameters = await this.fillContextParameters(
+      this.requestedParameters,
+    );
     this.validateNoMissingContextParameters(parameters);
     return parameters;
   };
@@ -196,8 +215,14 @@ export class ConditionContext {
     );
   }
 
-  public static requestedContextParameters(messageKit: ThresholdMessageKit): Set<string> {
-    const conditionExpr = ConditionExpression.fromCoreConditions(messageKit.acp.conditions);
-    return ConditionContext.findContextParameters(conditionExpr.condition.toObj());
+  public static requestedContextParameters(
+    messageKit: ThresholdMessageKit,
+  ): Set<string> {
+    const conditionExpr = ConditionExpression.fromCoreConditions(
+      messageKit.acp.conditions,
+    );
+    return ConditionContext.findContextParameters(
+      conditionExpr.condition.toObj(),
+    );
   }
 }

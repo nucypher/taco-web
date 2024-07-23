@@ -1,11 +1,10 @@
-import {USER_ADDRESS_PARAM_DEFAULT} from "@nucypher/taco-auth";
+import { USER_ADDRESS_PARAM_DEFAULT } from '@nucypher/taco-auth';
 
 import {
   ContractCondition,
   ContractConditionProps,
   ContractConditionType,
 } from '../base/contract';
-
 
 type ERC20BalanceFields = 'contractAddress' | 'chain' | 'returnValueTest';
 

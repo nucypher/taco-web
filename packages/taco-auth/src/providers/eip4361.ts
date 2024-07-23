@@ -15,13 +15,14 @@ const isSiweMessage = (message: string): boolean => {
   }
 };
 
-export const EIP4361TypedDataSchema = z.string()
+export const EIP4361TypedDataSchema = z
+  .string()
   .refine(isSiweMessage, { message: 'Invalid SIWE message' });
 
 export type EIP4361AuthProviderParams = {
   domain: string;
   uri: string;
-}
+};
 
 const ERR_MISSING_SIWE_PARAMETERS = 'Missing default SIWE parameters';
 
@@ -86,7 +87,7 @@ export class EIP4361AuthProvider {
       nonce,
       chainId,
     });
-    const scheme = 'EIP4361';
+    const scheme = EIP4361_AUTH_METHOD;
     const message = siweMessage.prepareMessage();
     const signature = await this.signer.signMessage(message);
     return { signature, address, scheme, typedData: message };

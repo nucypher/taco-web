@@ -1,7 +1,6 @@
-import {describe, expect, it} from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { EthAddressSchema } from '../src';
-
 
 describe('ethereum address schema', () => {
   it('should accept valid ethereum address', () => {

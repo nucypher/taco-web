@@ -31,11 +31,9 @@ import {
 import {
   ChecksumAddress,
   DkgCoordinatorAgent,
-  GetUrsulasResult,
   PorterClient,
   RetrieveCFragsResult,
   TacoDecryptResult,
-  toHexString,
   Ursula,
   zip,
 } from '@nucypher/shared';
@@ -132,21 +130,6 @@ export const fakeUrsulas = (n = 4): Ursula[] =>
 export const mockGetUrsulas = (
   ursulas: Ursula[] = fakeUrsulas(),
 ): SpyInstance => {
-  // const fakePorterUrsulas = (
-  //   mockUrsulas: readonly Ursula[],
-  // ): GetUrsulasResult => {
-  //   return {
-  //     result: {
-  //       ursulas: mockUrsulas.map(({ encryptingKey, uri, checksumAddress }) => ({
-  //         encrypting_key: toHexString(encryptingKey.toCompressedBytes()),
-  //         uri: uri,
-  //         checksum_address: checksumAddress,
-  //       })),
-  //     },
-  //     version: '5.2.0',
-  //   };
-  // };
-
   return vi.spyOn(PorterClient.prototype, 'getUrsulas').mockImplementation(async () => {
     return Promise.resolve(ursulas);
   });

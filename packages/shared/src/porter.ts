@@ -145,14 +145,23 @@ export class PorterClient {
 
   protected async tryAndCall<T, D>(config: AxiosRequestConfig<D>): Promise<AxiosResponse<T>> {
     let resp!: AxiosResponse<T>;
+    let lastError = undefined;
     for (const porterUrl of this.porterUrls) {
-      config.baseURL = porterUrl.toString();
-      resp = await axios.request(config);
+      const localConfig = { ...config, baseURL: porterUrl.toString() }
+      try {
+        resp = await axios.request(localConfig);
+      } catch (e) {
+        lastError = e;
+        continue;
+      }
       if (resp.status === HttpStatusCode.Ok) {
         return resp;
       }
     }
-    return resp;
+    if (lastError !== undefined) {
+      throw lastError;
+    }
+    throw new Error("Porter returns bad response");
   }
 
   public async getUrsulas(

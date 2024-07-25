@@ -42,7 +42,25 @@ pnpm typedoc:publish
 
 ### Publishing
 
-TODO: Update after implementing automated publishing.
+This package follows semantic versioning:
+
+ 1. Major Releases: Introduce significant changes, including breaking changes.
+ 2. Minor Releases: Add new features in a backwards-compatible manner.
+ 3. Patch Releases: Include backwards-compatible bug fixes.
+
+There are multiple inputs that go into deciding when to publish a release, usually driven by external factors like shipping something on the server side and wanting to test it.
+
+Currently, versions are manually updated in the `package.json` file of each package.
+This process involves determining the appropriate version number based on the changes being introduced (e.g., major, minor, patch).
+
+When the package is published to [npm](https://www.npmjs.com/package/@nucypher/taco), tags are used to indicate the environment or network compatibility.
+We use `devnet`, `testnet`, and `mainnet` help users understand which network the release is intended for.
+
+```bash
+npm dist-tag add @nucypher/taco@0.3.0 devnet
+```
+
+Ideally, this would all be automated using Github actions, workflows, releases, and tags.
 
 # External API
 This is the api that we expose to developers.

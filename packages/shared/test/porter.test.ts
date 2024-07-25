@@ -1,19 +1,21 @@
+import { fakeUrsulas } from '@nucypher/test-utils';
+import axios, { HttpStatusCode } from 'axios';
+import { SpyInstance, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
-  initialize,
   GetUrsulasResult,
   PorterClient,
-  toHexString,
   Ursula,
+  initialize,
+  toHexString,
 } from '../src';
-import { fakeUrsulas } from '@nucypher/test-utils';
-import { beforeAll, describe, expect, SpyInstance, it, vi } from 'vitest';
-import axios, { HttpStatusCode } from 'axios';
 
-const fakePorterUris = ['https://_this_should_crash.com/', 'https://2_this_should_crash.com/', 'https://_this_should_work.com/'];
+const fakePorterUris = [
+  'https://_this_should_crash.com/',
+  'https://2_this_should_crash.com/',
+  'https://_this_should_work.com/',
+];
 
-const mockGetUrsulas = (
-  ursulas: Ursula[] = fakeUrsulas(),
-): SpyInstance => {
+const mockGetUrsulas = (ursulas: Ursula[] = fakeUrsulas()): SpyInstance => {
   const fakePorterUrsulas = (
     mockUrsulas: readonly Ursula[],
   ): GetUrsulasResult => {
@@ -32,7 +34,10 @@ const mockGetUrsulas = (
   return vi.spyOn(axios, 'request').mockImplementation(async (config) => {
     switch (config.baseURL) {
       case fakePorterUris[2]:
-        return Promise.resolve({ status: HttpStatusCode.Ok, data: fakePorterUrsulas(ursulas) });
+        return Promise.resolve({
+          status: HttpStatusCode.Ok,
+          data: fakePorterUrsulas(ursulas),
+        });
       case fakePorterUris[0]:
         throw new Error();
       default:
@@ -46,37 +51,39 @@ describe('PorterClient', () => {
     await initialize();
   });
 
-  it('Get Ursulas', async () => {
+  it('should work when at least one ursula URI is valid', async () => {
     const ursulas = fakeUrsulas();
     const getUrsulasSpy = mockGetUrsulas(ursulas);
     const porterClient = new PorterClient(fakePorterUris);
     const result = await porterClient.getUrsulas(ursulas.length);
 
-    expect(result.every((u: Ursula, index: number) => {
-      const expectedUrsula = ursulas[index];
-      return u.checksumAddress === expectedUrsula.checksumAddress &&
-        u.uri === expectedUrsula.uri &&
-        u.encryptingKey.equals(expectedUrsula.encryptingKey);
-    })).toBeTruthy();
+    expect(
+      result.every((u: Ursula, index: number) => {
+        const expectedUrsula = ursulas[index];
+        return (
+          u.checksumAddress === expectedUrsula.checksumAddress &&
+          u.uri === expectedUrsula.uri &&
+          u.encryptingKey.equals(expectedUrsula.encryptingKey)
+        );
+      }),
+    ).toBeTruthy();
     const params = {
       method: 'get',
-      url: "/get_ursulas",
+      url: '/get_ursulas',
       params: {
         exclude_ursulas: [],
         include_ursulas: [],
         quantity: ursulas.length,
-      }
+      },
     };
 
     expect(getUrsulasSpy).toBeCalledTimes(fakePorterUris.length);
-    expect(getUrsulasSpy).toHaveBeenNthCalledWith(1, expect.objectContaining(
-      { ...params, baseURL: fakePorterUris[0] })
-    );
-    expect(getUrsulasSpy).toHaveBeenNthCalledWith(2, expect.objectContaining(
-      { ...params, baseURL: fakePorterUris[1] })
-    );
-    expect(getUrsulasSpy).toHaveBeenNthCalledWith(3, expect.objectContaining(
-      { ...params, baseURL: fakePorterUris[2] }));
+    fakePorterUris.forEach((value, index) => {
+      expect(getUrsulasSpy).toHaveBeenNthCalledWith(
+        index + 1,
+        expect.objectContaining({ ...params, baseURL: value }),
+      );
+    });
   });
 
   it('returns error in case all porters fail', async () => {
@@ -87,5 +94,4 @@ describe('PorterClient', () => {
     porterClient = new PorterClient([fakePorterUris[1], fakePorterUris[0]]);
     expect(porterClient.getUrsulas(ursulas.length)).rejects.toThrowError();
   });
-
 });

@@ -19,7 +19,6 @@ import { fromBase64, fromHexString, toBase64, toHexString } from './utils';
 const defaultPorterUri: Record<string, string> = {
   mainnet: 'https://porter.nucypher.community',
   tapir: 'https://porter-tapir.nucypher.community',
-  oryx: 'https://porter-oryx.nucypher.community',
   lynx: 'https://porter-lynx.nucypher.community',
 };
 
@@ -35,21 +34,17 @@ export const getPorterUri = (domain: Domain): string => {
   return getPorterUris(domain)[0];
 };
 
-export const getPorterUris = (domain: Domain, porterUri?: string | string[]): string[] => {
-  const porterUris: string[] = [];
-  if (porterUri) {
-    if (porterUri instanceof Array) {
-      porterUris.push(...porterUri);
-    } else {
-      porterUris.push(porterUri);
-    }
-  }
+export const getPorterUris = (
+  domain: Domain,
+  porterUris: string[] = [],
+): string[] => {
+  const fullList = [...porterUris];
   const uri = defaultPorterUri[domain];
   if (!uri) {
     throw new Error(`No default Porter URI found for domain: ${domain}`);
   }
-  porterUris.push(uri);
-  return porterUris;
+  fullList.push(uri);
+  return fullList;
 };
 
 // /get_ursulas
@@ -147,11 +142,13 @@ export class PorterClient {
     }
   }
 
-  protected async tryAndCall<T, D>(config: AxiosRequestConfig<D>): Promise<AxiosResponse<T>> {
+  protected async tryAndCall<T, D>(
+    config: AxiosRequestConfig<D>,
+  ): Promise<AxiosResponse<T>> {
     let resp!: AxiosResponse<T>;
     let lastError = undefined;
     for (const porterUrl of this.porterUrls) {
-      const localConfig = { ...config, baseURL: porterUrl.toString() }
+      const localConfig = { ...config, baseURL: porterUrl.toString() };
       try {
         resp = await axios.request(localConfig);
       } catch (e) {
@@ -165,7 +162,9 @@ export class PorterClient {
     if (lastError !== undefined) {
       throw lastError;
     }
-    throw new Error("Porter returns bad response");
+    throw new Error(
+      'Porter returns bad response: ${resp.status} - ${resp.data}',
+    );
   }
 
   public async getUrsulas(
@@ -185,8 +184,7 @@ export class PorterClient {
       paramsSerializer: (params) => {
         return qs.stringify(params, { arrayFormat: 'comma' });
       },
-    },
-    );
+    });
     return resp.data.result.ursulas.map((u: UrsulaResponse) => ({
       checksumAddress: u.checksum_address,
       uri: u.uri,
@@ -216,7 +214,7 @@ export class PorterClient {
       await this.tryAndCall({
         url: '/retrieve_cfrags',
         method: 'post',
-        data: data
+        data: data,
       });
 
     return resp.data.result.retrieval_results.map(({ cfrags, errors }) => {
@@ -242,12 +240,11 @@ export class PorterClient {
       ),
       threshold,
     };
-    const resp: AxiosResponse<PostTacoDecryptResponse> =
-      await this.tryAndCall({
-        url: '/decrypt',
-        method: 'post',
-        data: data
-      });
+    const resp: AxiosResponse<PostTacoDecryptResponse> = await this.tryAndCall({
+      url: '/decrypt',
+      method: 'post',
+      data: data,
+    });
 
     const { encrypted_decryption_responses, errors } =
       resp.data.result.decryption_results;

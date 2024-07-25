@@ -145,7 +145,7 @@ export const decrypt = async (
   domain: Domain,
   messageKit: ThresholdMessageKit,
   authProvider?: EIP4361AuthProvider,
-  porterUri?: string,
+  porterUri?: string | string[],
   customParameters?: Record<string, CustomContextParam>,
 ): Promise<Uint8Array> => {
   const porterUris: string[] = getPorterUris(domain, porterUri);

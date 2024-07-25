@@ -35,10 +35,14 @@ export const getPorterUri = (domain: Domain): string => {
   return getPorterUris(domain)[0];
 };
 
-export const getPorterUris = (domain: Domain, porterUri?: string): string[] => {
+export const getPorterUris = (domain: Domain, porterUri?: string | string[]): string[] => {
   const porterUris: string[] = [];
   if (porterUri) {
-    porterUris.push(porterUri);
+    if (porterUri instanceof Array) {
+      porterUris.push(...porterUri);
+    } else {
+      porterUris.push(porterUri);
+    }
   }
   const uri = defaultPorterUri[domain];
   if (!uri) {

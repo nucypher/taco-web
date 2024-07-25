@@ -5,7 +5,6 @@ import {
   EIP4361AuthProvider,
   encrypt,
   fromBytes,
-  getPorterUris,
   initialize,
   toBytes,
 } from '@nucypher/taco';

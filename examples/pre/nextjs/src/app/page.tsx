@@ -109,7 +109,7 @@ function App() {
       provider,
       provider.getSigner(),
       domains.TESTNET,
-      getPorterUri(domains.TESTNET),
+      await getPorterUri(domains.TESTNET),
       policyParams,
     );
 

@@ -22,6 +22,12 @@ const defaultPorterUri: Record<string, string> = {
   lynx: 'https://porter-lynx.nucypher.community',
 };
 
+const porterUriSource: Record<string, string> = {
+  mainnet: 'https://raw.githubusercontent.com/nucypher/nucypher-porter/main/pytest.ini',
+  tapir: 'https://raw.githubusercontent.com/nucypher/nucypher-porter/main/pytest.ini',
+  lynx: 'https://raw.githubusercontent.com/nucypher/nucypher-porter/main/pytest.ini',
+};
+
 export type Domain = keyof typeof defaultPorterUri;
 
 export const domains: Record<string, Domain> = {
@@ -30,21 +36,38 @@ export const domains: Record<string, Domain> = {
   MAINNET: 'mainnet',
 };
 
-export const getPorterUri = (domain: Domain): string => {
-  return getPorterUris(domain)[0];
+export const getPorterUri = async (domain: Domain): Promise<string> => {
+  return (await getPorterUris(domain))[0];
 };
 
-export const getPorterUris = (
+export const getPorterUris = async (
   domain: Domain,
   porterUris: string[] = [],
-): string[] => {
+): Promise<string[] => {
   const fullList = [...porterUris];
   const uri = defaultPorterUri[domain];
   if (!uri) {
     throw new Error(`No default Porter URI found for domain: ${domain}`);
   }
   fullList.push(uri);
+  const urisFromSource = await getPorterUrisFromSource(domain);
+  fullList.push(...urisFromSource);
   return fullList;
+};
+
+export const getPorterUrisFromSource = async (domain: Domain): Promise<string[]> => {
+  const source = porterUriSource[domain];
+  if (!source) {
+    return [];
+  }
+  try {
+    const resp = await axios.get(source, {
+      responseType: 'blob',
+    });
+    return resp.data.split(/\r?\n/).filter(Boolean);
+  } catch (e) {
+    return [];
+  }
 };
 
 // /get_ursulas

@@ -7,6 +7,9 @@ import {
   Ursula,
   initialize,
   toHexString,
+  getPorterUrisFromSource,
+  getPorterUris,
+  domains
 } from '../src';
 
 const fakePorterUris = [
@@ -45,6 +48,23 @@ const mockGetUrsulas = (ursulas: Ursula[] = fakeUrsulas()): SpyInstance => {
     }
   });
 };
+
+describe('getPorterUris', () => {
+  beforeAll(async () => {
+    await initialize();
+  });
+
+  it('Get URIs from source', async () => {
+    for (const domain of Object.values(domains)) {
+      const uris = await getPorterUrisFromSource(domain);
+      expect(uris.length).toBeGreaterThan(0);
+      const fullList = await getPorterUris(domain);
+      expect(fullList).toEqual(
+        expect.arrayContaining(uris)
+      );
+    }
+  });
+});
 
 describe('PorterClient', () => {
   beforeAll(async () => {

@@ -2,7 +2,7 @@
 
 - [Quick Start](#quick-start)
   - [Setup](#setup)
-  - [Development](#development)
+  - [Basic Development Commands](#basic-development-commands)
   - [Documentation](#documentation)
   - [Publishing](#publishing)
 - [External Api](#external-api)
@@ -44,7 +44,7 @@ pnpm typedoc:publish
 
 TODO: Update after implementing automated publishing.
 
-# External Api
+# External API
 This is the api that we expose to developers.
 It is defined in [`packages/taco/src/taco.ts`](https://github.com/nucypher/taco-web/blob/main/packages/taco/src/taco.ts)
 
@@ -103,7 +103,7 @@ Using authentication providers has several benefits:
 
     They help manage user context, specifically the `:userAddress` parameter. This includes handling authentication tokens and ensuring that users are authenticated only once for multiple actions.
 
-Currently, [SIWE](https://docs.login.xyz/) (Sign In With Ethereum, [EIP-4361](https://eips.ethereum.org/EIPS/eip-4361)) is the only authentication method implemented.
+Currently, [SIWE](https://docs.login.xyz/) (Sign-In With Ethereum, [EIP-4361](https://eips.ethereum.org/EIPS/eip-4361)) is the only authentication method implemented.
 EIP-712 has previously been supported but is now deprecated.
 
 [The below test](https://github.com/nucypher/taco-web/blob/b689493a37bec0b168f80f43347818095c3dd5ce/packages/taco/test/conditions/context.test.ts#L382C1-L429C6) demonstrates how a SIWE message can be reused for TACo authentication.

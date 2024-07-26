@@ -1,6 +1,6 @@
 {
   "name": "@nucypher/taco-auth",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "keywords": [
     "pre",
     "threshold",

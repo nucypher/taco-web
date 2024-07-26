@@ -14,4 +14,7 @@ export * as conditions from './conditions';
 export { decrypt, encrypt, encryptWithPublicKey, isAuthorized } from './taco';
 
 // TODO: Remove this re-export once `@nucypher/taco-auth` is mature and published
-export { EIP4361AuthProvider, SingleSignOnEIP4361AuthProvider } from '@nucypher/taco-auth';
+export {
+  EIP4361AuthProvider,
+  SingleSignOnEIP4361AuthProvider,
+} from '@nucypher/taco-auth';

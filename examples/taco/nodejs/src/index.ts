@@ -51,7 +51,7 @@ console.log('Chain ID:', chainId);
 const encryptToBytes = async (messageString: string) => {
   const encryptorSigner = new ethers.Wallet(encryptorPrivateKey);
   console.log(
-    'Encryptor signer\'s address:',
+    "Encryptor signer's address:",
     await encryptorSigner.getAddress(),
   );
 
@@ -99,7 +99,7 @@ const encryptToBytes = async (messageString: string) => {
 const decryptFromBytes = async (encryptedBytes: Uint8Array) => {
   const consumerSigner = new ethers.Wallet(consumerPrivateKey);
   console.log(
-    '\nConsumer signer\'s address:',
+    "\nConsumer signer's address:",
     await consumerSigner.getAddress(),
   );
 
@@ -127,7 +127,7 @@ const runExample = async () => {
   // Make sure the provider is connected to the correct network
   const network = await provider.getNetwork();
   if (network.chainId !== chainId) {
-    throw (`Please connect your provider to an appropriate network ${chainId}`);
+    throw `Please connect your provider to an appropriate network ${chainId}`;
   }
   await initialize();
 

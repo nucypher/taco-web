@@ -62,6 +62,10 @@ npm dist-tag add @nucypher/taco@0.3.0 devnet
 
 Ideally, this would all be automated using Github actions, workflows, releases, and tags.
 
+### Version Control
+We use git and github to manage our version control.
+Where possible, please follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
+
 # External API
 This is the api that we expose to developers.
 It is defined in [`packages/taco/src/taco.ts`](https://github.com/nucypher/taco-web/blob/main/packages/taco/src/taco.ts)

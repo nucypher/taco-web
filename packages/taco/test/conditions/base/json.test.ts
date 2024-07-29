@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -37,7 +38,7 @@ describe('JsonApiCondition', () => {
     
     describe('parameters', () => {
       it('accepts conditions without query path', () => {
-        const {query, ...noQueryObj} = testJsonApiConditionObj;
+        const { query, ...noQueryObj} = testJsonApiConditionObj;
         const result = JsonApiCondition.validate(
           JsonApiConditionSchema,
           noQueryObj
@@ -48,7 +49,7 @@ describe('JsonApiCondition', () => {
       });
 
       it('accepts conditions without parameters', () => {
-        const {parameters, ...noParamsObj} = testJsonApiConditionObj;
+        const { query, ...noParamsObj} = testJsonApiConditionObj;
         const result = JsonApiCondition.validate(
           JsonApiConditionSchema,
           noParamsObj

@@ -9,6 +9,7 @@ import {
   contractConditionSchema,
   ContractConditionType,
   FunctionAbiProps,
+  humanReadableAbiSchema,
 } from '../../../src/conditions/base/contract';
 import { ConditionExpression } from '../../../src/conditions/condition-expr';
 import { USER_ADDRESS_PARAMS } from '../../../src/conditions/const';
@@ -362,7 +363,14 @@ describe('supports custom function abi', () => {
       functionAbi: humanReadableAbi,
       method: 'balanceOf',
     });
+    const invalidHumanReadableAbi = 'function invalidAbi';
 
+    expect(() =>
+      humanReadableAbiSchema.parse(humanReadableAbi),
+    ).not.toThrow();
+    expect(() => humanReadableAbiSchema.parse(invalidHumanReadableAbi)).toThrow(
+      'Invalid Human-Readable ABI format',
+    );
     expect(condition.value.functionAbi).toEqual({
       name: 'balanceOf',
       type: 'function',

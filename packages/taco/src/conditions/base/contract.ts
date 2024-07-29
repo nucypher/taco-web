@@ -29,6 +29,23 @@ const functionAbiVariableSchema = z
   })
   .strict();
 
+export const humanReadableAbiSchema = z
+  .string()
+  .refine(
+    (abi) => {
+      try {
+        toJsonAbiFormat(abi);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+    {
+      message: 'Invalid Human-Readable ABI format',
+    },
+  )
+  .transform(toJsonAbiFormat);
+
 const functionAbiSchema = z
   .object({
     name: z.string(),
@@ -78,10 +95,9 @@ function toJsonAbiFormat(humanReadableAbi: string): any {
   const fragment = ethers.utils.FunctionFragment.from(
     abiWithoutFunctionKeyword,
   );
-  const jsonAbi = JSON.parse(fragment.format(ethers.utils.FormatTypes.json));
-
-  delete jsonAbi.constant;
-  delete jsonAbi.payable;
+  const { constant, payable, ...jsonAbi } = JSON.parse(
+    fragment.format(ethers.utils.FormatTypes.json),
+  );
 
   jsonAbi.inputs = jsonAbi.inputs.map((input: any) => ({
     ...input,
@@ -108,25 +124,7 @@ export const contractConditionSchema = rpcConditionSchema
     standardContractType: z.enum(['ERC20', 'ERC721']).optional(),
     method: z.string(),
     functionAbi: z
-      .union([
-        functionAbiSchema,
-        z
-          .string()
-          .refine(
-            (abi) => {
-              try {
-                toJsonAbiFormat(abi);
-                return true;
-              } catch (e) {
-                return false;
-              }
-            },
-            {
-              message: 'Invalid Human-Readable ABI format',
-            },
-          )
-          .transform(toJsonAbiFormat),
-      ])
+      .union([functionAbiSchema, humanReadableAbiSchema])
       .optional(),
     parameters: z.array(paramOrContextParamSchema),
   })
@@ -143,12 +141,8 @@ export const contractConditionSchema = rpcConditionSchema
   );
 
 export type ContractConditionProps = z.infer<typeof contractConditionSchema>;
-interface ContractConditionHumanReadableAbi extends ContractConditionProps {
-  functionAbi: string;
-}
-
 export class ContractCondition extends Condition {
-  constructor(value: OmitConditionType<ContractConditionHumanReadableAbi | ContractConditionProps>) {
+  constructor(value: OmitConditionType<ContractConditionProps>) {
     if (typeof value.functionAbi === 'string') {
       value.functionAbi = toJsonAbiFormat(value.functionAbi);
     }

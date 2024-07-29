@@ -235,18 +235,29 @@ describe('supports custom function abi', async () => {
         stateMutability: 'pure',
       },
     },
+    {
+      method: 'balanceOf',
+      functionAbi: 'balanceOf(address _owner) view returns (uint256 balance)',
+    },
   ])('accepts well-formed functionAbi', ({ method, functionAbi }) => {
     const result = ContractCondition.validate(contractConditionSchema, {
       ...contractConditionObj,
-      parameters: functionAbi.inputs.map((input) => `fake_parameter_${input}`), //
-      functionAbi: functionAbi as FunctionAbiProps,
+      parameters:
+        typeof functionAbi === 'string'
+          ? ['fake_parameter']
+          : functionAbi.inputs.map((input) => `fake_parameter_${input}`),
+      functionAbi: functionAbi as FunctionAbiProps | string,
       method,
     });
 
     expect(result.error).toBeUndefined();
     expect(result.data).toBeDefined();
     expect(result.data?.method).toEqual(method);
-    expect(result.data?.functionAbi).toEqual(functionAbi);
+    if (typeof functionAbi === 'string') {
+      expect(typeof result.data?.functionAbi).toBe('object');
+    } else {
+      expect(result.data?.functionAbi).toEqual(functionAbi);
+    }
   });
 
   it.each([
@@ -335,6 +346,40 @@ describe('supports custom function abi', async () => {
       });
     },
   );
+
+  it('rejects malformed human-readable functionAbi', () => {
+    const result = ContractCondition.validate(contractConditionSchema, {
+      ...contractConditionObj,
+      functionAbi: 'invalid human-readable ABI',
+      method: 'invalidMethod',
+    });
+
+    expect(result.error).toBeDefined();
+    expect(result.data).toBeUndefined();
+    expect(result.error?.format()).toMatchObject({
+      functionAbi: {
+        _errors: ['Invalid Human-Readable ABI format'],
+      },
+    });
+  });
+
+  it('converts human-readable ABI to JSON ABI format', () => {
+    const humanReadableAbi =
+      'balanceOf(address _owner) view returns (uint256 balance)';
+    const condition = new ContractCondition({
+      ...contractConditionObj,
+      functionAbi: humanReadableAbi,
+      method: 'balanceOf',
+    });
+
+    expect(condition.value.functionAbi).toEqual({
+      name: 'balanceOf',
+      type: 'function',
+      inputs: [{ name: '_owner', type: 'address', internalType: 'address' }],
+      outputs: [{ name: 'balance', type: 'uint256', internalType: 'uint256' }],
+      stateMutability: 'view',
+    });
+  });
 
   it.each([
     {

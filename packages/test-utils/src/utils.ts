@@ -39,9 +39,12 @@ import {
   Ursula,
   zip,
 } from '@nucypher/shared';
+import { EIP4361_AUTH_METHOD, EIP4361AuthProvider } from '@nucypher/taco-auth';
 import axios from 'axios';
 import { ethers, providers, Wallet } from 'ethers';
 import { expect, SpyInstance, vi } from 'vitest';
+
+import { TEST_SIWE_PARAMS } from './variables';
 
 export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
   first.length === second.length &&
@@ -52,13 +55,17 @@ export const fromBytes = (bytes: Uint8Array): string =>
 
 export const fakePorterUri = 'https://_this_should_crash.com/';
 
-const makeFakeProvider = (timestamp: number, blockNumber: number) => {
-  const block = { timestamp };
+const makeFakeProvider = (
+  timestamp: number,
+  blockNumber: number,
+  blockHash: string,
+) => {
+  const block = { timestamp, hash: blockHash };
   return {
     getBlockNumber: () => Promise.resolve(blockNumber),
     getBlock: () => Promise.resolve(block),
     _isProvider: true,
-    getNetwork: () => Promise.resolve({ name: 'mockNetwork', chainId: -1 }),
+    getNetwork: () => Promise.resolve({ name: 'mockNetwork', chainId: 1234 }),
   };
 };
 
@@ -66,8 +73,9 @@ export const fakeSigner = (
   secretKeyBytes = SecretKey.random().toBEBytes(),
   blockNumber = 1000,
   blockTimestamp = 1000,
+  blockHash = '0x0000000000000000000000000000000000000000',
 ) => {
-  const provider = makeFakeProvider(blockNumber, blockTimestamp);
+  const provider = makeFakeProvider(blockNumber, blockTimestamp, blockHash);
   return {
     ...new Wallet(secretKeyBytes),
     provider: provider,
@@ -78,12 +86,23 @@ export const fakeSigner = (
   } as unknown as ethers.providers.JsonRpcSigner;
 };
 
+export const fakeAuthProviders = () => {
+  return {
+    [EIP4361_AUTH_METHOD]: new EIP4361AuthProvider(
+      fakeProvider(),
+      fakeSigner(),
+      TEST_SIWE_PARAMS,
+    ),
+  };
+};
+
 export const fakeProvider = (
   secretKeyBytes = SecretKey.random().toBEBytes(),
   blockNumber = 1000,
   blockTimestamp = 1000,
+  blockHash = '0x0000000000000000000000000000000000000000',
 ): ethers.providers.Web3Provider => {
-  const fakeProvider = makeFakeProvider(blockTimestamp, blockNumber);
+  const fakeProvider = makeFakeProvider(blockTimestamp, blockNumber, blockHash);
   const fakeSignerWithProvider = fakeSigner(
     secretKeyBytes,
     blockNumber,

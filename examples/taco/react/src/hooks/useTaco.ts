@@ -2,6 +2,7 @@ import {
   conditions,
   decrypt,
   Domain,
+  EIP4361AuthProvider,
   encrypt,
   getPorterUri,
   initialize,
@@ -26,15 +27,18 @@ export default function useTaco({
   }, []);
 
   const decryptDataFromBytes = useCallback(
-    async (encryptedBytes: Uint8Array, signer?: ethers.Signer) => {
-      if (!isInit || !provider) return;
+    async (encryptedBytes: Uint8Array, signer: ethers.Signer) => {
+      if (!isInit || !provider) {
+        return;
+      }
       const messageKit = ThresholdMessageKit.fromBytes(encryptedBytes);
+      const authProvider = new EIP4361AuthProvider(provider, signer);
       return decrypt(
         provider,
         domain,
         messageKit,
+        authProvider,
         getPorterUri(domain),
-        signer,
       );
     },
     [isInit, provider, domain],

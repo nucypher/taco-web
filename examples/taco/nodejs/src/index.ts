@@ -4,6 +4,7 @@ import {
   conditions,
   decrypt,
   domains,
+  EIP4361AuthProvider,
   encrypt,
   fromBytes,
   getPorterUri,
@@ -50,7 +51,7 @@ console.log('Chain ID:', chainId);
 const encryptToBytes = async (messageString: string) => {
   const encryptorSigner = new ethers.Wallet(encryptorPrivateKey);
   console.log(
-    'Encryptor signer\'s address:',
+    "Encryptor signer's address:",
     await encryptorSigner.getAddress(),
   );
 
@@ -67,8 +68,8 @@ const encryptToBytes = async (messageString: string) => {
     },
   });
   console.assert(
-    hasPositiveBalance.requiresSigner(),
-    'Condition requires signer',
+    hasPositiveBalance.requiresAuthentication(),
+    'Condition requires authentication',
   );
 
   const messageKit = await encrypt(
@@ -98,18 +99,27 @@ const encryptToBytes = async (messageString: string) => {
 const decryptFromBytes = async (encryptedBytes: Uint8Array) => {
   const consumerSigner = new ethers.Wallet(consumerPrivateKey);
   console.log(
-    '\nConsumer signer\'s address:',
+    "\nConsumer signer's address:",
     await consumerSigner.getAddress(),
   );
 
   const messageKit = ThresholdMessageKit.fromBytes(encryptedBytes);
   console.log('Decrypting message ...');
+  const siweParams = {
+    domain: 'localhost',
+    uri: 'http://localhost:3000',
+  };
+  const authProvider = new EIP4361AuthProvider(
+    provider,
+    consumerSigner,
+    siweParams,
+  );
   return decrypt(
     provider,
     domain,
     messageKit,
+    authProvider,
     getPorterUri(domain),
-    consumerSigner,
   );
 };
 
@@ -117,7 +127,7 @@ const runExample = async () => {
   // Make sure the provider is connected to the correct network
   const network = await provider.getNetwork();
   if (network.chainId !== chainId) {
-    throw (`Please connect your provider to an appropriate network ${chainId}`);
+    throw `Please connect your provider to an appropriate network ${chainId}`;
   }
   await initialize();
 

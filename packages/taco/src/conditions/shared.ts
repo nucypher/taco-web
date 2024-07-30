@@ -1,10 +1,12 @@
+import { EthAddressSchema } from '@nucypher/shared';
+import { USER_ADDRESS_PARAM_DEFAULT } from '@nucypher/taco-auth';
 import { z } from 'zod';
 
 import {
   CONTEXT_PARAM_PREFIX,
   CONTEXT_PARAM_REGEXP,
-  ETH_ADDRESS_REGEXP,
-  USER_ADDRESS_PARAM,
+  // TODO consider moving this
+  USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
 } from './const';
 
 export const contextParamSchema = z.string().regex(CONTEXT_PARAM_REGEXP);
@@ -35,8 +37,10 @@ export const returnValueTestSchema = z.object({
 
 export type ReturnValueTestProps = z.infer<typeof returnValueTestSchema>;
 
-const EthAddressSchema = z.string().regex(ETH_ADDRESS_REGEXP);
-const UserAddressSchema = z.literal(USER_ADDRESS_PARAM);
+const UserAddressSchema = z.enum([
+  USER_ADDRESS_PARAM_DEFAULT,
+  USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
+]);
 export const EthAddressOrUserAddressSchema = z.union([
   EthAddressSchema,
   UserAddressSchema,

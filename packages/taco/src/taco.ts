@@ -13,6 +13,11 @@ import {
   GlobalAllowListAgent,
   toBytes,
 } from '@nucypher/shared';
+import {
+  AuthProviders,
+  EIP4361_AUTH_METHOD,
+  EIP4361AuthProvider,
+} from '@nucypher/taco-auth';
 import { ethers } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 
@@ -102,7 +107,7 @@ export const encryptWithPublicKey = async (
   const [ciphertext, authenticatedData] = encryptForDkg(
     message,
     dkgPublicKey,
-    conditionExpr.toWASMConditions(),
+    conditionExpr.toCoreCondition(),
   );
 
   const headerHash = keccak256(ciphertext.header.toBytes());
@@ -124,9 +129,9 @@ export const encryptWithPublicKey = async (
  * @param {Domain} domain - Represents the logical network in which the decryption will be performed.
  * Must match the `ritualId`.
  * @param {ThresholdMessageKit} messageKit - The kit containing the message to be decrypted
+ * @param authProvider - The authentication provider that will be used to provide the authorization
  * @param {string} [porterUri] - The URI for the Porter service. If not provided, a value will be obtained
  * from the Domain
- * @param {ethers.Signer} [signer] - An optional signer for the decryption
  * @param {Record<string, CustomContextParam>} [customParameters] - Optional custom parameters that may be required
  * depending on the condition used
  *
@@ -139,8 +144,8 @@ export const decrypt = async (
   provider: ethers.providers.Provider,
   domain: Domain,
   messageKit: ThresholdMessageKit,
+  authProvider?: EIP4361AuthProvider,
   porterUri?: string,
-  signer?: ethers.Signer,
   customParameters?: Record<string, CustomContextParam>,
 ): Promise<Uint8Array> => {
   if (!porterUri) {
@@ -153,6 +158,11 @@ export const decrypt = async (
     messageKit.acp.publicKey,
   );
   const ritual = await DkgClient.getActiveRitual(provider, domain, ritualId);
+  const authProviders: AuthProviders = authProvider
+    ? {
+        [EIP4361_AUTH_METHOD]: authProvider,
+      }
+    : {};
   return retrieveAndDecrypt(
     provider,
     domain,
@@ -161,7 +171,7 @@ export const decrypt = async (
     ritualId,
     ritual.sharesNum,
     ritual.threshold,
-    signer,
+    authProviders,
     customParameters,
   );
 };
@@ -184,7 +194,7 @@ export const isAuthorized = async (
   domain: Domain,
   messageKit: ThresholdMessageKit,
   ritualId: number,
-) =>
+): Promise<boolean> =>
   DkgCoordinatorAgent.isEncryptionAuthorized(
     provider,
     domain,

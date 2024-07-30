@@ -1,0 +1,54 @@
+{
+  "name": "@nucypher/taco-auth",
+  "version": "0.1.0",
+  "keywords": [
+    "pre",
+    "threshold",
+    "access control",
+    "authentication"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nucypher/taco-web"
+  },
+  "license": "GPL-3.0-only",
+  "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
+  "exports": {
+    ".": {
+      "import": "./dist/es/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/es/index.js",
+  "types": "./dist/cjs/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prebuild": "pnpm clean",
+    "build": "pnpm build:module && pnpm build:cjs",
+    "build:cjs": "tsc --build ./tsconfig.cjs.json --verbose",
+    "build:module": "tsc --build ./tsconfig.es.json --verbose",
+    "clean": "rm -rf dist",
+    "exports:lint": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
+    "lint": "eslint --ext .ts src test",
+    "lint:fix": "pnpm lint --fix",
+    "package-check": "package-check",
+    "test": "vitest run",
+    "typedoc": "typedoc"
+  },
+  "dependencies": {
+    "@ethersproject/abstract-signer": "^5.7.0",
+    "@nucypher/shared": "workspace:*",
+    "siwe": "^2.3.2",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@nucypher/test-utils": "workspace:*"
+  },
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8.0.0"
+  }
+}

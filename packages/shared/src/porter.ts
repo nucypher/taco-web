@@ -175,15 +175,15 @@ export class PorterClient {
       const localConfig = { ...config, baseURL: porterUrl.toString() };
       try {
         resp = await axios.request(localConfig);
+        if (resp.status === HttpStatusCode.Ok) {
+          return resp;
+        }
       } catch (e) {
         lastError = e;
         continue;
       }
-      if (resp.status === HttpStatusCode.Ok) {
-        return resp;
-      }
     }
-    if (lastError !== undefined) {
+    if (lastError) {
       throw lastError;
     }
     throw new Error(

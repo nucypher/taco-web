@@ -41,10 +41,10 @@ const mockGetUrsulas = (ursulas: Ursula[] = fakeUrsulas()): SpyInstance => {
           status: HttpStatusCode.Ok,
           data: fakePorterUrsulas(ursulas),
         });
+      case fakePorterUris[1]:
+        return Promise.resolve({ status: HttpStatusCode.BadRequest, data: '' });
       case fakePorterUris[0]:
-        throw new Error();
-      default:
-        throw Promise.resolve({ status: HttpStatusCode.BadRequest });
+        throw new Error(`Test error`);
     }
   });
 };
@@ -107,9 +107,13 @@ describe('PorterClient', () => {
   it('returns error in case all porters fail', async () => {
     const ursulas = fakeUrsulas();
     mockGetUrsulas(ursulas);
-    let porterClient = new PorterClient([fakePorterUris[0], fakePorterUris[1]]);
-    expect(porterClient.getUrsulas(ursulas.length)).rejects.toThrowError();
+    let porterClient = new PorterClient([fakePorterUris[1]]);
+    expect(porterClient.getUrsulas(ursulas.length)).rejects.toThrowError(
+      Error(`Porter returns bad response: 400 - `),
+    );
     porterClient = new PorterClient([fakePorterUris[1], fakePorterUris[0]]);
-    expect(porterClient.getUrsulas(ursulas.length)).rejects.toThrowError();
+    expect(porterClient.getUrsulas(ursulas.length)).rejects.toThrowError(
+      Error(`Test error`),
+    );
   });
 });

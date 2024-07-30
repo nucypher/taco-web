@@ -12,7 +12,6 @@ import {
   getPorterUri,
   initialize,
   isAuthorized,
-  ThresholdMessageKit,
   toBytes,
   toHexString,
 } from '@nucypher/taco';

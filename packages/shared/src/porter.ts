@@ -22,11 +22,8 @@ const defaultPorterUri: Record<string, string> = {
   lynx: 'https://porter-lynx.nucypher.community',
 };
 
-const porterUriSource: Record<string, string> = {
-  mainnet: 'https://raw.githubusercontent.com/nucypher/nucypher-porter/main/pytest.ini',
-  tapir: 'https://raw.githubusercontent.com/nucypher/nucypher-porter/main/pytest.ini',
-  lynx: 'https://raw.githubusercontent.com/nucypher/nucypher-porter/main/pytest.ini',
-};
+const porterUriSource: string =
+  'https://raw.githubusercontent.com/nucypher/nucypher-porter/main/porter_instances.json';
 
 export type Domain = keyof typeof defaultPorterUri;
 

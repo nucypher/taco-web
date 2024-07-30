@@ -3,7 +3,7 @@ export {
   Domain,
   domains,
   fromBytes,
-  getPorterUri,
+  getPorterUris,
   initialize,
   toBytes,
   toHexString,

@@ -7,7 +7,6 @@ import {
   EIP4361AuthProvider,
   encrypt,
   fromBytes,
-  getPorterUri,
   initialize,
   isAuthorized,
   ThresholdMessageKit,
@@ -119,7 +118,6 @@ const decryptFromBytes = async (encryptedBytes: Uint8Array) => {
     domain,
     messageKit,
     authProvider,
-    getPorterUri(domain),
   );
 };
 

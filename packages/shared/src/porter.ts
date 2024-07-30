@@ -17,13 +17,13 @@ import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from './types';
 import { fromBase64, fromHexString, toBase64, toHexString } from './utils';
 
 const defaultPorterUri: Record<string, string> = {
-  mainnet: 'https://porter.nucypher.community',
-  tapir: 'https://porter-tapir.nucypher.community',
-  lynx: 'https://porter-lynx.nucypher.community',
+  mainnet: 'https://porter.nucypher.io',
+  tapir: 'https://porter-tapir.nucypher.io',
+  lynx: 'https://porter-lynx.nucypher.io',
 };
 
 const porterUriSource: string =
-  'https://raw.githubusercontent.com/nucypher/nucypher-porter/main/porter_instances.json';
+  'https://raw.githubusercontent.com/nucypher/nucypher-porter/development/porter_instances.json';
 
 export type Domain = keyof typeof defaultPorterUri;
 

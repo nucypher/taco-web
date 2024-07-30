@@ -187,7 +187,7 @@ export class PorterClient {
       throw lastError;
     }
     throw new Error(
-      'Porter returns bad response: ${resp.status} - ${resp.data}',
+      `Porter returns bad response: ${resp.status} - ${resp.data}`,
     );
   }
 

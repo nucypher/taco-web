@@ -26,6 +26,7 @@ const porterUriSource: string =
   'https://raw.githubusercontent.com/nucypher/nucypher-porter/development/porter_instances.json';
 
 export type Domain = keyof typeof defaultPorterUri;
+export type PorterURISourceResponse = Record<string, string[]>;
 
 export const domains: Record<string, Domain> = {
   DEVNET: 'lynx',
@@ -40,7 +41,7 @@ export const getPorterUri = async (domain: Domain): Promise<string> => {
 export const getPorterUris = async (
   domain: Domain,
   porterUris: string[] = [],
-): Promise<string[] => {
+): Promise<string[]> => {
   const fullList = [...porterUris];
   const uri = defaultPorterUri[domain];
   if (!uri) {
@@ -52,16 +53,19 @@ export const getPorterUris = async (
   return fullList;
 };
 
-export const getPorterUrisFromSource = async (domain: Domain): Promise<string[]> => {
-  const source = porterUriSource[domain];
+export const getPorterUrisFromSource = async (
+  domain: Domain,
+): Promise<string[]> => {
+  const source = porterUriSource;
   if (!source) {
     return [];
   }
   try {
-    const resp = await axios.get(source, {
+    const resp = await axios.get(porterUriSource, {
       responseType: 'blob',
     });
-    return resp.data.split(/\r?\n/).filter(Boolean);
+    const uris: PorterURISourceResponse = JSON.parse(resp.data);
+    return uris[domain];
   } catch (e) {
     return [];
   }

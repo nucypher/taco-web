@@ -5,11 +5,11 @@ import {
   GetUrsulasResult,
   PorterClient,
   Ursula,
+  domains,
+  getPorterUris,
+  getPorterUrisFromSource,
   initialize,
   toHexString,
-  getPorterUrisFromSource,
-  getPorterUris,
-  domains
 } from '../src';
 
 const fakePorterUris = [
@@ -59,9 +59,7 @@ describe('getPorterUris', () => {
       const uris = await getPorterUrisFromSource(domain);
       expect(uris.length).toBeGreaterThan(0);
       const fullList = await getPorterUris(domain);
-      expect(fullList).toEqual(
-        expect.arrayContaining(uris)
-      );
+      expect(fullList).toEqual(expect.arrayContaining(uris));
     }
   });
 });

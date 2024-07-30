@@ -11,7 +11,6 @@ import {
   fromBytes,
   initialize,
   isAuthorized,
-  ThresholdMessageKit,
   toBytes,
   toHexString,
 } from '@nucypher/taco';

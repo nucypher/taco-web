@@ -39,7 +39,11 @@ import {
   Ursula,
   zip,
 } from '@nucypher/shared';
-import { EIP4361_AUTH_METHOD, EIP4361AuthProvider } from '@nucypher/taco-auth';
+import {
+  EIP4361AuthProvider,
+  SingleSignOnEIP4361AuthProvider,
+  USER_ADDRESS_PARAM_DEFAULT,
+} from '@nucypher/taco-auth';
 import axios from 'axios';
 import { ethers, providers, Wallet } from 'ethers';
 import { expect, SpyInstance, vi } from 'vitest';
@@ -86,13 +90,11 @@ export const fakeSigner = (
   } as unknown as ethers.providers.JsonRpcSigner;
 };
 
-export const fakeAuthProviders = () => {
+export const fakeAuthProviders = async () => {
   return {
-    [EIP4361_AUTH_METHOD]: new EIP4361AuthProvider(
-      fakeProvider(),
-      fakeSigner(),
-      TEST_SIWE_PARAMS,
-    ),
+    [USER_ADDRESS_PARAM_DEFAULT]: fakeEIP4351AuthProvider(),
+    [':userAddressExternalEIP4361']:
+      await fakeSingleSignOnEIP4361AuthProvider(),
   };
 };
 
@@ -112,6 +114,26 @@ export const fakeProvider = (
     ...fakeProvider,
     getSigner: () => fakeSignerWithProvider,
   } as unknown as ethers.providers.Web3Provider;
+};
+
+const fakeEIP4351AuthProvider = () => {
+  return new EIP4361AuthProvider(
+    fakeProvider(),
+    fakeSigner(),
+    TEST_SIWE_PARAMS,
+  );
+};
+
+const fakeSingleSignOnEIP4361AuthProvider = async () => {
+  const message =
+    'localhost wants you to sign in with your Ethereum account:\n0x924c255297BF9032583dF6E06a8633dc720aB52D\n\nSign-In With Ethereum Example Statement\n\nURI: http://localhost:3000\nVersion: 1\nChain ID: 1234\nNonce: bTyXgcQxn2htgkjJn\nIssued At: 2024-07-18T16:53:39.093516Z';
+  const signature =
+    '0x22cc163b9c37cf425997b76ebafd44a0d68043d0dc9a1dbf823e78c320924476644f28abcf0974d54b8604eff8a62a51559994537d4b8a85cdee977e02ee98921b';
+
+  return SingleSignOnEIP4361AuthProvider.fromExistingSiweInfo(
+    message,
+    signature,
+  );
 };
 
 const genChecksumAddress = (i: number): ChecksumAddress =>

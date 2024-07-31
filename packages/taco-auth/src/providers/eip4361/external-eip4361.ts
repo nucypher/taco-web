@@ -1,7 +1,11 @@
 import { SiweMessage } from 'siwe';
 
-import { EIP4361_AUTH_METHOD } from '../auth-provider';
-import { AuthSignature } from '../auth-sig';
+import { AuthSignature } from '../../auth-sig';
+
+import { EIP4361_AUTH_METHOD } from './common';
+
+export const USER_ADDRESS_PARAM_EXTERNAL_EIP4361 =
+  ':userAddressExternalEIP4361';
 
 export class SingleSignOnEIP4361AuthProvider {
   public static async fromExistingSiweInfo(
@@ -22,7 +26,7 @@ export class SingleSignOnEIP4361AuthProvider {
 
   private constructor(
     private readonly existingSiweMessage: string,
-    private readonly address: string,
+    public readonly address: string,
     private readonly signature: string,
   ) {}
 

@@ -1,16 +1,17 @@
 import { format } from 'node:util';
 
 import {
+  EIP4361AuthProvider,
+  ThresholdMessageKit,
+  USER_ADDRESS_PARAM_DEFAULT,
   conditions,
   decrypt,
   domains,
-  EIP4361AuthProvider,
   encrypt,
   fromBytes,
   getPorterUri,
   initialize,
   isAuthorized,
-  ThresholdMessageKit,
   toBytes,
   toHexString,
 } from '@nucypher/taco';
@@ -114,11 +115,14 @@ const decryptFromBytes = async (encryptedBytes: Uint8Array) => {
     consumerSigner,
     siweParams,
   );
+  const conditionContext =
+    conditions.context.ConditionContext.fromMessageKit(messageKit);
+  conditionContext.addAuthProvider(USER_ADDRESS_PARAM_DEFAULT, authProvider);
   return decrypt(
     provider,
     domain,
     messageKit,
-    authProvider,
+    conditionContext,
     getPorterUri(domain),
   );
 };

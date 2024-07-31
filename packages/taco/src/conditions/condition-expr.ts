@@ -1,11 +1,9 @@
 import { Conditions as CoreConditions } from '@nucypher/nucypher-core';
 import { toJSON } from '@nucypher/shared';
-import { AuthProviders } from '@nucypher/taco-auth';
 import { SemVer } from 'semver';
 
 import { Condition } from './condition';
 import { ConditionFactory } from './condition-factory';
-import { ConditionContext, CustomContextParam } from './context';
 
 const ERR_VERSION = (provided: string, current: string) =>
   `Version provided, ${provided}, is incompatible with current version, ${current}`;
@@ -62,17 +60,6 @@ export class ConditionExpression {
 
   public static fromCoreConditions(conditions: CoreConditions) {
     return ConditionExpression.fromJSON(conditions.toString());
-  }
-
-  public buildContext(
-    customParameters: Record<string, CustomContextParam> = {},
-    authProviders: AuthProviders = {},
-  ): ConditionContext {
-    return new ConditionContext(
-      this.condition,
-      customParameters,
-      authProviders,
-    );
   }
 
   public equals(other: ConditionExpression): boolean {

@@ -44,13 +44,11 @@
     "@nucypher/taco-auth": "workspace:*",
     "ethers": "*",
     "semver": "^7.6.3",
-    "jsonpath": "^1.1.1",
     "zod": "*"
   },
   "devDependencies": {
     "@nucypher/test-utils": "workspace:*",
     "@types/semver": "^7.5.8",
-    "@types/jsonpath": "^0.2.4"
   },
   "engines": {
     "node": ">=18",

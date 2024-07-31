@@ -25,7 +25,10 @@ describe('JsonApiCondition', () => {
         endpoint: 'not-a-url',
       };
 
-      const result = JsonApiCondition.validate(JsonApiConditionSchema, badJsonApiObj);
+      const result = JsonApiCondition.validate(
+        JsonApiConditionSchema,
+        badJsonApiObj,
+      );
 
       expect(result.error).toBeDefined();
       expect(result.data).toBeUndefined();
@@ -35,26 +38,26 @@ describe('JsonApiCondition', () => {
         },
       });
     });
-    
+
     describe('parameters', () => {
       it('accepts conditions without query path', () => {
-        const { query, ...noQueryObj} = testJsonApiConditionObj;
+        const { query, ...noQueryObj } = testJsonApiConditionObj;
         const result = JsonApiCondition.validate(
           JsonApiConditionSchema,
-          noQueryObj
+          noQueryObj,
         );
-  
+
         expect(result.error).toBeUndefined();
         expect(result.data).toEqual(noQueryObj);
       });
 
       it('accepts conditions without parameters', () => {
-        const { query, ...noParamsObj} = testJsonApiConditionObj;
+        const { query, ...noParamsObj } = testJsonApiConditionObj;
         const result = JsonApiCondition.validate(
           JsonApiConditionSchema,
-          noParamsObj
+          noParamsObj,
         );
-  
+
         expect(result.error).toBeUndefined();
         expect(result.data).toEqual(noParamsObj);
       });

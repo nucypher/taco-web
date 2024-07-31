@@ -39,10 +39,7 @@ import {
   ContractConditionType,
   FunctionAbiProps,
 } from '../src/conditions/base/contract';
-import {
-  JsonApiConditionProps,
-  JsonApiConditionType
-} from '../src/conditions/base/json-api';
+import { JsonApiConditionType } from '../src/conditions/base/json-api';
 import {
   RpcConditionProps,
   RpcConditionType,
@@ -231,8 +228,8 @@ export const testJsonApiConditionObj = {
   conditionType: JsonApiConditionType,
   endpoint: 'https://_this_would_totally_fail.com',
   parameters: {
-    'ids': 'ethereum',
-    'vs_currencies': 'usd',
+    ids: 'ethereum',
+    vs_currencies: 'usd',
   },
   query: '$.ethereum.usd',
   returnValueTest: testReturnValueTest,

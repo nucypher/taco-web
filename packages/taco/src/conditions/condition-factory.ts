@@ -3,6 +3,11 @@ import {
   ContractConditionProps,
   ContractConditionType,
 } from './base/contract';
+import {
+  JsonApiCondition,
+  JsonApiConditionProps,
+  JsonApiConditionType,
+} from './base/json-api';
 import { RpcCondition, RpcConditionProps, RpcConditionType } from './base/rpc';
 import {
   TimeCondition,
@@ -30,6 +35,8 @@ export class ConditionFactory {
         return new ContractCondition(props as ContractConditionProps);
       case CompoundConditionType:
         return new CompoundCondition(props as CompoundConditionProps);
+      case JsonApiConditionType:
+        return new JsonApiCondition(props as JsonApiConditionProps);
       default:
         throw new Error(ERR_INVALID_CONDITION_TYPE(props.conditionType));
     }

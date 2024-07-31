@@ -43,13 +43,11 @@
     "@nucypher/shared": "workspace:*",
     "@nucypher/taco-auth": "workspace:*",
     "ethers": "*",
-    "jsonpath": "^1.1.1",
     "semver": "^7.5.2",
     "zod": "*"
   },
   "devDependencies": {
     "@nucypher/test-utils": "workspace:*",
-    "@types/jsonpath": "^0.2.4",
     "@types/semver": "^7.5.6"
   },
   "engines": {

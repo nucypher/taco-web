@@ -1,10 +1,10 @@
-import { parse } from "jsonpath";
-import { z } from "zod";
+import { parse } from 'jsonpath';
+import { z } from 'zod';
 
-import { Condition } from "../condition";
-import { OmitConditionType, returnValueTestSchema } from "../shared";
+import { Condition } from '../condition';
+import { OmitConditionType, returnValueTestSchema } from '../shared';
 
-export const JsonApiConditionType = "json-api";
+export const JsonApiConditionType = 'json-api';
 
 const validateJSONPath = (jsonPath: string): boolean => {
   try {
@@ -18,7 +18,7 @@ const validateJSONPath = (jsonPath: string): boolean => {
 export const jsonPathSchema = z
   .string()
   .refine((val) => validateJSONPath(val), {
-    message: "Invalid JSONPath expression",
+    message: 'Invalid JSONPath expression',
   });
 
 export const JsonApiConditionSchema = z.object({

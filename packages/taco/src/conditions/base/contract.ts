@@ -15,11 +15,17 @@ const EthBaseTypes: [string, ...string[]] = [
   'string',
   'address',
   'address payable',
-  ...Array.from({ length: 32 }, (_v, i) => `bytes${i + 1}`), // bytes1 through bytes32
+  ...Array.from({ length: 32 }, (_v, i) => `bytes${i + 1}`),
   'bytes',
-  ...Array.from({ length: 32 }, (_v, i) => `uint${8 * (i + 1)}`), // uint8 through uint256
-  ...Array.from({ length: 32 }, (_v, i) => `int${8 * (i + 1)}`), // int8 through int256
+  ...Array.from({ length: 32 }, (_v, i) => `uint${8 * (i + 1)}`),
+  ...Array.from({ length: 32 }, (_v, i) => `int${8 * (i + 1)}`),
 ];
+
+type AbiVariable = {
+  name: string;
+  type: string;
+  internalType: string;
+};
 
 const functionAbiVariableSchema = z
   .object({
@@ -59,7 +65,6 @@ const functionAbiSchema = z
     (functionAbi) => {
       let asInterface;
       try {
-        // `stringify` here because ethers.utils.Interface doesn't accept a Zod schema
         asInterface = new ethers.utils.Interface(JSON.stringify([functionAbi]));
       } catch (e) {
         return false;
@@ -87,7 +92,7 @@ const functionAbiSchema = z
     },
   );
 
-function toJsonAbiFormat(humanReadableAbi: string): any {
+function toJsonAbiFormat(humanReadableAbi: string) {
   const abiWithoutFunctionKeyword = humanReadableAbi.replace(
     /^function\s+/,
     '',
@@ -95,20 +100,23 @@ function toJsonAbiFormat(humanReadableAbi: string): any {
   const fragment = ethers.utils.FunctionFragment.from(
     abiWithoutFunctionKeyword,
   );
-  const { constant, payable, ...jsonAbi } = JSON.parse(
-    fragment.format(ethers.utils.FormatTypes.json),
-  );
+  const jsonAbi = JSON.parse(fragment.format(ethers.utils.FormatTypes.json));
 
-  jsonAbi.inputs = jsonAbi.inputs.map((input: any) => ({
-    ...input,
-    internalType: input.type,
-  }));
-  jsonAbi.outputs = jsonAbi.outputs.map((output: any) => ({
-    ...output,
-    internalType: output.type,
-  }));
+  const filteredJsonAbi = {
+    name: jsonAbi.name,
+    type: jsonAbi.type,
+    stateMutability: jsonAbi.stateMutability,
+    inputs: jsonAbi.inputs.map((input: AbiVariable) => ({
+      ...input,
+      internalType: input.type,
+    })),
+    outputs: jsonAbi.outputs.map((output: AbiVariable) => ({
+      ...output,
+      internalType: output.type,
+    })),
+  };
 
-  return jsonAbi;
+  return filteredJsonAbi;
 }
 
 export type FunctionAbiProps = z.infer<typeof functionAbiSchema>;

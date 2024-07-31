@@ -374,9 +374,7 @@ describe('supports custom function abi', async () => {
     });
     const invalidHumanReadableAbi = 'function invalidAbi';
 
-    expect(() =>
-      humanReadableAbiSchema.parse(humanReadableAbi),
-    ).not.toThrow();
+    expect(() => humanReadableAbiSchema.parse(humanReadableAbi)).not.toThrow();
     expect(() => humanReadableAbiSchema.parse(invalidHumanReadableAbi)).toThrow(
       'Invalid Human-Readable ABI format',
     );

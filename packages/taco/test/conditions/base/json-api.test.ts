@@ -7,18 +7,21 @@ describe('JSONPath Validation', () => {
     const invalidPath = '$.store.book[?(@.price < ]';
     const result = jsonPathSchema.safeParse(invalidPath);
     expect(result.success).toBe(false);
+    expect(result.error!.errors[0].message).toBe('Invalid JSONPath expression');
   });
 
   it('Invalid JSONPath: Incorrect use of brackets', () => {
     const invalidPath = '$[store][book]';
     const result = jsonPathSchema.safeParse(invalidPath);
     expect(result.success).toBe(false);
+    expect(result.error!.errors[0].message).toBe('Invalid JSONPath expression');
   });
 
   it('Invalid JSONPath: Unclosed wildcard asterisk', () => {
     const invalidPath = '$.store.book[*';
     const result = jsonPathSchema.safeParse(invalidPath);
     expect(result.success).toBe(false);
+    expect(result.error!.errors[0].message).toBe('Invalid JSONPath expression');
   });
 
   it('Valid JSONPath expression', () => {

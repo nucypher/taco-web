@@ -39,6 +39,7 @@
     "typedoc": "typedoc"
   },
   "dependencies": {
+    "@astronautlabs/jsonpath": "^1.1.2",
     "@nucypher/nucypher-core": "*",
     "@nucypher/shared": "workspace:*",
     "@nucypher/taco-auth": "workspace:*",

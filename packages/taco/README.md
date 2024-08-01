@@ -1,6 +1,6 @@
 # `@nucypher/taco`
 
-### [`nucypher/taco-web`](../../README.md)
+### [`nucypher/taco-web`](https://github.com/nucypher/taco-web/blob/main/README.md)
 
 ## Supported `taco` versions
 

@@ -148,7 +148,12 @@ export const contractConditionSchema = rpcConditionSchema
     },
   );
 
-export type ContractConditionProps = z.infer<typeof contractConditionSchema>;
+export type ContractConditionProps = Omit<
+  z.infer<typeof contractConditionSchema>,
+  'functionAbi'
+> & {
+  functionAbi?: string | z.infer<typeof functionAbiSchema> | undefined;
+};
 export class ContractCondition extends Condition {
   constructor(value: OmitConditionType<ContractConditionProps>) {
     if (typeof value.functionAbi === 'string') {

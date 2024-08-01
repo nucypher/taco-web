@@ -15,11 +15,17 @@ const EthBaseTypes: [string, ...string[]] = [
   'string',
   'address',
   'address payable',
-  ...Array.from({ length: 32 }, (_v, i) => `bytes${i + 1}`), // bytes1 through bytes32
+  ...Array.from({ length: 32 }, (_v, i) => `bytes${i + 1}`),
   'bytes',
-  ...Array.from({ length: 32 }, (_v, i) => `uint${8 * (i + 1)}`), // uint8 through uint256
-  ...Array.from({ length: 32 }, (_v, i) => `int${8 * (i + 1)}`), // int8 through int256
+  ...Array.from({ length: 32 }, (_v, i) => `uint${8 * (i + 1)}`),
+  ...Array.from({ length: 32 }, (_v, i) => `int${8 * (i + 1)}`),
 ];
+
+type AbiVariable = {
+  name: string;
+  type: string;
+  internalType: string;
+};
 
 const functionAbiVariableSchema = z
   .object({
@@ -28,6 +34,23 @@ const functionAbiVariableSchema = z
     internalType: z.enum(EthBaseTypes), // TODO: Do we need to validate this?
   })
   .strict();
+
+export const humanReadableAbiSchema = z
+  .string()
+  .refine(
+    (abi) => {
+      try {
+        toJsonAbiFormat(abi);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+    {
+      message: 'Invalid Human-Readable ABI format',
+    },
+  )
+  .transform(toJsonAbiFormat);
 
 const functionAbiSchema = z
   .object({
@@ -42,7 +65,6 @@ const functionAbiSchema = z
     (functionAbi) => {
       let asInterface;
       try {
-        // `stringify` here because ethers.utils.Interface doesn't accept a Zod schema
         asInterface = new ethers.utils.Interface(JSON.stringify([functionAbi]));
       } catch (e) {
         return false;
@@ -70,6 +92,33 @@ const functionAbiSchema = z
     },
   );
 
+function toJsonAbiFormat(humanReadableAbi: string) {
+  const abiWithoutFunctionKeyword = humanReadableAbi.replace(
+    /^function\s+/,
+    '',
+  );
+  const fragment = ethers.utils.FunctionFragment.from(
+    abiWithoutFunctionKeyword,
+  );
+  const jsonAbi = JSON.parse(fragment.format(ethers.utils.FormatTypes.json));
+
+  const filteredJsonAbi = {
+    name: jsonAbi.name,
+    type: jsonAbi.type,
+    stateMutability: jsonAbi.stateMutability,
+    inputs: jsonAbi.inputs.map((input: AbiVariable) => ({
+      ...input,
+      internalType: input.type,
+    })),
+    outputs: jsonAbi.outputs.map((output: AbiVariable) => ({
+      ...output,
+      internalType: output.type,
+    })),
+  };
+
+  return filteredJsonAbi;
+}
+
 export type FunctionAbiProps = z.infer<typeof functionAbiSchema>;
 
 export const ContractConditionType = 'contract';
@@ -82,7 +131,9 @@ export const contractConditionSchema = rpcConditionSchema
     contractAddress: z.string().regex(ETH_ADDRESS_REGEXP).length(42),
     standardContractType: z.enum(['ERC20', 'ERC721']).optional(),
     method: z.string(),
-    functionAbi: functionAbiSchema.optional(),
+    functionAbi: z
+      .union([functionAbiSchema, humanReadableAbiSchema])
+      .optional(),
     parameters: z.array(paramOrContextParamSchema),
   })
   // Adding this custom logic causes the return type to be ZodEffects instead of ZodObject
@@ -97,10 +148,17 @@ export const contractConditionSchema = rpcConditionSchema
     },
   );
 
-export type ContractConditionProps = z.infer<typeof contractConditionSchema>;
-
+export type ContractConditionProps = Omit<
+  z.infer<typeof contractConditionSchema>,
+  'functionAbi'
+> & {
+  functionAbi?: string | z.infer<typeof functionAbiSchema> | undefined;
+};
 export class ContractCondition extends Condition {
   constructor(value: OmitConditionType<ContractConditionProps>) {
+    if (typeof value.functionAbi === 'string') {
+      value.functionAbi = toJsonAbiFormat(value.functionAbi);
+    }
     super(contractConditionSchema, {
       conditionType: ContractConditionType,
       ...value,

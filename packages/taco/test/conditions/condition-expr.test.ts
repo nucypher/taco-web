@@ -406,17 +406,20 @@ describe('condition set', () => {
 
     it('json api condition serialization', () => {
       const conditionExpr = new ConditionExpression(jsonApiCondition);
-  
+
       const conditionExprJson = conditionExpr.toJson();
       expect(conditionExprJson).toBeDefined();
       expect(conditionExprJson).toContain('endpoint');
-      expect(conditionExprJson).toContain('https://_this_would_totally_fail.com');
+      expect(conditionExprJson).toContain(
+        'https://_this_would_totally_fail.com',
+      );
       expect(conditionExprJson).toContain('parameters');
       expect(conditionExprJson).toContain('query');
       expect(conditionExprJson).toContain('$.ethereum.usd');
       expect(conditionExprJson).toContain('returnValueTest');
-  
-      const conditionExprFromJson = ConditionExpression.fromJSON(conditionExprJson);
+
+      const conditionExprFromJson =
+        ConditionExpression.fromJSON(conditionExprJson);
       expect(conditionExprFromJson).toBeDefined();
       expect(conditionExprFromJson.condition).toBeInstanceOf(JsonApiCondition);
     });

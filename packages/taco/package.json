@@ -39,6 +39,7 @@
     "typedoc": "typedoc"
   },
   "dependencies": {
+    "@astronautlabs/jsonpath": "^1.1.2",
     "@nucypher/nucypher-core": "*",
     "@nucypher/shared": "workspace:*",
     "@nucypher/taco-auth": "workspace:*",
@@ -48,7 +49,7 @@
   },
   "devDependencies": {
     "@nucypher/test-utils": "workspace:*",
-    "@types/semver": "^7.5.8"
+    "@types/semver": "^7.5.8",
   },
   "engines": {
     "node": ">=18",

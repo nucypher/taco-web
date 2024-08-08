@@ -33,7 +33,10 @@ export class ConditionExpression {
     };
   }
 
-  public static fromObj(obj: ConditionExpressionJSON): ConditionExpression {
+  public static fromObj(
+    obj: ConditionExpressionJSON,
+    authProviders?: AuthProviders,
+  ): ConditionExpression {
     const receivedVersion = new SemVer(obj.version);
     const currentVersion = new SemVer(ConditionExpression.version);
     if (receivedVersion.major > currentVersion.major) {
@@ -44,7 +47,10 @@ export class ConditionExpression {
       throw new Error(ERR_CONDITION(obj.condition));
     }
 
-    const condition = ConditionFactory.conditionFromProps(obj.condition);
+    const condition = ConditionFactory.conditionFromProps(
+      obj.condition,
+      authProviders,
+    );
     return new ConditionExpression(condition, obj.version);
   }
 
@@ -52,16 +58,22 @@ export class ConditionExpression {
     return toJSON(this.toObj());
   }
 
-  public static fromJSON(json: string): ConditionExpression {
-    return ConditionExpression.fromObj(JSON.parse(json));
+  public static fromJSON(
+    json: string,
+    authProviders?: AuthProviders,
+  ): ConditionExpression {
+    return ConditionExpression.fromObj(JSON.parse(json), authProviders);
   }
 
   public toCoreCondition(): CoreConditions {
     return new CoreConditions(toJSON(this.toObj()));
   }
 
-  public static fromCoreConditions(conditions: CoreConditions) {
-    return ConditionExpression.fromJSON(conditions.toString());
+  public static fromCoreConditions(
+    conditions: CoreConditions,
+    authProviders?: AuthProviders,
+  ) {
+    return ConditionExpression.fromJSON(conditions.toString(), authProviders);
   }
 
   public buildContext(

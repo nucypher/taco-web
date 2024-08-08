@@ -85,47 +85,4 @@ describe('EnsAddressOwnershipCondition', () => {
       'ENS name could not be resolved',
     );
   });
-
-  // it('should validate the ENS ownership successfully', async () => {
-  //   const ensName = 'andrestest.eth';
-  //   const resolvedAddress = '0xf45ED59ea03AaA29EAB6DB0Ea019E5299b335Ea2';
-  //   const condition = new EnsAddressOwnershipCondition({
-  //     ensName,
-  //     domain: 'tapir',
-  //     authProviders,
-  //   });
-
-  //   condition.value.resolvedAddress = resolvedAddress;
-
-  //   const authProviderMock = vi.spyOn(authProviders[EIP4361_AUTH_METHOD], 'getOrCreateAuthSignature')
-  //     .mockResolvedValueOnce({
-  //       address: resolvedAddress,
-  //       signature: 'mockSignature',
-  //     });
-
-  //   await expect(condition.validate(authProviders)).resolves.toBeUndefined();
-  //   expect(authProviderMock).toHaveBeenCalled();
-  // });
-
-  // it('should throw an error if the ENS ownership validation fails', async () => {
-  //   const ensName = 'andrestest.eth';
-  //   const resolvedAddress = '0xf45ED59ea03AaA29EAB6DB0Ea019E5299b335Ea2';
-  //   const condition = new EnsAddressOwnershipCondition({
-  //     ensName,
-  //     domain: 'tapir',
-  //     authProviders,
-  //   });
-
-  //   condition.value.resolvedAddress = resolvedAddress;
-
-  //   vi.spyOn(authProviders[EIP4361_AUTH_METHOD], 'getOrCreateAuthSignature')
-  //     .mockResolvedValueOnce({
-  //       address: '0xDifferentAddress',
-  //       signature: 'mockSignature',
-  //     });
-
-  //   await expect(condition.validate(authProviders)).rejects.toThrow(
-  //     `Error: ENS ownership verification failed. The signer is not the owner of the ${ensName} ENS`,
-  //   );
-  // });
 });

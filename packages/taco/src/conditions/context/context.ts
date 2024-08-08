@@ -209,7 +209,10 @@ export class ConditionContext {
     customParameters?: Record<string, CustomContextParam>,
   ): ConditionContext {
     return new ConditionContext(
-      ConditionExpression.fromCoreConditions(conditions).condition,
+      ConditionExpression.fromCoreConditions(
+        conditions,
+        authProviders,
+      ).condition,
       customParameters,
       authProviders,
     );

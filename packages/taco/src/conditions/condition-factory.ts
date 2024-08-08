@@ -1,8 +1,15 @@
+import { AuthProviders } from '@nucypher/taco-auth';
+
 import {
   ContractCondition,
   ContractConditionProps,
   ContractConditionType,
 } from './base/contract';
+import {
+  EnsAddressOwnershipCondition,
+  EnsAddressOwnershipConditionProps,
+  EnsAddressOwnershipConditionType,
+} from './base/ens-ownership-condition';
 import {
   JsonApiCondition,
   JsonApiConditionProps,
@@ -25,7 +32,10 @@ const ERR_INVALID_CONDITION_TYPE = (type: string) =>
   `Invalid condition type: ${type}`;
 
 export class ConditionFactory {
-  public static conditionFromProps(props: ConditionProps): Condition {
+  public static conditionFromProps(
+    props: ConditionProps,
+    authProviders?: AuthProviders,
+  ): Condition {
     switch (props.conditionType) {
       case RpcConditionType:
         return new RpcCondition(props as RpcConditionProps);
@@ -37,6 +47,15 @@ export class ConditionFactory {
         return new CompoundCondition(props as CompoundConditionProps);
       case JsonApiConditionType:
         return new JsonApiCondition(props as JsonApiConditionProps);
+      case EnsAddressOwnershipConditionType:
+        if (authProviders) {
+          return new EnsAddressOwnershipCondition({
+            ...(props as EnsAddressOwnershipConditionProps),
+            authProviders,
+          });
+        } else {
+          throw new Error('Invalid Signer');
+        }
       default:
         throw new Error(ERR_INVALID_CONDITION_TYPE(props.conditionType));
     }

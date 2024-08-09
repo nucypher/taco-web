@@ -109,7 +109,7 @@ describe('PorterClient', () => {
     mockGetUrsulas(ursulas);
     let porterClient = new PorterClient([fakePorterUris[1]]);
     expect(porterClient.getUrsulas(ursulas.length)).rejects.toThrowError(
-      Error(`Porter returns bad response: 400 - `),
+      Error(`Porter returned bad response: 400 - `),
     );
     porterClient = new PorterClient([fakePorterUris[1], fakePorterUris[0]]);
     expect(porterClient.getUrsulas(ursulas.length)).rejects.toThrowError(

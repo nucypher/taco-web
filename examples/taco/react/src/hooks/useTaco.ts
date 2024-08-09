@@ -4,7 +4,6 @@ import {
   Domain,
   EIP4361AuthProvider,
   encrypt,
-  getPorterUri,
   initialize,
   ThresholdMessageKit,
 } from '@nucypher/taco';
@@ -38,7 +37,6 @@ export default function useTaco({
         domain,
         messageKit,
         authProvider,
-        getPorterUri(domain),
       );
     },
     [isInit, provider, domain],

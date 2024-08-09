@@ -93,7 +93,7 @@ describe('taco', () => {
       domains.DEVNET,
       messageKit,
       authProvider,
-      fakePorterUri,
+      [fakePorterUri],
     );
     expect(decryptedMessage).toEqual(toBytes(message));
     expect(getParticipantsSpy).toHaveBeenCalled();

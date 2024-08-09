@@ -6,4 +6,9 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
   },
+  "references": [
+    {
+      "path": "../test-utils/tsconfig.es.json",
+    },
+  ],
 }

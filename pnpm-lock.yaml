@@ -516,6 +516,9 @@ importers:
         specifier: '*'
         version: 3.23.8
     devDependencies:
+      '@nucypher/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       '@typechain/ethers-v5':
         specifier: ^11.1.2
         version: 11.1.2(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@5.4.5))(typescript@5.4.5)

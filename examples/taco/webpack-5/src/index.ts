@@ -5,7 +5,6 @@ import {
   EIP4361AuthProvider,
   encrypt,
   fromBytes,
-  getPorterUri,
   initialize,
   toBytes,
 } from '@nucypher/taco';
@@ -67,7 +66,6 @@ const runExample = async () => {
     domain,
     messageKit,
     authProvider,
-    getPorterUri(domain),
   );
   const decryptedMessage = fromBytes(decryptedBytes);
   console.log('Decrypted message:', decryptedMessage);

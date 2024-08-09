@@ -9,7 +9,7 @@ import {
   DkgCoordinatorAgent,
   Domain,
   fromHexString,
-  getPorterUri,
+  getPorterUris,
   GlobalAllowListAgent,
   toBytes,
 } from '@nucypher/shared';
@@ -130,7 +130,7 @@ export const encryptWithPublicKey = async (
  * Must match the `ritualId`.
  * @param {ThresholdMessageKit} messageKit - The kit containing the message to be decrypted
  * @param authProvider - The authentication provider that will be used to provide the authorization
- * @param {string} [porterUri] - The URI for the Porter service. If not provided, a value will be obtained
+ * @param {string} [porterUri] - The URI(s) for the Porter service. If not provided, a value will be obtained
  * from the Domain
  * @param {Record<string, CustomContextParam>} [customParameters] - Optional custom parameters that may be required
  * depending on the condition used
@@ -145,12 +145,10 @@ export const decrypt = async (
   domain: Domain,
   messageKit: ThresholdMessageKit,
   authProvider?: EIP4361AuthProvider,
-  porterUri?: string,
+  porterUris: string[] = [],
   customParameters?: Record<string, CustomContextParam>,
 ): Promise<Uint8Array> => {
-  if (!porterUri) {
-    porterUri = getPorterUri(domain);
-  }
+  const porterUrisFull: string[] = getPorterUris(domain, porterUris);
 
   const ritualId = await DkgCoordinatorAgent.getRitualIdFromPublicKey(
     provider,
@@ -166,7 +164,7 @@ export const decrypt = async (
   return retrieveAndDecrypt(
     provider,
     domain,
-    porterUri,
+    porterUrisFull,
     messageKit,
     ritualId,
     ritual.sharesNum,

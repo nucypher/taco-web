@@ -23,7 +23,7 @@ const defaultPorterUri: Record<string, string> = {
 };
 
 const porterUriSource: string =
-  'https://raw.githubusercontent.com/nucypher/nucypher-porter/development/porter_instances.json';
+  'https://raw.githubusercontent.com/nucypher/nucypher-porter/main/porter_instances.json';
 
 export type Domain = keyof typeof defaultPorterUri;
 export type PorterURISourceResponse = Record<string, string[]>;

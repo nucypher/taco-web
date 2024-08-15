@@ -40,9 +40,8 @@ export const getPorterUri = async (domain: Domain): Promise<string> => {
 
 export const getPorterUris = async (
   domain: Domain,
-  porterUris: string[] = [],
 ): Promise<string[]> => {
-  const fullList = [...porterUris];
+  const fullList = [];
   const uri = defaultPorterUri[domain];
   if (!uri) {
     throw new Error(`No default Porter URI found for domain: ${domain}`);

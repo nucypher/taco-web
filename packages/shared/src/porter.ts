@@ -38,9 +38,7 @@ export const getPorterUri = async (domain: Domain): Promise<string> => {
   return (await getPorterUris(domain))[0];
 };
 
-export const getPorterUris = async (
-  domain: Domain,
-): Promise<string[]> => {
+export const getPorterUris = async (domain: Domain): Promise<string[]> => {
   const fullList = [];
   const uri = defaultPorterUri[domain];
   if (!uri) {

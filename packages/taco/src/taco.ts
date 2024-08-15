@@ -140,7 +140,9 @@ export const decrypt = async (
   context?: ConditionContext,
   porterUris?: string[],
 ): Promise<Uint8Array> => {
-  const porterUrisFull: string[] = porterUris ? porterUris : await getPorterUris(domain);
+  const porterUrisFull: string[] = porterUris
+    ? porterUris
+    : await getPorterUris(domain);
 
   const ritualId = await DkgCoordinatorAgent.getRitualIdFromPublicKey(
     provider,

@@ -152,9 +152,11 @@ export const fakeUrsulas = (n = 4): Ursula[] =>
 export const mockGetUrsulas = (
   ursulas: Ursula[] = fakeUrsulas(),
 ): SpyInstance => {
-  return vi.spyOn(PorterClient.prototype, 'getUrsulas').mockImplementation(async () => {
-    return Promise.resolve(ursulas);
-  });
+  return vi
+    .spyOn(PorterClient.prototype, 'getUrsulas')
+    .mockImplementation(async () => {
+      return Promise.resolve(ursulas);
+    });
 };
 
 const fakeCFragResponse = (

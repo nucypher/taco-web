@@ -39,12 +39,7 @@ export default function useTaco({
         USER_ADDRESS_PARAM_DEFAULT,
         authProvider,
       );
-      return decrypt(
-        provider,
-        domain,
-        messageKit,
-        conditionContext,
-      );
+      return decrypt(provider, domain, messageKit, conditionContext);
     },
     [isInit, provider, domain],
   );

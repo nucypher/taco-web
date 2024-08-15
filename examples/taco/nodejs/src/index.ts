@@ -117,12 +117,7 @@ const decryptFromBytes = async (encryptedBytes: Uint8Array) => {
   const conditionContext =
     conditions.context.ConditionContext.fromMessageKit(messageKit);
   conditionContext.addAuthProvider(USER_ADDRESS_PARAM_DEFAULT, authProvider);
-  return decrypt(
-    provider,
-    domain,
-    messageKit,
-    conditionContext,
-  );
+  return decrypt(provider, domain, messageKit, conditionContext);
 };
 
 const runExample = async () => {

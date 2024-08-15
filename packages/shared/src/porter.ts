@@ -17,12 +17,16 @@ import { Base64EncodedBytes, ChecksumAddress, HexEncodedBytes } from './types';
 import { fromBase64, fromHexString, toBase64, toHexString } from './utils';
 
 const defaultPorterUri: Record<string, string> = {
-  mainnet: 'https://porter.nucypher.community',
-  tapir: 'https://porter-tapir.nucypher.community',
-  lynx: 'https://porter-lynx.nucypher.community',
+  mainnet: 'https://porter.nucypher.io',
+  tapir: 'https://porter-tapir.nucypher.io',
+  lynx: 'https://porter-lynx.nucypher.io',
 };
 
+const porterUriSource: string =
+  'https://raw.githubusercontent.com/nucypher/nucypher-porter/main/porter_instances.json';
+
 export type Domain = keyof typeof defaultPorterUri;
+export type PorterURISourceResponse = Record<string, string[]>;
 
 export const domains: Record<string, Domain> = {
   DEVNET: 'lynx',
@@ -30,21 +34,40 @@ export const domains: Record<string, Domain> = {
   MAINNET: 'mainnet',
 };
 
-export const getPorterUri = (domain: Domain): string => {
-  return getPorterUris(domain)[0];
+export const getPorterUri = async (domain: Domain): Promise<string> => {
+  return (await getPorterUris(domain))[0];
 };
 
-export const getPorterUris = (
+export const getPorterUris = async (
   domain: Domain,
-  porterUris: string[] = [],
-): string[] => {
-  const fullList = [...porterUris];
+): Promise<string[]> => {
+  const fullList = [];
   const uri = defaultPorterUri[domain];
   if (!uri) {
     throw new Error(`No default Porter URI found for domain: ${domain}`);
   }
   fullList.push(uri);
+  const urisFromSource = await getPorterUrisFromSource(domain);
+  fullList.push(...urisFromSource);
   return fullList;
+};
+
+export const getPorterUrisFromSource = async (
+  domain: Domain,
+): Promise<string[]> => {
+  const source = porterUriSource;
+  if (!source) {
+    return [];
+  }
+  try {
+    const resp = await axios.get(porterUriSource, {
+      responseType: 'blob',
+    });
+    const uris: PorterURISourceResponse = JSON.parse(resp.data);
+    return uris[domain];
+  } catch (e) {
+    return [];
+  }
 };
 
 // /get_ursulas
@@ -151,19 +174,19 @@ export class PorterClient {
       const localConfig = { ...config, baseURL: porterUrl.toString() };
       try {
         resp = await axios.request(localConfig);
+        if (resp.status === HttpStatusCode.Ok) {
+          return resp;
+        }
       } catch (e) {
         lastError = e;
         continue;
       }
-      if (resp.status === HttpStatusCode.Ok) {
-        return resp;
-      }
     }
-    if (lastError !== undefined) {
+    if (lastError) {
       throw lastError;
     }
     throw new Error(
-      'Porter returns bad response: ${resp.status} - ${resp.data}',
+      `Porter returned bad response: ${resp.status} - ${resp.data}`,
     );
   }
 

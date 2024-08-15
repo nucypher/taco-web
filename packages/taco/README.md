@@ -60,7 +60,6 @@ const decryptedMessage = await decrypt(
   web3Provider,
   domains.TESTNET,
   messageKit,
-  await getPorterUri(domains.TESTNET),
   web3Provider.getSigner(),
 );
 ```

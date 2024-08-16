@@ -61,7 +61,7 @@ export const encryptMessage = async (
 export const retrieveAndDecrypt = async (
   provider: ethers.providers.Provider,
   domain: Domain,
-  porterUris: string[],
+  porter: PorterClient,
   thresholdMessageKit: ThresholdMessageKit,
   ritualId: number,
   context?: ConditionContext,
@@ -69,7 +69,7 @@ export const retrieveAndDecrypt = async (
   const decryptionShares = await retrieve(
     provider,
     domain,
-    porterUris,
+    porter,
     thresholdMessageKit,
     ritualId,
     context,
@@ -82,7 +82,7 @@ export const retrieveAndDecrypt = async (
 const retrieve = async (
   provider: ethers.providers.Provider,
   domain: Domain,
-  porterUris: string[],
+  porter: PorterClient,
   thresholdMessageKit: ThresholdMessageKit,
   ritualId: number,
   context?: ConditionContext,
@@ -106,7 +106,6 @@ const retrieve = async (
     thresholdMessageKit,
   );
 
-  const porter = new PorterClient(porterUris);
   const { encryptedResponses, errors } = await porter.tacoDecrypt(
     encryptedRequests,
     ritual.threshold,

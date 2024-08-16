@@ -11,6 +11,7 @@ import {
   fromHexString,
   getPorterUris,
   GlobalAllowListAgent,
+  PorterClient,
   toBytes,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
@@ -143,6 +144,7 @@ export const decrypt = async (
   const porterUrisFull: string[] = porterUris
     ? porterUris
     : await getPorterUris(domain);
+  const porter = new PorterClient(porterUrisFull);
 
   const ritualId = await DkgCoordinatorAgent.getRitualIdFromPublicKey(
     provider,
@@ -152,7 +154,7 @@ export const decrypt = async (
   return retrieveAndDecrypt(
     provider,
     domain,
-    porterUrisFull,
+    porter,
     messageKit,
     ritualId,
     context,

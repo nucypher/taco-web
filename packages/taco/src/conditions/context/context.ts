@@ -51,14 +51,14 @@ export const RESERVED_CONTEXT_PARAMS = [
 ];
 
 export class ConditionContext {
-  public requestedParameters: Set<string>;
-  private customParameters: Record<string, CustomContextParam> = {};
+  public requestedContextParameters: Set<string>;
+  private customContextParameters: Record<string, CustomContextParam> = {};
   private authProviders: Record<string, AuthProvider> = {};
 
   constructor(condition: Condition) {
     const condProps = condition.toObj();
     ConditionContext.validateCoreConditions(condProps);
-    this.requestedParameters =
+    this.requestedContextParameters =
       ConditionContext.findContextParameters(condProps);
   }
 
@@ -73,27 +73,28 @@ export class ConditionContext {
   ) {
     // Ok, so at this point we should have all the parameters we need
     // If we don't, we have a problem and we should throw
-    const missingParameters = Array.from(this.requestedParameters).filter(
-      (key) => parameters[key] === undefined,
-    );
+    const missingParameters = Array.from(
+      this.requestedContextParameters,
+    ).filter((key) => parameters[key] === undefined);
     if (missingParameters.length > 0) {
       throw new Error(ERR_MISSING_CONTEXT_PARAMS(missingParameters));
     }
   }
 
   private async fillContextParameters(
-    requestedParameters: Set<string>,
+    requestedContextParameters: Set<string>,
   ): Promise<Record<string, ContextParam>> {
-    const parameters =
-      await this.fillAuthContextParameters(requestedParameters);
-    for (const key in this.customParameters) {
-      parameters[key] = this.customParameters[key];
+    const parameters = await this.fillAuthContextParameters(
+      requestedContextParameters,
+    );
+    for (const key in this.customContextParameters) {
+      parameters[key] = this.customContextParameters[key];
     }
     return parameters;
   }
 
   private validateAuthProviders(): void {
-    for (const param of this.requestedParameters) {
+    for (const param of this.requestedContextParameters) {
       // If it's not a user address parameter, we can skip
       if (!USER_ADDRESS_PARAMS.includes(param)) {
         continue;
@@ -131,7 +132,7 @@ export class ConditionContext {
       throw new Error(ERR_RESERVED_PARAM(customParam));
     }
 
-    if (!this.requestedParameters.has(customParam)) {
+    if (!this.requestedContextParameters.has(customParam)) {
       throw new Error(ERR_UNKNOWN_CUSTOM_CONTEXT_PARAM(customParam));
     }
   }
@@ -182,11 +183,11 @@ export class ConditionContext {
   }
 
   public addCustomContextParameterValues(
-    customParameters: Record<string, CustomContextParam>,
+    customContextParameters: Record<string, CustomContextParam>,
   ) {
-    Object.keys(customParameters).forEach((key) => {
+    Object.keys(customContextParameters).forEach((key) => {
       this.validateCustomContextParameter(key);
-      this.customParameters[key] = customParameters[key];
+      this.customContextParameters[key] = customContextParameters[key];
     });
   }
 
@@ -221,7 +222,7 @@ export class ConditionContext {
   > => {
     this.validateAuthProviders();
     const parameters = await this.fillContextParameters(
-      this.requestedParameters,
+      this.requestedContextParameters,
     );
     this.validateNoMissingContextParameters(parameters);
     return parameters;

@@ -132,7 +132,7 @@ describe('taco', () => {
     expect(getFinalizedRitualSpy).toHaveBeenCalled();
 
     const conditionContext = ConditionContext.fromMessageKit(messageKit);
-    const requestedParameters = conditionContext.requestedParameters;
+    const requestedParameters = conditionContext.requestedContextParameters;
     expect(requestedParameters).toEqual(
       new Set([customParamKey, USER_ADDRESS_PARAM_DEFAULT]),
     );

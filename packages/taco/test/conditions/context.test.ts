@@ -82,7 +82,9 @@ describe('context', () => {
     describe('custom parameters', () => {
       it('detects when a custom parameter is requested', () => {
         const conditionContext = new ConditionContext(contractCondition);
-        expect(conditionContext.requestedParameters).toContain(customParamKey);
+        expect(conditionContext.requestedContextParameters).toContain(
+          customParamKey,
+        );
       });
 
       it('serializes bytes as hex strings', async () => {
@@ -232,10 +234,12 @@ describe('context', () => {
       };
 
       it('handles both custom and auth context parameters', () => {
-        const requestedParams = new ConditionContext(contractCondition)
-          .requestedParameters;
-        expect(requestedParams).not.toContain(USER_ADDRESS_PARAM_DEFAULT);
-        expect(requestedParams).toContain(customParamKey);
+        const requestedContextParams = new ConditionContext(contractCondition)
+          .requestedContextParameters;
+        expect(requestedContextParams).not.toContain(
+          USER_ADDRESS_PARAM_DEFAULT,
+        );
+        expect(requestedContextParams).toContain(customParamKey);
       });
 
       it('rejects on a missing custom parameter ', async () => {

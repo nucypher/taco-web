@@ -41,6 +41,7 @@ import {
   EIP4361AuthProvider,
   SingleSignOnEIP4361AuthProvider,
   USER_ADDRESS_PARAM_DEFAULT,
+  USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
 } from '@nucypher/taco-auth';
 import { ethers, providers, Wallet } from 'ethers';
 import { expect, SpyInstance, vi } from 'vitest';
@@ -70,66 +71,55 @@ const makeFakeProvider = (
   };
 };
 
-export const fakeSigner = (
-  secretKeyBytes = SecretKey.random().toBEBytes(),
-  blockNumber = 1000,
-  blockTimestamp = 1000,
-  blockHash = '0x0000000000000000000000000000000000000000',
-) => {
-  const provider = makeFakeProvider(blockNumber, blockTimestamp, blockHash);
-  return {
-    ...new Wallet(secretKeyBytes),
-    provider: provider,
-    _signTypedData: () => Promise.resolve('fake-typed-signature'),
-    signMessage: () => Promise.resolve('fake-signature'),
-    getAddress: () =>
-      Promise.resolve('0x0000000000000000000000000000000000000000'),
-  } as unknown as ethers.providers.JsonRpcSigner;
-};
-
-export const fakeAuthProviders = async () => {
-  return {
-    [USER_ADDRESS_PARAM_DEFAULT]: fakeEIP4351AuthProvider(),
-    [':userAddressExternalEIP4361']:
-      await fakeSingleSignOnEIP4361AuthProvider(),
-  };
-};
-
 export const fakeProvider = (
   secretKeyBytes = SecretKey.random().toBEBytes(),
   blockNumber = 1000,
   blockTimestamp = 1000,
   blockHash = '0x0000000000000000000000000000000000000000',
 ): ethers.providers.Web3Provider => {
-  const fakeProvider = makeFakeProvider(blockTimestamp, blockNumber, blockHash);
-  const fakeSignerWithProvider = fakeSigner(
-    secretKeyBytes,
-    blockNumber,
-    blockTimestamp,
-  );
+  const provider = makeFakeProvider(blockNumber, blockTimestamp, blockHash);
+  const wallet = new Wallet(secretKeyBytes);
+  const fakeSigner = {
+    ...wallet,
+    provider: provider,
+    _signTypedData: wallet._signTypedData,
+    signMessage: wallet.signMessage,
+    getAddress: wallet.getAddress,
+  } as unknown as ethers.providers.JsonRpcSigner;
+
   return {
-    ...fakeProvider,
-    getSigner: () => fakeSignerWithProvider,
+    ...provider,
+    getSigner: () => fakeSigner,
   } as unknown as ethers.providers.Web3Provider;
 };
 
-const fakeEIP4351AuthProvider = () => {
-  return new EIP4361AuthProvider(
-    fakeProvider(),
-    fakeSigner(),
-    TEST_SIWE_PARAMS,
-  );
+export const fakeAuthProviders = async (
+  signer?: ethers.providers.JsonRpcSigner,
+) => {
+  const signerToUse = signer ? signer : fakeProvider().getSigner();
+  return {
+    [USER_ADDRESS_PARAM_DEFAULT]: fakeEIP4351AuthProvider(signerToUse),
+    [USER_ADDRESS_PARAM_EXTERNAL_EIP4361]:
+      await fakeSingleSignOnEIP4361AuthProvider(signerToUse),
+  };
 };
 
-const fakeSingleSignOnEIP4361AuthProvider = async () => {
-  const message =
-    'localhost wants you to sign in with your Ethereum account:\n0x924c255297BF9032583dF6E06a8633dc720aB52D\n\nSign-In With Ethereum Example Statement\n\nURI: http://localhost:3000\nVersion: 1\nChain ID: 1234\nNonce: bTyXgcQxn2htgkjJn\nIssued At: 2024-07-18T16:53:39.093516Z';
-  const signature =
-    '0x22cc163b9c37cf425997b76ebafd44a0d68043d0dc9a1dbf823e78c320924476644f28abcf0974d54b8604eff8a62a51559994537d4b8a85cdee977e02ee98921b';
+const fakeEIP4351AuthProvider = (signer: ethers.providers.JsonRpcSigner) => {
+  return new EIP4361AuthProvider(signer.provider, signer, TEST_SIWE_PARAMS);
+};
 
+const fakeSingleSignOnEIP4361AuthProvider = async (
+  signer: ethers.providers.JsonRpcSigner,
+) => {
+  const eip4361Provider = new EIP4361AuthProvider(
+    signer.provider,
+    signer,
+    TEST_SIWE_PARAMS,
+  );
+  const authSignature = await eip4361Provider.getOrCreateAuthSignature();
   return SingleSignOnEIP4361AuthProvider.fromExistingSiweInfo(
-    message,
-    signature,
+    authSignature.typedData,
+    authSignature.signature,
   );
 };
 

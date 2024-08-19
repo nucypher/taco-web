@@ -1,18 +1,20 @@
 import {
   bobSecretKeyBytes,
   fakeProvider,
-  fakeSigner,
   TEST_SIWE_PARAMS,
 } from '@nucypher/test-utils';
 import { SiweMessage } from 'siwe';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { EIP4361AuthProvider } from '../src/providers';
+import {
+  EIP4361AuthProvider,
+  SingleSignOnEIP4361AuthProvider,
+} from '../src/providers';
 import { EIP4361TypedDataSchema } from '../src/providers/eip4361/common';
 
 describe('auth provider', () => {
   const provider = fakeProvider(bobSecretKeyBytes);
-  const signer = fakeSigner(bobSecretKeyBytes);
+  const signer = provider.getSigner();
   const eip4361Provider = new EIP4361AuthProvider(
     provider,
     signer,
@@ -65,7 +67,7 @@ describe('auth provider caching', () => {
   });
 
   const provider = fakeProvider(bobSecretKeyBytes);
-  const signer = fakeSigner(bobSecretKeyBytes);
+  const signer = provider.getSigner();
   const eip4361Provider = new EIP4361AuthProvider(
     provider,
     signer,
@@ -97,5 +99,36 @@ describe('auth provider caching', () => {
     // auth signature is now expired, so spy is called a 2nd time
     expect(createAuthSignatureSpy).toHaveBeenCalledTimes(2);
     expect(typedSignatureThirdCall).not.toEqual(typedSignature);
+  });
+});
+
+describe('single sign-on auth provider', async () => {
+  const provider = fakeProvider(bobSecretKeyBytes);
+  const signer = provider.getSigner();
+
+  const eip4361Provider = new EIP4361AuthProvider(
+    provider,
+    signer,
+    TEST_SIWE_PARAMS,
+  );
+  const originalTypedSignature =
+    await eip4361Provider.getOrCreateAuthSignature();
+
+  it('use existing SIWE message', async () => {
+    const originalSiweMessage = originalTypedSignature.typedData;
+    const originalSiweSignature = originalTypedSignature.signature;
+
+    const singleSignOnProvider =
+      await SingleSignOnEIP4361AuthProvider.fromExistingSiweInfo(
+        originalSiweMessage,
+        originalSiweSignature,
+      );
+
+    const typedSignature =
+      await singleSignOnProvider.getOrCreateAuthSignature();
+    expect(typedSignature.typedData).toEqual(originalSiweMessage);
+    expect(typedSignature.signature).toEqual(originalSiweSignature);
+    expect(typedSignature.address).toEqual(await signer.getAddress());
+    expect(typedSignature.scheme).toEqual('EIP4361');
   });
 });

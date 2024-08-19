@@ -7,11 +7,7 @@ import {
   USER_ADDRESS_PARAM_DEFAULT,
   USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
 } from '@nucypher/taco-auth';
-import {
-  fakeAuthProviders,
-  fakeProvider,
-  fakeSigner,
-} from '@nucypher/test-utils';
+import { fakeAuthProviders, fakeProvider } from '@nucypher/test-utils';
 import { ethers } from 'ethers';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
@@ -308,8 +304,8 @@ describe('context', () => {
 
 // TODO: Move to a separate file
 describe('No authentication provider', () => {
-  let provider: ethers.providers.Provider;
-  let signer: ethers.Signer;
+  let provider: ethers.providers.Web3Provider;
+  let signer: ethers.providers.JsonRpcSigner;
   let authProviders: Record<string, AuthProvider>;
 
   async function testEIP4361AuthSignature(
@@ -337,8 +333,8 @@ describe('No authentication provider', () => {
   beforeAll(async () => {
     await initialize();
     provider = fakeProvider();
-    signer = fakeSigner();
-    authProviders = await fakeAuthProviders();
+    signer = provider.getSigner();
+    authProviders = await fakeAuthProviders(signer);
   });
 
   it('throws an error if there is no auth provider', () => {

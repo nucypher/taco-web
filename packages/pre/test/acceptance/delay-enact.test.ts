@@ -2,7 +2,6 @@ import {
   bytesEqual,
   fakePorterUri,
   fakeProvider,
-  fakeSigner,
   fakeUrsulas,
   mockGetUrsulas,
 } from '@nucypher/test-utils';
@@ -61,7 +60,7 @@ describe('story: alice creates a policy but someone else enacts it', () => {
 
       const enacted = await preEnactedPolicy.enact(
         provider,
-        fakeSigner(),
+        provider.getSigner(),
         domains.DEVNET,
       );
       expect(enacted.txHash).toBeDefined();

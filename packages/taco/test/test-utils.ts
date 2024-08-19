@@ -27,7 +27,7 @@ import {
 } from '@nucypher/shared';
 import {
   fakeDkgFlow,
-  fakeSigner,
+  fakeProvider,
   fakeTDecFlow,
   TEST_CHAIN_ID,
   TEST_CONTRACT_ADDR,
@@ -84,11 +84,12 @@ export const fakeDkgTDecFlowE2E: (
 ) => {
   const ritual = fakeDkgFlow(variant, ritualId, sharesNum, threshold);
   const dkgPublicKey = ritual.dkg.publicKey();
+  const provider = fakeProvider();
   const thresholdMessageKit = await encryptMessage(
     message,
     dkgPublicKey,
     conditionExpr,
-    fakeSigner(),
+    provider.getSigner(),
   );
 
   const { decryptionShares } = fakeTDecFlow({

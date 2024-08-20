@@ -11,19 +11,15 @@ import {
   fromHexString,
   getPorterUris,
   GlobalAllowListAgent,
+  PorterClient,
   toBytes,
 } from '@nucypher/shared';
-import {
-  AuthProviders,
-  EIP4361_AUTH_METHOD,
-  EIP4361AuthProvider,
-} from '@nucypher/taco-auth';
 import { ethers } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
 
 import { Condition } from './conditions/condition';
 import { ConditionExpression } from './conditions/condition-expr';
-import { CustomContextParam } from './conditions/context';
+import { ConditionContext } from './conditions/context';
 import { DkgClient } from './dkg';
 import { retrieveAndDecrypt } from './tdec';
 
@@ -129,11 +125,9 @@ export const encryptWithPublicKey = async (
  * @param {Domain} domain - Represents the logical network in which the decryption will be performed.
  * Must match the `ritualId`.
  * @param {ThresholdMessageKit} messageKit - The kit containing the message to be decrypted
- * @param authProvider - The authentication provider that will be used to provide the authorization
- * @param {string[]} [porterUris] - The URI(s) for the Porter service. If not provided, a value will be obtained
+ * @param {ConditionContext} context - Optional context data used for decryption time values for the condition(s) within the `messageKit`.
+ * @param {string[]} [porterUris] - Optional URI(s) for the Porter service. If not provided, a value will be obtained
  * from the Domain
- * @param {Record<string, CustomContextParam>} [customParameters] - Optional custom parameters that may be required
- * depending on the condition used
  *
  * @returns {Promise<Uint8Array>} Returns Promise that resolves with a decrypted message
  *
@@ -144,33 +138,26 @@ export const decrypt = async (
   provider: ethers.providers.Provider,
   domain: Domain,
   messageKit: ThresholdMessageKit,
-  authProvider?: EIP4361AuthProvider,
+  context?: ConditionContext,
   porterUris?: string[],
-  customParameters?: Record<string, CustomContextParam>,
 ): Promise<Uint8Array> => {
-  const porterUrisFull: string[] = porterUris ? porterUris : await getPorterUris(domain);
+  const porterUrisFull: string[] = porterUris
+    ? porterUris
+    : await getPorterUris(domain);
+  const porter = new PorterClient(porterUrisFull);
 
   const ritualId = await DkgCoordinatorAgent.getRitualIdFromPublicKey(
     provider,
     domain,
     messageKit.acp.publicKey,
   );
-  const ritual = await DkgClient.getActiveRitual(provider, domain, ritualId);
-  const authProviders: AuthProviders = authProvider
-    ? {
-        [EIP4361_AUTH_METHOD]: authProvider,
-      }
-    : {};
   return retrieveAndDecrypt(
     provider,
     domain,
-    porterUrisFull,
+    porter,
     messageKit,
     ritualId,
-    ritual.sharesNum,
-    ritual.threshold,
-    authProviders,
-    customParameters,
+    context,
   );
 };
 
@@ -200,6 +187,7 @@ export const isAuthorized = async (
     messageKit,
   );
 
+// TODO is this still valid and actually needed? should we remove this?
 export const registerEncrypters = async (
   provider: ethers.providers.Provider,
   signer: ethers.Signer,

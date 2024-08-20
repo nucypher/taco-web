@@ -1,15 +1,16 @@
 import { format } from 'node:util';
 
 import {
+  EIP4361AuthProvider,
+  ThresholdMessageKit,
+  USER_ADDRESS_PARAM_DEFAULT,
   conditions,
   decrypt,
   domains,
-  EIP4361AuthProvider,
   encrypt,
   fromBytes,
   initialize,
   isAuthorized,
-  ThresholdMessageKit,
   toBytes,
   toHexString,
 } from '@nucypher/taco';
@@ -108,17 +109,22 @@ const decryptFromBytes = async (encryptedBytes: Uint8Array) => {
     domain: 'localhost',
     uri: 'http://localhost:3000',
   };
-  const authProvider = new EIP4361AuthProvider(
-    provider,
-    consumerSigner,
-    siweParams,
-  );
-  return decrypt(
-    provider,
-    domain,
-    messageKit,
-    authProvider,
-  );
+  const conditionContext =
+    conditions.context.ConditionContext.fromMessageKit(messageKit);
+
+  // illustrative optional example of checking what context parameters are required
+  // unnecessary if you already know what the condition contains
+  if (
+    conditionContext.requestedContextParameters.has(USER_ADDRESS_PARAM_DEFAULT)
+  ) {
+    const authProvider = new EIP4361AuthProvider(
+      provider,
+      consumerSigner,
+      siweParams,
+    );
+    conditionContext.addAuthProvider(USER_ADDRESS_PARAM_DEFAULT, authProvider);
+  }
+  return decrypt(provider, domain, messageKit, conditionContext);
 };
 
 const runExample = async () => {

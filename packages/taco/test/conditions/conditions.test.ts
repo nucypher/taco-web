@@ -1,4 +1,5 @@
 import { ChainId } from '@nucypher/shared';
+import { AuthProvider, USER_ADDRESS_PARAM_DEFAULT } from '@nucypher/taco-auth';
 import { fakeAuthProviders } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
@@ -8,8 +9,10 @@ import { SUPPORTED_CHAIN_IDS } from '../../src/conditions/const';
 import { ConditionContext } from '../../src/conditions/context';
 
 describe('conditions', () => {
+  let authProviders: Record<string, AuthProvider>;
   beforeAll(async () => {
     await initialize();
+    authProviders = await fakeAuthProviders();
   });
 
   it('creates a complex condition with custom parameters', async () => {
@@ -37,11 +40,13 @@ describe('conditions', () => {
     expect(condition).toBeDefined();
     expect(condition.requiresAuthentication()).toBeTruthy();
 
-    const context = new ConditionContext(
-      condition,
-      { ':time': 100 },
-      fakeAuthProviders(),
+    const context = new ConditionContext(condition);
+    context.addCustomContextParameterValues({ ':time': 100 });
+    context.addAuthProvider(
+      USER_ADDRESS_PARAM_DEFAULT,
+      authProviders[USER_ADDRESS_PARAM_DEFAULT],
     );
+
     expect(context).toBeDefined();
 
     const asObj = await context.toContextParameters();

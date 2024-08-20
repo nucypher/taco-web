@@ -19,12 +19,12 @@ import {
   PorterClient,
   toBytes,
 } from '@nucypher/shared';
-import { AuthProviders } from '@nucypher/taco-auth';
 import { ethers } from 'ethers';
 import { arrayify, keccak256 } from 'ethers/lib/utils';
 
 import { ConditionExpression } from './conditions/condition-expr';
-import { ConditionContext, CustomContextParam } from './conditions/context';
+import { ConditionContext } from './conditions/context';
+import { DkgClient } from './dkg';
 
 const ERR_DECRYPTION_FAILED = (errors: unknown) =>
   `Threshold of responses not met; TACo decryption failed with errors: ${JSON.stringify(
@@ -61,24 +61,18 @@ export const encryptMessage = async (
 export const retrieveAndDecrypt = async (
   provider: ethers.providers.Provider,
   domain: Domain,
-  porterUris: string[],
+  porter: PorterClient,
   thresholdMessageKit: ThresholdMessageKit,
   ritualId: number,
-  sharesNum: number,
-  threshold: number,
-  authProviders?: AuthProviders,
-  customParameters?: Record<string, CustomContextParam>,
+  context?: ConditionContext,
 ): Promise<Uint8Array> => {
   const decryptionShares = await retrieve(
     provider,
     domain,
-    porterUris,
+    porter,
     thresholdMessageKit,
     ritualId,
-    sharesNum,
-    threshold,
-    authProviders,
-    customParameters,
+    context,
   );
   const sharedSecret = combineDecryptionSharesSimple(decryptionShares);
   return thresholdMessageKit.decryptWithSharedSecret(sharedSecret);
@@ -88,25 +82,23 @@ export const retrieveAndDecrypt = async (
 const retrieve = async (
   provider: ethers.providers.Provider,
   domain: Domain,
-  porterUris: string[],
+  porter: PorterClient,
   thresholdMessageKit: ThresholdMessageKit,
   ritualId: number,
-  sharesNum: number,
-  threshold: number,
-  authProviders?: AuthProviders,
-  customParameters?: Record<string, CustomContextParam>,
+  context?: ConditionContext,
 ): Promise<DecryptionShareSimple[]> => {
+  const ritual = await DkgClient.getActiveRitual(provider, domain, ritualId);
+
   const dkgParticipants = await DkgCoordinatorAgent.getParticipants(
     provider,
     domain,
     ritualId,
-    sharesNum,
+    ritual.sharesNum,
   );
-  const conditionContext = await ConditionContext.fromConditions(
-    thresholdMessageKit.acp.conditions,
-    authProviders,
-    customParameters,
-  );
+  const conditionContext = context
+    ? context
+    : ConditionContext.fromMessageKit(thresholdMessageKit);
+
   const { sharedSecrets, encryptedRequests } = await makeDecryptionRequests(
     ritualId,
     conditionContext,
@@ -114,12 +106,11 @@ const retrieve = async (
     thresholdMessageKit,
   );
 
-  const porter = new PorterClient(porterUris);
   const { encryptedResponses, errors } = await porter.tacoDecrypt(
     encryptedRequests,
-    threshold,
+    ritual.threshold,
   );
-  if (Object.keys(encryptedResponses).length < threshold) {
+  if (Object.keys(encryptedResponses).length < ritual.threshold) {
     throw new Error(ERR_DECRYPTION_FAILED(errors));
   }
 

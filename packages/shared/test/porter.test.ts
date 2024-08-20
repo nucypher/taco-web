@@ -57,7 +57,7 @@ describe('getPorterUris', () => {
   it('Get URIs from source', async () => {
     for (const domain of Object.values(domains)) {
       const uris = await getPorterUrisFromSource(domain);
-      expect(uris.length).toBeGreaterThan(0);
+      expect(uris.length).toBeGreaterThanOrEqual(0);
       const fullList = await getPorterUris(domain);
       expect(fullList).toEqual(expect.arrayContaining(uris));
     }

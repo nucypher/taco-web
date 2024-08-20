@@ -18,7 +18,12 @@ export default defineConfig({
       reporter: ['text', 'html', 'lcov', 'clover'],
       reportsDirectory: 'coverage',
       include: ['packages/**/*.ts'],
-      exclude: ['packages/**/*.test.ts'],
+      exclude: [
+        'packages/**/*.test.ts',
+        'packages/taco/examples/*.ts',
+        'packages/shared/scripts/*.ts',
+        'packages/test-utils/**/*.ts',
+      ],
     },
   },
 });

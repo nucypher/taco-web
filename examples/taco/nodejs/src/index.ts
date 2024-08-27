@@ -10,7 +10,6 @@ import {
   encrypt,
   fromBytes,
   initialize,
-  isAuthorized,
   toBytes,
   toHexString,
 } from '@nucypher/taco';
@@ -80,18 +79,6 @@ const encryptToBytes = async (messageString: string) => {
     ritualId,
     encryptorSigner,
   );
-
-  // Note: Not actually needed but used by CI for checking contract compatibility.
-  // Calling it after the encryption because we need material from messageKit.
-  const isEncryptorAuthenticated = await isAuthorized(
-    provider,
-    domain,
-    messageKit,
-    ritualId,
-  );
-  if (!isEncryptorAuthenticated) {
-    throw new Error('Not authorized');
-  }
 
   return messageKit.toBytes();
 };

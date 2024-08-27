@@ -5,12 +5,10 @@ import {
   ThresholdMessageKit,
 } from '@nucypher/nucypher-core';
 import {
-  ChecksumAddress,
   DkgCoordinatorAgent,
   Domain,
   fromHexString,
   getPorterUris,
-  GlobalAllowListAgent,
   PorterClient,
   toBytes,
 } from '@nucypher/shared';
@@ -158,48 +156,5 @@ export const decrypt = async (
     messageKit,
     ritualId,
     context,
-  );
-};
-
-/**
- * Checks if the encryption from the provided messageKit is authorized for the specified ritual.
- *
- * @export
- * @param {ethers.providers.Provider} provider - Instance of ethers provider which is used to interact with
- * your selected network.
- * @param {Domain} domain - The domain which was used to encrypt the network. Must match the `ritualId`.
- * @param {ThresholdMessageKit} messageKit - The encrypted message kit to be checked.
- * @param {number} ritualId - The ID of the DKG Ritual under which the messageKit was supposedly encrypted.
- *
- * @returns {Promise<boolean>} Returns a Promise that resolves with the authorization status.
- * True if authorized, false otherwise
- */
-export const isAuthorized = async (
-  provider: ethers.providers.Provider,
-  domain: Domain,
-  messageKit: ThresholdMessageKit,
-  ritualId: number,
-): Promise<boolean> =>
-  DkgCoordinatorAgent.isEncryptionAuthorized(
-    provider,
-    domain,
-    ritualId,
-    messageKit,
-  );
-
-// TODO is this still valid and actually needed? should we remove this?
-export const registerEncrypters = async (
-  provider: ethers.providers.Provider,
-  signer: ethers.Signer,
-  domain: Domain,
-  ritualId: number,
-  encrypters: ChecksumAddress[],
-): Promise<void> => {
-  await GlobalAllowListAgent.registerEncrypters(
-    provider,
-    signer,
-    domain,
-    ritualId,
-    encrypters,
   );
 };

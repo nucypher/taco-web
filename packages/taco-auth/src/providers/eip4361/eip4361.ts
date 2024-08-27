@@ -52,13 +52,32 @@ export class EIP4361AuthProvider {
     // If we have a signature in localStorage, return it
     const maybeSignature = this.storage.getAuthSignature(storageKey);
     if (maybeSignature) {
-      return maybeSignature;
+      // check whether older than node freshness requirement
+      if (this.isMessageExpired(maybeSignature.typedData)) {
+        // clear signature so that it will be recreated and stored
+        this.storage.clear(storageKey);
+      } else {
+        return maybeSignature;
+      }
     }
 
     // If at this point we didn't return, we need to create a new message
     const authMessage = await this.createSIWEAuthMessage();
     this.storage.setAuthSignature(storageKey, authMessage);
     return authMessage;
+  }
+
+  private isMessageExpired(message: string): boolean {
+    const siweMessage = new SiweMessage(message);
+    if (!siweMessage.issuedAt) {
+      // don't expect to ever happen; but just in case
+      return false;
+    }
+
+    const twoHourWindow = new Date(siweMessage.issuedAt);
+    twoHourWindow.setHours(twoHourWindow.getHours() + 2);
+    const now = new Date();
+    return twoHourWindow < now;
   }
 
   private async createSIWEAuthMessage(): Promise<AuthSignature> {

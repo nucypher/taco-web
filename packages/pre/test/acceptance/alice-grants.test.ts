@@ -10,7 +10,6 @@ import {
   bytesEqual,
   fakePorterUri,
   fakeProvider,
-  fakeSigner,
   fakeUrsulas,
   fromBytes,
   mockGetUrsulas,
@@ -70,9 +69,10 @@ describe('story: alice shares message with bob through policy', () => {
       startDate,
       endDate,
     };
+    const provider = fakeProvider();
     policy = await alice.grant(
-      fakeProvider(),
-      fakeSigner(),
+      provider,
+      provider.getSigner(),
       domains.DEVNET,
       fakePorterUri,
       policyParams,

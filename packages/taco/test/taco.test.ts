@@ -10,7 +10,6 @@ import {
   fakeDkgFlow,
   fakePorterUri,
   fakeProvider,
-  fakeSigner,
   fakeTDecFlow,
   mockGetRitualIdFromPublicKey,
   mockTacoDecrypt,
@@ -48,7 +47,7 @@ describe('taco', () => {
     const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
     const mockedDkgRitual = fakeDkgRitual(mockedDkg);
     const provider = fakeProvider(aliceSecretKeyBytes);
-    const signer = fakeSigner(aliceSecretKeyBytes);
+    const signer = provider.getSigner();
     const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);
 
     const messageKit = await taco.encrypt(
@@ -110,7 +109,7 @@ describe('taco', () => {
     const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
     const mockedDkgRitual = fakeDkgRitual(mockedDkg);
     const provider = fakeProvider(aliceSecretKeyBytes);
-    const signer = fakeSigner(aliceSecretKeyBytes);
+    const signer = provider.getSigner();
     const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);
 
     const customParamKey = ':nftId';

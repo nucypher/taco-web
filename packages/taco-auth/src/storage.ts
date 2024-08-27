@@ -4,6 +4,8 @@ interface IStorage {
   getItem(key: string): string | null;
 
   setItem(key: string, value: string): void;
+
+  removeItem(key: string): void;
 }
 
 class BrowserStorage implements IStorage {
@@ -13,6 +15,10 @@ class BrowserStorage implements IStorage {
 
   public setItem(key: string, value: string): void {
     localStorage.setItem(key, value);
+  }
+
+  public removeItem(key: string): void {
+    localStorage.removeItem(key);
   }
 }
 
@@ -25,6 +31,10 @@ class NodeStorage implements IStorage {
 
   public setItem(key: string, value: string): void {
     this.storage[key] = value;
+  }
+
+  public removeItem(key: string) {
+    delete this.storage[key];
   }
 }
 
@@ -49,5 +59,9 @@ export class LocalStorage {
   public setAuthSignature(key: string, authSignature: AuthSignature): void {
     const asJson = JSON.stringify(authSignature);
     this.storage.setItem(key, asJson);
+  }
+
+  public clear(key: string): void {
+    this.storage.removeItem(key);
   }
 }

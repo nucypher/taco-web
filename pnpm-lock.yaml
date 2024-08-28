@@ -495,8 +495,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@nucypher/nucypher-contracts':
-        specifier: ^0.22.0
-        version: 0.22.0
+        specifier: ^0.23.0
+        version: 0.23.0
       '@nucypher/nucypher-core':
         specifier: ^0.14.5
         version: 0.14.5
@@ -2224,6 +2224,9 @@ packages:
 
   '@nucypher/nucypher-contracts@0.22.0':
     resolution: {integrity: sha512-poWxFBi2qL5KnPZYsqr4AWn/O26Z2Q6X9EoARjQZIZdcEqYvE6iMHHgiw/RKL036u1jh1/rzo44eZRCt6ErMpA==}
+
+  '@nucypher/nucypher-contracts@0.23.0':
+    resolution: {integrity: sha512-vilcgICbFzSP2x5otEJHzmaKsbX4t6DIU8aj4U33taTeCdR62LDFS6tCG1r+XzgSmIJZO8ksO5bGzaEHF+r1Ww==}
 
   '@nucypher/nucypher-core@0.14.5':
     resolution: {integrity: sha512-Q3kBuJL0qtTtnxrM5DEQauQUvDlXmwubm9u1h7gbyLhs+aZNC9WDyjEUbE43+uahlHu4k1hKEMxD1gjV165ChA==}
@@ -11101,6 +11104,8 @@ snapshots:
       fastq: 1.17.1
 
   '@nucypher/nucypher-contracts@0.22.0': {}
+
+  '@nucypher/nucypher-contracts@0.23.0': {}
 
   '@nucypher/nucypher-core@0.14.5': {}
 

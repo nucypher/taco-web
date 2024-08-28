@@ -74,10 +74,12 @@ export class DkgCoordinatorAgent {
     providers: ChecksumAddress[],
     authority: string,
     duration: BigNumberish,
+    feeModel: string,
     accessController: string,
   ): Promise<number> {
     const coordinator = await this.connectReadWrite(provider, domain, signer);
     const tx = await coordinator.initiateRitual(
+      feeModel,
       providers,
       authority,
       duration,

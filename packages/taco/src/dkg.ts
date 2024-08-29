@@ -73,6 +73,7 @@ export class DkgClient {
     ursulas: ChecksumAddress[],
     authority: string,
     duration: BigNumberish,
+    feeModel: string,
     accessController: string,
     waitUntilEnd = false,
   ): Promise<number | undefined> {
@@ -83,6 +84,7 @@ export class DkgClient {
       ursulas.sort(), // Contract call requires sorted addresses
       authority,
       duration,
+      feeModel,
       accessController,
     );
 

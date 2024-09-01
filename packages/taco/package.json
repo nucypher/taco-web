@@ -43,7 +43,7 @@
     "@nucypher/shared": "workspace:*",
     "@nucypher/taco-auth": "workspace:*",
     "ethers": "*",
-    "semver": "^7.5.2",
+    "semver": "^7.6.3",
     "zod": "*"
   },
   "devDependencies": {

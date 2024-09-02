@@ -2,12 +2,14 @@ import {
   conditions,
   decrypt,
   Domain,
-  EIP4361AuthProvider,
   encrypt,
   initialize,
   ThresholdMessageKit,
-  USER_ADDRESS_PARAM_DEFAULT,
 } from '@nucypher/taco';
+import {
+  EIP4361AuthProvider,
+  USER_ADDRESS_PARAM_DEFAULT,
+} from '@nucypher/taco-auth';
 import { ethers } from 'ethers';
 import { useCallback, useEffect, useState } from 'react';
 

@@ -1,16 +1,18 @@
 import { ChainId } from '@nucypher/shared';
+import {
+  EIP4361AuthProvider,
+  USER_ADDRESS_PARAM_DEFAULT,
+} from  '@nucypher/taco-auth';
 import { ethers } from 'ethers';
 
 import {
   conditions,
   decrypt,
   domains,
-  EIP4361AuthProvider,
   encrypt,
   initialize,
   ThresholdMessageKit,
   toBytes,
-  USER_ADDRESS_PARAM_DEFAULT,
 } from '../src';
 
 const ritualId = 1;

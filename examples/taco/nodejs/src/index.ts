@@ -1,9 +1,7 @@
 import { format } from 'node:util';
 
 import {
-  EIP4361AuthProvider,
   ThresholdMessageKit,
-  USER_ADDRESS_PARAM_DEFAULT,
   conditions,
   decrypt,
   domains,
@@ -13,6 +11,10 @@ import {
   toBytes,
   toHexString,
 } from '@nucypher/taco';
+import {
+  EIP4361AuthProvider,
+  USER_ADDRESS_PARAM_DEFAULT,
+} from '@nucypher/taco-auth';
 import * as dotenv from 'dotenv';
 import { ethers } from 'ethers';
 

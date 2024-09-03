@@ -2,13 +2,15 @@ import {
   conditions,
   decrypt,
   domains,
-  EIP4361AuthProvider,
   encrypt,
   fromBytes,
   initialize,
   toBytes,
-  USER_ADDRESS_PARAM_DEFAULT,
 } from '@nucypher/taco';
+import {
+  EIP4361AuthProvider,
+  USER_ADDRESS_PARAM_DEFAULT,
+} from '@nucypher/taco-auth';
 import { ethers } from 'ethers';
 import { hexlify } from 'ethers/lib/utils';
 

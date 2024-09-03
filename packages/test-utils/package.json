@@ -32,7 +32,7 @@
     "@nucypher/nucypher-core": "*",
     "@nucypher/shared": "workspace:*",
     "@nucypher/taco-auth": "workspace:*",
-    "axios": "^1.6.8",
+    "axios": "^1.7.4",
     "ethers": "^5.7.2",
     "vitest": "*"
   },

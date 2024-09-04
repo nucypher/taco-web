@@ -1,6 +1,6 @@
 {
   "name": "@nucypher/taco-auth",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "keywords": [
     "pre",
     "threshold",
@@ -12,7 +12,7 @@
     "url": "https://github.com/nucypher/taco-web"
   },
   "license": "GPL-3.0-only",
-  "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
+  "author": "NuCypher <dev@nucypher.com>",
   "exports": {
     ".": {
       "import": "./dist/es/index.js",

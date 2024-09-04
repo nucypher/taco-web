@@ -7,6 +7,10 @@ import {
   ThresholdMessageKit,
   toHexString,
 } from '@nucypher/taco';
+import {
+  EIP4361AuthProvider,
+  USER_ADDRESS_PARAM_DEFAULT,
+} from '@nucypher/taco-auth';
 import { useEthers } from '@usedapp/core';
 import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
@@ -84,12 +88,26 @@ export default function App() {
       Buffer.from(encryptedMessageHex, 'hex'),
     );
 
+    // create condition context
+    const conditionContext = conditions.context.ConditionContext.fromMessageKit(encryptedMessage);
+
+    // illustrative optional example of checking what context parameters are required
+    if (
+      conditionContext.requestedContextParameters.has(USER_ADDRESS_PARAM_DEFAULT)
+    ) {
+      // add authentication for ":userAddress" in condition
+      const authProvider = new EIP4361AuthProvider(
+        provider,
+        provider.getSigner()
+      );
+      conditionContext.addAuthProvider(USER_ADDRESS_PARAM_DEFAULT, authProvider);
+    }
+
     const decryptedMessage = await decrypt(
       provider,
       domain,
       encryptedMessage,
-      undefined,
-      provider.getSigner(),
+      conditionContext,
     );
 
     setDecryptedMessage(new TextDecoder().decode(decryptedMessage));

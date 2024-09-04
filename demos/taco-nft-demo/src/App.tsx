@@ -6,6 +6,10 @@ import {
   initialize,
   ThresholdMessageKit,
 } from '@nucypher/taco';
+import {
+  EIP4361AuthProvider,
+  USER_ADDRESS_PARAM_DEFAULT,
+} from '@nucypher/taco-auth';
 import { useEthers } from '@usedapp/core';
 import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
@@ -73,12 +77,27 @@ export default function App() {
     setDecryptionErrors([]);
 
     const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+    // create condition context
+    const conditionContext = conditions.context.ConditionContext.fromMessageKit(encryptedMessage);
+
+    // illustrative optional example of checking what context parameters are required
+    if (
+      conditionContext.requestedContextParameters.has(USER_ADDRESS_PARAM_DEFAULT)
+    ) {
+      // add authentication for ":userAddress" in condition
+      const authProvider = new EIP4361AuthProvider(
+        provider,
+        provider.getSigner()
+      );
+      conditionContext.addAuthProvider(USER_ADDRESS_PARAM_DEFAULT, authProvider);
+    }
+
     const decryptedMessage = await decrypt(
       provider,
       domain,
       encryptedMessage,
-      undefined,
-      provider.getSigner()
+      conditionContext,
     );
 
     setDecryptedMessage(new TextDecoder().decode(decryptedMessage));
@@ -109,7 +128,7 @@ export default function App() {
       <h2>Notice</h2>
       <p>
         In production (mainnet domain), your wallet address (encryptor) will also have
-        to be allow-listed for this specific ritual. However, we have 
+        to be allow-listed for this specific ritual. However, we have
         <a href={'https://docs.threshold.network/app-development/threshold-access-control-tac/integration-guide/get-started-with-tac#testnet-configuration'}>publicly available testnet rituals</a>
         for use when developing your apps.
       </p>

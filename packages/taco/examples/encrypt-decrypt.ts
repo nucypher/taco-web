@@ -2,7 +2,7 @@ import { ChainId } from '@nucypher/shared';
 import {
   EIP4361AuthProvider,
   USER_ADDRESS_PARAM_DEFAULT,
-} from  '@nucypher/taco-auth';
+} from '@nucypher/taco-auth';
 import { ethers } from 'ethers';
 
 import {

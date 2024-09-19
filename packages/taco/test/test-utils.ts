@@ -51,6 +51,10 @@ import {
 } from '../src/conditions/base/time';
 import { ConditionExpression } from '../src/conditions/condition-expr';
 import { ERC721Balance } from '../src/conditions/predefined/erc721';
+import {
+  SequentialConditionProps,
+  SequentialConditionType,
+} from '../src/conditions/sequential';
 import { ReturnValueTestProps } from '../src/conditions/shared';
 import { DkgClient, DkgRitual } from '../src/dkg';
 import { encryptMessage } from '../src/tdec';
@@ -251,6 +255,24 @@ export const testContractConditionObj: ContractConditionProps = {
   method: 'balanceOf',
   parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
   returnValueTest: testReturnValueTest,
+};
+
+export const testSequentialConditionObj: SequentialConditionProps = {
+  conditionType: SequentialConditionType,
+  conditionVariables: [
+    {
+      varName: 'rpc',
+      condition: testRpcConditionObj,
+    },
+    {
+      varName: 'time',
+      condition: testTimeConditionObj,
+    },
+    {
+      varName: 'contract',
+      condition: testContractConditionObj,
+    },
+  ],
 };
 
 export const testFunctionAbi: FunctionAbiProps = {

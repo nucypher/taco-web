@@ -29,6 +29,7 @@ export const compoundConditionSchema: z.ZodSchema = z
       )
       .min(1)
       .max(5),
+      // TODO nesting validation
   })
   .refine(
     (condition) => {

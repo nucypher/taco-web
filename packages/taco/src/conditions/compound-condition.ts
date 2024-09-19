@@ -1,9 +1,7 @@
 import { z } from 'zod';
 
-import { contractConditionSchema } from './base/contract';
-import { rpcConditionSchema } from './base/rpc';
-import { timeConditionSchema } from './base/time';
 import { Condition, ConditionProps } from './condition';
+import { commonConditionSchema } from './multi-condition';
 import { OmitConditionType } from './shared';
 
 export const CompoundConditionType = 'compound';
@@ -14,18 +12,7 @@ export const compoundConditionSchema: z.ZodSchema = z
       .literal(CompoundConditionType)
       .default(CompoundConditionType),
     operator: z.enum(['and', 'or', 'not']),
-    operands: z
-      .array(
-        z.lazy(() =>
-          z.union([
-            rpcConditionSchema,
-            timeConditionSchema,
-            contractConditionSchema,
-            compoundConditionSchema,
-          ]),
-        ),
-      )
-      .min(1),
+    operands: z.array(commonConditionSchema).min(1).max(5),
   })
   .refine(
     (condition) => {

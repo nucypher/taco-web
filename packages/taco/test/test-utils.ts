@@ -48,6 +48,10 @@ import {
   TimeConditionProps,
   TimeConditionType,
 } from '../src/conditions/base/time';
+import {
+  CompoundConditionProps,
+  CompoundConditionType,
+} from '../src/conditions/compound-condition';
 import { ConditionExpression } from '../src/conditions/condition-expr';
 import { ERC721Balance } from '../src/conditions/predefined/erc721';
 import {
@@ -243,6 +247,16 @@ export const testContractConditionObj: ContractConditionProps = {
   method: 'balanceOf',
   parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
   returnValueTest: testReturnValueTest,
+};
+
+export const testCompoundConditionObj: CompoundConditionProps = {
+  conditionType: CompoundConditionType,
+  operator: 'or',
+  operands: [
+    testRpcConditionObj,
+    testTimeConditionObj,
+    testContractConditionObj,
+  ],
 };
 
 export const testSequentialConditionObj: SequentialConditionProps = {

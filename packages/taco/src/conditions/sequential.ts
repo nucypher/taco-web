@@ -5,6 +5,7 @@ import { rpcConditionSchema } from './base/rpc';
 import { timeConditionSchema } from './base/time';
 import { compoundConditionSchema } from './compound-condition';
 import { baseConditionSchema, Condition } from './condition';
+import { maxNestedDepth } from './multi-condition';
 import { OmitConditionType, plainStringSchema } from './shared';
 
 export const SequentialConditionType = 'sequential';
@@ -22,14 +23,22 @@ export const conditionVariableSchema: z.ZodSchema = z.object({
   ),
 });
 
-export const sequentialConditionSchema: z.ZodSchema =
-  baseConditionSchema.extend({
+export const sequentialConditionSchema: z.ZodSchema = baseConditionSchema
+  .extend({
     conditionType: z
       .literal(SequentialConditionType)
       .default(SequentialConditionType),
     conditionVariables: z.array(conditionVariableSchema).min(2).max(5),
-    // TODO nesting validation
-  });
+  })
+  .refine(
+    (condition) => maxNestedDepth(2)(condition),
+    {
+      message: 'Exceeded max nested depth of 2 for multi-condition type',
+      path: ['conditionVariables'],
+    }, // Max nested depth of 2
+  );
+
+export type ConditionVariableProps = z.infer<typeof conditionVariableSchema>;
 
 export type SequentialConditionProps = z.infer<
   typeof sequentialConditionSchema

@@ -4,6 +4,7 @@ import { contractConditionSchema } from './base/contract';
 import { rpcConditionSchema } from './base/rpc';
 import { timeConditionSchema } from './base/time';
 import { baseConditionSchema, Condition, ConditionProps } from './condition';
+import { maxNestedDepth } from './multi-condition';
 import { sequentialConditionSchema } from './sequential';
 import { OmitConditionType } from './shared';
 
@@ -29,7 +30,6 @@ export const compoundConditionSchema: z.ZodSchema = baseConditionSchema
       )
       .min(1)
       .max(5),
-    // TODO nesting validation
   })
   .refine(
     (condition) => {
@@ -50,6 +50,13 @@ export const compoundConditionSchema: z.ZodSchema = baseConditionSchema
       message: `Invalid number of operands ${operands.length} for operator "${operator}"`,
       path: ['operands'],
     }),
+  )
+  .refine(
+    (condition) => maxNestedDepth(2)(condition),
+    {
+      message: 'Exceeded max nested depth of 2 for multi-condition type',
+      path: ['operands'],
+    }, // Max nested depth of 2
   );
 
 export type CompoundConditionProps = z.infer<typeof compoundConditionSchema>;

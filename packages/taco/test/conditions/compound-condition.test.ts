@@ -194,6 +194,56 @@ describe('validation', () => {
     });
   });
 
+  it('limits max depth of nested compound condition', () => {
+    const result = CompoundCondition.validate(compoundConditionSchema, {
+      operator: 'or',
+      operands: [
+        testRpcConditionObj,
+        testContractConditionObj,
+        {
+          conditionType: CompoundConditionType,
+          operator: 'and',
+          operands: [
+            testTimeConditionObj,
+            {
+              conditionType: CompoundConditionType,
+              operator: 'or',
+              operands: [testTimeConditionObj, testRpcConditionObj],
+            },
+          ],
+        },
+      ],
+    });
+    expect(result.error).toBeDefined();
+    expect(result.data).toBeUndefined();
+    expect(result.error?.format()).toMatchObject({
+      operands: {
+        _errors: [`Exceeded max nested depth of 2 for multi-condition type`],
+      },
+    });
+  });
+  it('limits max depth of nested sequential condition', () => {
+    const result = CompoundCondition.validate(compoundConditionSchema, {
+      operator: 'or',
+      operands: [
+        testRpcConditionObj,
+        testContractConditionObj,
+        {
+          conditionType: CompoundConditionType,
+          operator: 'not',
+          operands: [testSequentialConditionObj],
+        },
+      ],
+    });
+    expect(result.error).toBeDefined();
+    expect(result.data).toBeUndefined();
+    expect(result.error?.format()).toMatchObject({
+      operands: {
+        _errors: ['Exceeded max nested depth of 2 for multi-condition type'],
+      },
+    });
+  });
+
   const multichainCondition: CompoundConditionProps = {
     conditionType: CompoundConditionType,
     operator: 'and',

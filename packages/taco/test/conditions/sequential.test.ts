@@ -62,6 +62,33 @@ describe('validation', () => {
     });
   });
 
+  it('rejects duplication variable names', () => {
+    const result = SequentialCondition.validate(sequentialConditionSchema, {
+      conditionVariables: [
+        {
+          varName: 'var1',
+          condition: testRpcConditionObj,
+        },
+        {
+          varName: 'var2',
+          condition: testTimeConditionObj,
+        },
+        {
+          varName: 'var1',
+          condition: testContractConditionObj,
+        },
+      ],
+    });
+
+    expect(result.error).toBeDefined();
+    expect(result.data).toBeUndefined();
+    expect(result.error?.format()).toMatchObject({
+      conditionVariables: {
+        _errors: ['Duplicate variable names are not allowed'],
+      },
+    });
+  });
+
   it('rejects > max number of condition variables', () => {
     const tooManyConditionVariables = new Array(6);
     for (let i = 0; i < tooManyConditionVariables.length; i++) {
@@ -78,7 +105,7 @@ describe('validation', () => {
     expect(result.data).toBeUndefined();
     expect(result.error?.format()).toMatchObject({
       conditionVariables: {
-        _errors: [`Array must contain at most 5 element(s)`],
+        _errors: ['Array must contain at most 5 element(s)'],
       },
     });
   });

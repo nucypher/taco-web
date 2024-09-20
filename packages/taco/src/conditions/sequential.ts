@@ -36,6 +36,25 @@ export const sequentialConditionSchema: z.ZodSchema = baseConditionSchema
       message: 'Exceeded max nested depth of 2 for multi-condition type',
       path: ['conditionVariables'],
     }, // Max nested depth of 2
+  )
+  .refine(
+    // check for duplicate var names
+    (condition) => {
+      const seen = new Set();
+      return condition.conditionVariables.every(
+        (child: ConditionVariableProps) => {
+          if (seen.has(child.varName)) {
+            return false;
+          }
+          seen.add(child.varName);
+          return true;
+        },
+      );
+    },
+    {
+      message: 'Duplicate variable names are not allowed',
+      path: ['conditionVariables'],
+    },
   );
 
 export type ConditionVariableProps = z.infer<typeof conditionVariableSchema>;

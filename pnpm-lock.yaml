@@ -62,8 +62,8 @@ importers:
         specifier: ^3.1.0
         version: 3.1.0
       eslint-plugin-simple-import-sort:
-        specifier: ^10.0.0
-        version: 10.0.0(eslint@8.57.0)
+        specifier: ^12.1.1
+        version: 12.1.1(eslint@8.57.0)
       eslint-plugin-unused-imports:
         specifier: ^3.2.0
         version: 3.2.0(@typescript-eslint/eslint-plugin@6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)
@@ -1961,6 +1961,7 @@ packages:
   '@irys/sdk@0.1.24':
     resolution: {integrity: sha512-8vpgd4o/B1KaChPDgSBcLjAJapi16t/6wlV0SIPEJefbPdDKVuPyK36N3SlFeMkYexrBdqQOkLomHxBaWs0pLA==}
     engines: {node: '>=16.10.0'}
+    deprecated: 'Arweave support is deprecated - We recommend migrating to the Irys datachain: https://migrate-to.irys.xyz/'
     hasBin: true
 
   '@isaacs/cliui@8.0.2':
@@ -4629,8 +4630,8 @@ packages:
     peerDependencies:
       eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8
 
-  eslint-plugin-simple-import-sort@10.0.0:
-    resolution: {integrity: sha512-AeTvO9UCMSNzIHRkg8S6c3RPy5YEwKWSQPx3DYghLedo2ZQxowPFLGDN1AZ2evfg6r6mjBSZSLxLFsWSu3acsw==}
+  eslint-plugin-simple-import-sort@12.1.1:
+    resolution: {integrity: sha512-6nuzu4xwQtE3332Uz0to+TxDQYRLTKRESSc2hefVT48Zc8JthmN23Gx9lnYhu0FtkRSL1oxny3kJ2aveVhmOVA==}
     peerDependencies:
       eslint: '>=5.0.0'
 
@@ -4936,6 +4937,7 @@ packages:
   follow-redirects@1.15.8:
     resolution: {integrity: sha512-xgrmBhBToVKay1q2Tao5LI26B83UhrB/vM1avwVSDzt8rx3rO6AizBAaF46EgksTVr+rFTQaqZZ9MVBfUe4nig==}
     engines: {node: '>=4.0'}
+    deprecated: Browser detection issues fixed in v1.15.9
     peerDependencies:
       debug: '*'
     peerDependenciesMeta:
@@ -14361,7 +14363,7 @@ snapshots:
       semver: 6.3.1
       string.prototype.matchall: 4.0.10
 
-  eslint-plugin-simple-import-sort@10.0.0(eslint@8.57.0):
+  eslint-plugin-simple-import-sort@12.1.1(eslint@8.57.0):
     dependencies:
       eslint: 8.57.0
 

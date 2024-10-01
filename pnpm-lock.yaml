@@ -599,8 +599,8 @@ importers:
         specifier: ^2.3.2
         version: 2.3.2(ethers@5.7.2)
       zod:
-        specifier: ^3.22.4
-        version: 3.22.4
+        specifier: ^3.23.8
+        version: 3.23.8
     devDependencies:
       '@nucypher/test-utils':
         specifier: workspace:*

@@ -54,7 +54,7 @@
     "@nucypher/test-utils": "workspace:*",
     "@typechain/ethers-v5": "^11.1.2",
     "@types/deep-equal": "^1.0.3",
-    "@types/qs": "^6.9.15",
+    "@types/qs": "^6.9.16",
     "@types/tmp": "^0.2.6",
     "cz-conventional-changelog": "^3.0.1",
     "standard-version": "^9.0.0",

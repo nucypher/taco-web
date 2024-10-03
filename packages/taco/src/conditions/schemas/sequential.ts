@@ -7,10 +7,12 @@ import { anyConditionSchema } from './utils';
 
 export const SequentialConditionType = 'sequential';
 
-export const conditionVariableSchema: z.ZodSchema = z.object({
-  varName: plainStringSchema,
-  condition: anyConditionSchema,
-});
+export const conditionVariableSchema: z.ZodSchema = z.lazy(() =>
+  z.object({
+    varName: plainStringSchema,
+    condition: anyConditionSchema,
+  }),
+);
 export type ConditionVariableProps = z.infer<typeof conditionVariableSchema>;
 
 export const sequentialConditionSchema: z.ZodSchema = baseConditionSchema

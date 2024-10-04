@@ -12,6 +12,7 @@ import { SUPPORTED_CHAIN_IDS } from '../../src/conditions/const';
 import {
   testContractConditionObj,
   testRpcConditionObj,
+  testSequentialConditionObj,
   testTimeConditionObj,
 } from '../test-utils';
 
@@ -97,7 +98,31 @@ describe('validation', () => {
     },
   );
 
-  it('accepts recursive compound conditions', () => {
+  it.each([
+    {
+      operator: 'and',
+      numOperands: 6,
+    },
+    {
+      operator: 'or',
+      numOperands: 6,
+    },
+  ])('rejects > max number of operands', ({ operator, numOperands }) => {
+    const result = CompoundCondition.validate(compoundConditionSchema, {
+      operator,
+      operands: Array(numOperands).fill(testContractConditionObj),
+    });
+
+    expect(result.error).toBeDefined();
+    expect(result.data).toBeUndefined();
+    expect(result.error?.format()).toMatchObject({
+      operands: {
+        _errors: [`Array must contain at most 5 element(s)`],
+      },
+    });
+  });
+
+  it('accepts nested compound conditions', () => {
     const conditionObj = {
       conditionType: CompoundConditionType,
       operator: 'and',
@@ -129,6 +154,93 @@ describe('validation', () => {
           operands: [testTimeConditionObj, testContractConditionObj],
         },
       ],
+    });
+  });
+
+  it('accepts nested sequential and compound conditions', () => {
+    const conditionObj = {
+      conditionType: CompoundConditionType,
+      operator: 'or',
+      operands: [
+        testContractConditionObj,
+        testTimeConditionObj,
+        testRpcConditionObj,
+        {
+          operator: 'or',
+          operands: [testTimeConditionObj, testContractConditionObj],
+        },
+        testSequentialConditionObj,
+      ],
+    };
+    const result = CompoundCondition.validate(
+      compoundConditionSchema,
+      conditionObj,
+    );
+    expect(result.error).toBeUndefined();
+    expect(result.data).toEqual({
+      conditionType: CompoundConditionType,
+      operator: 'or',
+      operands: [
+        testContractConditionObj,
+        testTimeConditionObj,
+        testRpcConditionObj,
+        {
+          conditionType: CompoundConditionType,
+          operator: 'or',
+          operands: [testTimeConditionObj, testContractConditionObj],
+        },
+        testSequentialConditionObj,
+      ],
+    });
+  });
+
+  it('limits max depth of nested compound condition', () => {
+    const result = CompoundCondition.validate(compoundConditionSchema, {
+      operator: 'or',
+      operands: [
+        testRpcConditionObj,
+        testContractConditionObj,
+        {
+          conditionType: CompoundConditionType,
+          operator: 'and',
+          operands: [
+            testTimeConditionObj,
+            {
+              conditionType: CompoundConditionType,
+              operator: 'or',
+              operands: [testTimeConditionObj, testRpcConditionObj],
+            },
+          ],
+        },
+      ],
+    });
+    expect(result.error).toBeDefined();
+    expect(result.data).toBeUndefined();
+    expect(result.error?.format()).toMatchObject({
+      operands: {
+        _errors: [`Exceeded max nested depth of 2 for multi-condition type`],
+      },
+    });
+  });
+  it('limits max depth of nested sequential condition', () => {
+    const result = CompoundCondition.validate(compoundConditionSchema, {
+      operator: 'or',
+      operands: [
+        testRpcConditionObj,
+        testContractConditionObj,
+        {
+          conditionType: CompoundConditionType,
+          operator: 'not',
+          operands: [testSequentialConditionObj],
+        },
+      ],
+    });
+    expect(result.error).toBeDefined();
+    expect(result.data).toBeUndefined();
+    expect(result.error?.format()).toMatchObject({
+      operands: {
+        _errors: ['Exceeded max nested depth of 2 for multi-condition type'],
+      },
     });
   });
 

@@ -39,6 +39,7 @@ import {
   ContractConditionType,
   FunctionAbiProps,
 } from '../src/conditions/base/contract';
+import { JsonApiConditionType } from '../src/conditions/base/json-api';
 import {
   RpcConditionProps,
   RpcConditionType,
@@ -221,6 +222,17 @@ export const testTimeConditionObj: TimeConditionProps = {
   },
   method: TimeConditionMethod,
   chain: TEST_CHAIN_ID,
+};
+
+export const testJsonApiConditionObj = {
+  conditionType: JsonApiConditionType,
+  endpoint: 'https://_this_would_totally_fail.com',
+  parameters: {
+    ids: 'ethereum',
+    vs_currencies: 'usd',
+  },
+  query: '$.ethereum.usd',
+  returnValueTest: testReturnValueTest,
 };
 
 export const testRpcConditionObj: RpcConditionProps = {

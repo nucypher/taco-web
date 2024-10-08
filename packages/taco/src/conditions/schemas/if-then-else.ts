@@ -18,9 +18,32 @@ export const ifThenElseConditionSchema: z.ZodSchema = z.lazy(() =>
       elseCondition: z.union([anyConditionSchema, z.boolean()]),
     })
     .refine(
-      (condition) => maxNestedDepth(2)(condition),
+      // already at 2nd level since checking member condition
+      (condition) => maxNestedDepth(2)(condition.ifCondition, 2),
       {
         message: 'Exceeded max nested depth of 2 for multi-condition type',
+        path: ['ifCondition'],
+      }, // Max nested depth of 2
+    )
+    .refine(
+      // already at 2nd level since checking member condition
+      (condition) => maxNestedDepth(2)(condition.thenCondition, 2),
+      {
+        message: 'Exceeded max nested depth of 2 for multi-condition type',
+        path: ['thenCondition'],
+      }, // Max nested depth of 2
+    )
+    .refine(
+      (condition) => {
+        if (typeof condition.elseCondition !== 'boolean') {
+          // already at 2nd level since checking member condition
+          return maxNestedDepth(2)(condition.elseCondition, 2);
+        }
+        return true;
+      },
+      {
+        message: 'Exceeded max nested depth of 2 for multi-condition type',
+        path: ['elseCondition'],
       }, // Max nested depth of 2
     ),
 );

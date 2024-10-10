@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@irys/sdk": "^0.1.24",
-    "@nucypher/taco": "^0.5.0",
-    "@nucypher/taco-auth": "^0.2.0",
+    "@nucypher/taco": "^1.0.0",
+    "@nucypher/taco-auth": "^0.2.1",
     "@usedapp/core": "^1.2.16",
     "buffer": "^6.0.3",
     "ethers": "^5.7.2",

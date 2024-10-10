@@ -9,6 +9,7 @@ import {
   ContractCondition,
   ContractConditionProps,
 } from '../../src/conditions/base/contract';
+import { JsonApiCondition } from '../../src/conditions/base/json-api';
 import { RpcCondition, RpcConditionType } from '../../src/conditions/base/rpc';
 import {
   TimeCondition,
@@ -20,6 +21,7 @@ import { ERC721Balance } from '../../src/conditions/predefined/erc721';
 import {
   testContractConditionObj,
   testFunctionAbi,
+  testJsonApiConditionObj,
   testReturnValueTest,
   testRpcConditionObj,
   testTimeConditionObj,
@@ -56,6 +58,7 @@ describe('condition set', () => {
 
   const rpcCondition = new RpcCondition(testRpcConditionObj);
   const timeCondition = new TimeCondition(testTimeConditionObj);
+  const jsonApiCondition = new JsonApiCondition(testJsonApiConditionObj);
   const compoundCondition = new CompoundCondition({
     operator: 'and',
     operands: [
@@ -399,6 +402,26 @@ describe('condition set', () => {
         ConditionExpression.fromJSON(conditionExprJson);
       expect(conditionExprFromJson).toBeDefined();
       expect(conditionExprFromJson.condition).toBeInstanceOf(RpcCondition);
+    });
+
+    it('json api condition serialization', () => {
+      const conditionExpr = new ConditionExpression(jsonApiCondition);
+
+      const conditionExprJson = conditionExpr.toJson();
+      expect(conditionExprJson).toBeDefined();
+      expect(conditionExprJson).toContain('endpoint');
+      expect(conditionExprJson).toContain(
+        'https://_this_would_totally_fail.com',
+      );
+      expect(conditionExprJson).toContain('parameters');
+      expect(conditionExprJson).toContain('query');
+      expect(conditionExprJson).toContain('$.ethereum.usd');
+      expect(conditionExprJson).toContain('returnValueTest');
+
+      const conditionExprFromJson =
+        ConditionExpression.fromJSON(conditionExprJson);
+      expect(conditionExprFromJson).toBeDefined();
+      expect(conditionExprFromJson.condition).toBeInstanceOf(JsonApiCondition);
     });
 
     it('compound condition serialization', () => {

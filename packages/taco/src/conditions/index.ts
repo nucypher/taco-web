@@ -6,4 +6,5 @@ export * as condition from './condition';
 export * as conditionExpr from './condition-expr';
 export { ConditionFactory } from './condition-factory';
 export * as context from './context';
+export * as sequential from './sequential';
 export { base, predefined };

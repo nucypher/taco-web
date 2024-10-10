@@ -77,6 +77,7 @@ describe('auth provider caching', () => {
   it('caches auth signature, but regenerates when expired', async () => {
     const createAuthSignatureSpy = vi.spyOn(
       eip4361Provider,
+      // @ts-expect-error -- spying on private function
       'createSIWEAuthMessage',
     );
 

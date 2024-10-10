@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { Condition } from '../condition';
+import { baseConditionSchema, Condition } from '../condition';
 import { SUPPORTED_CHAIN_IDS } from '../const';
 import {
   EthAddressOrUserAddressSchema,
@@ -12,7 +12,7 @@ import createUnionSchema from '../zod';
 
 export const RpcConditionType = 'rpc';
 
-export const rpcConditionSchema = z.object({
+export const rpcConditionSchema = baseConditionSchema.extend({
   conditionType: z.literal(RpcConditionType).default(RpcConditionType),
   chain: createUnionSchema(SUPPORTED_CHAIN_IDS),
   method: z.enum(['eth_getBalance']),

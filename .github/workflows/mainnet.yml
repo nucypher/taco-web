@@ -10,7 +10,7 @@ env:
   RPC_PROVIDER_URL: 'https://polygon.llamarpc.com'
   ENCRYPTOR_PRIVATE_KEY: ${{ secrets.MAINNET_ENCRYPTOR_PRIVATE_KEY }}
   CONSUMER_PRIVATE_KEY: ${{ secrets.MAINNET_CONSUMER_PRIVATE_KEY }}
-  RITUAL_ID: '9'
+  RITUAL_ID: '39'
 
 jobs:
   networks:

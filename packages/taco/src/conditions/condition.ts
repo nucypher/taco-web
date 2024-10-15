@@ -3,9 +3,7 @@ import { z } from 'zod';
 
 import { USER_ADDRESS_PARAMS } from './const';
 
-export const baseConditionSchema = z.object({
-  conditionType: z.string(),
-});
+export { baseConditionSchema } from './schemas/common';
 
 type ConditionSchema = z.ZodSchema;
 export type ConditionProps = z.infer<ConditionSchema>;

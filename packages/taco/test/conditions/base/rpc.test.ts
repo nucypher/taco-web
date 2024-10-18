@@ -60,6 +60,32 @@ describe('validation', () => {
       });
     });
 
+    it('accepts a single UserAddress as address', () => {
+      const result = RpcCondition.validate(rpcConditionSchema, {
+        ...testRpcConditionObj,
+        parameters: [":userAddress"],
+      });
+
+      expect(result.error).toBeUndefined();
+      expect(result.data).toEqual({
+        ...testRpcConditionObj,
+        parameters: [":userAddress"],
+      });
+    });
+
+    it('accepts a single context variable as address', () => {
+      const result = RpcCondition.validate(rpcConditionSchema, {
+        ...testRpcConditionObj,
+        parameters: [":testContextVar"],
+      });
+
+      expect(result.error).toBeUndefined();
+      expect(result.data).toEqual({
+        ...testRpcConditionObj,
+        parameters: [":testContextVar"],
+      });
+    });
+
     it('accepts a single address and a block number', () => {
       const result = RpcCondition.validate(rpcConditionSchema, {
         ...testRpcConditionObj,
@@ -88,12 +114,7 @@ describe('validation', () => {
       expect(result.data).toBeUndefined();
       expect(result.error?.format()).toMatchObject({
         parameters: {
-          '1': {
-            _errors: ['Invalid', 'Invalid Ethereum address'],
-          },
-          '2': {
-            _errors: ['Invalid', 'Invalid Ethereum address'],
-          },
+          _errors: ['Array must contain at most 2 element(s)'],
         },
       });
     });
@@ -109,7 +130,7 @@ describe('validation', () => {
       expect(result.data).toBeUndefined();
       expect(result.error?.format()).toMatchObject({
         parameters: {
-          _errors: ['Array must contain at least 1 element(s)'],
+          _errors: ['Array must contain at least 2 element(s)', 'Array must contain at least 1 element(s)'],
         },
       });
     });

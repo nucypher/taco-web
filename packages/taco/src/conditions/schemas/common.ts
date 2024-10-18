@@ -1,4 +1,3 @@
-import { EthAddressSchema } from '@nucypher/shared';
 import {
   USER_ADDRESS_PARAM_DEFAULT,
   USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
@@ -23,11 +22,6 @@ export const plainStringSchema = z.string().refine(
 export const UserAddressSchema = z.enum([
   USER_ADDRESS_PARAM_DEFAULT,
   USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
-]);
-
-export const EthAddressOrUserAddressSchema = z.union([
-  EthAddressSchema,
-  UserAddressSchema,
 ]);
 
 export const baseConditionSchema = z.object({

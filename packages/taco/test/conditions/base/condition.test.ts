@@ -24,7 +24,7 @@ describe('validation', () => {
     expect(result.data).toBeUndefined();
     expect(result.error?.format()).toMatchObject({
       contractAddress: {
-        _errors: ['Invalid', 'String must contain exactly 42 character(s)'],
+        _errors: ['Invalid Ethereum address'],
       },
     });
   });

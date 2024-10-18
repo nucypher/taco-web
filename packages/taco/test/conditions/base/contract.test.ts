@@ -339,7 +339,7 @@ describe('supports custom function abi', async () => {
   it.each([
     {
       contractAddress: '0x123',
-      error: ['Invalid', 'String must contain exactly 42 character(s)'],
+      error: ['Invalid Ethereum address'],
     },
     { contractAddress: undefined, error: ['Required'] },
   ])('rejects invalid contract address', async ({ contractAddress, error }) => {

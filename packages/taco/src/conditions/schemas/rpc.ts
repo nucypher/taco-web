@@ -1,13 +1,13 @@
+import { BlockIdentifierSchema, EthAddressSchema } from '@nucypher/shared';
 import { z } from 'zod';
 
-import { EthAddressSchema } from '@nucypher/shared';
 import { SUPPORTED_CHAIN_IDS } from '../const';
 
 import createUnionSchema, {
   baseConditionSchema,
   UserAddressSchema,
 } from './common';
-import { contextParamSchema, paramOrContextParamSchema } from './context';
+import { contextParamSchema } from './context';
 import { returnValueTestSchema } from './return-value-test';
 
 export const RpcConditionType = 'rpc';
@@ -17,7 +17,7 @@ const EthAddressOrContextVariableSchema = z.union([
   UserAddressSchema,
   contextParamSchema
 ]);
-
+const BlockOrContextParamSchema = z.union([BlockIdentifierSchema, contextParamSchema])
 
 // eth_getBalance schema specification
 // - Ethereum spec: https://ethereum.github.io/execution-apis/api-documentation/
@@ -28,8 +28,7 @@ export const rpcConditionSchema = baseConditionSchema.extend({
   method: z.enum(['eth_getBalance']),
   parameters: z.union([
     // Spec requires 2 parameters: an address and a block identifier
-    // TODO: Restrict block identifier schema
-    z.tuple([EthAddressOrContextVariableSchema, paramOrContextParamSchema]),
+    z.tuple([EthAddressOrContextVariableSchema, BlockOrContextParamSchema]),
     // Block identifier can be omitted, since web3py (which runs on TACo exec layer) defaults to 'latest', 
     z.tuple([EthAddressOrContextVariableSchema]),    
   ]),

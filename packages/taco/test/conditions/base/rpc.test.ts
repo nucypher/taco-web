@@ -89,13 +89,26 @@ describe('validation', () => {
     it('accepts a single address and a block number', () => {
       const result = RpcCondition.validate(rpcConditionSchema, {
         ...testRpcConditionObj,
-        parameters: [TEST_CONTRACT_ADDR, 'latest'],
+        parameters: [TEST_CONTRACT_ADDR, 2345],
       });
 
       expect(result.error).toBeUndefined();
       expect(result.data).toEqual({
         ...testRpcConditionObj,
-        parameters: [TEST_CONTRACT_ADDR, 'latest'],
+        parameters: [TEST_CONTRACT_ADDR, 2345],
+      });
+    });
+
+    it('accepts context params for address and block number', () => {
+      const result = RpcCondition.validate(rpcConditionSchema, {
+        ...testRpcConditionObj,
+        parameters: [":testAddress", ":testBlockNumber"],
+      });
+
+      expect(result.error).toBeUndefined();
+      expect(result.data).toEqual({
+        ...testRpcConditionObj,
+        parameters: [":testAddress", ":testBlockNumber"],
       });
     });
 

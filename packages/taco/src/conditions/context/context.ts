@@ -14,8 +14,8 @@ import { CompoundConditionType } from '../compound-condition';
 import { Condition, ConditionProps } from '../condition';
 import { ConditionExpression } from '../condition-expr';
 import {
+  CONTEXT_PARAM_FULL_MATCH_REGEXP,
   CONTEXT_PARAM_PREFIX,
-  CONTEXT_PARAM_REGEXP,
   USER_ADDRESS_PARAMS,
 } from '../const';
 
@@ -138,7 +138,7 @@ export class ConditionContext {
   }
 
   private static isContextParameter(param: unknown): boolean {
-    return !!String(param).match(CONTEXT_PARAM_REGEXP);
+    return !!String(param).match(CONTEXT_PARAM_FULL_MATCH_REGEXP);
   }
 
   private static findContextParameters(condition: ConditionProps) {

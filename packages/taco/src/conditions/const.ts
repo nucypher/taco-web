@@ -5,7 +5,14 @@ import {
 } from '@nucypher/taco-auth';
 
 // Only allow alphanumeric characters and underscores
-export const CONTEXT_PARAM_REGEXP = new RegExp('^:[a-zA-Z_][a-zA-Z0-9_]*$');
+const contextParamRegexString = ':[a-zA-Z_][a-zA-Z0-9_]*';
+
+export const CONTEXT_PARAM_REGEXP = new RegExp(contextParamRegexString);
+
+// Entire string is context param
+export const CONTEXT_PARAM_FULL_MATCH_REGEXP = new RegExp(
+  `^${contextParamRegexString}$`,
+);
 
 export const CONTEXT_PARAM_PREFIX = ':';
 

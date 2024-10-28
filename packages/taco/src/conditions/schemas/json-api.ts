@@ -1,11 +1,20 @@
 import { JSONPath } from '@astronautlabs/jsonpath';
 import { z } from 'zod';
 
+import { CONTEXT_PARAM_REGEXP } from '../const';
+
+import { contextParamSchema } from './context';
 import { returnValueTestSchema } from './return-value-test';
 
 export const JsonApiConditionType = 'json-api';
 
 const validateJSONPath = (jsonPath: string): boolean => {
+  // account for embedded context variables
+  if (CONTEXT_PARAM_REGEXP.test(jsonPath)) {
+    // skip validation
+    return true;
+  }
+
   try {
     JSONPath.parse(jsonPath);
     return true;

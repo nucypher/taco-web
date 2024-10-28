@@ -25,6 +25,7 @@ export const jsonApiConditionSchema = z.object({
   endpoint: z.string().url(),
   parameters: z.record(z.string(), z.unknown()).optional(),
   query: jsonPathSchema.optional(),
+  authorizationToken: contextParamSchema.optional(),
   returnValueTest: returnValueTestSchema, // Update to allow multiple return values after expanding supported methods
 });
 

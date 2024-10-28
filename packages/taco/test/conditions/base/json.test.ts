@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import {
   JsonApiCondition,
   jsonApiConditionSchema,
+  JsonApiConditionType,
 } from '../../../src/conditions/base/json-api';
 import { testJsonApiConditionObj } from '../../test-utils';
 
@@ -93,6 +94,32 @@ describe('JsonApiCondition', () => {
 
         expect(result.error).toBeUndefined();
         expect(result.data).toEqual(noParamsObj);
+      });
+    });
+
+    describe('context variables', () => {
+      it('allow context variables for various values including as substring', () => {
+        const jsonApiConditionObj = {
+          conditionType: JsonApiConditionType,
+          endpoint:
+            'https://api.coingecko.com/api/:version/simple/:endpointPath',
+          parameters: {
+            ids: 'ethereum',
+            vs_currencies: ':vsCurrency',
+          },
+          query: 'ethereum.:vsCurrency',
+          authorizationToken: ':authToken',
+          returnValueTest: {
+            comparator: '==',
+            value: ':expectedPrice',
+          },
+        };
+        const result = JsonApiCondition.validate(
+          jsonApiConditionSchema,
+          jsonApiConditionObj,
+        );
+        expect(result.error).toBeUndefined();
+        expect(result.data).toEqual(jsonApiConditionObj);
       });
     });
   });

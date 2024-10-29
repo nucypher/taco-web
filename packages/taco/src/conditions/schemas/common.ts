@@ -1,13 +1,10 @@
-import { EthAddressSchema } from '@nucypher/shared';
 import {
   USER_ADDRESS_PARAM_DEFAULT,
   USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
 } from '@nucypher/taco-auth';
 import { Primitive, z, ZodLiteral } from 'zod';
 
-import { CONTEXT_PARAM_PREFIX, CONTEXT_PARAM_REGEXP } from '../const';
-
-export const contextParamSchema = z.string().regex(CONTEXT_PARAM_REGEXP);
+import { CONTEXT_PARAM_PREFIX } from '../const';
 
 // We want to discriminate between ContextParams and plain strings
 // If a string starts with `:`, it's a ContextParam
@@ -23,11 +20,6 @@ export const plainStringSchema = z.string().refine(
 export const UserAddressSchema = z.enum([
   USER_ADDRESS_PARAM_DEFAULT,
   USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
-]);
-
-export const EthAddressOrUserAddressSchema = z.union([
-  EthAddressSchema,
-  UserAddressSchema,
 ]);
 
 export const baseConditionSchema = z.object({

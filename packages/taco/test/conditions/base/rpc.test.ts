@@ -60,16 +60,55 @@ describe('validation', () => {
       });
     });
 
-    it('accepts a single address and a block number', () => {
+    it('accepts a single UserAddress as address', () => {
       const result = RpcCondition.validate(rpcConditionSchema, {
         ...testRpcConditionObj,
-        parameters: [TEST_CONTRACT_ADDR, 'latest'],
+        parameters: [":userAddress"],
       });
 
       expect(result.error).toBeUndefined();
       expect(result.data).toEqual({
         ...testRpcConditionObj,
-        parameters: [TEST_CONTRACT_ADDR, 'latest'],
+        parameters: [":userAddress"],
+      });
+    });
+
+    it('accepts a single context variable as address', () => {
+      const result = RpcCondition.validate(rpcConditionSchema, {
+        ...testRpcConditionObj,
+        parameters: [":testContextVar"],
+      });
+
+      expect(result.error).toBeUndefined();
+      expect(result.data).toEqual({
+        ...testRpcConditionObj,
+        parameters: [":testContextVar"],
+      });
+    });
+
+    it('accepts a single address and a block number', () => {
+      const result = RpcCondition.validate(rpcConditionSchema, {
+        ...testRpcConditionObj,
+        parameters: [TEST_CONTRACT_ADDR, 2345],
+      });
+
+      expect(result.error).toBeUndefined();
+      expect(result.data).toEqual({
+        ...testRpcConditionObj,
+        parameters: [TEST_CONTRACT_ADDR, 2345],
+      });
+    });
+
+    it('accepts context params for address and block number', () => {
+      const result = RpcCondition.validate(rpcConditionSchema, {
+        ...testRpcConditionObj,
+        parameters: [":testAddress", ":testBlockNumber"],
+      });
+
+      expect(result.error).toBeUndefined();
+      expect(result.data).toEqual({
+        ...testRpcConditionObj,
+        parameters: [":testAddress", ":testBlockNumber"],
       });
     });
 
@@ -88,12 +127,7 @@ describe('validation', () => {
       expect(result.data).toBeUndefined();
       expect(result.error?.format()).toMatchObject({
         parameters: {
-          '1': {
-            _errors: ['Invalid', 'Invalid Ethereum address'],
-          },
-          '2': {
-            _errors: ['Invalid', 'Invalid Ethereum address'],
-          },
+          _errors: ['Array must contain at most 2 element(s)'],
         },
       });
     });
@@ -109,7 +143,7 @@ describe('validation', () => {
       expect(result.data).toBeUndefined();
       expect(result.error?.format()).toMatchObject({
         parameters: {
-          _errors: ['Array must contain at least 1 element(s)'],
+          _errors: ['Array must contain at least 2 element(s)', 'Array must contain at least 1 element(s)'],
         },
       });
     });

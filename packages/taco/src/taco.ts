@@ -49,18 +49,6 @@ export const encrypt = async (
   ritualId: number,
   authSigner: ethers.Signer,
 ): Promise<ThresholdMessageKit> => {
-  // TODO(#264): Enable ritual initialization
-  // if (ritualId === undefined) {
-  //   ritualId = await DkgClient.initializeRitual(
-  //     provider,
-  //     this.cohort.ursulaAddresses,
-  //     true
-  //   );
-  // }
-  // if (ritualId === undefined) {
-  //   // Given that we just initialized the ritual, this should never happen
-  //   throw new Error('Ritual ID is undefined');
-  // }
   const dkgRitual = await DkgClient.getActiveRitual(provider, domain, ritualId);
 
   return await encryptWithPublicKey(

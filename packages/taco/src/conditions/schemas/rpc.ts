@@ -15,9 +15,12 @@ export const RpcConditionType = 'rpc';
 const EthAddressOrContextVariableSchema = z.union([
   EthAddressSchema,
   UserAddressSchema,
-  contextParamSchema
+  contextParamSchema,
 ]);
-const BlockOrContextParamSchema = z.union([BlockIdentifierSchema, contextParamSchema])
+const BlockOrContextParamSchema = z.union([
+  BlockIdentifierSchema,
+  contextParamSchema,
+]);
 
 // eth_getBalance schema specification
 // - Ethereum spec: https://ethereum.github.io/execution-apis/api-documentation/
@@ -29,8 +32,8 @@ export const rpcConditionSchema = baseConditionSchema.extend({
   parameters: z.union([
     // Spec requires 2 parameters: an address and a block identifier
     z.tuple([EthAddressOrContextVariableSchema, BlockOrContextParamSchema]),
-    // Block identifier can be omitted, since web3py (which runs on TACo exec layer) defaults to 'latest', 
-    z.tuple([EthAddressOrContextVariableSchema]),    
+    // Block identifier can be omitted, since web3py (which runs on TACo exec layer) defaults to 'latest',
+    z.tuple([EthAddressOrContextVariableSchema]),
   ]),
   returnValueTest: returnValueTestSchema, // Update to allow multiple return values after expanding supported methods
 });

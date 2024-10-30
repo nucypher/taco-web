@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { EthAddressSchema, BlockIdentifierSchema } from '../src';
+import { BlockIdentifierSchema, EthAddressSchema } from '../src';
 
 describe('ethereum address schema', () => {
   it('should accept valid ethereum address', () => {
@@ -46,7 +46,8 @@ describe('block identifier address schema', () => {
   });
 
   it('should accept valid block hashes', () => {
-    const validBlockHash = '0x1234567890123456789012345678901234567890123456789012345678901234';
+    const validBlockHash =
+      '0x1234567890123456789012345678901234567890123456789012345678901234';
     BlockIdentifierSchema.parse(validBlockHash);
   });
 

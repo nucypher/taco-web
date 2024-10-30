@@ -18,4 +18,8 @@ const BlockNumber = z.number().int().nonnegative();
 const BlockHash = z.string().regex(BLOCK_HASH_REGEXP, 'Invalid block hash');
 const BlockTag = z.enum(['earliest', 'finalized', 'safe', 'latest', 'pending']);
 
-export const BlockIdentifierSchema = z.union([BlockNumber, BlockHash, BlockTag]);
+export const BlockIdentifierSchema = z.union([
+  BlockNumber,
+  BlockHash,
+  BlockTag,
+]);

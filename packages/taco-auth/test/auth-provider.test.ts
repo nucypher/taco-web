@@ -1,4 +1,5 @@
 import {
+  aliceSecretKeyBytes,
   bobSecretKeyBytes,
   fakeProvider,
   TEST_SIWE_PARAMS,
@@ -8,11 +9,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   EIP4361AuthProvider,
+  SelfDelegateProvider,
   SingleSignOnEIP4361AuthProvider,
 } from '../src/providers';
 import { EIP4361TypedDataSchema } from '../src/providers/eip4361/common';
 
-describe('auth provider', () => {
+describe('siwe auth provider', () => {
   const provider = fakeProvider(bobSecretKeyBytes);
   const signer = provider.getSigner();
   const eip4361Provider = new EIP4361AuthProvider(
@@ -55,7 +57,7 @@ describe('auth provider', () => {
   });
 });
 
-describe('auth provider caching', () => {
+describe('siwe auth provider caching', () => {
   beforeEach(() => {
     // tell vitest we use mocked time
     vi.useFakeTimers();
@@ -103,7 +105,7 @@ describe('auth provider caching', () => {
   });
 });
 
-describe('single sign-on auth provider', async () => {
+describe('single sign-on siwe auth provider', async () => {
   const provider = fakeProvider(bobSecretKeyBytes);
   const signer = provider.getSigner();
 
@@ -132,4 +134,55 @@ describe('single sign-on auth provider', async () => {
     expect(typedSignature.address).toEqual(await signer.getAddress());
     expect(typedSignature.scheme).toEqual('EIP4361');
   });
+});
+
+describe('encryptor self-delegate provider authorization', () => {
+  const provider = fakeProvider(bobSecretKeyBytes);
+  const signer = provider.getSigner();
+  const selfDelegateProvider = new SelfDelegateProvider(signer);
+  
+  const applicationSideProvider = fakeProvider(aliceSecretKeyBytes);
+  const applicationSideSigner = applicationSideProvider.getSigner();
+
+  it('creates a new  message', async () => {
+    const appSideSignerAddress = await applicationSideSigner.getAddress();
+    const typedSignature = await selfDelegateProvider.getOrCreateAuthSignature(appSideSignerAddress);
+    expect(typedSignature.signature).toBeDefined();
+    expect(typedSignature.address).toEqual(await signer.getAddress());
+    expect(typedSignature.scheme).toEqual('EncryptorSelfDelegate');
+    expect(typedSignature.typedData).toEqual(appSideSignerAddress);
+
+  });
+
+});
+
+describe('encryptor self-delegate provider caching', () => {
+  const provider = fakeProvider(bobSecretKeyBytes);
+  const signer = provider.getSigner();
+  const selfDelegateProvider = new SelfDelegateProvider(signer);
+  
+  const applicationSideProvider = fakeProvider(aliceSecretKeyBytes);
+  const applicationSideSigner = applicationSideProvider.getSigner();
+
+  it('caches signature', async () => {
+    const appSideSignerAddress = await applicationSideSigner.getAddress();
+
+    const createSignatureSpy = vi.spyOn(
+      selfDelegateProvider,
+      // @ts-expect-error -- spying on private function
+      'createAuthMessage',
+    );
+
+    expect(createSignatureSpy).toHaveBeenCalledTimes(0);
+
+    const typedSignature = await selfDelegateProvider.getOrCreateAuthSignature(appSideSignerAddress);
+    expect(createSignatureSpy).toHaveBeenCalledTimes(1);
+
+    const typedSignatureSecondCall =
+      await selfDelegateProvider.getOrCreateAuthSignature(appSideSignerAddress);
+    // auth signature is cached, so spy is not called a 2nd time
+    expect(createSignatureSpy).toHaveBeenCalledTimes(1);
+    expect(typedSignatureSecondCall).toEqual(typedSignature);
+  });
+
 });

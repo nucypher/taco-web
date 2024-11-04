@@ -1,5 +1,7 @@
-import { ethers } from 'ethers';
+import { ethers, Wallet } from 'ethers';
 import { z } from 'zod';
+
+// import { Bytes } from "@ethersproject/bytes";
 
 import { AuthSignature } from '../../auth-sig';
 import { LocalStorage } from '../../storage';
@@ -8,11 +10,42 @@ export const ENCRYPTOR_SELF_DELEGATE_AUTH_METHOD = 'EncryptorSelfDelegate'
 
 export const SelfDelegateTypedDataSchema = z.string();
 
+
+// TODO: Create generic EncryptorSigner class/interface, which can be 
+// instantiated with ethers' Signers and Wallets, but also with our custom
+// classes
+export class DelegatedSigner extends Wallet {  // TODO: extend from generic Signer
+  
+  authSignature?: AuthSignature;
+
+  async authenticate(selfDelegateProvider: SelfDelegateProvider){
+    const appSideSignerAddress = await this.getAddress();
+    this.authSignature = await selfDelegateProvider.getOrCreateAuthSignature(appSideSignerAddress);
+  }
+
+  override async signMessage(message: any): Promise<string> {  // TODO: Restrict input type to Bytes | string
+    if (typeof this.authSignature === 'undefined'){
+      throw new Error('Encryptor must authenticate app signer first');
+    }
+    const appSignature = await super.signMessage(message);
+    return appSignature.concat(this.authSignature.signature)
+  }
+}
+
+
 export class SelfDelegateProvider {
   private readonly storage: LocalStorage;
   
   constructor(private readonly signer: ethers.Signer) {
     this.storage = new LocalStorage();
+  }
+
+  public async createSelfDelegatedAppSideSigner(
+    ephemeralPrivateKey: any  // TODO: Find a stricter type
+  ): Promise<DelegatedSigner> {
+    const appSideSigner = new DelegatedSigner(ephemeralPrivateKey);
+    await appSideSigner.authenticate(this);
+    return appSideSigner;
   }
 
   public async getOrCreateAuthSignature(

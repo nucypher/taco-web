@@ -140,11 +140,18 @@ describe('encryptor self-delegate provider authorization', () => {
   const provider = fakeProvider(bobSecretKeyBytes);
   const signer = provider.getSigner();
   const selfDelegateProvider = new SelfDelegateProvider(signer);
+
+  it('creates a new self-delegated app signer', async () => {
+    const appSideSignerAddress = await applicationSideSigner.getAddress();
+    const [newSigner, newAuthSignature] = await selfDelegateProvider.createSelfDelegatedAppSideSigner(aliceSecretKeyBytes);
+    expect(await newSigner.getAddress()).toEqual(appSideSignerAddress);
+    expect(newAuthSignature.typedData).toEqual(appSideSignerAddress);
+  });
   
   const applicationSideProvider = fakeProvider(aliceSecretKeyBytes);
   const applicationSideSigner = applicationSideProvider.getSigner();
 
-  it('creates a new  message', async () => {
+  it('creates a new auth signature', async () => {
     const appSideSignerAddress = await applicationSideSigner.getAddress();
     const typedSignature = await selfDelegateProvider.getOrCreateAuthSignature(appSideSignerAddress);
     expect(typedSignature.signature).toBeDefined();

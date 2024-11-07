@@ -188,7 +188,7 @@ export class ConditionContext {
         }
       }
       if (condition.query) {
-        const queryParams = condition.query.match(":[a-zA-Z_]*");
+        const queryParams = condition.query.match(":[a-zA-Z_]+");
         if (queryParams) {
           for (const param of queryParams) {
             requestedParameters.add(param);

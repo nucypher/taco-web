@@ -19,3 +19,8 @@ export const TEST_SIWE_PARAMS = {
   domain: 'localhost',
   uri: 'http://localhost:3000',
 };
+
+export const TEST_ECDSA_PUBLIC_KEY =
+  '-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEXHVxB7s5SR7I9cWwry' +
+  '/JkECIReka\nCwG3uOLCYbw5gVzn4dRmwMyYUJFcQWuFSfECRK+uQOOXD0YSEucBq0p5tA==\n-----END PUBLIC ' +
+  'KEY-----\n ';

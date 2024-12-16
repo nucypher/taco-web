@@ -274,11 +274,11 @@ export const testJsonRpcConditionObj: JsonRpcConditionProps = {
 
 export const testJWTConditionObj: JWTConditionProps = {
   conditionType: JWTConditionType,
-  public_key: TEST_ECDSA_PUBLIC_KEY,
-  expected_issuer: '0xacbd',
+  publicKey: TEST_ECDSA_PUBLIC_KEY,
+  expectedIssuer: '0xacbd',
   subject: ':userAddress',
-  expiration_window: 1800,
-  issued_window: 86400,
+  expirationWindow: 1800,
+  issuedWindow: 86400,
   jwtToken: JWT_PARAM_DEFAULT,
 };
 

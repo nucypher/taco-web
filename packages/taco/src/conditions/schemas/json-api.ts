@@ -1,35 +1,12 @@
-import { JSONPath } from '@astronautlabs/jsonpath';
 import { z } from 'zod';
 
-import { CONTEXT_PARAM_REGEXP } from '../const';
-
+import { baseConditionSchema, jsonPathSchema } from './common';
 import { contextParamSchema } from './context';
 import { returnValueTestSchema } from './return-value-test';
 
 export const JsonApiConditionType = 'json-api';
 
-const validateJSONPath = (jsonPath: string): boolean => {
-  // account for embedded context variables
-  if (CONTEXT_PARAM_REGEXP.test(jsonPath)) {
-    // skip validation
-    return true;
-  }
-
-  try {
-    JSONPath.parse(jsonPath);
-    return true;
-  } catch (error) {
-    return false;
-  }
-};
-
-export const jsonPathSchema = z
-  .string()
-  .refine((val) => validateJSONPath(val), {
-    message: 'Invalid JSONPath expression',
-  });
-
-export const jsonApiConditionSchema = z.object({
+export const jsonApiConditionSchema = baseConditionSchema.extend({
   conditionType: z.literal(JsonApiConditionType).default(JsonApiConditionType),
   endpoint: z.string().url(),
   parameters: z.record(z.string(), z.unknown()).optional(),

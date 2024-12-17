@@ -10,7 +10,6 @@ export {
   JsonApiConditionProps,
   jsonApiConditionSchema,
   JsonApiConditionType,
-  jsonPathSchema,
 } from '../schemas/json-api';
 
 export class JsonApiCondition extends Condition {

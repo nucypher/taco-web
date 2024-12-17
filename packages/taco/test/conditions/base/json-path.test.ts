@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { jsonPathSchema } from '../../../src/conditions/base/json-api';
+import { jsonPathSchema } from '../../../src/conditions/schemas/common';
 
 describe('JSONPath Validation', () => {
   it('Invalid JSONPath: Incomplete filter expression', () => {

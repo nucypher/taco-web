@@ -77,3 +77,10 @@ export const jsonPathSchema = z
   .refine((val) => validateJSONPath(val), {
     message: 'Invalid JSONPath expression',
   });
+
+export const httpsURLSchema = z
+  .string()
+  .url()
+  .refine((url) => url.startsWith('https://'), {
+    message: 'Invalid url - must start with https://',
+  });

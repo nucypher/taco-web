@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { baseConditionSchema, jsonPathSchema } from './common';
+import { baseConditionSchema, httpsURLSchema, jsonPathSchema } from './common';
 import { contextParamSchema } from './context';
 import { returnValueTestSchema } from './return-value-test';
 
@@ -8,7 +8,7 @@ export const JsonApiConditionType = 'json-api';
 
 export const jsonApiConditionSchema = baseConditionSchema.extend({
   conditionType: z.literal(JsonApiConditionType).default(JsonApiConditionType),
-  endpoint: z.string().url(),
+  endpoint: httpsURLSchema,
   parameters: z.record(z.string(), z.unknown()).optional(),
   query: jsonPathSchema.optional(),
   authorizationToken: contextParamSchema.optional(),

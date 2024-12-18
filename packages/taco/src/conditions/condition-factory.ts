@@ -8,6 +8,11 @@ import {
   JsonApiConditionProps,
   JsonApiConditionType,
 } from './base/json-api';
+import {
+  JsonRpcCondition,
+  JsonRpcConditionProps,
+  JsonRpcConditionType,
+} from './base/json-rpc';
 import { RpcCondition, RpcConditionProps, RpcConditionType } from './base/rpc';
 import {
   TimeCondition,
@@ -46,6 +51,8 @@ export class ConditionFactory {
         return new ContractCondition(props as ContractConditionProps);
       case JsonApiConditionType:
         return new JsonApiCondition(props as JsonApiConditionProps);
+      case JsonRpcConditionType:
+        return new JsonRpcCondition(props as JsonRpcConditionProps);
       // Logical Conditions
       case CompoundConditionType:
         return new CompoundCondition(props as CompoundConditionProps);

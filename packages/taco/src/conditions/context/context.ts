@@ -20,6 +20,7 @@ import {
   USER_ADDRESS_PARAMS,
 } from '../const';
 import { JsonApiConditionType } from '../schemas/json-api';
+import { JsonRpcConditionType } from '../schemas/json-rpc';
 
 export type CustomContextParam = string | number | boolean;
 export type ContextParam = CustomContextParam | AuthSignature;
@@ -180,8 +181,11 @@ export class ConditionContext {
         }
       }
     }
-    // If it's a JSON API condition, check url and query
-    if (condition.conditionType === JsonApiConditionType) {
+    // If it's a JSON API/RPC condition, check url and query
+    if (
+      condition.conditionType === JsonApiConditionType ||
+      condition.conditionType == JsonRpcConditionType
+    ) {
       const urlComponents = condition.endpoint
         .replace('https://', '')
         .split('/');
@@ -201,6 +205,37 @@ export class ConditionContext {
       // always a context variable, so simply check whether defined
       if (condition.authorizationToken) {
         requestedParameters.add(condition.authorizationToken);
+      }
+    }
+
+    if (condition.conditionType == JsonRpcConditionType) {
+      const methodMatches = condition.method.match(CONTEXT_PARAM_REGEXP);
+      if (methodMatches) {
+        for (const match of methodMatches) {
+          requestedParameters.add(match);
+        }
+      }
+
+      if (Array.isArray(condition.params)) {
+        // params is a dictionary (Record<string, T>)
+        condition.params.forEach((paramsEntry: unknown) => {
+          if (
+            typeof paramsEntry === 'string' &&
+            ConditionContext.isContextParameter(paramsEntry)
+          ) {
+            requestedParameters.add(paramsEntry);
+          }
+        });
+      } else {
+        // params is a dictionary (Record<string, T>)
+        for (const [, value] of Object.entries(condition.params)) {
+          if (
+            typeof value === 'string' &&
+            ConditionContext.isContextParameter(value)
+          ) {
+            requestedParameters.add(value);
+          }
+        }
       }
     }
 

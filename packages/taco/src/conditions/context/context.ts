@@ -10,7 +10,6 @@ import {
 } from '@nucypher/taco-auth';
 
 import { CoreConditions, CoreContext } from '../../types';
-import { CompoundConditionType } from '../compound-condition';
 import { Condition, ConditionProps } from '../condition';
 import { ConditionExpression } from '../condition-expr';
 import {
@@ -19,8 +18,6 @@ import {
   CONTEXT_PARAM_REGEXP,
   USER_ADDRESS_PARAMS,
 } from '../const';
-import { JsonApiConditionType } from '../schemas/json-api';
-import { JsonRpcConditionType } from '../schemas/json-rpc';
 
 export type CustomContextParam = string | number | boolean;
 export type ContextParam = CustomContextParam | AuthSignature;
@@ -144,100 +141,62 @@ export class ConditionContext {
     return !!String(param).match(CONTEXT_PARAM_FULL_MATCH_REGEXP);
   }
 
+  private static findContextParameter(value: unknown): Set<string> {
+    const includedContextVars = new Set<string>();
+
+    // value not set
+    if (!value) {
+      return includedContextVars;
+    }
+
+    if (typeof value === 'string') {
+      if (this.isContextParameter(value)) {
+        // entire string is context parameter
+        includedContextVars.add(String(value));
+      } else {
+        // context var could be substring; find all matches
+        const contextVarMatches = value.match(
+          // RegExp with 'g' is stateful, so new instance needed every time
+          new RegExp(CONTEXT_PARAM_REGEXP.source, 'g'),
+        );
+        if (contextVarMatches) {
+          for (const match of contextVarMatches) {
+            includedContextVars.add(match);
+          }
+        }
+      }
+    } else if (Array.isArray(value)) {
+      // array
+      value.forEach((subValue) => {
+        const contextVarsForValue = this.findContextParameter(subValue);
+        contextVarsForValue.forEach((contextVar) => {
+          includedContextVars.add(contextVar);
+        });
+      });
+    } else if (typeof value === 'object') {
+      // dictionary (Record<string, T> - complex object eg. Condition, ConditionVariable, ReturnValueTest etc.)
+      for (const [, entry] of Object.entries(value)) {
+        const contextVarsForValue = this.findContextParameter(entry);
+        contextVarsForValue.forEach((contextVar) => {
+          includedContextVars.add(contextVar);
+        });
+      }
+    }
+
+    return includedContextVars;
+  }
+
   private static findContextParameters(condition: ConditionProps) {
-    // First, we want to find all the parameters we need to add
+    // find all the context variables we need
     const requestedParameters = new Set<string>();
 
-    // Check return value test
-    if (condition.returnValueTest) {
-      const rvt = condition.returnValueTest.value;
-      // Return value test can be a single parameter or an array of parameters
-      if (Array.isArray(rvt)) {
-        rvt.forEach((value) => {
-          if (ConditionContext.isContextParameter(value)) {
-            requestedParameters.add(value);
-          }
-        });
-      } else if (ConditionContext.isContextParameter(rvt)) {
-        requestedParameters.add(rvt);
-      } else {
-        // Not a context parameter, we can skip
-      }
-    }
-
-    // Check condition parameters
-    for (const param of condition.parameters ?? []) {
-      if (this.isContextParameter(param)) {
-        requestedParameters.add(param);
-      }
-    }
-
-    // If it's a compound condition, check operands
-    if (condition.conditionType === CompoundConditionType) {
-      for (const key in condition.operands) {
-        const innerParams = this.findContextParameters(condition.operands[key]);
-        for (const param of innerParams) {
-          requestedParameters.add(param);
-        }
-      }
-    }
-    // If it's a JSON API/RPC condition, check url and query
-    if (
-      condition.conditionType === JsonApiConditionType ||
-      condition.conditionType == JsonRpcConditionType
-    ) {
-      const urlComponents = condition.endpoint
-        .replace('https://', '')
-        .split('/');
-      for (const param of urlComponents ?? []) {
-        if (this.isContextParameter(param)) {
-          requestedParameters.add(param);
-        }
-      }
-      if (condition.query) {
-        const queryParams = condition.query.match(CONTEXT_PARAM_REGEXP);
-        if (queryParams) {
-          for (const param of queryParams) {
-            requestedParameters.add(param);
-          }
-        }
-      }
-      // always a context variable, so simply check whether defined
-      if (condition.authorizationToken) {
-        requestedParameters.add(condition.authorizationToken);
-      }
-    }
-
-    if (condition.conditionType == JsonRpcConditionType) {
-      const methodMatches = condition.method.match(CONTEXT_PARAM_REGEXP);
-      if (methodMatches) {
-        for (const match of methodMatches) {
-          requestedParameters.add(match);
-        }
-      }
-
-      if (Array.isArray(condition.params)) {
-        // params is a dictionary (Record<string, T>)
-        condition.params.forEach((paramsEntry: unknown) => {
-          if (
-            typeof paramsEntry === 'string' &&
-            ConditionContext.isContextParameter(paramsEntry)
-          ) {
-            requestedParameters.add(paramsEntry);
-          }
-        });
-      } else {
-        // params is a dictionary (Record<string, T>)
-        for (const [, value] of Object.entries(condition.params)) {
-          if (
-            typeof value === 'string' &&
-            ConditionContext.isContextParameter(value)
-          ) {
-            requestedParameters.add(value);
-          }
-        }
-      }
-    }
+    // iterate through all properties in ConditionProps
+    const properties = Object.keys(condition) as (keyof typeof condition)[];
+    properties.forEach((prop) => {
+      this.findContextParameter(condition[prop]).forEach((contextVar) => {
+        requestedParameters.add(contextVar);
+      });
+    });
 
     return requestedParameters;
   }

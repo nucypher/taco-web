@@ -247,7 +247,7 @@ describe('validation', () => {
   const multichainCondition: CompoundConditionProps = {
     conditionType: CompoundConditionType,
     operator: 'and',
-    operands: [ChainId.SEPOLIA, ChainId.AMOY].map((chain) => ({
+    operands: [ChainId.ETHEREUM_MAINNET, ChainId.POLYGON, ChainId.SEPOLIA, ChainId.AMOY].map((chain) => ({
       ...testRpcConditionObj,
       chain,
     })),

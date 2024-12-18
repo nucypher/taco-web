@@ -150,8 +150,8 @@ describe('taco', () => {
       authorizationToken: ':authToken',
       returnValueTest: {
         comparator: '==',
-        value: true
-      }
+        value: true,
+      },
     });
 
     const messageKit = await taco.encrypt(
@@ -166,10 +166,10 @@ describe('taco', () => {
 
     const conditionContext = ConditionContext.fromMessageKit(messageKit);
     const requestedParameters = conditionContext.requestedContextParameters;
-    
+
     // Verify all context parameters from endpoint, query and authToken are detected
     expect(requestedParameters).toEqual(
-      new Set([':userId', ':userAddress', ':authToken'])
+      new Set([':userId', ':userAddress', ':authToken']),
     );
-  })}
-);
+  });
+});

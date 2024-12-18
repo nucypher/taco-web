@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   JsonApiCondition,
+  JsonApiConditionProps,
   jsonApiConditionSchema,
   JsonApiConditionType,
 } from '../../../src/conditions/base/json-api';
@@ -88,7 +89,7 @@ describe('JsonApiCondition', () => {
       });
 
       it('accepts conditions without parameters', () => {
-        const { query, ...noParamsObj } = testJsonApiConditionObj;
+        const { parameters, ...noParamsObj } = testJsonApiConditionObj;
         const result = JsonApiCondition.validate(
           jsonApiConditionSchema,
           noParamsObj,
@@ -101,7 +102,7 @@ describe('JsonApiCondition', () => {
 
     describe('context variables', () => {
       it('allow context variables for various values including as substring', () => {
-        const jsonApiConditionObj = {
+        const jsonApiConditionObj: JsonApiConditionProps = {
           conditionType: JsonApiConditionType,
           endpoint:
             'https://api.coingecko.com/api/:version/simple/:endpointPath',
@@ -116,6 +117,7 @@ describe('JsonApiCondition', () => {
             value: ':expectedPrice',
           },
         };
+
         const result = JsonApiCondition.validate(
           jsonApiConditionSchema,
           jsonApiConditionObj,

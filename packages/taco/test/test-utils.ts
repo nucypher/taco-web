@@ -39,7 +39,10 @@ import {
   ContractConditionType,
   FunctionAbiProps,
 } from '../src/conditions/base/contract';
-import { JsonApiConditionType } from '../src/conditions/base/json-api';
+import {
+  JsonApiConditionProps,
+  JsonApiConditionType,
+} from '../src/conditions/base/json-api';
 import {
   RpcConditionProps,
   RpcConditionType,
@@ -55,6 +58,10 @@ import {
 } from '../src/conditions/compound-condition';
 import { ConditionExpression } from '../src/conditions/condition-expr';
 import { ERC721Balance } from '../src/conditions/predefined/erc721';
+import {
+  JsonRpcConditionProps,
+  JsonRpcConditionType,
+} from '../src/conditions/schemas/json-rpc';
 import {
   SequentialConditionProps,
   SequentialConditionType,
@@ -232,7 +239,7 @@ export const testTimeConditionObj: TimeConditionProps = {
   chain: TEST_CHAIN_ID,
 };
 
-export const testJsonApiConditionObj = {
+export const testJsonApiConditionObj: JsonApiConditionProps = {
   conditionType: JsonApiConditionType,
   endpoint: 'https://_this_would_totally_fail.com',
   parameters: {
@@ -240,6 +247,15 @@ export const testJsonApiConditionObj = {
     vs_currencies: 'usd',
   },
   query: '$.ethereum.usd',
+  returnValueTest: testReturnValueTest,
+};
+
+export const testJsonRpcConditionObj: JsonRpcConditionProps = {
+  conditionType: JsonRpcConditionType,
+  endpoint: 'https://math.example.com/',
+  method: 'subtract',
+  params: [42, 23],
+  query: '$.mathresult',
   returnValueTest: testReturnValueTest,
 };
 

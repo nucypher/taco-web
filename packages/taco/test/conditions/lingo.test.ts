@@ -58,6 +58,17 @@ describe('check that valid lingo in python is valid in typescript', () => {
       value: 2,
     },
   };
+  const jsonRpcConditionProps = {
+    conditionType: 'json-rpc',
+    endpoint: 'https://math.example.com/',
+    method: 'subtract',
+    params: [42, 23],
+    query: '$.value',
+    returnValueTest: {
+      comparator: '==',
+      value: 2,
+    },
+  };
   const sequentialConditionProps = {
     conditionType: 'sequential',
     conditionVariables: [
@@ -81,7 +92,7 @@ describe('check that valid lingo in python is valid in typescript', () => {
   };
   const ifThenElseConditionProps = {
     conditionType: 'if-then-else',
-    ifCondition: rpcConditionProps,
+    ifCondition: jsonRpcConditionProps,
     thenCondition: jsonApiConditionProps,
     elseCondition: timeConditionProps,
   };
@@ -107,6 +118,7 @@ describe('check that valid lingo in python is valid in typescript', () => {
     timeConditionProps,
     contractConditionProps,
     jsonApiConditionProps,
+    jsonRpcConditionProps,
     compoundConditionProps,
     sequentialConditionProps,
     ifThenElseConditionProps,

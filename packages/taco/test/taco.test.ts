@@ -172,4 +172,51 @@ describe('taco', () => {
       new Set([':userId', ':userAddress', ':authToken']),
     );
   });
+  // test json api condition exposes requested parameters
+  it('jsonrpc condition exposes requested parameters', async () => {
+    const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
+    const mockedDkgRitual = fakeDkgRitual(mockedDkg);
+    const provider = fakeProvider(aliceSecretKeyBytes);
+    const signer = provider.getSigner();
+    const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);
+
+    const jsonRpcCondition = new conditions.base.jsonRpc.JsonRpcCondition({
+      endpoint: 'https://math.example.com/:version/simple',
+      method: ':methodContextVar',
+      params: {
+        value1: 42,
+        value2: ':value2',
+      },
+      query: '$.:queryKey',
+      authorizationToken: ':authToken',
+      returnValueTest: {
+        comparator: '==',
+        value: ':expectedResult',
+      },
+    });
+    const messageKit = await taco.encrypt(
+      provider,
+      domains.DEVNET,
+      message,
+      jsonRpcCondition,
+      mockedDkg.ritualId,
+      signer,
+    );
+    expect(getFinalizedRitualSpy).toHaveBeenCalled();
+
+    const conditionContext = ConditionContext.fromMessageKit(messageKit);
+    const requestedParameters = conditionContext.requestedContextParameters;
+
+    // Verify all context parameters are detected
+    expect(requestedParameters).toEqual(
+      new Set([
+        ':version',
+        ':methodContextVar',
+        ':value2',
+        ':queryKey',
+        ':authToken',
+        ':expectedResult',
+      ]),
+    );
+  });
 });

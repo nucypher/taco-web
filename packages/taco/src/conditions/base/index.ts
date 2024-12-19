@@ -4,5 +4,6 @@
 export * as contract from './contract';
 export * as jsonApi from './json-api';
 export * as jsonRpc from './json-rpc';
+export * as jwt from './jwt';
 export * as rpc from './rpc';
 export * as time from './time';

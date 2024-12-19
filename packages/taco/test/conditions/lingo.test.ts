@@ -1,4 +1,4 @@
-import { TEST_CHAIN_ID } from '@nucypher/test-utils';
+import { TEST_CHAIN_ID, TEST_ECDSA_PUBLIC_KEY } from '@nucypher/test-utils';
 import { describe, expect, it } from 'vitest';
 
 import { ConditionExpression } from '../../src/conditions/condition-expr';
@@ -69,6 +69,16 @@ describe('check that valid lingo in python is valid in typescript', () => {
       value: 2,
     },
   };
+  // TODO reuse similar object from test-utils
+  const jwtConditionProps = {
+    conditionType: 'jwt',
+    publicKey: TEST_ECDSA_PUBLIC_KEY,
+    expectedIssuer: '0xacbd',
+    subject: ':userAddress',
+    expirationWindow: 1800,
+    issuedWindow: 86400,
+    jwtToken: ':jwt',
+  };
   const sequentialConditionProps = {
     conditionType: 'sequential',
     conditionVariables: [
@@ -119,6 +129,7 @@ describe('check that valid lingo in python is valid in typescript', () => {
     contractConditionProps,
     jsonApiConditionProps,
     jsonRpcConditionProps,
+    jwtConditionProps,
     compoundConditionProps,
     sequentialConditionProps,
     ifThenElseConditionProps,

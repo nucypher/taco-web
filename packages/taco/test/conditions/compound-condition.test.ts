@@ -11,6 +11,7 @@ import {
 } from '../../src/conditions/compound-condition';
 import {
   testContractConditionObj,
+  testJWTConditionObj,
   testRpcConditionObj,
   testSequentialConditionObj,
   testTimeConditionObj,
@@ -167,7 +168,11 @@ describe('validation', () => {
         testRpcConditionObj,
         {
           operator: 'or',
-          operands: [testTimeConditionObj, testContractConditionObj],
+          operands: [
+            testTimeConditionObj,
+            testContractConditionObj,
+            testJWTConditionObj,
+          ],
         },
         testSequentialConditionObj,
       ],
@@ -187,7 +192,11 @@ describe('validation', () => {
         {
           conditionType: CompoundConditionType,
           operator: 'or',
-          operands: [testTimeConditionObj, testContractConditionObj],
+          operands: [
+            testTimeConditionObj,
+            testContractConditionObj,
+            testJWTConditionObj,
+          ],
         },
         testSequentialConditionObj,
       ],

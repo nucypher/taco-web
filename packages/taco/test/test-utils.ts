@@ -49,7 +49,8 @@ import {
   JWTConditionProps,
   JWTConditionType,
 } from '../src/conditions/base/jwt';
-import {  RpcConditionProps,
+import {
+  RpcConditionProps,
   RpcConditionType,
 } from '../src/conditions/base/rpc';
 import {

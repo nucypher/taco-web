@@ -12,16 +12,21 @@ import { ethers } from 'ethers';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { toBytes, toHexString } from '../../src';
+import { ConditionFactory } from '../../src/conditions';
 import {
   ContractCondition,
   ContractConditionProps,
+  ContractConditionType,
 } from '../../src/conditions/base/contract';
 import { RpcCondition } from '../../src/conditions/base/rpc';
+import { CompoundConditionType } from '../../src/conditions/compound-condition';
 import {
   ConditionContext,
   CustomContextParam,
 } from '../../src/conditions/context';
 import { RESERVED_CONTEXT_PARAMS } from '../../src/conditions/context/context';
+import { IfThenElseConditionType } from '../../src/conditions/if-then-else-condition';
+import { SequentialConditionType } from '../../src/conditions/sequential';
 import {
   paramOrContextParamSchema,
   ReturnValueTestProps,
@@ -29,8 +34,11 @@ import {
 import {
   testContractConditionObj,
   testFunctionAbi,
+  testJsonApiConditionObj,
+  testJsonRpcConditionObj,
   testReturnValueTest,
   testRpcConditionObj,
+  testTimeConditionObj,
 } from '../test-utils';
 
 describe('context', () => {
@@ -619,5 +627,238 @@ describe('param or context param schema', () => {
 
   it('rejects a function', () => {
     expect(paramOrContextParamSchema.safeParse(() => {}).success).toBe(false);
+  });
+});
+
+describe('recognition of context variables in conditions', () => {
+  const rvt = {
+    comparator: '>=',
+    value: ':expectedResult',
+  };
+
+  const rpcCondition = {
+    ...testRpcConditionObj,
+    parameters: [':userAddress', ':blockNumber'],
+    returnValueTest: rvt,
+  };
+
+  const timeCondition = {
+    ...testTimeConditionObj,
+    returnValueTest: rvt,
+  };
+
+  const contractCondition = {
+    conditionType: ContractConditionType,
+    contractAddress: '0x0000000000000000000000000000000000000000',
+    chain: 1,
+    method: 'balanceOf',
+    functionAbi: testFunctionAbi,
+    parameters: [':userAddress'],
+    returnValueTest: rvt,
+  };
+
+  const jsonApiCondition = {
+    ...testJsonApiConditionObj,
+    endpoint: 'https://api.example.com/:userId/:endpoint',
+    parameters: {
+      value1: ':value1',
+      value2: 2,
+    },
+    query: '$.data[?(@.owner == :query)].value',
+    authorizationToken: ':authToken',
+    returnValueTest: rvt,
+  };
+
+  const jsonRpcConditionParamsDict = {
+    ...testJsonRpcConditionObj,
+    endpoint: 'https://math.example.com/:version/simple',
+    method: 'subtract',
+    params: {
+      value1: 42,
+      value2: ':value2',
+    },
+    query: '$.:queryKey',
+    authorizationToken: ':authToken',
+    returnValueTest: rvt,
+  };
+
+  const jsonRpcConditionParamsArray = {
+    ...testJsonRpcConditionObj,
+    endpoint: 'https://math.example.com/:version/simple',
+    method: 'subtract',
+    params: [':value1', ':value2'],
+    query: '$.:queryKey',
+    authorizationToken: ':authToken',
+    returnValueTest: rvt,
+  };
+
+  it('handles context params for rpc condition', () => {
+    const condition = ConditionFactory.conditionFromProps(rpcCondition);
+    const conditionContext = new ConditionContext(condition);
+
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([':userAddress', ':blockNumber', ':expectedResult']),
+    );
+  });
+  it('handles context params for time condition', () => {
+    const condition = ConditionFactory.conditionFromProps(timeCondition);
+    const conditionContext = new ConditionContext(condition);
+
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([':expectedResult']),
+    );
+  });
+  it('handles context params for contract condition', () => {
+    const condition = ConditionFactory.conditionFromProps(contractCondition);
+    const conditionContext = new ConditionContext(condition);
+
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([':userAddress', ':expectedResult']),
+    );
+  });
+  it('handles context params for json api condition', () => {
+    const condition = ConditionFactory.conditionFromProps(jsonApiCondition);
+    const conditionContext = new ConditionContext(condition);
+
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([
+        ':userId',
+        ':endpoint',
+        ':value1',
+        ':query',
+        ':authToken',
+        ':expectedResult',
+      ]),
+    );
+  });
+  it('handles context params for json rpc condition (params dict)', () => {
+    const condition = ConditionFactory.conditionFromProps(
+      jsonRpcConditionParamsDict,
+    );
+    const conditionContext = new ConditionContext(condition);
+
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([
+        ':version',
+        ':value2',
+        ':queryKey',
+        ':authToken',
+        ':expectedResult',
+      ]),
+    );
+  });
+  it('handles context params for json rpc condition (params array)', () => {
+    const condition = ConditionFactory.conditionFromProps(
+      jsonRpcConditionParamsArray,
+    );
+    const conditionContext = new ConditionContext(condition);
+
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([
+        ':version',
+        ':value1',
+        ':value2',
+        ':queryKey',
+        ':authToken',
+        ':expectedResult',
+      ]),
+    );
+  });
+  it.each([
+    {
+      conditionType: SequentialConditionType,
+      conditionVariables: [
+        {
+          varName: 'rpc',
+          condition: rpcCondition,
+        },
+        {
+          varName: 'time',
+          condition: timeCondition,
+        },
+        {
+          varName: 'contract',
+          condition: contractCondition,
+        },
+        {
+          varName: 'jsonApi',
+          condition: jsonApiCondition,
+        },
+        {
+          varName: 'sequential',
+          condition: {
+            conditionType: SequentialConditionType,
+            conditionVariables: [
+              {
+                varName: 'jsonRpcParamsDict',
+                condition: jsonRpcConditionParamsDict,
+              },
+              {
+                varName: 'jsonRpcParamsArray',
+                condition: jsonRpcConditionParamsArray,
+              },
+            ],
+          },
+        },
+      ],
+    },
+    {
+      conditionType: CompoundConditionType,
+      operator: 'or',
+      operands: [
+        jsonApiCondition,
+        jsonRpcConditionParamsDict,
+        {
+          conditionType: CompoundConditionType,
+          operator: 'and',
+          operands: [jsonRpcConditionParamsArray, rpcCondition, timeCondition],
+        },
+        {
+          conditionType: CompoundConditionType,
+          operator: 'not',
+          operands: [contractCondition],
+        },
+      ],
+    },
+    {
+      conditionType: IfThenElseConditionType,
+      ifCondition: rpcCondition,
+      thenCondition: jsonRpcConditionParamsArray,
+      elseCondition: {
+        conditionType: CompoundConditionType,
+        operator: 'and',
+        operands: [
+          timeCondition,
+          contractCondition,
+          jsonApiCondition,
+          jsonRpcConditionParamsDict,
+        ],
+      },
+    },
+  ])('handles context params for logical conditions', (logicalCondition) => {
+    const condition = ConditionFactory.conditionFromProps(logicalCondition);
+    const conditionContext = new ConditionContext(condition);
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([
+        ':version',
+        ':userAddress',
+        ':blockNumber',
+        ':userId',
+        ':endpoint',
+        ':value1',
+        ':value2',
+        ':query',
+        ':queryKey',
+        ':authToken',
+        ':expectedResult',
+      ]),
+    );
   });
 });

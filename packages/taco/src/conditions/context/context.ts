@@ -16,6 +16,7 @@ import { ConditionExpression } from '../condition-expr';
 import {
   CONTEXT_PARAM_FULL_MATCH_REGEXP,
   CONTEXT_PARAM_PREFIX,
+  CONTEXT_PARAM_REGEXP,
   USER_ADDRESS_PARAMS,
 } from '../const';
 import { JsonApiConditionType } from '../schemas/json-api';
@@ -181,21 +182,24 @@ export class ConditionContext {
     }
     // If it's a JSON API condition, check url and query
     if (condition.conditionType === JsonApiConditionType) {
-      const urlComponents = condition.endpoint.replace("https://", "").split("/");
+      const urlComponents = condition.endpoint
+        .replace('https://', '')
+        .split('/');
       for (const param of urlComponents ?? []) {
         if (this.isContextParameter(param)) {
           requestedParameters.add(param);
         }
       }
       if (condition.query) {
-        const queryParams = condition.query.match(":[a-zA-Z_]+");
+        const queryParams = condition.query.match(CONTEXT_PARAM_REGEXP);
         if (queryParams) {
           for (const param of queryParams) {
             requestedParameters.add(param);
           }
         }
       }
-      if (this.isContextParameter(condition.authorizationToken)) {
+      // always a context variable, so simply check whether defined
+      if (condition.authorizationToken) {
         requestedParameters.add(condition.authorizationToken);
       }
     }

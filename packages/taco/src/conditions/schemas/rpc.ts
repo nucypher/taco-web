@@ -1,9 +1,7 @@
 import { BlockIdentifierSchema, EthAddressSchema } from '@nucypher/shared';
 import { z } from 'zod';
 
-import { SUPPORTED_CHAIN_IDS } from '../const';
-
-import createUnionSchema, {
+import {
   baseConditionSchema,
   UserAddressSchema,
 } from './common';
@@ -27,7 +25,7 @@ const BlockOrContextParamSchema = z.union([
 // - web3py: https://web3py.readthedocs.io/en/stable/web3.eth.html#web3.eth.Eth.get_balance
 export const rpcConditionSchema = baseConditionSchema.extend({
   conditionType: z.literal(RpcConditionType).default(RpcConditionType),
-  chain: createUnionSchema(SUPPORTED_CHAIN_IDS),
+  chain: z.number().int().nonnegative(),
   method: z.enum(['eth_getBalance']),
   parameters: z.union([
     // Spec requires 2 parameters: an address and a block identifier

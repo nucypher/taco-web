@@ -41,10 +41,7 @@ describe('validation', () => {
     expect(result.error?.format()).toMatchObject({
       chain: {
         _errors: [
-          'Invalid literal value, expected 137',
-          'Invalid literal value, expected 80002',
-          'Invalid literal value, expected 11155111',
-          'Invalid literal value, expected 1',
+          "Expected number, received string",
         ],
       },
     });

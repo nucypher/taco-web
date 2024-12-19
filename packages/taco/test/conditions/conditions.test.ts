@@ -5,7 +5,6 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 import { initialize } from '../../src';
 import { CompoundCondition } from '../../src/conditions/compound-condition';
-import { SUPPORTED_CHAIN_IDS } from '../../src/conditions/const';
 import { ConditionContext } from '../../src/conditions/context';
 
 describe('conditions', () => {
@@ -52,11 +51,5 @@ describe('conditions', () => {
     const asObj = await context.toContextParameters();
     expect(asObj).toBeDefined();
     expect(asObj[':time']).toBe(100);
-  });
-
-  it('has supported chains consistent with shared', async () => {
-    const chainIdsAndNames = Object.values(ChainId);
-    const chainIds = chainIdsAndNames.filter((id) => typeof id === 'number');
-    expect(SUPPORTED_CHAIN_IDS).toEqual(chainIds);
   });
 });

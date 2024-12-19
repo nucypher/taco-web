@@ -1,3 +1,4 @@
+import { ChainId } from '@nucypher/shared';
 import { describe, expect, it } from 'vitest';
 
 import { ContractCondition } from '../../src/conditions/base/contract';
@@ -8,7 +9,6 @@ import {
   compoundConditionSchema,
   CompoundConditionType,
 } from '../../src/conditions/compound-condition';
-import { SUPPORTED_CHAIN_IDS } from '../../src/conditions/const';
 import {
   testContractConditionObj,
   testRpcConditionObj,
@@ -247,7 +247,7 @@ describe('validation', () => {
   const multichainCondition: CompoundConditionProps = {
     conditionType: CompoundConditionType,
     operator: 'and',
-    operands: SUPPORTED_CHAIN_IDS.map((chain) => ({
+    operands: [ChainId.ETHEREUM_MAINNET, ChainId.POLYGON, ChainId.SEPOLIA, ChainId.AMOY].map((chain) => ({
       ...testRpcConditionObj,
       chain,
     })),

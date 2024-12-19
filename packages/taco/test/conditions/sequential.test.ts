@@ -1,7 +1,7 @@
+import { ChainId } from '@nucypher/shared';
 import { describe, expect, it } from 'vitest';
 
 import { CompoundConditionType } from '../../src/conditions/compound-condition';
-import { SUPPORTED_CHAIN_IDS } from '../../src/conditions/const';
 import {
   ConditionVariableProps,
   SequentialCondition,
@@ -223,7 +223,7 @@ describe('validation', () => {
   it('accepts on a valid multichain condition schema', () => {
     const multichainCondition: SequentialConditionProps = {
       conditionType: SequentialConditionType,
-      conditionVariables: SUPPORTED_CHAIN_IDS.map((chain) => ({
+      conditionVariables: [ChainId.AMOY, ChainId.POLYGON, ChainId.ETHEREUM_MAINNET, ChainId.SEPOLIA].map((chain) => ({
         varName: `chain_${chain}`,
         condition: {
           ...testRpcConditionObj,

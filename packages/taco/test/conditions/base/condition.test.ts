@@ -40,9 +40,7 @@ describe('validation', () => {
     expect(result.data).toBeUndefined();
     expect(result.error?.format()).toMatchObject({
       chain: {
-        _errors: [
-          "Expected number, received string",
-        ],
+        _errors: ['Expected number, received string'],
       },
     });
   });

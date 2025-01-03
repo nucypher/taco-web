@@ -277,9 +277,9 @@ export const testJWTConditionObj: JWTConditionProps = {
   conditionType: JWTConditionType,
   publicKey: TEST_ECDSA_PUBLIC_KEY,
   expectedIssuer: '0xacbd',
-  subject: ':userAddress',
-  expirationWindow: 1800,
-  issuedWindow: 86400,
+  // subject: ':userAddress',
+  // expirationWindow: 1800,
+  // issuedWindow: 86400,
   jwtToken: JWT_PARAM_DEFAULT,
 };
 

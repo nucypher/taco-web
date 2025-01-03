@@ -23,7 +23,7 @@ describe('JWTCondition', () => {
     it('rejects an invalid schema', () => {
       const badJWTObj = {
         ...testJWTConditionObj,
-        subject: TEST_CONTRACT_ADDR,
+        jwtToken: TEST_CONTRACT_ADDR,
       };
 
       const result = JWTCondition.validate(jwtConditionSchema, badJWTObj);
@@ -31,7 +31,7 @@ describe('JWTCondition', () => {
       expect(result.error).toBeDefined();
       expect(result.data).toBeUndefined();
       expect(result.error?.format()).toMatchObject({
-        subject: {
+        jwtToken: {
           _errors: ['Invalid'],
         },
       });

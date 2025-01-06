@@ -21,27 +21,27 @@ describe('JsonApiCondition', () => {
       expect(result.data).toEqual(testJsonApiConditionObj);
     });
 
-    it.each(['unsafe-url', 'http://http-url.com'])(
-      'rejects an invalid schema',
-      () => {
-        const badJsonApiObj = {
-          ...testJsonApiConditionObj,
-          endpoint: 'unsafe-url',
-        };
+    it.each([
+      'unsafe-url',
+      'http://http-url.com',
+      'mailto://mail@mailserver.org',
+      'https://',
+    ])('rejects an invalid schema', (badUrl) => {
+      const badJsonApiObj = {
+        ...testJsonApiConditionObj,
+        endpoint: badUrl,
+      };
 
-        const result = JsonApiCondition.validate(
-          jsonApiConditionSchema,
-          badJsonApiObj,
-        );
+      const result = JsonApiCondition.validate(
+        jsonApiConditionSchema,
+        badJsonApiObj,
+      );
 
-        expect(result.error).toBeDefined();
-        expect(result.data).toBeUndefined();
-        const errorMessages = result.error?.errors.map((err) => err.message);
-        expect(
-          errorMessages?.includes('Invalid url - must start with https://'),
-        ).toBeTruthy();
-      },
-    );
+      expect(result.error).toBeDefined();
+      expect(result.data).toBeUndefined();
+      const errorMessages = result.error?.errors.map((err) => err.message);
+      expect(errorMessages?.includes('Invalid URL')).toBeTruthy();
+    });
 
     describe('authorizationToken', () => {
       it('accepts context variable', () => {

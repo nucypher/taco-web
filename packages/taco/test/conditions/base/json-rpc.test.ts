@@ -20,27 +20,27 @@ describe('JsonRpcCondition', () => {
       expect(result.data).toEqual(testJsonRpcConditionObj);
     });
 
-    it.each(['unsafe-url', 'http://http-url.com'])(
-      'rejects an invalid schema',
-      () => {
-        const badJsonRpcObj = {
-          ...testJsonRpcConditionObj,
-          endpoint: 'unsafe-url',
-        };
+    it.each([
+      'unsafe-url',
+      'http://http-url.com',
+      'mailto://mail@freecodecamp.org',
+      'https://',
+    ])('rejects an invalid schema', (badUrl) => {
+      const badJsonRpcObj = {
+        ...testJsonRpcConditionObj,
+        endpoint: badUrl,
+      };
 
-        const result = JsonRpcCondition.validate(
-          jsonRpcConditionSchema,
-          badJsonRpcObj,
-        );
+      const result = JsonRpcCondition.validate(
+        jsonRpcConditionSchema,
+        badJsonRpcObj,
+      );
 
-        expect(result.error).toBeDefined();
-        expect(result.data).toBeUndefined();
-        const errorMessages = result.error?.errors.map((err) => err.message);
-        expect(
-          errorMessages?.includes('Invalid url - must start with https://'),
-        ).toBeTruthy();
-      },
-    );
+      expect(result.error).toBeDefined();
+      expect(result.data).toBeUndefined();
+      const errorMessages = result.error?.errors.map((err) => err.message);
+      expect(errorMessages?.includes('Invalid URL')).toBeTruthy();
+    });
 
     describe('authorizationToken', () => {
       it('accepts context variable', () => {

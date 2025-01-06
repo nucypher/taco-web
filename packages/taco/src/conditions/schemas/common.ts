@@ -78,9 +78,14 @@ export const jsonPathSchema = z
     message: 'Invalid JSONPath expression',
   });
 
+const validateHttpsURL = (url: string): boolean => {
+  return URL.canParse(url) && url.startsWith('https://');
+};
+
+// Use our own URL refinement check due to https://github.com/colinhacks/zod/issues/2236
 export const httpsURLSchema = z
   .string()
   .url()
-  .refine((url) => url.startsWith('https://'), {
-    message: 'Invalid url - must start with https://',
+  .refine((url) => validateHttpsURL(url), {
+    message: 'Invalid URL',
   });

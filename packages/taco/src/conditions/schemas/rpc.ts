@@ -1,10 +1,7 @@
 import { BlockIdentifierSchema, EthAddressSchema } from '@nucypher/shared';
 import { z } from 'zod';
 
-import {
-  baseConditionSchema,
-  UserAddressSchema,
-} from './common';
+import { baseConditionSchema, UserAddressSchema } from './common';
 import { contextParamSchema } from './context';
 import { returnValueTestSchema } from './return-value-test';
 

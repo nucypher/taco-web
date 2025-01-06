@@ -223,7 +223,12 @@ describe('validation', () => {
   it('accepts on a valid multichain condition schema', () => {
     const multichainCondition: SequentialConditionProps = {
       conditionType: SequentialConditionType,
-      conditionVariables: [ChainId.AMOY, ChainId.POLYGON, ChainId.ETHEREUM_MAINNET, ChainId.SEPOLIA].map((chain) => ({
+      conditionVariables: [
+        ChainId.AMOY,
+        ChainId.POLYGON,
+        ChainId.ETHEREUM_MAINNET,
+        ChainId.SEPOLIA,
+      ].map((chain) => ({
         varName: `chain_${chain}`,
         condition: {
           ...testRpcConditionObj,

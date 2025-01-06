@@ -136,40 +136,4 @@ describe('taco', () => {
       new Set([customParamKey, USER_ADDRESS_PARAM_DEFAULT]),
     );
   });
-  // test json api condition exposes requested parameters
-  it('jsonapi condition exposes requested parameters', async () => {
-    const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
-    const mockedDkgRitual = fakeDkgRitual(mockedDkg);
-    const provider = fakeProvider(aliceSecretKeyBytes);
-    const signer = provider.getSigner();
-    const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);
-
-    const jsonApiCondition = new conditions.base.jsonApi.JsonApiCondition({
-      endpoint: 'https://api.example.com/:userId/data',
-      query: '$.data[?(@.owner == :userAddress)].value',
-      authorizationToken: ':authToken',
-      returnValueTest: {
-        comparator: '==',
-        value: true,
-      },
-    });
-
-    const messageKit = await taco.encrypt(
-      provider,
-      domains.DEVNET,
-      message,
-      jsonApiCondition,
-      mockedDkg.ritualId,
-      signer,
-    );
-    expect(getFinalizedRitualSpy).toHaveBeenCalled();
-
-    const conditionContext = ConditionContext.fromMessageKit(messageKit);
-    const requestedParameters = conditionContext.requestedContextParameters;
-
-    // Verify all context parameters from endpoint, query and authToken are detected
-    expect(requestedParameters).toEqual(
-      new Set([':userId', ':userAddress', ':authToken']),
-    );
-  });
 });

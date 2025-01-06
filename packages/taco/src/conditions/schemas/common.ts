@@ -1,10 +1,11 @@
+import { JSONPath } from '@astronautlabs/jsonpath';
 import {
   USER_ADDRESS_PARAM_DEFAULT,
   USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
 } from '@nucypher/taco-auth';
 import { Primitive, z, ZodLiteral } from 'zod';
 
-import { CONTEXT_PARAM_PREFIX } from '../const';
+import { CONTEXT_PARAM_PREFIX, CONTEXT_PARAM_REGEXP } from '../const';
 
 // We want to discriminate between ContextParams and plain strings
 // If a string starts with `:`, it's a ContextParam
@@ -55,3 +56,36 @@ function createUnionSchema<T extends readonly Primitive[]>(values: T) {
 }
 
 export default createUnionSchema;
+
+const validateJSONPath = (jsonPath: string): boolean => {
+  // account for embedded context variables
+  if (CONTEXT_PARAM_REGEXP.test(jsonPath)) {
+    // skip validation
+    return true;
+  }
+
+  try {
+    JSONPath.parse(jsonPath);
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
+export const jsonPathSchema = z
+  .string()
+  .refine((val) => validateJSONPath(val), {
+    message: 'Invalid JSONPath expression',
+  });
+
+const validateHttpsURL = (url: string): boolean => {
+  return URL.canParse(url) && url.startsWith('https://');
+};
+
+// Use our own URL refinement check due to https://github.com/colinhacks/zod/issues/2236
+export const httpsURLSchema = z
+  .string()
+  .url()
+  .refine((url) => validateHttpsURL(url), {
+    message: 'Invalid URL',
+  });

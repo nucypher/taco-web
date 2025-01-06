@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   JsonApiCondition,
+  JsonApiConditionProps,
   jsonApiConditionSchema,
   JsonApiConditionType,
 } from '../../../src/conditions/base/json-api';
@@ -20,10 +21,15 @@ describe('JsonApiCondition', () => {
       expect(result.data).toEqual(testJsonApiConditionObj);
     });
 
-    it('rejects an invalid schema', () => {
+    it.each([
+      'unsafe-url',
+      'http://http-url.com',
+      'mailto://mail@mailserver.org',
+      'https://',
+    ])('rejects an invalid schema', (badUrl) => {
       const badJsonApiObj = {
         ...testJsonApiConditionObj,
-        endpoint: 'not-a-url',
+        endpoint: badUrl,
       };
 
       const result = JsonApiCondition.validate(
@@ -33,11 +39,8 @@ describe('JsonApiCondition', () => {
 
       expect(result.error).toBeDefined();
       expect(result.data).toBeUndefined();
-      expect(result.error?.format()).toMatchObject({
-        endpoint: {
-          _errors: ['Invalid url'],
-        },
-      });
+      const errorMessages = result.error?.errors.map((err) => err.message);
+      expect(errorMessages?.includes('Invalid URL')).toBeTruthy();
     });
 
     describe('authorizationToken', () => {
@@ -86,7 +89,7 @@ describe('JsonApiCondition', () => {
       });
 
       it('accepts conditions without parameters', () => {
-        const { query, ...noParamsObj } = testJsonApiConditionObj;
+        const { parameters, ...noParamsObj } = testJsonApiConditionObj;
         const result = JsonApiCondition.validate(
           jsonApiConditionSchema,
           noParamsObj,
@@ -99,7 +102,7 @@ describe('JsonApiCondition', () => {
 
     describe('context variables', () => {
       it('allow context variables for various values including as substring', () => {
-        const jsonApiConditionObj = {
+        const jsonApiConditionObj: JsonApiConditionProps = {
           conditionType: JsonApiConditionType,
           endpoint:
             'https://api.coingecko.com/api/:version/simple/:endpointPath',
@@ -114,6 +117,7 @@ describe('JsonApiCondition', () => {
             value: ':expectedPrice',
           },
         };
+
         const result = JsonApiCondition.validate(
           jsonApiConditionSchema,
           jsonApiConditionObj,

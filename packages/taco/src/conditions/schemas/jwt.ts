@@ -9,7 +9,7 @@ export const JWTConditionType = 'jwt';
 
 export const jwtConditionSchema = baseConditionSchema.extend({
   conditionType: z.literal(JWTConditionType).default(JWTConditionType),
-  publicKey: z.string().optional(),
+  publicKey: z.string(),
   expectedIssuer: z.string().optional(),
   // TODO see https://github.com/nucypher/taco-web/pull/604#discussion_r1901746814
   // subject: contextParamSchema.optional(),

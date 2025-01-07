@@ -23,7 +23,7 @@ describe('JsonRpcCondition', () => {
     it.each([
       'unsafe-url',
       'http://http-url.com',
-      'mailto://mail@freecodecamp.org',
+      'mailto://mail@mailserver.org',
       'https://',
     ])('rejects an invalid schema', (badUrl) => {
       const badJsonRpcObj = {

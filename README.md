@@ -2,7 +2,7 @@
 
 A TypeScript library for interacting with access control functionality in the browser.
 
-Full documentation can be found [here](https://docs.threshold.network/app-development/threshold-access-control-tac).
+Full documentation can be found [here](https://docs.taco.build/).
 
 > **Warning**
 >
@@ -19,7 +19,7 @@ pnpm add @nucypher/taco
 ## Tutorial
 
 To learn more, follow the tutorial at Threshold
-Network's [docs](https://docs.threshold.network/app-development/threshold-access-control-tac/get-started-with-tac).
+Network's [docs](https://docs.taco.build/taco-integration/).
 
 ## Examples
 

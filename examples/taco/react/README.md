@@ -14,4 +14,4 @@ inspect the UI and the JS console.
 ## Learn more
 
 Please find developer documentation for
-TACo [here](https://docs.threshold.network/app-development/threshold-access-control-tac).
+TACo [here](https://docs.taco.build/).

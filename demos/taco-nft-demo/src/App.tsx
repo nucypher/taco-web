@@ -129,7 +129,7 @@ export default function App() {
       <p>
         In production (mainnet domain), your wallet address (encryptor) will also have
         to be allow-listed for this specific ritual. However, we have
-        <a href={'https://docs.threshold.network/app-development/threshold-access-control-tac/integration-guide/get-started-with-tac#testnet-configuration'}>publicly available testnet rituals</a>
+        <a href={'https://docs.taco.build/taco-integration/get-started-with-tac#testnet-configuration'}>publicly available testnet rituals</a>
         for use when developing your apps.
       </p>
       <p>

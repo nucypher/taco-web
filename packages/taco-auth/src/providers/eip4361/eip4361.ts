@@ -13,7 +13,8 @@ export type EIP4361AuthProviderParams = {
   uri: string;
 };
 
-const ERR_MISSING_SIWE_PARAMETERS = 'Missing default SIWE parameters';
+const TACO_DEFAULT_DOMAIN = 'taco.build';
+const TACO_DEFAULT_URI = 'https://taco.build';
 
 export class EIP4361AuthProvider {
   private readonly storage: LocalStorage;
@@ -41,8 +42,12 @@ export class EIP4361AuthProvider {
         uri: window.location?.origin,
       };
     }
-    // If not, we have no choice but to throw an error
-    throw new Error(ERR_MISSING_SIWE_PARAMETERS);
+
+    // not in a browser environment, use hardcoded defaults
+    return {
+      domain: TACO_DEFAULT_DOMAIN,
+      uri: TACO_DEFAULT_URI,
+    };
   }
 
   public async getOrCreateAuthSignature(): Promise<AuthSignature> {

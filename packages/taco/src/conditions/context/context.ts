@@ -3,9 +3,11 @@ import { toJSON } from '@nucypher/shared';
 import {
   AuthProvider,
   AuthSignature,
+  EIP1271AuthProvider,
   EIP4361AuthProvider,
   SingleSignOnEIP4361AuthProvider,
   USER_ADDRESS_PARAM_DEFAULT,
+  USER_ADDRESS_PARAM_EIP1271,
   USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
 } from '@nucypher/taco-auth';
 
@@ -39,14 +41,18 @@ const ERR_AUTH_PROVIDER_NOT_NEEDED_FOR_CONTEXT_PARAM = (param: string) =>
 
 type AuthProviderType =
   | typeof EIP4361AuthProvider
-  | typeof SingleSignOnEIP4361AuthProvider;
+  | typeof SingleSignOnEIP4361AuthProvider
+  | typeof EIP1271AuthProvider;
+
 const EXPECTED_AUTH_PROVIDER_TYPES: Record<string, AuthProviderType> = {
   [USER_ADDRESS_PARAM_DEFAULT]: EIP4361AuthProvider,
   [USER_ADDRESS_PARAM_EXTERNAL_EIP4361]: SingleSignOnEIP4361AuthProvider,
+  [USER_ADDRESS_PARAM_EIP1271]: EIP1271AuthProvider,
 };
 
 export const RESERVED_CONTEXT_PARAMS = [
   USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
+  USER_ADDRESS_PARAM_EIP1271,
   USER_ADDRESS_PARAM_DEFAULT,
 ];
 

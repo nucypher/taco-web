@@ -1,10 +1,13 @@
 import { ethers } from 'ethers';
 import { generateNonce, SiweMessage } from 'siwe';
 
-import { AuthSignature } from '../../auth-sig';
 import { LocalStorage } from '../../storage';
 
-import { EIP4361_AUTH_METHOD } from './common';
+import {
+  EIP4361_AUTH_METHOD,
+  EIP4361AuthSignature,
+  eip4361AuthSignatureSchema,
+} from './auth';
 
 export const USER_ADDRESS_PARAM_DEFAULT = ':userAddress';
 
@@ -17,7 +20,7 @@ const TACO_DEFAULT_DOMAIN = 'taco.build';
 const TACO_DEFAULT_URI = 'https://taco.build';
 
 export class EIP4361AuthProvider {
-  private readonly storage: LocalStorage;
+  private readonly storage: LocalStorage<EIP4361AuthSignature>;
   private readonly providerParams: EIP4361AuthProviderParams;
 
   constructor(
@@ -26,7 +29,7 @@ export class EIP4361AuthProvider {
     private readonly signer: ethers.Signer,
     providerParams?: EIP4361AuthProviderParams,
   ) {
-    this.storage = new LocalStorage();
+    this.storage = new LocalStorage(eip4361AuthSignatureSchema);
     if (providerParams) {
       this.providerParams = providerParams;
     } else {
@@ -50,7 +53,7 @@ export class EIP4361AuthProvider {
     };
   }
 
-  public async getOrCreateAuthSignature(): Promise<AuthSignature> {
+  public async getOrCreateAuthSignature(): Promise<EIP4361AuthSignature> {
     const address = await this.signer.getAddress();
     const storageKey = `eth-${EIP4361_AUTH_METHOD}-message-${address}`;
 
@@ -85,7 +88,7 @@ export class EIP4361AuthProvider {
     return twoHourWindow < now;
   }
 
-  private async createSIWEAuthMessage(): Promise<AuthSignature> {
+  private async createSIWEAuthMessage(): Promise<EIP4361AuthSignature> {
     const address = await this.signer.getAddress();
     const { domain, uri } = this.providerParams;
     const version = '1';

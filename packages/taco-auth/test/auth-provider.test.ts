@@ -7,12 +7,13 @@ import { SiweMessage } from 'siwe';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  EIP1271AuthProvider,
   EIP4361AuthProvider,
   SingleSignOnEIP4361AuthProvider,
 } from '../src/providers';
-import { EIP4361TypedDataSchema } from '../src/providers/eip4361/common';
+import { EIP4361TypedDataSchema } from '../src/providers/eip4361/auth';
 
-describe('auth provider', () => {
+describe('eip4361 auth provider', () => {
   const provider = fakeProvider(bobSecretKeyBytes);
   const signer = provider.getSigner();
   const eip4361Provider = new EIP4361AuthProvider(
@@ -77,7 +78,7 @@ describe('auth provider', () => {
   });
 });
 
-describe('auth provider caching', () => {
+describe('eip4361 single sign-on auth provider', () => {
   beforeEach(() => {
     // tell vitest we use mocked time
     vi.useFakeTimers();
@@ -125,7 +126,7 @@ describe('auth provider caching', () => {
   });
 });
 
-describe('single sign-on auth provider', async () => {
+describe('eip4361 single sign-on auth provider', async () => {
   const provider = fakeProvider(bobSecretKeyBytes);
   const signer = provider.getSigner();
 
@@ -153,5 +154,30 @@ describe('single sign-on auth provider', async () => {
     expect(typedSignature.signature).toEqual(originalSiweSignature);
     expect(typedSignature.address).toEqual(await signer.getAddress());
     expect(typedSignature.scheme).toEqual('EIP4361');
+  });
+});
+
+describe('eip1271 auth provider', () => {
+  const dataHash = '0xdeadbeef';
+  const contractAddress = '0x100000000000000000000000000000000000000';
+  const chainId = 1234;
+  const signature = '0xabc123';
+
+  const eip1271Provider = new EIP1271AuthProvider(
+    contractAddress,
+    chainId,
+    dataHash,
+    signature,
+  );
+
+  it('creates a new EIP1271 auth signature', async () => {
+    const typedSignature = await eip1271Provider.getOrCreateAuthSignature();
+    expect(typedSignature.signature).toEqual(signature);
+    expect(typedSignature.address).toEqual(contractAddress);
+    expect(typedSignature.scheme).toEqual('EIP1271');
+    expect(typedSignature.typedData).toEqual({
+      chain: chainId,
+      dataHash: dataHash,
+    });
   });
 });

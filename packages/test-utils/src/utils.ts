@@ -38,15 +38,17 @@ import {
   zip,
 } from '@nucypher/shared';
 import {
+  EIP1271AuthProvider,
   EIP4361AuthProvider,
   SingleSignOnEIP4361AuthProvider,
   USER_ADDRESS_PARAM_DEFAULT,
+  USER_ADDRESS_PARAM_EIP1271,
   USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
 } from '@nucypher/taco-auth';
 import { ethers, providers, Wallet } from 'ethers';
 import { expect, SpyInstance, vi } from 'vitest';
 
-import { TEST_SIWE_PARAMS } from './variables';
+import { TEST_CONTRACT_ADDR, TEST_SIWE_PARAMS } from './variables';
 
 export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
   first.length === second.length &&
@@ -101,6 +103,7 @@ export const fakeAuthProviders = async (
     [USER_ADDRESS_PARAM_DEFAULT]: fakeEIP4351AuthProvider(signerToUse),
     [USER_ADDRESS_PARAM_EXTERNAL_EIP4361]:
       await fakeSingleSignOnEIP4361AuthProvider(signerToUse),
+    [USER_ADDRESS_PARAM_EIP1271]: await fakeEIP1271AuthProvider(signerToUse),
   };
 };
 
@@ -120,6 +123,20 @@ const fakeSingleSignOnEIP4361AuthProvider = async (
   return SingleSignOnEIP4361AuthProvider.fromExistingSiweInfo(
     authSignature.typedData,
     authSignature.signature,
+  );
+};
+
+const fakeEIP1271AuthProvider = async (
+  signer: ethers.providers.JsonRpcSigner,
+) => {
+  const message = `I'm the owner of the smart contract wallet at ${TEST_CONTRACT_ADDR}`;
+  const dataHash = ethers.utils.hashMessage(message);
+  const signature = await signer.signMessage(message);
+  return new EIP1271AuthProvider(
+    TEST_CONTRACT_ADDR,
+    (await signer.provider.getNetwork()).chainId,
+    dataHash,
+    signature,
   );
 };
 

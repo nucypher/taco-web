@@ -21,6 +21,28 @@ describe('auth provider', () => {
     TEST_SIWE_PARAMS,
   );
 
+  it('creates new SIWE message with default parameters', async () => {
+    const defaultEip4361Provider = new EIP4361AuthProvider(provider, signer);
+
+    const typedSignature =
+      await defaultEip4361Provider.getOrCreateAuthSignature();
+    expect(typedSignature.signature).toBeDefined();
+    expect(typedSignature.address).toEqual(await signer.getAddress());
+    expect(typedSignature.scheme).toEqual('EIP4361');
+    const typedDataSiweMessage = new SiweMessage(`${typedSignature.typedData}`);
+    expect(typedDataSiweMessage).toBeDefined();
+    expect(typedDataSiweMessage.domain).toEqual('taco.build');
+    expect(typedDataSiweMessage.version).toEqual('1');
+    expect(typedDataSiweMessage.nonce).toBeDefined(); // random
+    expect(typedDataSiweMessage.uri).toEqual('https://taco.build');
+    expect(typedDataSiweMessage.chainId).toEqual(
+      (await provider.getNetwork()).chainId,
+    );
+    expect(typedDataSiweMessage.statement).toEqual(
+      `${typedDataSiweMessage.domain} wants you to sign in with your Ethereum account: ${await signer.getAddress()}`,
+    );
+  });
+
   it('creates a new SIWE message', async () => {
     const typedSignature = await eip4361Provider.getOrCreateAuthSignature();
     expect(typedSignature.signature).toBeDefined();

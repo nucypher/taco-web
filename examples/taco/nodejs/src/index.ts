@@ -13,10 +13,11 @@ import {
 } from '@nucypher/taco';
 import {
   EIP4361AuthProvider,
+  SelfDelegateProvider,
   USER_ADDRESS_PARAM_DEFAULT,
 } from '@nucypher/taco-auth';
 import * as dotenv from 'dotenv';
-import { ethers } from 'ethers';
+import { Wallet, ethers } from 'ethers';
 
 dotenv.config();
 
@@ -73,13 +74,18 @@ const encryptToBytes = async (messageString: string) => {
     'Condition requires authentication',
   );
 
+  const ephemeralPrivateKey = Wallet.createRandom().privateKey;
+  const selfDelegateProvider = new SelfDelegateProvider(encryptorSigner);
+  
+  const appSideSigner = await selfDelegateProvider.createSelfDelegatedAppSideSigner(ephemeralPrivateKey);
+
   const messageKit = await encrypt(
     provider,
     domain,
     message,
     hasPositiveBalance,
     ritualId,
-    encryptorSigner,
+    appSideSigner,
   );
 
   return messageKit.toBytes();

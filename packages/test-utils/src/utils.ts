@@ -42,7 +42,6 @@ import {
   EIP4361AuthProvider,
   SingleSignOnEIP4361AuthProvider,
   USER_ADDRESS_PARAM_DEFAULT,
-  USER_ADDRESS_PARAM_EIP1271,
   USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
 } from '@nucypher/taco-auth';
 import { ethers, providers, Wallet } from 'ethers';
@@ -100,14 +99,14 @@ export const fakeAuthProviders = async (
 ) => {
   const signerToUse = signer ? signer : fakeProvider().getSigner();
   return {
-    [USER_ADDRESS_PARAM_DEFAULT]: fakeEIP4351AuthProvider(signerToUse),
-    [USER_ADDRESS_PARAM_EXTERNAL_EIP4361]:
+    ["EIP4361"]: fakeEIP4361AuthProvider(signerToUse),
+    ["SSO4361"]:
       await fakeSingleSignOnEIP4361AuthProvider(signerToUse),
-    [USER_ADDRESS_PARAM_EIP1271]: await fakeEIP1271AuthProvider(signerToUse),
+    ["EIP1271"]: await fakeEIP1271AuthProvider(signerToUse)
   };
 };
 
-const fakeEIP4351AuthProvider = (signer: ethers.providers.JsonRpcSigner) => {
+const fakeEIP4361AuthProvider = (signer: ethers.providers.JsonRpcSigner) => {
   return new EIP4361AuthProvider(signer.provider, signer, TEST_SIWE_PARAMS);
 };
 

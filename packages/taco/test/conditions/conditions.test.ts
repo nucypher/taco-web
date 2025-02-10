@@ -43,7 +43,7 @@ describe('conditions', () => {
     context.addCustomContextParameterValues({ ':time': 100 });
     context.addAuthProvider(
       USER_ADDRESS_PARAM_DEFAULT,
-      authProviders[USER_ADDRESS_PARAM_DEFAULT],
+      authProviders["EIP4361"],
     );
 
     expect(context).toBeDefined();

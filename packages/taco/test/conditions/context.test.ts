@@ -7,7 +7,6 @@ import {
   EIP4361AuthProvider,
   SingleSignOnEIP4361AuthProvider,
   USER_ADDRESS_PARAM_DEFAULT,
-  USER_ADDRESS_PARAM_EIP1271,
   USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
 } from '@nucypher/taco-auth';
 import { fakeAuthProviders, fakeProvider } from '@nucypher/test-utils';
@@ -53,10 +52,9 @@ describe('context', () => {
 
   describe('reserved context parameters', () => {
     it.each([
-      USER_ADDRESS_PARAM_DEFAULT,
-      USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
-      USER_ADDRESS_PARAM_EIP1271,
-    ])('serializes to json', async (userAddressParam) => {
+      [USER_ADDRESS_PARAM_DEFAULT, "EIP4361"],
+      [USER_ADDRESS_PARAM_EXTERNAL_EIP4361, "SSO4361"],
+    ])('serializes to json', async (userAddressParam, authProviderKey) => {
       const rpcCondition = new RpcCondition({
         ...testRpcConditionObj,
         parameters: [userAddressParam],
@@ -68,7 +66,7 @@ describe('context', () => {
       const conditionContext = new ConditionContext(rpcCondition);
       conditionContext.addAuthProvider(
         userAddressParam,
-        authProviders[userAddressParam],
+        authProviders[authProviderKey],
       );
       const asJson = await conditionContext.toJson();
 
@@ -79,7 +77,6 @@ describe('context', () => {
     it.each([
       USER_ADDRESS_PARAM_DEFAULT,
       USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
-      USER_ADDRESS_PARAM_EIP1271,
     ])(
       'detects when auth provider is required by parameters',
       async (userAddressParam) => {
@@ -102,7 +99,6 @@ describe('context', () => {
     it.each([
       USER_ADDRESS_PARAM_DEFAULT,
       USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
-      USER_ADDRESS_PARAM_EIP1271,
     ])(
       'detects when signer is required by return value test',
       async (userAddressParam) => {
@@ -135,16 +131,12 @@ describe('context', () => {
           USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
         ),
       ).toBe(false);
-      expect(
-        JSON.stringify(condition.toObj()).includes(USER_ADDRESS_PARAM_EIP1271),
-      ).toBe(false);
       await expect(conditionContext.toContextParameters()).toBeDefined();
     });
 
     it.each([
       USER_ADDRESS_PARAM_DEFAULT,
       USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
-      USER_ADDRESS_PARAM_EIP1271,
     ])(
       'return value test rejects on a missing signer',
       async (userAddressParam) => {
@@ -176,7 +168,7 @@ describe('context', () => {
       expect(() =>
         conditionContext.addAuthProvider(
           ':myParam',
-          authProviders[USER_ADDRESS_PARAM_DEFAULT],
+          authProviders["EIP4361"],
         ),
       ).toThrow('AuthProvider not necessary for context parameter: :myParam');
     });
@@ -194,7 +186,7 @@ describe('context', () => {
       expect(() =>
         conditionContext.addAuthProvider(
           USER_ADDRESS_PARAM_DEFAULT,
-          authProviders[USER_ADDRESS_PARAM_EXTERNAL_EIP4361],
+          authProviders["SSO4361"],
         ),
       ).toThrow(`Invalid AuthProvider type for ${USER_ADDRESS_PARAM_DEFAULT}`);
     });
@@ -212,36 +204,17 @@ describe('context', () => {
       expect(() =>
         conditionContext.addAuthProvider(
           USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
-          authProviders[USER_ADDRESS_PARAM_DEFAULT],
+          authProviders["EIP4361"], // it should be SSO4361
         ),
       ).toThrow(
         `Invalid AuthProvider type for ${USER_ADDRESS_PARAM_EXTERNAL_EIP4361}`,
       );
     });
 
-    it('rejects invalid auth provider for :userAddressEIP1271', () => {
-      const conditionObj = {
-        ...testContractConditionObj,
-        returnValueTest: {
-          ...testReturnValueTest,
-          value: USER_ADDRESS_PARAM_EIP1271,
-        },
-      };
-      const condition = new ContractCondition(conditionObj);
-      const conditionContext = new ConditionContext(condition);
-      expect(() =>
-        conditionContext.addAuthProvider(
-          USER_ADDRESS_PARAM_EIP1271,
-          authProviders[USER_ADDRESS_PARAM_EXTERNAL_EIP4361],
-        ),
-      ).toThrow(`Invalid AuthProvider type for ${USER_ADDRESS_PARAM_EIP1271}`);
-    });
-
     it.each([
-      USER_ADDRESS_PARAM_DEFAULT,
-      USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
-      USER_ADDRESS_PARAM_EIP1271,
-    ])('it supports just one provider at a time', async (userAddressParam) => {
+      [USER_ADDRESS_PARAM_DEFAULT, "EIP4361"],
+      [USER_ADDRESS_PARAM_EXTERNAL_EIP4361, "SSO4361"],
+    ])('it supports just one provider at a time', async (userAddressParam, authProviderKey) => {
       const conditionObj = {
         ...testContractConditionObj,
         returnValueTest: {
@@ -253,7 +226,7 @@ describe('context', () => {
       const conditionContext = new ConditionContext(condition);
       conditionContext.addAuthProvider(
         userAddressParam,
-        authProviders[userAddressParam],
+        authProviders[authProviderKey],
       );
       expect(async () => conditionContext.toContextParameters()).not.toThrow();
     });
@@ -303,7 +276,7 @@ describe('context', () => {
       }
     }
 
-    async function makeAuthSignature(userAddressParam: string) {
+    async function makeAuthSignature(userAddressParam: string, scheme: string) {
       const conditionObj = {
         ...testContractConditionObj,
         returnValueTest: {
@@ -316,7 +289,7 @@ describe('context', () => {
       const conditionContext = new ConditionContext(condition);
       conditionContext.addAuthProvider(
         userAddressParam,
-        authProviders[userAddressParam],
+        authProviders[scheme],
       );
       const contextVars = await conditionContext.toContextParameters();
       const authSignature = contextVars[userAddressParam] as AuthSignature;
@@ -331,7 +304,7 @@ describe('context', () => {
         'getOrCreateAuthSignature',
       );
 
-      const authSignature = await makeAuthSignature(USER_ADDRESS_PARAM_DEFAULT);
+      const authSignature = await makeAuthSignature(USER_ADDRESS_PARAM_DEFAULT, "EIP4361");
       await testAuthSignature(authSignature, 'EIP4361');
       expect(eip4361Spy).toHaveBeenCalledOnce();
     });
@@ -345,6 +318,7 @@ describe('context', () => {
 
       const authSignature = await makeAuthSignature(
         USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
+        "SSO4361"
       );
       expect(authSignature).toBeDefined();
       await testAuthSignature(
@@ -352,7 +326,7 @@ describe('context', () => {
         'EIP4361',
         (
           authProviders[
-            USER_ADDRESS_PARAM_EXTERNAL_EIP4361
+            "SSO4361"
           ] as SingleSignOnEIP4361AuthProvider
         ).address,
       );
@@ -365,12 +339,12 @@ describe('context', () => {
         'getOrCreateAuthSignature',
       );
 
-      const authSignature = await makeAuthSignature(USER_ADDRESS_PARAM_EIP1271);
+      const authSignature = await makeAuthSignature(USER_ADDRESS_PARAM_DEFAULT, "EIP1271");
       expect(authSignature).toBeDefined();
       await testAuthSignature(
         authSignature,
         'EIP1271',
-        (authProviders[USER_ADDRESS_PARAM_EIP1271] as EIP1271AuthProvider)
+        (authProviders["EIP1271"] as EIP1271AuthProvider)
           .contractAddress,
       );
       expect(eip1271Spy).toHaveBeenCalledOnce();
@@ -427,7 +401,7 @@ describe('context', () => {
         const conditionContext = new ConditionContext(contractCondition);
         conditionContext.addAuthProvider(
           USER_ADDRESS_PARAM_DEFAULT,
-          authProviders[USER_ADDRESS_PARAM_DEFAULT],
+          authProviders["EIP4361"],
         );
         await expect(conditionContext.toContextParameters()).rejects.toThrow(
           `Missing custom context parameter(s): ${customParamKey}`,
@@ -488,7 +462,7 @@ describe('context', () => {
         const conditionContext = new ConditionContext(customContractCondition);
         conditionContext.addAuthProvider(
           USER_ADDRESS_PARAM_DEFAULT,
-          authProviders[USER_ADDRESS_PARAM_DEFAULT],
+          authProviders["EIP4361"],
         );
 
         await expect(async () =>
@@ -501,17 +475,17 @@ describe('context', () => {
       it('accepts on a hard-coded parameter', async () => {
         const customContractCondition = new ContractCondition({
           ...contractConditionObj,
-          parameters: [USER_ADDRESS_PARAM_EIP1271, 100],
+          parameters: [USER_ADDRESS_PARAM_DEFAULT, 100],
         });
         const conditionContext = new ConditionContext(customContractCondition);
         conditionContext.addAuthProvider(
-          USER_ADDRESS_PARAM_EIP1271,
-          authProviders[USER_ADDRESS_PARAM_EIP1271],
+          USER_ADDRESS_PARAM_DEFAULT,
+          authProviders["EIP4361"],
         );
 
         const asObj = await conditionContext.toContextParameters();
         expect(asObj).toBeDefined();
-        expect(asObj[USER_ADDRESS_PARAM_EIP1271]).toBeDefined();
+        expect(asObj[USER_ADDRESS_PARAM_DEFAULT]).toBeDefined();
       });
 
       it.each([0, ''])(
@@ -529,7 +503,7 @@ describe('context', () => {
           );
           conditionContext.addAuthProvider(
             USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
-            authProviders[USER_ADDRESS_PARAM_EXTERNAL_EIP4361],
+            authProviders["SSO4361"],
           );
           conditionContext.addCustomContextParameterValues(customParameters);
 

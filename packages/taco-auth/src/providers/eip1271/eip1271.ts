@@ -1,6 +1,5 @@
 import { EIP1271_AUTH_METHOD, EIP1271AuthSignature } from './auth';
 
-export const USER_ADDRESS_PARAM_EIP1271 = ':userAddressEIP1271';
 
 export class EIP1271AuthProvider {
   constructor(

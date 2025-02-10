@@ -201,7 +201,7 @@ describe('supports custom function abi', async () => {
 
     conditionContext.addAuthProvider(
       USER_ADDRESS_PARAM_DEFAULT,
-      authProviders[USER_ADDRESS_PARAM_DEFAULT],
+      authProviders["EIP4361"],
     );
 
     const asJson = await conditionContext.toJson();

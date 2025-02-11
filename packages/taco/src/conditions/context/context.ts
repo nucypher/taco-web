@@ -44,7 +44,11 @@ type AuthProviderType =
   | typeof SingleSignOnEIP4361AuthProvider;
 
 const EXPECTED_AUTH_PROVIDER_TYPES: Record<string, AuthProviderType[]> = {
-  [USER_ADDRESS_PARAM_DEFAULT]: [EIP4361AuthProvider, EIP1271AuthProvider, SingleSignOnEIP4361AuthProvider],
+  [USER_ADDRESS_PARAM_DEFAULT]: [
+    EIP4361AuthProvider,
+    EIP1271AuthProvider,
+    SingleSignOnEIP4361AuthProvider,
+  ],
   [USER_ADDRESS_PARAM_EXTERNAL_EIP4361]: [SingleSignOnEIP4361AuthProvider],
 };
 
@@ -227,7 +231,6 @@ export class ConditionContext {
     }
 
     this.authProviders[contextParam] = authProvider;
-
   }
   public async toJson(): Promise<string> {
     const parameters = await this.toContextParameters();

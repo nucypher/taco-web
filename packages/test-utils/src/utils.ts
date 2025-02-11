@@ -43,8 +43,6 @@ import {
   EIP1271AuthProvider,
   EIP4361AuthProvider,
   SingleSignOnEIP4361AuthProvider,
-  USER_ADDRESS_PARAM_DEFAULT,
-  USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
 } from '@nucypher/taco-auth';
 import { ethers, providers, Wallet } from 'ethers';
 import { expect, SpyInstance, vi } from 'vitest';
@@ -101,11 +99,10 @@ export const fakeAuthProviders = async (
 ) => {
   const signerToUse = signer ? signer : fakeProvider().getSigner();
   return {
-    ["EIP4361"]: fakeEIP4361AuthProvider(signerToUse),
-    ["SSO4361"]:
-      await fakeSingleSignOnEIP4361AuthProvider(signerToUse),
-    ["EIP1271"]: await fakeEIP1271AuthProvider(signerToUse),
-    ["Bogus"]: fakeBogusAuthProvider(signerToUse),
+    ['EIP4361']: fakeEIP4361AuthProvider(signerToUse),
+    ['SSO4361']: await fakeSingleSignOnEIP4361AuthProvider(signerToUse),
+    ['EIP1271']: await fakeEIP1271AuthProvider(signerToUse),
+    ['Bogus']: fakeBogusAuthProvider(signerToUse),
   };
 };
 
@@ -113,21 +110,23 @@ class BogusAuthProvider implements AuthProvider {
   constructor(private provider: ethers.providers.Web3Provider) {}
 
   async getOrCreateAuthSignature(): Promise<AuthSignature> {
-    throw new Error("Bogus provider");
+    throw new Error('Bogus provider');
   }
 }
 
-export const fakeBogusAuthProvider = (signer: ethers.providers.JsonRpcSigner) => {
+export const fakeBogusAuthProvider = (
+  signer: ethers.providers.JsonRpcSigner,
+) => {
   const externalProvider: ethers.providers.ExternalProvider = {
     send: (request, callback) => {
-      callback(new Error("Bogus provider"), null);
+      callback(new Error('Bogus provider'), null);
     },
-    request: () => Promise.reject(new Error("Bogus provider"))
+    request: () => Promise.reject(new Error('Bogus provider')),
   };
-  return new BogusAuthProvider(new ethers.providers.Web3Provider(externalProvider));
+  return new BogusAuthProvider(
+    new ethers.providers.Web3Provider(externalProvider),
+  );
 };
-
-
 
 const fakeEIP4361AuthProvider = (signer: ethers.providers.JsonRpcSigner) => {
   return new EIP4361AuthProvider(signer.provider, signer, TEST_SIWE_PARAMS);

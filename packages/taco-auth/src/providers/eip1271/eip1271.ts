@@ -1,6 +1,5 @@
 import { EIP1271_AUTH_METHOD, EIP1271AuthSignature } from './auth';
 
-
 export class EIP1271AuthProvider {
   constructor(
     public readonly contractAddress: string,

@@ -38,6 +38,8 @@ import {
   zip,
 } from '@nucypher/shared';
 import {
+  AuthProvider,
+  AuthSignature,
   EIP1271AuthProvider,
   EIP4361AuthProvider,
   SingleSignOnEIP4361AuthProvider,
@@ -103,19 +105,28 @@ export const fakeAuthProviders = async (
     ["SSO4361"]:
       await fakeSingleSignOnEIP4361AuthProvider(signerToUse),
     ["EIP1271"]: await fakeEIP1271AuthProvider(signerToUse),
-    ["Bogus"]: fakeBogusProvider(signerToUse),
+    ["Bogus"]: fakeBogusAuthProvider(signerToUse),
   };
 };
 
-export const fakeBogusProvider = (signer: ethers.providers.JsonRpcSigner) => {
+class BogusAuthProvider implements AuthProvider {
+  constructor(private provider: ethers.providers.Web3Provider) {}
+
+  async getOrCreateAuthSignature(): Promise<AuthSignature> {
+    throw new Error("Bogus provider");
+  }
+}
+
+export const fakeBogusAuthProvider = (signer: ethers.providers.JsonRpcSigner) => {
   const externalProvider: ethers.providers.ExternalProvider = {
     send: (request, callback) => {
       callback(new Error("Bogus provider"), null);
     },
     request: () => Promise.reject(new Error("Bogus provider"))
   };
-  return new ethers.providers.Web3Provider(externalProvider);
+  return new BogusAuthProvider(new ethers.providers.Web3Provider(externalProvider));
 };
+
 
 
 const fakeEIP4361AuthProvider = (signer: ethers.providers.JsonRpcSigner) => {

@@ -54,7 +54,7 @@ describe('context', () => {
     it.each([
       [USER_ADDRESS_PARAM_DEFAULT, "EIP4361"],
       [USER_ADDRESS_PARAM_EXTERNAL_EIP4361, "SSO4361"],
-    ])('serializes to json', async (userAddressParam, authProviderKey) => {
+    ])('serializes to json', async (userAddressParam, scheme) => {
       const rpcCondition = new RpcCondition({
         ...testRpcConditionObj,
         parameters: [userAddressParam],
@@ -66,7 +66,7 @@ describe('context', () => {
       const conditionContext = new ConditionContext(rpcCondition);
       conditionContext.addAuthProvider(
         userAddressParam,
-        authProviders[authProviderKey],
+        authProviders[scheme],
       );
       const asJson = await conditionContext.toJson();
 
@@ -213,8 +213,9 @@ describe('context', () => {
 
     it.each([
       [USER_ADDRESS_PARAM_DEFAULT, "EIP4361"],
+      [USER_ADDRESS_PARAM_DEFAULT, "EIP1271"],
       [USER_ADDRESS_PARAM_EXTERNAL_EIP4361, "SSO4361"],
-    ])('it supports just one provider at a time', async (userAddressParam, authProviderKey) => {
+    ])('it supports just one provider at a time', async (userAddressParam, scheme) => {
       const conditionObj = {
         ...testContractConditionObj,
         returnValueTest: {
@@ -226,7 +227,7 @@ describe('context', () => {
       const conditionContext = new ConditionContext(condition);
       conditionContext.addAuthProvider(
         userAddressParam,
-        authProviders[authProviderKey],
+        authProviders[scheme],
       );
       expect(async () => conditionContext.toContextParameters()).not.toThrow();
     });

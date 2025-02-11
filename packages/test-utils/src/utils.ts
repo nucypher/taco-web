@@ -102,9 +102,21 @@ export const fakeAuthProviders = async (
     ["EIP4361"]: fakeEIP4361AuthProvider(signerToUse),
     ["SSO4361"]:
       await fakeSingleSignOnEIP4361AuthProvider(signerToUse),
-    ["EIP1271"]: await fakeEIP1271AuthProvider(signerToUse)
+    ["EIP1271"]: await fakeEIP1271AuthProvider(signerToUse),
+    ["Bogus"]: fakeBogusProvider(signerToUse),
   };
 };
+
+export const fakeBogusProvider = (signer: ethers.providers.JsonRpcSigner) => {
+  const externalProvider: ethers.providers.ExternalProvider = {
+    send: (request, callback) => {
+      callback(new Error("Bogus provider"), null);
+    },
+    request: () => Promise.reject(new Error("Bogus provider"))
+  };
+  return new ethers.providers.Web3Provider(externalProvider);
+};
+
 
 const fakeEIP4361AuthProvider = (signer: ethers.providers.JsonRpcSigner) => {
   return new EIP4361AuthProvider(signer.provider, signer, TEST_SIWE_PARAMS);

@@ -186,7 +186,7 @@ describe('context', () => {
       expect(() =>
         conditionContext.addAuthProvider(
           USER_ADDRESS_PARAM_DEFAULT,
-          authProviders["SSO4361"],
+          authProviders["Bogus"],
         ),
       ).toThrow(`Invalid AuthProvider type for ${USER_ADDRESS_PARAM_DEFAULT}`);
     });
@@ -481,7 +481,7 @@ describe('context', () => {
         const conditionContext = new ConditionContext(customContractCondition);
         conditionContext.addAuthProvider(
           USER_ADDRESS_PARAM_DEFAULT,
-          authProviders["EIP4361"],
+          authProviders["EIP1271"],
         );
 
         const asObj = await conditionContext.toContextParameters();

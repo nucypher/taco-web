@@ -36,7 +36,8 @@
     "package-check": "package-check",
     "test": "vitest run",
     "type-check": "tsc --noEmit",
-    "typedoc": "typedoc"
+    "typedoc": "typedoc",
+    "generate-zod-docs": "pnpm dlx tsx scripts/schema-docs-generation.ts"
   },
   "dependencies": {
     "@astronautlabs/jsonpath": "^1.1.2",
@@ -49,7 +50,9 @@
   },
   "devDependencies": {
     "@nucypher/test-utils": "workspace:*",
-    "@types/semver": "^7.5.8"
+    "@types/semver": "^7.5.8",
+    "glob": "^11.0.1",
+    "modified-zod2md": "^0.1.4"
   },
   "engines": {
     "node": ">=18",

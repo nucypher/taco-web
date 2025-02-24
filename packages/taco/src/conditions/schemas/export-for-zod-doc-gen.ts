@@ -1,8 +1,8 @@
 
 export * from './utils';
 export * from './common';
-export * from './compound';
 export * from './context';
+export * from './compound';
 export * from './contract';
 export * from './if-then-else';
 export * from './json-api';

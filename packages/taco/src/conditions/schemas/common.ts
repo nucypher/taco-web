@@ -9,14 +9,19 @@ import { CONTEXT_PARAM_PREFIX, CONTEXT_PARAM_REGEXP } from '../const';
 
 // We want to discriminate between ContextParams and plain strings
 // If a string starts with `:`, it's a ContextParam
-export const plainStringSchema = z.string().refine(
-  (str) => {
-    return !str.startsWith(CONTEXT_PARAM_PREFIX);
-  },
-  {
-    message: `String must not be a context parameter i.e. not start with "${CONTEXT_PARAM_PREFIX}"`,
-  },
-);
+export const plainStringSchema = z
+  .string()
+  .refine(
+    (str) => {
+      return !str.startsWith(CONTEXT_PARAM_PREFIX);
+    },
+    {
+      message: `String must not be a context parameter i.e. not start with "${CONTEXT_PARAM_PREFIX}"`,
+    },
+  )
+  .describe(
+    `A string that is not a Context Parameter i.e. does not start with \`${CONTEXT_PARAM_PREFIX}\`.`,
+  );
 
 export const UserAddressSchema = z.enum([
   USER_ADDRESS_PARAM_DEFAULT,
@@ -76,7 +81,10 @@ export const jsonPathSchema = z
   .string()
   .refine((val) => validateJSONPath(val), {
     message: 'Invalid JSONPath expression',
-  });
+  })
+  .describe(
+    'A string containing either a valid JSON Path Expression, or a Context Parameter.',
+  );
 
 const validateHttpsURL = (url: string): boolean => {
   return URL.canParse(url) && url.startsWith('https://');

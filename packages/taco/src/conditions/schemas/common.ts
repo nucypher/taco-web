@@ -20,7 +20,7 @@ export const plainStringSchema = z
     },
   )
   .describe(
-    `A string that is not a Context Parameter i.e. does not start with \`${CONTEXT_PARAM_PREFIX}\`.`,
+    `Any string that is not a Context Parameter i.e. does not start with \`${CONTEXT_PARAM_PREFIX}\`.`,
   );
 
 export const UserAddressSchema = z.enum([

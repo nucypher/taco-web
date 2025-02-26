@@ -15,7 +15,7 @@ const EthAddressOrContextVariableSchema = z.union([
 const BlockOrContextParamSchema = z
   .union([BlockIdentifierSchema, contextParamSchema])
   .describe(
-    "Block identifier can be omitted, since web3py (which runs on TACo exec layer) defaults to 'latest'",
+    'A block identifier or a context variable that will be replaced with a block identifier at execution time.',
   );
 
 // eth_getBalance schema specification

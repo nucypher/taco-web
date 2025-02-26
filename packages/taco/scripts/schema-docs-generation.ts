@@ -81,6 +81,13 @@ const schemaSource = './src/conditions/schemas/export-for-zod-doc-gen.ts';
 const schemaOutputDirectory = './schema-docs/'; // The directory where Markdown will be saved
 const schemaOutputFile = 'zod-schemas.md'; // File name where the Markdown will be saved
 
+const appendedText = `
+## More resources
+
+For more information, please refer to the TACo documentation:
+https://docs.taco.build/
+`;
+
 async function generateMdFiles() {
   try {
     // Use glob to find all TypeScript files in the source directory
@@ -95,7 +102,10 @@ async function generateMdFiles() {
     });
 
     await mkdir(schemaOutputDirectory, { recursive: true });
-    await writeFile(schemaOutputDirectory + schemaOutputFile, markdown);
+    await writeFile(
+      schemaOutputDirectory + schemaOutputFile,
+      markdown + appendedText,
+    );
   } catch (error) {
     console.error(`Failed during :`, error);
   }

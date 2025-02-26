@@ -1,8 +1,6 @@
 import { SiweMessage } from 'siwe';
 
-import { AuthSignature } from '../../auth-sig';
-
-import { EIP4361_AUTH_METHOD } from './common';
+import { EIP4361_AUTH_METHOD, EIP4361AuthSignature } from './auth';
 
 export const USER_ADDRESS_PARAM_EXTERNAL_EIP4361 =
   ':userAddressExternalEIP4361';
@@ -30,7 +28,7 @@ export class SingleSignOnEIP4361AuthProvider {
     private readonly signature: string,
   ) {}
 
-  public async getOrCreateAuthSignature(): Promise<AuthSignature> {
+  public async getOrCreateAuthSignature(): Promise<EIP4361AuthSignature> {
     const scheme = EIP4361_AUTH_METHOD;
     return {
       signature: this.signature,

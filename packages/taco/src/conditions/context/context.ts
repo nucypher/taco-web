@@ -3,6 +3,7 @@ import { toJSON } from '@nucypher/shared';
 import {
   AuthProvider,
   AuthSignature,
+  EIP1271AuthProvider,
   EIP4361AuthProvider,
   SingleSignOnEIP4361AuthProvider,
   USER_ADDRESS_PARAM_DEFAULT,
@@ -39,10 +40,16 @@ const ERR_AUTH_PROVIDER_NOT_NEEDED_FOR_CONTEXT_PARAM = (param: string) =>
 
 type AuthProviderType =
   | typeof EIP4361AuthProvider
+  | typeof EIP1271AuthProvider
   | typeof SingleSignOnEIP4361AuthProvider;
-const EXPECTED_AUTH_PROVIDER_TYPES: Record<string, AuthProviderType> = {
-  [USER_ADDRESS_PARAM_DEFAULT]: EIP4361AuthProvider,
-  [USER_ADDRESS_PARAM_EXTERNAL_EIP4361]: SingleSignOnEIP4361AuthProvider,
+
+const EXPECTED_AUTH_PROVIDER_TYPES: Record<string, AuthProviderType[]> = {
+  [USER_ADDRESS_PARAM_DEFAULT]: [
+    EIP4361AuthProvider,
+    EIP1271AuthProvider,
+    SingleSignOnEIP4361AuthProvider,
+  ],
+  [USER_ADDRESS_PARAM_EXTERNAL_EIP4361]: [SingleSignOnEIP4361AuthProvider],
 };
 
 export const RESERVED_CONTEXT_PARAMS = [
@@ -216,8 +223,8 @@ export class ConditionContext {
         ERR_AUTH_PROVIDER_NOT_NEEDED_FOR_CONTEXT_PARAM(contextParam),
       );
     }
-
-    if (!(authProvider instanceof EXPECTED_AUTH_PROVIDER_TYPES[contextParam])) {
+    const expectedTypes = EXPECTED_AUTH_PROVIDER_TYPES[contextParam];
+    if (!expectedTypes.some((type) => authProvider instanceof type)) {
       throw new Error(
         ERR_INVALID_AUTH_PROVIDER_TYPE(contextParam, typeof authProvider),
       );
@@ -225,7 +232,6 @@ export class ConditionContext {
 
     this.authProviders[contextParam] = authProvider;
   }
-
   public async toJson(): Promise<string> {
     const parameters = await this.toContextParameters();
     return toJSON(parameters);

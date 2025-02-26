@@ -12,10 +12,11 @@ const EthAddressOrContextVariableSchema = z.union([
   UserAddressSchema,
   contextParamSchema,
 ]);
-const BlockOrContextParamSchema = z.union([
-  BlockIdentifierSchema,
-  contextParamSchema,
-]);
+const BlockOrContextParamSchema = z
+  .union([BlockIdentifierSchema, contextParamSchema])
+  .describe(
+    "Block identifier can be omitted, since web3py (which runs on TACo exec layer) defaults to 'latest'",
+  );
 
 // eth_getBalance schema specification
 // - Ethereum spec: https://ethereum.github.io/execution-apis/api-documentation/
@@ -30,12 +31,7 @@ export const rpcConditionSchema = baseConditionSchema
     parameters: z.union([
       // Spec requires 2 parameters: an address and a block identifier
       z
-        .tuple([
-          EthAddressOrContextVariableSchema,
-          BlockOrContextParamSchema.describe(
-            "Block identifier can be omitted, since web3py (which runs on TACo exec layer) defaults to 'latest'",
-          ),
-        ])
+        .tuple([EthAddressOrContextVariableSchema, BlockOrContextParamSchema])
         .describe(
           'Spec requires 2 parameters: an address and a block identifier',
         ),
@@ -48,7 +44,7 @@ export const rpcConditionSchema = baseConditionSchema
     returnValueTest: returnValueTestSchema, // Update to allow multiple return values after expanding supported methods
   })
   .describe(
-    'eth_getBalance schema specification\n- Ethereum spec: https://ethereum.github.io/execution-apis/api-documentation/\n- web3py: https://web3py.readthedocs.io/en/stable/web3.eth.html#web3.eth.Eth.get_balance',
+    'RPC Condition for calling [Ethereum JSON RPC APIs](https://ethereum.github.io/execution-apis/api-documentation/)',
   );
 
 export type RpcConditionProps = z.infer<typeof rpcConditionSchema>;

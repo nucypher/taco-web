@@ -51,8 +51,10 @@
   "devDependencies": {
     "@nucypher/test-utils": "workspace:*",
     "@types/semver": "^7.5.8",
+    "@types/showdown": "^2.0.6",
     "glob": "^11.0.1",
-    "modified-zod2md": "^0.1.5-modified.1"
+    "modified-zod2md": "^0.1.5-modified.1",
+    "showdown": "^2.1.0"
   },
   "engines": {
     "node": ">=18",

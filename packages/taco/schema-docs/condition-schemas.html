@@ -1,0 +1,472 @@
+<h1 id="conditionschemas">Condition Schemas</h1>
+<h2 id="anycondition">AnyCondition</h2>
+<p><em>Union of the following possible types:</em></p>
+<ul>
+<li><a href="#rpccondition">RpcCondition</a></li>
+<li><a href="#timecondition">TimeCondition</a></li>
+<li><a href="#contractcondition">ContractCondition</a></li>
+<li><a href="#compoundcondition">CompoundCondition</a></li>
+<li><a href="#jsonapicondition">JsonApiCondition</a></li>
+<li><a href="#jsonrpccondition">JsonRpcCondition</a></li>
+<li><a href="#sequentialcondition">SequentialCondition</a></li>
+<li><a href="#ifthenelsecondition">IfThenElseCondition</a></li>
+</ul>
+<h2 id="useraddress">UserAddress</h2>
+<p><em>Enum string, one of the following possible values:</em></p>
+<ul>
+<li><code>':userAddress'</code></li>
+<li><code>':userAddressExternalEIP4361'</code></li>
+</ul>
+<h2 id="basecondition">BaseCondition</h2>
+<p><em>Object containing the following properties:</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">Property</th>
+<th style="text-align:left;">Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;"><strong><code>conditionType</code></strong> (*)</td>
+<td style="text-align:left;"><code>string</code></td>
+</tr>
+</tbody>
+</table>
+<p><em>(*) Required.</em></p>
+<h2 id="httpsurl">HttpsURL</h2>
+<p><em>String which is a valid URL.</em></p>
+<h2 id="jsonpath">JsonPath</h2>
+<p>A string containing either a valid JSON Path Expression, or a Context Parameter.</p>
+<p><em>String.</em></p>
+<h2 id="plainstring">PlainString</h2>
+<p>Any string that is not a Context Parameter i.e. does not start with <code>:</code>.</p>
+<p><em>String.</em></p>
+<h2 id="contextparam">ContextParam</h2>
+<p>A Context Parameter i.e. a placeholder used within conditions and specified at the encryption time, whose value is provided at decryption time.</p>
+<p><em>String which matches the regular expression <code>/^:[a-zA-Z_][a-zA-Z0-9_]*$/</code>.</em></p>
+<h2 id="paramorcontextparam">ParamOrContextParam</h2>
+<p><em>Union of the following possible types:</em></p>
+<ul>
+<li><a href="#plainstring">PlainString</a>, <code>boolean</code> <em>or</em> <code>number</code></li>
+<li><a href="#contextparam">ContextParam</a></li>
+<li>undefined</li>
+</ul>
+<h2 id="compoundcondition">CompoundCondition</h2>
+<p><em>Object containing the following properties:</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">Property</th>
+<th style="text-align:left;">Type</th>
+<th style="text-align:left;">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;"><code>conditionType</code></td>
+<td style="text-align:left;"><code>'compound'</code></td>
+<td style="text-align:left;"><code>'compound'</code></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>operator</code></strong> (*)</td>
+<td style="text-align:left;"><code>'and' | 'or' | 'not'</code></td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>operands</code></strong> (*)</td>
+<td style="text-align:left;"><em>Array of at least 1  and  at most 5 <a href="#anycondition">AnyCondition</a> item</em></td>
+<td style="text-align:left;"></td>
+</tr>
+</tbody>
+</table>
+<p><em>(*) Required.</em></p>
+<h2 id="contractcondition">ContractCondition</h2>
+<p><em>Object containing the following properties:</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">Property</th>
+<th style="text-align:left;">Type</th>
+<th style="text-align:left;">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;"><code>conditionType</code></td>
+<td style="text-align:left;"><code>'contract'</code></td>
+<td style="text-align:left;"><code>'contract'</code></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>chain</code></strong> (*)</td>
+<td style="text-align:left;"><code>number</code> (<em>int, ≥0</em>)</td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>method</code></strong> (*)</td>
+<td style="text-align:left;"><code>string</code></td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>parameters</code></strong> (*)</td>
+<td style="text-align:left;"><em>Array of <a href="#paramorcontextparam">ParamOrContextParam</a> items</em></td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>returnValueTest</code></strong> (*)</td>
+<td style="text-align:left;"><a href="#returnvaluetest">ReturnValueTest</a></td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>contractAddress</code></strong> (*)</td>
+<td style="text-align:left;"><code>string</code></td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><code>standardContractType</code></td>
+<td style="text-align:left;"><code>'ERC20' | 'ERC721'</code></td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><code>functionAbi</code></td>
+<td style="text-align:left;"><a href="#functionabi">FunctionAbi</a></td>
+<td style="text-align:left;"></td>
+</tr>
+</tbody>
+</table>
+<p><em>(*) Required.</em></p>
+<h2 id="functionabi">FunctionAbi</h2>
+<p><em>Object containing the following properties:</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">Property</th>
+<th style="text-align:left;">Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;"><strong><code>name</code></strong> (*)</td>
+<td style="text-align:left;"><code>string</code></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>type</code></strong> (*)</td>
+<td style="text-align:left;"><code>'function'</code></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>inputs</code></strong> (*)</td>
+<td style="text-align:left;"><em>Array of at least 0 <a href="#functionabivariable">FunctionAbiVariable</a> item</em></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>outputs</code></strong> (*)</td>
+<td style="text-align:left;"><em>Array of at least 1 <a href="#functionabivariable">FunctionAbiVariable</a> items</em></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>stateMutability</code></strong> (*)</td>
+<td style="text-align:left;"><code>'view' | 'pure'</code></td>
+</tr>
+</tbody>
+</table>
+<p><em>(*) Required.</em></p>
+<h2 id="functionabivariable">FunctionAbiVariable</h2>
+<p><em>Object containing the following properties:</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">Property</th>
+<th style="text-align:left;">Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;"><strong><code>name</code></strong> (*)</td>
+<td style="text-align:left;"><code>string</code></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>type</code></strong> (*)</td>
+<td style="text-align:left;"><code>'bool' | 'string' | 'address' | 'address payable' | 'bytes1' | 'bytes2' | 'bytes3' | 'bytes4' | 'bytes5' | 'bytes6' | 'bytes7' | 'bytes8' | 'bytes9' | 'bytes10' | 'bytes11' | 'bytes12' | 'bytes13' | 'bytes14' | 'bytes15' | 'bytes16' | ...</code></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>internalType</code></strong> (*)</td>
+<td style="text-align:left;"><code>'bool' | 'string' | 'address' | 'address payable' | 'bytes1' | 'bytes2' | 'bytes3' | 'bytes4' | 'bytes5' | 'bytes6' | 'bytes7' | 'bytes8' | 'bytes9' | 'bytes10' | 'bytes11' | 'bytes12' | 'bytes13' | 'bytes14' | 'bytes15' | 'bytes16' | ...</code></td>
+</tr>
+</tbody>
+</table>
+<p><em>(*) Required.</em></p>
+<h2 id="ifthenelsecondition">IfThenElseCondition</h2>
+<p><em>Object containing the following properties:</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">Property</th>
+<th style="text-align:left;">Type</th>
+<th style="text-align:left;">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;"><code>conditionType</code></td>
+<td style="text-align:left;"><code>'if-then-else'</code></td>
+<td style="text-align:left;"><code>'if-then-else'</code></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>ifCondition</code></strong> (*)</td>
+<td style="text-align:left;"><a href="#anycondition">AnyCondition</a></td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>thenCondition</code></strong> (*)</td>
+<td style="text-align:left;"><a href="#anycondition">AnyCondition</a></td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>elseCondition</code></strong> (*)</td>
+<td style="text-align:left;"><a href="#anycondition">AnyCondition</a> <em>or</em> <code>boolean</code></td>
+<td style="text-align:left;"></td>
+</tr>
+</tbody>
+</table>
+<p><em>(*) Required.</em></p>
+<h2 id="jsonapicondition">JsonApiCondition</h2>
+<p><em>Object containing the following properties:</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">Property</th>
+<th style="text-align:left;">Type</th>
+<th style="text-align:left;">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;"><code>conditionType</code></td>
+<td style="text-align:left;"><code>'json-api'</code></td>
+<td style="text-align:left;"><code>'json-api'</code></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>endpoint</code></strong> (*)</td>
+<td style="text-align:left;"><a href="#httpsurl">HttpsURL</a></td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><code>parameters</code></td>
+<td style="text-align:left;"><em>Object with dynamic keys of type</em> <code>string</code> <em>and values of type</em> <code>unknown</code> (<em>optional & nullable</em>)</td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><code>query</code></td>
+<td style="text-align:left;"><a href="#jsonpath">JsonPath</a></td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><code>authorizationToken</code></td>
+<td style="text-align:left;"><a href="#contextparam">ContextParam</a></td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>returnValueTest</code></strong> (*)</td>
+<td style="text-align:left;"><a href="#returnvaluetest">ReturnValueTest</a></td>
+<td style="text-align:left;"></td>
+</tr>
+</tbody>
+</table>
+<p><em>(*) Required.</em></p>
+<h2 id="jsonrpccondition">JsonRpcCondition</h2>
+<p><em>Object containing the following properties:</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">Property</th>
+<th style="text-align:left;">Type</th>
+<th style="text-align:left;">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;"><code>conditionType</code></td>
+<td style="text-align:left;"><code>'json-rpc'</code></td>
+<td style="text-align:left;"><code>'json-rpc'</code></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>endpoint</code></strong> (*)</td>
+<td style="text-align:left;"><a href="#httpsurl">HttpsURL</a></td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>method</code></strong> (*)</td>
+<td style="text-align:left;"><code>string</code></td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><code>params</code></td>
+<td style="text-align:left;"><code>Array&lt;unknown&gt;</code> <em>or</em> <em>Object with dynamic keys of type</em> <code>string</code> <em>and values of type</em> <code>unknown</code> (<em>optional & nullable</em>)</td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><code>query</code></td>
+<td style="text-align:left;"><a href="#jsonpath">JsonPath</a></td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><code>authorizationToken</code></td>
+<td style="text-align:left;"><a href="#contextparam">ContextParam</a></td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>returnValueTest</code></strong> (*)</td>
+<td style="text-align:left;"><a href="#returnvaluetest">ReturnValueTest</a></td>
+<td style="text-align:left;"></td>
+</tr>
+</tbody>
+</table>
+<p><em>(*) Required.</em></p>
+<h2 id="returnvaluetest">ReturnValueTest</h2>
+<p><em>Object containing the following properties:</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">Property</th>
+<th style="text-align:left;">Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;"><code>index</code></td>
+<td style="text-align:left;"><code>number</code> (<em>int, ≥0</em>)</td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>comparator</code></strong> (*)</td>
+<td style="text-align:left;"><code>'==' | '&gt;' | '&lt;' | '&gt;=' | '&lt;=' | '!='</code></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>value</code></strong> (*)</td>
+<td style="text-align:left;"><a href="#paramorcontextparam">ParamOrContextParam</a></td>
+</tr>
+</tbody>
+</table>
+<p><em>(*) Required.</em></p>
+<h2 id="rpccondition">RpcCondition</h2>
+<p>RPC Condition for calling <a href="https://ethereum.github.io/execution-apis/api-documentation/">Ethereum JSON RPC APIs</a></p>
+<p><em>Object containing the following properties:</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">Property</th>
+<th style="text-align:left;">Description</th>
+<th style="text-align:left;">Type</th>
+<th style="text-align:left;">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;"><code>conditionType</code></td>
+<td style="text-align:left;"></td>
+<td style="text-align:left;"><code>'rpc'</code></td>
+<td style="text-align:left;"><code>'rpc'</code></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>chain</code></strong> (*)</td>
+<td style="text-align:left;"></td>
+<td style="text-align:left;"><code>number</code> (<em>int, ≥0</em>)</td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>method</code></strong> (*)</td>
+<td style="text-align:left;">Only 'eth_getBalance' method is supported</td>
+<td style="text-align:left;"><code>'eth_getBalance'</code></td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>parameters</code></strong> (*)</td>
+<td style="text-align:left;"></td>
+<td style="text-align:left;"><em>Tuple:</em><ol><li><code>string</code>, <a href="#useraddress">UserAddress</a> <em>or</em> <a href="#contextparam">ContextParam</a></li><li><code>number</code> (<em>int, ≥0</em>), <code>string</code> (<em>regex: <code>/^0x[a-fA-F0-9]{64}$/</code></em>) <em>or</em> <code>'earliest' | 'finalized' | 'safe' | 'latest' | 'pending'</code> <em>or</em> <a href="#contextparam">ContextParam</a></li></ol> Description: Spec requires 2 parameters - an address and a block identifier<br /> <br /> <em>or</em> <em>Tuple:</em><ol><li><code>string</code>, <a href="#useraddress">UserAddress</a> <em>or</em> <a href="#contextparam">ContextParam</a></li></ol> Description: Block identifier, which defaults to 'latest' if not specified<br /> <br /></td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>returnValueTest</code></strong> (*)</td>
+<td style="text-align:left;"></td>
+<td style="text-align:left;"><a href="#returnvaluetest">ReturnValueTest</a></td>
+<td style="text-align:left;"></td>
+</tr>
+</tbody>
+</table>
+<p><em>(*) Required.</em></p>
+<h2 id="conditionvariable">ConditionVariable</h2>
+<p><em>Object containing the following properties:</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">Property</th>
+<th style="text-align:left;">Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;"><strong><code>varName</code></strong> (*)</td>
+<td style="text-align:left;"><a href="#plainstring">PlainString</a></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>condition</code></strong> (*)</td>
+<td style="text-align:left;"><a href="#anycondition">AnyCondition</a></td>
+</tr>
+</tbody>
+</table>
+<p><em>(*) Required.</em></p>
+<h2 id="sequentialcondition">SequentialCondition</h2>
+<p><em>Object containing the following properties:</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">Property</th>
+<th style="text-align:left;">Type</th>
+<th style="text-align:left;">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;"><code>conditionType</code></td>
+<td style="text-align:left;"><code>'sequential'</code></td>
+<td style="text-align:left;"><code>'sequential'</code></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>conditionVariables</code></strong> (*)</td>
+<td style="text-align:left;"><em>Array of at least 2  and  at most 5 <a href="#conditionvariable">ConditionVariable</a> item</em></td>
+<td style="text-align:left;"></td>
+</tr>
+</tbody>
+</table>
+<p><em>(*) Required.</em></p>
+<h2 id="timecondition">TimeCondition</h2>
+<p><em>Object containing the following properties:</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">Property</th>
+<th style="text-align:left;">Type</th>
+<th style="text-align:left;">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;"><code>conditionType</code></td>
+<td style="text-align:left;"><code>'time'</code></td>
+<td style="text-align:left;"><code>'time'</code></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>chain</code></strong> (*)</td>
+<td style="text-align:left;"><code>number</code> (<em>int, ≥0</em>)</td>
+<td style="text-align:left;"></td>
+</tr>
+<tr>
+<td style="text-align:left;"><code>method</code></td>
+<td style="text-align:left;"><code>'blocktime'</code></td>
+<td style="text-align:left;"><code>'blocktime'</code></td>
+</tr>
+<tr>
+<td style="text-align:left;"><strong><code>returnValueTest</code></strong> (*)</td>
+<td style="text-align:left;"><a href="#returnvaluetest">ReturnValueTest</a></td>
+<td style="text-align:left;"></td>
+</tr>
+</tbody>
+</table>
+<p><em>(*) Required.</em></p>

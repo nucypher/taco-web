@@ -35,7 +35,7 @@ These examples showcase integration with web applications utilizing an end-to-en
 
 ## Condition Schemas
 
-Learn more about the available condition schemas and their properties. You may check the [condition schema documentation](./packages/taco/schema-docs/zod-schemas.md) for detailed information on each schema type.
+Learn more about the available condition schemas and their properties. You may check the [condition schema documentation](./packages/taco/schema-docs/condition-schemas.md) for detailed information on each schema type.
 
 # Contributing
 

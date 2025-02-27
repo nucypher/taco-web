@@ -79,7 +79,7 @@ export async function zod2md(options: Options): Promise<string> {
 const schemaSource = './src/conditions/schemas/export-for-zod-doc-gen.ts';
 
 const schemaOutputDirectory = './schema-docs/'; // The directory where Markdown will be saved
-const schemaOutputFile = 'zod-schemas.md'; // File name where the Markdown will be saved
+const schemaOutputFile = 'condition-schemas.md'; // File name where the Markdown will be saved
 
 const appendedText = `
 ## More resources
@@ -98,7 +98,7 @@ async function generateMdFiles() {
 
     const markdown = await zod2md({
       entry: filePaths,
-      title: 'Conditions Schemas',
+      title: 'Condition Schemas',
     });
 
     await mkdir(schemaOutputDirectory, { recursive: true });
@@ -111,7 +111,7 @@ async function generateMdFiles() {
   }
 
   console.info(
-    'MD Files has been generated successfully at:',
+    'Condition Schemas file generated successfully at:',
     schemaOutputDirectory + schemaOutputFile,
   );
 }

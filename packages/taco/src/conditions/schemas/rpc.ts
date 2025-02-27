@@ -38,7 +38,7 @@ export const rpcConditionSchema = baseConditionSchema
       z
         .tuple([EthAddressOrContextVariableSchema])
         .describe(
-          "Block identifier can be omitted, since web3py (which runs on TACo exec layer) defaults to 'latest'",
+          "Block identifier, which defaults to 'latest' if not specified",
         ),
     ]),
     returnValueTest: returnValueTestSchema, // Update to allow multiple return values after expanding supported methods

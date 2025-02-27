@@ -593,8 +593,8 @@ importers:
         specifier: ^11.0.1
         version: 11.0.1
       modified-zod2md:
-        specifier: ^0.1.5
-        version: 0.1.5(zod@3.22.4)
+        specifier: ^0.1.5-modified.1
+        version: 0.1.5-modified.1(zod@3.22.4)
 
   packages/taco-auth:
     dependencies:
@@ -6402,8 +6402,8 @@ packages:
   mlly@1.4.2:
     resolution: {integrity: sha512-i/Ykufi2t1EZ6NaPLdfnZk2AX8cs0d+mTzVKuPfqPKPatxLApaBoxJQ9x1/uckXtrS/U5oisPMDkNs0yQTaBRg==}
 
-  modified-zod2md@0.1.5:
-    resolution: {integrity: sha512-2EYhuUSaXJYGf8OgFR6zomthCNjZkANN2LG1Mb4QHHK14JywceOm15Hf6dwpYG4s8pauZ4dj8fvdE6hmRCnAYg==}
+  modified-zod2md@0.1.5-modified.1:
+    resolution: {integrity: sha512-Qedtr3nxUrdYyTf4G1MNhss1hcij1xqx3AcYt/OVFLTjKSyWtRBOH5S7H74VG29orwfoeij7ItTpGKuMLyGaew==}
     hasBin: true
     peerDependencies:
       zod: ^3.22.0
@@ -16586,12 +16586,13 @@ snapshots:
       pkg-types: 1.0.3
       ufo: 1.3.2
 
-  modified-zod2md@0.1.5(zod@3.22.4):
+  modified-zod2md@0.1.5-modified.1(zod@3.22.4):
     dependencies:
       '@commander-js/extra-typings': 12.1.0(commander@12.1.0)
       bundle-require: 4.2.1(esbuild@0.19.11)
       commander: 12.1.0
       esbuild: 0.19.11
+      modified-zod2md: 'link:'
       zod: 3.22.4
 
   modify-values@1.0.1: {}

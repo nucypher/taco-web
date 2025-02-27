@@ -33,7 +33,7 @@ export const rpcConditionSchema = baseConditionSchema
       z
         .tuple([EthAddressOrContextVariableSchema, BlockOrContextParamSchema])
         .describe(
-          'Spec requires 2 parameters: an address and a block identifier',
+          'Spec requires 2 parameters - an address and a block identifier',
         ),
       z
         .tuple([EthAddressOrContextVariableSchema])

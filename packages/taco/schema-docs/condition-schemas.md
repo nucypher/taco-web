@@ -64,11 +64,11 @@ _Union of the following possible types:_
 
 _Object containing the following properties:_
 
-| Property            | Type                                                                     | Default      |
-| :------------------ | :----------------------------------------------------------------------- | :----------- |
-| `conditionType`     | `'compound'`                                                             | `'compound'` |
-| **`operator`** (\*) | `'and' \| 'or' \| 'not'`                                                 |              |
-| **`operands`** (\*) | _Array of at least 1  and  at most 5 [AnyCondition](#anycondition) item_ |              |
+| Property            | Type                                                                      | Default      |
+| :------------------ | :------------------------------------------------------------------------ | :----------- |
+| `conditionType`     | `'compound'`                                                              | `'compound'` |
+| **`operator`** (\*) | `'and' \| 'or' \| 'not'`                                                  |              |
+| **`operands`** (\*) | _Array of at least 1  and  at most 5 [AnyCondition](#anycondition) items_ |              |
 
 _(\*) Required._
 
@@ -93,13 +93,13 @@ _(\*) Required._
 
 _Object containing the following properties:_
 
-| Property                   | Type                                                                    |
-| :------------------------- | :---------------------------------------------------------------------- |
-| **`name`** (\*)            | `string`                                                                |
-| **`type`** (\*)            | `'function'`                                                            |
-| **`inputs`** (\*)          | _Array of at least 0 [FunctionAbiVariable](#functionabivariable) item_  |
-| **`outputs`** (\*)         | _Array of at least 1 [FunctionAbiVariable](#functionabivariable) items_ |
-| **`stateMutability`** (\*) | `'view' \| 'pure'`                                                      |
+| Property                   | Type                                                                   |
+| :------------------------- | :--------------------------------------------------------------------- |
+| **`name`** (\*)            | `string`                                                               |
+| **`type`** (\*)            | `'function'`                                                           |
+| **`inputs`** (\*)          | _Array of at least 0 [FunctionAbiVariable](#functionabivariable) item_ |
+| **`outputs`** (\*)         | _Array of at least 1 [FunctionAbiVariable](#functionabivariable) item_ |
+| **`stateMutability`** (\*) | `'view' \| 'pure'`                                                     |
 
 _(\*) Required._
 
@@ -202,10 +202,10 @@ _(\*) Required._
 
 _Object containing the following properties:_
 
-| Property                      | Type                                                                               | Default        |
-| :---------------------------- | :--------------------------------------------------------------------------------- | :------------- |
-| `conditionType`               | `'sequential'`                                                                     | `'sequential'` |
-| **`conditionVariables`** (\*) | _Array of at least 2  and  at most 5 [ConditionVariable](#conditionvariable) item_ |                |
+| Property                      | Type                                                                                | Default        |
+| :---------------------------- | :---------------------------------------------------------------------------------- | :------------- |
+| `conditionType`               | `'sequential'`                                                                      | `'sequential'` |
+| **`conditionVariables`** (\*) | _Array of at least 2  and  at most 5 [ConditionVariable](#conditionvariable) items_ |                |
 
 _(\*) Required._
 

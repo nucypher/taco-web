@@ -9,8 +9,6 @@ import {
   Options,
 } from 'modified-zod2md';
 
-import * as showdown from 'showdown';
-
 import { mkdir, writeFile } from 'fs/promises';
 
 import { glob } from 'glob';
@@ -80,21 +78,17 @@ export async function zod2md(options: Options): Promise<string> {
 // Note: the order of the exported Zod objects in the specified file will dictate the order of the generated markdown.
 const schemaSource = './src/conditions/schemas/export-for-zod-doc-gen.ts';
 
-const schemaMdOutputDirectory = './schema-docs/'; // The directory where Markdown will be saved
-const schemaMdOutputFile = 'condition-schemas.md'; // File name where the Markdown will be saved
+const schemaOutputDirectory = './schema-docs/'; // The directory where Markdown will be saved
+const schemaOutputFile = 'condition-schemas.md'; // File name where the Markdown will be saved
 
-// diferrent output directory could be given for the html
-const schemaHtmlOutputDirectory = './schema-docs/'; // The directory where Markdown will be saved
-const schemaHtmlOutputFile = 'condition-schemas.html'; // File name where the Markdown will be saved
-
-const mdAppendedText = `
+const appendedText = `
 ## More resources
 
 For more information, please refer to the TACo documentation:
 https://docs.taco.build/
 `;
 
-async function generateMarkdown() {
+async function generateMdFiles() {
   try {
     // Use glob to find all TypeScript files in the source directory
     const files = await glob(schemaSource);
@@ -107,48 +101,19 @@ async function generateMarkdown() {
       title: 'Condition Schemas',
     });
 
-    return markdown;
+    await mkdir(schemaOutputDirectory, { recursive: true });
+    await writeFile(
+      schemaOutputDirectory + schemaOutputFile,
+      markdown + appendedText,
+    );
   } catch (error) {
-    console.error(`Failed during markdown generation`);
-    throw error;
+    console.error(`Failed during :`, error);
   }
-}
 
-function generateHtmlMarkup(markdown: string) {
-  try {
-    const converter = new showdown.Converter({
-      tables: true,
-      ghCodeBlocks: true,
-    });
-    const html = converter.makeHtml(markdown);
-    return html;
-  } catch (error) {
-    console.error(`Failed during html generation`);
-    throw error;
-  }
-}
-
-async function generateAndSave() {
-  const markdown = await generateMarkdown();
-  await mkdir(schemaMdOutputDirectory, { recursive: true });
-  await writeFile(
-    schemaMdOutputDirectory + schemaMdOutputFile,
-    markdown + mdAppendedText,
-  );
   console.info(
     'Condition Schemas file generated successfully at:',
-    schemaMdOutputDirectory + schemaMdOutputFile,
-  );
-
-  const html = generateHtmlMarkup(markdown);
-
-  // the html is to be later embeded and hosted along with the docs.
-  // note: html styling is to be made according and inside the hosting site.
-  await writeFile(schemaHtmlOutputDirectory + schemaHtmlOutputFile, html);
-  console.info(
-    'Condition Schemas file generated successfully at:',
-    schemaHtmlOutputDirectory + schemaHtmlOutputFile,
+    schemaOutputDirectory + schemaOutputFile,
   );
 }
 
-generateAndSave();
+generateMdFiles();

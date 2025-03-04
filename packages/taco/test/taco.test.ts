@@ -84,6 +84,7 @@ describe('taco', () => {
     const getRitualSpy = mockGetActiveRitual(mockedDkgRitual);
 
     const authProvider = new tacoAuth.EIP4361AuthProvider(
+      provider,
       signer,
       TEST_SIWE_PARAMS,
     );

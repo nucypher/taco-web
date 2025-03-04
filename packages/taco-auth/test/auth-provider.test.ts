@@ -4,17 +4,8 @@ import {
   TEST_SIWE_PARAMS,
 } from '@nucypher/test-utils';
 import { SiweMessage } from 'siwe';
-import {
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { AuthSignature } from '../src';
 import {
   EIP4361AuthProvider,
   SingleSignOnEIP4361AuthProvider,
@@ -24,16 +15,13 @@ import { EIP4361TypedDataSchema } from '../src/providers/eip4361/common';
 describe('auth provider', () => {
   const provider = fakeProvider(bobSecretKeyBytes);
   const signer = provider.getSigner();
+  const eip4361Provider = new EIP4361AuthProvider(
+    provider,
+    signer,
+    TEST_SIWE_PARAMS,
+  );
 
-  let eip4361Provider: EIP4361AuthProvider;
-  beforeAll(async () => {
-    eip4361Provider = new EIP4361AuthProvider(signer, {
-      ...TEST_SIWE_PARAMS,
-      chainId: (await signer.provider.getNetwork()).chainId,
-    });
-  });
-
-  it.only('creates a new SIWE message', async () => {
+  it('creates a new SIWE message', async () => {
     const typedSignature = await eip4361Provider.getOrCreateAuthSignature();
     expect(typedSignature.signature).toBeDefined();
     expect(typedSignature.address).toEqual(await signer.getAddress());
@@ -68,17 +56,6 @@ describe('auth provider', () => {
 });
 
 describe('auth provider caching', () => {
-  const provider = fakeProvider(bobSecretKeyBytes);
-  const signer = provider.getSigner();
-
-  let eip4361Provider: EIP4361AuthProvider;
-  beforeAll(async () => {
-    eip4361Provider = new EIP4361AuthProvider(signer, {
-      ...TEST_SIWE_PARAMS,
-      chainId: (await signer.provider.getNetwork()).chainId,
-    });
-  });
-
   beforeEach(() => {
     // tell vitest we use mocked time
     vi.useFakeTimers();
@@ -89,10 +66,18 @@ describe('auth provider caching', () => {
     vi.useRealTimers();
   });
 
+  const provider = fakeProvider(bobSecretKeyBytes);
+  const signer = provider.getSigner();
+  const eip4361Provider = new EIP4361AuthProvider(
+    provider,
+    signer,
+    TEST_SIWE_PARAMS,
+  );
+
   it('caches auth signature, but regenerates when expired', async () => {
     const createAuthSignatureSpy = vi.spyOn(
-      eip4361Provider as any,
-      'createSIWEAuthMessage',
+      eip4361Provider,
+      'createSIWEAuthMessage' as keyof EIP4361AuthProvider,
     );
 
     const typedSignature = await eip4361Provider.getOrCreateAuthSignature();
@@ -121,16 +106,13 @@ describe('single sign-on auth provider', async () => {
   const provider = fakeProvider(bobSecretKeyBytes);
   const signer = provider.getSigner();
 
-  let eip4361Provider: EIP4361AuthProvider;
-  let originalTypedSignature: AuthSignature;
-  beforeAll(async () => {
-    eip4361Provider = new EIP4361AuthProvider(signer, {
-      ...TEST_SIWE_PARAMS,
-      chainId: (await signer.provider.getNetwork()).chainId,
-    });
-
-    originalTypedSignature = await eip4361Provider!.getOrCreateAuthSignature();
-  });
+  const eip4361Provider = new EIP4361AuthProvider(
+    provider,
+    signer,
+    TEST_SIWE_PARAMS,
+  );
+  const originalTypedSignature =
+    await eip4361Provider.getOrCreateAuthSignature();
 
   it('use existing SIWE message', async () => {
     const originalSiweMessage = originalTypedSignature.typedData;

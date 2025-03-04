@@ -41,12 +41,14 @@ import {
   EIP4361AuthProvider,
   SingleSignOnEIP4361AuthProvider,
   USER_ADDRESS_PARAM_DEFAULT,
-  USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
 } from '@nucypher/taco-auth';
 import { ethers, providers, Wallet } from 'ethers';
 import { expect, SpyInstance, vi } from 'vitest';
 
 import { TEST_SIWE_PARAMS } from './variables';
+
+export const DUMMY_INDEX_FOR_USER_ADDRESS_PARAM_EXTERNAL_EIP4361 =
+  ':DUMMY_FOR_TEST';
 
 export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
   first.length === second.length &&
@@ -98,24 +100,28 @@ export const fakeAuthProviders = async (
 ) => {
   const signerToUse = signer ? signer : fakeProvider().getSigner();
   return {
-    [USER_ADDRESS_PARAM_DEFAULT]: fakeEIP4351AuthProvider(signerToUse),
-    [USER_ADDRESS_PARAM_EXTERNAL_EIP4361]:
+    [USER_ADDRESS_PARAM_DEFAULT]: await fakeEIP4351AuthProvider(signerToUse),
+    [DUMMY_INDEX_FOR_USER_ADDRESS_PARAM_EXTERNAL_EIP4361]:
       await fakeSingleSignOnEIP4361AuthProvider(signerToUse),
   };
 };
 
-const fakeEIP4351AuthProvider = (signer: ethers.providers.JsonRpcSigner) => {
-  return new EIP4361AuthProvider(signer.provider, signer, TEST_SIWE_PARAMS);
+const fakeEIP4351AuthProvider = async (
+  signer: ethers.providers.JsonRpcSigner,
+) => {
+  return new EIP4361AuthProvider(signer, {
+    ...TEST_SIWE_PARAMS,
+    chainId: (await signer.provider.getNetwork()).chainId,
+  });
 };
 
 const fakeSingleSignOnEIP4361AuthProvider = async (
   signer: ethers.providers.JsonRpcSigner,
 ) => {
-  const eip4361Provider = new EIP4361AuthProvider(
-    signer.provider,
-    signer,
-    TEST_SIWE_PARAMS,
-  );
+  const eip4361Provider = new EIP4361AuthProvider(signer, {
+    ...TEST_SIWE_PARAMS,
+    chainId: (await signer.provider.getNetwork()).chainId,
+  });
   const authSignature = await eip4361Provider.getOrCreateAuthSignature();
   return SingleSignOnEIP4361AuthProvider.fromExistingSiweInfo(
     authSignature.typedData,

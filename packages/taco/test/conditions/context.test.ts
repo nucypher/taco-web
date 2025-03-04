@@ -5,9 +5,12 @@ import {
   EIP4361AuthProvider,
   SingleSignOnEIP4361AuthProvider,
   USER_ADDRESS_PARAM_DEFAULT,
-  USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
 } from '@nucypher/taco-auth';
-import { fakeAuthProviders, fakeProvider } from '@nucypher/test-utils';
+import {
+  DUMMY_INDEX_FOR_USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
+  fakeAuthProviders,
+  fakeProvider,
+} from '@nucypher/test-utils';
 import { ethers } from 'ethers';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
@@ -202,18 +205,18 @@ describe('context', () => {
       );
     });
 
-    it('rejects on a missing signer for single sign-on EIP4361', async () => {
+    it('rejects upon the usage of an arbitrary parameter name', async () => {
       const conditionObj = {
         ...testContractConditionObj,
         returnValueTest: {
           ...testReturnValueTest,
-          value: USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
+          value: DUMMY_INDEX_FOR_USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
         },
       };
       const condition = new ContractCondition(conditionObj);
       const conditionContext = new ConditionContext(condition);
       await expect(conditionContext.toContextParameters()).rejects.toThrow(
-        `No matching authentication provider to satisfy ${USER_ADDRESS_PARAM_EXTERNAL_EIP4361} context variable in condition`,
+        `Missing custom context parameter(s): ${DUMMY_INDEX_FOR_USER_ADDRESS_PARAM_EXTERNAL_EIP4361}`,
       );
     });
 
@@ -372,7 +375,7 @@ describe('No authentication provider', () => {
     ).toThrow('AuthProvider not necessary for context parameter: :myParam');
   });
 
-  it('rejects invalid auth provider for :userAddress', () => {
+  it('accepts using SingleSignOnEIP4361AuthProvider with :userAddress', () => {
     const conditionObj = {
       ...testContractConditionObj,
       returnValueTest: {
@@ -385,29 +388,9 @@ describe('No authentication provider', () => {
     expect(() =>
       conditionContext.addAuthProvider(
         USER_ADDRESS_PARAM_DEFAULT,
-        authProviders[USER_ADDRESS_PARAM_EXTERNAL_EIP4361],
+        authProviders[DUMMY_INDEX_FOR_USER_ADDRESS_PARAM_EXTERNAL_EIP4361],
       ),
-    ).toThrow(`Invalid AuthProvider type for ${USER_ADDRESS_PARAM_DEFAULT}`);
-  });
-
-  it('rejects invalid auth provider for :userAddressExternalEIP4361', () => {
-    const conditionObj = {
-      ...testContractConditionObj,
-      returnValueTest: {
-        ...testReturnValueTest,
-        value: USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
-      },
-    };
-    const condition = new ContractCondition(conditionObj);
-    const conditionContext = new ConditionContext(condition);
-    expect(() =>
-      conditionContext.addAuthProvider(
-        USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
-        authProviders[USER_ADDRESS_PARAM_DEFAULT],
-      ),
-    ).toThrow(
-      `Invalid AuthProvider type for ${USER_ADDRESS_PARAM_EXTERNAL_EIP4361}`,
-    );
+    ).not.toThrow();
   });
 
   it('it supports just one provider at a time', async () => {
@@ -475,7 +458,7 @@ describe('No authentication provider', () => {
       ...testContractConditionObj,
       returnValueTest: {
         ...testReturnValueTest,
-        value: USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
+        value: USER_ADDRESS_PARAM_DEFAULT,
       },
     };
     const condition = new ContractCondition(conditionObj);
@@ -483,27 +466,27 @@ describe('No authentication provider', () => {
 
     // Should throw an error if we don't pass the custom parameter
     await expect(conditionContext.toContextParameters()).rejects.toThrow(
-      `No matching authentication provider to satisfy ${USER_ADDRESS_PARAM_EXTERNAL_EIP4361} context variable in condition`,
+      `No matching authentication provider to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
     );
 
     // Remembering to pass in auth provider
     conditionContext.addAuthProvider(
-      USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
-      authProviders[USER_ADDRESS_PARAM_EXTERNAL_EIP4361],
+      USER_ADDRESS_PARAM_DEFAULT,
+      authProviders[DUMMY_INDEX_FOR_USER_ADDRESS_PARAM_EXTERNAL_EIP4361],
     );
     const contextVars = await conditionContext.toContextParameters();
     expect(eip4361Spy).not.toHaveBeenCalled();
 
     // Now, we expect that the auth signature will be available in the context variables
     const authSignature = contextVars[
-      USER_ADDRESS_PARAM_EXTERNAL_EIP4361
+      USER_ADDRESS_PARAM_DEFAULT
     ] as AuthSignature;
     expect(authSignature).toBeDefined();
     await testEIP4361AuthSignature(
       authSignature,
       (
         authProviders[
-          USER_ADDRESS_PARAM_EXTERNAL_EIP4361
+          DUMMY_INDEX_FOR_USER_ADDRESS_PARAM_EXTERNAL_EIP4361
         ] as SingleSignOnEIP4361AuthProvider
       ).address,
     );

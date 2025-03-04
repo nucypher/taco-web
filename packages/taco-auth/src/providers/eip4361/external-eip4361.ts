@@ -2,12 +2,14 @@ import { SiweMessage } from 'siwe';
 
 import { AuthSignature } from '../../auth-sig';
 
+import { BaseEIP4361AuthProvider } from './base-eip4361';
 import { EIP4361_AUTH_METHOD } from './common';
 
-export const USER_ADDRESS_PARAM_EXTERNAL_EIP4361 =
-  ':userAddressExternalEIP4361';
+export class SingleSignOnEIP4361AuthProvider extends BaseEIP4361AuthProvider {
+  public override getAddress(): string {
+    return this.address;
+  }
 
-export class SingleSignOnEIP4361AuthProvider {
   public static async fromExistingSiweInfo(
     existingSiweMessage: string,
     signature: string,
@@ -15,6 +17,7 @@ export class SingleSignOnEIP4361AuthProvider {
     // validation
     const siweMessage = new SiweMessage(existingSiweMessage);
     await siweMessage.verify({ signature });
+
     // create provider
     const authProvider = new SingleSignOnEIP4361AuthProvider(
       siweMessage.prepareMessage(),
@@ -24,13 +27,21 @@ export class SingleSignOnEIP4361AuthProvider {
     return authProvider;
   }
 
-  private constructor(
+  public constructor(
     private readonly existingSiweMessage: string,
     public readonly address: string,
     private readonly signature: string,
-  ) {}
+  ) {
+    super();
+  }
 
-  public async getOrCreateAuthSignature(): Promise<AuthSignature> {
+  protected override async createSIWEAuthMessage(): Promise<AuthSignature> {
+    const siweMessage = new SiweMessage(this.existingSiweMessage);
+    // this will trigger validation for all parameters including `expirationTime` and `notBefore`.
+    // It will also throw if the signature is invalid.
+    // Because this an async method, it could not be directly called at the contructor.
+    await siweMessage.verify({ signature: this.signature });
+
     const scheme = EIP4361_AUTH_METHOD;
     return {
       signature: this.signature,

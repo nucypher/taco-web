@@ -85,7 +85,9 @@ const appendedText = `
 ## More resources
 
 For more information, please refer to the TACo documentation:
-https://docs.taco.build/
+https://docs.taco.build/.
+
+Visit the TACo Playground to see the condition schemas in action: https://playground.taco.build/.
 `;
 
 async function generateMdFiles() {

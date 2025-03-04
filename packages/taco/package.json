@@ -31,6 +31,7 @@
     "build:module": "tsc --build ./tsconfig.es.json --verbose",
     "clean": "rm -rf dist",
     "exports:lint": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
+    "generate-zod-docs": "pnpm dlx tsx scripts/schema-docs-generation.ts",
     "lint": "eslint --ext .ts src test",
     "lint:fix": "pnpm lint --fix",
     "package-check": "package-check",
@@ -49,7 +50,9 @@
   },
   "devDependencies": {
     "@nucypher/test-utils": "workspace:*",
-    "@types/semver": "^7.5.8"
+    "@types/semver": "^7.5.8",
+    "glob": "^11.0.1",
+    "modified-zod2md": "0.1.5-modified.2"
   },
   "engines": {
     "node": ">=18",

@@ -6,7 +6,10 @@ import { plainStringSchema } from './common';
 
 export const contextParamSchema = z
   .string()
-  .regex(CONTEXT_PARAM_FULL_MATCH_REGEXP);
+  .regex(CONTEXT_PARAM_FULL_MATCH_REGEXP)
+  .describe(
+    `A Context Parameter i.e. a placeholder used within conditions and specified at the encryption time, whose value is provided at decryption time.`,
+  );
 
 const paramSchema = z.union([plainStringSchema, z.boolean(), z.number()]);
 

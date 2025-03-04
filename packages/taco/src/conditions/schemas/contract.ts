@@ -19,7 +19,7 @@ const EthBaseTypes: [string, ...string[]] = [
   ...Array.from({ length: 32 }, (_v, i) => `int${8 * (i + 1)}`), // int8 through int256
 ];
 
-const functionAbiVariableSchema = z
+export const functionAbiVariableSchema = z
   .object({
     name: z.string(),
     type: z.enum(EthBaseTypes),
@@ -27,7 +27,7 @@ const functionAbiVariableSchema = z
   })
   .strict();
 
-const functionAbiSchema = z
+export const functionAbiSchema = z
   .object({
     name: z.string(),
     type: z.literal('function'),

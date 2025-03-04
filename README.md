@@ -33,6 +33,10 @@ We also provide demos of TACo applications:
 
 These examples showcase integration with web applications utilizing an end-to-end flow of creating encrypted data with associated conditions and enacting access-controlled decryption.
 
+## Condition Schemas
+
+Learn more about the available condition schemas and their properties. You may check the [condition schema documentation](./packages/taco/schema-docs/condition-schemas.md) for detailed information on each schema type.
+
 # Contributing
 
 If you would like to contribute to the development of `taco-web`, please see our [Contributing Guide](CONTRIBUTING.md).

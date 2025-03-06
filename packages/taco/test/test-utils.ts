@@ -40,6 +40,10 @@ import {
   FunctionAbiProps,
 } from '../src/conditions/base/contract';
 import {
+  JsonApiConditionProps,
+  JsonApiConditionType,
+} from '../src/conditions/base/json-api';
+import {
   RpcConditionProps,
   RpcConditionType,
 } from '../src/conditions/base/rpc';
@@ -48,8 +52,20 @@ import {
   TimeConditionProps,
   TimeConditionType,
 } from '../src/conditions/base/time';
+import {
+  CompoundConditionProps,
+  CompoundConditionType,
+} from '../src/conditions/compound-condition';
 import { ConditionExpression } from '../src/conditions/condition-expr';
 import { ERC721Balance } from '../src/conditions/predefined/erc721';
+import {
+  JsonRpcConditionProps,
+  JsonRpcConditionType,
+} from '../src/conditions/schemas/json-rpc';
+import {
+  SequentialConditionProps,
+  SequentialConditionType,
+} from '../src/conditions/sequential';
 import { ReturnValueTestProps } from '../src/conditions/shared';
 import { DkgClient, DkgRitual } from '../src/dkg';
 import { encryptMessage } from '../src/tdec';
@@ -223,6 +239,26 @@ export const testTimeConditionObj: TimeConditionProps = {
   chain: TEST_CHAIN_ID,
 };
 
+export const testJsonApiConditionObj: JsonApiConditionProps = {
+  conditionType: JsonApiConditionType,
+  endpoint: 'https://_this_would_totally_fail.com',
+  parameters: {
+    ids: 'ethereum',
+    vs_currencies: 'usd',
+  },
+  query: '$.ethereum.usd',
+  returnValueTest: testReturnValueTest,
+};
+
+export const testJsonRpcConditionObj: JsonRpcConditionProps = {
+  conditionType: JsonRpcConditionType,
+  endpoint: 'https://math.example.com/',
+  method: 'subtract',
+  params: [42, 23],
+  query: '$.mathresult',
+  returnValueTest: testReturnValueTest,
+};
+
 export const testRpcConditionObj: RpcConditionProps = {
   conditionType: RpcConditionType,
   chain: TEST_CHAIN_ID,
@@ -239,6 +275,34 @@ export const testContractConditionObj: ContractConditionProps = {
   method: 'balanceOf',
   parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
   returnValueTest: testReturnValueTest,
+};
+
+export const testCompoundConditionObj: CompoundConditionProps = {
+  conditionType: CompoundConditionType,
+  operator: 'or',
+  operands: [
+    testRpcConditionObj,
+    testTimeConditionObj,
+    testContractConditionObj,
+  ],
+};
+
+export const testSequentialConditionObj: SequentialConditionProps = {
+  conditionType: SequentialConditionType,
+  conditionVariables: [
+    {
+      varName: 'rpc',
+      condition: testRpcConditionObj,
+    },
+    {
+      varName: 'time',
+      condition: testTimeConditionObj,
+    },
+    {
+      varName: 'contract',
+      condition: testContractConditionObj,
+    },
+  ],
 };
 
 export const testFunctionAbi: FunctionAbiProps = {

@@ -19,7 +19,7 @@ pnpm start
 ## References
 
 Please find developer documentation
-[here](https://docs.threshold.network/app-development/threshold-access-control-tac).
+[here](https://docs.taco.build/).
 
 This dApp is based on
 [`useDapp` example](https://github.com/EthWorks/useDapp/tree/master/packages/example).

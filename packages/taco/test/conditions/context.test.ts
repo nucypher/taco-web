@@ -2,30 +2,38 @@ import { initialize } from '@nucypher/nucypher-core';
 import {
   AuthProvider,
   AuthSignature,
+  EIP1271AuthProvider,
+  EIP1271AuthSignature,
   EIP4361AuthProvider,
   SingleSignOnEIP4361AuthProvider,
   USER_ADDRESS_PARAM_DEFAULT,
 } from '@nucypher/taco-auth';
 import {
-  EIP4361_FAKE_AUTH_INDEX,
+  EIP1271,
+  EIP4361,
   fakeAuthProviders,
   fakeProvider,
-  SSO_EIP4361_FAKE_AUTH_INDEX,
+  SSO_EIP4361,
 } from '@nucypher/test-utils';
 import { ethers } from 'ethers';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { toBytes, toHexString } from '../../src';
+import { ConditionFactory } from '../../src/conditions';
 import {
   ContractCondition,
   ContractConditionProps,
+  ContractConditionType,
 } from '../../src/conditions/base/contract';
 import { RpcCondition } from '../../src/conditions/base/rpc';
+import { CompoundConditionType } from '../../src/conditions/compound-condition';
 import {
   ConditionContext,
   CustomContextParam,
 } from '../../src/conditions/context';
 import { RESERVED_CONTEXT_PARAMS } from '../../src/conditions/context/context';
+import { IfThenElseConditionType } from '../../src/conditions/if-then-else-condition';
+import { SequentialConditionType } from '../../src/conditions/sequential';
 import {
   paramOrContextParamSchema,
   ReturnValueTestProps,
@@ -33,8 +41,11 @@ import {
 import {
   testContractConditionObj,
   testFunctionAbi,
+  testJsonApiConditionObj,
+  testJsonRpcConditionObj,
   testReturnValueTest,
   testRpcConditionObj,
+  testTimeConditionObj,
 } from '../test-utils';
 
 describe('context', () => {
@@ -44,29 +55,278 @@ describe('context', () => {
     authProviders = await fakeAuthProviders();
   });
 
-  describe('serialization', () => {
-    it('serializes to json', async () => {
+  describe('reserved context parameters', () => {
+    it.each([
+      [USER_ADDRESS_PARAM_DEFAULT, 'EIP4361'],
+      [USER_ADDRESS_PARAM_DEFAULT, 'SSO4361'],
+    ])('serializes to json', async (userAddressParam, scheme) => {
       const rpcCondition = new RpcCondition({
         ...testRpcConditionObj,
-        parameters: [USER_ADDRESS_PARAM_DEFAULT],
+        parameters: [userAddressParam],
         returnValueTest: {
           comparator: '==',
-          value: USER_ADDRESS_PARAM_DEFAULT,
+          value: userAddressParam,
         },
       });
       const conditionContext = new ConditionContext(rpcCondition);
       conditionContext.addAuthProvider(
-        USER_ADDRESS_PARAM_DEFAULT,
-        authProviders[EIP4361_FAKE_AUTH_INDEX],
+        userAddressParam,
+        authProviders[EIP4361],
       );
       const asJson = await conditionContext.toJson();
 
       expect(asJson).toBeDefined();
-      expect(asJson).toContain(USER_ADDRESS_PARAM_DEFAULT);
+      expect(asJson).toContain(userAddressParam);
+    });
+
+    it.each([USER_ADDRESS_PARAM_DEFAULT])(
+      'detects when auth provider is required by parameters',
+      async (userAddressParam) => {
+        const conditionObj = {
+          ...testContractConditionObj,
+          parameters: [userAddressParam],
+          returnValueTest: {
+            comparator: '==',
+            value: 100,
+          } as ReturnValueTestProps,
+        };
+        const condition = new ContractCondition(conditionObj);
+        const conditionContext = new ConditionContext(condition);
+        await expect(conditionContext.toContextParameters()).rejects.toThrow(
+          `No matching authentication provider to satisfy ${userAddressParam} context variable in condition`,
+        );
+      },
+    );
+
+    it.each([USER_ADDRESS_PARAM_DEFAULT])(
+      'detects when signer is required by return value test',
+      async (userAddressParam) => {
+        const conditionObj = {
+          ...testContractConditionObj,
+          standardContractType: 'ERC721',
+          method: 'ownerOf',
+          parameters: [3591],
+          returnValueTest: {
+            comparator: '==',
+            value: userAddressParam,
+          },
+        } as ContractConditionProps;
+        const condition = new ContractCondition(conditionObj);
+        const conditionContext = new ConditionContext(condition);
+        await expect(conditionContext.toContextParameters()).rejects.toThrow(
+          `No matching authentication provider to satisfy ${userAddressParam} context variable in condition`,
+        );
+      },
+    );
+
+    it('detects when signer is not required', async () => {
+      const condition = new RpcCondition(testRpcConditionObj);
+      const conditionContext = new ConditionContext(condition);
+      expect(
+        JSON.stringify(condition.toObj()).includes(USER_ADDRESS_PARAM_DEFAULT),
+      ).toBe(false);
+      await expect(conditionContext.toContextParameters()).toBeDefined();
+    });
+
+    it.each([USER_ADDRESS_PARAM_DEFAULT])(
+      'return value test rejects on a missing signer',
+      async (userAddressParam) => {
+        const conditionObj = {
+          ...testContractConditionObj,
+          returnValueTest: {
+            ...testReturnValueTest,
+            value: userAddressParam,
+          },
+        };
+        const condition = new ContractCondition(conditionObj);
+        const conditionContext = new ConditionContext(condition);
+        await expect(conditionContext.toContextParameters()).rejects.toThrow(
+          `No matching authentication provider to satisfy ${userAddressParam} context variable in condition`,
+        );
+      },
+    );
+
+    it('rejects auth provider for not applicable context param', () => {
+      const conditionObj = {
+        ...testContractConditionObj,
+        returnValueTest: {
+          ...testReturnValueTest,
+          value: ':myParam',
+        },
+      };
+      const condition = new ContractCondition(conditionObj);
+      const conditionContext = new ConditionContext(condition);
+      expect(() =>
+        conditionContext.addAuthProvider(':myParam', authProviders['EIP4361']),
+      ).toThrow('AuthProvider not necessary for context parameter: :myParam');
+    });
+
+    it('rejects invalid auth provider for :userAddress', () => {
+      const conditionObj = {
+        ...testContractConditionObj,
+        returnValueTest: {
+          ...testReturnValueTest,
+          value: USER_ADDRESS_PARAM_DEFAULT,
+        },
+      };
+      const condition = new ContractCondition(conditionObj);
+      const conditionContext = new ConditionContext(condition);
+      expect(() =>
+        conditionContext.addAuthProvider(
+          USER_ADDRESS_PARAM_DEFAULT,
+          authProviders['Bogus'],
+        ),
+      ).toThrow(`Invalid AuthProvider type for ${USER_ADDRESS_PARAM_DEFAULT}`);
+    });
+
+    it.each([
+      [USER_ADDRESS_PARAM_DEFAULT, EIP4361],
+      [USER_ADDRESS_PARAM_DEFAULT, SSO_EIP4361],
+      [USER_ADDRESS_PARAM_DEFAULT, EIP1271],
+    ])(
+      'it supports just one provider at a time',
+      async (userAddressParam, scheme) => {
+        const conditionObj = {
+          ...testContractConditionObj,
+          returnValueTest: {
+            ...testReturnValueTest,
+            value: userAddressParam,
+          },
+        };
+        const condition = new ContractCondition(conditionObj);
+        const conditionContext = new ConditionContext(condition);
+        conditionContext.addAuthProvider(
+          userAddressParam,
+          authProviders[scheme],
+        );
+        expect(async () =>
+          conditionContext.toContextParameters(),
+        ).not.toThrow();
+      },
+    );
+  });
+
+  describe('authentication signature', () => {
+    let provider: ethers.providers.Web3Provider;
+    let signer: ethers.providers.JsonRpcSigner;
+    let authProviders: Record<string, AuthProvider>;
+
+    beforeAll(async () => {
+      await initialize();
+      provider = fakeProvider();
+      signer = provider.getSigner();
+      authProviders = await fakeAuthProviders(signer);
+    });
+
+    async function testAuthSignature(
+      authSignature: AuthSignature,
+      expectedScheme: string,
+      expectedAddress?: string,
+    ) {
+      expect(authSignature).toBeDefined();
+      expect(authSignature.signature).toBeDefined();
+      expect(authSignature.scheme).toEqual(expectedScheme);
+
+      const addressToUse = expectedAddress
+        ? expectedAddress
+        : await signer.getAddress();
+      expect(authSignature.address).toEqual(addressToUse);
+
+      const chainId = (await provider.getNetwork()).chainId;
+
+      if (expectedScheme === 'EIP4361') {
+        expect(authSignature.typedData).toContain(
+          `localhost wants you to sign in with your Ethereum account:\n${addressToUse}`,
+        );
+        expect(authSignature.typedData).toContain('URI: http://localhost:3000');
+
+        expect(authSignature.typedData).toContain(`Chain ID: ${chainId}`);
+      } else if (expectedScheme === 'EIP1271') {
+        const authSign = authSignature as EIP1271AuthSignature;
+        expect(authSign.typedData.chain).toEqual(chainId);
+        expect(authSign.typedData.dataHash).toBeDefined();
+      } else {
+        throw new Error(`Unknown scheme: ${expectedScheme}`);
+      }
+    }
+
+    async function makeAuthSignature(
+      userAddressParam: string,
+      scheme: typeof EIP4361 | typeof SSO_EIP4361 | typeof EIP1271,
+    ) {
+      const conditionObj = {
+        ...testContractConditionObj,
+        returnValueTest: {
+          ...testReturnValueTest,
+          value: userAddressParam,
+        },
+      };
+      const condition = new ContractCondition(conditionObj);
+
+      const conditionContext = new ConditionContext(condition);
+      conditionContext.addAuthProvider(userAddressParam, authProviders[scheme]);
+      const contextVars = await conditionContext.toContextParameters();
+      const authSignature = contextVars[userAddressParam] as AuthSignature;
+      expect(authSignature).toBeDefined();
+
+      return authSignature;
+    }
+
+    it('supports default auth method (eip4361)', async () => {
+      const eip4361Spy = vi.spyOn(
+        EIP4361AuthProvider.prototype,
+        'getOrCreateAuthSignature',
+      );
+
+      const authSignature = await makeAuthSignature(
+        USER_ADDRESS_PARAM_DEFAULT,
+        'EIP4361',
+      );
+      await testAuthSignature(authSignature, 'EIP4361');
+      expect(eip4361Spy).toHaveBeenCalledOnce();
+    });
+
+    it('supports reusing external eip4361', async () => {
+      // Spying on the EIP4361 provider to make sure it's not called
+      const eip4361Spy = vi.spyOn(
+        SingleSignOnEIP4361AuthProvider.prototype,
+        'getOrCreateAuthSignature',
+      );
+
+      const authSignature = await makeAuthSignature(
+        USER_ADDRESS_PARAM_DEFAULT,
+        'SSO4361',
+      );
+      expect(authSignature).toBeDefined();
+      await testAuthSignature(
+        authSignature,
+        'EIP4361',
+        (authProviders['SSO4361'] as SingleSignOnEIP4361AuthProvider).address,
+      );
+      expect(eip4361Spy).toHaveBeenCalledOnce();
+    });
+
+    it('supports eip1271 auth method', async () => {
+      const eip1271Spy = vi.spyOn(
+        EIP1271AuthProvider.prototype,
+        'getOrCreateAuthSignature',
+      );
+
+      const authSignature = await makeAuthSignature(
+        USER_ADDRESS_PARAM_DEFAULT,
+        'EIP1271',
+      );
+      expect(authSignature).toBeDefined();
+      await testAuthSignature(
+        authSignature,
+        'EIP1271',
+        (authProviders['EIP1271'] as EIP1271AuthProvider).contractAddress,
+      );
+      expect(eip1271Spy).toHaveBeenCalledOnce();
     });
   });
 
-  describe('context parameters', () => {
+  describe('user-defined context parameters', () => {
     const customParamKey = ':customParam';
     const customParams: Record<string, CustomContextParam> = {};
     customParams[customParamKey] = 1234;
@@ -116,7 +376,7 @@ describe('context', () => {
         const conditionContext = new ConditionContext(contractCondition);
         conditionContext.addAuthProvider(
           USER_ADDRESS_PARAM_DEFAULT,
-          authProviders[EIP4361_FAKE_AUTH_INDEX],
+          authProviders[EIP4361],
         );
         await expect(conditionContext.toContextParameters()).rejects.toThrow(
           `Missing custom context parameter(s): ${customParamKey}`,
@@ -148,80 +408,6 @@ describe('context', () => {
       ).toThrow(`Unknown custom context parameter: ${badCustomParamKey}`);
     });
 
-    it('detects when auth provider is required by parameters', async () => {
-      const conditionObj = {
-        ...testContractConditionObj,
-        parameters: [USER_ADDRESS_PARAM_DEFAULT],
-        returnValueTest: {
-          comparator: '==',
-          value: 100,
-        } as ReturnValueTestProps,
-      };
-      const condition = new ContractCondition(conditionObj);
-      const conditionContext = new ConditionContext(condition);
-      await expect(conditionContext.toContextParameters()).rejects.toThrow(
-        `No matching authentication provider to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
-      );
-    });
-
-    it('detects when signer is required by return value test', async () => {
-      const conditionObj = {
-        ...testContractConditionObj,
-        standardContractType: 'ERC721',
-        method: 'ownerOf',
-        parameters: [3591],
-        returnValueTest: {
-          comparator: '==',
-          value: USER_ADDRESS_PARAM_DEFAULT,
-        },
-      } as ContractConditionProps;
-      const condition = new ContractCondition(conditionObj);
-      const conditionContext = new ConditionContext(condition);
-      await expect(conditionContext.toContextParameters()).rejects.toThrow(
-        `No matching authentication provider to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
-      );
-    });
-
-    it('detects when signer is not required', async () => {
-      const condition = new RpcCondition(testRpcConditionObj);
-      const conditionContext = new ConditionContext(condition);
-      expect(
-        JSON.stringify(condition.toObj()).includes(USER_ADDRESS_PARAM_DEFAULT),
-      ).toBe(false);
-      await expect(conditionContext.toContextParameters()).toBeDefined();
-    });
-
-    it('rejects on a missing signer', async () => {
-      const conditionObj = {
-        ...testContractConditionObj,
-        returnValueTest: {
-          ...testReturnValueTest,
-          value: USER_ADDRESS_PARAM_DEFAULT,
-        },
-      };
-      const condition = new ContractCondition(conditionObj);
-      const conditionContext = new ConditionContext(condition);
-      await expect(conditionContext.toContextParameters()).rejects.toThrow(
-        `No matching authentication provider to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
-      );
-    });
-
-    it('rejects upon the usage of an arbitrary parameter name', async () => {
-      const arbitraryName = ':SOME_NAME';
-      const conditionObj = {
-        ...testContractConditionObj,
-        returnValueTest: {
-          ...testReturnValueTest,
-          value: arbitraryName,
-        },
-      };
-      const condition = new ContractCondition(conditionObj);
-      const conditionContext = new ConditionContext(condition);
-      await expect(conditionContext.toContextParameters()).rejects.toThrow(
-        `Missing custom context parameter(s): ${arbitraryName}`,
-      );
-    });
-
     describe('custom method parameters', () => {
       const contractConditionObj = {
         ...testContractConditionObj,
@@ -251,7 +437,7 @@ describe('context', () => {
         const conditionContext = new ConditionContext(customContractCondition);
         conditionContext.addAuthProvider(
           USER_ADDRESS_PARAM_DEFAULT,
-          authProviders[EIP4361_FAKE_AUTH_INDEX],
+          authProviders[EIP4361],
         );
 
         await expect(async () =>
@@ -269,7 +455,7 @@ describe('context', () => {
         const conditionContext = new ConditionContext(customContractCondition);
         conditionContext.addAuthProvider(
           USER_ADDRESS_PARAM_DEFAULT,
-          authProviders[EIP4361_FAKE_AUTH_INDEX],
+          authProviders[EIP4361],
         );
 
         const asObj = await conditionContext.toContextParameters();
@@ -292,7 +478,7 @@ describe('context', () => {
           );
           conditionContext.addAuthProvider(
             USER_ADDRESS_PARAM_DEFAULT,
-            authProviders[EIP4361_FAKE_AUTH_INDEX],
+            authProviders[EIP4361],
           );
           conditionContext.addCustomContextParameterValues(customParameters);
 
@@ -357,141 +543,6 @@ describe('No authentication provider', () => {
         `No matching authentication provider to satisfy ${userAddressParam} context variable in condition`,
       );
     });
-  });
-
-  it('rejects auth provider for not applicable context param', () => {
-    const conditionObj = {
-      ...testContractConditionObj,
-      returnValueTest: {
-        ...testReturnValueTest,
-        value: ':myParam',
-      },
-    };
-    const condition = new ContractCondition(conditionObj);
-    const conditionContext = new ConditionContext(condition);
-    expect(() =>
-      conditionContext.addAuthProvider(
-        ':myParam',
-        authProviders[EIP4361_FAKE_AUTH_INDEX],
-      ),
-    ).toThrow('AuthProvider not necessary for context parameter: :myParam');
-  });
-
-  it('accepts using SingleSignOnEIP4361AuthProvider with :userAddress', () => {
-    const conditionObj = {
-      ...testContractConditionObj,
-      returnValueTest: {
-        ...testReturnValueTest,
-        value: USER_ADDRESS_PARAM_DEFAULT,
-      },
-    };
-    const condition = new ContractCondition(conditionObj);
-    const conditionContext = new ConditionContext(condition);
-    expect(() =>
-      conditionContext.addAuthProvider(
-        USER_ADDRESS_PARAM_DEFAULT,
-        authProviders[SSO_EIP4361_FAKE_AUTH_INDEX],
-      ),
-    ).not.toThrow();
-  });
-
-  it('it supports just one provider at a time', async () => {
-    const conditionObj = {
-      ...testContractConditionObj,
-      returnValueTest: {
-        ...testReturnValueTest,
-        value: USER_ADDRESS_PARAM_DEFAULT,
-      },
-    };
-    const condition = new ContractCondition(conditionObj);
-    const conditionContext = new ConditionContext(condition);
-    conditionContext.addAuthProvider(
-      USER_ADDRESS_PARAM_DEFAULT,
-      authProviders[EIP4361_FAKE_AUTH_INDEX],
-    );
-    expect(async () => conditionContext.toContextParameters()).not.toThrow();
-  });
-
-  async function makeAuthSignature(authMethod: string) {
-    const conditionObj = {
-      ...testContractConditionObj,
-      returnValueTest: {
-        ...testReturnValueTest,
-        value: authMethod,
-      },
-    };
-    const condition = new ContractCondition(conditionObj);
-
-    const conditionContext = new ConditionContext(condition);
-    conditionContext.addAuthProvider(
-      USER_ADDRESS_PARAM_DEFAULT,
-      authProviders[EIP4361_FAKE_AUTH_INDEX],
-    );
-    const contextVars = await conditionContext.toContextParameters();
-    const authSignature = contextVars[authMethod] as AuthSignature;
-    expect(authSignature).toBeDefined();
-
-    return authSignature;
-  }
-
-  async function testEIP4361AuthMethod(authMethod: string) {
-    const eip4361Spy = vi.spyOn(
-      EIP4361AuthProvider.prototype,
-      'getOrCreateAuthSignature',
-    );
-    const authSignature = await makeAuthSignature(authMethod);
-    await testEIP4361AuthSignature(authSignature);
-    expect(eip4361Spy).toHaveBeenCalledOnce();
-  }
-
-  it('supports default auth method (eip4361)', async () => {
-    await testEIP4361AuthMethod(USER_ADDRESS_PARAM_DEFAULT);
-  });
-
-  it('supports reusing external eip4361', async () => {
-    // Spying on the EIP4361 provider to make sure it's not called
-    const eip4361Spy = vi.spyOn(
-      EIP4361AuthProvider.prototype,
-      'getOrCreateAuthSignature',
-    );
-
-    // Now, creating the condition context to run the actual test
-    const conditionObj = {
-      ...testContractConditionObj,
-      returnValueTest: {
-        ...testReturnValueTest,
-        value: USER_ADDRESS_PARAM_DEFAULT,
-      },
-    };
-    const condition = new ContractCondition(conditionObj);
-    const conditionContext = new ConditionContext(condition);
-
-    // Should throw an error if we don't pass the custom parameter
-    await expect(conditionContext.toContextParameters()).rejects.toThrow(
-      `No matching authentication provider to satisfy ${USER_ADDRESS_PARAM_DEFAULT} context variable in condition`,
-    );
-
-    // Remembering to pass in auth provider
-    conditionContext.addAuthProvider(
-      USER_ADDRESS_PARAM_DEFAULT,
-      authProviders[SSO_EIP4361_FAKE_AUTH_INDEX],
-    );
-    const contextVars = await conditionContext.toContextParameters();
-    expect(eip4361Spy).not.toHaveBeenCalled();
-
-    // Now, we expect that the auth signature will be available in the context variables
-    const authSignature = contextVars[
-      USER_ADDRESS_PARAM_DEFAULT
-    ] as AuthSignature;
-    expect(authSignature).toBeDefined();
-    await testEIP4361AuthSignature(
-      authSignature,
-      (
-        authProviders[
-          SSO_EIP4361_FAKE_AUTH_INDEX
-        ] as SingleSignOnEIP4361AuthProvider
-      ).address,
-    );
   });
 });
 
@@ -604,5 +655,238 @@ describe('param or context param schema', () => {
 
   it('rejects a function', () => {
     expect(paramOrContextParamSchema.safeParse(() => {}).success).toBe(false);
+  });
+});
+
+describe('recognition of context variables in conditions', () => {
+  const rvt = {
+    comparator: '>=',
+    value: ':expectedResult',
+  };
+
+  const rpcCondition = {
+    ...testRpcConditionObj,
+    parameters: [':userAddress', ':blockNumber'],
+    returnValueTest: rvt,
+  };
+
+  const timeCondition = {
+    ...testTimeConditionObj,
+    returnValueTest: rvt,
+  };
+
+  const contractCondition = {
+    conditionType: ContractConditionType,
+    contractAddress: '0x0000000000000000000000000000000000000000',
+    chain: 1,
+    method: 'balanceOf',
+    functionAbi: testFunctionAbi,
+    parameters: [':userAddress'],
+    returnValueTest: rvt,
+  };
+
+  const jsonApiCondition = {
+    ...testJsonApiConditionObj,
+    endpoint: 'https://api.example.com/:userId/:endpoint',
+    parameters: {
+      value1: ':value1',
+      value2: 2,
+    },
+    query: '$.data[?(@.owner == :query)].value',
+    authorizationToken: ':authToken',
+    returnValueTest: rvt,
+  };
+
+  const jsonRpcConditionParamsDict = {
+    ...testJsonRpcConditionObj,
+    endpoint: 'https://math.example.com/:version/simple',
+    method: 'subtract',
+    params: {
+      value1: 42,
+      value2: ':value2',
+    },
+    query: '$.:queryKey',
+    authorizationToken: ':authToken',
+    returnValueTest: rvt,
+  };
+
+  const jsonRpcConditionParamsArray = {
+    ...testJsonRpcConditionObj,
+    endpoint: 'https://math.example.com/:version/simple',
+    method: 'subtract',
+    params: [':value1', ':value2'],
+    query: '$.:queryKey',
+    authorizationToken: ':authToken',
+    returnValueTest: rvt,
+  };
+
+  it('handles context params for rpc condition', () => {
+    const condition = ConditionFactory.conditionFromProps(rpcCondition);
+    const conditionContext = new ConditionContext(condition);
+
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([':userAddress', ':blockNumber', ':expectedResult']),
+    );
+  });
+  it('handles context params for time condition', () => {
+    const condition = ConditionFactory.conditionFromProps(timeCondition);
+    const conditionContext = new ConditionContext(condition);
+
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([':expectedResult']),
+    );
+  });
+  it('handles context params for contract condition', () => {
+    const condition = ConditionFactory.conditionFromProps(contractCondition);
+    const conditionContext = new ConditionContext(condition);
+
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([':userAddress', ':expectedResult']),
+    );
+  });
+  it('handles context params for json api condition', () => {
+    const condition = ConditionFactory.conditionFromProps(jsonApiCondition);
+    const conditionContext = new ConditionContext(condition);
+
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([
+        ':userId',
+        ':endpoint',
+        ':value1',
+        ':query',
+        ':authToken',
+        ':expectedResult',
+      ]),
+    );
+  });
+  it('handles context params for json rpc condition (params dict)', () => {
+    const condition = ConditionFactory.conditionFromProps(
+      jsonRpcConditionParamsDict,
+    );
+    const conditionContext = new ConditionContext(condition);
+
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([
+        ':version',
+        ':value2',
+        ':queryKey',
+        ':authToken',
+        ':expectedResult',
+      ]),
+    );
+  });
+  it('handles context params for json rpc condition (params array)', () => {
+    const condition = ConditionFactory.conditionFromProps(
+      jsonRpcConditionParamsArray,
+    );
+    const conditionContext = new ConditionContext(condition);
+
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([
+        ':version',
+        ':value1',
+        ':value2',
+        ':queryKey',
+        ':authToken',
+        ':expectedResult',
+      ]),
+    );
+  });
+  it.each([
+    {
+      conditionType: SequentialConditionType,
+      conditionVariables: [
+        {
+          varName: 'rpc',
+          condition: rpcCondition,
+        },
+        {
+          varName: 'time',
+          condition: timeCondition,
+        },
+        {
+          varName: 'contract',
+          condition: contractCondition,
+        },
+        {
+          varName: 'jsonApi',
+          condition: jsonApiCondition,
+        },
+        {
+          varName: 'sequential',
+          condition: {
+            conditionType: SequentialConditionType,
+            conditionVariables: [
+              {
+                varName: 'jsonRpcParamsDict',
+                condition: jsonRpcConditionParamsDict,
+              },
+              {
+                varName: 'jsonRpcParamsArray',
+                condition: jsonRpcConditionParamsArray,
+              },
+            ],
+          },
+        },
+      ],
+    },
+    {
+      conditionType: CompoundConditionType,
+      operator: 'or',
+      operands: [
+        jsonApiCondition,
+        jsonRpcConditionParamsDict,
+        {
+          conditionType: CompoundConditionType,
+          operator: 'and',
+          operands: [jsonRpcConditionParamsArray, rpcCondition, timeCondition],
+        },
+        {
+          conditionType: CompoundConditionType,
+          operator: 'not',
+          operands: [contractCondition],
+        },
+      ],
+    },
+    {
+      conditionType: IfThenElseConditionType,
+      ifCondition: rpcCondition,
+      thenCondition: jsonRpcConditionParamsArray,
+      elseCondition: {
+        conditionType: CompoundConditionType,
+        operator: 'and',
+        operands: [
+          timeCondition,
+          contractCondition,
+          jsonApiCondition,
+          jsonRpcConditionParamsDict,
+        ],
+      },
+    },
+  ])('handles context params for logical conditions', (logicalCondition) => {
+    const condition = ConditionFactory.conditionFromProps(logicalCondition);
+    const conditionContext = new ConditionContext(condition);
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([
+        ':version',
+        ':userAddress',
+        ':blockNumber',
+        ':userId',
+        ':endpoint',
+        ':value1',
+        ':value2',
+        ':query',
+        ':queryKey',
+        ':authToken',
+        ':expectedResult',
+      ]),
+    );
   });
 });

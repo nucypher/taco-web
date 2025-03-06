@@ -24,8 +24,8 @@ pnpm fix
 Build and publish documentation with:
 
 ```bash
-pnpm doc
-pnpm doc:publish
+pnpm typedoc
+pnpm typedoc:publish
 ```
 
 ## Publishing

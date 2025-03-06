@@ -1,9 +1,6 @@
 import { initialize } from '@nucypher/nucypher-core';
 import { AuthProvider, USER_ADDRESS_PARAM_DEFAULT } from '@nucypher/taco-auth';
-import {
-  EIP4361_FAKE_AUTH_INDEX,
-  fakeAuthProviders,
-} from '@nucypher/test-utils';
+import { EIP4361, fakeAuthProviders } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import {
@@ -204,7 +201,7 @@ describe('supports custom function abi', async () => {
 
     conditionContext.addAuthProvider(
       USER_ADDRESS_PARAM_DEFAULT,
-      authProviders[EIP4361_FAKE_AUTH_INDEX],
+      authProviders[EIP4361],
     );
 
     const asJson = await conditionContext.toJson();
@@ -342,7 +339,7 @@ describe('supports custom function abi', async () => {
   it.each([
     {
       contractAddress: '0x123',
-      error: ['Invalid', 'String must contain exactly 42 character(s)'],
+      error: ['Invalid Ethereum address'],
     },
     { contractAddress: undefined, error: ['Required'] },
   ])('rejects invalid contract address', async ({ contractAddress, error }) => {

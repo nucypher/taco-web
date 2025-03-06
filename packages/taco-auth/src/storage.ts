@@ -1,4 +1,6 @@
-import { AuthSignature, authSignatureSchema } from './index';
+import { z } from 'zod';
+
+import { AuthSignature } from './index';
 
 interface IStorage {
   getItem(key: string): string | null;
@@ -38,25 +40,27 @@ class NodeStorage implements IStorage {
   }
 }
 
-export class LocalStorage {
+export class LocalStorage<T extends AuthSignature> {
   private storage: IStorage;
+  private signatureSchema: z.ZodSchema;
 
-  constructor() {
+  constructor(signatureSchema: z.ZodSchema) {
     this.storage =
       typeof localStorage === 'undefined'
         ? new NodeStorage()
         : new BrowserStorage();
+    this.signatureSchema = signatureSchema;
   }
 
-  public getAuthSignature(key: string): AuthSignature | null {
+  public getAuthSignature(key: string): T | null {
     const asJson = this.storage.getItem(key);
     if (!asJson) {
       return null;
     }
-    return authSignatureSchema.parse(JSON.parse(asJson));
+    return this.signatureSchema.parse(JSON.parse(asJson));
   }
 
-  public setAuthSignature(key: string, authSignature: AuthSignature): void {
+  public setAuthSignature(key: string, authSignature: T): void {
     const asJson = JSON.stringify(authSignature);
     this.storage.setItem(key, asJson);
   }

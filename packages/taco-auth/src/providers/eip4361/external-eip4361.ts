@@ -1,9 +1,7 @@
 import { SiweMessage } from 'siwe';
 
 import { AuthProvider } from '../../auth-provider';
-import { AuthSignature } from '../../auth-sig';
-
-import { EIP4361_AUTH_METHOD } from './common';
+import { EIP4361_AUTH_METHOD, EIP4361AuthSignature } from './auth';
 
 export class SingleSignOnEIP4361AuthProvider implements AuthProvider {
   public static async fromExistingSiweInfo(
@@ -29,7 +27,7 @@ export class SingleSignOnEIP4361AuthProvider implements AuthProvider {
     private readonly signature: string,
   ) {}
 
-  public async getOrCreateAuthSignature(): Promise<AuthSignature> {
+  public async getOrCreateAuthSignature(): Promise<EIP4361AuthSignature> {
     const siweMessage = new SiweMessage(this.existingSiweMessage);
     // this will trigger validation for the signature and all parameters (`expirationTime`, `notBefore`...).
     await siweMessage.verify({ signature: this.signature });

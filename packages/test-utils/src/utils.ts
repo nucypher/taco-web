@@ -38,16 +38,21 @@ import {
   zip,
 } from '@nucypher/shared';
 import {
+  AuthProvider,
+  AuthSignature,
+  EIP1271AuthProvider,
   EIP4361AuthProvider,
   SingleSignOnEIP4361AuthProvider,
 } from '@nucypher/taco-auth';
 import { ethers, providers, Wallet } from 'ethers';
 import { expect, SpyInstance, vi } from 'vitest';
 
-import { TEST_SIWE_PARAMS } from './variables';
+import { TEST_CONTRACT_ADDR, TEST_SIWE_PARAMS } from './variables';
 
-export const EIP4361_FAKE_AUTH_INDEX = 'eip4361';
-export const SSO_EIP4361_FAKE_AUTH_INDEX = 'sso-eip4361';
+export const EIP4361 = 'EIP4361';
+export const SSO_EIP4361 = 'SSO4361';
+export const EIP1271 = 'EIP1271';
+export const BOGUS = 'Bogus';
 
 export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
   first.length === second.length &&
@@ -99,13 +104,36 @@ export const fakeAuthProviders = async (
 ) => {
   const signerToUse = signer ? signer : fakeProvider().getSigner();
   return {
-    [EIP4361_FAKE_AUTH_INDEX]: fakeEIP4351AuthProvider(signerToUse),
-    [SSO_EIP4361_FAKE_AUTH_INDEX]:
-      await fakeSingleSignOnEIP4361AuthProvider(signerToUse),
+    [EIP4361]: fakeEIP4361AuthProvider(signerToUse),
+    [SSO_EIP4361]: await fakeSingleSignOnEIP4361AuthProvider(signerToUse),
+    [EIP1271]: await fakeEIP1271AuthProvider(signerToUse),
+    [BOGUS]: fakeBogusAuthProvider(signerToUse),
   };
 };
 
-const fakeEIP4351AuthProvider = (signer: ethers.providers.JsonRpcSigner) => {
+class BogusAuthProvider implements AuthProvider {
+  constructor(private provider: ethers.providers.Web3Provider) {}
+
+  async getOrCreateAuthSignature(): Promise<AuthSignature> {
+    throw new Error('Bogus provider');
+  }
+}
+
+export const fakeBogusAuthProvider = (
+  signer: ethers.providers.JsonRpcSigner,
+) => {
+  const externalProvider: ethers.providers.ExternalProvider = {
+    send: (request, callback) => {
+      callback(new Error('Bogus provider'), null);
+    },
+    request: () => Promise.reject(new Error('Bogus provider')),
+  };
+  return new BogusAuthProvider(
+    new ethers.providers.Web3Provider(externalProvider),
+  );
+};
+
+const fakeEIP4361AuthProvider = (signer: ethers.providers.JsonRpcSigner) => {
   return new EIP4361AuthProvider(signer.provider, signer, TEST_SIWE_PARAMS);
 };
 
@@ -121,6 +149,20 @@ const fakeSingleSignOnEIP4361AuthProvider = async (
   return SingleSignOnEIP4361AuthProvider.fromExistingSiweInfo(
     authSignature.typedData,
     authSignature.signature,
+  );
+};
+
+const fakeEIP1271AuthProvider = async (
+  signer: ethers.providers.JsonRpcSigner,
+) => {
+  const message = `I'm the owner of the smart contract wallet at ${TEST_CONTRACT_ADDR}`;
+  const dataHash = ethers.utils.hashMessage(message);
+  const signature = await signer.signMessage(message);
+  return new EIP1271AuthProvider(
+    TEST_CONTRACT_ADDR,
+    (await signer.provider.getNetwork()).chainId,
+    dataHash,
+    signature,
   );
 };
 

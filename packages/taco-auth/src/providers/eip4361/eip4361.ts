@@ -2,15 +2,19 @@ import { ethers } from 'ethers';
 import { SiweMessage } from 'siwe';
 
 import { AuthProvider } from '../../auth-provider';
-import { AuthSignature } from '../../auth-sig';
 import { LocalStorage } from '../../storage';
 
-import { EIP4361_AUTH_METHOD } from './common';
+import {
+  EIP4361_AUTH_METHOD,
+  EIP4361AuthSignature,
+  eip4361AuthSignatureSchema,
+} from './auth';
 
-const ERR_MISSING_SIWE_PARAMETERS = 'Missing default SIWE parameters';
+const TACO_DEFAULT_DOMAIN = 'taco.build';
+const TACO_DEFAULT_URI = 'https://taco.build';
 
 export class EIP4361AuthProvider implements AuthProvider {
-  private readonly storage: LocalStorage;
+  private readonly storage: LocalStorage<EIP4361AuthSignature>;
   private readonly params: Partial<SiweMessage>;
 
   constructor(
@@ -20,17 +24,13 @@ export class EIP4361AuthProvider implements AuthProvider {
     // `chainId` will be set from the provider. For do not accept it as input to eleminate ambiguity.
     params?: Omit<Partial<SiweMessage>, 'chainId'>,
   ) {
-    this.storage = new LocalStorage();
+    this.storage = new LocalStorage(eip4361AuthSignatureSchema);
     this.params = {
       ...this.getDefaultParameters(),
       version: '1',
-      // the next means that if any of the parameters where provided at params, they will override the defaults
+      // if any of the parameters were provided at params, they will override the defaults
       ...params,
     };
-
-    if (!this.params.domain || !this.params.uri) {
-      throw new Error(ERR_MISSING_SIWE_PARAMETERS);
-    }
   }
 
   private getDefaultParameters() {
@@ -41,9 +41,15 @@ export class EIP4361AuthProvider implements AuthProvider {
         uri: window.location?.origin,
       };
     }
+
+    // not in a browser environment, use hardcoded defaults
+    return {
+      domain: TACO_DEFAULT_DOMAIN,
+      uri: TACO_DEFAULT_URI,
+    };
   }
 
-  public async getOrCreateAuthSignature(): Promise<AuthSignature> {
+  public async getOrCreateAuthSignature(): Promise<EIP4361AuthSignature> {
     const address = await this.signer.getAddress();
     const storageKey = `eth-${EIP4361_AUTH_METHOD}-message-${address}`;
 
@@ -67,7 +73,7 @@ export class EIP4361AuthProvider implements AuthProvider {
     return authMessage;
   }
 
-  private async createSIWEAuthMessage(): Promise<AuthSignature> {
+  private async createSIWEAuthMessage(): Promise<EIP4361AuthSignature> {
     const address = await this.signer.getAddress();
     const chainId = (await this.provider.getNetwork()).chainId;
     const after2HoursFromNow = new Date(

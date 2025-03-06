@@ -1,6 +1,7 @@
 import { SiweMessage } from 'siwe';
 
 import { AuthProvider } from '../../auth-provider';
+
 import { EIP4361_AUTH_METHOD, EIP4361AuthSignature } from './auth';
 
 export class SingleSignOnEIP4361AuthProvider implements AuthProvider {

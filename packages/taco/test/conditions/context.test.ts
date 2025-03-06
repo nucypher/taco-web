@@ -69,10 +69,7 @@ describe('context', () => {
         },
       });
       const conditionContext = new ConditionContext(rpcCondition);
-      conditionContext.addAuthProvider(
-        userAddressParam,
-        authProviders[EIP4361],
-      );
+      conditionContext.addAuthProvider(userAddressParam, authProviders[scheme]);
       const asJson = await conditionContext.toJson();
 
       expect(asJson).toBeDefined();
@@ -488,59 +485,6 @@ describe('context', () => {
           expect(asObj[customParamKey]).toBeDefined();
           expect(asObj[customParamKey]).toEqual(falsyParam);
         },
-      );
-    });
-  });
-});
-
-// TODO: Move to a separate file
-describe('No authentication provider', () => {
-  let provider: ethers.providers.Web3Provider;
-  let signer: ethers.providers.JsonRpcSigner;
-  let authProviders: Record<string, AuthProvider>;
-
-  async function testEIP4361AuthSignature(
-    authSignature: AuthSignature,
-    expectedAddress?: string,
-  ) {
-    expect(authSignature).toBeDefined();
-    expect(authSignature.signature).toBeDefined();
-    expect(authSignature.scheme).toEqual('EIP4361');
-
-    const addressToUse = expectedAddress
-      ? expectedAddress
-      : await signer.getAddress();
-    expect(authSignature.address).toEqual(addressToUse);
-
-    expect(authSignature.typedData).toContain(
-      `localhost wants you to sign in with your Ethereum account:\n${addressToUse}`,
-    );
-    expect(authSignature.typedData).toContain('URI: http://localhost:3000');
-
-    const chainId = (await provider.getNetwork()).chainId;
-    expect(authSignature.typedData).toContain(`Chain ID: ${chainId}`);
-  }
-
-  beforeAll(async () => {
-    await initialize();
-    provider = fakeProvider();
-    signer = provider.getSigner();
-    authProviders = await fakeAuthProviders(signer);
-  });
-
-  it('throws an error if there is no auth provider', () => {
-    RESERVED_CONTEXT_PARAMS.forEach(async (userAddressParam) => {
-      const conditionObj = {
-        ...testContractConditionObj,
-        returnValueTest: {
-          ...testReturnValueTest,
-          value: userAddressParam,
-        },
-      };
-      const condition = new ContractCondition(conditionObj);
-      const conditionContext = new ConditionContext(condition);
-      await expect(conditionContext.toContextParameters()).rejects.toThrow(
-        `No matching authentication provider to satisfy ${userAddressParam} context variable in condition`,
       );
     });
   });

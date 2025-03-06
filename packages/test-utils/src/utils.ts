@@ -40,15 +40,14 @@ import {
 import {
   EIP4361AuthProvider,
   SingleSignOnEIP4361AuthProvider,
-  USER_ADDRESS_PARAM_DEFAULT,
 } from '@nucypher/taco-auth';
 import { ethers, providers, Wallet } from 'ethers';
 import { expect, SpyInstance, vi } from 'vitest';
 
 import { TEST_SIWE_PARAMS } from './variables';
 
-export const DUMMY_INDEX_FOR_USER_ADDRESS_PARAM_EXTERNAL_EIP4361 =
-  ':DUMMY_FOR_TEST';
+export const EIP4361_FAKE_AUTH_INDEX = 'eip4361';
+export const SSO_EIP4361_FAKE_AUTH_INDEX = 'sso-eip4361';
 
 export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
   first.length === second.length &&
@@ -100,8 +99,8 @@ export const fakeAuthProviders = async (
 ) => {
   const signerToUse = signer ? signer : fakeProvider().getSigner();
   return {
-    [USER_ADDRESS_PARAM_DEFAULT]: fakeEIP4351AuthProvider(signerToUse),
-    [DUMMY_INDEX_FOR_USER_ADDRESS_PARAM_EXTERNAL_EIP4361]:
+    [EIP4361_FAKE_AUTH_INDEX]: fakeEIP4351AuthProvider(signerToUse),
+    [SSO_EIP4361_FAKE_AUTH_INDEX]:
       await fakeSingleSignOnEIP4361AuthProvider(signerToUse),
   };
 };

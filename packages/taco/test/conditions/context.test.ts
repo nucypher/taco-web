@@ -7,9 +7,10 @@ import {
   USER_ADDRESS_PARAM_DEFAULT,
 } from '@nucypher/taco-auth';
 import {
-  DUMMY_INDEX_FOR_USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
+  EIP4361_FAKE_AUTH_INDEX,
   fakeAuthProviders,
   fakeProvider,
+  SSO_EIP4361_FAKE_AUTH_INDEX,
 } from '@nucypher/test-utils';
 import { ethers } from 'ethers';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
@@ -56,7 +57,7 @@ describe('context', () => {
       const conditionContext = new ConditionContext(rpcCondition);
       conditionContext.addAuthProvider(
         USER_ADDRESS_PARAM_DEFAULT,
-        authProviders[USER_ADDRESS_PARAM_DEFAULT],
+        authProviders[EIP4361_FAKE_AUTH_INDEX],
       );
       const asJson = await conditionContext.toJson();
 
@@ -115,7 +116,7 @@ describe('context', () => {
         const conditionContext = new ConditionContext(contractCondition);
         conditionContext.addAuthProvider(
           USER_ADDRESS_PARAM_DEFAULT,
-          authProviders[USER_ADDRESS_PARAM_DEFAULT],
+          authProviders[EIP4361_FAKE_AUTH_INDEX],
         );
         await expect(conditionContext.toContextParameters()).rejects.toThrow(
           `Missing custom context parameter(s): ${customParamKey}`,
@@ -206,17 +207,18 @@ describe('context', () => {
     });
 
     it('rejects upon the usage of an arbitrary parameter name', async () => {
+      const arbitraryName = ':SOME_NAME';
       const conditionObj = {
         ...testContractConditionObj,
         returnValueTest: {
           ...testReturnValueTest,
-          value: DUMMY_INDEX_FOR_USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
+          value: arbitraryName,
         },
       };
       const condition = new ContractCondition(conditionObj);
       const conditionContext = new ConditionContext(condition);
       await expect(conditionContext.toContextParameters()).rejects.toThrow(
-        `Missing custom context parameter(s): ${DUMMY_INDEX_FOR_USER_ADDRESS_PARAM_EXTERNAL_EIP4361}`,
+        `Missing custom context parameter(s): ${arbitraryName}`,
       );
     });
 
@@ -249,7 +251,7 @@ describe('context', () => {
         const conditionContext = new ConditionContext(customContractCondition);
         conditionContext.addAuthProvider(
           USER_ADDRESS_PARAM_DEFAULT,
-          authProviders[USER_ADDRESS_PARAM_DEFAULT],
+          authProviders[EIP4361_FAKE_AUTH_INDEX],
         );
 
         await expect(async () =>
@@ -267,7 +269,7 @@ describe('context', () => {
         const conditionContext = new ConditionContext(customContractCondition);
         conditionContext.addAuthProvider(
           USER_ADDRESS_PARAM_DEFAULT,
-          authProviders[USER_ADDRESS_PARAM_DEFAULT],
+          authProviders[EIP4361_FAKE_AUTH_INDEX],
         );
 
         const asObj = await conditionContext.toContextParameters();
@@ -290,7 +292,7 @@ describe('context', () => {
           );
           conditionContext.addAuthProvider(
             USER_ADDRESS_PARAM_DEFAULT,
-            authProviders[USER_ADDRESS_PARAM_DEFAULT],
+            authProviders[EIP4361_FAKE_AUTH_INDEX],
           );
           conditionContext.addCustomContextParameterValues(customParameters);
 
@@ -370,7 +372,7 @@ describe('No authentication provider', () => {
     expect(() =>
       conditionContext.addAuthProvider(
         ':myParam',
-        authProviders[USER_ADDRESS_PARAM_DEFAULT],
+        authProviders[EIP4361_FAKE_AUTH_INDEX],
       ),
     ).toThrow('AuthProvider not necessary for context parameter: :myParam');
   });
@@ -388,7 +390,7 @@ describe('No authentication provider', () => {
     expect(() =>
       conditionContext.addAuthProvider(
         USER_ADDRESS_PARAM_DEFAULT,
-        authProviders[DUMMY_INDEX_FOR_USER_ADDRESS_PARAM_EXTERNAL_EIP4361],
+        authProviders[SSO_EIP4361_FAKE_AUTH_INDEX],
       ),
     ).not.toThrow();
   });
@@ -405,7 +407,7 @@ describe('No authentication provider', () => {
     const conditionContext = new ConditionContext(condition);
     conditionContext.addAuthProvider(
       USER_ADDRESS_PARAM_DEFAULT,
-      authProviders[USER_ADDRESS_PARAM_DEFAULT],
+      authProviders[EIP4361_FAKE_AUTH_INDEX],
     );
     expect(async () => conditionContext.toContextParameters()).not.toThrow();
   });
@@ -423,7 +425,7 @@ describe('No authentication provider', () => {
     const conditionContext = new ConditionContext(condition);
     conditionContext.addAuthProvider(
       USER_ADDRESS_PARAM_DEFAULT,
-      authProviders[USER_ADDRESS_PARAM_DEFAULT],
+      authProviders[EIP4361_FAKE_AUTH_INDEX],
     );
     const contextVars = await conditionContext.toContextParameters();
     const authSignature = contextVars[authMethod] as AuthSignature;
@@ -472,7 +474,7 @@ describe('No authentication provider', () => {
     // Remembering to pass in auth provider
     conditionContext.addAuthProvider(
       USER_ADDRESS_PARAM_DEFAULT,
-      authProviders[DUMMY_INDEX_FOR_USER_ADDRESS_PARAM_EXTERNAL_EIP4361],
+      authProviders[SSO_EIP4361_FAKE_AUTH_INDEX],
     );
     const contextVars = await conditionContext.toContextParameters();
     expect(eip4361Spy).not.toHaveBeenCalled();
@@ -486,7 +488,7 @@ describe('No authentication provider', () => {
       authSignature,
       (
         authProviders[
-          DUMMY_INDEX_FOR_USER_ADDRESS_PARAM_EXTERNAL_EIP4361
+          SSO_EIP4361_FAKE_AUTH_INDEX
         ] as SingleSignOnEIP4361AuthProvider
       ).address,
     );

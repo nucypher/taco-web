@@ -1,6 +1,9 @@
 import { initialize } from '@nucypher/nucypher-core';
 import { AuthProvider, USER_ADDRESS_PARAM_DEFAULT } from '@nucypher/taco-auth';
-import { fakeAuthProviders } from '@nucypher/test-utils';
+import {
+  EIP4361_FAKE_AUTH_INDEX,
+  fakeAuthProviders,
+} from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import {
@@ -201,7 +204,7 @@ describe('supports custom function abi', async () => {
 
     conditionContext.addAuthProvider(
       USER_ADDRESS_PARAM_DEFAULT,
-      authProviders[USER_ADDRESS_PARAM_DEFAULT],
+      authProviders[EIP4361_FAKE_AUTH_INDEX],
     );
 
     const asJson = await conditionContext.toJson();

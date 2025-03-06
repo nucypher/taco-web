@@ -4,11 +4,12 @@ import { SiweMessage } from 'siwe';
 import { AuthSignature } from '../../auth-sig';
 import { LocalStorage } from '../../storage';
 
-import { EIP4361_AUTH_METHOD, IEIP4361AuthProvider } from './common';
+import { AuthProvider } from '../../auth-provider';
+import { EIP4361_AUTH_METHOD } from './common';
 
 const ERR_MISSING_SIWE_PARAMETERS = 'Missing default SIWE parameters';
 
-export class EIP4361AuthProvider implements IEIP4361AuthProvider {
+export class EIP4361AuthProvider implements AuthProvider {
   private readonly storage: LocalStorage;
   private readonly params: Partial<SiweMessage>;
 
@@ -72,18 +73,22 @@ export class EIP4361AuthProvider implements IEIP4361AuthProvider {
     const after2HoursFromNow = new Date(
       Date.now() + 2 * 60 * 60 * 1000,
     ).toISOString();
+
+    // if the provided expirationTime was more than 2 hours from now, throw
+    if (
+      this.params.expirationTime &&
+      this.params.expirationTime > after2HoursFromNow
+    ) {
+      throw new Error('expirationTime is too soon');
+    }
+
     const siweMessage = new SiweMessage({
       ...this.params,
       address,
       statement: `${this.params.domain} wants you to sign in with your Ethereum account: ${address}`,
       chainId,
       // if the user does not provide an expirationTime, we set it to 2 hours from now
-      // if the user provides an expirationTime that is more than 2 hours from now, we set it to 2 hours from now
-      expirationTime: !this.params?.expirationTime
-        ? after2HoursFromNow
-        : after2HoursFromNow < this.params.expirationTime
-          ? after2HoursFromNow
-          : this.params.expirationTime,
+      expirationTime: this.params?.expirationTime ?? after2HoursFromNow,
     });
     const scheme = EIP4361_AUTH_METHOD;
 

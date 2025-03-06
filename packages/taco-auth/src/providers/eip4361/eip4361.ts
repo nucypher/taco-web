@@ -144,9 +144,6 @@ export class EIP4361AuthProvider implements AuthProvider {
   private async createSIWEAuthMessage(): Promise<EIP4361AuthSignature> {
     const address = await this.signer.getAddress();
     const chainId = (await this.provider.getNetwork()).chainId;
-    const after2HoursFromNow = new Date(
-      Date.now() + 2 * 60 * 60 * 1000,
-    ).toISOString();
 
     const siweMessage = new SiweMessage({
       statement: `${this.params.domain} wants you to sign in with your Ethereum account: ${address}`,

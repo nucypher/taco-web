@@ -1,4 +1,5 @@
 import { AuthProvider } from '../../auth-provider';
+
 import { EIP1271_AUTH_METHOD, EIP1271AuthSignature } from './auth';
 
 /**

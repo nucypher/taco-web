@@ -1,10 +1,10 @@
 import { ethers } from 'ethers';
 import { SiweMessage } from 'siwe';
 
+import { AuthProvider } from '../../auth-provider';
 import { AuthSignature } from '../../auth-sig';
 import { LocalStorage } from '../../storage';
 
-import { AuthProvider } from '../../auth-provider';
 import { EIP4361_AUTH_METHOD } from './common';
 
 const ERR_MISSING_SIWE_PARAMETERS = 'Missing default SIWE parameters';

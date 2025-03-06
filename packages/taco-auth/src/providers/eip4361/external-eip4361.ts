@@ -1,8 +1,8 @@
 import { SiweMessage } from 'siwe';
 
+import { AuthProvider } from '../../auth-provider';
 import { AuthSignature } from '../../auth-sig';
 
-import { AuthProvider } from '../../auth-provider';
 import { EIP4361_AUTH_METHOD } from './common';
 
 export class SingleSignOnEIP4361AuthProvider implements AuthProvider {

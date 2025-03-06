@@ -20,7 +20,11 @@ export const plainStringSchema = z
     `Any string that is not a Context Parameter i.e. does not start with \`${CONTEXT_PARAM_PREFIX}\`.`,
   );
 
-export const UserAddressSchema = z.enum([USER_ADDRESS_PARAM_DEFAULT]);
+export const UserAddressSchema = z
+  .literal(USER_ADDRESS_PARAM_DEFAULT)
+  .describe(
+    'This is a context parameter that will be replaced at decryption time. It represents the Ethereum address of the user attempting decryption.',
+  );
 
 export const baseConditionSchema = z.object({
   conditionType: z.string(),

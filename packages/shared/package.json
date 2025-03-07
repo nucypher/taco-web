@@ -44,7 +44,7 @@
     "@ethersproject/providers": "^5.7.2",
     "@nucypher/nucypher-contracts": "^0.23.0",
     "@nucypher/nucypher-core": "*",
-    "axios": "^1.6.8",
+    "axios": "^1.8.2",
     "deep-equal": "^2.2.3",
     "ethers": "*",
     "qs": "^6.12.1",

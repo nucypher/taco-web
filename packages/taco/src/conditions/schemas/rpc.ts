@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { baseConditionSchema, UserAddressSchema } from './common';
 import { contextParamSchema } from './context';
-import { returnValueTestSchema } from './return-value-test';
+import { rpcReturnValueTestSchema } from './return-value-test';
 
 export const RpcConditionType = 'rpc';
 
@@ -41,7 +41,7 @@ export const rpcConditionSchema = baseConditionSchema
           "Block identifier, which defaults to 'latest' if not specified",
         ),
     ]),
-    returnValueTest: returnValueTestSchema, // Update to allow multiple return values after expanding supported methods
+    returnValueTest: rpcReturnValueTestSchema, // Update to allow multiple return values after expanding supported methods
   })
   .describe(
     'RPC Condition for calling [Ethereum JSON RPC APIs](https://ethereum.github.io/execution-apis/api-documentation/)',

@@ -13,8 +13,18 @@ export const contextParamSchema = z
 
 const paramSchema = z.union([plainStringSchema, z.boolean(), z.number()]);
 
+const rpcParamSchema = z
+  .union([plainStringSchema, z.boolean(), z.number().int().nonnegative()])
+  .describe('Smart Contract function parameters');
+
 export const paramOrContextParamSchema: z.ZodSchema = z.union([
   paramSchema,
   contextParamSchema,
   z.lazy(() => z.array(paramOrContextParamSchema)),
+]);
+
+export const rpcParamOrContextParamSchema: z.ZodSchema = z.union([
+  rpcParamSchema,
+  contextParamSchema,
+  z.lazy(() => z.array(rpcParamOrContextParamSchema)),
 ]);

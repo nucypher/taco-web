@@ -7,5 +7,7 @@ export {
 
 export {
   ReturnValueTestProps,
+  RpcReturnValueTestProps,
   returnValueTestSchema,
+  rpcReturnValueTestSchema,
 } from './schemas/return-value-test';

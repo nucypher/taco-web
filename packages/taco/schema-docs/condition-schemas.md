@@ -58,7 +58,7 @@ _Union of the following possible types:_
 
 - [PlainString](#plainstring), `boolean` _or_ `number`
 - [ContextParam](#contextparam)
-- undefined
+- _Array of [ParamOrContextParam](#paramorcontextparam) items_
 
 ## CompoundCondition
 

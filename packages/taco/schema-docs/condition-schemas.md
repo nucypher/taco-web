@@ -60,6 +60,14 @@ _Union of the following possible types:_
 - [ContextParam](#contextparam)
 - _Array of [ParamOrContextParam](#paramorcontextparam) items_
 
+## RpcParamOrContextParam
+
+_Union of the following possible types:_
+
+- [PlainString](#plainstring), `boolean` _or_ `number` (_int, ≥0_)
+- [ContextParam](#contextparam)
+- _Array of [RpcParamOrContextParam](#rpcparamorcontextparam) items_
+
 ## CompoundCondition
 
 _Object containing the following properties:_
@@ -76,16 +84,16 @@ _(\*) Required._
 
 _Object containing the following properties:_
 
-| Property                   | Type                                                         | Default      |
-| :------------------------- | :----------------------------------------------------------- | :----------- |
-| `conditionType`            | `'contract'`                                                 | `'contract'` |
-| **`chain`** (\*)           | `number` (_int, ≥0_)                                         |              |
-| **`method`** (\*)          | `string`                                                     |              |
-| **`parameters`** (\*)      | _Array of [ParamOrContextParam](#paramorcontextparam) items_ |              |
-| **`returnValueTest`** (\*) | [ReturnValueTest](#returnvaluetest)                          |              |
-| **`contractAddress`** (\*) | `string`                                                     |              |
-| `standardContractType`     | `'ERC20' \| 'ERC721'`                                        |              |
-| `functionAbi`              | [FunctionAbi](#functionabi)                                  |              |
+| Property                   | Type                                                               | Default      |
+| :------------------------- | :----------------------------------------------------------------- | :----------- |
+| `conditionType`            | `'contract'`                                                       | `'contract'` |
+| **`chain`** (\*)           | `number` (_int, ≥0_)                                               |              |
+| **`method`** (\*)          | `string`                                                           |              |
+| **`parameters`** (\*)      | _Array of [RpcParamOrContextParam](#rpcparamorcontextparam) items_ |              |
+| **`returnValueTest`** (\*) | [RpcReturnValueTest](#rpcreturnvaluetest)                          |              |
+| **`contractAddress`** (\*) | `string`                                                           |              |
+| `standardContractType`     | `'ERC20' \| 'ERC721'`                                              |              |
+| `functionAbi`              | [FunctionAbi](#functionabi)                                        |              |
 
 _(\*) Required._
 
@@ -171,6 +179,18 @@ _Object containing the following properties:_
 
 _(\*) Required._
 
+## RpcReturnValueTest
+
+_Object containing the following properties:_
+
+| Property              | Type                                              |
+| :-------------------- | :------------------------------------------------ |
+| `index`               | `number` (_int, ≥0_)                              |
+| **`comparator`** (\*) | `'==' \| '>' \| '<' \| '>=' \| '<=' \| '!='`      |
+| **`value`** (\*)      | [RpcParamOrContextParam](#rpcparamorcontextparam) |
+
+_(\*) Required._
+
 ## RpcCondition
 
 RPC Condition for calling [Ethereum JSON RPC APIs](https://ethereum.github.io/execution-apis/api-documentation/)
@@ -183,7 +203,7 @@ _Object containing the following properties:_
 | **`chain`** (\*)           |                                           | `number` (_int, ≥0_)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |         |
 | **`method`** (\*)          | Only 'eth_getBalance' method is supported | `'eth_getBalance'`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |         |
 | **`parameters`** (\*)      |                                           | _Tuple:_<ol><li>`string`, [UserAddress](#useraddress) _or_ [ContextParam](#contextparam)</li><li>`number` (_int, ≥0_), `string` (_regex: `/^0x[a-fA-F0-9]{64}$/`_) _or_ `'earliest' \| 'finalized' \| 'safe' \| 'latest' \| 'pending'` _or_ [ContextParam](#contextparam)</li></ol> Description: Spec requires 2 parameters - an address and a block identifier<br /> <br /> _or_ _Tuple:_<ol><li>`string`, [UserAddress](#useraddress) _or_ [ContextParam](#contextparam)</li></ol> Description: Block identifier, which defaults to 'latest' if not specified<br /> <br /> |         |
-| **`returnValueTest`** (\*) |                                           | [ReturnValueTest](#returnvaluetest)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |         |
+| **`returnValueTest`** (\*) |                                           | [RpcReturnValueTest](#rpcreturnvaluetest)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |         |
 
 _(\*) Required._
 
@@ -213,16 +233,18 @@ _(\*) Required._
 
 _Object containing the following properties:_
 
-| Property                   | Type                                | Default       |
-| :------------------------- | :---------------------------------- | :------------ |
-| `conditionType`            | `'time'`                            | `'time'`      |
-| **`chain`** (\*)           | `number` (_int, ≥0_)                |               |
-| `method`                   | `'blocktime'`                       | `'blocktime'` |
-| **`returnValueTest`** (\*) | [ReturnValueTest](#returnvaluetest) |               |
+| Property                   | Type                                      | Default       |
+| :------------------------- | :---------------------------------------- | :------------ |
+| `conditionType`            | `'time'`                                  | `'time'`      |
+| **`chain`** (\*)           | `number` (_int, ≥0_)                      |               |
+| `method`                   | `'blocktime'`                             | `'blocktime'` |
+| **`returnValueTest`** (\*) | [RpcReturnValueTest](#rpcreturnvaluetest) |               |
 
 _(\*) Required._
 
 ## More resources
 
 For more information, please refer to the TACo documentation:
-https://docs.taco.build/
+https://docs.taco.build/.
+
+Visit the TACo Playground to see the condition schemas in action: https://playground.taco.build/.

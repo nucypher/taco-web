@@ -24,8 +24,8 @@ import {
   testFunctionAbi,
   testJsonApiConditionObj,
   testJsonRpcConditionObj,
-  testReturnValueTest,
   testRpcConditionObj,
+  testRpcReturnValueTest,
   testTimeConditionObj,
 } from '../test-utils';
 
@@ -51,7 +51,7 @@ describe('condition set', () => {
     method: testFunctionAbi.name,
     parameters: [USER_ADDRESS_PARAM_DEFAULT, customParamKey],
     returnValueTest: {
-      ...testReturnValueTest,
+      ...testRpcReturnValueTest,
     },
   };
   const contractConditionWithAbi = new ContractCondition(

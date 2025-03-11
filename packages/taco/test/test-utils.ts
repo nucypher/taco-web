@@ -66,7 +66,10 @@ import {
   SequentialConditionProps,
   SequentialConditionType,
 } from '../src/conditions/sequential';
-import { ReturnValueTestProps } from '../src/conditions/shared';
+import {
+  ReturnValueTestProps,
+  RpcReturnValueTestProps,
+} from '../src/conditions/shared';
 import { DkgClient, DkgRitual } from '../src/dkg';
 import { encryptMessage } from '../src/tdec';
 
@@ -226,6 +229,11 @@ export const mockMakeSessionKey = (secret: SessionStaticSecret) => {
 
 export const testReturnValueTest: ReturnValueTestProps = {
   comparator: '>',
+  value: 100.12,
+};
+
+export const testRpcReturnValueTest: RpcReturnValueTestProps = {
+  comparator: '>',
   value: 100,
 };
 
@@ -264,7 +272,7 @@ export const testRpcConditionObj: RpcConditionProps = {
   chain: TEST_CHAIN_ID,
   method: 'eth_getBalance',
   parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77', 'latest'],
-  returnValueTest: testReturnValueTest,
+  returnValueTest: testRpcReturnValueTest,
 };
 
 export const testContractConditionObj: ContractConditionProps = {
@@ -274,7 +282,7 @@ export const testContractConditionObj: ContractConditionProps = {
   standardContractType: 'ERC20',
   method: 'balanceOf',
   parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
-  returnValueTest: testReturnValueTest,
+  returnValueTest: testRpcReturnValueTest,
 };
 
 export const testCompoundConditionObj: CompoundConditionProps = {

@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   EIP1271AuthProvider,
   EIP4361AuthProvider,
+  FRESHNESS_IN_MILLISECONDS,
   SingleSignOnEIP4361AuthProvider,
 } from '../src/providers';
 import { EIP4361TypedDataSchema } from '../src/providers/eip4361/auth';
@@ -173,7 +174,7 @@ describe('eip4361 single sign-on auth provider', async () => {
         signature,
       ),
     ).rejects.toThrow(
-      'The message was issued more than 2 hours ago or does not have an `issuedAt` field. This message would be rejected by TACo nodes.',
+      'The SIWE message was issued more than 2 hours ago and would be rejected by TACo nodes.',
     );
   });
 
@@ -194,8 +195,40 @@ describe('eip4361 single sign-on auth provider', async () => {
         signature,
       ),
     ).rejects.toThrow(
-      `The message was issued at a future datetime: ${siweMessage.issuedAt}. This message would be rejected by TACo nodes.`,
+      `The SIWE message was issued at a future datetime: ${siweMessage.issuedAt} and would be rejected by TACo nodes.`,
     );
+  });
+
+  it('throws an error if the SIWE message is expired when calling getOrCreateAuthSignature()', async () => {
+    const siweMessage = new SiweMessage({
+      domain: 'taco.build',
+      address: await signer.getAddress(),
+      uri: 'https://taco.build',
+      version: '1',
+      chainId: (await provider.getNetwork()).chainId,
+      issuedAt: new Date(Date.now()).toISOString(), // 3 hours from now
+    });
+    const signature = await signer.signMessage(siweMessage.prepareMessage());
+
+    const singleSignOnProvider =
+      await SingleSignOnEIP4361AuthProvider.fromExistingSiweInfo(
+        siweMessage.prepareMessage(),
+        signature,
+      );
+
+    const now = Date.now();
+
+    // time travel to FRESHNESS_IN_MILLISECONDS + 1m in the future; auth signature is now expired
+    const future = new Date(Date.now() + FRESHNESS_IN_MILLISECONDS + 60 * 1000);
+    vi.setSystemTime(future);
+
+    await expect(
+      singleSignOnProvider.getOrCreateAuthSignature(),
+    ).rejects.toThrow(
+      'The SIWE message was issued more than 2 hours ago and would be rejected by TACo nodes.',
+    );
+
+    vi.setSystemTime(now);
   });
 });
 

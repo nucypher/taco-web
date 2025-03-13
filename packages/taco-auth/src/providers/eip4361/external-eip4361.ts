@@ -3,6 +3,7 @@ import { SiweMessage } from 'siwe';
 import { AuthProvider } from '../../auth-provider';
 
 import { EIP4361_AUTH_METHOD, EIP4361AuthSignature } from './auth';
+import { FRESHNESS_IN_MILLISECONDS } from './eip4361';
 
 async function generateAndVerifySiweMessage(
   message: string,
@@ -11,7 +12,7 @@ async function generateAndVerifySiweMessage(
   const siweMessage = new SiweMessage(message);
   // this will trigger validation for the signature and all parameters (`expirationTime`, `notBefore`...).
   await siweMessage.verify({ signature });
-  const twoHoursBeforeNow = new Date(Date.now() - 2 * 60 * 60 * 1000);
+  const twoHoursBeforeNow = new Date(Date.now() - FRESHNESS_IN_MILLISECONDS);
   if (!siweMessage.issuedAt) {
     throw new Error(
       // this should never happen

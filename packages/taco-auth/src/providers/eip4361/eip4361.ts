@@ -15,6 +15,8 @@ export type EIP4361AuthProviderParams = {
   uri: string;
 };
 
+export const FRESHNESS_IN_MILLISECONDS = 2 * 60 * 60 * 1000;
+
 const TACO_DEFAULT_DOMAIN = 'taco.build';
 const TACO_DEFAULT_URI = 'https://taco.build';
 
@@ -154,7 +156,9 @@ export class EIP4361AuthProvider implements AuthProvider {
       version,
       chainId,
       // set the expirationTime to 2 hours from now
-      expirationTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+      expirationTime: new Date(
+        Date.now() + FRESHNESS_IN_MILLISECONDS,
+      ).toISOString(),
     });
     const scheme = EIP4361_AUTH_METHOD;
     const message = siweMessage.prepareMessage();

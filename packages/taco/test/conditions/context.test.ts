@@ -59,6 +59,7 @@ describe('context', () => {
     it.each([
       [USER_ADDRESS_PARAM_DEFAULT, EIP4361],
       [USER_ADDRESS_PARAM_DEFAULT, SSO_EIP4361],
+      [USER_ADDRESS_PARAM_DEFAULT, EIP1271],
     ])('serializes to json', async (userAddressParam, scheme) => {
       const rpcCondition = new RpcCondition({
         ...testRpcConditionObj,

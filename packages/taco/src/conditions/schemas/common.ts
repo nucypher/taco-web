@@ -23,7 +23,7 @@ export const plainStringSchema = z
 export const UserAddressSchema = z
   .literal(USER_ADDRESS_PARAM_DEFAULT)
   .describe(
-    'This is a context parameter that will be replaced at decryption time. It represents the Ethereum address of the user attempting decryption.',
+    'This is a context variable that will be replaced at decryption time. It represents the Ethereum address of the requester attempting decryption.',
   );
 
 export const baseConditionSchema = z.object({

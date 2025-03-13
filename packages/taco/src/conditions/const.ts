@@ -1,7 +1,4 @@
-import {
-  USER_ADDRESS_PARAM_DEFAULT,
-  USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
-} from '@nucypher/taco-auth';
+import { USER_ADDRESS_PARAM_DEFAULT } from '@nucypher/taco-auth';
 
 // Only allow alphanumeric characters and underscores
 const contextParamRegexString = ':[a-zA-Z_][a-zA-Z0-9_]*';
@@ -16,7 +13,6 @@ export const CONTEXT_PARAM_FULL_MATCH_REGEXP = new RegExp(
 export const CONTEXT_PARAM_PREFIX = ':';
 
 export const USER_ADDRESS_PARAMS = [
-  USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
   // Ordering matters, this should always be last
   USER_ADDRESS_PARAM_DEFAULT,
 ];

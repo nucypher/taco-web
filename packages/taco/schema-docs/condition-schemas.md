@@ -15,10 +15,9 @@ _Union of the following possible types:_
 
 ## UserAddress
 
-_Enum string, one of the following possible values:_
+This is a context parameter that will be replaced at decryption time. It represents the Ethereum address of the user attempting decryption.
 
-- `':userAddress'`
-- `':userAddressExternalEIP4361'`
+_Literal `':userAddress'` value._
 
 ## BaseCondition
 

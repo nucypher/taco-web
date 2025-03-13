@@ -5,6 +5,8 @@ import { baseAuthSignatureSchema } from '../../auth-sig';
 
 export const EIP4361_AUTH_METHOD = 'EIP4361';
 
+export const USER_ADDRESS_PARAM_DEFAULT = ':userAddress';
+
 const isSiweMessage = (message: string): boolean => {
   try {
     new SiweMessage(message);

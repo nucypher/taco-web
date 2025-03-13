@@ -1,6 +1,6 @@
 import { ChainId } from '@nucypher/shared';
 import { AuthProvider, USER_ADDRESS_PARAM_DEFAULT } from '@nucypher/taco-auth';
-import { fakeAuthProviders } from '@nucypher/test-utils';
+import { EIP4361, fakeAuthProviders } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { initialize } from '../../src';
@@ -41,10 +41,7 @@ describe('conditions', () => {
 
     const context = new ConditionContext(condition);
     context.addCustomContextParameterValues({ ':time': 100 });
-    context.addAuthProvider(
-      USER_ADDRESS_PARAM_DEFAULT,
-      authProviders['EIP4361'],
-    );
+    context.addAuthProvider(USER_ADDRESS_PARAM_DEFAULT, authProviders[EIP4361]);
 
     expect(context).toBeDefined();
 

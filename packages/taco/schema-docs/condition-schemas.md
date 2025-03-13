@@ -64,7 +64,7 @@ _Union of the following possible types:_
 
 _Union of the following possible types:_
 
-- [PlainString](#plainstring), `boolean` _or_ `number` (_int, ≥0_)
+- [PlainString](#plainstring), `boolean` _or_ `number` (_int_)
 - [ContextParam](#contextparam)
 - _Array of [RpcParamOrContextParam](#rpcparamorcontextparam) items_
 

@@ -5,15 +5,16 @@ import {
   rpcParamOrContextParamSchema,
 } from './context';
 
-export const returnValueTestSchema = z.object({
+const returnValueTestBaseSchema = z.object({
   index: z.number().int().nonnegative().optional(),
   comparator: z.enum(['==', '>', '<', '>=', '<=', '!=']),
+});
+
+export const returnValueTestSchema = returnValueTestBaseSchema.extend({
   value: paramOrContextParamSchema,
 });
 
-export const rpcReturnValueTestSchema = z.object({
-  index: z.number().int().nonnegative().optional(),
-  comparator: z.enum(['==', '>', '<', '>=', '<=', '!=']),
+export const rpcReturnValueTestSchema = returnValueTestBaseSchema.extend({
   value: rpcParamOrContextParamSchema,
 });
 

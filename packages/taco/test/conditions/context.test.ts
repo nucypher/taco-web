@@ -508,14 +508,9 @@ describe('context', () => {
   });
 });
 
-describe.each(['paramOrContextParam', 'rpcParamOrContextParam'])(
+describe.each([paramOrContextParamSchema, rpcParamOrContextParamSchema])(
   '%s schema',
-  (schemaName) => {
-    let schema = paramOrContextParamSchema;
-    if (schemaName === 'rpcParamOrContextParam') {
-      schema = rpcParamOrContextParamSchema;
-    }
-
+  (schema) => {
     it('accepts a plain string', () => {
       expect(schema.safeParse('hello').success).toBe(true);
     });
@@ -589,7 +584,7 @@ describe.each(['paramOrContextParam', 'rpcParamOrContextParam'])(
       expect(schema.safeParse(badString).success).toBe(false);
     });
 
-    if (schemaName === 'rpcParamOrContextParam') {
+    if (schema === rpcParamOrContextParamSchema) {
       it('rejects floating point numbers', () => {
         expect(schema.safeParse(123.4).success).toBe(false);
       });

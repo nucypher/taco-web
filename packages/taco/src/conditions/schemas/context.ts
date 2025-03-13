@@ -14,8 +14,10 @@ export const contextParamSchema = z
 const paramSchema = z.union([plainStringSchema, z.boolean(), z.number()]);
 
 const rpcParamSchema = z
-  .union([plainStringSchema, z.boolean(), z.number().int().nonnegative()])
-  .describe('Smart Contract function parameters');
+  .union([plainStringSchema, z.boolean(), z.number().int()])
+  .describe(
+    'Used for EVM RPC parameters and Smart Contract function parameters',
+  );
 
 export const paramOrContextParamSchema: z.ZodSchema = z.union([
   paramSchema,

@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   EIP1271AuthProvider,
   EIP4361AuthProvider,
+  FRESHNESS_IN_MILLISECONDS,
   SingleSignOnEIP4361AuthProvider,
 } from '../src/providers';
 import { EIP4361TypedDataSchema } from '../src/providers/eip4361/auth';
@@ -154,6 +155,80 @@ describe('eip4361 single sign-on auth provider', async () => {
     expect(typedSignature.signature).toEqual(originalSiweSignature);
     expect(typedSignature.address).toEqual(await signer.getAddress());
     expect(typedSignature.scheme).toEqual('EIP4361');
+  });
+
+  it('throws an error if the SIWE message is expired', async () => {
+    const siweMessage = new SiweMessage({
+      domain: 'taco.build',
+      address: await signer.getAddress(),
+      uri: 'https://taco.build',
+      version: '1',
+      chainId: (await provider.getNetwork()).chainId,
+      issuedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(), // 3 hours from now
+    });
+    const signature = await signer.signMessage(siweMessage.prepareMessage());
+
+    await expect(
+      SingleSignOnEIP4361AuthProvider.fromExistingSiweInfo(
+        siweMessage.prepareMessage(),
+        signature,
+      ),
+    ).rejects.toThrow(
+      'The SIWE message was issued more than 2 hours ago and would be rejected by TACo nodes.',
+    );
+  });
+
+  it('throws an error if the SIWE message was issued in the future', async () => {
+    const siweMessage = new SiweMessage({
+      domain: 'taco.build',
+      address: await signer.getAddress(),
+      uri: 'https://taco.build',
+      version: '1',
+      chainId: (await provider.getNetwork()).chainId,
+      issuedAt: new Date(Date.now() + 1000).toISOString(), // in 1 second
+    });
+    const signature = await signer.signMessage(siweMessage.prepareMessage());
+
+    await expect(
+      SingleSignOnEIP4361AuthProvider.fromExistingSiweInfo(
+        siweMessage.prepareMessage(),
+        signature,
+      ),
+    ).rejects.toThrow(
+      `The SIWE message was issued at a future datetime: ${siweMessage.issuedAt} and would be rejected by TACo nodes.`,
+    );
+  });
+
+  it('throws an error if the SIWE message is expired when calling getOrCreateAuthSignature()', async () => {
+    const siweMessage = new SiweMessage({
+      domain: 'taco.build',
+      address: await signer.getAddress(),
+      uri: 'https://taco.build',
+      version: '1',
+      chainId: (await provider.getNetwork()).chainId,
+      issuedAt: new Date(Date.now()).toISOString(),
+    });
+    const signature = await signer.signMessage(siweMessage.prepareMessage());
+
+    const singleSignOnProvider =
+      await SingleSignOnEIP4361AuthProvider.fromExistingSiweInfo(
+        siweMessage.prepareMessage(),
+        signature,
+      );
+
+    const now = Date.now();
+
+    // time travel to FRESHNESS_IN_MILLISECONDS + 1m in the future; auth signature is now expired
+    const future = new Date(Date.now() + FRESHNESS_IN_MILLISECONDS + 60 * 1000);
+    vi.setSystemTime(future);
+
+    await expect(
+      singleSignOnProvider.getOrCreateAuthSignature(),
+    ).rejects.toThrow(
+      'The SIWE message was issued more than 2 hours ago and would be rejected by TACo nodes.',
+    );
+
+    vi.setSystemTime(now);
   });
 });
 

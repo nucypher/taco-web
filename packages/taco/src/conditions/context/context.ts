@@ -7,7 +7,6 @@ import {
   EIP4361AuthProvider,
   SingleSignOnEIP4361AuthProvider,
   USER_ADDRESS_PARAM_DEFAULT,
-  USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
 } from '@nucypher/taco-auth';
 
 import { CoreConditions, CoreContext } from '../../types';
@@ -49,13 +48,9 @@ const EXPECTED_AUTH_PROVIDER_TYPES: Record<string, AuthProviderType[]> = {
     EIP1271AuthProvider,
     SingleSignOnEIP4361AuthProvider,
   ],
-  [USER_ADDRESS_PARAM_EXTERNAL_EIP4361]: [SingleSignOnEIP4361AuthProvider],
 };
 
-export const RESERVED_CONTEXT_PARAMS = [
-  USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
-  USER_ADDRESS_PARAM_DEFAULT,
-];
+export const RESERVED_CONTEXT_PARAMS = [USER_ADDRESS_PARAM_DEFAULT];
 
 export class ConditionContext {
   public requestedContextParameters: Set<string>;

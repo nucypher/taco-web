@@ -49,6 +49,11 @@ import { expect, SpyInstance, vi } from 'vitest';
 
 import { TEST_CONTRACT_ADDR, TEST_SIWE_PARAMS } from './variables';
 
+export const EIP4361 = 'EIP4361';
+export const SSO_EIP4361 = 'SSO4361';
+export const EIP1271 = 'EIP1271';
+export const BOGUS = 'Bogus';
+
 export const bytesEqual = (first: Uint8Array, second: Uint8Array): boolean =>
   first.length === second.length &&
   first.every((value, index) => value === second[index]);
@@ -99,10 +104,10 @@ export const fakeAuthProviders = async (
 ) => {
   const signerToUse = signer ? signer : fakeProvider().getSigner();
   return {
-    ['EIP4361']: fakeEIP4361AuthProvider(signerToUse),
-    ['SSO4361']: await fakeSingleSignOnEIP4361AuthProvider(signerToUse),
-    ['EIP1271']: await fakeEIP1271AuthProvider(signerToUse),
-    ['Bogus']: fakeBogusAuthProvider(signerToUse),
+    [EIP4361]: fakeEIP4361AuthProvider(signerToUse),
+    [SSO_EIP4361]: await fakeSingleSignOnEIP4361AuthProvider(signerToUse),
+    [EIP1271]: await fakeEIP1271AuthProvider(signerToUse),
+    [BOGUS]: fakeBogusAuthProvider(signerToUse),
   };
 };
 

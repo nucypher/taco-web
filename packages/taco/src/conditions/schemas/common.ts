@@ -1,8 +1,5 @@
 import { JSONPath } from '@astronautlabs/jsonpath';
-import {
-  USER_ADDRESS_PARAM_DEFAULT,
-  USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
-} from '@nucypher/taco-auth';
+import { USER_ADDRESS_PARAM_DEFAULT } from '@nucypher/taco-auth';
 import { Primitive, z, ZodLiteral } from 'zod';
 
 import { CONTEXT_PARAM_PREFIX, CONTEXT_PARAM_REGEXP } from '../const';
@@ -23,10 +20,11 @@ export const plainStringSchema = z
     `Any string that is not a Context Parameter i.e. does not start with \`${CONTEXT_PARAM_PREFIX}\`.`,
   );
 
-export const UserAddressSchema = z.enum([
-  USER_ADDRESS_PARAM_DEFAULT,
-  USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
-]);
+export const UserAddressSchema = z
+  .literal(USER_ADDRESS_PARAM_DEFAULT)
+  .describe(
+    'This is a context variable that will be replaced at decryption time. It represents the Ethereum address of the requester attempting decryption.',
+  );
 
 export const baseConditionSchema = z.object({
   conditionType: z.string(),

@@ -206,7 +206,7 @@ describe('eip4361 single sign-on auth provider', async () => {
       uri: 'https://taco.build',
       version: '1',
       chainId: (await provider.getNetwork()).chainId,
-      issuedAt: new Date(Date.now()).toISOString(), // 3 hours from now
+      issuedAt: new Date(Date.now()).toISOString(),
     });
     const signature = await signer.signMessage(siweMessage.prepareMessage());
 

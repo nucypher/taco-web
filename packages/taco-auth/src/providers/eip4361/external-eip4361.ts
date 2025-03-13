@@ -14,18 +14,19 @@ async function generateAndVerifySiweMessage(
   const twoHoursBeforeNow = new Date(Date.now() - 2 * 60 * 60 * 1000);
   if (!siweMessage.issuedAt) {
     throw new Error(
-      `The message does not have an \`issuedAt\` field. This case should never happen and it would cause the message to be rejected by TACo nodes.`,
+      // this should never happen
+      `The SIWE message is missing an \`issuedAt\` field and would be rejected by TACo nodes.`,
     );
   }
   if (new Date(siweMessage.issuedAt) < twoHoursBeforeNow) {
     throw new Error(
-      `The message was issued more than 2 hours ago or does not have an \`issuedAt\` field. This message would be rejected by TACo nodes.`,
+      `The SIWE message was issued more than 2 hours ago and would be rejected by TACo nodes.`,
     );
   }
   const now = new Date();
   if (new Date(siweMessage.issuedAt) > now) {
     throw new Error(
-      `The message was issued at a future datetime: ${siweMessage.issuedAt}. This message would be rejected by TACo nodes.`,
+      `The SIWE message was issued at a future datetime: ${siweMessage.issuedAt} and would be rejected by TACo nodes.`,
     );
   }
 

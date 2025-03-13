@@ -4,6 +4,34 @@ import { AuthProvider } from '../../auth-provider';
 
 import { EIP4361_AUTH_METHOD, EIP4361AuthSignature } from './auth';
 
+async function generateAndVerifySiweMessage(
+  message: string,
+  signature: string,
+): Promise<SiweMessage> {
+  const siweMessage = new SiweMessage(message);
+  // this will trigger validation for the signature and all parameters (`expirationTime`, `notBefore`...).
+  await siweMessage.verify({ signature });
+  const twoHoursBeforeNow = new Date(Date.now() - 2 * 60 * 60 * 1000);
+  if (!siweMessage.issuedAt) {
+    throw new Error(
+      `The message does not have an \`issuedAt\` field. This case should never happen and it would cause the message to be rejected by TACo nodes.`,
+    );
+  }
+  if (new Date(siweMessage.issuedAt) < twoHoursBeforeNow) {
+    throw new Error(
+      `The message was issued more than 2 hours ago or does not have an \`issuedAt\` field. This message would be rejected by TACo nodes.`,
+    );
+  }
+  const now = new Date();
+  if (new Date(siweMessage.issuedAt) > now) {
+    throw new Error(
+      `The message was issued at a future datetime: ${siweMessage.issuedAt}. This message would be rejected by TACo nodes.`,
+    );
+  }
+
+  return siweMessage;
+}
+
 /**
  * SingleSignOnEIP4361AuthProvider handles Sign-In with Ethereum (EIP-4361/SIWE) authentication
  * using an existing SIWE message and signature.
@@ -24,9 +52,10 @@ export class SingleSignOnEIP4361AuthProvider implements AuthProvider {
     existingSiweMessage: string,
     signature: string,
   ): Promise<SingleSignOnEIP4361AuthProvider> {
-    const siweMessage = new SiweMessage(existingSiweMessage);
-    // this will trigger validation for the signature and all parameters (`expirationTime`, `notBefore`...).
-    await siweMessage.verify({ signature });
+    const siweMessage = await generateAndVerifySiweMessage(
+      existingSiweMessage,
+      signature,
+    );
 
     // create provider
     const authProvider = new SingleSignOnEIP4361AuthProvider(
@@ -60,9 +89,10 @@ export class SingleSignOnEIP4361AuthProvider implements AuthProvider {
    * @throws {Error} If signature verification fails
    */
   public async getOrCreateAuthSignature(): Promise<EIP4361AuthSignature> {
-    const siweMessage = new SiweMessage(this.existingSiweMessage);
-    // this will trigger validation for the signature and all parameters (`expirationTime`, `notBefore`...).
-    await siweMessage.verify({ signature: this.signature });
+    await generateAndVerifySiweMessage(
+      this.existingSiweMessage,
+      this.signature,
+    );
 
     const scheme = EIP4361_AUTH_METHOD;
     return {

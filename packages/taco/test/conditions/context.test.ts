@@ -33,11 +33,11 @@ import {
 } from '../../src/conditions/context';
 import { RESERVED_CONTEXT_PARAMS } from '../../src/conditions/context/context';
 import { IfThenElseConditionType } from '../../src/conditions/if-then-else-condition';
-import { rpcParamOrContextParamSchema } from '../../src/conditions/schemas/context';
+import { nonFloatParamOrContextParamSchema } from '../../src/conditions/schemas/context';
 import { SequentialConditionType } from '../../src/conditions/sequential';
 import {
+  NonFloatReturnValueTestProps,
   paramOrContextParamSchema,
-  RpcReturnValueTestProps,
 } from '../../src/conditions/shared';
 import {
   testContractConditionObj,
@@ -87,7 +87,7 @@ describe('context', () => {
           returnValueTest: {
             comparator: '==',
             value: 100,
-          } as RpcReturnValueTestProps,
+          } as NonFloatReturnValueTestProps,
         };
         const condition = new ContractCondition(conditionObj);
         const conditionContext = new ConditionContext(condition);
@@ -492,7 +492,7 @@ describe('context', () => {
   });
 });
 
-describe.each([paramOrContextParamSchema, rpcParamOrContextParamSchema])(
+describe.each([paramOrContextParamSchema, nonFloatParamOrContextParamSchema])(
   '%s schema',
   (schema) => {
     it('accepts a plain string', () => {
@@ -568,7 +568,7 @@ describe.each([paramOrContextParamSchema, rpcParamOrContextParamSchema])(
       expect(schema.safeParse(badString).success).toBe(false);
     });
 
-    if (schema === rpcParamOrContextParamSchema) {
+    if (schema === nonFloatParamOrContextParamSchema) {
       it('rejects floating point numbers', () => {
         expect(schema.safeParse(123.4).success).toBe(false);
       });

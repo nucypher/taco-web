@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 import {
+  nonFloatParamOrContextParamSchema,
   paramOrContextParamSchema,
-  rpcParamOrContextParamSchema,
 } from './context';
 
 const returnValueTestBaseSchema = z.object({
@@ -14,10 +14,12 @@ export const returnValueTestSchema = returnValueTestBaseSchema.extend({
   value: paramOrContextParamSchema,
 });
 
-export const rpcReturnValueTestSchema = returnValueTestBaseSchema.extend({
-  value: rpcParamOrContextParamSchema,
+export const nonFloatReturnValueTestSchema = returnValueTestBaseSchema.extend({
+  value: nonFloatParamOrContextParamSchema,
 });
 
 export type ReturnValueTestProps = z.infer<typeof returnValueTestSchema>;
 
-export type RpcReturnValueTestProps = z.infer<typeof rpcReturnValueTestSchema>;
+export type NonFloatReturnValueTestProps = z.infer<
+  typeof nonFloatReturnValueTestSchema
+>;

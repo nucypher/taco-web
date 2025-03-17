@@ -13,10 +13,10 @@ export const contextParamSchema = z
 
 const paramSchema = z.union([plainStringSchema, z.boolean(), z.number()]);
 
-const rpcParamSchema = z
+const nonFloatParamSchema = z
   .union([plainStringSchema, z.boolean(), z.number().int()])
   .describe(
-    'Used for EVM RPC parameters and Smart Contract function parameters',
+    'Non-floating point (string, boolean, or integer). Used for parameters passed to blockchain RPC endpoints and Smart Contracts functions',
   );
 
 export const paramOrContextParamSchema: z.ZodSchema = z.union([
@@ -25,8 +25,8 @@ export const paramOrContextParamSchema: z.ZodSchema = z.union([
   z.lazy(() => z.array(paramOrContextParamSchema)),
 ]);
 
-export const rpcParamOrContextParamSchema: z.ZodSchema = z.union([
-  rpcParamSchema,
+export const nonFloatParamOrContextParamSchema: z.ZodSchema = z.union([
+  nonFloatParamSchema,
   contextParamSchema,
-  z.lazy(() => z.array(rpcParamOrContextParamSchema)),
+  z.lazy(() => z.array(nonFloatParamOrContextParamSchema)),
 ]);

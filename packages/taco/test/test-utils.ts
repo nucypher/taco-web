@@ -67,8 +67,8 @@ import {
   SequentialConditionType,
 } from '../src/conditions/sequential';
 import {
+  NonFloatReturnValueTestProps,
   ReturnValueTestProps,
-  RpcReturnValueTestProps,
 } from '../src/conditions/shared';
 import { DkgClient, DkgRitual } from '../src/dkg';
 import { encryptMessage } from '../src/tdec';
@@ -232,7 +232,7 @@ export const testReturnValueTest: ReturnValueTestProps = {
   value: 100.12,
 };
 
-export const testRpcReturnValueTest: RpcReturnValueTestProps = {
+export const testRpcReturnValueTest: NonFloatReturnValueTestProps = {
   comparator: '>',
   value: 100,
 };

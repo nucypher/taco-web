@@ -6,8 +6,8 @@ export {
 } from './schemas/context';
 
 export {
+  NonFloatReturnValueTestProps,
   ReturnValueTestProps,
-  RpcReturnValueTestProps,
+  nonFloatReturnValueTestSchema,
   returnValueTestSchema,
-  rpcReturnValueTestSchema,
 } from './schemas/return-value-test';

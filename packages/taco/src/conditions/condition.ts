@@ -1,4 +1,4 @@
-import { objectEquals } from '@nucypher/shared';
+import { objectEquals, toHexReplacer } from '@nucypher/shared';
 import { z } from 'zod';
 
 import { USER_ADDRESS_PARAMS } from './const';
@@ -39,7 +39,7 @@ export class Condition {
 
   // TODO: Fix this method and add a test for it
   public findParamWithAuthentication(): string | null {
-    const serialized = JSON.stringify(this.value);
+    const serialized = JSON.stringify(this.value, toHexReplacer);
     for (const param of USER_ADDRESS_PARAMS) {
       if (serialized.includes(param)) {
         return param;

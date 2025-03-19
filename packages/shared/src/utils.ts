@@ -44,15 +44,21 @@ const sortedReplacer = (_key: string, value: unknown) => {
   return value;
 };
 
-const u8ToHexReplacer = (_key: string, value: unknown) => {
+export const toHexReplacer = (_key: string, value: unknown) => {
   if (value instanceof Uint8Array) {
     return `0x${toHexString(value)}`;
+  }
+  if (
+    typeof value === 'bigint' ||
+    (typeof value === 'number' && value > Number.MAX_SAFE_INTEGER)
+  ) {
+    return `0x${value.toString(16)}`;
   }
   return value;
 };
 
 const sortedSerializingReplacer = (_key: string, value: unknown): unknown => {
-  const serializedValue = u8ToHexReplacer(_key, value);
+  const serializedValue = toHexReplacer(_key, value);
   return sortedReplacer(_key, serializedValue);
 };
 

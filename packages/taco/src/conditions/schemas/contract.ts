@@ -2,7 +2,7 @@ import { EthAddressSchema } from '@nucypher/shared';
 import { ethers } from 'ethers';
 import { z } from 'zod';
 
-import { paramOrContextParamSchema } from './context';
+import { nonFloatParamOrContextParamSchema } from './context';
 import { rpcConditionSchema } from './rpc';
 
 // TODO: Consider replacing with `z.unknown`:
@@ -80,7 +80,7 @@ export const contractConditionSchema = rpcConditionSchema
     standardContractType: z.enum(['ERC20', 'ERC721']).optional(),
     method: z.string(),
     functionAbi: functionAbiSchema.optional(),
-    parameters: z.array(paramOrContextParamSchema),
+    parameters: z.array(nonFloatParamOrContextParamSchema),
   })
   // Adding this custom logic causes the return type to be ZodEffects instead of ZodObject
   // https://github.com/colinhacks/zod/issues/2474

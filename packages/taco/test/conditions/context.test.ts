@@ -33,18 +33,19 @@ import {
 } from '../../src/conditions/context';
 import { RESERVED_CONTEXT_PARAMS } from '../../src/conditions/context/context';
 import { IfThenElseConditionType } from '../../src/conditions/if-then-else-condition';
+import { nonFloatParamOrContextParamSchema } from '../../src/conditions/schemas/context';
 import { SequentialConditionType } from '../../src/conditions/sequential';
 import {
+  NonFloatReturnValueTestProps,
   paramOrContextParamSchema,
-  ReturnValueTestProps,
 } from '../../src/conditions/shared';
 import {
   testContractConditionObj,
   testFunctionAbi,
   testJsonApiConditionObj,
   testJsonRpcConditionObj,
-  testReturnValueTest,
   testRpcConditionObj,
+  testRpcReturnValueTest,
   testTimeConditionObj,
 } from '../test-utils';
 
@@ -86,7 +87,7 @@ describe('context', () => {
           returnValueTest: {
             comparator: '==',
             value: 100,
-          } as ReturnValueTestProps,
+          } as NonFloatReturnValueTestProps,
         };
         const condition = new ContractCondition(conditionObj);
         const conditionContext = new ConditionContext(condition);
@@ -132,7 +133,7 @@ describe('context', () => {
         const conditionObj = {
           ...testContractConditionObj,
           returnValueTest: {
-            ...testReturnValueTest,
+            ...testRpcReturnValueTest,
             value: userAddressParam,
           },
         };
@@ -148,7 +149,7 @@ describe('context', () => {
       const conditionObj = {
         ...testContractConditionObj,
         returnValueTest: {
-          ...testReturnValueTest,
+          ...testRpcReturnValueTest,
           value: ':myParam',
         },
       };
@@ -163,7 +164,7 @@ describe('context', () => {
       const conditionObj = {
         ...testContractConditionObj,
         returnValueTest: {
-          ...testReturnValueTest,
+          ...testRpcReturnValueTest,
           value: USER_ADDRESS_PARAM_DEFAULT,
         },
       };
@@ -187,7 +188,7 @@ describe('context', () => {
         const conditionObj = {
           ...testContractConditionObj,
           returnValueTest: {
-            ...testReturnValueTest,
+            ...testRpcReturnValueTest,
             value: userAddressParam,
           },
         };
@@ -255,7 +256,7 @@ describe('context', () => {
       const conditionObj = {
         ...testContractConditionObj,
         returnValueTest: {
-          ...testReturnValueTest,
+          ...testRpcReturnValueTest,
           value: userAddressParam,
         },
       };
@@ -332,7 +333,7 @@ describe('context', () => {
     const contractConditionObj = {
       ...testContractConditionObj,
       returnValueTest: {
-        ...testReturnValueTest,
+        ...testRpcReturnValueTest,
         value: customParamKey,
       },
     };
@@ -414,7 +415,7 @@ describe('context', () => {
         method: testFunctionAbi.name,
         parameters: [USER_ADDRESS_PARAM_DEFAULT, customParamKey], // We're going to use a custom parameter
         returnValueTest: {
-          ...testReturnValueTest,
+          ...testRpcReturnValueTest,
         },
       };
 
@@ -491,115 +492,341 @@ describe('context', () => {
   });
 });
 
-describe('param or context param schema', () => {
-  it('accepts a plain string', () => {
-    expect(paramOrContextParamSchema.safeParse('hello').success).toBe(true);
-  });
+describe.each([paramOrContextParamSchema, nonFloatParamOrContextParamSchema])(
+  '%s schema',
+  (schema) => {
+    it('accepts a plain string', () => {
+      expect(schema.safeParse('hello').success).toBe(true);
+    });
 
-  it('accepts a context param', () => {
-    expect(paramOrContextParamSchema.safeParse(':hello').success).toBe(true);
-  });
+    it('accepts a context param', () => {
+      expect(schema.safeParse(':hello').success).toBe(true);
+    });
 
-  it('accepts an integer', () => {
-    expect(paramOrContextParamSchema.safeParse(123).success).toBe(true);
-  });
+    it('accepts an integer', () => {
+      expect(schema.safeParse(123).success).toBe(true);
+    });
 
-  it('accepts an floating number', () => {
-    expect(paramOrContextParamSchema.safeParse(123.4).success).toBe(true);
-  });
+    it('accepts a string', () => {
+      expect(schema.safeParse('deadbeef').success).toBe(true);
+    });
 
-  it('accepts a string', () => {
-    expect(paramOrContextParamSchema.safeParse('deadbeef').success).toBe(true);
-  });
+    it('accepts a 0x-prefixed hex string', () => {
+      expect(schema.safeParse('0xdeadbeef').success).toBe(true);
+    });
 
-  it('accepts a 0x-prefixed hex string', () => {
-    expect(paramOrContextParamSchema.safeParse('0xdeadbeef').success).toBe(
-      true,
+    it('accepts a hex-encoded-bytes', () => {
+      expect(
+        schema.safeParse(toHexString(new Uint8Array([1, 2, 3]))).success,
+      ).toBe(true);
+    });
+
+    it('accepts a boolean', () => {
+      expect(schema.safeParse(true).success).toBe(true);
+    });
+
+    it('accepts an array', () => {
+      expect(schema.safeParse([1, 'hello', true]).success).toBe(true);
+    });
+
+    it('accepts nested arrays', () => {
+      expect(
+        schema.safeParse([1, 'hello', [123, 456, 'hello', true]]).success,
+      ).toBe(true);
+    });
+
+    it('accepts nested arrays', () => {
+      expect(schema.safeParse([1, 'hello', [123, ':hello']]).success).toBe(
+        true,
+      );
+
+      expect(
+        schema.safeParse([
+          1,
+          [
+            2,
+            [true, [123, ':hi', '0xdeadbeef'], ':my_name_is', 1],
+            ':slim_shady',
+            false,
+          ],
+        ]).success,
+      ).toBe(true);
+    });
+
+    it('rejects a nested array with a bad context variable', () => {
+      expect(schema.safeParse([1, 'hello', [123, ':1234']]).success).toBe(
+        false,
+      );
+    });
+
+    it('rejects an object', () => {
+      expect(schema.safeParse({}).success).toBe(false);
+    });
+
+    it('rejects a context param with illegal character', () => {
+      const badString = ':hello#';
+      expect(schema.safeParse(badString).success).toBe(false);
+    });
+
+    if (schema === nonFloatParamOrContextParamSchema) {
+      it('rejects floating point numbers', () => {
+        expect(schema.safeParse(123.4).success).toBe(false);
+      });
+    } else {
+      // paramOrContextParam
+      it('accepts a floating number', () => {
+        expect(schema.safeParse(123.4).success).toBe(true);
+      });
+    }
+
+    it('rejects a null value', () => {
+      expect(schema.safeParse(null).success).toBe(false);
+    });
+
+    it('rejects an undefined value', () => {
+      expect(schema.safeParse(undefined).success).toBe(false);
+    });
+
+    it('rejects a date object', () => {
+      expect(schema.safeParse(new Date()).success).toBe(false);
+    });
+
+    it('rejects a function', () => {
+      expect(schema.safeParse(() => {}).success).toBe(false);
+    });
+  },
+);
+
+describe('recognition of context variables in conditions', () => {
+  const rvt = {
+    comparator: '>=',
+    value: ':expectedResult',
+  };
+
+  const rpcCondition = {
+    ...testRpcConditionObj,
+    parameters: [':userAddress', ':blockNumber'],
+    returnValueTest: rvt,
+  };
+
+  const timeCondition = {
+    ...testTimeConditionObj,
+    returnValueTest: rvt,
+  };
+
+  const contractCondition = {
+    conditionType: ContractConditionType,
+    contractAddress: '0x0000000000000000000000000000000000000000',
+    chain: 1,
+    method: 'balanceOf',
+    functionAbi: testFunctionAbi,
+    parameters: [':userAddress'],
+    returnValueTest: rvt,
+  };
+
+  const jsonApiCondition = {
+    ...testJsonApiConditionObj,
+    endpoint: 'https://api.example.com/:userId/:endpoint',
+    parameters: {
+      value1: ':value1',
+      value2: 2,
+    },
+    query: '$.data[?(@.owner == :query)].value',
+    authorizationToken: ':authToken',
+    returnValueTest: rvt,
+  };
+
+  const jsonRpcConditionParamsDict = {
+    ...testJsonRpcConditionObj,
+    endpoint: 'https://math.example.com/:version/simple',
+    method: 'subtract',
+    params: {
+      value1: 42,
+      value2: ':value2',
+    },
+    query: '$.:queryKey',
+    authorizationToken: ':authToken',
+    returnValueTest: rvt,
+  };
+
+  const jsonRpcConditionParamsArray = {
+    ...testJsonRpcConditionObj,
+    endpoint: 'https://math.example.com/:version/simple',
+    method: 'subtract',
+    params: [':value1', ':value2'],
+    query: '$.:queryKey',
+    authorizationToken: ':authToken',
+    returnValueTest: rvt,
+  };
+
+  it('handles context params for rpc condition', () => {
+    const condition = ConditionFactory.conditionFromProps(rpcCondition);
+    const conditionContext = new ConditionContext(condition);
+
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([':userAddress', ':blockNumber', ':expectedResult']),
     );
   });
+  it('handles context params for time condition', () => {
+    const condition = ConditionFactory.conditionFromProps(timeCondition);
+    const conditionContext = new ConditionContext(condition);
 
-  it('accepts a hex-encoded-bytes', () => {
-    expect(
-      paramOrContextParamSchema.safeParse(
-        toHexString(new Uint8Array([1, 2, 3])),
-      ).success,
-    ).toBe(true);
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([':expectedResult']),
+    );
   });
+  it('handles context params for contract condition', () => {
+    const condition = ConditionFactory.conditionFromProps(contractCondition);
+    const conditionContext = new ConditionContext(condition);
 
-  it('accepts a boolean', () => {
-    expect(paramOrContextParamSchema.safeParse(true).success).toBe(true);
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([':userAddress', ':expectedResult']),
+    );
   });
+  it('handles context params for json api condition', () => {
+    const condition = ConditionFactory.conditionFromProps(jsonApiCondition);
+    const conditionContext = new ConditionContext(condition);
 
-  it('accepts an array', () => {
-    expect(
-      paramOrContextParamSchema.safeParse([1, 'hello', true]).success,
-    ).toBe(true);
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([
+        ':userId',
+        ':endpoint',
+        ':value1',
+        ':query',
+        ':authToken',
+        ':expectedResult',
+      ]),
+    );
   });
+  it('handles context params for json rpc condition (params dict)', () => {
+    const condition = ConditionFactory.conditionFromProps(
+      jsonRpcConditionParamsDict,
+    );
+    const conditionContext = new ConditionContext(condition);
 
-  it('accepts nested arrays', () => {
-    expect(
-      paramOrContextParamSchema.safeParse([
-        1,
-        'hello',
-        [123, 456, 'hello', true],
-      ]).success,
-    ).toBe(true);
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([
+        ':version',
+        ':value2',
+        ':queryKey',
+        ':authToken',
+        ':expectedResult',
+      ]),
+    );
   });
+  it('handles context params for json rpc condition (params array)', () => {
+    const condition = ConditionFactory.conditionFromProps(
+      jsonRpcConditionParamsArray,
+    );
+    const conditionContext = new ConditionContext(condition);
 
-  it('accepts nested arrays', () => {
-    expect(
-      paramOrContextParamSchema.safeParse([1, 'hello', [123, ':hello']])
-        .success,
-    ).toBe(true);
-
-    expect(
-      paramOrContextParamSchema.safeParse([
-        1,
-        [
-          2,
-          [true, [1.23, ':hi', '0xdeadbeef'], ':my_name_is', 1],
-          ':slim_shady',
-          false,
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([
+        ':version',
+        ':value1',
+        ':value2',
+        ':queryKey',
+        ':authToken',
+        ':expectedResult',
+      ]),
+    );
+  });
+  it.each([
+    {
+      conditionType: SequentialConditionType,
+      conditionVariables: [
+        {
+          varName: 'rpc',
+          condition: rpcCondition,
+        },
+        {
+          varName: 'time',
+          condition: timeCondition,
+        },
+        {
+          varName: 'contract',
+          condition: contractCondition,
+        },
+        {
+          varName: 'jsonApi',
+          condition: jsonApiCondition,
+        },
+        {
+          varName: 'sequential',
+          condition: {
+            conditionType: SequentialConditionType,
+            conditionVariables: [
+              {
+                varName: 'jsonRpcParamsDict',
+                condition: jsonRpcConditionParamsDict,
+              },
+              {
+                varName: 'jsonRpcParamsArray',
+                condition: jsonRpcConditionParamsArray,
+              },
+            ],
+          },
+        },
+      ],
+    },
+    {
+      conditionType: CompoundConditionType,
+      operator: 'or',
+      operands: [
+        jsonApiCondition,
+        jsonRpcConditionParamsDict,
+        {
+          conditionType: CompoundConditionType,
+          operator: 'and',
+          operands: [jsonRpcConditionParamsArray, rpcCondition, timeCondition],
+        },
+        {
+          conditionType: CompoundConditionType,
+          operator: 'not',
+          operands: [contractCondition],
+        },
+      ],
+    },
+    {
+      conditionType: IfThenElseConditionType,
+      ifCondition: rpcCondition,
+      thenCondition: jsonRpcConditionParamsArray,
+      elseCondition: {
+        conditionType: CompoundConditionType,
+        operator: 'and',
+        operands: [
+          timeCondition,
+          contractCondition,
+          jsonApiCondition,
+          jsonRpcConditionParamsDict,
         ],
-      ]).success,
-    ).toBe(true);
-  });
-
-  it('rejects a nested array with a bad context variable', () => {
-    expect(
-      paramOrContextParamSchema.safeParse([1, 'hello', [123, ':1234']]).success,
-    ).toBe(false);
-  });
-
-  it('rejects an object', () => {
-    expect(paramOrContextParamSchema.safeParse({}).success).toBe(false);
-  });
-
-  it('rejects a context param with illegal character', () => {
-    const badString = ':hello#';
-    expect(paramOrContextParamSchema.safeParse(badString).success).toBe(false);
-  });
-
-  it('rejects raw bytes', () => {
-    expect(
-      paramOrContextParamSchema.safeParse(new Uint8Array([1, 2, 3])).success,
-    ).toBe(false);
-  });
-
-  it('rejects a null value', () => {
-    expect(paramOrContextParamSchema.safeParse(null).success).toBe(false);
-  });
-
-  it('rejects an undefined value', () => {
-    expect(paramOrContextParamSchema.safeParse(undefined).success).toBe(false);
-  });
-
-  it('rejects a date object', () => {
-    expect(paramOrContextParamSchema.safeParse(new Date()).success).toBe(false);
-  });
-
-  it('rejects a function', () => {
-    expect(paramOrContextParamSchema.safeParse(() => {}).success).toBe(false);
+      },
+    },
+  ])('handles context params for logical conditions', (logicalCondition) => {
+    const condition = ConditionFactory.conditionFromProps(logicalCondition);
+    const conditionContext = new ConditionContext(condition);
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([
+        ':version',
+        ':userAddress',
+        ':blockNumber',
+        ':userId',
+        ':endpoint',
+        ':value1',
+        ':value2',
+        ':query',
+        ':queryKey',
+        ':authToken',
+        ':expectedResult',
+      ]),
+    );
   });
 });
 

@@ -101,10 +101,9 @@ describe('check that valid lingo in python is valid in typescript', () => {
   });
 });
 
-describe('check large numbers', () => {
+describe('check large numbers serialization into hex string', () => {
   it('checking uint256 max', () => {
     const uint256ContractConditionProps = {
-      conditionType: 'contract',
       chain: TEST_CHAIN_ID,
       method: 'method',
       parameters: [
@@ -132,18 +131,21 @@ describe('check large numbers', () => {
       },
     };
 
+    console.log(uint256ContractConditionProps);
+
     const contractCondition = new ContractCondition(
       uint256ContractConditionProps,
     );
     const conditionExpr = new ConditionExpression(contractCondition);
     expect(conditionExpr.toJson()).toContain(
-      '115792089237316195423570985008687907853269984665640564039457584007913129639935',
+      (115792089237316195423570985008687907853269984665640564039457584007913129639935).toString(
+        16,
+      ),
     );
   });
 
   it('checking int256 min', () => {
     const int256ContractConditionProps = {
-      conditionType: 'contract',
       chain: TEST_CHAIN_ID,
       method: 'method',
       parameters: [
@@ -175,7 +177,9 @@ describe('check large numbers', () => {
     );
     const conditionExpr = new ConditionExpression(contractCondition);
     expect(conditionExpr.toJson()).toContain(
-      '-5789604461865809771178549250434395392663499233282028201972879200395',
+      (-57896044618658097711785492504343953926634992332820282019728792003956564819968).toString(
+        16,
+      ),
     );
   });
 });

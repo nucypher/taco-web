@@ -16,7 +16,7 @@ describe('ERC721Ownership', () => {
     > = {
       contractAddress: TEST_CONTRACT_ADDR,
       chain: TEST_CHAIN_ID,
-      parameters: [USER_ADDRESS_PARAM_DEFAULT],
+      parameters: [USER_ADDRESS_PARAM_DEFAULT, BigInt(10)],
     };
 
     const instance = new ERC721Ownership(props);
@@ -44,7 +44,7 @@ describe('ERC721Balance', () => {
       chain: TEST_CHAIN_ID,
       returnValueTest: {
         comparator: '==',
-        value: '10',
+        value: BigInt(10),
       },
     };
 

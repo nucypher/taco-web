@@ -1,4 +1,5 @@
 import { initialize } from '@nucypher/nucypher-core';
+import { toHexReplacer } from '@nucypher/shared';
 import {
   AuthProvider,
   AuthSignature,
@@ -122,7 +123,9 @@ describe('context', () => {
       const condition = new RpcCondition(testRpcConditionObj);
       const conditionContext = new ConditionContext(condition);
       expect(
-        JSON.stringify(condition.toObj()).includes(USER_ADDRESS_PARAM_DEFAULT),
+        JSON.stringify(condition.toObj(), toHexReplacer).includes(
+          USER_ADDRESS_PARAM_DEFAULT,
+        ),
       ).toBe(false);
       await expect(conditionContext.toContextParameters()).toBeDefined();
     });
@@ -571,6 +574,14 @@ describe.each([paramOrContextParamSchema, nonFloatParamOrContextParamSchema])(
     if (schema === nonFloatParamOrContextParamSchema) {
       it('rejects floating point numbers', () => {
         expect(schema.safeParse(123.4).success).toBe(false);
+      });
+      it('accepts bigint', () => {
+        expect(
+          schema.safeParse(
+            // this is 0.01 * 10^18 = 10000000000000000n wei, which is larger than Number.MAX_SAFE_INTEGER (9007199254740991)
+            ethers.utils.parseEther('0.01').toBigInt(),
+          ).success,
+        ).toBe(true);
       });
     } else {
       // paramOrContextParam

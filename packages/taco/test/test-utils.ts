@@ -33,6 +33,7 @@ import {
   TEST_CONTRACT_ADDR,
   TEST_ECDSA_PUBLIC_KEY,
 } from '@nucypher/test-utils';
+import { ethers } from 'ethers';
 import { SpyInstance, vi } from 'vitest';
 
 import {
@@ -240,7 +241,9 @@ export const testReturnValueTest: ReturnValueTestProps = {
 
 export const testRpcReturnValueTest: NonFloatReturnValueTestProps = {
   comparator: '>',
-  value: 100,
+  // test with a value that is 0.01 * 10^18 = 10000000000000000n wei
+  // which is larger than Number.MAX_SAFE_INTEGER (9007199254740991)
+  value: ethers.utils.parseEther('0.01').toBigInt(),
 };
 
 export const testTimeConditionObj: TimeConditionProps = {

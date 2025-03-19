@@ -1,6 +1,7 @@
 import { initialize } from '@nucypher/nucypher-core';
 import { AuthProvider, USER_ADDRESS_PARAM_DEFAULT } from '@nucypher/taco-auth';
 import { EIP4361, fakeAuthProviders } from '@nucypher/test-utils';
+import { ethers } from 'ethers';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import {
@@ -181,7 +182,9 @@ describe('supports custom function abi', async () => {
     parameters: [USER_ADDRESS_PARAM_DEFAULT, ':customParam'],
     returnValueTest: {
       comparator: '==',
-      value: 100,
+      // test with a value that is 0.01 * 10^18 = 10000000000000000n wei
+      // which is larger than Number.MAX_SAFE_INTEGER (9007199254740991)
+      value: ethers.utils.parseEther('0.01').toBigInt(),
     },
   };
   const contractCondition = new ContractCondition(contractConditionObj);

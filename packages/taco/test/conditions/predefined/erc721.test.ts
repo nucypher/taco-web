@@ -16,10 +16,11 @@ describe('ERC721Ownership', () => {
     > = {
       contractAddress: TEST_CONTRACT_ADDR,
       chain: TEST_CHAIN_ID,
-      parameters: [USER_ADDRESS_PARAM_DEFAULT],
+      parameters: [115792089237316195423570985008687907853269984665640564039457584007913129639935],
     };
 
     const instance = new ERC721Ownership(props);
+    console.log(instance.toObj());
     expect(instance).toBeInstanceOf(ERC721Ownership);
     expect(instance.toObj()).toEqual({
       conditionType: 'contract',
@@ -44,7 +45,7 @@ describe('ERC721Balance', () => {
       chain: TEST_CHAIN_ID,
       returnValueTest: {
         comparator: '==',
-        value: '10',
+        value: 115792089237316195423570985008687907853269984665640564039457584007913129639935,
       },
     };
 

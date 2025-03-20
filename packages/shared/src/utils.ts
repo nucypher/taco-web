@@ -49,11 +49,13 @@ export const toHexReplacer = (_key: string, value: unknown) => {
     return `0x${toHexString(value)}`;
   }
   if (
-    typeof value === 'bigint' ||
-    (typeof value === 'number' &&
-      (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER))
+    (typeof value === 'number' || typeof value === 'bigint') &&
+    (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER)
   ) {
     return `0x${value.toString(16)}`;
+  }
+  if (typeof value === 'bigint') {
+    return Number(value);
   }
   return value;
 };

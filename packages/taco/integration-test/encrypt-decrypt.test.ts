@@ -17,8 +17,9 @@ import {
 
 dotenv.config({ path: 'integration-test/.env' });
 
-// Test configuration
-describe('Taco Encrypt/Decrypt Integration Test', () => {
+// TODO: Enable and configure evn variables for this test as part of https://github.com/nucypher/taco-web/issues/638
+// To run the test locally, unskip and use env variables similar to integration-test/.env.example
+describe.skip('Taco Encrypt/Decrypt Integration Test', () => {
   let provider: ethers.providers.JsonRpcProvider;
   let domain: string;
   let ritualId: number;

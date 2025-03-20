@@ -1,5 +1,5 @@
 import { initialize } from '@nucypher/nucypher-core';
-import { toHexReplacer } from '@nucypher/shared';
+import { toJSON } from '@nucypher/shared';
 import {
   AuthProvider,
   AuthSignature,
@@ -34,7 +34,7 @@ import {
 } from '../../src/conditions/context';
 import { RESERVED_CONTEXT_PARAMS } from '../../src/conditions/context/context';
 import { IfThenElseConditionType } from '../../src/conditions/if-then-else-condition';
-import { nonFloatParamOrContextParamSchema } from '../../src/conditions/schemas/context';
+import { blockchainParamOrContextParamSchema } from '../../src/conditions/schemas/context';
 import { SequentialConditionType } from '../../src/conditions/sequential';
 import {
   NonFloatReturnValueTestProps,
@@ -123,9 +123,7 @@ describe('context', () => {
       const condition = new RpcCondition(testRpcConditionObj);
       const conditionContext = new ConditionContext(condition);
       expect(
-        JSON.stringify(condition.toObj(), toHexReplacer).includes(
-          USER_ADDRESS_PARAM_DEFAULT,
-        ),
+        toJSON(condition.toObj()).includes(USER_ADDRESS_PARAM_DEFAULT),
       ).toBe(false);
       await expect(conditionContext.toContextParameters()).toBeDefined();
     });
@@ -495,7 +493,7 @@ describe('context', () => {
   });
 });
 
-describe.each([paramOrContextParamSchema, nonFloatParamOrContextParamSchema])(
+describe.each([paramOrContextParamSchema, blockchainParamOrContextParamSchema])(
   '%s schema',
   (schema) => {
     it('accepts a plain string', () => {
@@ -571,7 +569,7 @@ describe.each([paramOrContextParamSchema, nonFloatParamOrContextParamSchema])(
       expect(schema.safeParse(badString).success).toBe(false);
     });
 
-    if (schema === nonFloatParamOrContextParamSchema) {
+    if (schema === blockchainParamOrContextParamSchema) {
       it('rejects floating point numbers', () => {
         expect(schema.safeParse(123.4).success).toBe(false);
       });
@@ -582,6 +580,24 @@ describe.each([paramOrContextParamSchema, nonFloatParamOrContextParamSchema])(
             ethers.utils.parseEther('0.01').toBigInt(),
           ).success,
         ).toBe(true);
+      });
+      it('rejects bigint larger than 32 bytes (2^256-1)', () => {
+        expect(
+          schema.safeParse(
+            BigInt(
+              '115792089237316195423570985008687907853269984665640564039457584007913129639936',
+            ),
+          ).success,
+        ).toBe(false);
+      });
+      it('rejects bigint lower than 32 bytes (-2^255)', () => {
+        expect(
+          schema.safeParse(
+            BigInt(
+              '-57896044618658097711785492504343953926634992332820282019728792003956564819969',
+            ),
+          ).success,
+        ).toBe(false);
       });
     } else {
       // paramOrContextParam

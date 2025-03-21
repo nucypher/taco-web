@@ -52,7 +52,8 @@ export const toHexReplacer = (_key: string, value: unknown) => {
     (typeof value === 'number' || typeof value === 'bigint') &&
     (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER)
   ) {
-    return `0x${value.toString(16)}`;
+    // numbers larger than Number.MAX_SAFE_INTEGER or smaller than Number.MIN_SAFE_INTEGER
+    return `${value}n`;
   }
   if (typeof value === 'bigint') {
     return Number(value);

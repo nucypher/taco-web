@@ -44,25 +44,24 @@ const sortedReplacer = (_key: string, value: unknown) => {
   return value;
 };
 
-export const toHexReplacer = (_key: string, value: unknown) => {
+const customTypeReplacer = (_key: string, value: unknown) => {
   if (value instanceof Uint8Array) {
+    // use hex string for byte arrays
     return `0x${toHexString(value)}`;
   }
-  if (
-    (typeof value === 'number' || typeof value === 'bigint') &&
-    (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER)
-  ) {
-    // numbers larger than Number.MAX_SAFE_INTEGER or smaller than Number.MIN_SAFE_INTEGER
-    return `${value}n`;
-  }
   if (typeof value === 'bigint') {
+    if (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER) {
+      // can't serialized to a safe number so use bigint string notation
+      return `${value}n`;
+    }
+
     return Number(value);
   }
   return value;
 };
 
 const sortedSerializingReplacer = (_key: string, value: unknown): unknown => {
-  const serializedValue = toHexReplacer(_key, value);
+  const serializedValue = customTypeReplacer(_key, value);
   return sortedReplacer(_key, serializedValue);
 };
 

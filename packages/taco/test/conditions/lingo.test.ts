@@ -112,38 +112,46 @@ describe('check large numbers serialization into hex string', () => {
       //  11579208923731619542357098500868790785326998466564056403945758400791312963993
       // Which is less by a littile from the max uint256 (note 5 at the end):
       //  115792089237316195423570985008687907853269984665640564039457584007913129639935
-      value: 11579208923731619542357098500868790785326998466564056403945758400791312963993,
+      value: BigInt(
+        '11579208923731619542357098500868790785326998466564056403945758400791312963993',
+      ),
       expected:
-        11579208923731619542357098500868790785326998466564056403945758400791312963993 +
-        'n',
+        '"11579208923731619542357098500868790785326998466564056403945758400791312963993n"',
     },
     {
-      name: 'int256 min',
-      value:
-        -57896044618658097711785492504343953926634992332820282019728792003956564819968,
-      expected:
-        -57896044618658097711785492504343953926634992332820282019728792003956564819968 +
-        'n',
-    },
-    {
-      name: 'large positive bigint',
+      name: 'uin256 max bigint',
       value: BigInt(
         '115792089237316195423570985008687907853269984665640564039457584007913129639935',
       ),
       expected:
-        BigInt(
-          '115792089237316195423570985008687907853269984665640564039457584007913129639935',
-        ) + 'n',
+        '"115792089237316195423570985008687907853269984665640564039457584007913129639935n"',
     },
     {
-      name: 'large negative bigint',
+      name: 'int256 min',
       value: BigInt(
         '-57896044618658097711785492504343953926634992332820282019728792003956564819968',
       ),
       expected:
-        BigInt(
-          '-57896044618658097711785492504343953926634992332820282019728792003956564819968',
-        ) + 'n',
+        '"-57896044618658097711785492504343953926634992332820282019728792003956564819968n"',
+    },
+
+    {
+      name: 'large negative bigint',
+      value: BigInt(
+        '-57896044618658097711785492504343953926634992332820282019728792003956564819',
+      ),
+      expected:
+        '"-57896044618658097711785492504343953926634992332820282019728792003956564819n"',
+    },
+    {
+      name: 'max safe integer',
+      value: BigInt(Number.MAX_SAFE_INTEGER),
+      expected: Number.MAX_SAFE_INTEGER,
+    },
+    {
+      name: 'min safe integer',
+      value: BigInt(Number.MIN_SAFE_INTEGER),
+      expected: Number.MIN_SAFE_INTEGER,
     },
     {
       name: 'positive bigint within the number safe range',
@@ -183,7 +191,9 @@ describe('check large numbers serialization into hex string', () => {
         },
       });
       const conditionExpr = new ConditionExpression(contractCondition);
-      expect(conditionExpr.toJson()).toContain(expected);
+      expect(conditionExpr.toJson()).toContain(`"parameters":[${expected}]`);
+      expect(conditionExpr.toJson()).toContain(`"value":${expected}`);
+      expect(conditionExpr.toJson()).not.toContain('e+'); // no floats
     });
   });
 });

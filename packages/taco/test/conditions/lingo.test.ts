@@ -159,7 +159,7 @@ describe('check large numbers serialization into hex string', () => {
 
   numbersToTest.forEach(({ name, value, expected }) => {
     it(`checking ${name}`, () => {
-      const uint256ContractConditionProps = {
+      const contractCondition = new ContractCondition({
         chain: TEST_CHAIN_ID,
         method: 'method',
         parameters: [value],
@@ -181,11 +181,7 @@ describe('check large numbers serialization into hex string', () => {
           comparator: '==',
           value,
         },
-      };
-
-      const contractCondition = new ContractCondition(
-        uint256ContractConditionProps,
-      );
+      });
       const conditionExpr = new ConditionExpression(contractCondition);
       expect(conditionExpr.toJson()).toContain(expected);
     });

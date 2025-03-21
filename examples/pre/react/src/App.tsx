@@ -27,16 +27,17 @@ function App() {
   };
 
   const loadWeb3Provider = async () => {
-    if (!window.ethereum) {
-      console.error('You need to connect to your wallet first');
+    const ethereum = window.ethereum as ethers.providers.ExternalProvider;
+    if (!ethereum) {
+      throw new Error('You need to connect to your wallet first');
     }
-    const provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+    const provider = new ethers.providers.Web3Provider(ethereum, 'any');
 
     const { chainId } = await provider.getNetwork();
     const amoyChainId = 80002;
     if (chainId !== amoyChainId) {
       // Switch to Polygon Amoy testnet
-      await window.ethereum.request({
+      await ethereum.request!({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: hexlify(amoyChainId) }],
       });

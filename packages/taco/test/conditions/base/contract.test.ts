@@ -59,7 +59,7 @@ describe('validation', () => {
 
 describe('accepts either standardContractType or functionAbi but not both or none', () => {
   const standardContractType = 'ERC20';
-  const functionAbi = {
+  const functionAbi: FunctionAbiProps = {
     inputs: [
       {
         name: '_owner',
@@ -80,11 +80,11 @@ describe('accepts either standardContractType or functionAbi but not both or non
   };
 
   it('accepts standardContractType', () => {
-    const conditionObj = {
+    const conditionObj: ContractConditionProps = {
       ...testContractConditionObj,
       standardContractType,
       functionAbi: undefined,
-    } as typeof testContractConditionObj;
+    };
     const result = ContractCondition.validate(
       contractConditionSchema,
       conditionObj,
@@ -95,11 +95,11 @@ describe('accepts either standardContractType or functionAbi but not both or non
   });
 
   it('accepts functionAbi', () => {
-    const conditionObj = {
+    const conditionObj: ContractConditionProps = {
       ...testContractConditionObj,
       functionAbi,
       standardContractType: undefined,
-    } as typeof testContractConditionObj;
+    };
     const result = ContractCondition.validate(
       contractConditionSchema,
       conditionObj,

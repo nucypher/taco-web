@@ -100,7 +100,7 @@ describe('context', () => {
     it.each([USER_ADDRESS_PARAM_DEFAULT])(
       'detects when signer is required by return value test',
       async (userAddressParam) => {
-        const conditionObj = {
+        const conditionObj: ContractConditionProps = {
           ...testContractConditionObj,
           standardContractType: 'ERC721',
           method: 'ownerOf',
@@ -109,7 +109,7 @@ describe('context', () => {
             comparator: '==',
             value: userAddressParam,
           },
-        } as ContractConditionProps;
+        };
         const condition = new ContractCondition(conditionObj);
         const conditionContext = new ConditionContext(condition);
         await expect(conditionContext.toContextParameters()).rejects.toThrow(
@@ -408,7 +408,7 @@ describe('context', () => {
     });
 
     describe('custom method parameters', () => {
-      const contractConditionObj = {
+      const contractConditionObj: ContractConditionProps = {
         ...testContractConditionObj,
         standardContractType: undefined, // We're going to use a custom function ABI
         functionAbi: testFunctionAbi,

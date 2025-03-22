@@ -6,11 +6,13 @@ import { describe, expect, it } from 'vitest';
 import { ContractCondition } from '../../src/conditions/base/contract';
 import { ConditionExpression } from '../../src/conditions/condition-expr';
 import {
+  INT256_MIN,
   testJsonApiConditionObj,
   testJsonRpcConditionObj,
   testJWTConditionObj,
   testRpcConditionObj,
   testTimeConditionObj,
+  UINT256_MAX,
 } from '../test-utils';
 
 describe('check that valid lingo in python is valid in typescript', () => {
@@ -120,17 +122,13 @@ describe('check large numbers serialization into hex string', () => {
     },
     {
       name: 'uin256 max bigint',
-      value: BigInt(
-        '115792089237316195423570985008687907853269984665640564039457584007913129639935',
-      ),
+      value: UINT256_MAX,
       expected:
         '"115792089237316195423570985008687907853269984665640564039457584007913129639935n"',
     },
     {
       name: 'int256 min',
-      value: BigInt(
-        '-57896044618658097711785492504343953926634992332820282019728792003956564819968',
-      ),
+      value: INT256_MIN,
       expected:
         '"-57896044618658097711785492504343953926634992332820282019728792003956564819968n"',
     },

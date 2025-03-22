@@ -36,11 +36,9 @@ import { RESERVED_CONTEXT_PARAMS } from '../../src/conditions/context/context';
 import { IfThenElseConditionType } from '../../src/conditions/if-then-else-condition';
 import { blockchainParamOrContextParamSchema } from '../../src/conditions/schemas/context';
 import { SequentialConditionType } from '../../src/conditions/sequential';
+import { paramOrContextParamSchema } from '../../src/conditions/shared';
 import {
-  NonFloatReturnValueTestProps,
-  paramOrContextParamSchema,
-} from '../../src/conditions/shared';
-import {
+  INT256_MIN,
   testContractConditionObj,
   testFunctionAbi,
   testJsonApiConditionObj,
@@ -48,6 +46,7 @@ import {
   testRpcConditionObj,
   testRpcReturnValueTest,
   testTimeConditionObj,
+  UINT256_MAX,
 } from '../test-utils';
 
 describe('context', () => {
@@ -82,13 +81,13 @@ describe('context', () => {
     it.each([USER_ADDRESS_PARAM_DEFAULT])(
       'detects when auth provider is required by parameters',
       async (userAddressParam) => {
-        const conditionObj = {
+        const conditionObj: ContractConditionProps = {
           ...testContractConditionObj,
           parameters: [userAddressParam],
           returnValueTest: {
             comparator: '==',
             value: 100,
-          } as NonFloatReturnValueTestProps,
+          },
         };
         const condition = new ContractCondition(conditionObj);
         const conditionContext = new ConditionContext(condition);
@@ -569,11 +568,16 @@ describe.each([paramOrContextParamSchema, blockchainParamOrContextParamSchema])(
       expect(schema.safeParse(badString).success).toBe(false);
     });
 
-    if (schema === blockchainParamOrContextParamSchema) {
-      it('rejects floating point numbers', () => {
-        expect(schema.safeParse(123.4).success).toBe(false);
+    if (
+      schema === blockchainParamOrContextParamSchema ||
+      schema === paramOrContextParamSchema
+    ) {
+      it('floating point numbers', () => {
+        expect(schema.safeParse(123.4).success).toBe(
+          schema === paramOrContextParamSchema,
+        );
       });
-      it('accepts bigint', () => {
+      it('bigint', () => {
         expect(
           schema.safeParse(
             // this is 0.01 * 10^18 = 10000000000000000n wei, which is larger than Number.MAX_SAFE_INTEGER (9007199254740991)
@@ -581,28 +585,25 @@ describe.each([paramOrContextParamSchema, blockchainParamOrContextParamSchema])(
           ).success,
         ).toBe(true);
       });
-      it('rejects bigint larger than 32 bytes (2^256-1)', () => {
-        expect(
-          schema.safeParse(
-            BigInt(
-              '115792089237316195423570985008687907853269984665640564039457584007913129639936',
-            ),
-          ).success,
-        ).toBe(false);
+      it('bigint larger than 32 bytes (2^256-1)', () => {
+        expect(schema.safeParse(UINT256_MAX + BigInt(1)).success).toBe(
+          schema === paramOrContextParamSchema,
+        );
       });
-      it('rejects bigint lower than 32 bytes (-2^255)', () => {
-        expect(
-          schema.safeParse(
-            BigInt(
-              '-57896044618658097711785492504343953926634992332820282019728792003956564819969',
-            ),
-          ).success,
-        ).toBe(false);
+      it('bigint lower than 32 bytes (-2^255)', () => {
+        expect(schema.safeParse(INT256_MIN - BigInt(1)).success).toBe(
+          schema === paramOrContextParamSchema,
+        );
       });
-    } else {
-      // paramOrContextParam
-      it('accepts a floating number', () => {
-        expect(schema.safeParse(123.4).success).toBe(true);
+      it('regular positive big int', () => {
+        expect(schema.safeParse(BigInt(Number.MAX_SAFE_INTEGER)).success).toBe(
+          true,
+        );
+      });
+      it('regular negative big int', () => {
+        expect(schema.safeParse(BigInt(Number.MIN_SAFE_INTEGER)).success).toBe(
+          true,
+        );
       });
     }
 

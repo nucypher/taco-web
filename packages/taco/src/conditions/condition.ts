@@ -1,5 +1,7 @@
-import { objectEquals, toJSON } from '@nucypher/shared';
+import { objectEquals } from '@nucypher/shared';
 import { z } from 'zod';
+
+import { toJSON } from '../utils';
 
 import { USER_ADDRESS_PARAMS } from './const';
 

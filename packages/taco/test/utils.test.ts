@@ -1,5 +1,7 @@
+import { toBytes } from '@nucypher/shared';
 import { describe, expect, it } from 'vitest';
-import { fromJSON, toBytes, toJSON } from '../src';
+
+import { fromJSON, toJSON } from '../src/utils';
 
 describe('custom parameters', () => {
   it('serializes/deserializes bytes to/from hex strings', () => {
@@ -10,7 +12,8 @@ describe('custom parameters', () => {
     expect(result).toEqual(`{"x":"0x${expectedHex}"}`);
 
     const deserializedData = fromJSON(result);
-    expect(deserializedData['x']).toEqual(data);
+    // hex strings remain hex strings
+    expect(deserializedData['x']).toEqual(`0x${expectedHex}`);
   });
 
   describe('serializes bigints appropriately based on value', () => {

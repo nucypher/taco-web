@@ -1,6 +1,7 @@
 import { Conditions as CoreConditions } from '@nucypher/nucypher-core';
-import { fromJSON, toJSON } from '@nucypher/shared';
 import { SemVer } from 'semver';
+
+import { fromJSON, toJSON } from '../utils';
 
 import { Condition } from './condition';
 import { ConditionFactory } from './condition-factory';

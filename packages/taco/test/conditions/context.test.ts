@@ -1,5 +1,4 @@
 import { initialize } from '@nucypher/nucypher-core';
-import { fromJSON, toJSON } from '@nucypher/shared';
 import {
   AuthProvider,
   AuthSignature,
@@ -37,6 +36,7 @@ import { IfThenElseConditionType } from '../../src/conditions/if-then-else-condi
 import { blockchainParamOrContextParamSchema } from '../../src/conditions/schemas/context';
 import { SequentialConditionType } from '../../src/conditions/sequential';
 import { paramOrContextParamSchema } from '../../src/conditions/shared';
+import { fromJSON, toJSON } from '../../src/utils';
 import {
   INT256_MIN,
   testContractConditionObj,
@@ -349,13 +349,31 @@ describe('context', () => {
       it('serializes bytes as hex strings', async () => {
         const customParamsWithBytes: Record<string, CustomContextParam> = {};
         const customParam = toBytes('hello');
-        // Uint8Array is not a valid CustomContextParam, override the type:
-        customParamsWithBytes[customParamKey] =
-          customParam as unknown as string;
+        customParamsWithBytes[customParamKey] = customParam;
 
         const conditionContext = new ConditionContext(contractCondition);
         conditionContext.addCustomContextParameterValues(customParamsWithBytes);
         const contextAsJson = await conditionContext.toJson();
+        expect(contextAsJson).toContain(toHexString(customParam));
+
+        const asObj = fromJSON(contextAsJson);
+        expect(asObj).toBeDefined();
+        // hex string remains hex string
+        expect(asObj[customParamKey]).toEqual(`0x${toHexString(customParam)}`);
+      });
+
+      it('serializes big int', async () => {
+        const customParamsWithBigInt: Record<string, CustomContextParam> = {};
+        const customParam = BigInt(UINT256_MAX);
+
+        customParamsWithBigInt[customParamKey] = customParam;
+        const conditionContext = new ConditionContext(contractCondition);
+        conditionContext.addCustomContextParameterValues(
+          customParamsWithBigInt,
+        );
+        const contextAsJson = await conditionContext.toJson();
+        expect(contextAsJson).toContain(`${customParam}n`);
+
         const asObj = fromJSON(contextAsJson);
         expect(asObj).toBeDefined();
         expect(asObj[customParamKey]).toEqual(customParam);

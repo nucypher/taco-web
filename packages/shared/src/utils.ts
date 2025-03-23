@@ -24,60 +24,6 @@ export const toBase64 = (bytes: Uint8Array): string =>
 export const fromBase64 = (str: string): Uint8Array =>
   Uint8Array.from(atob(str), (c) => c.charCodeAt(0));
 
-const customTypeReceiver = (_key: string, value: unknown) => {
-  if (typeof value === 'string') {
-    if (value.startsWith('0x') && value.length != 42) {
-      // bytes and not an address
-      // TODO this needs revisiting
-      return fromHexString(value);
-    }
-    if (/^-?\d+n$/.test(value)) {
-      // bigint number stored as string (`${value}n`)
-      return BigInt(value.slice(0, -1));
-    }
-  }
-  return value;
-};
-
-const sortedReplacer = (_key: string, value: unknown) => {
-  if (value instanceof Object && !(value instanceof Array)) {
-    return Object.keys(value)
-      .sort()
-      .reduce((sorted: Record<string, unknown>, key) => {
-        sorted[key] = (value as Record<string, unknown>)[key];
-        return sorted;
-      }, {});
-  }
-
-  return value;
-};
-
-const customTypeReplacer = (_key: string, value: unknown) => {
-  if (value instanceof Uint8Array) {
-    // use hex string for byte arrays
-    return `0x${toHexString(value)}`;
-  }
-  if (typeof value === 'bigint') {
-    if (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER) {
-      // can't serialized to a safe number so use bigint string notation
-      return `${value}n`;
-    }
-
-    return Number(value);
-  }
-  return value;
-};
-
-const sortedSerializingReplacer = (_key: string, value: unknown): unknown => {
-  const serializedValue = customTypeReplacer(_key, value);
-  return sortedReplacer(_key, serializedValue);
-};
-
-export const toJSON = (obj: unknown) =>
-  JSON.stringify(obj, sortedSerializingReplacer);
-
-export const fromJSON = (json: string) => JSON.parse(json, customTypeReceiver);
-
 export const zip = <T, Z>(
   a: ReadonlyArray<T>,
   b: ReadonlyArray<Z>,

@@ -1,5 +1,4 @@
 import { ThresholdMessageKit } from '@nucypher/nucypher-core';
-import { toJSON } from '@nucypher/shared';
 import {
   AuthProvider,
   AuthSignature,
@@ -10,6 +9,7 @@ import {
 } from '@nucypher/taco-auth';
 
 import { CoreConditions, CoreContext } from '../../types';
+import { toJSON } from '../../utils';
 import { Condition, ConditionProps } from '../condition';
 import { ConditionExpression } from '../condition-expr';
 import {
@@ -19,7 +19,12 @@ import {
   USER_ADDRESS_PARAMS,
 } from '../const';
 
-export type CustomContextParam = string | number | boolean;
+export type CustomContextParam =
+  | string
+  | number
+  | boolean
+  | bigint
+  | Uint8Array;
 export type ContextParam = CustomContextParam | AuthSignature;
 
 const ERR_RESERVED_PARAM = (key: string) =>

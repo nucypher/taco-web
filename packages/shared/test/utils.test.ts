@@ -1,15 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { fromHexString, toBytes, toJSON } from '../src';
+import { fromJSON, toBytes, toJSON } from '../src';
 
 describe('custom parameters', () => {
-  it('serializes bytes as hex strings', () => {
+  it('serializes/deserializes bytes to/from hex strings', () => {
     const data = toBytes('helloworld');
     const result = toJSON({ x: data });
 
     const expectedHex = '68656c6c6f776f726c64'; // "helloworld" in hex
     expect(result).toEqual(`{"x":"0x${expectedHex}"}`);
 
-    expect(fromHexString(expectedHex)).toEqual(data);
+    const deserializedData = fromJSON(result);
+    expect(deserializedData['x']).toEqual(data);
   });
 
   describe('serializes bigints appropriately based on value', () => {
@@ -25,6 +26,9 @@ describe('custom parameters', () => {
     ])("numbers outside of safe range serialized as '${value}n'", (value) => {
       const result = toJSON({ x: value });
       expect(result).toEqual(`{"x":"${value}n"}`);
+
+      const deserializedData = fromJSON(result);
+      expect(deserializedData['x']).toEqual(value);
     });
 
     it.each([

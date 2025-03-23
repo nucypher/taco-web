@@ -1,5 +1,5 @@
 import { Conditions as CoreConditions } from '@nucypher/nucypher-core';
-import { toJSON } from '@nucypher/shared';
+import { fromJSON, toJSON } from '@nucypher/shared';
 import { SemVer } from 'semver';
 
 import { Condition } from './condition';
@@ -51,7 +51,7 @@ export class ConditionExpression {
   }
 
   public static fromJSON(json: string): ConditionExpression {
-    return ConditionExpression.fromObj(JSON.parse(json));
+    return ConditionExpression.fromObj(fromJSON(json));
   }
 
   public toCoreCondition(): CoreConditions {

@@ -24,9 +24,17 @@ export const toBase64 = (bytes: Uint8Array): string =>
 export const fromBase64 = (str: string): Uint8Array =>
   Uint8Array.from(atob(str), (c) => c.charCodeAt(0));
 
-export const hexToU8Receiver = (_key: string, value: unknown) => {
-  if (typeof value === 'string' && value.startsWith('0x')) {
-    return fromHexString(value);
+const customTypeReceiver = (_key: string, value: unknown) => {
+  if (typeof value === 'string') {
+    if (value.startsWith('0x') && value.length != 42) {
+      // bytes and not an address
+      // TODO this needs revisiting
+      return fromHexString(value);
+    }
+    if (/^-?\d+n$/.test(value)) {
+      // bigint number stored as string (`${value}n`)
+      return BigInt(value.slice(0, -1));
+    }
   }
   return value;
 };
@@ -68,7 +76,7 @@ const sortedSerializingReplacer = (_key: string, value: unknown): unknown => {
 export const toJSON = (obj: unknown) =>
   JSON.stringify(obj, sortedSerializingReplacer);
 
-export const fromJSON = (json: string) => JSON.parse(json, hexToU8Receiver);
+export const fromJSON = (json: string) => JSON.parse(json, customTypeReceiver);
 
 export const zip = <T, Z>(
   a: ReadonlyArray<T>,

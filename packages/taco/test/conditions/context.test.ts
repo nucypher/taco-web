@@ -1,5 +1,5 @@
 import { initialize } from '@nucypher/nucypher-core';
-import { toJSON } from '@nucypher/shared';
+import { fromJSON, toJSON } from '@nucypher/shared';
 import {
   AuthProvider,
   AuthSignature,
@@ -356,9 +356,9 @@ describe('context', () => {
         const conditionContext = new ConditionContext(contractCondition);
         conditionContext.addCustomContextParameterValues(customParamsWithBytes);
         const contextAsJson = await conditionContext.toJson();
-        const asObj = JSON.parse(contextAsJson);
+        const asObj = fromJSON(contextAsJson);
         expect(asObj).toBeDefined();
-        expect(asObj[customParamKey]).toEqual(`0x${toHexString(customParam)}`);
+        expect(asObj[customParamKey]).toEqual(customParam);
       });
     });
 

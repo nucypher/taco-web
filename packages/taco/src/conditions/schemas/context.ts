@@ -25,22 +25,15 @@ const paramSchema = z.union([
   z.bigint(),
 ]);
 
-const blockchainIntegerSchema = z
-  .union([z.number().int(), z.bigint()])
-  .refine((val) => {
-    if (val > UINT256_MAX) {
-      return false;
-    } else if (val < INT256_MIN) {
-      return false;
-    }
-    return true;
-  })
-  .describe('Numbers and BigInts must be in the range [-2^255, 2^256-1]).');
-
 const blockchainParamSchema = z
-  .union([plainStringSchema, z.boolean(), blockchainIntegerSchema])
+  .union([
+    plainStringSchema,
+    z.boolean(),
+    z.number().int().safe(),
+    z.bigint().lte(UINT256_MAX).gte(INT256_MIN),
+  ])
   .describe(
-    'Blockchain-compatible non-floating point parameter used for blockchain RPC API calls and Smart Contracts functions.',
+    'Blockchain-compatible parameter values for blockchain RPC API calls and Smart Contracts functions; numbers must be in safe range and bigints must be in the range [-2^255, 2^256-1]).',
   );
 
 export const paramOrContextParamSchema: z.ZodSchema = z.union([

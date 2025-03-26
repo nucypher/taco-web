@@ -50,7 +50,7 @@ _String._
 
 _Union of the following possible types:_
 
-- [PlainString](#plainstring), `boolean`, `number` (_int_) _or_ `bigint`
+- [PlainString](#plainstring), `boolean`, `number` (_int, ≥-9007199254740991, ≤9007199254740991_) _or_ `bigint` (_≤115792089237316195423570985008687907853269984665640564039457584007913129639935, ≥-57896044618658097711785492504343953926634992332820282019728792003956564819968_)
 - [ContextParam](#contextparam)
 - _Array of [BlockchainParamOrContextParam](#blockchainparamorcontextparam) items_
 

@@ -511,7 +511,7 @@ describe('context', () => {
 });
 
 describe.each([paramOrContextParamSchema, blockchainParamOrContextParamSchema])(
-  '%s schema',
+  'check parameter schemas',
   (schema) => {
     it('accepts a plain string', () => {
       expect(schema.safeParse('hello').success).toBe(true);
@@ -586,44 +586,39 @@ describe.each([paramOrContextParamSchema, blockchainParamOrContextParamSchema])(
       expect(schema.safeParse(badString).success).toBe(false);
     });
 
-    if (
-      schema === blockchainParamOrContextParamSchema ||
-      schema === paramOrContextParamSchema
-    ) {
-      it('floating point numbers', () => {
-        expect(schema.safeParse(123.4).success).toBe(
-          schema === paramOrContextParamSchema,
-        );
-      });
-      it('bigint', () => {
-        expect(
-          schema.safeParse(
-            // this is 0.01 * 10^18 = 10000000000000000n wei, which is larger than Number.MAX_SAFE_INTEGER (9007199254740991)
-            ethers.utils.parseEther('0.01').toBigInt(),
-          ).success,
-        ).toBe(true);
-      });
-      it('bigint larger than 32 bytes (2^256-1)', () => {
-        expect(schema.safeParse(UINT256_MAX + BigInt(1)).success).toBe(
-          schema === paramOrContextParamSchema,
-        );
-      });
-      it('bigint lower than 32 bytes (-2^255)', () => {
-        expect(schema.safeParse(INT256_MIN - BigInt(1)).success).toBe(
-          schema === paramOrContextParamSchema,
-        );
-      });
-      it('regular positive big int', () => {
-        expect(schema.safeParse(BigInt(Number.MAX_SAFE_INTEGER)).success).toBe(
-          true,
-        );
-      });
-      it('regular negative big int', () => {
-        expect(schema.safeParse(BigInt(Number.MIN_SAFE_INTEGER)).success).toBe(
-          true,
-        );
-      });
-    }
+    it('floating point numbers', () => {
+      expect(schema.safeParse(123.4).success).toBe(
+        schema === paramOrContextParamSchema,
+      );
+    });
+    it('bigint', () => {
+      expect(
+        schema.safeParse(
+          // this is 0.01 * 10^18 = 10000000000000000n wei, which is larger than Number.MAX_SAFE_INTEGER (9007199254740991)
+          ethers.utils.parseEther('0.01').toBigInt(),
+        ).success,
+      ).toBe(true);
+    });
+    it('bigint larger than 32 bytes (2^256-1)', () => {
+      expect(schema.safeParse(UINT256_MAX + BigInt(1)).success).toBe(
+        schema === paramOrContextParamSchema,
+      );
+    });
+    it('bigint lower than 32 bytes (-2^255)', () => {
+      expect(schema.safeParse(INT256_MIN - BigInt(1)).success).toBe(
+        schema === paramOrContextParamSchema,
+      );
+    });
+    it('regular positive big int', () => {
+      expect(schema.safeParse(BigInt(Number.MAX_SAFE_INTEGER)).success).toBe(
+        true,
+      );
+    });
+    it('regular negative big int', () => {
+      expect(schema.safeParse(BigInt(Number.MIN_SAFE_INTEGER)).success).toBe(
+        true,
+      );
+    });
 
     it('rejects a null value', () => {
       expect(schema.safeParse(null).success).toBe(false);

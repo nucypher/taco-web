@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-loss-of-precision */
-
 import { TEST_CHAIN_ID } from '@nucypher/test-utils';
 import { describe, expect, it } from 'vitest';
 

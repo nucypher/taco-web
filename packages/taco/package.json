@@ -42,17 +42,17 @@
   },
   "dependencies": {
     "@astronautlabs/jsonpath": "^1.1.2",
-    "@nucypher/nucypher-core": "*",
+    "@nucypher/nucypher-core": "^0.14.5",
     "@nucypher/shared": "workspace:*",
     "@nucypher/taco-auth": "workspace:*",
-    "ethers": "*",
-    "semver": "^7.6.3",
-    "zod": "*"
+    "ethers": "^5.8.0",
+    "semver": "^7.7.1",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@nucypher/test-utils": "workspace:*",
-    "@types/semver": "^7.5.8",
-    "dotenv": "^16.3.1",
+    "@types/semver": "^7.7.0",
+    "dotenv": "^16.4.7",
     "glob": "^11.0.1",
     "modified-zod2md": "0.1.5-modified.4"
   },

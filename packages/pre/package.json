@@ -38,9 +38,9 @@
     "typedoc": "typedoc"
   },
   "dependencies": {
-    "@nucypher/nucypher-core": "*",
+    "@nucypher/nucypher-core": "^0.14.5",
     "@nucypher/shared": "workspace:*",
-    "ethers": "^5.7.2"
+    "ethers": "^5.8.0"
   },
   "devDependencies": {
     "@nucypher/test-utils": "workspace:*"

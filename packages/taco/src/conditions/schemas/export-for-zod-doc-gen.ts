@@ -14,6 +14,7 @@ export * from './contract';
 export * from './if-then-else';
 export * from './json-api';
 export * from './json-rpc';
+export * from './jwt';
 export * from './return-value-test';
 export * from './rpc';
 export * from './sequential';

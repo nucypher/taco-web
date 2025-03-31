@@ -171,12 +171,12 @@ _(\*) Required._
 
 _Object containing the following properties:_
 
-| Property             | Type                          | Default |
-| :------------------- | :---------------------------- | :------ |
-| `conditionType`      | `'jwt'`                       | `'jwt'` |
-| **`publicKey`** (\*) | `string`                      |         |
-| `expectedIssuer`     | `string`                      |         |
-| `jwtToken`           | [ContextParam](#contextparam) |         |
+| Property             | Type                          | Default       |
+| :------------------- | :---------------------------- | :------------ |
+| `conditionType`      | `'jwt'`                       | `'jwt'`       |
+| **`publicKey`** (\*) | `string`                      |               |
+| `expectedIssuer`     | `string`                      |               |
+| `jwtToken`           | [ContextParam](#contextparam) | `':jwtToken'` |
 
 _(\*) Required._
 

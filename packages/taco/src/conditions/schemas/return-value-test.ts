@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import {
-  nonFloatParamOrContextParamSchema,
+  blockchainParamOrContextParamSchema,
   paramOrContextParamSchema,
 } from './context';
 
@@ -14,12 +14,14 @@ export const returnValueTestSchema = returnValueTestBaseSchema.extend({
   value: paramOrContextParamSchema,
 });
 
-export const nonFloatReturnValueTestSchema = returnValueTestBaseSchema.extend({
-  value: nonFloatParamOrContextParamSchema,
-});
+export const blockchainReturnValueTestSchema = returnValueTestBaseSchema.extend(
+  {
+    value: blockchainParamOrContextParamSchema,
+  },
+);
 
 export type ReturnValueTestProps = z.infer<typeof returnValueTestSchema>;
 
-export type NonFloatReturnValueTestProps = z.infer<
-  typeof nonFloatReturnValueTestSchema
+export type BlockchainReturnValueTestProps = z.infer<
+  typeof blockchainReturnValueTestSchema
 >;

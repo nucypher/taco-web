@@ -1,6 +1,8 @@
 import { objectEquals } from '@nucypher/shared';
 import { z } from 'zod';
 
+import { toJSON } from '../utils';
+
 import { USER_ADDRESS_PARAMS } from './const';
 
 export { baseConditionSchema } from './schemas/common';
@@ -39,7 +41,7 @@ export class Condition {
 
   // TODO: Fix this method and add a test for it
   public findParamWithAuthentication(): string | null {
-    const serialized = JSON.stringify(this.value);
+    const serialized = toJSON(this.value);
     for (const param of USER_ADDRESS_PARAMS) {
       if (serialized.includes(param)) {
         return param;

@@ -33,13 +33,12 @@ import {
 } from '../../src/conditions/context';
 import { RESERVED_CONTEXT_PARAMS } from '../../src/conditions/context/context';
 import { IfThenElseConditionType } from '../../src/conditions/if-then-else-condition';
-import { nonFloatParamOrContextParamSchema } from '../../src/conditions/schemas/context';
+import { blockchainParamOrContextParamSchema } from '../../src/conditions/schemas/context';
 import { SequentialConditionType } from '../../src/conditions/sequential';
+import { paramOrContextParamSchema } from '../../src/conditions/shared';
+import { fromJSON, toJSON } from '../../src/utils';
 import {
-  NonFloatReturnValueTestProps,
-  paramOrContextParamSchema,
-} from '../../src/conditions/shared';
-import {
+  INT256_MIN,
   testContractConditionObj,
   testFunctionAbi,
   testJsonApiConditionObj,
@@ -47,6 +46,7 @@ import {
   testRpcConditionObj,
   testRpcReturnValueTest,
   testTimeConditionObj,
+  UINT256_MAX,
 } from '../test-utils';
 
 describe('context', () => {
@@ -81,13 +81,13 @@ describe('context', () => {
     it.each([USER_ADDRESS_PARAM_DEFAULT])(
       'detects when auth provider is required by parameters',
       async (userAddressParam) => {
-        const conditionObj = {
+        const conditionObj: ContractConditionProps = {
           ...testContractConditionObj,
           parameters: [userAddressParam],
           returnValueTest: {
             comparator: '==',
             value: 100,
-          } as NonFloatReturnValueTestProps,
+          },
         };
         const condition = new ContractCondition(conditionObj);
         const conditionContext = new ConditionContext(condition);
@@ -100,7 +100,7 @@ describe('context', () => {
     it.each([USER_ADDRESS_PARAM_DEFAULT])(
       'detects when signer is required by return value test',
       async (userAddressParam) => {
-        const conditionObj = {
+        const conditionObj: ContractConditionProps = {
           ...testContractConditionObj,
           standardContractType: 'ERC721',
           method: 'ownerOf',
@@ -109,7 +109,7 @@ describe('context', () => {
             comparator: '==',
             value: userAddressParam,
           },
-        } as ContractConditionProps;
+        };
         const condition = new ContractCondition(conditionObj);
         const conditionContext = new ConditionContext(condition);
         await expect(conditionContext.toContextParameters()).rejects.toThrow(
@@ -122,7 +122,7 @@ describe('context', () => {
       const condition = new RpcCondition(testRpcConditionObj);
       const conditionContext = new ConditionContext(condition);
       expect(
-        JSON.stringify(condition.toObj()).includes(USER_ADDRESS_PARAM_DEFAULT),
+        toJSON(condition.toObj()).includes(USER_ADDRESS_PARAM_DEFAULT),
       ).toBe(false);
       await expect(conditionContext.toContextParameters()).toBeDefined();
     });
@@ -349,16 +349,34 @@ describe('context', () => {
       it('serializes bytes as hex strings', async () => {
         const customParamsWithBytes: Record<string, CustomContextParam> = {};
         const customParam = toBytes('hello');
-        // Uint8Array is not a valid CustomContextParam, override the type:
-        customParamsWithBytes[customParamKey] =
-          customParam as unknown as string;
+        customParamsWithBytes[customParamKey] = customParam;
 
         const conditionContext = new ConditionContext(contractCondition);
         conditionContext.addCustomContextParameterValues(customParamsWithBytes);
         const contextAsJson = await conditionContext.toJson();
-        const asObj = JSON.parse(contextAsJson);
+        expect(contextAsJson).toContain(toHexString(customParam));
+
+        const asObj = fromJSON(contextAsJson);
         expect(asObj).toBeDefined();
+        // hex string remains hex string
         expect(asObj[customParamKey]).toEqual(`0x${toHexString(customParam)}`);
+      });
+
+      it('serializes big int', async () => {
+        const customParamsWithBigInt: Record<string, CustomContextParam> = {};
+        const customParam = BigInt(UINT256_MAX);
+
+        customParamsWithBigInt[customParamKey] = customParam;
+        const conditionContext = new ConditionContext(contractCondition);
+        conditionContext.addCustomContextParameterValues(
+          customParamsWithBigInt,
+        );
+        const contextAsJson = await conditionContext.toJson();
+        expect(contextAsJson).toContain(`${customParam}n`);
+
+        const asObj = fromJSON(contextAsJson);
+        expect(asObj).toBeDefined();
+        expect(asObj[customParamKey]).toEqual(customParam);
       });
     });
 
@@ -408,7 +426,7 @@ describe('context', () => {
     });
 
     describe('custom method parameters', () => {
-      const contractConditionObj = {
+      const contractConditionObj: ContractConditionProps = {
         ...testContractConditionObj,
         standardContractType: undefined, // We're going to use a custom function ABI
         functionAbi: testFunctionAbi,
@@ -492,8 +510,8 @@ describe('context', () => {
   });
 });
 
-describe.each([paramOrContextParamSchema, nonFloatParamOrContextParamSchema])(
-  '%s schema',
+describe.each([paramOrContextParamSchema, blockchainParamOrContextParamSchema])(
+  'check parameter schemas',
   (schema) => {
     it('accepts a plain string', () => {
       expect(schema.safeParse('hello').success).toBe(true);
@@ -568,16 +586,39 @@ describe.each([paramOrContextParamSchema, nonFloatParamOrContextParamSchema])(
       expect(schema.safeParse(badString).success).toBe(false);
     });
 
-    if (schema === nonFloatParamOrContextParamSchema) {
-      it('rejects floating point numbers', () => {
-        expect(schema.safeParse(123.4).success).toBe(false);
-      });
-    } else {
-      // paramOrContextParam
-      it('accepts a floating number', () => {
-        expect(schema.safeParse(123.4).success).toBe(true);
-      });
-    }
+    it('floating point numbers', () => {
+      expect(schema.safeParse(123.4).success).toBe(
+        schema === paramOrContextParamSchema,
+      );
+    });
+    it('bigint', () => {
+      expect(
+        schema.safeParse(
+          // this is 0.01 * 10^18 = 10000000000000000n wei, which is larger than Number.MAX_SAFE_INTEGER (9007199254740991)
+          ethers.utils.parseEther('0.01').toBigInt(),
+        ).success,
+      ).toBe(true);
+    });
+    it('bigint larger than 32 bytes (2^256-1)', () => {
+      expect(schema.safeParse(UINT256_MAX + BigInt(1)).success).toBe(
+        schema === paramOrContextParamSchema,
+      );
+    });
+    it('bigint lower than 32 bytes (-2^255)', () => {
+      expect(schema.safeParse(INT256_MIN - BigInt(1)).success).toBe(
+        schema === paramOrContextParamSchema,
+      );
+    });
+    it('regular positive big int', () => {
+      expect(schema.safeParse(BigInt(Number.MAX_SAFE_INTEGER)).success).toBe(
+        true,
+      );
+    });
+    it('regular negative big int', () => {
+      expect(schema.safeParse(BigInt(Number.MIN_SAFE_INTEGER)).success).toBe(
+        true,
+      );
+    });
 
     it('rejects a null value', () => {
       expect(schema.safeParse(null).success).toBe(false);

@@ -24,43 +24,6 @@ export const toBase64 = (bytes: Uint8Array): string =>
 export const fromBase64 = (str: string): Uint8Array =>
   Uint8Array.from(atob(str), (c) => c.charCodeAt(0));
 
-export const hexToU8Receiver = (_key: string, value: unknown) => {
-  if (typeof value === 'string' && value.startsWith('0x')) {
-    return fromHexString(value);
-  }
-  return value;
-};
-
-const sortedReplacer = (_key: string, value: unknown) => {
-  if (value instanceof Object && !(value instanceof Array)) {
-    return Object.keys(value)
-      .sort()
-      .reduce((sorted: Record<string, unknown>, key) => {
-        sorted[key] = (value as Record<string, unknown>)[key];
-        return sorted;
-      }, {});
-  }
-
-  return value;
-};
-
-const u8ToHexReplacer = (_key: string, value: unknown) => {
-  if (value instanceof Uint8Array) {
-    return `0x${toHexString(value)}`;
-  }
-  return value;
-};
-
-const sortedSerializingReplacer = (_key: string, value: unknown): unknown => {
-  const serializedValue = u8ToHexReplacer(_key, value);
-  return sortedReplacer(_key, serializedValue);
-};
-
-export const toJSON = (obj: unknown) =>
-  JSON.stringify(obj, sortedSerializingReplacer);
-
-export const fromJSON = (json: string) => JSON.parse(json, hexToU8Receiver);
-
 export const zip = <T, Z>(
   a: ReadonlyArray<T>,
   b: ReadonlyArray<Z>,

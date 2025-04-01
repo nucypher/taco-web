@@ -6,8 +6,8 @@ export {
 } from './schemas/context';
 
 export {
-  NonFloatReturnValueTestProps,
+  BlockchainReturnValueTestProps,
   ReturnValueTestProps,
-  nonFloatReturnValueTestSchema,
+  blockchainReturnValueTestSchema,
   returnValueTestSchema,
 } from './schemas/return-value-test';

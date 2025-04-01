@@ -14,7 +14,7 @@ describe('ERC20Balance', () => {
       chain: TEST_CHAIN_ID,
       returnValueTest: {
         comparator: '==',
-        value: '10',
+        value: 10,
       },
     };
 

@@ -31,6 +31,8 @@ jobs:
         run: pnpm ci:lint
 
       - name: Test
+        env:
+          RUNNING_IN_CI: true
         run: pnpm test
 
       - name: Check examples & demos

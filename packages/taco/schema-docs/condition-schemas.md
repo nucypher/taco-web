@@ -46,25 +46,25 @@ Any string that is not a Context Parameter i.e. does not start with `:`.
 
 _String._
 
+## BlockchainParamOrContextParam
+
+_Union of the following possible types:_
+
+- [PlainString](#plainstring), `boolean`, `number` (_int, ≥-9007199254740991, ≤9007199254740991_) _or_ `bigint` (_≤115792089237316195423570985008687907853269984665640564039457584007913129639935, ≥-57896044618658097711785492504343953926634992332820282019728792003956564819968_)
+- [ContextParam](#contextparam)
+- _Array of [BlockchainParamOrContextParam](#blockchainparamorcontextparam) items_
+
 ## ContextParam
 
 A Context Parameter i.e. a placeholder used within conditions and specified at the encryption time, whose value is provided at decryption time.
 
 _String which matches the regular expression `/^:[a-zA-Z_][a-zA-Z0-9_]*$/`._
 
-## NonFloatParamOrContextParam
-
-_Union of the following possible types:_
-
-- [PlainString](#plainstring), `boolean` _or_ `number` (_int_)
-- [ContextParam](#contextparam)
-- _Array of [NonFloatParamOrContextParam](#nonfloatparamorcontextparam) items_
-
 ## ParamOrContextParam
 
 _Union of the following possible types:_
 
-- [PlainString](#plainstring), `boolean` _or_ `number`
+- [PlainString](#plainstring), `boolean`, `number` _or_ `bigint`
 - [ContextParam](#contextparam)
 - _Array of [ParamOrContextParam](#paramorcontextparam) items_
 
@@ -84,16 +84,16 @@ _(\*) Required._
 
 _Object containing the following properties:_
 
-| Property                   | Type                                                                         | Default      |
-| :------------------------- | :--------------------------------------------------------------------------- | :----------- |
-| `conditionType`            | `'contract'`                                                                 | `'contract'` |
-| **`chain`** (\*)           | `number` (_int, ≥0_)                                                         |              |
-| **`method`** (\*)          | `string`                                                                     |              |
-| **`parameters`** (\*)      | _Array of [NonFloatParamOrContextParam](#nonfloatparamorcontextparam) items_ |              |
-| **`returnValueTest`** (\*) | [NonFloatReturnValueTest](#nonfloatreturnvaluetest)                          |              |
-| **`contractAddress`** (\*) | `string`                                                                     |              |
-| `standardContractType`     | `'ERC20' \| 'ERC721'`                                                        |              |
-| `functionAbi`              | [FunctionAbi](#functionabi)                                                  |              |
+| Property                   | Type                                                                             | Default      |
+| :------------------------- | :------------------------------------------------------------------------------- | :----------- |
+| `conditionType`            | `'contract'`                                                                     | `'contract'` |
+| **`chain`** (\*)           | `number` (_int, ≥0_)                                                             |              |
+| **`method`** (\*)          | `string`                                                                         |              |
+| **`parameters`** (\*)      | _Array of [BlockchainParamOrContextParam](#blockchainparamorcontextparam) items_ |              |
+| **`returnValueTest`** (\*) | [BlockchainReturnValueTest](#blockchainreturnvaluetest)                          |              |
+| **`contractAddress`** (\*) | `string`                                                                         |              |
+| `standardContractType`     | `'ERC20' \| 'ERC721'`                                                            |              |
+| `functionAbi`              | [FunctionAbi](#functionabi)                                                      |              |
 
 _(\*) Required._
 
@@ -180,15 +180,15 @@ _Object containing the following properties:_
 
 _(\*) Required._
 
-## NonFloatReturnValueTest
+## BlockchainReturnValueTest
 
 _Object containing the following properties:_
 
-| Property              | Type                                                        |
-| :-------------------- | :---------------------------------------------------------- |
-| `index`               | `number` (_int, ≥0_)                                        |
-| **`comparator`** (\*) | `'==' \| '>' \| '<' \| '>=' \| '<=' \| '!='`                |
-| **`value`** (\*)      | [NonFloatParamOrContextParam](#nonfloatparamorcontextparam) |
+| Property              | Type                                                            |
+| :-------------------- | :-------------------------------------------------------------- |
+| `index`               | `number` (_int, ≥0_)                                            |
+| **`comparator`** (\*) | `'==' \| '>' \| '<' \| '>=' \| '<=' \| '!='`                    |
+| **`value`** (\*)      | [BlockchainParamOrContextParam](#blockchainparamorcontextparam) |
 
 _(\*) Required._
 
@@ -216,7 +216,7 @@ _Object containing the following properties:_
 | **`chain`** (\*)           |                                           | `number` (_int, ≥0_)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |         |
 | **`method`** (\*)          | Only 'eth_getBalance' method is supported | `'eth_getBalance'`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |         |
 | **`parameters`** (\*)      |                                           | _Tuple:_<ol><li>`string`, [UserAddress](#useraddress) _or_ [ContextParam](#contextparam)</li><li>`number` (_int, ≥0_), `string` (_regex: `/^0x[a-fA-F0-9]{64}$/`_) _or_ `'earliest' \| 'finalized' \| 'safe' \| 'latest' \| 'pending'` _or_ [ContextParam](#contextparam)</li></ol> Description: Spec requires 2 parameters - an address and a block identifier<br /> <br /> _or_ _Tuple:_<ol><li>`string`, [UserAddress](#useraddress) _or_ [ContextParam](#contextparam)</li></ol> Description: Block identifier, which defaults to 'latest' if not specified<br /> <br /> |         |
-| **`returnValueTest`** (\*) |                                           | [NonFloatReturnValueTest](#nonfloatreturnvaluetest)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |         |
+| **`returnValueTest`** (\*) |                                           | [BlockchainReturnValueTest](#blockchainreturnvaluetest)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |         |
 
 _(\*) Required._
 
@@ -246,12 +246,12 @@ _(\*) Required._
 
 _Object containing the following properties:_
 
-| Property                   | Type                                                | Default       |
-| :------------------------- | :-------------------------------------------------- | :------------ |
-| `conditionType`            | `'time'`                                            | `'time'`      |
-| **`chain`** (\*)           | `number` (_int, ≥0_)                                |               |
-| `method`                   | `'blocktime'`                                       | `'blocktime'` |
-| **`returnValueTest`** (\*) | [NonFloatReturnValueTest](#nonfloatreturnvaluetest) |               |
+| Property                   | Type                                                    | Default       |
+| :------------------------- | :------------------------------------------------------ | :------------ |
+| `conditionType`            | `'time'`                                                | `'time'`      |
+| **`chain`** (\*)           | `number` (_int, ≥0_)                                    |               |
+| `method`                   | `'blocktime'`                                           | `'blocktime'` |
+| **`returnValueTest`** (\*) | [BlockchainReturnValueTest](#blockchainreturnvaluetest) |               |
 
 _(\*) Required._
 

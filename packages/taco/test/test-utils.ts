@@ -33,6 +33,7 @@ import {
   TEST_CONTRACT_ADDR,
   TEST_ECDSA_PUBLIC_KEY,
 } from '@nucypher/test-utils';
+import { ethers } from 'ethers';
 import { SpyInstance, vi } from 'vitest';
 
 import {
@@ -73,7 +74,7 @@ import {
   SequentialConditionType,
 } from '../src/conditions/sequential';
 import {
-  NonFloatReturnValueTestProps,
+  BlockchainReturnValueTestProps,
   ReturnValueTestProps,
 } from '../src/conditions/shared';
 import { DkgClient, DkgRitual } from '../src/dkg';
@@ -238,9 +239,11 @@ export const testReturnValueTest: ReturnValueTestProps = {
   value: 100.12,
 };
 
-export const testRpcReturnValueTest: NonFloatReturnValueTestProps = {
+export const testRpcReturnValueTest: BlockchainReturnValueTestProps = {
   comparator: '>',
-  value: 100,
+  // test with a value that is 0.01 * 10^18 = 10000000000000000n wei
+  // which is larger than Number.MAX_SAFE_INTEGER (9007199254740991)
+  value: ethers.utils.parseEther('0.01').toBigInt(),
 };
 
 export const testTimeConditionObj: TimeConditionProps = {
@@ -375,3 +378,11 @@ export const mockGetParticipants = (
       return Promise.resolve(participants);
     });
 };
+
+export const UINT256_MAX = BigInt(
+  '115792089237316195423570985008687907853269984665640564039457584007913129639935',
+);
+
+export const INT256_MIN = BigInt(
+  '-57896044618658097711785492504343953926634992332820282019728792003956564819968',
+);

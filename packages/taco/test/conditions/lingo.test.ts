@@ -110,7 +110,7 @@ describe('check large numbers serialization into hex string', () => {
       // The max uint256 cannot be encoded correctly in javascript becuase it is too large.
       // For that some arbitraty extra large positive number is used:
       //  11579208923731619542357098500868790785326998466564056403945758400791312963993
-      // Which is less by a littile from the max uint256 (note 5 at the end):
+      // Which is less by a little from the max uint256 (note 5 at the end):
       //  115792089237316195423570985008687907853269984665640564039457584007913129639935
       value: BigInt(
         '11579208923731619542357098500868790785326998466564056403945758400791312963993',

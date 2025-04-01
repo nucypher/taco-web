@@ -52,7 +52,7 @@
     "@nucypher/test-utils": "workspace:*",
     "@types/semver": "^7.5.8",
     "glob": "^11.0.1",
-    "modified-zod2md": "0.1.5-modified.3"
+    "modified-zod2md": "0.1.5-modified.4"
   },
   "engines": {
     "node": ">=18",

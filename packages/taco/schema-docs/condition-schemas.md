@@ -10,6 +10,7 @@ _Union of the following possible types:_
 - [CompoundCondition](#compoundcondition)
 - [JsonApiCondition](#jsonapicondition)
 - [JsonRpcCondition](#jsonrpccondition)
+- [JwtCondition](#jwtcondition)
 - [SequentialCondition](#sequentialcondition)
 - [IfThenElseCondition](#ifthenelsecondition)
 
@@ -163,6 +164,19 @@ _Object containing the following properties:_
 | `query`                    | [JsonPath](#jsonpath)                                                                                                    |              |
 | `authorizationToken`       | [ContextParam](#contextparam)                                                                                            |              |
 | **`returnValueTest`** (\*) | [ReturnValueTest](#returnvaluetest)                                                                                      |              |
+
+_(\*) Required._
+
+## JwtCondition
+
+_Object containing the following properties:_
+
+| Property             | Type                          | Default       |
+| :------------------- | :---------------------------- | :------------ |
+| `conditionType`      | `'jwt'`                       | `'jwt'`       |
+| **`publicKey`** (\*) | `string`                      |               |
+| `expectedIssuer`     | `string`                      |               |
+| `jwtToken`           | [ContextParam](#contextparam) | `':jwtToken'` |
 
 _(\*) Required._
 

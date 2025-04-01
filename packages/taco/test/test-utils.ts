@@ -31,6 +31,7 @@ import {
   fakeTDecFlow,
   TEST_CHAIN_ID,
   TEST_CONTRACT_ADDR,
+  TEST_ECDSA_PUBLIC_KEY,
 } from '@nucypher/test-utils';
 import { SpyInstance, vi } from 'vitest';
 
@@ -43,6 +44,11 @@ import {
   JsonApiConditionProps,
   JsonApiConditionType,
 } from '../src/conditions/base/json-api';
+import {
+  JWT_PARAM_DEFAULT,
+  JWTConditionProps,
+  JWTConditionType,
+} from '../src/conditions/base/jwt';
 import {
   RpcConditionProps,
   RpcConditionType,
@@ -265,6 +271,16 @@ export const testJsonRpcConditionObj: JsonRpcConditionProps = {
   params: [42, 23],
   query: '$.mathresult',
   returnValueTest: testReturnValueTest,
+};
+
+export const testJWTConditionObj: JWTConditionProps = {
+  conditionType: JWTConditionType,
+  publicKey: TEST_ECDSA_PUBLIC_KEY,
+  expectedIssuer: '0xacbd',
+  // subject: ':userAddress',
+  // expirationWindow: 1800,
+  // issuedWindow: 86400,
+  jwtToken: JWT_PARAM_DEFAULT,
 };
 
 export const testRpcConditionObj: RpcConditionProps = {

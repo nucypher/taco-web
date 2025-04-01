@@ -2,15 +2,15 @@ import { TEST_CHAIN_ID } from '@nucypher/test-utils';
 import { describe, expect, it } from 'vitest';
 
 import { ConditionExpression } from '../../src/conditions/condition-expr';
+import {
+  testJsonApiConditionObj,
+  testJsonRpcConditionObj,
+  testJWTConditionObj,
+  testRpcConditionObj,
+  testTimeConditionObj,
+} from '../test-utils';
 
 describe('check that valid lingo in python is valid in typescript', () => {
-  const timeConditionProps = {
-    conditionType: 'time',
-    method: 'blocktime',
-    chain: TEST_CHAIN_ID,
-    returnValueTest: { value: 0, comparator: '>' },
-  };
-
   const contractConditionProps = {
     conditionType: 'contract',
     chain: TEST_CHAIN_ID,
@@ -35,50 +35,16 @@ describe('check that valid lingo in python is valid in typescript', () => {
       value: true,
     },
   };
-  const rpcConditionProps = {
-    conditionType: 'rpc',
-    chain: TEST_CHAIN_ID,
-    method: 'eth_getBalance',
-    parameters: ['0x3d2Bed3259b165EB02A7F0D0753e7a01912A68f8', 'latest'],
-    returnValueTest: {
-      comparator: '>=',
-      value: 10000000000000,
-    },
-  };
-  const jsonApiConditionProps = {
-    conditionType: 'json-api',
-    endpoint: 'https://api.example.com/data',
-    query: '$.store.book[0].price',
-    parameters: {
-      ids: 'ethereum',
-      vs_currencies: 'usd',
-    },
-    returnValueTest: {
-      comparator: '==',
-      value: 2,
-    },
-  };
-  const jsonRpcConditionProps = {
-    conditionType: 'json-rpc',
-    endpoint: 'https://math.example.com/',
-    method: 'subtract',
-    params: [42, 23],
-    query: '$.value',
-    returnValueTest: {
-      comparator: '==',
-      value: 2,
-    },
-  };
   const sequentialConditionProps = {
     conditionType: 'sequential',
     conditionVariables: [
       {
         varName: 'timeValue',
-        condition: timeConditionProps,
+        condition: testTimeConditionObj,
       },
       {
         varName: 'rpcValue',
-        condition: rpcConditionProps,
+        condition: testRpcConditionObj,
       },
       {
         varName: 'contractValue',
@@ -86,15 +52,15 @@ describe('check that valid lingo in python is valid in typescript', () => {
       },
       {
         varName: 'jsonValue',
-        condition: jsonApiConditionProps,
+        condition: testJsonApiConditionObj,
       },
     ],
   };
   const ifThenElseConditionProps = {
     conditionType: 'if-then-else',
-    ifCondition: jsonRpcConditionProps,
-    thenCondition: jsonApiConditionProps,
-    elseCondition: timeConditionProps,
+    ifCondition: testJsonRpcConditionObj,
+    thenCondition: testJsonApiConditionObj,
+    elseCondition: testTimeConditionObj,
   };
 
   const compoundConditionProps = {
@@ -104,21 +70,22 @@ describe('check that valid lingo in python is valid in typescript', () => {
       contractConditionProps,
       ifThenElseConditionProps,
       sequentialConditionProps,
-      rpcConditionProps,
+      testRpcConditionObj,
       {
         conditionType: 'compound',
         operator: 'not',
-        operands: [timeConditionProps],
+        operands: [testTimeConditionObj],
       },
     ],
   };
 
   it.each([
-    rpcConditionProps,
-    timeConditionProps,
+    testRpcConditionObj,
+    testTimeConditionObj,
     contractConditionProps,
-    jsonApiConditionProps,
-    jsonRpcConditionProps,
+    testJsonApiConditionObj,
+    testJsonRpcConditionObj,
+    testJWTConditionObj,
     compoundConditionProps,
     sequentialConditionProps,
     ifThenElseConditionProps,

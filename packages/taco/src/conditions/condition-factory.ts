@@ -13,6 +13,7 @@ import {
   JsonRpcConditionProps,
   JsonRpcConditionType,
 } from './base/json-rpc';
+import { JWTCondition, JWTConditionProps, JWTConditionType } from './base/jwt';
 import { RpcCondition, RpcConditionProps, RpcConditionType } from './base/rpc';
 import {
   TimeCondition,
@@ -53,6 +54,8 @@ export class ConditionFactory {
         return new JsonApiCondition(props as JsonApiConditionProps);
       case JsonRpcConditionType:
         return new JsonRpcCondition(props as JsonRpcConditionProps);
+      case JWTConditionType:
+        return new JWTCondition(props as JWTConditionProps);
       // Logical Conditions
       case CompoundConditionType:
         return new CompoundCondition(props as CompoundConditionProps);

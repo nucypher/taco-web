@@ -14,7 +14,7 @@ import {
 } from '@nucypher/nucypher-core';
 import { Ursula } from '@nucypher/shared';
 import { fakeUrsulas, mockGetUrsulas } from '@nucypher/test-utils';
-import { expect, SpyInstance, vi } from 'vitest';
+import { expect, MockInstance, vi } from 'vitest';
 
 import { Alice, Bob, Cohort, toBytes } from '../src';
 import { RemoteBob } from '../src/characters';
@@ -37,7 +37,7 @@ export const fakeAlice = (aliceKey = 'fake-secret-key-32-bytes-alice-x') => {
   return Alice.fromSecretKey(secretKey);
 };
 
-export const mockPublishToBlockchain = (): SpyInstance => {
+export const mockPublishToBlockchain = (): MockInstance => {
   const txHash = '0x1234567890123456789012345678901234567890';
   return vi
     .spyOn(PreEnactedPolicy.prototype as any, 'publish')
@@ -47,7 +47,7 @@ export const mockPublishToBlockchain = (): SpyInstance => {
 export const mockGenerateKFrags = (withValue?: {
   delegatingKey: PublicKey;
   verifiedKFrags: VerifiedKeyFrag[];
-}): SpyInstance => {
+}): MockInstance => {
   const spy = vi.spyOn(Alice.prototype as any, 'generateKFrags');
   if (withValue) {
     return spy.mockImplementation(() => withValue);
@@ -57,7 +57,7 @@ export const mockGenerateKFrags = (withValue?: {
 
 export const mockEncryptTreasureMap = (
   withValue?: EncryptedTreasureMap,
-): SpyInstance => {
+): MockInstance => {
   const spy = vi.spyOn(BlockchainPolicy.prototype as any, 'encryptTreasureMap');
   if (withValue) {
     return spy.mockImplementation(() => withValue);
@@ -78,7 +78,7 @@ export const reencryptKFrags = (
   return { verifiedCFrags };
 };
 
-export const mockMakeTreasureMap = (): SpyInstance => {
+export const mockMakeTreasureMap = (): MockInstance => {
   return vi.spyOn(BlockchainPolicy.prototype as any, 'makeTreasureMap');
 };
 

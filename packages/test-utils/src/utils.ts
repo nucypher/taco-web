@@ -375,7 +375,9 @@ export const mockTacoDecrypt = (
     });
 };
 
-export const mockGetRitualIdFromPublicKey = (ritualId: number): MockInstance => {
+export const mockGetRitualIdFromPublicKey = (
+  ritualId: number,
+): MockInstance => {
   return vi
     .spyOn(DkgCoordinatorAgent, 'getRitualIdFromPublicKey')
     .mockImplementation(() => {

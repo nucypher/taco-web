@@ -32,7 +32,7 @@ jobs:
 
       - name: Test
         env:
-          RUNNING_IN_CI: true
+          RUN_INTEGRATION_TEST: true
         run: pnpm test
 
       - name: Check examples & demos

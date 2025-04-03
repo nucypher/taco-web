@@ -16,16 +16,20 @@ import {
 import { CompoundCondition } from '../src/conditions/compound-condition';
 import { UINT256_MAX } from '../test/test-utils';
 
-const RPC_PROVIDER_URL = 'https://rpc-amoy.polygon.technology';
+const RPC_PROVIDER_URL = process.env.RPC_PROVIDER_URL as string;
 const ENCRYPTOR_PRIVATE_KEY =
-  '0x900edb9e8214b2353f82aa195e915128f419a92cfb8bbc0f4784f10ef4112b86';
+  (process.env.ENCRYPTOR_PRIVATE_KEY as string) ||
+  require('crypto').randomBytes(32).toString('hex');
 const CONSUMER_PRIVATE_KEY =
-  '0xf307e165339cb5deb2b8ec59c31a5c0a957b8e8453ce7fe8a19d9a4c8acf36d4';
-const DOMAIN = 'lynx';
-const RITUAL_ID = 27;
-const CHAIN_ID = 80002;
+  (process.env.CONSUMER_PRIVATE_KEY as string) ||
+  require('crypto').randomBytes(32).toString('hex');
+const DOMAIN = process.env.DOMAIN as string;
+const RITUAL_ID = Number(process.env.RITUAL_ID);
+const CHAIN_ID = Number(process.env.CHAIN_ID);
 
-describe.skipIf(!process.env.RUNNING_IN_CI)(
+const RUN_INTEGRATION_TEST = Boolean(process.env.RUN_INTEGRATION_TEST);
+
+describe.skipIf(!RUN_INTEGRATION_TEST)(
   'Taco Encrypt/Decrypt Integration Test',
   () => {
     let provider: ethers.providers.JsonRpcProvider;

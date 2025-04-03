@@ -1,7 +1,10 @@
+import { loadEnv } from 'vite';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
+    // use env at the mono repo root
+    env: loadEnv('test', process.cwd() + '/../../', ''),
     root: __dirname,
     watch: false,
     pool: 'forks',

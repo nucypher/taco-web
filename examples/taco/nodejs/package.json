@@ -12,7 +12,7 @@
   "dependencies": {
     "@nucypher/taco": "workspace:*",
     "@nucypher/taco-auth": "workspace:*",
-    "dotenv": "^16.3.1",
-    "ethers": "^5.7.2"
+    "dotenv": "^16.4.7",
+    "ethers": "^5.8.0"
   }
 }

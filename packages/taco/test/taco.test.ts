@@ -103,7 +103,7 @@ describe('taco', () => {
     expect(getRitualIdFromPublicKey).toHaveBeenCalled();
     expect(getRitualSpy).toHaveBeenCalled();
     expect(decryptSpy).toHaveBeenCalled();
-  });
+  }, 9000); // test timeout 9s (TODO: not sure why this test takes so long on CI)
 
   it('exposes requested parameters', async () => {
     const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);

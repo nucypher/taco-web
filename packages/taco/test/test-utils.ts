@@ -34,7 +34,7 @@ import {
   TEST_ECDSA_PUBLIC_KEY,
 } from '@nucypher/test-utils';
 import { ethers } from 'ethers';
-import { SpyInstance, vi } from 'vitest';
+import { MockInstance, vi } from 'vitest';
 
 import {
   ContractConditionProps,
@@ -206,13 +206,13 @@ export const fakeDkgRitual = (ritual: {
   );
 };
 
-export const mockGetRitual = (): SpyInstance => {
+export const mockGetRitual = (): MockInstance => {
   return vi.spyOn(DkgCoordinatorAgent, 'getRitual').mockImplementation(() => {
     return Promise.resolve(fakeCoordinatorRitual());
   });
 };
 
-export const mockGetActiveRitual = (dkgRitual: DkgRitual): SpyInstance => {
+export const mockGetActiveRitual = (dkgRitual: DkgRitual): MockInstance => {
   return vi.spyOn(DkgClient, 'getActiveRitual').mockImplementation(() => {
     return Promise.resolve(dkgRitual);
   });
@@ -220,7 +220,7 @@ export const mockGetActiveRitual = (dkgRitual: DkgRitual): SpyInstance => {
 
 export const mockIsEncryptionAuthorized = (
   isAuthorized = true,
-): SpyInstance => {
+): MockInstance => {
   return vi
     .spyOn(DkgCoordinatorAgent, 'isEncryptionAuthorized')
     .mockImplementation(async () => {
@@ -371,7 +371,7 @@ export const fakeConditionExpr = () => new ConditionExpression(fakeCondition());
 
 export const mockGetParticipants = (
   participants: DkgParticipant[],
-): SpyInstance => {
+): MockInstance => {
   return vi
     .spyOn(DkgCoordinatorAgent, 'getParticipants')
     .mockImplementation(() => {

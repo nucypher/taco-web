@@ -45,7 +45,7 @@ import {
   SingleSignOnEIP4361AuthProvider,
 } from '@nucypher/taco-auth';
 import { ethers, providers, Wallet } from 'ethers';
-import { expect, SpyInstance, vi } from 'vitest';
+import { expect, MockInstance, vi } from 'vitest';
 
 import { TEST_CONTRACT_ADDR, TEST_SIWE_PARAMS } from './variables';
 
@@ -184,7 +184,7 @@ export const fakeUrsulas = (n = 4): Ursula[] =>
 
 export const mockGetUrsulas = (
   ursulas: Ursula[] = fakeUrsulas(),
-): SpyInstance => {
+): MockInstance => {
   return vi
     .spyOn(PorterClient.prototype, 'getUrsulas')
     .mockImplementation(async () => {
@@ -208,7 +208,7 @@ export const mockRetrieveCFragsRequest = (
   ursulas: readonly ChecksumAddress[],
   verifiedKFrags: readonly VerifiedKeyFrag[],
   capsule: Capsule,
-): SpyInstance => {
+): MockInstance => {
   const results = fakeCFragResponse(ursulas, verifiedKFrags, capsule);
   return vi
     .spyOn(PorterClient.prototype, 'retrieveCFrags')
@@ -349,7 +349,7 @@ export const mockTacoDecrypt = (
   participantSecrets: Record<string, SessionStaticSecret>,
   requesterPk: SessionStaticKey,
   errors: Record<string, string> = {},
-): SpyInstance => {
+): MockInstance => {
   const encryptedResponses: Record<
     string,
     EncryptedThresholdDecryptionResponse
@@ -375,7 +375,9 @@ export const mockTacoDecrypt = (
     });
 };
 
-export const mockGetRitualIdFromPublicKey = (ritualId: number): SpyInstance => {
+export const mockGetRitualIdFromPublicKey = (
+  ritualId: number,
+): MockInstance => {
   return vi
     .spyOn(DkgCoordinatorAgent, 'getRitualIdFromPublicKey')
     .mockImplementation(() => {
@@ -384,7 +386,7 @@ export const mockGetRitualIdFromPublicKey = (ritualId: number): SpyInstance => {
 };
 
 export const mockRetrieveAndDecrypt = (
-  makeTreasureMapSpy: SpyInstance,
+  makeTreasureMapSpy: MockInstance,
   encryptedMessageKit: MessageKit,
 ) => {
   // Setup mocks for `retrieveAndDecrypt`

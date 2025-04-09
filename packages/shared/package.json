@@ -42,6 +42,8 @@
   "dependencies": {
     "@ethersproject/abi": "^5.8.0",
     "@ethersproject/providers": "^5.8.0",
+    "@noble/ciphers": "^1.2.1",
+    "@noble/hashes": "^1.7.1",
     "@nucypher/nucypher-contracts": "^0.23.0",
     "@nucypher/nucypher-core": "^0.14.5",
     "axios": "^1.8.4",

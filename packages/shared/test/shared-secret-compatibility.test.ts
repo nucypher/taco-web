@@ -1,10 +1,24 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { DecryptionError, DecryptionErrorCode } from '../src/encryption/errors';
+import testVectorsFile from './fixtures/shared-secret-vectors.json';
+
+// Mock the randomBytes function from @noble/hashes/utils
+// This must be done before importing any modules that use it
+vi.mock('@noble/hashes/utils', () => {
+  return {
+    // Return a function that will be replaced in each test
+    randomBytes: vi.fn().mockImplementation((bytesLength?: number) => {
+      return new Uint8Array(bytesLength || 32);
+    }),
+  };
+});
+
+// Now import modules that depend on the mocked randomBytes
+import { randomBytes } from '@noble/hashes/utils';
 import {
   decryptWithSharedSecret,
   encryptWithSharedSecret,
 } from '../src/encryption/shared-secret';
-import testVectorsFile from './fixtures/shared-secret-vectors.json';
 
 /**
  * This test file contains fixed test vectors to verify compatibility
@@ -44,28 +58,30 @@ describe('Shared Secret Compatibility Tests', () => {
   const testVector2 = prepareTestVector(testVectors[1]);
   const rustCompatVector = prepareTestVector(testVectors[2]);
 
-  // Mock implementation for fixed nonce tests
-  const setupFixedNonceMock = (fixedNonce: Uint8Array) => {
-    // Save the original implementation
-    const originalRandomBytes = globalThis.crypto.getRandomValues;
+  // Set up a fixed nonce for testing
+  function setupFixedNonceMock(fixedNonce: Uint8Array) {
+    // Get the mocked function
+    const mockedRandomBytes = vi.mocked(randomBytes);
 
-    // Override with our fixed nonce for deterministic encryption
-    globalThis.crypto.getRandomValues = (<T extends ArrayBufferView | null>(
-      array: T,
-    ): T => {
-      if (array && array.byteLength === fixedNonce.length) {
-        // Safe to type assert since we're checking the byteLength matches
-        const typedArray = array as unknown as Uint8Array;
-        typedArray.set(fixedNonce);
+    // Clear previous implementations
+    mockedRandomBytes.mockReset();
+
+    // Configure it to return our fixed nonce
+    mockedRandomBytes.mockImplementation((bytesLength?: number) => {
+      // If length is undefined or matches our nonce length, return the fixed nonce
+      // Otherwise return a new array of the requested length
+      if (bytesLength === undefined || bytesLength === fixedNonce.length) {
+        return fixedNonce;
+      } else {
+        return new Uint8Array(bytesLength);
       }
-      return array;
-    }) as typeof globalThis.crypto.getRandomValues;
+    });
 
+    // Return a cleanup function
     return () => {
-      // Restore the original implementation
-      globalThis.crypto.getRandomValues = originalRandomBytes;
+      mockedRandomBytes.mockReset();
     };
-  };
+  }
 
   describe('Round-trip fixed vector tests', () => {
     // Testing each vector for round-trip compatibility
@@ -73,7 +89,7 @@ describe('Shared Secret Compatibility Tests', () => {
       const { sharedSecret, plaintext, fixedNonce, expectedCiphertext } =
         testVector1;
 
-      // Setup mock for deterministic output
+      // Set up our mock to return the fixed nonce
       const cleanupMock = setupFixedNonceMock(fixedNonce);
 
       try {
@@ -113,7 +129,7 @@ describe('Shared Secret Compatibility Tests', () => {
       const { sharedSecret, plaintext, fixedNonce, expectedCiphertext } =
         testVector2;
 
-      // Setup mock for deterministic output
+      // Set up our mock to return the fixed nonce
       const cleanupMock = setupFixedNonceMock(fixedNonce);
 
       try {
@@ -221,7 +237,7 @@ describe('Shared Secret Compatibility Tests', () => {
     it('should handle authentication failed error in the same way as Rust', () => {
       const { sharedSecret, fixedNonce } = testVector1;
 
-      // Setup mock for deterministic output
+      // Set up our mock to return the fixed nonce
       const cleanupMock = setupFixedNonceMock(fixedNonce);
 
       try {

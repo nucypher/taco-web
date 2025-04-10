@@ -1,7 +1,12 @@
 import { chacha20poly1305 } from '@noble/ciphers/chacha';
 import { randomBytes } from '@noble/hashes/utils';
 
-import { DecryptionError, DecryptionErrorCode, EncryptionError, EncryptionErrorCode } from './errors';
+import {
+  DecryptionError,
+  DecryptionErrorCode,
+  EncryptionError,
+  EncryptionErrorCode,
+} from './errors';
 
 export function encryptWithSharedSecret(
   sharedSecret: Uint8Array,

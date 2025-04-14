@@ -31,32 +31,32 @@ import {
  */
 describe('Shared Secret Compatibility Tests', () => {
   // Parse test vectors from the loaded JSON file
-  const { testVectors } = testVectorsFile as { testVectors: any[] };
+  const { test_vectors } = testVectorsFile as { test_vectors: any[] };
 
   // Helper to convert test vector from JSON to usable objects
   const prepareTestVector = (vector: any) => {
     return {
       id: vector.id,
       description: vector.description,
-      sharedSecret: new Uint8Array(vector.sharedSecret),
+      sharedSecret: new Uint8Array(vector.shared_secret),
       plaintext: vector.plaintext
         ? new TextEncoder().encode(vector.plaintext)
         : new Uint8Array(0),
-      fixedNonce: new Uint8Array(vector.fixedNonce),
-      expectedCiphertext: vector.expectedCiphertext
-        ? Buffer.from(vector.expectedCiphertext, 'hex')
+      fixedNonce: new Uint8Array(vector.fixed_nonce),
+      expectedCiphertext: vector.expected_ciphertext
+        ? Buffer.from(vector.expected_ciphertext, 'hex')
         : null,
-      rustGeneratedCiphertext: vector.rustGeneratedCiphertext
-        ? new Uint8Array(vector.rustGeneratedCiphertext)
+      rustGeneratedCiphertext: vector.rust_generated_ciphertext
+        ? new Uint8Array(vector.rust_generated_ciphertext)
         : null,
-      expectedPlaintext: vector.expectedPlaintext,
+      expectedPlaintext: vector.expected_plaintext,
     };
   };
 
   // Parse test vectors into usable formats
-  const testVector1 = prepareTestVector(testVectors[0]);
-  const testVector2 = prepareTestVector(testVectors[1]);
-  const rustCompatVector = prepareTestVector(testVectors[2]);
+  const testVector1 = prepareTestVector(test_vectors[0]);
+  const testVector2 = prepareTestVector(test_vectors[1]);
+  const rustCompatVector = prepareTestVector(test_vectors[2]);
 
   // Set up a fixed nonce for testing
   function setupFixedNonceMock(fixedNonce: Uint8Array) {

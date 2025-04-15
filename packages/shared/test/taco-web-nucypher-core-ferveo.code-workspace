@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../../.."
+		},
+		{
+			"path": "../../../../nucypher-core"
+		},
+		{
+			"path": "../../../../ferveo"
+		}
+	],
+	"settings": {}
+}

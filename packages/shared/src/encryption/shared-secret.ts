@@ -8,17 +8,21 @@ import {
   EncryptionErrorCode,
 } from './errors';
 
+export const CHACHA20POLY1305_NONCE_LENGTH = 12; // bytes
+
 export function encryptWithSharedSecret(
   sharedSecret: Uint8Array,
   plaintext: Uint8Array,
 ): Uint8Array {
-  const nonce = randomBytes(12); // Generate a 12-byte nonce
+  const nonce = randomBytes(CHACHA20POLY1305_NONCE_LENGTH); // Generate a 12-byte nonce
   const cipher = chacha20poly1305(sharedSecret, nonce); // Use an object with key
   try {
     const ciphertext = cipher.encrypt(plaintext);
-    const result = new Uint8Array(nonce.length + ciphertext.length);
+    const result = new Uint8Array(
+      CHACHA20POLY1305_NONCE_LENGTH + ciphertext.length,
+    );
     result.set(nonce);
-    result.set(ciphertext, nonce.length);
+    result.set(ciphertext, CHACHA20POLY1305_NONCE_LENGTH);
     return result;
   } catch (error) {
     throw new EncryptionError(EncryptionErrorCode.PlaintextTooLarge);
@@ -29,12 +33,11 @@ export function decryptWithSharedSecret(
   sharedSecret: Uint8Array,
   ciphertext: Uint8Array,
 ): Uint8Array {
-  const nonceLength = 12; // ChaCha20Poly1305 uses a 12-byte nonce
-  if (ciphertext.length < nonceLength) {
+  if (ciphertext.length < CHACHA20POLY1305_NONCE_LENGTH) {
     throw new DecryptionError(DecryptionErrorCode.CiphertextTooShort);
   }
-  const nonce = ciphertext.slice(0, nonceLength);
-  const encryptedData = ciphertext.slice(nonceLength);
+  const nonce = ciphertext.slice(0, CHACHA20POLY1305_NONCE_LENGTH);
+  const encryptedData = ciphertext.slice(CHACHA20POLY1305_NONCE_LENGTH);
   const cipher = chacha20poly1305(sharedSecret, nonce); // Use an object with key
   try {
     return cipher.decrypt(encryptedData);

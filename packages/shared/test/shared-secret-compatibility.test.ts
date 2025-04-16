@@ -98,21 +98,8 @@ describe('Shared Secret Compatibility Tests', () => {
 
         // Check against expected ciphertext from the JSON file
         const ciphertextHex = Buffer.from(ciphertext).toString('hex');
-        if (expectedCiphertext) {
-          const expectedHex = Buffer.from(expectedCiphertext).toString('hex');
-          expect(ciphertextHex).toEqual(expectedHex);
-          console.debug(
-            `✓ Vector ${testVector1.id} ciphertext matches expected output`,
-          );
-        } else {
-          console.error(
-            `Generated ciphertext for vector ${testVector1.id}:`,
-            ciphertextHex,
-          );
-          console.error(
-            'Add this to the test vectors JSON file to enable validation',
-          );
-        }
+        const expectedHex = Buffer.from(expectedCiphertext!).toString('hex');
+        expect(ciphertextHex).toEqual(expectedHex);
 
         // Verify decryption works correctly
         const decrypted = decryptWithSharedSecret(sharedSecret, ciphertext);
@@ -138,21 +125,8 @@ describe('Shared Secret Compatibility Tests', () => {
 
         // Check against expected ciphertext from the JSON file
         const ciphertextHex = Buffer.from(ciphertext).toString('hex');
-        if (expectedCiphertext) {
-          const expectedHex = Buffer.from(expectedCiphertext).toString('hex');
-          expect(ciphertextHex).toEqual(expectedHex);
-          console.debug(
-            `✓ Vector ${testVector2.id} ciphertext matches expected output`,
-          );
-        } else {
-          console.error(
-            `Generated ciphertext for vector ${testVector2.id}:`,
-            ciphertextHex,
-          );
-          throw Error(
-            'Add this to the test vectors JSON file to enable validation',
-          );
-        }
+        const expectedHex = Buffer.from(expectedCiphertext!).toString('hex');
+        expect(ciphertextHex).toEqual(expectedHex);
 
         // Verify decryption works correctly
         const decrypted = decryptWithSharedSecret(sharedSecret, ciphertext);

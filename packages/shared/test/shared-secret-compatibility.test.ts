@@ -39,13 +39,11 @@ describe('Shared Secret Compatibility Tests', () => {
       id: vector.id,
       description: vector.description,
       sharedSecret: new Uint8Array(vector.shared_secret),
-      plaintext: vector.plaintext
-        ? new TextEncoder().encode(vector.plaintext)
-        : new Uint8Array(0),
+      plaintext: new TextEncoder().encode(vector.plaintext),
       fixedNonce: vector.fixed_nonce
         ? new Uint8Array(vector.fixed_nonce)
         : undefined,
-      expectedCiphertext: Buffer.from(vector.expected_ciphertext, 'hex'), // new Uint8Array(vector.expected_ciphertext)
+      expectedCiphertext: Buffer.from(vector.expected_ciphertext, 'hex'),
     };
   };
 
@@ -84,7 +82,7 @@ describe('Shared Secret Compatibility Tests', () => {
         const { sharedSecret, plaintext, fixedNonce, expectedCiphertext } =
           vector;
 
-        if (fixedNonce && sharedSecret) {
+        if (fixedNonce) {
           // Set up our mock to return the fixed nonce
           const cleanupMock = setupFixedNonceMock(fixedNonce);
 
@@ -114,7 +112,7 @@ describe('Shared Secret Compatibility Tests', () => {
 
   describe('Error handling compatibility tests', () => {
     // Using the first test vector's shared secret for error tests
-    const { sharedSecret, plaintext } = testVectors[0];
+    const { expectedCiphertext, fixedNonce, sharedSecret } = testVectors[0];
 
     it('should handle ciphertext too short error in the same way as Rust', () => {
       const tooShortCiphertext = new Uint8Array([0x01, 0x02, 0x03]); // Less than nonce length
@@ -135,18 +133,12 @@ describe('Shared Secret Compatibility Tests', () => {
     });
 
     it('should handle tampered ciphertext in the same way as Rust', () => {
-      // We need to setup a fixed nonce for the encryption
-      const mockNonce = new Uint8Array(12).fill(0); // 12 zeros as nonce
-
       // Use the existing helper to setup the mock
-      const cleanupMock = setupFixedNonceMock(mockNonce);
+      const cleanupMock = setupFixedNonceMock(fixedNonce!);
 
       try {
-        // Encrypt normally
-        const ciphertext = encryptWithSharedSecret(sharedSecret, plaintext);
-
         // Tamper with the ciphertext by changing one byte
-        const tamperedCiphertext = new Uint8Array(ciphertext);
+        const tamperedCiphertext = new Uint8Array(expectedCiphertext);
         tamperedCiphertext[tamperedCiphertext.length - 1] ^= 0x01; // Flip one bit in the last byte
 
         try {

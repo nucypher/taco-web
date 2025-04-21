@@ -48,7 +48,7 @@ describe('Shared Secret Encryption/Decryption', () => {
     it('should encrypt plaintext successfully', () => {
       const encrypted = encryptWithSharedSecret(sharedSecret, plaintext);
 
-      // Ensure the encrypted result is longer than the plaintext (nonce + ciphertext + tag)
+      // Ensure the encrypted result is longer than the plaintext (nonce + ciphertext + authentication tag)
       expect(encrypted.length).toBeGreaterThan(plaintext.length);
 
       // Ensure the encrypted result is different from the plaintext

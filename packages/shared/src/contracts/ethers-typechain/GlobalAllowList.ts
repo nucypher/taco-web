@@ -105,9 +105,11 @@ export interface GlobalAllowListInterface extends utils.Interface {
 
   events: {
     'AddressAuthorizationSet(uint32,address,bool)': EventFragment;
+    'Initialized(uint64)': EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: 'AddressAuthorizationSet'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Initialized'): EventFragment;
 }
 
 export interface AddressAuthorizationSetEventObject {
@@ -122,6 +124,13 @@ export type AddressAuthorizationSetEvent = TypedEvent<
 
 export type AddressAuthorizationSetEventFilter =
   TypedEventFilter<AddressAuthorizationSetEvent>;
+
+export interface InitializedEventObject {
+  version: BigNumber;
+}
+export type InitializedEvent = TypedEvent<[BigNumber], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface GlobalAllowList extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -266,6 +275,9 @@ export interface GlobalAllowList extends BaseContract {
       _address?: string | null,
       isAuthorized?: null,
     ): AddressAuthorizationSetEventFilter;
+
+    'Initialized(uint64)'(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
   };
 
   estimateGas: {

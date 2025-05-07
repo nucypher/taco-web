@@ -68,6 +68,33 @@ const _abi = [
   },
   {
     type: 'error',
+    name: 'AddressEmptyCode',
+    inputs: [
+      {
+        name: 'target',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'AddressInsufficientBalance',
+    inputs: [
+      {
+        name: 'account',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'FailedInnerCall',
+    inputs: [],
+  },
+  {
+    type: 'error',
     name: 'InvalidInitialization',
     inputs: [],
   },
@@ -89,6 +116,17 @@ const _abi = [
         name: 'value',
         type: 'uint256',
         internalType: 'uint256',
+      },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'SafeERC20FailedOperation',
+    inputs: [
+      {
+        name: 'token',
+        type: 'address',
+        internalType: 'address',
       },
     ],
   },
@@ -502,6 +540,19 @@ const _abi = [
   },
   {
     type: 'function',
+    name: 'FEE_MODEL_MANAGER_ROLE',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'bytes32',
+        internalType: 'bytes32',
+      },
+    ],
+  },
+  {
+    type: 'function',
     name: 'TREASURY_ROLE',
     stateMutability: 'view',
     inputs: [],
@@ -634,6 +685,30 @@ const _abi = [
         name: '',
         type: 'uint48',
         internalType: 'uint48',
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'expectedTranscriptSize',
+    stateMutability: 'pure',
+    inputs: [
+      {
+        name: 'dkgSize',
+        type: 'uint16',
+        internalType: 'uint16',
+      },
+      {
+        name: 'threshold',
+        type: 'uint16',
+        internalType: 'uint16',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+        internalType: 'uint256',
       },
     ],
   },
@@ -1214,6 +1289,13 @@ const _abi = [
   },
   {
     type: 'function',
+    name: 'initializeNumberOfRituals',
+    stateMutability: 'nonpayable',
+    inputs: [],
+    outputs: [],
+  },
+  {
+    type: 'function',
     name: 'initiateRitual',
     stateMutability: 'nonpayable',
     inputs: [
@@ -1257,17 +1339,17 @@ const _abi = [
     stateMutability: 'view',
     inputs: [
       {
-        name: 'ritualId',
+        name: '',
         type: 'uint32',
         internalType: 'uint32',
       },
       {
-        name: 'evidence',
+        name: '',
         type: 'bytes',
         internalType: 'bytes',
       },
       {
-        name: 'ciphertextHeader',
+        name: '',
         type: 'bytes',
         internalType: 'bytes',
       },
@@ -1306,11 +1388,30 @@ const _abi = [
   },
   {
     type: 'function',
-    name: 'isProviderPublicKeySet',
+    name: 'isProviderKeySet',
     stateMutability: 'view',
     inputs: [
       {
         name: 'provider',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'bool',
+        internalType: 'bool',
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'isProviderPublicKeySet',
+    stateMutability: 'view',
+    inputs: [
+      {
+        name: '',
         type: 'address',
         internalType: 'address',
       },
@@ -1463,6 +1564,24 @@ const _abi = [
     stateMutability: 'nonpayable',
     inputs: [
       {
+        name: '',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
+      {
+        name: '',
+        type: 'bytes',
+        internalType: 'bytes',
+      },
+    ],
+    outputs: [],
+  },
+  {
+    type: 'function',
+    name: 'publishTranscript',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
         name: 'ritualId',
         type: 'uint32',
         internalType: 'uint32',
@@ -1471,6 +1590,19 @@ const _abi = [
         name: 'transcript',
         type: 'bytes',
         internalType: 'bytes',
+      },
+    ],
+    outputs: [],
+  },
+  {
+    type: 'function',
+    name: 'reinitializeDefaultAdmin',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
+        name: 'newDefaultAdmin',
+        type: 'address',
+        internalType: 'address',
       },
     ],
     outputs: [],
@@ -1517,7 +1649,7 @@ const _abi = [
     stateMutability: 'view',
     inputs: [
       {
-        name: '',
+        name: 'ritualId',
         type: 'uint256',
         internalType: 'uint256',
       },
@@ -1724,6 +1856,19 @@ const _abi = [
         name: 'newAuthority',
         type: 'address',
         internalType: 'address',
+      },
+    ],
+    outputs: [],
+  },
+  {
+    type: 'function',
+    name: 'withdrawAllTokens',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
+        name: 'token',
+        type: 'address',
+        internalType: 'contract IERC20',
       },
     ],
     outputs: [],

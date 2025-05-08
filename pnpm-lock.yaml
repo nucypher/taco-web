@@ -113,11 +113,11 @@ importers:
         specifier: ^0.1.24
         version: 0.1.24(arweave@1.15.0)(bufferutil@4.0.9)(got@11.8.6)(utf-8-validate@5.0.10)
       '@nucypher/taco':
-        specifier: ^0.5.0
-        version: 0.5.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+        specifier: ^0.6.0
+        version: 0.6.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       '@nucypher/taco-auth':
-        specifier: ^0.2.0
-        version: 0.2.0(bufferutil@4.0.9)(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
+        specifier: ^0.3.0
+        version: 0.3.0(bufferutil@4.0.9)(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
       '@usedapp/core':
         specifier: ^1.2.16
         version: 1.2.16(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(node-fetch@2.7.0)(react@18.3.1)
@@ -198,11 +198,11 @@ importers:
   demos/taco-nft-demo:
     dependencies:
       '@nucypher/taco':
-        specifier: ^0.5.0
-        version: 0.5.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+        specifier: ^0.6.0
+        version: 0.6.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       '@nucypher/taco-auth':
-        specifier: ^0.2.0
-        version: 0.2.0(bufferutil@4.0.9)(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
+        specifier: ^0.3.0
+        version: 0.3.0(bufferutil@4.0.9)(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
       '@usedapp/core':
         specifier: ^1.2.16
         version: 1.2.16(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(node-fetch@2.7.0)(react@18.3.1)
@@ -2384,25 +2384,22 @@ packages:
     resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==}
     engines: {node: '>=12.4.0'}
 
-  '@nucypher/nucypher-contracts@0.23.0':
-    resolution: {integrity: sha512-vilcgICbFzSP2x5otEJHzmaKsbX4t6DIU8aj4U33taTeCdR62LDFS6tCG1r+XzgSmIJZO8ksO5bGzaEHF+r1Ww==}
-
   '@nucypher/nucypher-contracts@0.25.0':
     resolution: {integrity: sha512-4fRPKY6RzkXY1Zv2O0auJZsvP6z7tuj+Fsy83yJvADqFwRuIJfSlwgSgLwISX6q838SRG/Ve2i+sMLZRaVJfYw==}
 
   '@nucypher/nucypher-core@0.14.5':
     resolution: {integrity: sha512-Q3kBuJL0qtTtnxrM5DEQauQUvDlXmwubm9u1h7gbyLhs+aZNC9WDyjEUbE43+uahlHu4k1hKEMxD1gjV165ChA==}
 
-  '@nucypher/shared@0.4.0':
-    resolution: {integrity: sha512-hy3q91TY6T9ZQVUXvzlzTJu+dWvikdy+g6NffW+nAuT6e670/R16F7lD1yw1kLn3YdALX3ueDmXD5YFlF21XBQ==}
+  '@nucypher/shared@0.5.0':
+    resolution: {integrity: sha512-Y+0oEgVtoud4BP/pvj2elPm5igrQ8AAUwYYmUiLpXNqQMRF4zFnYaGbl+xhKk45CYG8S9cDKJEN8nopzVADTNw==}
     engines: {node: '>=18', pnpm: '>=8.0.0'}
 
-  '@nucypher/taco-auth@0.2.0':
-    resolution: {integrity: sha512-TW4RkF8ayeeZyVyLGoRLF1v85/e1th8zSQ9O8E1RcYdbXeKZcGv6J8/iKwaFxtqAf0GTKdGlk1d5pgeF/+khPQ==}
+  '@nucypher/taco-auth@0.3.0':
+    resolution: {integrity: sha512-z3s7kzshUkR/F5Xd0/TBFePvqW0sweta+WbZ5I+4OGsMrS2TkWm4uamvhf+NYhi3jvPjOplTWUbBH99JDCd+AQ==}
     engines: {node: '>=18', pnpm: '>=8.0.0'}
 
-  '@nucypher/taco@0.5.0':
-    resolution: {integrity: sha512-POo9cHqdaMLoB0lOg2uI2xkq39l74msrhaCUWc6IjJ/Nb4Wde1QIIMYuit2jXikalSBL9YNHDotxv0qSLfPT8A==}
+  '@nucypher/taco@0.6.0':
+    resolution: {integrity: sha512-LehkMgoM7VDgqg3kqvMX8PFOiVgyFMVAqsbdbcffj31z2tf7C0q8RBinj61YDaLotx++py6us6M+T2cJAywnaA==}
     engines: {node: '>=18', pnpm: '>=8.0.0'}
 
   '@pkgjs/parseargs@0.11.0':
@@ -2611,9 +2608,6 @@ packages:
 
   '@solana/web3.js@1.98.0':
     resolution: {integrity: sha512-nz3Q5OeyGFpFCR+erX2f6JPt3sKhzhYcSycBCSPkWjzSVDh/Rr1FqTVMRe58FKO16/ivTUcuJjeS5MyBvpkbzA==}
-
-  '@spruceid/siwe-parser@2.1.2':
-    resolution: {integrity: sha512-d/r3S1LwJyMaRAKQ0awmo9whfXeE88Qt00vRj91q5uv5ATtWIQEGJ67Yr5eSZw5zp1/fZCXZYuEckt8lSkereQ==}
 
   '@spruceid/siwe-parser@3.0.0':
     resolution: {integrity: sha512-Y92k63ilw/8jH9Ry4G2e7lQd0jZAvb0d/Q7ssSD0D9mp/Zt2aCXIc3g0ny9yhplpAx1QXHsMz/JJptHK/zDGdw==}
@@ -8137,11 +8131,6 @@ packages:
   sisteransi@1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
 
-  siwe@2.3.2:
-    resolution: {integrity: sha512-aSf+6+Latyttbj5nMu6GF3doMfv2UYj83hhwZgUF20ky6fTS83uVhkQABdIVnEuS8y1bBdk7p6ltb9SmlhTTlA==}
-    peerDependencies:
-      ethers: ^5.6.8 || ^6.0.8
-
   siwe@3.0.0:
     resolution: {integrity: sha512-P2/ry7dHYJA6JJ5+veS//Gn2XDwNb3JMvuD6xiXX8L/PJ1SNVD4a3a8xqEbmANx+7kNQcD8YAh1B9bNKKvRy/g==}
     peerDependencies:
@@ -8897,9 +8886,6 @@ packages:
   v8-to-istanbul@8.1.1:
     resolution: {integrity: sha512-FGtKtv3xIpR6BYhvgH8MI/y78oT7d8Au3ww4QIxymrCtZEh5b8gCw2siywE+puhEmuWKDtmfrvF5UlB298ut3w==}
     engines: {node: '>=10.12.0'}
-
-  valid-url@1.0.9:
-    resolution: {integrity: sha512-QQDsV8OnSf5Uc30CKSwG9lnhMPe6exHtTXLRYX8uMwKENy640pU+2BgBL0LRbDh/eYRahNCS7aewCx0wf3NYVA==}
 
   validate-npm-package-license@3.0.4:
     resolution: {integrity: sha512-DpKm2Ui/xN7/HQKCtpZxoRWBhZ9Z0kqtygG8XCgNQ8ZlDnxuQmWhj566j8fN4Cu3/JmbhsDo7fcAJq4s9h27Ew==}
@@ -11530,17 +11516,15 @@ snapshots:
 
   '@nolyfill/is-core-module@1.0.39': {}
 
-  '@nucypher/nucypher-contracts@0.23.0': {}
-
   '@nucypher/nucypher-contracts@0.25.0': {}
 
   '@nucypher/nucypher-core@0.14.5': {}
 
-  '@nucypher/shared@0.4.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
+  '@nucypher/shared@0.5.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
     dependencies:
       '@ethersproject/abi': 5.8.0
       '@ethersproject/providers': 5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      '@nucypher/nucypher-contracts': 0.23.0
+      '@nucypher/nucypher-contracts': 0.25.0
       '@nucypher/nucypher-core': 0.14.5
       axios: 1.8.4
       deep-equal: 2.2.3
@@ -11552,11 +11536,11 @@ snapshots:
       - debug
       - utf-8-validate
 
-  '@nucypher/taco-auth@0.2.0(bufferutil@4.0.9)(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)':
+  '@nucypher/taco-auth@0.3.0(bufferutil@4.0.9)(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)':
     dependencies:
       '@ethersproject/abstract-signer': 5.8.0
-      '@nucypher/shared': 0.4.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      siwe: 2.3.2(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      '@nucypher/shared': 0.5.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      siwe: 3.0.0(ethers@5.8.0)
       zod: 3.24.2
     transitivePeerDependencies:
       - bufferutil
@@ -11564,11 +11548,12 @@ snapshots:
       - ethers
       - utf-8-validate
 
-  '@nucypher/taco@0.5.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
+  '@nucypher/taco@0.6.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
     dependencies:
+      '@astronautlabs/jsonpath': 1.1.2
       '@nucypher/nucypher-core': 0.14.5
-      '@nucypher/shared': 0.4.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      '@nucypher/taco-auth': 0.2.0(bufferutil@4.0.9)(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
+      '@nucypher/shared': 0.5.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      '@nucypher/taco-auth': 0.3.0(bufferutil@4.0.9)(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
       ethers: 5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       semver: 7.7.1
       zod: 3.24.2
@@ -11773,13 +11758,6 @@ snapshots:
       - bufferutil
       - encoding
       - utf-8-validate
-
-  '@spruceid/siwe-parser@2.1.2':
-    dependencies:
-      '@noble/hashes': 1.7.1
-      apg-js: 4.4.0
-      uri-js: 4.4.1
-      valid-url: 1.0.9
 
   '@spruceid/siwe-parser@3.0.0':
     dependencies:
@@ -18738,14 +18716,6 @@ snapshots:
 
   sisteransi@1.0.5: {}
 
-  siwe@2.3.2(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)):
-    dependencies:
-      '@spruceid/siwe-parser': 2.1.2
-      '@stablelib/random': 1.0.2
-      ethers: 5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      uri-js: 4.4.1
-      valid-url: 1.0.9
-
   siwe@3.0.0(ethers@5.8.0):
     dependencies:
       '@spruceid/siwe-parser': 3.0.0
@@ -19575,8 +19545,6 @@ snapshots:
       '@types/istanbul-lib-coverage': 2.0.6
       convert-source-map: 1.9.0
       source-map: 0.7.4
-
-  valid-url@1.0.9: {}
 
   validate-npm-package-license@3.0.4:
     dependencies:

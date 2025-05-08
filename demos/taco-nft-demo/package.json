@@ -12,8 +12,8 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@nucypher/taco": "^0.5.0",
-    "@nucypher/taco-auth": "^0.2.0",
+    "@nucypher/taco": "^0.6.0",
+    "@nucypher/taco-auth": "^0.3.0",
     "@usedapp/core": "^1.2.16",
     "buffer": "^6.0.3",
     "ethers": "^5.8.0",

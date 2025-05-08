@@ -1,6 +1,7 @@
 import { initialize } from '@nucypher/nucypher-core';
 import { AuthProvider, USER_ADDRESS_PARAM_DEFAULT } from '@nucypher/taco-auth';
-import { fakeAuthProviders } from '@nucypher/test-utils';
+import { EIP4361, fakeAuthProviders } from '@nucypher/test-utils';
+import { ethers } from 'ethers';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import {
@@ -58,7 +59,7 @@ describe('validation', () => {
 
 describe('accepts either standardContractType or functionAbi but not both or none', () => {
   const standardContractType = 'ERC20';
-  const functionAbi = {
+  const functionAbi: FunctionAbiProps = {
     inputs: [
       {
         name: '_owner',
@@ -79,11 +80,11 @@ describe('accepts either standardContractType or functionAbi but not both or non
   };
 
   it('accepts standardContractType', () => {
-    const conditionObj = {
+    const conditionObj: ContractConditionProps = {
       ...testContractConditionObj,
       standardContractType,
       functionAbi: undefined,
-    } as typeof testContractConditionObj;
+    };
     const result = ContractCondition.validate(
       contractConditionSchema,
       conditionObj,
@@ -94,11 +95,11 @@ describe('accepts either standardContractType or functionAbi but not both or non
   });
 
   it('accepts functionAbi', () => {
-    const conditionObj = {
+    const conditionObj: ContractConditionProps = {
       ...testContractConditionObj,
       functionAbi,
       standardContractType: undefined,
-    } as typeof testContractConditionObj;
+    };
     const result = ContractCondition.validate(
       contractConditionSchema,
       conditionObj,
@@ -181,7 +182,9 @@ describe('supports custom function abi', async () => {
     parameters: [USER_ADDRESS_PARAM_DEFAULT, ':customParam'],
     returnValueTest: {
       comparator: '==',
-      value: 100,
+      // test with a value that is 0.01 * 10^18 = 10000000000000000n wei
+      // which is larger than Number.MAX_SAFE_INTEGER (9007199254740991)
+      value: ethers.utils.parseEther('0.01').toBigInt(),
     },
   };
   const contractCondition = new ContractCondition(contractConditionObj);
@@ -201,7 +204,7 @@ describe('supports custom function abi', async () => {
 
     conditionContext.addAuthProvider(
       USER_ADDRESS_PARAM_DEFAULT,
-      authProviders[USER_ADDRESS_PARAM_DEFAULT],
+      authProviders[EIP4361],
     );
 
     const asJson = await conditionContext.toJson();
@@ -339,7 +342,7 @@ describe('supports custom function abi', async () => {
   it.each([
     {
       contractAddress: '0x123',
-      error: ['Invalid', 'String must contain exactly 42 character(s)'],
+      error: ['Invalid Ethereum address'],
     },
     { contractAddress: undefined, error: ['Required'] },
   ])('rejects invalid contract address', async ({ contractAddress, error }) => {

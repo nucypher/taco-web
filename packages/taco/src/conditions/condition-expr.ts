@@ -1,6 +1,7 @@
 import { Conditions as CoreConditions } from '@nucypher/nucypher-core';
-import { toJSON } from '@nucypher/shared';
 import { SemVer } from 'semver';
+
+import { fromJSON, toJSON } from '../utils';
 
 import { Condition } from './condition';
 import { ConditionFactory } from './condition-factory';
@@ -8,7 +9,7 @@ import { ConditionFactory } from './condition-factory';
 const ERR_VERSION = (provided: string, current: string) =>
   `Version provided, ${provided}, is incompatible with current version, ${current}`;
 const ERR_CONDITION = (condition: Record<string, unknown>) =>
-  `Invalid condition: unrecognized condition data ${JSON.stringify(condition)}`;
+  `Invalid condition: unrecognized condition data ${toJSON(condition)}`;
 
 export type ConditionExpressionJSON = {
   version: string;
@@ -51,7 +52,7 @@ export class ConditionExpression {
   }
 
   public static fromJSON(json: string): ConditionExpression {
-    return ConditionExpression.fromObj(JSON.parse(json));
+    return ConditionExpression.fromObj(fromJSON(json));
   }
 
   public toCoreCondition(): CoreConditions {

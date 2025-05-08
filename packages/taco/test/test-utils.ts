@@ -31,14 +31,25 @@ import {
   fakeTDecFlow,
   TEST_CHAIN_ID,
   TEST_CONTRACT_ADDR,
+  TEST_ECDSA_PUBLIC_KEY,
 } from '@nucypher/test-utils';
-import { SpyInstance, vi } from 'vitest';
+import { ethers } from 'ethers';
+import { MockInstance, vi } from 'vitest';
 
 import {
   ContractConditionProps,
   ContractConditionType,
   FunctionAbiProps,
 } from '../src/conditions/base/contract';
+import {
+  JsonApiConditionProps,
+  JsonApiConditionType,
+} from '../src/conditions/base/json-api';
+import {
+  JWT_PARAM_DEFAULT,
+  JWTConditionProps,
+  JWTConditionType,
+} from '../src/conditions/base/jwt';
 import {
   RpcConditionProps,
   RpcConditionType,
@@ -48,9 +59,24 @@ import {
   TimeConditionProps,
   TimeConditionType,
 } from '../src/conditions/base/time';
+import {
+  CompoundConditionProps,
+  CompoundConditionType,
+} from '../src/conditions/compound-condition';
 import { ConditionExpression } from '../src/conditions/condition-expr';
 import { ERC721Balance } from '../src/conditions/predefined/erc721';
-import { ReturnValueTestProps } from '../src/conditions/shared';
+import {
+  JsonRpcConditionProps,
+  JsonRpcConditionType,
+} from '../src/conditions/schemas/json-rpc';
+import {
+  SequentialConditionProps,
+  SequentialConditionType,
+} from '../src/conditions/sequential';
+import {
+  BlockchainReturnValueTestProps,
+  ReturnValueTestProps,
+} from '../src/conditions/shared';
 import { DkgClient, DkgRitual } from '../src/dkg';
 import { encryptMessage } from '../src/tdec';
 
@@ -180,13 +206,13 @@ export const fakeDkgRitual = (ritual: {
   );
 };
 
-export const mockGetRitual = (): SpyInstance => {
+export const mockGetRitual = (): MockInstance => {
   return vi.spyOn(DkgCoordinatorAgent, 'getRitual').mockImplementation(() => {
     return Promise.resolve(fakeCoordinatorRitual());
   });
 };
 
-export const mockGetActiveRitual = (dkgRitual: DkgRitual): SpyInstance => {
+export const mockGetActiveRitual = (dkgRitual: DkgRitual): MockInstance => {
   return vi.spyOn(DkgClient, 'getActiveRitual').mockImplementation(() => {
     return Promise.resolve(dkgRitual);
   });
@@ -194,7 +220,7 @@ export const mockGetActiveRitual = (dkgRitual: DkgRitual): SpyInstance => {
 
 export const mockIsEncryptionAuthorized = (
   isAuthorized = true,
-): SpyInstance => {
+): MockInstance => {
   return vi
     .spyOn(DkgCoordinatorAgent, 'isEncryptionAuthorized')
     .mockImplementation(async () => {
@@ -210,7 +236,14 @@ export const mockMakeSessionKey = (secret: SessionStaticSecret) => {
 
 export const testReturnValueTest: ReturnValueTestProps = {
   comparator: '>',
-  value: 100,
+  value: 100.12,
+};
+
+export const testRpcReturnValueTest: BlockchainReturnValueTestProps = {
+  comparator: '>',
+  // test with a value that is 0.01 * 10^18 = 10000000000000000n wei
+  // which is larger than Number.MAX_SAFE_INTEGER (9007199254740991)
+  value: ethers.utils.parseEther('0.01').toBigInt(),
 };
 
 export const testTimeConditionObj: TimeConditionProps = {
@@ -223,12 +256,42 @@ export const testTimeConditionObj: TimeConditionProps = {
   chain: TEST_CHAIN_ID,
 };
 
+export const testJsonApiConditionObj: JsonApiConditionProps = {
+  conditionType: JsonApiConditionType,
+  endpoint: 'https://_this_would_totally_fail.com',
+  parameters: {
+    ids: 'ethereum',
+    vs_currencies: 'usd',
+  },
+  query: '$.ethereum.usd',
+  returnValueTest: testReturnValueTest,
+};
+
+export const testJsonRpcConditionObj: JsonRpcConditionProps = {
+  conditionType: JsonRpcConditionType,
+  endpoint: 'https://math.example.com/',
+  method: 'subtract',
+  params: [42, 23],
+  query: '$.mathresult',
+  returnValueTest: testReturnValueTest,
+};
+
+export const testJWTConditionObj: JWTConditionProps = {
+  conditionType: JWTConditionType,
+  publicKey: TEST_ECDSA_PUBLIC_KEY,
+  expectedIssuer: '0xacbd',
+  // subject: ':userAddress',
+  // expirationWindow: 1800,
+  // issuedWindow: 86400,
+  jwtToken: JWT_PARAM_DEFAULT,
+};
+
 export const testRpcConditionObj: RpcConditionProps = {
   conditionType: RpcConditionType,
   chain: TEST_CHAIN_ID,
   method: 'eth_getBalance',
   parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77', 'latest'],
-  returnValueTest: testReturnValueTest,
+  returnValueTest: testRpcReturnValueTest,
 };
 
 export const testContractConditionObj: ContractConditionProps = {
@@ -238,7 +301,35 @@ export const testContractConditionObj: ContractConditionProps = {
   standardContractType: 'ERC20',
   method: 'balanceOf',
   parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77'],
-  returnValueTest: testReturnValueTest,
+  returnValueTest: testRpcReturnValueTest,
+};
+
+export const testCompoundConditionObj: CompoundConditionProps = {
+  conditionType: CompoundConditionType,
+  operator: 'or',
+  operands: [
+    testRpcConditionObj,
+    testTimeConditionObj,
+    testContractConditionObj,
+  ],
+};
+
+export const testSequentialConditionObj: SequentialConditionProps = {
+  conditionType: SequentialConditionType,
+  conditionVariables: [
+    {
+      varName: 'rpc',
+      condition: testRpcConditionObj,
+    },
+    {
+      varName: 'time',
+      condition: testTimeConditionObj,
+    },
+    {
+      varName: 'contract',
+      condition: testContractConditionObj,
+    },
+  ],
 };
 
 export const testFunctionAbi: FunctionAbiProps = {
@@ -280,10 +371,18 @@ export const fakeConditionExpr = () => new ConditionExpression(fakeCondition());
 
 export const mockGetParticipants = (
   participants: DkgParticipant[],
-): SpyInstance => {
+): MockInstance => {
   return vi
     .spyOn(DkgCoordinatorAgent, 'getParticipants')
     .mockImplementation(() => {
       return Promise.resolve(participants);
     });
 };
+
+export const UINT256_MAX = BigInt(
+  '115792089237316195423570985008687907853269984665640564039457584007913129639935',
+);
+
+export const INT256_MIN = BigInt(
+  '-57896044618658097711785492504343953926634992332820282019728792003956564819968',
+);

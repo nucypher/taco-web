@@ -31,13 +31,15 @@ jobs:
         run: pnpm ci:lint
 
       - name: Test
+        env:
+          RUNNING_IN_CI: true
         run: pnpm test
 
       - name: Check examples & demos
         run: pnpm check-examples
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           # https://community.codecov.com/t/upload-issues-unable-to-locate-build-via-github-actions-api/3954/21
           fail_ci_if_error: false

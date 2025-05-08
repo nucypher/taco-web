@@ -1,6 +1,6 @@
 import { fakeUrsulas } from '@nucypher/test-utils';
 import axios, { HttpStatusCode } from 'axios';
-import { SpyInstance, beforeAll, describe, expect, it, vi } from 'vitest';
+import { MockInstance, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
   GetUrsulasResult,
   PorterClient,
@@ -18,7 +18,7 @@ const fakePorterUris = [
   'https://_this_should_work.com/',
 ];
 
-const mockGetUrsulas = (ursulas: Ursula[] = fakeUrsulas()): SpyInstance => {
+const mockGetUrsulas = (ursulas: Ursula[] = fakeUrsulas()): MockInstance => {
   const fakePorterUrsulas = (
     mockUrsulas: readonly Ursula[],
   ): GetUrsulasResult => {
@@ -108,11 +108,11 @@ describe('PorterClient', () => {
     const ursulas = fakeUrsulas();
     mockGetUrsulas(ursulas);
     let porterClient = new PorterClient([fakePorterUris[1]]);
-    expect(porterClient.getUrsulas(ursulas.length)).rejects.toThrowError(
+    await expect(porterClient.getUrsulas(ursulas.length)).rejects.toThrowError(
       Error(`Porter returned bad response: 400 - `),
     );
     porterClient = new PorterClient([fakePorterUris[1], fakePorterUris[0]]);
-    expect(porterClient.getUrsulas(ursulas.length)).rejects.toThrowError(
+    await expect(porterClient.getUrsulas(ursulas.length)).rejects.toThrowError(
       Error(`Test error`),
     );
   });

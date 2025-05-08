@@ -2,7 +2,7 @@
 
 A TypeScript library for interacting with access control functionality in the browser.
 
-Full documentation can be found [here](https://docs.threshold.network/app-development/threshold-access-control-tac).
+Full documentation can be found [here](https://docs.taco.build/).
 
 > **Warning**
 >
@@ -19,7 +19,7 @@ pnpm add @nucypher/taco
 ## Tutorial
 
 To learn more, follow the tutorial at Threshold
-Network's [docs](https://docs.threshold.network/app-development/threshold-access-control-tac/get-started-with-tac).
+Network's [docs](https://docs.taco.build/taco-integration/).
 
 ## Examples
 
@@ -32,6 +32,10 @@ We also provide demos of TACo applications:
 - [taco-nft-demo](https://github.com/nucypher/taco-web/tree/main/demos/taco-nft-demo)
 
 These examples showcase integration with web applications utilizing an end-to-end flow of creating encrypted data with associated conditions and enacting access-controlled decryption.
+
+## Condition Schemas
+
+Learn more about the available condition schemas and their properties. You may check the [condition schema documentation](./packages/taco/schema-docs/condition-schemas.md) for detailed information on each schema type.
 
 # Contributing
 

@@ -1,24 +1,17 @@
-import { z } from 'zod';
-
 import { Condition } from '../condition';
+import {
+  TimeConditionProps,
+  timeConditionSchema,
+  TimeConditionType,
+} from '../schemas/time';
 import { OmitConditionType } from '../shared';
 
-import { rpcConditionSchema } from './rpc';
-
-// TimeCondition is an RpcCondition with the method set to 'blocktime' and no parameters
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const { parameters: _, ...restShape } = rpcConditionSchema.shape;
-
-export const TimeConditionType = 'time';
-export const TimeConditionMethod = 'blocktime';
-
-export const timeConditionSchema = z.object({
-  ...restShape,
-  conditionType: z.literal(TimeConditionType).default(TimeConditionType),
-  method: z.literal(TimeConditionMethod).default(TimeConditionMethod),
-});
-
-export type TimeConditionProps = z.infer<typeof timeConditionSchema>;
+export {
+  TimeConditionMethod,
+  TimeConditionProps,
+  timeConditionSchema,
+  TimeConditionType,
+} from '../schemas/time';
 
 export class TimeCondition extends Condition {
   constructor(value: OmitConditionType<TimeConditionProps>) {

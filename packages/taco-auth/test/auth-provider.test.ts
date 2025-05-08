@@ -7,12 +7,14 @@ import { SiweMessage } from 'siwe';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  EIP1271AuthProvider,
   EIP4361AuthProvider,
+  FRESHNESS_IN_MILLISECONDS,
   SingleSignOnEIP4361AuthProvider,
 } from '../src/providers';
-import { EIP4361TypedDataSchema } from '../src/providers/eip4361/common';
+import { EIP4361TypedDataSchema } from '../src/providers/eip4361/auth';
 
-describe('auth provider', () => {
+describe('eip4361 auth provider', () => {
   const provider = fakeProvider(bobSecretKeyBytes);
   const signer = provider.getSigner();
   const eip4361Provider = new EIP4361AuthProvider(
@@ -20,6 +22,28 @@ describe('auth provider', () => {
     signer,
     TEST_SIWE_PARAMS,
   );
+
+  it('creates new SIWE message with default parameters', async () => {
+    const defaultEip4361Provider = new EIP4361AuthProvider(provider, signer);
+
+    const typedSignature =
+      await defaultEip4361Provider.getOrCreateAuthSignature();
+    expect(typedSignature.signature).toBeDefined();
+    expect(typedSignature.address).toEqual(await signer.getAddress());
+    expect(typedSignature.scheme).toEqual('EIP4361');
+    const typedDataSiweMessage = new SiweMessage(`${typedSignature.typedData}`);
+    expect(typedDataSiweMessage).toBeDefined();
+    expect(typedDataSiweMessage.domain).toEqual('taco.build');
+    expect(typedDataSiweMessage.version).toEqual('1');
+    expect(typedDataSiweMessage.nonce).toBeDefined(); // random
+    expect(typedDataSiweMessage.uri).toEqual('https://taco.build');
+    expect(typedDataSiweMessage.chainId).toEqual(
+      (await provider.getNetwork()).chainId,
+    );
+    expect(typedDataSiweMessage.statement).toEqual(
+      `${typedDataSiweMessage.domain} wants you to sign in with your Ethereum account: ${await signer.getAddress()}`,
+    );
+  });
 
   it('creates a new SIWE message', async () => {
     const typedSignature = await eip4361Provider.getOrCreateAuthSignature();
@@ -55,7 +79,7 @@ describe('auth provider', () => {
   });
 });
 
-describe('auth provider caching', () => {
+describe('eip4361 single sign-on auth provider', () => {
   beforeEach(() => {
     // tell vitest we use mocked time
     vi.useFakeTimers();
@@ -77,6 +101,7 @@ describe('auth provider caching', () => {
   it('caches auth signature, but regenerates when expired', async () => {
     const createAuthSignatureSpy = vi.spyOn(
       eip4361Provider,
+      // @ts-expect-error -- spying on private function
       'createSIWEAuthMessage',
     );
 
@@ -102,7 +127,7 @@ describe('auth provider caching', () => {
   });
 });
 
-describe('single sign-on auth provider', async () => {
+describe('eip4361 single sign-on auth provider', async () => {
   const provider = fakeProvider(bobSecretKeyBytes);
   const signer = provider.getSigner();
 
@@ -130,5 +155,104 @@ describe('single sign-on auth provider', async () => {
     expect(typedSignature.signature).toEqual(originalSiweSignature);
     expect(typedSignature.address).toEqual(await signer.getAddress());
     expect(typedSignature.scheme).toEqual('EIP4361');
+  });
+
+  it('throws an error if the SIWE message is expired', async () => {
+    const siweMessage = new SiweMessage({
+      domain: 'taco.build',
+      address: await signer.getAddress(),
+      uri: 'https://taco.build',
+      version: '1',
+      chainId: (await provider.getNetwork()).chainId,
+      issuedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(), // 3 hours from now
+    });
+    const signature = await signer.signMessage(siweMessage.prepareMessage());
+
+    await expect(
+      SingleSignOnEIP4361AuthProvider.fromExistingSiweInfo(
+        siweMessage.prepareMessage(),
+        signature,
+      ),
+    ).rejects.toThrow(
+      'The SIWE message was issued more than 2 hours ago and would be rejected by TACo nodes.',
+    );
+  });
+
+  it('throws an error if the SIWE message was issued in the future', async () => {
+    const siweMessage = new SiweMessage({
+      domain: 'taco.build',
+      address: await signer.getAddress(),
+      uri: 'https://taco.build',
+      version: '1',
+      chainId: (await provider.getNetwork()).chainId,
+      issuedAt: new Date(Date.now() + 1000).toISOString(), // in 1 second
+    });
+    const signature = await signer.signMessage(siweMessage.prepareMessage());
+
+    await expect(
+      SingleSignOnEIP4361AuthProvider.fromExistingSiweInfo(
+        siweMessage.prepareMessage(),
+        signature,
+      ),
+    ).rejects.toThrow(
+      `The SIWE message was issued at a future datetime: ${siweMessage.issuedAt} and would be rejected by TACo nodes.`,
+    );
+  });
+
+  it('throws an error if the SIWE message is expired when calling getOrCreateAuthSignature()', async () => {
+    const siweMessage = new SiweMessage({
+      domain: 'taco.build',
+      address: await signer.getAddress(),
+      uri: 'https://taco.build',
+      version: '1',
+      chainId: (await provider.getNetwork()).chainId,
+      issuedAt: new Date(Date.now()).toISOString(),
+    });
+    const signature = await signer.signMessage(siweMessage.prepareMessage());
+
+    const singleSignOnProvider =
+      await SingleSignOnEIP4361AuthProvider.fromExistingSiweInfo(
+        siweMessage.prepareMessage(),
+        signature,
+      );
+
+    const now = Date.now();
+
+    // time travel to FRESHNESS_IN_MILLISECONDS + 1m in the future; auth signature is now expired
+    const future = new Date(Date.now() + FRESHNESS_IN_MILLISECONDS + 60 * 1000);
+    vi.setSystemTime(future);
+
+    await expect(
+      singleSignOnProvider.getOrCreateAuthSignature(),
+    ).rejects.toThrow(
+      'The SIWE message was issued more than 2 hours ago and would be rejected by TACo nodes.',
+    );
+
+    vi.setSystemTime(now);
+  });
+});
+
+describe('eip1271 auth provider', () => {
+  const dataHash = '0xdeadbeef';
+  const contractAddress = '0x100000000000000000000000000000000000000';
+  const chainId = 1234;
+  const signature = '0xabc123';
+
+  const eip1271Provider = new EIP1271AuthProvider(
+    contractAddress,
+    chainId,
+    dataHash,
+    signature,
+  );
+
+  it('creates a new EIP1271 auth signature', async () => {
+    const typedSignature = await eip1271Provider.getOrCreateAuthSignature();
+    expect(typedSignature.signature).toEqual(signature);
+    expect(typedSignature.address).toEqual(contractAddress);
+    expect(typedSignature.scheme).toEqual('EIP1271');
+    expect(typedSignature.typedData).toEqual({
+      chain: chainId,
+      dataHash: dataHash,
+    });
   });
 });

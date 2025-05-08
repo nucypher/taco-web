@@ -1,16 +1,14 @@
 import { EthAddressSchema } from '@nucypher/shared';
 import { z } from 'zod';
 
-import {
-  EIP4361_AUTH_METHOD,
-  EIP4361TypedDataSchema,
-} from './providers/eip4361/common';
+import { EIP1271AuthSignature } from './providers/eip1271/auth';
+import { EIP4361AuthSignature } from './providers/eip4361/auth';
 
-export const authSignatureSchema = z.object({
+export const baseAuthSignatureSchema = z.object({
   signature: z.string(),
   address: EthAddressSchema,
-  scheme: z.enum([EIP4361_AUTH_METHOD]),
-  typedData: EIP4361TypedDataSchema,
+  scheme: z.string(),
+  typedData: z.unknown(),
 });
 
-export type AuthSignature = z.infer<typeof authSignatureSchema>;
+export type AuthSignature = EIP4361AuthSignature | EIP1271AuthSignature;

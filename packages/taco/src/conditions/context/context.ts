@@ -1,25 +1,30 @@
 import { ThresholdMessageKit } from '@nucypher/nucypher-core';
-import { toJSON } from '@nucypher/shared';
 import {
   AuthProvider,
   AuthSignature,
+  EIP1271AuthProvider,
   EIP4361AuthProvider,
   SingleSignOnEIP4361AuthProvider,
   USER_ADDRESS_PARAM_DEFAULT,
-  USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
 } from '@nucypher/taco-auth';
 
 import { CoreConditions, CoreContext } from '../../types';
-import { CompoundConditionType } from '../compound-condition';
+import { toJSON } from '../../utils';
 import { Condition, ConditionProps } from '../condition';
 import { ConditionExpression } from '../condition-expr';
 import {
+  CONTEXT_PARAM_FULL_MATCH_REGEXP,
   CONTEXT_PARAM_PREFIX,
   CONTEXT_PARAM_REGEXP,
   USER_ADDRESS_PARAMS,
 } from '../const';
 
-export type CustomContextParam = string | number | boolean;
+export type CustomContextParam =
+  | string
+  | number
+  | boolean
+  | bigint
+  | Uint8Array;
 export type ContextParam = CustomContextParam | AuthSignature;
 
 const ERR_RESERVED_PARAM = (key: string) =>
@@ -39,16 +44,18 @@ const ERR_AUTH_PROVIDER_NOT_NEEDED_FOR_CONTEXT_PARAM = (param: string) =>
 
 type AuthProviderType =
   | typeof EIP4361AuthProvider
+  | typeof EIP1271AuthProvider
   | typeof SingleSignOnEIP4361AuthProvider;
-const EXPECTED_AUTH_PROVIDER_TYPES: Record<string, AuthProviderType> = {
-  [USER_ADDRESS_PARAM_DEFAULT]: EIP4361AuthProvider,
-  [USER_ADDRESS_PARAM_EXTERNAL_EIP4361]: SingleSignOnEIP4361AuthProvider,
+
+const EXPECTED_AUTH_PROVIDER_TYPES: Record<string, AuthProviderType[]> = {
+  [USER_ADDRESS_PARAM_DEFAULT]: [
+    EIP4361AuthProvider,
+    EIP1271AuthProvider,
+    SingleSignOnEIP4361AuthProvider,
+  ],
 };
 
-export const RESERVED_CONTEXT_PARAMS = [
-  USER_ADDRESS_PARAM_EXTERNAL_EIP4361,
-  USER_ADDRESS_PARAM_DEFAULT,
-];
+export const RESERVED_CONTEXT_PARAMS = [USER_ADDRESS_PARAM_DEFAULT];
 
 export class ConditionContext {
   public requestedContextParameters: Set<string>;
@@ -138,46 +145,65 @@ export class ConditionContext {
   }
 
   private static isContextParameter(param: unknown): boolean {
-    return !!String(param).match(CONTEXT_PARAM_REGEXP);
+    return !!String(param).match(CONTEXT_PARAM_FULL_MATCH_REGEXP);
+  }
+
+  private static findContextParameter(value: unknown): Set<string> {
+    const includedContextVars = new Set<string>();
+
+    // value not set
+    if (!value) {
+      return includedContextVars;
+    }
+
+    if (typeof value === 'string') {
+      if (this.isContextParameter(value)) {
+        // entire string is context parameter
+        includedContextVars.add(String(value));
+      } else {
+        // context var could be substring; find all matches
+        const contextVarMatches = value.match(
+          // RegExp with 'g' is stateful, so new instance needed every time
+          new RegExp(CONTEXT_PARAM_REGEXP.source, 'g'),
+        );
+        if (contextVarMatches) {
+          for (const match of contextVarMatches) {
+            includedContextVars.add(match);
+          }
+        }
+      }
+    } else if (Array.isArray(value)) {
+      // array
+      value.forEach((subValue) => {
+        const contextVarsForValue = this.findContextParameter(subValue);
+        contextVarsForValue.forEach((contextVar) => {
+          includedContextVars.add(contextVar);
+        });
+      });
+    } else if (typeof value === 'object') {
+      // dictionary (Record<string, T> - complex object eg. Condition, ConditionVariable, ReturnValueTest etc.)
+      for (const [, entry] of Object.entries(value)) {
+        const contextVarsForValue = this.findContextParameter(entry);
+        contextVarsForValue.forEach((contextVar) => {
+          includedContextVars.add(contextVar);
+        });
+      }
+    }
+
+    return includedContextVars;
   }
 
   private static findContextParameters(condition: ConditionProps) {
-    // First, we want to find all the parameters we need to add
+    // find all the context variables we need
     const requestedParameters = new Set<string>();
 
-    // Check return value test
-    if (condition.returnValueTest) {
-      const rvt = condition.returnValueTest.value;
-      // Return value test can be a single parameter or an array of parameters
-      if (Array.isArray(rvt)) {
-        rvt.forEach((value) => {
-          if (ConditionContext.isContextParameter(value)) {
-            requestedParameters.add(value);
-          }
-        });
-      } else if (ConditionContext.isContextParameter(rvt)) {
-        requestedParameters.add(rvt);
-      } else {
-        // Not a context parameter, we can skip
-      }
-    }
-
-    // Check condition parameters
-    for (const param of condition.parameters ?? []) {
-      if (this.isContextParameter(param)) {
-        requestedParameters.add(param);
-      }
-    }
-
-    // If it's a compound condition, check operands
-    if (condition.conditionType === CompoundConditionType) {
-      for (const key in condition.operands) {
-        const innerParams = this.findContextParameters(condition.operands[key]);
-        for (const param of innerParams) {
-          requestedParameters.add(param);
-        }
-      }
-    }
+    // iterate through all properties in ConditionProps
+    const properties = Object.keys(condition) as (keyof typeof condition)[];
+    properties.forEach((prop) => {
+      this.findContextParameter(condition[prop]).forEach((contextVar) => {
+        requestedParameters.add(contextVar);
+      });
+    });
 
     return requestedParameters;
   }
@@ -197,8 +223,8 @@ export class ConditionContext {
         ERR_AUTH_PROVIDER_NOT_NEEDED_FOR_CONTEXT_PARAM(contextParam),
       );
     }
-
-    if (!(authProvider instanceof EXPECTED_AUTH_PROVIDER_TYPES[contextParam])) {
+    const expectedTypes = EXPECTED_AUTH_PROVIDER_TYPES[contextParam];
+    if (!expectedTypes.some((type) => authProvider instanceof type)) {
       throw new Error(
         ERR_INVALID_AUTH_PROVIDER_TYPE(contextParam, typeof authProvider),
       );
@@ -206,7 +232,6 @@ export class ConditionContext {
 
     this.authProviders[contextParam] = authProvider;
   }
-
   public async toJson(): Promise<string> {
     const parameters = await this.toContextParameters();
     return toJSON(parameters);

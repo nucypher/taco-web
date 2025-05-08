@@ -1,5 +1,5 @@
 import { initialize } from '@nucypher/nucypher-core';
-import { objectEquals, toJSON } from '@nucypher/shared';
+import { objectEquals } from '@nucypher/shared';
 import { USER_ADDRESS_PARAM_DEFAULT } from '@nucypher/taco-auth';
 import { TEST_CHAIN_ID, TEST_CONTRACT_ADDR } from '@nucypher/test-utils';
 import { SemVer } from 'semver';
@@ -9,6 +9,8 @@ import {
   ContractCondition,
   ContractConditionProps,
 } from '../../src/conditions/base/contract';
+import { JsonApiCondition } from '../../src/conditions/base/json-api';
+import { JsonRpcCondition } from '../../src/conditions/base/json-rpc';
 import { RpcCondition, RpcConditionType } from '../../src/conditions/base/rpc';
 import {
   TimeCondition,
@@ -17,11 +19,14 @@ import {
 import { CompoundCondition } from '../../src/conditions/compound-condition';
 import { ConditionExpression } from '../../src/conditions/condition-expr';
 import { ERC721Balance } from '../../src/conditions/predefined/erc721';
+import { toJSON } from '../../src/utils';
 import {
   testContractConditionObj,
   testFunctionAbi,
-  testReturnValueTest,
+  testJsonApiConditionObj,
+  testJsonRpcConditionObj,
   testRpcConditionObj,
+  testRpcReturnValueTest,
   testTimeConditionObj,
 } from '../test-utils';
 
@@ -47,7 +52,7 @@ describe('condition set', () => {
     method: testFunctionAbi.name,
     parameters: [USER_ADDRESS_PARAM_DEFAULT, customParamKey],
     returnValueTest: {
-      ...testReturnValueTest,
+      ...testRpcReturnValueTest,
     },
   };
   const contractConditionWithAbi = new ContractCondition(
@@ -56,6 +61,8 @@ describe('condition set', () => {
 
   const rpcCondition = new RpcCondition(testRpcConditionObj);
   const timeCondition = new TimeCondition(testTimeConditionObj);
+  const jsonApiCondition = new JsonApiCondition(testJsonApiConditionObj);
+  const jsonRpcCondition = new JsonRpcCondition(testJsonRpcConditionObj);
   const compoundCondition = new CompoundCondition({
     operator: 'and',
     operands: [
@@ -399,6 +406,48 @@ describe('condition set', () => {
         ConditionExpression.fromJSON(conditionExprJson);
       expect(conditionExprFromJson).toBeDefined();
       expect(conditionExprFromJson.condition).toBeInstanceOf(RpcCondition);
+    });
+
+    it('json api condition serialization', () => {
+      const conditionExpr = new ConditionExpression(jsonApiCondition);
+
+      const conditionExprJson = conditionExpr.toJson();
+      expect(conditionExprJson).toBeDefined();
+      expect(conditionExprJson).toContain('endpoint');
+      expect(conditionExprJson).toContain(
+        'https://_this_would_totally_fail.com',
+      );
+      expect(conditionExprJson).toContain('parameters');
+      expect(conditionExprJson).toContain('query');
+      expect(conditionExprJson).toContain('$.ethereum.usd');
+      expect(conditionExprJson).toContain('returnValueTest');
+
+      const conditionExprFromJson =
+        ConditionExpression.fromJSON(conditionExprJson);
+      expect(conditionExprFromJson).toBeDefined();
+      expect(conditionExprFromJson.condition).toBeInstanceOf(JsonApiCondition);
+    });
+
+    it('json rpc condition serialization', () => {
+      const conditionExpr = new ConditionExpression(jsonRpcCondition);
+
+      const conditionExprJson = conditionExpr.toJson();
+      expect(conditionExprJson).toBeDefined();
+      expect(conditionExprJson).toContain('endpoint');
+      expect(conditionExprJson).toContain('https://math.example.com/');
+      expect(conditionExprJson).toContain('method');
+      expect(conditionExprJson).toContain('subtract');
+      expect(conditionExprJson).toContain('params');
+      expect(conditionExprJson).toContain('[42,23]');
+
+      expect(conditionExprJson).toContain('query');
+      expect(conditionExprJson).toContain('$.mathresult');
+      expect(conditionExprJson).toContain('returnValueTest');
+
+      const conditionExprFromJson =
+        ConditionExpression.fromJSON(conditionExprJson);
+      expect(conditionExprFromJson).toBeDefined();
+      expect(conditionExprFromJson.condition).toBeInstanceOf(JsonRpcCondition);
     });
 
     it('compound condition serialization', () => {

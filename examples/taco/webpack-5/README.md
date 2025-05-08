@@ -14,4 +14,4 @@ Go to [localhost:8080](http://localhost:8080/) in your browser and look in the J
 ## Learn more
 
 Please find developer documentation for
-TACo [here](https://docs.threshold.network/app-development/threshold-access-control-tac).
+TACo [here](https://docs.taco.build/).

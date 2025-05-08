@@ -49,6 +49,16 @@ const _abi = [
     ],
   },
   {
+    type: 'error',
+    name: 'InvalidInitialization',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'NotInitializing',
+    inputs: [],
+  },
+  {
     type: 'event',
     name: 'AddressAuthorizationSet',
     inputs: [
@@ -68,6 +78,19 @@ const _abi = [
         name: 'isAuthorized',
         type: 'bool',
         internalType: 'bool',
+        indexed: false,
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'Initialized',
+    inputs: [
+      {
+        name: 'version',
+        type: 'uint64',
+        internalType: 'uint64',
         indexed: false,
       },
     ],

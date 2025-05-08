@@ -420,8 +420,8 @@ importers:
         specifier: workspace:*
         version: link:../../../packages/taco-auth
       dotenv:
-        specifier: ^16.4.7
-        version: 16.4.7
+        specifier: ^16.5.0
+        version: 16.5.0
       ethers:
         specifier: ^5.8.0
         version: 5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
@@ -590,8 +590,8 @@ importers:
         specifier: ^7.7.0
         version: 7.7.0
       dotenv:
-        specifier: ^16.4.7
-        version: 16.4.7
+        specifier: ^16.5.0
+        version: 16.5.0
       glob:
         specifier: ^11.0.1
         version: 11.0.1
@@ -4604,6 +4604,10 @@ packages:
 
   dotenv@16.4.7:
     resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
+    engines: {node: '>=12'}
+
+  dotenv@16.5.0:
+    resolution: {integrity: sha512-m/C+AwOAr9/W1UOIZUo232ejMNnJAJtYQjUbHoNTBNTJSvqzzDh7vnrei3o3r3m9blf6ZoDkvcw0VmozNRFJxg==}
     engines: {node: '>=12'}
 
   dotgitignore@2.1.0:
@@ -14183,6 +14187,8 @@ snapshots:
   dotenv@10.0.0: {}
 
   dotenv@16.4.7: {}
+
+  dotenv@16.5.0: {}
 
   dotgitignore@2.1.0:
     dependencies:

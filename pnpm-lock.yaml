@@ -145,7 +145,7 @@ importers:
     devDependencies:
       '@pmmmwh/react-refresh-webpack-plugin':
         specifier: ^0.5.15
-        version: 0.5.15(react-refresh@0.14.2)(type-fest@0.21.3)(webpack-dev-server@4.15.2(bufferutil@4.0.9)(utf-8-validate@5.0.10)(webpack-cli@5.1.4)(webpack@5.98.0))(webpack@5.98.0(webpack-cli@5.1.4))
+        version: 0.5.15(react-refresh@0.17.0)(type-fest@0.21.3)(webpack-dev-server@4.15.2(bufferutil@4.0.9)(utf-8-validate@5.0.10)(webpack-cli@5.1.4)(webpack@5.98.0))(webpack@5.98.0(webpack-cli@5.1.4))
       '@types/react':
         specifier: ^18.3.20
         version: 18.3.20
@@ -171,8 +171,8 @@ importers:
         specifier: ^0.11.10
         version: 0.11.10
       react-refresh:
-        specifier: ^0.14.2
-        version: 0.14.2
+        specifier: ^0.17.0
+        version: 0.17.0
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
@@ -230,7 +230,7 @@ importers:
     devDependencies:
       '@pmmmwh/react-refresh-webpack-plugin':
         specifier: ^0.5.15
-        version: 0.5.15(react-refresh@0.14.2)(type-fest@0.21.3)(webpack-dev-server@4.15.2(bufferutil@4.0.9)(utf-8-validate@5.0.10)(webpack-cli@5.1.4)(webpack@5.98.0))(webpack@5.98.0(webpack-cli@5.1.4))
+        version: 0.5.15(react-refresh@0.17.0)(type-fest@0.21.3)(webpack-dev-server@4.15.2(bufferutil@4.0.9)(utf-8-validate@5.0.10)(webpack-cli@5.1.4)(webpack@5.98.0))(webpack@5.98.0(webpack-cli@5.1.4))
       '@types/react':
         specifier: ^18.3.20
         version: 18.3.20
@@ -250,8 +250,8 @@ importers:
         specifier: ^5.6.3
         version: 5.6.3(webpack@5.98.0(webpack-cli@5.1.4))
       react-refresh:
-        specifier: ^0.14.2
-        version: 0.14.2
+        specifier: ^0.17.0
+        version: 0.17.0
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
@@ -7706,8 +7706,8 @@ packages:
     resolution: {integrity: sha512-F27qZr8uUqwhWZboondsPx8tnC3Ct3SxZA3V5WyEvujRyyNv0VYPhoBg1gZ8/MV5tubQp76Trw8lTv9hzRBa+A==}
     engines: {node: '>=0.10.0'}
 
-  react-refresh@0.14.2:
-    resolution: {integrity: sha512-jCvmsr+1IUSMUyzOkRcvnVbX3ZYC6g9TDrDbFuFmRDq7PD4yaGbLKNQL6k2jnArV8hjYxh7hVhAZB6s9HDGpZA==}
+  react-refresh@0.17.0:
+    resolution: {integrity: sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ==}
     engines: {node: '>=0.10.0'}
 
   react-scripts@5.0.1:
@@ -11580,14 +11580,14 @@ snapshots:
       type-fest: 0.21.3
       webpack-dev-server: 4.15.2(bufferutil@4.0.9)(utf-8-validate@5.0.10)(webpack@5.98.0)
 
-  '@pmmmwh/react-refresh-webpack-plugin@0.5.15(react-refresh@0.14.2)(type-fest@0.21.3)(webpack-dev-server@4.15.2(bufferutil@4.0.9)(utf-8-validate@5.0.10)(webpack-cli@5.1.4)(webpack@5.98.0))(webpack@5.98.0(webpack-cli@5.1.4))':
+  '@pmmmwh/react-refresh-webpack-plugin@0.5.15(react-refresh@0.17.0)(type-fest@0.21.3)(webpack-dev-server@4.15.2(bufferutil@4.0.9)(utf-8-validate@5.0.10)(webpack-cli@5.1.4)(webpack@5.98.0))(webpack@5.98.0(webpack-cli@5.1.4))':
     dependencies:
       ansi-html: 0.0.9
       core-js-pure: 3.41.0
       error-stack-parser: 2.1.4
       html-entities: 2.5.3
       loader-utils: 2.0.4
-      react-refresh: 0.14.2
+      react-refresh: 0.17.0
       schema-utils: 4.3.0
       source-map: 0.7.4
       webpack: 5.98.0(webpack-cli@5.1.4)
@@ -18127,7 +18127,7 @@ snapshots:
 
   react-refresh@0.11.0: {}
 
-  react-refresh@0.14.2: {}
+  react-refresh@0.17.0: {}
 
   react-scripts@5.0.1(@babel/plugin-syntax-flow@7.26.0(@babel/core@7.26.10))(@babel/plugin-transform-react-jsx@7.25.9(@babel/core@7.26.10))(@types/babel__core@7.20.5)(bufferutil@4.0.9)(eslint@8.57.1)(react@18.3.1)(ts-node@10.9.2(@types/node@20.17.28)(typescript@5.8.2))(type-fest@0.21.3)(typescript@5.8.2)(utf-8-validate@5.0.10):
     dependencies:

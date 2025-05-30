@@ -49,3 +49,13 @@ export const toJSON = (obj: unknown) =>
   JSON.stringify(obj, sortedSerializingReplacer);
 
 export const fromJSON = (json: string) => JSON.parse(json, customTypeReceiver);
+
+export function aggregateSignatures(signatures: string[]): string {
+  // TODO: Implement signature aggregation logic
+  throw new Error("Not implemented");
+}
+
+export function verifyThreshold(signatures: string[], threshold: number): boolean {
+  // TODO: Implement threshold verification logic
+  throw new Error("Not implemented");
+}

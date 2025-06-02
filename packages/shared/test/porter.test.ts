@@ -2,14 +2,14 @@ import { fakeUrsulas } from '@nucypher/test-utils';
 import axios, { HttpStatusCode } from 'axios';
 import { MockInstance, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
-  GetUrsulasResult,
-  PorterClient,
-  Ursula,
   domains,
+  GetUrsulasResult,
   getPorterUris,
   getPorterUrisFromSource,
   initialize,
+  PorterClient,
   toHexString,
+  Ursula,
 } from '../src';
 
 const fakePorterUris = [
@@ -46,6 +46,62 @@ const mockGetUrsulas = (ursulas: Ursula[] = fakeUrsulas()): MockInstance => {
       case fakePorterUris[0]:
         throw new Error(`Test error`);
     }
+  });
+};
+
+const mockSign191 = (success: boolean = true): MockInstance => {
+  const fakeSignResponse = {
+    result: {
+      digest: '0x1234',
+      aggregated_signature: '0x5678',
+      signing_results: {
+        '0x1234': ['0x5678', '0x90ab'],
+        '0xabcd': ['0xefgh', '0xijkl'],
+      },
+      type: 'eip191',
+    },
+    version: '5.2.0',
+  };
+
+  return vi.spyOn(axios, 'request').mockImplementation(async (config) => {
+    if (config.url === '/sign191') {
+      if (success) {
+        return Promise.resolve({
+          status: HttpStatusCode.Ok,
+          data: fakeSignResponse,
+        });
+      }
+      return Promise.resolve({ status: HttpStatusCode.BadRequest, data: '' });
+    }
+    throw new Error('Unexpected endpoint');
+  });
+};
+
+const mockSignUserOp = (success: boolean = true): MockInstance => {
+  const fakeSignResponse = {
+    result: {
+      digest: '0x1234',
+      aggregated_signature: '0x5678',
+      signing_results: {
+        '0x1234': ['0x5678', '0x90ab'],
+        '0xabcd': ['0xefgh', '0xijkl'],
+      },
+      type: 'userOp:zerodev',
+    },
+    version: '5.2.0',
+  };
+
+  return vi.spyOn(axios, 'request').mockImplementation(async (config) => {
+    if (config.url === '/sign_user_op') {
+      if (success) {
+        return Promise.resolve({
+          status: HttpStatusCode.Ok,
+          data: fakeSignResponse,
+        });
+      }
+      return Promise.resolve({ status: HttpStatusCode.BadRequest, data: '' });
+    }
+    throw new Error('Unexpected endpoint');
   });
 };
 
@@ -115,5 +171,97 @@ describe('PorterClient', () => {
     await expect(porterClient.getUrsulas(ursulas.length)).rejects.toThrowError(
       Error(`Test error`),
     );
+  });
+});
+
+describe('PorterClient Signing', () => {
+  beforeAll(async () => {
+    await initialize();
+  });
+
+  describe('sign191', () => {
+    it('should successfully sign a message', async () => {
+      mockSign191(true);
+      const porterClient = new PorterClient(fakePorterUris[2]);
+      const payload = new TextEncoder().encode('Hello, TACo!');
+      const result = await porterClient.sign191(payload, 5, true, true);
+
+      expect(result).toEqual({
+        digest: '0x1234',
+        aggregated_signature: '0x5678',
+        signing_results: {
+          '0x1234': ['0x5678', '0x90ab'],
+          '0xabcd': ['0xefgh', '0xijkl'],
+        },
+        type: 'eip191',
+      });
+    });
+
+    it('should handle signing failures', async () => {
+      mockSign191(false);
+      const porterClient = new PorterClient(fakePorterUris[2]);
+      const payload = new TextEncoder().encode('Hello, TACo!');
+
+      await expect(
+        porterClient.sign191(payload, 5, true, true)
+      ).rejects.toThrow('Porter returned bad response: 400 - ');
+    });
+  });
+
+  describe('signUserOp', () => {
+    const mockUserOp = {
+      sender: '0x1234',
+      nonce: '0x1',
+      initCode: '0x',
+      callData: '0xabc',
+      callGasLimit: '0x20000',
+      verificationGasLimit: '0x15000',
+      preVerificationGas: '0x1000',
+      maxFeePerGas: '0xabc',
+      maxPriorityFeePerGas: '0x123',
+      paymasterAndData: '0x',
+      signature: '0x',
+    };
+
+    it('should successfully sign a UserOperation', async () => {
+      mockSignUserOp(true);
+      const porterClient = new PorterClient(fakePorterUris[2]);
+      const result = await porterClient.signUserOp(
+        mockUserOp,
+        8453,
+        'zerodev',
+        'v0.8',
+        5,
+        true,
+        true
+      );
+
+      expect(result).toEqual({
+        digest: '0x1234',
+        aggregated_signature: '0x5678',
+        signing_results: {
+          '0x1234': ['0x5678', '0x90ab'],
+          '0xabcd': ['0xefgh', '0xijkl'],
+        },
+        type: 'userOp:zerodev',
+      });
+    });
+
+    it('should handle UserOperation signing failures', async () => {
+      mockSignUserOp(false);
+      const porterClient = new PorterClient(fakePorterUris[2]);
+
+      await expect(
+        porterClient.signUserOp(
+          mockUserOp,
+          8453,
+          'zerodev',
+          'v0.8',
+          5,
+          true,
+          true
+        )
+      ).rejects.toThrow('Porter returned bad response: 400 - ');
+    });
   });
 });

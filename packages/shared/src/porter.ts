@@ -152,6 +152,49 @@ export type TacoDecryptResult = {
   errors: Record<string, string>;
 };
 
+// Signing types
+type PostSign191Request = {
+  readonly payload: Base64EncodedBytes;
+  readonly cohort_id: number;
+  readonly optimistic?: boolean;
+  readonly return_aggregated?: boolean;
+};
+
+type PostSignUserOpRequest = {
+  readonly user_op: {
+    readonly sender: string;
+    readonly nonce: string;
+    readonly init_code: string;
+    readonly call_data: string;
+    readonly call_gas_limit: string;
+    readonly verification_gas_limit: string;
+    readonly pre_verification_gas: string;
+    readonly max_fee_per_gas: string;
+    readonly max_priority_fee_per_gas: string;
+    readonly paymaster_and_data: string;
+    readonly signature: string;
+  };
+  readonly chain_id: number;
+  readonly account_spec: string;
+  readonly entry_point_version: string;
+  readonly cohort_id: number;
+  readonly optimistic?: boolean;
+  readonly return_aggregated?: boolean;
+};
+
+type SignResponse = {
+  readonly result: {
+    readonly digest: HexEncodedBytes;
+    readonly aggregated_signature: HexEncodedBytes;
+    readonly signing_results: Record<
+      ChecksumAddress,
+      [ChecksumAddress, Base64EncodedBytes]
+    >;
+    readonly type: string;
+  };
+  readonly version: string;
+};
+
 export class PorterClient {
   readonly porterUrls: URL[];
 
@@ -283,5 +326,79 @@ export class PorterClient {
       EncryptedThresholdDecryptionResponse
     > = Object.fromEntries(decryptionResponses);
     return { encryptedResponses, errors };
+  }
+
+  public async sign191(
+    payload: Uint8Array,
+    cohortId: number,
+    optimistic: boolean = true,
+    returnAggregated: boolean = true,
+  ): Promise<SignResponse['result']> {
+    const data: PostSign191Request = {
+      payload: toBase64(payload),
+      cohort_id: cohortId,
+      optimistic,
+      return_aggregated: returnAggregated,
+    };
+
+    const resp: AxiosResponse<SignResponse> = await this.tryAndCall({
+      url: '/sign191',
+      method: 'post',
+      data,
+    });
+
+    return resp.data.result;
+  }
+
+  public async signUserOp(
+    userOp: {
+      sender: string;
+      nonce: string;
+      initCode: string;
+      callData: string;
+      callGasLimit: string;
+      verificationGasLimit: string;
+      preVerificationGas: string;
+      maxFeePerGas: string;
+      maxPriorityFeePerGas: string;
+      paymasterAndData: string;
+      signature: string;
+    },
+    chainId: number,
+    accountSpec: string,
+    entryPointVersion: string,
+    cohortId: number,
+    optimistic: boolean = true,
+    returnAggregated: boolean = true,
+  ): Promise<SignResponse['result']> {
+    const data: PostSignUserOpRequest = {
+      user_op: {
+        sender: userOp.sender,
+        nonce: userOp.nonce,
+        init_code: userOp.initCode,
+        call_data: userOp.callData,
+        call_gas_limit: userOp.callGasLimit,
+        verification_gas_limit: userOp.verificationGasLimit,
+        pre_verification_gas: userOp.preVerificationGas,
+        max_fee_per_gas: userOp.maxFeePerGas,
+        max_priority_fee_per_gas: userOp.maxPriorityFeePerGas,
+        paymaster_and_data: userOp.paymasterAndData,
+        signature: userOp.signature,
+      },
+      chain_id: chainId,
+      account_spec: accountSpec,
+      entry_point_version: entryPointVersion,
+      cohort_id: cohortId,
+      optimistic,
+      return_aggregated: returnAggregated,
+    };
+
+    const resp: AxiosResponse<SignResponse> = await this.tryAndCall({
+      url: '/sign_user_op',
+      method: 'post',
+      data,
+    });
+
+    return resp.data.result;
   }
 }

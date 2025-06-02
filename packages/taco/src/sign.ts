@@ -1,8 +1,6 @@
-import { Domain } from '@nucypher/shared';
+import { Domain, PorterClient } from '@nucypher/shared';
 
-import { SignResult, SigningOptions, UserOperation } from './types';
-import { aggregateSignatures, verifyThreshold } from './utils';
-
+import { SigningOptions, SignResult, UserOperation } from './types';
 
 // Core signing functions
 export async function sign191(
@@ -11,7 +9,26 @@ export async function sign191(
   domain: Domain,
   options: SigningOptions = { optimistic: true, returnAggregated: true }
 ): Promise<SignResult> {
-  throw new Error("Not implemented");
+  const porter = new PorterClient(domain);
+  
+  // Convert string payload to Uint8Array if needed
+  const payloadBytes = typeof payload === 'string' 
+    ? new TextEncoder().encode(payload)
+    : payload;
+
+  const result = await porter.sign191(
+    payloadBytes,
+    cohortId,
+    options.optimistic,
+    options.returnAggregated
+  );
+
+  return {
+    digest: result.digest,
+    aggregatedSignature: result.aggregated_signature,
+    signingResults: result.signing_results,
+    type: result.type
+  };
 }
 
 export async function signUserOp(
@@ -23,5 +40,22 @@ export async function signUserOp(
   domain: Domain,
   options: SigningOptions = { optimistic: true, returnAggregated: true }
 ): Promise<SignResult> {
-  throw new Error("Not implemented");
+  const porter = new PorterClient(domain);
+
+  const result = await porter.signUserOp(
+    userOp,
+    chainId,
+    accountSpec,
+    entryPointVersion,
+    cohortId,
+    options.optimistic,
+    options.returnAggregated
+  );
+
+  return {
+    digest: result.digest,
+    aggregatedSignature: result.aggregated_signature,
+    signingResults: result.signing_results,
+    type: result.type
+  };
 }

@@ -19,3 +19,5 @@ export * from './return-value-test';
 export * from './rpc';
 export * from './sequential';
 export * from './time';
+// ts-unused-exports:disable-next-line - this comment line is added to prevent lint from changing or objecting the export order.
+export * from './wallet-allowlist';

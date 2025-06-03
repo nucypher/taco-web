@@ -21,6 +21,11 @@ import {
   TimeConditionType,
 } from './base/time';
 import {
+  WalletAllowlistCondition,
+  WalletAllowlistConditionProps,
+  WalletAllowlistConditionType,
+} from './base/wallet-allowlist';
+import {
   CompoundCondition,
   CompoundConditionProps,
   CompoundConditionType,
@@ -56,6 +61,8 @@ export class ConditionFactory {
         return new JsonRpcCondition(props as JsonRpcConditionProps);
       case JWTConditionType:
         return new JWTCondition(props as JWTConditionProps);
+      case WalletAllowlistConditionType:
+        return new WalletAllowlistCondition(props as WalletAllowlistConditionProps);
       // Logical Conditions
       case CompoundConditionType:
         return new CompoundCondition(props as CompoundConditionProps);

@@ -6,6 +6,7 @@ _Union of the following possible types:_
 
 - [RpcCondition](#rpccondition)
 - [TimeCondition](#timecondition)
+- [WalletAllowlistCondition](#walletallowlistcondition)
 - [ContractCondition](#contractcondition)
 - [CompoundCondition](#compoundcondition)
 - [JsonApiCondition](#jsonapicondition)
@@ -252,6 +253,19 @@ _Object containing the following properties:_
 | **`chain`** (\*)           | `number` (_int, ≥0_)                                    |               |
 | `method`                   | `'blocktime'`                                           | `'blocktime'` |
 | **`returnValueTest`** (\*) | [BlockchainReturnValueTest](#blockchainreturnvaluetest) |               |
+
+_(\*) Required._
+
+## WalletAllowlistCondition
+
+A condition that is satisfied when the requester proves control of one of the specified wallet addresses by signing a message.
+
+_Object containing the following properties:_
+
+| Property                 | Description                                                                | Type                                |
+| :----------------------- | :------------------------------------------------------------------------- | :---------------------------------- |
+| **`conditionType`** (\*) |                                                                            | `'wallet-allowlist'`                |
+| **`addresses`** (\*)     | List of wallet addresses allowed to decrypt. Matching is case-insensitive. | `Array<string>` (_min: 1, max: 10_) |
 
 _(\*) Required._
 

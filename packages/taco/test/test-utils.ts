@@ -70,6 +70,10 @@ import {
   JsonRpcConditionType,
 } from '../src/conditions/schemas/json-rpc';
 import {
+  WalletAllowlistConditionProps,
+  WalletAllowlistConditionType,
+} from '../src/conditions/schemas/wallet-allowlist';
+import {
   SequentialConditionProps,
   SequentialConditionType,
 } from '../src/conditions/sequential';
@@ -293,6 +297,16 @@ export const testRpcConditionObj: RpcConditionProps = {
   parameters: ['0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77', 'latest'],
   returnValueTest: testRpcReturnValueTest,
 };
+
+export const testWalletAllowlistConditionObj: WalletAllowlistConditionProps =
+  {
+    conditionType: WalletAllowlistConditionType,
+    addresses: [
+      '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
+      '0x0000000000000000000000000000000000000001',
+      '0x0000000000000000000000000000000000000002',
+    ],
+  };
 
 export const testContractConditionObj: ContractConditionProps = {
   conditionType: ContractConditionType,

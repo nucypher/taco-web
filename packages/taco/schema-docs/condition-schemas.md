@@ -258,14 +258,12 @@ _(\*) Required._
 
 ## WalletAllowlistCondition
 
-A condition that is satisfied when the requester proves control of one of the specified wallet addresses by signing a message.
-
 _Object containing the following properties:_
 
-| Property                 | Description                                                                | Type                                |
-| :----------------------- | :------------------------------------------------------------------------- | :---------------------------------- |
-| **`conditionType`** (\*) |                                                                            | `'wallet-allowlist'`                |
-| **`addresses`** (\*)     | List of wallet addresses allowed to decrypt. Matching is case-insensitive. | `Array<string>` (_min: 1, max: 10_) |
+| Property                 | Description                                                                                                                | Type                                |
+| :----------------------- | :------------------------------------------------------------------------------------------------------------------------- | :---------------------------------- |
+| **`conditionType`** (\*) |                                                                                                                            | `'wallet-allowlist'`                |
+| **`addresses`** (\*)     | List of wallet addresses allowed to decrypt. Addresses should be provided in checksummed form. Matching is case-sensitive. | `Array<string>` (_min: 1, max: 10_) |
 
 _(\*) Required._
 

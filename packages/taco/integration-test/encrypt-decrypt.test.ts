@@ -25,6 +25,9 @@ const DOMAIN = 'lynx';
 const RITUAL_ID = 27;
 const CHAIN_ID = 80002;
 
+// The wallet address of our consumer (derived from CONSUMER_PRIVATE_KEY)
+const CONSUMER_ADDRESS = '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed';
+
 describe.skipIf(!process.env.RUNNING_IN_CI)(
   'Taco Encrypt/Decrypt Integration Test',
   () => {
@@ -49,7 +52,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       }
     });
 
-    test('should encrypt and decrypt a message with large condition values', async (value) => {
+    test('should encrypt and decrypt a message with RPC balance condition less than UINT256_MAX', async (value) => {
       // Create test message
       const messageString = 'This is a secret 🤐';
       const message = toBytes(messageString);
@@ -126,6 +129,65 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       const decryptedMessageString = fromBytes(decryptedBytes);
 
       // Verify decryption
+      expect(decryptedMessageString).toEqual(messageString);
+    }, 15000); // 15s timeout
+
+    test('should encrypt and decrypt according to wallet allowlist condition', async () => {
+      // Create test message
+      const messageString =
+        'This message should only be accessible to allowed wallet addresses';
+      const message = toBytes(messageString);
+
+      // Create wallet allowlist condition with consumer address in the list
+      const walletAllowlistCondition =
+        new conditions.base.walletAllowlist.WalletAllowlistCondition({
+          addresses: [
+            CONSUMER_ADDRESS,
+            '0x742d35Cc6634C0532925a3b844Bc454e4438f44e', // Some other address
+            '0x0000000000000000000000000000000000000001', // Another address
+          ],
+        });
+
+      // Verify that the condition requires authentication
+      expect(walletAllowlistCondition.requiresAuthentication()).toBe(true);
+
+      // Encrypt message with the wallet allowlist condition
+      const messageKit = await encrypt(
+        provider,
+        DOMAIN,
+        message,
+        walletAllowlistCondition,
+        RITUAL_ID,
+        encryptorSigner,
+      );
+
+      const encryptedBytes = messageKit.toBytes();
+
+      // Prepare for decryption
+      const messageKitFromBytes = ThresholdMessageKit.fromBytes(encryptedBytes);
+      const conditionContext =
+        conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
+
+      // Add auth provider for the consumer wallet
+      const authProvider = new EIP4361AuthProvider(provider, consumerSigner, {
+        domain: 'localhost',
+        uri: 'http://localhost:3000',
+      });
+      conditionContext.addAuthProvider(
+        USER_ADDRESS_PARAM_DEFAULT,
+        authProvider,
+      );
+
+      // Decrypt message
+      const decryptedBytes = await decrypt(
+        provider,
+        DOMAIN,
+        messageKitFromBytes,
+        conditionContext,
+      );
+      const decryptedMessageString = fromBytes(decryptedBytes);
+
+      // Verify decryption was successful
       expect(decryptedMessageString).toEqual(messageString);
     }, 15000); // 15s timeout
   },

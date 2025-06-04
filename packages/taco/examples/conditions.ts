@@ -124,3 +124,25 @@ console.assert(
   !myContractCallCondition.requiresAuthentication(),
   'ContractCondition does not require a signer',
 );
+
+// Wallet Allowlist Condition Example
+const walletAllowlistCondition = new conditions.base.walletAllowlist.WalletAllowlistCondition({
+  addresses: [
+    '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
+    '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+    '0x0000000000000000000000000000000000000001',
+  ],
+});
+
+console.assert(
+  walletAllowlistCondition.requiresAuthentication(),
+  'WalletAllowlistCondition requires authentication',
+);
+
+// You can check if an address is allowed with the condition's toObj method
+const addressToCheck = '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77';
+const addresses = walletAllowlistCondition.toObj().addresses;
+const isAllowed = addresses.some(
+  (addr: string) => addr.toLowerCase() === addressToCheck.toLowerCase(),
+);
+console.log(`Is address ${addressToCheck} allowed? ${isAllowed}`);

@@ -263,7 +263,7 @@ _Object containing the following properties:_
 | Property                 | Description                                                                                                                | Type                                |
 | :----------------------- | :------------------------------------------------------------------------------------------------------------------------- | :---------------------------------- |
 | **`conditionType`** (\*) |                                                                                                                            | `'wallet-allowlist'`                |
-| **`addresses`** (\*)     | List of wallet addresses allowed to decrypt. Addresses should be provided in checksummed form. Matching is case-sensitive. | `Array<string>` (_min: 1, max: 10_) |
+| **`addresses`** (\*)     | List of wallet addresses allowed to decrypt. Addresses should be provided in checksummed form. Matching is case-sensitive. | `Array<string>` (_min: 1, max: 25_) |
 
 _(\*) Required._
 

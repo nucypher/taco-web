@@ -12,7 +12,7 @@ export const walletAllowlistConditionSchema = baseConditionSchema
     addresses: z
       .array(EthAddressSchema)
       .min(1, 'At least one address must be provided')
-      .max(10, 'Maximum of 10 addresses allowed')
+      .max(25, 'Maximum of 25 addresses allowed')
       // Ensure all addresses are valid Ethereum addresses with proper checksum
       .refine((addrs) => {
         try {

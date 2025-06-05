@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { compoundConditionSchema } from '../compound-condition';
 
+import { addressAllowlistConditionSchema } from './address-allowlist';
 import { contractConditionSchema } from './contract';
 import { ifThenElseConditionSchema } from './if-then-else';
 import { jsonApiConditionSchema } from './json-api';
@@ -15,6 +16,7 @@ export const anyConditionSchema: z.ZodSchema = z.lazy(() =>
   z.union([
     rpcConditionSchema,
     timeConditionSchema,
+    addressAllowlistConditionSchema,
     contractConditionSchema,
     compoundConditionSchema,
     jsonApiConditionSchema,

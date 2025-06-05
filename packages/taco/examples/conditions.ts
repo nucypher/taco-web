@@ -124,3 +124,25 @@ console.assert(
   !myContractCallCondition.requiresAuthentication(),
   'ContractCondition does not require a signer',
 );
+
+// Wallet Allowlist Condition Example
+const addressAllowlistCondition =
+  new conditions.base.addressAllowlist.AddressAllowlistCondition({
+    addresses: [
+      '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
+      '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+      '0x0000000000000000000000000000000000000001',
+    ],
+  });
+
+console.assert(
+  addressAllowlistCondition.requiresAuthentication(),
+  'AddressAllowlistCondition requires authentication',
+);
+
+// You can check if an address is allowed with the condition's toObj method
+const addressToCheck = '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77';
+const addresses = addressAllowlistCondition.toObj().addresses;
+// This would be checked by taco nodes after validating the wallet signature provided by encryptor (the value of the variable `addressToCheck`).
+const isAllowed = addresses.includes(addressToCheck);
+console.log(`Is address ${addressToCheck} allowed? ${isAllowed}`);

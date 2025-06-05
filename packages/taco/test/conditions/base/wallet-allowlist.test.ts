@@ -72,8 +72,8 @@ describe('WalletAllowlistCondition', () => {
       });
     });
 
-    it('rejects too many addresses (more than 10)', () => {
-      const tooManyAddresses = Array(11).fill(
+    it('rejects too many addresses (more than 25)', () => {
+      const tooManyAddresses = Array(26).fill(
         '0x1234567890123456789012345678901234567890',
       );
       const conditionObj = {
@@ -90,7 +90,7 @@ describe('WalletAllowlistCondition', () => {
       expect(result.data).toBeUndefined();
       expect(result.error?.format()).toMatchObject({
         addresses: {
-          _errors: ['Maximum of 10 addresses allowed'],
+          _errors: ['Maximum of 25 addresses allowed'],
         },
       });
     });

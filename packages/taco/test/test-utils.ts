@@ -37,6 +37,10 @@ import { ethers } from 'ethers';
 import { MockInstance, vi } from 'vitest';
 
 import {
+  AddressAllowlistConditionProps,
+  AddressAllowlistConditionType,
+} from '../src/conditions/base/address-allowlist';
+import {
   ContractConditionProps,
   ContractConditionType,
   FunctionAbiProps,
@@ -69,10 +73,6 @@ import {
   JsonRpcConditionProps,
   JsonRpcConditionType,
 } from '../src/conditions/schemas/json-rpc';
-import {
-  WalletAllowlistConditionProps,
-  WalletAllowlistConditionType,
-} from '../src/conditions/schemas/wallet-allowlist';
 import {
   SequentialConditionProps,
   SequentialConditionType,
@@ -298,9 +298,9 @@ export const testRpcConditionObj: RpcConditionProps = {
   returnValueTest: testRpcReturnValueTest,
 };
 
-export const testWalletAllowlistConditionObj: WalletAllowlistConditionProps =
+export const testAddressAllowlistConditionObj: AddressAllowlistConditionProps =
   {
-    conditionType: WalletAllowlistConditionType,
+    conditionType: AddressAllowlistConditionType,
     addresses: [
       '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
       '0x0000000000000000000000000000000000000001',

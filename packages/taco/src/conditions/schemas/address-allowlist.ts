@@ -4,11 +4,11 @@ import { z } from 'zod';
 
 import { baseConditionSchema } from './common';
 
-export const WalletAllowlistConditionType = 'wallet-allowlist';
+export const AddressAllowlistConditionType = 'address-allowlist';
 
-export const walletAllowlistConditionSchema = baseConditionSchema
+export const addressAllowlistConditionSchema = baseConditionSchema
   .extend({
-    conditionType: z.literal(WalletAllowlistConditionType),
+    conditionType: z.literal(AddressAllowlistConditionType),
     addresses: z
       .array(EthAddressSchema)
       .min(1, 'At least one address must be provided')
@@ -31,8 +31,8 @@ export const walletAllowlistConditionSchema = baseConditionSchema
   })
   .strict();
 
-export type WalletAllowlistConditionProps = z.infer<
-  typeof walletAllowlistConditionSchema
+export type AddressAllowlistConditionProps = z.infer<
+  typeof addressAllowlistConditionSchema
 >;
 
-export type WalletAllowlistFields = 'addresses';
+export type AddressAllowlistFields = 'addresses';

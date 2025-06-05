@@ -140,8 +140,8 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       const message = toBytes(messageString);
 
       // Create wallet allowlist condition with consumer address in the list
-      const walletAllowlistCondition =
-        new conditions.base.walletAllowlist.WalletAllowlistCondition({
+      const addressAllowlistCondition =
+        new conditions.base.addressAllowlist.AddressAllowlistCondition({
           addresses: [
             CONSUMER_ADDRESS,
             '0x742d35Cc6634C0532925a3b844Bc454e4438f44e', // Some other address
@@ -150,14 +150,14 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         });
 
       // Verify that the condition requires authentication
-      expect(walletAllowlistCondition.requiresAuthentication()).toBe(true);
+      expect(addressAllowlistCondition.requiresAuthentication()).toBe(true);
 
       // Encrypt message with the wallet allowlist condition
       const messageKit = await encrypt(
         provider,
         DOMAIN,
         message,
-        walletAllowlistCondition,
+        addressAllowlistCondition,
         RITUAL_ID,
         encryptorSigner,
       );

@@ -1,11 +1,12 @@
 import { fakeUrsulas } from '@nucypher/test-utils';
 import axios, { HttpStatusCode } from 'axios';
-import { MockInstance, beforeAll, describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it, MockInstance, vi } from 'vitest';
+
 import {
   domains,
-  GetUrsulasResult,
   getPorterUris,
   getPorterUrisFromSource,
+  GetUrsulasResult,
   initialize,
   PorterClient,
   toHexString,

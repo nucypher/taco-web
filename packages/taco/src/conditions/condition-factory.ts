@@ -1,4 +1,9 @@
 import {
+  AddressAllowlistCondition,
+  AddressAllowlistConditionProps,
+  AddressAllowlistConditionType,
+} from './base/address-allowlist';
+import {
   ContractCondition,
   ContractConditionProps,
   ContractConditionType,
@@ -20,11 +25,6 @@ import {
   TimeConditionProps,
   TimeConditionType,
 } from './base/time';
-import {
-  WalletAllowlistCondition,
-  WalletAllowlistConditionProps,
-  WalletAllowlistConditionType,
-} from './base/wallet-allowlist';
 import {
   CompoundCondition,
   CompoundConditionProps,
@@ -61,8 +61,10 @@ export class ConditionFactory {
         return new JsonRpcCondition(props as JsonRpcConditionProps);
       case JWTConditionType:
         return new JWTCondition(props as JWTConditionProps);
-      case WalletAllowlistConditionType:
-        return new WalletAllowlistCondition(props as WalletAllowlistConditionProps);
+      case AddressAllowlistConditionType:
+        return new AddressAllowlistCondition(
+          props as AddressAllowlistConditionProps,
+        );
       // Logical Conditions
       case CompoundConditionType:
         return new CompoundCondition(props as CompoundConditionProps);

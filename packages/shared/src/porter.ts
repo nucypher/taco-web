@@ -153,14 +153,21 @@ export type TacoDecryptResult = {
 };
 
 // Signing types
+type SigningOptions = {
+  optimistic?: boolean;        // Whether to return first signatures received or wait for all signatures
+  returnAggregated?: boolean;  // Whether to return the aggregated signature
+};
+
 type SignRequest = {
-  readonly payload?: Base64EncodedBytes;
-  readonly packed_user_op?: string;
+  readonly payload?: Base64EncodedBytes | undefined;
+  readonly packed_user_op?: string | undefined;
   readonly signature_type: string;
-  readonly aa_version?: string;
+  readonly aa_version?: string | undefined;
   readonly cohort_id: number;
-  readonly chain_id?: number;
-  readonly context?: Record<string, unknown>;
+  readonly chain_id?: number | undefined;
+  readonly context?: Record<string, unknown> | undefined;
+  readonly optimistic?: boolean | undefined;
+  readonly return_aggregated?: boolean | undefined;
 };
 
 type SignResponse = {
@@ -327,13 +334,14 @@ export class PorterClient {
   public async sign191(
     payload: Uint8Array,
     cohortId: number,
-    optimistic: boolean = true,
-    returnAggregated: boolean = true,
+    options: SigningOptions = { optimistic: true, returnAggregated: true }
   ): Promise<SignResult> {
     const data: SignRequest = {
       payload: toBase64(payload),
       signature_type: 'eip191',
       cohort_id: cohortId,
+      optimistic: options.optimistic,
+      return_aggregated: options.returnAggregated,
     };
 
     const resp: AxiosResponse<SignResponse> = await this.tryAndCall({
@@ -346,7 +354,10 @@ export class PorterClient {
     for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(
       resp.data.result.signing_results
     )) {
-      signingResults[ursulaAddress] = [signerAddress, signatureB64];
+      const decodedData = JSON.parse(
+        new TextDecoder().decode(fromBase64(signatureB64))
+      );
+      signingResults[ursulaAddress] = [signerAddress, decodedData.signature];
     }
 
     return {
@@ -363,8 +374,7 @@ export class PorterClient {
     accountSpec: string,
     entryPointVersion: string,
     cohortId: number,
-    optimistic: boolean = true,
-    returnAggregated: boolean = true,
+    options: SigningOptions = { optimistic: true, returnAggregated: true },
     context: Record<string, unknown> = {},
   ): Promise<SignResult> {
     const data: SignRequest = {
@@ -374,6 +384,8 @@ export class PorterClient {
       cohort_id: cohortId,
       chain_id: chainId,
       context,
+      optimistic: options.optimistic,
+      return_aggregated: options.returnAggregated,
     };
 
     const resp: AxiosResponse<SignResponse> = await this.tryAndCall({

@@ -19,14 +19,13 @@ export async function sign191(
   const result = await porter.sign191(
     payloadBytes,
     cohortId,
-    options.optimistic,
-    options.returnAggregated
+    options
   );
 
   return {
     digest: result.digest,
-    aggregatedSignature: result.aggregated_signature,
-    signingResults: result.signing_results,
+    aggregatedSignature: result.aggregatedSignature,
+    signingResults: result.signingResults,
     type: result.type
   };
 }
@@ -48,14 +47,13 @@ export async function signUserOp(
     accountSpec,
     entryPointVersion,
     cohortId,
-    options.optimistic,
-    options.returnAggregated
+    options
   );
 
   return {
     digest: result.digest,
-    aggregatedSignature: result.aggregated_signature,
-    signingResults: result.signing_results,
+    aggregatedSignature: result.aggregatedSignature,
+    signingResults: result.signingResults,
     type: result.type
   };
 }

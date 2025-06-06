@@ -153,47 +153,43 @@ export type TacoDecryptResult = {
 };
 
 // Signing types
-type PostSign191Request = {
-  readonly payload: Base64EncodedBytes;
+type SignRequest = {
+  readonly payload?: Base64EncodedBytes;
+  readonly packed_user_op?: string;
+  readonly signature_type: string;
+  readonly aa_version?: string;
   readonly cohort_id: number;
-  readonly optimistic?: boolean;
-  readonly return_aggregated?: boolean;
-};
-
-type PostSignUserOpRequest = {
-  readonly user_op: {
-    readonly sender: string;
-    readonly nonce: string;
-    readonly init_code: string;
-    readonly call_data: string;
-    readonly call_gas_limit: string;
-    readonly verification_gas_limit: string;
-    readonly pre_verification_gas: string;
-    readonly max_fee_per_gas: string;
-    readonly max_priority_fee_per_gas: string;
-    readonly paymaster_and_data: string;
-    readonly signature: string;
-  };
-  readonly chain_id: number;
-  readonly account_spec: string;
-  readonly entry_point_version: string;
-  readonly cohort_id: number;
-  readonly optimistic?: boolean;
-  readonly return_aggregated?: boolean;
+  readonly chain_id?: number;
+  readonly context?: Record<string, unknown>;
 };
 
 type SignResponse = {
   readonly result: {
     readonly digest: HexEncodedBytes;
-    readonly aggregated_signature: HexEncodedBytes;
-    readonly signing_results: Record<
-      ChecksumAddress,
-      [ChecksumAddress, Base64EncodedBytes]
-    >;
-    readonly type: string;
+    readonly signing_results: Record<ChecksumAddress, [ChecksumAddress, Base64EncodedBytes]>;
   };
   readonly version: string;
 };
+
+type SignResult = {
+  digest: string;
+  aggregatedSignature: string;
+  signingResults: { [ursulaAddress: string]: [string, string] };
+  type: string;
+};
+
+function aggregatePorterSignatures(
+  signaturesWithAddress: { [checksumAddress: string]: [string, string] }
+): string {
+  const sortedSignaturePairs = Object.entries(signaturesWithAddress)
+    .sort(([_, [addr1]], [__, [addr2]]) => 
+      addr1.toLowerCase().localeCompare(addr2.toLowerCase())
+    );
+
+  const sortedSignatures = sortedSignaturePairs.map(([_, [__, signature]]) => signature);
+  const combined = sortedSignatures.join('');
+  return combined;
+}
 
 export class PorterClient {
   readonly porterUrls: URL[];
@@ -333,12 +329,11 @@ export class PorterClient {
     cohortId: number,
     optimistic: boolean = true,
     returnAggregated: boolean = true,
-  ): Promise<SignResponse['result']> {
-    const data: PostSign191Request = {
+  ): Promise<SignResult> {
+    const data: SignRequest = {
       payload: toBase64(payload),
+      signature_type: 'eip191',
       cohort_id: cohortId,
-      optimistic,
-      return_aggregated: returnAggregated,
     };
 
     const resp: AxiosResponse<SignResponse> = await this.tryAndCall({
@@ -347,58 +342,64 @@ export class PorterClient {
       data,
     });
 
-    return resp.data.result;
+    const signingResults: { [ursulaAddress: string]: [string, string] } = {};
+    for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(
+      resp.data.result.signing_results
+    )) {
+      signingResults[ursulaAddress] = [signerAddress, signatureB64];
+    }
+
+    return {
+      digest: resp.data.result.digest,
+      aggregatedSignature: aggregatePorterSignatures(signingResults),
+      signingResults,
+      type: 'eip191'
+    };
   }
 
   public async signUserOp(
-    userOp: {
-      sender: string;
-      nonce: string;
-      initCode: string;
-      callData: string;
-      callGasLimit: string;
-      verificationGasLimit: string;
-      preVerificationGas: string;
-      maxFeePerGas: string;
-      maxPriorityFeePerGas: string;
-      paymasterAndData: string;
-      signature: string;
-    },
+    packedUserOp: Record<string, unknown>,
     chainId: number,
     accountSpec: string,
     entryPointVersion: string,
     cohortId: number,
     optimistic: boolean = true,
     returnAggregated: boolean = true,
-  ): Promise<SignResponse['result']> {
-    const data: PostSignUserOpRequest = {
-      user_op: {
-        sender: userOp.sender,
-        nonce: userOp.nonce,
-        init_code: userOp.initCode,
-        call_data: userOp.callData,
-        call_gas_limit: userOp.callGasLimit,
-        verification_gas_limit: userOp.verificationGasLimit,
-        pre_verification_gas: userOp.preVerificationGas,
-        max_fee_per_gas: userOp.maxFeePerGas,
-        max_priority_fee_per_gas: userOp.maxPriorityFeePerGas,
-        paymaster_and_data: userOp.paymasterAndData,
-        signature: userOp.signature,
-      },
-      chain_id: chainId,
-      account_spec: accountSpec,
-      entry_point_version: entryPointVersion,
+    context: Record<string, unknown> = {},
+  ): Promise<SignResult> {
+    const data: SignRequest = {
+      signature_type: 'packedUserOp',
+      aa_version: 'mdt',
+      packed_user_op: JSON.stringify(packedUserOp),
       cohort_id: cohortId,
-      optimistic,
-      return_aggregated: returnAggregated,
+      chain_id: chainId,
+      context,
     };
 
     const resp: AxiosResponse<SignResponse> = await this.tryAndCall({
-      url: '/sign_user_op',
+      url: '/sign',
       method: 'post',
       data,
     });
 
-    return resp.data.result;
+    const signingResults: { [ursulaAddress: string]: [string, string] } = {};
+    let messageHash = '';
+
+    for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(
+      resp.data.result.signing_results
+    )) {
+      const decodedData = JSON.parse(
+        new TextDecoder().decode(fromBase64(signatureB64))
+      );
+      messageHash = decodedData.message_hash;
+      signingResults[ursulaAddress] = [signerAddress, decodedData.signature];
+    }
+
+    return {
+      digest: messageHash,
+      aggregatedSignature: aggregatePorterSignatures(signingResults),
+      signingResults,
+      type: `userOp:${accountSpec}`
+    };
   }
 }

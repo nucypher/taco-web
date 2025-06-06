@@ -50,26 +50,26 @@ const mockGetUrsulas = (ursulas: Ursula[] = fakeUrsulas()): MockInstance => {
   });
 };
 
-const mockSign191 = (success: boolean = true): MockInstance => {
-  const fakeSignResponse = {
-    result: {
-      digest: '0x1234',
-      aggregated_signature: '0x5678',
-      signing_results: {
-        '0x1234': ['0x5678', '0x90ab'],
-        '0xabcd': ['0xefgh', '0xijkl'],
-      },
-      type: 'eip191',
+const createMockSignResponse = (type: string) => ({
+  result: {
+    digest: '0x1234',
+    aggregated_signature: '0x5678',
+    signing_results: {
+      '0x1234': ['0x5678', '0x90ab'],
+      '0xabcd': ['0xefgh', '0xijkl'],
     },
-    version: '5.2.0',
-  };
+    type,
+  },
+  version: '5.2.0',
+});
 
+const createMockSignImplementation = (endpoint: string, type: string) => (success: boolean = true): MockInstance => {
   return vi.spyOn(axios, 'request').mockImplementation(async (config) => {
-    if (config.url === '/sign191') {
+    if (config.url === endpoint) {
       if (success) {
         return Promise.resolve({
           status: HttpStatusCode.Ok,
-          data: fakeSignResponse,
+          data: createMockSignResponse(type),
         });
       }
       return Promise.resolve({ status: HttpStatusCode.BadRequest, data: '' });
@@ -78,33 +78,8 @@ const mockSign191 = (success: boolean = true): MockInstance => {
   });
 };
 
-const mockSignUserOp = (success: boolean = true): MockInstance => {
-  const fakeSignResponse = {
-    result: {
-      digest: '0x1234',
-      aggregated_signature: '0x5678',
-      signing_results: {
-        '0x1234': ['0x5678', '0x90ab'],
-        '0xabcd': ['0xefgh', '0xijkl'],
-      },
-      type: 'userOp:zerodev',
-    },
-    version: '5.2.0',
-  };
-
-  return vi.spyOn(axios, 'request').mockImplementation(async (config) => {
-    if (config.url === '/sign_user_op') {
-      if (success) {
-        return Promise.resolve({
-          status: HttpStatusCode.Ok,
-          data: fakeSignResponse,
-        });
-      }
-      return Promise.resolve({ status: HttpStatusCode.BadRequest, data: '' });
-    }
-    throw new Error('Unexpected endpoint');
-  });
-};
+const mockSign191 = createMockSignImplementation('/sign191', 'eip191');
+const mockSignUserOp = createMockSignImplementation('/sign_user_op', 'userOp:zerodev');
 
 describe('getPorterUris', () => {
   beforeAll(async () => {

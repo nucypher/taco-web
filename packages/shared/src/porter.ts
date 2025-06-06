@@ -189,11 +189,11 @@ function aggregatePorterSignatures(
   signaturesWithAddress: { [checksumAddress: string]: [string, string] }
 ): string {
   const sortedSignaturePairs = Object.entries(signaturesWithAddress)
-    .sort(([_, [addr1]], [__, [addr2]]) => 
+    .sort(([, [addr1]], [, [addr2]]) => 
       addr1.toLowerCase().localeCompare(addr2.toLowerCase())
     );
 
-  const sortedSignatures = sortedSignaturePairs.map(([_, [__, signature]]) => signature);
+  const sortedSignatures = sortedSignaturePairs.map(([, [, signature]]) => signature);
   const combined = sortedSignatures.join('');
   return combined;
 }

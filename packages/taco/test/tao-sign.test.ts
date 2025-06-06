@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PorterClient } from '@nucypher/shared';
 import { fakePorterUri } from '@nucypher/test-utils';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { sign191, signUserOp } from '../src/sign';
 

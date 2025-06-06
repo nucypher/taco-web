@@ -152,6 +152,52 @@ export type TacoDecryptResult = {
   errors: Record<string, string>;
 };
 
+// Signing types
+type SigningOptions = {
+  optimistic?: boolean;        // Whether to return first signatures received or wait for all signatures
+  returnAggregated?: boolean;  // Whether to return the aggregated signature
+};
+
+type SignRequest = {
+  readonly payload?: Base64EncodedBytes | undefined;
+  readonly packed_user_op?: string | undefined;
+  readonly signature_type: string;
+  readonly aa_version?: string | undefined;
+  readonly cohort_id: number;
+  readonly chain_id?: number | undefined;
+  readonly context?: Record<string, unknown> | undefined;
+  readonly optimistic?: boolean | undefined;
+  readonly return_aggregated?: boolean | undefined;
+};
+
+type SignResponse = {
+  readonly result: {
+    readonly digest: HexEncodedBytes;
+    readonly signing_results: Record<ChecksumAddress, [ChecksumAddress, Base64EncodedBytes]>;
+  };
+  readonly version: string;
+};
+
+type SignResult = {
+  digest: string;
+  aggregatedSignature: string;
+  signingResults: { [ursulaAddress: string]: [string, string] };
+  type: string;
+};
+
+function aggregatePorterSignatures(
+  signaturesWithAddress: { [checksumAddress: string]: [string, string] }
+): string {
+  const sortedSignaturePairs = Object.entries(signaturesWithAddress)
+    .sort(([, [addr1]], [, [addr2]]) => 
+      addr1.toLowerCase().localeCompare(addr2.toLowerCase())
+    );
+
+  const sortedSignatures = sortedSignaturePairs.map(([, [, signature]]) => signature);
+  const combined = sortedSignatures.join('');
+  return combined;
+}
+
 export class PorterClient {
   readonly porterUrls: URL[];
 
@@ -283,5 +329,89 @@ export class PorterClient {
       EncryptedThresholdDecryptionResponse
     > = Object.fromEntries(decryptionResponses);
     return { encryptedResponses, errors };
+  }
+
+  public async sign191(
+    payload: Uint8Array,
+    cohortId: number,
+    options: SigningOptions = { optimistic: true, returnAggregated: true }
+  ): Promise<SignResult> {
+    const data: SignRequest = {
+      payload: toBase64(payload),
+      signature_type: 'eip191',
+      cohort_id: cohortId,
+      optimistic: options.optimistic,
+      return_aggregated: options.returnAggregated,
+    };
+
+    const resp: AxiosResponse<SignResponse> = await this.tryAndCall({
+      url: '/sign191',
+      method: 'post',
+      data,
+    });
+
+    const signingResults: { [ursulaAddress: string]: [string, string] } = {};
+    for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(
+      resp.data.result.signing_results
+    )) {
+      const decodedData = JSON.parse(
+        new TextDecoder().decode(fromBase64(signatureB64))
+      );
+      signingResults[ursulaAddress] = [signerAddress, decodedData.signature];
+    }
+
+    return {
+      digest: resp.data.result.digest,
+      aggregatedSignature: aggregatePorterSignatures(signingResults),
+      signingResults,
+      type: 'eip191'
+    };
+  }
+
+  public async signUserOp(
+    packedUserOp: Record<string, unknown>,
+    chainId: number,
+    accountSpec: string,
+    entryPointVersion: string,
+    cohortId: number,
+    options: SigningOptions = { optimistic: true, returnAggregated: true },
+    context: Record<string, unknown> = {},
+  ): Promise<SignResult> {
+    const data: SignRequest = {
+      signature_type: 'packedUserOp',
+      aa_version: 'mdt',
+      packed_user_op: JSON.stringify(packedUserOp),
+      cohort_id: cohortId,
+      chain_id: chainId,
+      context,
+      optimistic: options.optimistic,
+      return_aggregated: options.returnAggregated,
+    };
+
+    const resp: AxiosResponse<SignResponse> = await this.tryAndCall({
+      url: '/sign',
+      method: 'post',
+      data,
+    });
+
+    const signingResults: { [ursulaAddress: string]: [string, string] } = {};
+    let messageHash = '';
+
+    for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(
+      resp.data.result.signing_results
+    )) {
+      const decodedData = JSON.parse(
+        new TextDecoder().decode(fromBase64(signatureB64))
+      );
+      messageHash = decodedData.message_hash;
+      signingResults[ursulaAddress] = [signerAddress, decodedData.signature];
+    }
+
+    return {
+      digest: messageHash,
+      aggregatedSignature: aggregatePorterSignatures(signingResults),
+      signingResults,
+      type: `userOp:${accountSpec}`
+    };
   }
 }

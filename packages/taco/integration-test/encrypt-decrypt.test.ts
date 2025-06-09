@@ -25,8 +25,8 @@ const DOMAIN = 'lynx';
 const RITUAL_ID = 27;
 const CHAIN_ID = 80002;
 
-// The wallet address of our consumer (derived from CONSUMER_PRIVATE_KEY)
-const CONSUMER_ADDRESS = '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed';
+// The wallet address of our consumer
+const CONSUMER_ADDRESS = ethers.utils.computeAddress(CONSUMER_PRIVATE_KEY);
 
 describe.skipIf(!process.env.RUNNING_IN_CI)(
   'Taco Encrypt/Decrypt Integration Test',

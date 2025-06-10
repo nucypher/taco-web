@@ -1,4 +1,4 @@
-import { Domain, PorterClient } from '@nucypher/shared';
+import { Domain, getPorterUris, PorterClient } from '@nucypher/shared';
 
 import { SigningOptions, SignResult, UserOperation } from './types';
 
@@ -7,9 +7,13 @@ export async function sign191(
   payload: Uint8Array | string,
   cohortId: number,
   domain: Domain,
-  options: SigningOptions = { optimistic: true, returnAggregated: true }
+  options: SigningOptions = { optimistic: true, returnAggregated: true },
+  porterUris?: string[]
 ): Promise<SignResult> {
-  const porter = new PorterClient(domain);
+  const porterUrisFull: string[] = porterUris
+    ? porterUris
+    : await getPorterUris(domain);
+  const porter = new PorterClient(porterUrisFull); 
   
   // Convert string payload to Uint8Array if needed
   const payloadBytes = typeof payload === 'string' 
@@ -19,15 +23,10 @@ export async function sign191(
   const result = await porter.sign191(
     payloadBytes,
     cohortId,
-    options
+    options,
   );
 
-  return {
-    digest: result.digest,
-    aggregatedSignature: result.aggregatedSignature,
-    signingResults: result.signingResults,
-    type: result.type
-  };
+  return result;
 }
 
 export async function signUserOp(
@@ -37,9 +36,13 @@ export async function signUserOp(
   entryPointVersion: "v0.6" | "v0.7" | "v0.8",
   cohortId: number,
   domain: Domain,
-  options: SigningOptions = { optimistic: true, returnAggregated: true }
+  options: SigningOptions = { optimistic: true, returnAggregated: true },
+  porterUris?: string[]
 ): Promise<SignResult> {
-  const porter = new PorterClient(domain);
+  const porterUrisFull: string[] = porterUris
+    ? porterUris
+    : await getPorterUris(domain);
+  const porter = new PorterClient(porterUrisFull);
 
   const result = await porter.signUserOp(
     userOp,
@@ -47,13 +50,8 @@ export async function signUserOp(
     accountSpec,
     entryPointVersion,
     cohortId,
-    options
+    options,
   );
 
-  return {
-    digest: result.digest,
-    aggregatedSignature: result.aggregatedSignature,
-    signingResults: result.signingResults,
-    type: result.type
-  };
+  return result;
 }

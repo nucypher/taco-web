@@ -32,8 +32,7 @@ export async function sign191(
 export async function signUserOp(
   userOp: UserOperation,
   chainId: number,
-  accountSpec: "zerodev" | "kernel" | "metamask" | "safe" | string,
-  entryPointVersion: "v0.6" | "v0.7" | "v0.8",
+  aaVersion: "zerodev:v0.6" | "kernel:v0.7" | "safe:v0.8" | "metamask:v0.6" | string,
   cohortId: number,
   domain: Domain,
   options: SigningOptions = { optimistic: true, returnAggregated: true },
@@ -47,8 +46,7 @@ export async function signUserOp(
   const result = await porter.signUserOp(
     userOp,
     chainId,
-    accountSpec,
-    entryPointVersion,
+    aaVersion,
     cohortId,
     options,
   );

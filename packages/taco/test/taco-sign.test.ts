@@ -127,8 +127,7 @@ describe('TACo Signing', () => {
 
     it('should sign a user operation with zerodev account', async () => {
       const chainId = 1;
-      const accountSpec = 'zerodev';
-      const entryPointVersion = 'v0.6';
+      const aaVersion = 'zerodev:v0.6';
       const cohortId = 5;
       const porterUris = [fakePorterUri];
 
@@ -145,8 +144,7 @@ describe('TACo Signing', () => {
       const result = await signUserOp(
         userOp,
         chainId,
-        accountSpec,
-        entryPointVersion,
+        aaVersion,
         cohortId,
         'lynx',
         undefined,
@@ -156,8 +154,7 @@ describe('TACo Signing', () => {
       expect(signUserOpMock).toHaveBeenCalledWith(
         userOp,
         chainId,
-        accountSpec,
-        entryPointVersion,
+        aaVersion,
         cohortId,
         { optimistic: true, returnAggregated: true }
       );
@@ -175,8 +172,7 @@ describe('TACo Signing', () => {
 
     it('should sign a user operation with kernel account', async () => {
       const chainId = 1;
-      const accountSpec = 'kernel';
-      const entryPointVersion = 'v0.7';
+      const aaVersion = 'kernel:v0.7';
       const cohortId = 5;
       const porterUris = [fakePorterUri];
 
@@ -193,8 +189,7 @@ describe('TACo Signing', () => {
       const result = await signUserOp(
         userOp,
         chainId,
-        accountSpec,
-        entryPointVersion,
+        aaVersion,
         cohortId,
         'lynx',
         undefined,
@@ -204,8 +199,7 @@ describe('TACo Signing', () => {
       expect(signUserOpMock).toHaveBeenCalledWith(
         userOp,
         chainId,
-        accountSpec,
-        entryPointVersion,
+        aaVersion,
         cohortId,
         { optimistic: true, returnAggregated: true }
       );
@@ -223,8 +217,7 @@ describe('TACo Signing', () => {
 
     it('should handle custom signing options', async () => {
       const chainId = 1;
-      const accountSpec = 'safe';
-      const entryPointVersion = 'v0.8';
+      const aaVersion = 'safe:v0.8';
       const cohortId = 5;
       const porterUris = [fakePorterUri];
       const options = { optimistic: false, returnAggregated: false };
@@ -242,8 +235,7 @@ describe('TACo Signing', () => {
       await signUserOp(
         userOp,
         chainId,
-        accountSpec,
-        entryPointVersion,
+        aaVersion,
         cohortId,
         'lynx',
         options,
@@ -253,8 +245,7 @@ describe('TACo Signing', () => {
       expect(signUserOpMock).toHaveBeenCalledWith(
         userOp,
         chainId,
-        accountSpec,
-        entryPointVersion,
+        aaVersion,
         cohortId,
         options
       );

@@ -17,11 +17,4 @@ export class AddressAllowlistCondition extends Condition {
       ...value,
     });
   }
-
-  /**
-   * This condition requires wallet authentication to verify addresses
-   */
-  override requiresAuthentication(): boolean {
-    return true;
-  }
 }

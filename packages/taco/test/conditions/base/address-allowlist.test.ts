@@ -97,7 +97,9 @@ describe('AddressAllowlistCondition', () => {
 
       expect(result.error).toBeDefined();
       expect(result.data).toBeUndefined();
-      expect(result.error?.message).toContain('At least one address must be provided');
+      expect(result.error?.message).toContain(
+        'At least one address must be provided',
+      );
     });
 
     it('requires addresses to be valid Ethereum addresses', () => {
@@ -130,7 +132,9 @@ describe('AddressAllowlistCondition', () => {
 
       expect(result.error).toBeDefined();
       expect(result.data).toBeUndefined();
-      expect(result.error?.message).toContain('All addresses must be properly checksummed');
+      expect(result.error?.message).toContain(
+        'All addresses must be properly checksummed',
+      );
     });
   });
 
@@ -145,6 +149,7 @@ describe('AddressAllowlistCondition', () => {
     it('throws an error for invalid condition', () => {
       const invalidCondition = () => {
         return new AddressAllowlistCondition({
+          userAddress: ':userAddress',
           addresses: [],
         });
       };

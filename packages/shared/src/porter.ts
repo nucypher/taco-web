@@ -182,6 +182,7 @@ type SignResult = {
   digest: string;
   aggregatedSignature: string;
   signingResults: { [ursulaAddress: string]: [string, string] };
+  errors: Record<string, string>;
   type: string;
 };
 
@@ -345,19 +346,27 @@ export class PorterClient {
     });
 
     const signingResults: { [ursulaAddress: string]: [string, string] } = {};
+    const errors: Record<string, string> = {};
+
     for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(
       resp.data.result.signing_results
     )) {
-      const decodedData = JSON.parse(
-        new TextDecoder().decode(fromBase64(signatureB64))
-      );
-      signingResults[ursulaAddress] = [signerAddress, decodedData.signature];
+      try {
+        const decodedData = JSON.parse(
+          new TextDecoder().decode(fromBase64(signatureB64))
+        );
+        signingResults[ursulaAddress] = [signerAddress, decodedData.signature];
+      } catch (e: unknown) {
+        const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+        errors[ursulaAddress] = `Failed to decode signature: ${errorMessage}`;
+      }
     }
 
     return {
       digest: resp.data.result.digest,
       aggregatedSignature: aggregatePorterSignatures(signingResults),
       signingResults,
+      errors,
       type: 'eip191'
     };
   }
@@ -388,22 +397,29 @@ export class PorterClient {
     });
 
     const signingResults: { [ursulaAddress: string]: [string, string] } = {};
+    const errors: Record<string, string> = {};
     let messageHash = '';
 
     for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(
       resp.data.result.signing_results
     )) {
-      const decodedData = JSON.parse(
-        new TextDecoder().decode(fromBase64(signatureB64))
-      );
-      messageHash = decodedData.message_hash;
-      signingResults[ursulaAddress] = [signerAddress, decodedData.signature];
+      try {
+        const decodedData = JSON.parse(
+          new TextDecoder().decode(fromBase64(signatureB64))
+        );
+        messageHash = decodedData.message_hash;
+        signingResults[ursulaAddress] = [signerAddress, decodedData.signature];
+      } catch (e: unknown) {
+        const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+        errors[ursulaAddress] = `Failed to decode signature: ${errorMessage}`;
+      }
     }
 
     return {
       digest: messageHash,
       aggregatedSignature: aggregatePorterSignatures(signingResults),
       signingResults,
+      errors,
       type: aaVersion
     };
   }

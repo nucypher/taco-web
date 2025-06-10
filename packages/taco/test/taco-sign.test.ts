@@ -114,14 +114,18 @@ describe('TACo Signing', () => {
     const userOp = {
       sender: '0x123',
       nonce: '0x1',
-      initCode: '0x',
+      factory: '0x0',
+      factoryData: '0x',
       callData: '0xabc',
       callGasLimit: '0x20000',
       verificationGasLimit: '0x15000',
       preVerificationGas: '0x1000',
       maxFeePerGas: '0xabc',
       maxPriorityFeePerGas: '0x123',
-      paymasterAndData: '0x',
+      paymaster: '0x0',
+      paymasterVerificationGasLimit: '0x0',
+      paymasterPostOpGasLimit: '0x0',
+      paymasterData: '0x',
       signature: '0x',
     };
 

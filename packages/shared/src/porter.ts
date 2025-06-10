@@ -188,14 +188,8 @@ type SignResult = {
 function aggregatePorterSignatures(
   signaturesWithAddress: { [checksumAddress: string]: [string, string] }
 ): string {
-  const sortedSignaturePairs = Object.entries(signaturesWithAddress)
-    .sort(([, [addr1]], [, [addr2]]) => 
-      addr1.toLowerCase().localeCompare(addr2.toLowerCase())
-    );
-
-  const sortedSignatures = sortedSignaturePairs.map(([, [, signature]]) => signature);
-  const combined = sortedSignatures.join('');
-  return combined;
+  const signatures = Object.values(signaturesWithAddress).map(([, signature]) => signature);
+  return signatures.join('');
 }
 
 export class PorterClient {
@@ -371,15 +365,14 @@ export class PorterClient {
   public async signUserOp(
     packedUserOp: Record<string, unknown>,
     chainId: number,
-    accountSpec: string,
-    entryPointVersion: string,
+    aaVersion: string,
     cohortId: number,
     options: SigningOptions = { optimistic: true, returnAggregated: true },
     context: Record<string, unknown> = {},
   ): Promise<SignResult> {
     const data: SignRequest = {
       signature_type: 'packedUserOp',
-      aa_version: 'mdt',
+      aa_version: aaVersion,
       packed_user_op: JSON.stringify(packedUserOp),
       cohort_id: cohortId,
       chain_id: chainId,
@@ -411,7 +404,7 @@ export class PorterClient {
       digest: messageHash,
       aggregatedSignature: aggregatePorterSignatures(signingResults),
       signingResults,
-      type: `userOp:${accountSpec}`
+      type: aaVersion
     };
   }
 }

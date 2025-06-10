@@ -216,8 +216,7 @@ describe('PorterClient Signing', () => {
       const result = await porterClient.signUserOp(
         mockPackedUserOp,
         8453,
-        'zerodev',
-        'v0.8',
+        'zerodev:v0.6',
         5,
         {
           optimistic: true,
@@ -232,7 +231,7 @@ describe('PorterClient Signing', () => {
           '0x1234': ['0x5678', '0x90ab'],
           '0xabcd': ['0xefgh', '0xijkl'],
         },
-        type: 'userOp:zerodev',
+        type: 'zerodev:v0.6',
       });
     });
 
@@ -244,8 +243,7 @@ describe('PorterClient Signing', () => {
         porterClient.signUserOp(
           mockPackedUserOp,
           8453,
-          'zerodev',
-          'v0.8',
+          'zerodev:v0.6',
           5,
           {
             optimistic: true,

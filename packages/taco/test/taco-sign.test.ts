@@ -19,7 +19,7 @@ describe('TACo Signing', () => {
     it('should sign a string message', async () => {
       const message = 'Hello, TACo!';
       const cohortId = 5;
-      const domain = fakePorterUri;
+      const porterUris = [fakePorterUri];
 
       sign191Mock.mockResolvedValue({
         digest: '0x1234',
@@ -31,7 +31,7 @@ describe('TACo Signing', () => {
         type: 'eip191',
       });
 
-      const result = await sign191(message, cohortId, domain);
+      const result = await sign191(message, cohortId, 'lynx', undefined, porterUris);
 
       expect(sign191Mock).toHaveBeenCalledWith(
         expect.any(Uint8Array),
@@ -53,7 +53,7 @@ describe('TACo Signing', () => {
     it('should sign a Uint8Array message', async () => {
       const messageBytes = new TextEncoder().encode('Hello, TACo!');
       const cohortId = 5;
-      const domain = fakePorterUri;
+      const porterUris = [fakePorterUri];
 
       sign191Mock.mockResolvedValue({
         digest: '0x1234',
@@ -65,7 +65,7 @@ describe('TACo Signing', () => {
         type: 'eip191',
       });
 
-      const result = await sign191(messageBytes, cohortId, domain);
+      const result = await sign191(messageBytes, cohortId, 'lynx', undefined, porterUris);
 
       expect(sign191Mock).toHaveBeenCalledWith(
         messageBytes,
@@ -87,7 +87,7 @@ describe('TACo Signing', () => {
     it('should handle custom signing options', async () => {
       const message = 'Hello, TACo!';
       const cohortId = 5;
-      const domain = fakePorterUri;
+      const porterUris = [fakePorterUri];
       const options = { optimistic: false, returnAggregated: false };
 
       sign191Mock.mockResolvedValue({
@@ -100,7 +100,7 @@ describe('TACo Signing', () => {
         type: 'eip191',
       });
 
-      await sign191(message, cohortId, domain, options);
+      await sign191(message, cohortId, 'lynx', options, porterUris);
 
       expect(sign191Mock).toHaveBeenCalledWith(
         expect.any(Uint8Array),
@@ -130,7 +130,7 @@ describe('TACo Signing', () => {
       const accountSpec = 'zerodev';
       const entryPointVersion = 'v0.6';
       const cohortId = 5;
-      const domain = fakePorterUri;
+      const porterUris = [fakePorterUri];
 
       signUserOpMock.mockResolvedValue({
         digest: '0x1234',
@@ -148,7 +148,9 @@ describe('TACo Signing', () => {
         accountSpec,
         entryPointVersion,
         cohortId,
-        domain
+        'lynx',
+        undefined,
+        porterUris
       );
 
       expect(signUserOpMock).toHaveBeenCalledWith(
@@ -176,7 +178,7 @@ describe('TACo Signing', () => {
       const accountSpec = 'kernel';
       const entryPointVersion = 'v0.7';
       const cohortId = 5;
-      const domain = fakePorterUri;
+      const porterUris = [fakePorterUri];
 
       signUserOpMock.mockResolvedValue({
         digest: '0x1234',
@@ -194,7 +196,9 @@ describe('TACo Signing', () => {
         accountSpec,
         entryPointVersion,
         cohortId,
-        domain
+        'lynx',
+        undefined,
+        porterUris
       );
 
       expect(signUserOpMock).toHaveBeenCalledWith(
@@ -222,7 +226,7 @@ describe('TACo Signing', () => {
       const accountSpec = 'safe';
       const entryPointVersion = 'v0.8';
       const cohortId = 5;
-      const domain = fakePorterUri;
+      const porterUris = [fakePorterUri];
       const options = { optimistic: false, returnAggregated: false };
 
       signUserOpMock.mockResolvedValue({
@@ -241,8 +245,9 @@ describe('TACo Signing', () => {
         accountSpec,
         entryPointVersion,
         cohortId,
-        domain,
-        options
+        'lynx',
+        options,
+        porterUris
       );
 
       expect(signUserOpMock).toHaveBeenCalledWith(

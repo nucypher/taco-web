@@ -2,13 +2,14 @@ import { EthAddressSchema } from '@nucypher/shared';
 import { ethers } from 'ethers';
 import { z } from 'zod';
 
-import { baseConditionSchema } from './common';
+import { baseConditionSchema, UserAddressSchema } from './common';
 
 export const AddressAllowlistConditionType = 'address-allowlist';
 
 export const addressAllowlistConditionSchema = baseConditionSchema
   .extend({
     conditionType: z.literal(AddressAllowlistConditionType),
+    userAddress: UserAddressSchema,
     addresses: z
       .array(EthAddressSchema)
       .min(1, 'At least one address must be provided')
@@ -35,4 +36,4 @@ export type AddressAllowlistConditionProps = z.infer<
   typeof addressAllowlistConditionSchema
 >;
 
-export type AddressAllowlistFields = 'addresses';
+export type AddressAllowlistFields = 'addresses' | 'userAddress';

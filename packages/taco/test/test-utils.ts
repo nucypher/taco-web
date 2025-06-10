@@ -301,6 +301,7 @@ export const testRpcConditionObj: RpcConditionProps = {
 export const testAddressAllowlistConditionObj: AddressAllowlistConditionProps =
   {
     conditionType: AddressAllowlistConditionType,
+    userAddress: ':userAddress',
     addresses: [
       '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
       '0x0000000000000000000000000000000000000001',

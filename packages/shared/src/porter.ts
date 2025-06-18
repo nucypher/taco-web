@@ -325,50 +325,6 @@ export class PorterClient {
     return { encryptedResponses, errors };
   }
 
-  public async sign191(
-    payload: Uint8Array,
-    cohortId: number,
-    options: SigningOptions = { optimistic: true, returnAggregated: true }
-  ): Promise<SignResult> {
-    const data: SignRequest = {
-      payload: toBase64(payload),
-      signature_type: 'eip191',
-      cohort_id: cohortId,
-      optimistic: options.optimistic,
-      return_aggregated: options.returnAggregated,
-    };
-
-    const resp: AxiosResponse<SignResponse> = await this.tryAndCall({
-      url: '/sign',
-      method: 'post',
-      data,
-    });
-
-    const signingResults: { [ursulaAddress: string]: [string, string] } = {};
-    const errors: Record<string, string> = {};
-
-    for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(
-      resp.data.result.signing_results
-    )) {
-      try {
-        const decodedData = JSON.parse(
-          new TextDecoder().decode(fromBase64(signatureB64))
-        );
-        signingResults[ursulaAddress] = [signerAddress, decodedData.signature];
-      } catch (e: unknown) {
-        const errorMessage = e instanceof Error ? e.message : 'Unknown error';
-        errors[ursulaAddress] = `Failed to decode signature: ${errorMessage}`;
-      }
-    }
-
-    return {
-      digest: resp.data.result.digest,
-      aggregatedSignature: aggregatePorterSignatures(signingResults),
-      signingResults,
-      errors,
-      type: 'eip191'
-    };
-  }
 
   public async signUserOp(
     userOp: Record<string, unknown>,

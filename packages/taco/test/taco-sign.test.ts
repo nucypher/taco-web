@@ -2,112 +2,14 @@ import { PorterClient } from '@nucypher/shared';
 import { fakePorterUri } from '@nucypher/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { sign191, signUserOp } from '../src/sign';
+import { signUserOp } from '../src/sign';
 
 describe('TACo Signing', () => {
-  let sign191Mock: ReturnType<typeof vi.fn>;
   let signUserOpMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    sign191Mock = vi.fn();
     signUserOpMock = vi.fn();
-    vi.spyOn(PorterClient.prototype, 'sign191').mockImplementation(sign191Mock);
     vi.spyOn(PorterClient.prototype, 'signUserOp').mockImplementation(signUserOpMock);
-  });
-
-  describe('sign191', () => {
-    it('should sign a string message', async () => {
-      const message = 'Hello, TACo!';
-      const cohortId = 5;
-      const porterUris = [fakePorterUri];
-
-      sign191Mock.mockResolvedValue({
-        digest: '0x1234',
-        aggregatedSignature: '0x90ab0xijkl',
-        signingResults: {
-          '0x1234': ['0x5678', '0x90ab'],
-          '0xabcd': ['0xefgh', '0xijkl'],
-        },
-        type: 'eip191',
-      });
-
-      const result = await sign191(message, cohortId, 'lynx', undefined, porterUris);
-
-      expect(sign191Mock).toHaveBeenCalledWith(
-        expect.any(Uint8Array),
-        cohortId,
-        { optimistic: true, returnAggregated: true }
-      );
-
-      expect(result).toEqual({
-        digest: '0x1234',
-        aggregatedSignature: '0x90ab0xijkl',
-        signingResults: {
-          '0x1234': ['0x5678', '0x90ab'],
-          '0xabcd': ['0xefgh', '0xijkl'],
-        },
-        type: 'eip191',
-      });
-    });
-
-    it('should sign a Uint8Array message', async () => {
-      const messageBytes = new TextEncoder().encode('Hello, TACo!');
-      const cohortId = 5;
-      const porterUris = [fakePorterUri];
-
-      sign191Mock.mockResolvedValue({
-        digest: '0x1234',
-        aggregatedSignature: '0x90ab0xijkl',
-        signingResults: {
-          '0x1234': ['0x5678', '0x90ab'],
-          '0xabcd': ['0xefgh', '0xijkl'],
-        },
-        type: 'eip191',
-      });
-
-      const result = await sign191(messageBytes, cohortId, 'lynx', undefined, porterUris);
-
-      expect(sign191Mock).toHaveBeenCalledWith(
-        messageBytes,
-        cohortId,
-        { optimistic: true, returnAggregated: true }
-      );
-
-      expect(result).toEqual({
-        digest: '0x1234',
-        aggregatedSignature: '0x90ab0xijkl',
-        signingResults: {
-          '0x1234': ['0x5678', '0x90ab'],
-          '0xabcd': ['0xefgh', '0xijkl'],
-        },
-        type: 'eip191',
-      });
-    });
-
-    it('should handle custom signing options', async () => {
-      const message = 'Hello, TACo!';
-      const cohortId = 5;
-      const porterUris = [fakePorterUri];
-      const options = { optimistic: false, returnAggregated: false };
-
-      sign191Mock.mockResolvedValue({
-        digest: '0x1234',
-        aggregatedSignature: '0x90ab0xijkl',
-        signingResults: {
-          '0x1234': ['0x5678', '0x90ab'],
-          '0xabcd': ['0xefgh', '0xijkl'],
-        },
-        type: 'eip191',
-      });
-
-      await sign191(message, cohortId, 'lynx', options, porterUris);
-
-      expect(sign191Mock).toHaveBeenCalledWith(
-        expect.any(Uint8Array),
-        cohortId,
-        options
-      );
-    });
   });
 
   describe('signUserOp', () => {

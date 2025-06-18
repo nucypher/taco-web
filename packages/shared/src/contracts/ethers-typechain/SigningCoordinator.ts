@@ -57,6 +57,7 @@ export interface SigningCoordinatorInterface extends utils.Interface {
     'getCondition(uint32,uint256)': FunctionFragment;
     'getRoleAdmin(bytes32)': FunctionFragment;
     'getSigner(uint32,address)': FunctionFragment;
+    'getThreshold(uint32)': FunctionFragment;
     'getSigners(uint32)': FunctionFragment;
     'getSigningCohortConditions(uint32,uint256)': FunctionFragment;
     'getSigningCohortDataHash(uint32)': FunctionFragment;
@@ -104,6 +105,7 @@ export interface SigningCoordinatorInterface extends utils.Interface {
       | 'getCondition'
       | 'getRoleAdmin'
       | 'getSigner'
+      | 'getThreshold'
       | 'getSigners'
       | 'getSigningCohortConditions'
       | 'getSigningCohortDataHash'
@@ -193,6 +195,10 @@ export interface SigningCoordinatorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: 'getSigner',
     values: [BigNumberish, string],
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'getThreshold',
+    values: [BigNumberish],
   ): string;
   encodeFunctionData(
     functionFragment: 'getSigners',
@@ -355,6 +361,10 @@ export interface SigningCoordinatorInterface extends utils.Interface {
     data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: 'getSigner', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: 'getThreshold',
+    data: BytesLike,
+  ): Result;
   decodeFunctionResult(functionFragment: 'getSigners', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'getSigningCohortConditions',
@@ -741,6 +751,11 @@ export interface SigningCoordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<[SigningCoordinator.SigningCohortParticipantStructOutput]>;
 
+    getThreshold(
+      cohortId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<[number]>;
+
     getSigners(
       cohortId: BigNumberish,
       overrides?: CallOverrides,
@@ -945,6 +960,11 @@ export interface SigningCoordinator extends BaseContract {
     overrides?: CallOverrides,
   ): Promise<SigningCoordinator.SigningCohortParticipantStructOutput>;
 
+  getThreshold(
+    cohortId: BigNumberish,
+    overrides?: CallOverrides,
+  ): Promise<number>;
+
   getSigners(
     cohortId: BigNumberish,
     overrides?: CallOverrides,
@@ -1144,6 +1164,11 @@ export interface SigningCoordinator extends BaseContract {
       provider: string,
       overrides?: CallOverrides,
     ): Promise<SigningCoordinator.SigningCohortParticipantStructOutput>;
+
+    getThreshold(
+      cohortId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<number>;
 
     getSigners(
       cohortId: BigNumberish,
@@ -1483,6 +1508,11 @@ export interface SigningCoordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
+    getThreshold(
+      cohortId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>;
+
     getSigners(
       cohortId: BigNumberish,
       overrides?: CallOverrides,
@@ -1678,6 +1708,11 @@ export interface SigningCoordinator extends BaseContract {
     getSigner(
       cohortId: BigNumberish,
       provider: string,
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>;
+
+    getThreshold(
+      cohortId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 

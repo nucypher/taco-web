@@ -5,9 +5,9 @@ import { Domain } from '../../porter';
 import { SigningCoordinator__factory } from '../ethers-typechain';
 import { SigningCoordinator } from '../ethers-typechain/SigningCoordinator';
 
-export type SigningParticipant = {
-  provider: string;
+type SignerInfo = {
   operator: string;
+  provider: string;
   signature: string;
 };
 
@@ -16,18 +16,27 @@ export class SigningCoordinatorAgent {
     provider: ethers.providers.Provider,
     domain: Domain,
     ritualId: number,
-  ): Promise<SigningParticipant[]> {
+  ): Promise<SignerInfo[]> {
     const coordinator = await this.connectReadOnly(provider, domain);
-    const participants = await coordinator[
-      'getSigners(uint32)'
-    ](ritualId);
+    const participants = await coordinator.getSigners(ritualId);
 
-    return participants.map((participant) => {
+    return participants.map((participant: SigningCoordinator.SigningCohortParticipantStructOutput) => {
       return {
         operator: participant.operator,
+        provider: participant.provider,
+        signature: participant.signature,
       };
     });
   }
+
+//   public static async getThreshold(
+//     provider: ethers.providers.Provider,
+//     domain: Domain,
+//     cohortId: number,
+//   ): Promise<number> {
+//     const coordinator = await this.connectReadOnly(provider, domain);
+//     return await coordinator.getThreshold(cohortId);
+//   }
 
   private static async connectReadOnly(
     provider: ethers.providers.Provider,

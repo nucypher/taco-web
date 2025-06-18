@@ -26,175 +26,112 @@ import type {
   TypedListener,
 } from './common';
 
-export declare namespace BLS12381 {
-  export type G2PointStruct = {
-    word0: BytesLike;
-    word1: BytesLike;
-    word2: BytesLike;
-  };
-
-  export type G2PointStructOutput = [string, string, string] & {
-    word0: string;
-    word1: string;
-    word2: string;
-  };
-
-  export type G1PointStruct = { word0: BytesLike; word1: BytesLike };
-
-  export type G1PointStructOutput = [string, string] & {
-    word0: string;
-    word1: string;
-  };
-}
-
 export declare namespace SigningCoordinator {
-  export type ParticipantStruct = {
+  export type SigningCohortParticipantStruct = {
     provider: string;
-    aggregated: boolean;
-    transcript: BytesLike;
-    decryptionRequestStaticKey: BytesLike;
+    operator: string;
+    signature: BytesLike;
   };
 
-  export type ParticipantStructOutput = [string, boolean, string, string] & {
-    provider: string;
-    aggregated: boolean;
-    transcript: string;
-    decryptionRequestStaticKey: string;
-  };
+  export type SigningCohortParticipantStructOutput = [
+    string,
+    string,
+    string,
+  ] & { provider: string; operator: string; signature: string };
 }
 
 export interface SigningCoordinatorInterface extends utils.Interface {
   functions: {
     'DEFAULT_ADMIN_ROLE()': FunctionFragment;
-    'FEE_MODEL_MANAGER_ROLE()': FunctionFragment;
-    'TREASURY_ROLE()': FunctionFragment;
+    'INITIATOR_ROLE()': FunctionFragment;
     'acceptDefaultAdminTransfer()': FunctionFragment;
     'application()': FunctionFragment;
-    'approveFeeModel(address)': FunctionFragment;
     'beginDefaultAdminTransfer(address)': FunctionFragment;
     'cancelDefaultAdminTransfer()': FunctionFragment;
     'changeDefaultAdminDelay(uint48)': FunctionFragment;
-    'cohortFingerprint(address[])': FunctionFragment;
     'defaultAdmin()': FunctionFragment;
     'defaultAdminDelay()': FunctionFragment;
     'defaultAdminDelayIncreaseWait()': FunctionFragment;
-    'expectedTranscriptSize(uint16,uint16)': FunctionFragment;
-    'extendRitual(uint32,uint32)': FunctionFragment;
-    'feeModelsRegistry(address)': FunctionFragment;
-    'getAccessController(uint32)': FunctionFragment;
-    'getAuthority(uint32)': FunctionFragment;
-    'getFeeModel(uint32)': FunctionFragment;
-    'getInitiator(uint32)': FunctionFragment;
-    'getParticipant(uint32,address,bool)': FunctionFragment;
-    'getParticipantFromProvider(uint32,address)': FunctionFragment;
-    'getParticipants(uint32)': FunctionFragment;
-    'getParticipants(uint32,uint256,uint256,bool)': FunctionFragment;
-    'getProviderPublicKey(address,uint256)': FunctionFragment;
-    'getProviders(uint32)': FunctionFragment;
-    'getPublicKeyFromRitualId(uint32)': FunctionFragment;
-    'getRitualIdFromPublicKey((bytes32,bytes16))': FunctionFragment;
-    'getRitualState(uint32)': FunctionFragment;
+    'deployAdditionalChainForSigningMultisig(uint256,uint32)': FunctionFragment;
+    'getChains(uint32)': FunctionFragment;
+    'getCondition(uint32,uint256)': FunctionFragment;
     'getRoleAdmin(bytes32)': FunctionFragment;
-    'getThresholdForRitualSize(uint16)': FunctionFragment;
-    'getTimestamps(uint32)': FunctionFragment;
+    'getSigner(uint32,address)': FunctionFragment;
+    'getSigners(uint32)': FunctionFragment;
+    'getSigningCohortConditions(uint32,uint256)': FunctionFragment;
+    'getSigningCohortDataHash(uint32)': FunctionFragment;
+    'getSigningCohortState(uint32)': FunctionFragment;
+    'getSigningCoordinatorChild(uint256)': FunctionFragment;
     'grantRole(bytes32,address)': FunctionFragment;
     'hasRole(bytes32,address)': FunctionFragment;
-    'initialize(uint32,uint16,address)': FunctionFragment;
-    'initializeNumberOfRituals()': FunctionFragment;
-    'initiateRitual(address,address[],address,uint32,address)': FunctionFragment;
-    'isEncryptionAuthorized(uint32,bytes,bytes)': FunctionFragment;
-    'isParticipant(uint32,address)': FunctionFragment;
-    'isProviderKeySet(address)': FunctionFragment;
-    'isProviderPublicKeySet(address)': FunctionFragment;
-    'isRitualActive(uint32)': FunctionFragment;
-    'maxDkgSize()': FunctionFragment;
-    'numberOfRituals()': FunctionFragment;
+    'initialize(uint32,uint16,address,address)': FunctionFragment;
+    'initiateSigningCohort(uint256,address,address[],uint16,uint32)': FunctionFragment;
+    'isCohortActive(uint32)': FunctionFragment;
+    'isSigner(uint32,address)': FunctionFragment;
+    'maxCohortSize()': FunctionFragment;
+    'numberOfSigningCohorts()': FunctionFragment;
     'owner()': FunctionFragment;
     'pendingDefaultAdmin()': FunctionFragment;
     'pendingDefaultAdminDelay()': FunctionFragment;
-    'postAggregation(uint32,bytes,(bytes32,bytes16),bytes)': FunctionFragment;
-    'postTranscript(uint32,bytes)': FunctionFragment;
-    'publishTranscript(uint32,bytes)': FunctionFragment;
-    'reinitializeDefaultAdmin(address)': FunctionFragment;
+    'postSigningCohortSignature(uint32,bytes)': FunctionFragment;
     'renounceRole(bytes32,address)': FunctionFragment;
     'revokeRole(bytes32,address)': FunctionFragment;
-    'rituals(uint256)': FunctionFragment;
     'rollbackDefaultAdminDelay()': FunctionFragment;
+    'setDispatcher(address)': FunctionFragment;
     'setMaxDkgSize(uint16)': FunctionFragment;
-    'setProviderPublicKey((bytes32,bytes32,bytes32))': FunctionFragment;
-    'setReimbursementPool(address)': FunctionFragment;
+    'setSigningCohortConditions(uint32,uint256,bytes)': FunctionFragment;
     'setTimeout(uint32)': FunctionFragment;
+    'signingCohorts(uint32)': FunctionFragment;
+    'signingCoordinatorDispatcher()': FunctionFragment;
     'supportsInterface(bytes4)': FunctionFragment;
     'timeout()': FunctionFragment;
-    'transferRitualAuthority(uint32,address)': FunctionFragment;
-    'withdrawAllTokens(address)': FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | 'DEFAULT_ADMIN_ROLE'
-      | 'FEE_MODEL_MANAGER_ROLE'
-      | 'TREASURY_ROLE'
+      | 'INITIATOR_ROLE'
       | 'acceptDefaultAdminTransfer'
       | 'application'
-      | 'approveFeeModel'
       | 'beginDefaultAdminTransfer'
       | 'cancelDefaultAdminTransfer'
       | 'changeDefaultAdminDelay'
-      | 'cohortFingerprint'
       | 'defaultAdmin'
       | 'defaultAdminDelay'
       | 'defaultAdminDelayIncreaseWait'
-      | 'expectedTranscriptSize'
-      | 'extendRitual'
-      | 'feeModelsRegistry'
-      | 'getAccessController'
-      | 'getAuthority'
-      | 'getFeeModel'
-      | 'getInitiator'
-      | 'getParticipant'
-      | 'getParticipantFromProvider'
-      | 'getParticipants(uint32)'
-      | 'getParticipants(uint32,uint256,uint256,bool)'
-      | 'getProviderPublicKey'
-      | 'getProviders'
-      | 'getPublicKeyFromRitualId'
-      | 'getRitualIdFromPublicKey'
-      | 'getRitualState'
+      | 'deployAdditionalChainForSigningMultisig'
+      | 'getChains'
+      | 'getCondition'
       | 'getRoleAdmin'
-      | 'getThresholdForRitualSize'
-      | 'getTimestamps'
+      | 'getSigner'
+      | 'getSigners'
+      | 'getSigningCohortConditions'
+      | 'getSigningCohortDataHash'
+      | 'getSigningCohortState'
+      | 'getSigningCoordinatorChild'
       | 'grantRole'
       | 'hasRole'
       | 'initialize'
-      | 'initializeNumberOfRituals'
-      | 'initiateRitual'
-      | 'isEncryptionAuthorized'
-      | 'isParticipant'
-      | 'isProviderKeySet'
-      | 'isProviderPublicKeySet'
-      | 'isRitualActive'
-      | 'maxDkgSize'
-      | 'numberOfRituals'
+      | 'initiateSigningCohort'
+      | 'isCohortActive'
+      | 'isSigner'
+      | 'maxCohortSize'
+      | 'numberOfSigningCohorts'
       | 'owner'
       | 'pendingDefaultAdmin'
       | 'pendingDefaultAdminDelay'
-      | 'postAggregation'
-      | 'postTranscript'
-      | 'publishTranscript'
-      | 'reinitializeDefaultAdmin'
+      | 'postSigningCohortSignature'
       | 'renounceRole'
       | 'revokeRole'
-      | 'rituals'
       | 'rollbackDefaultAdminDelay'
+      | 'setDispatcher'
       | 'setMaxDkgSize'
-      | 'setProviderPublicKey'
-      | 'setReimbursementPool'
+      | 'setSigningCohortConditions'
       | 'setTimeout'
+      | 'signingCohorts'
+      | 'signingCoordinatorDispatcher'
       | 'supportsInterface'
-      | 'timeout'
-      | 'transferRitualAuthority'
-      | 'withdrawAllTokens',
+      | 'timeout',
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -202,11 +139,7 @@ export interface SigningCoordinatorInterface extends utils.Interface {
     values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: 'FEE_MODEL_MANAGER_ROLE',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'TREASURY_ROLE',
+    functionFragment: 'INITIATOR_ROLE',
     values?: undefined,
   ): string;
   encodeFunctionData(
@@ -216,10 +149,6 @@ export interface SigningCoordinatorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: 'application',
     values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'approveFeeModel',
-    values: [string],
   ): string;
   encodeFunctionData(
     functionFragment: 'beginDefaultAdminTransfer',
@@ -234,10 +163,6 @@ export interface SigningCoordinatorInterface extends utils.Interface {
     values: [BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: 'cohortFingerprint',
-    values: [string[]],
-  ): string;
-  encodeFunctionData(
     functionFragment: 'defaultAdmin',
     values?: undefined,
   ): string;
@@ -250,79 +175,43 @@ export interface SigningCoordinatorInterface extends utils.Interface {
     values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: 'expectedTranscriptSize',
+    functionFragment: 'deployAdditionalChainForSigningMultisig',
     values: [BigNumberish, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: 'extendRitual',
+    functionFragment: 'getChains',
+    values: [BigNumberish],
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'getCondition',
     values: [BigNumberish, BigNumberish],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'feeModelsRegistry',
-    values: [string],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'getAccessController',
-    values: [BigNumberish],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'getAuthority',
-    values: [BigNumberish],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'getFeeModel',
-    values: [BigNumberish],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'getInitiator',
-    values: [BigNumberish],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'getParticipant',
-    values: [BigNumberish, string, boolean],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'getParticipantFromProvider',
-    values: [BigNumberish, string],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'getParticipants(uint32)',
-    values: [BigNumberish],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'getParticipants(uint32,uint256,uint256,bool)',
-    values: [BigNumberish, BigNumberish, BigNumberish, boolean],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'getProviderPublicKey',
-    values: [string, BigNumberish],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'getProviders',
-    values: [BigNumberish],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'getPublicKeyFromRitualId',
-    values: [BigNumberish],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'getRitualIdFromPublicKey',
-    values: [BLS12381.G1PointStruct],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'getRitualState',
-    values: [BigNumberish],
   ): string;
   encodeFunctionData(
     functionFragment: 'getRoleAdmin',
     values: [BytesLike],
   ): string;
   encodeFunctionData(
-    functionFragment: 'getThresholdForRitualSize',
+    functionFragment: 'getSigner',
+    values: [BigNumberish, string],
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'getSigners',
     values: [BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: 'getTimestamps',
+    functionFragment: 'getSigningCohortConditions',
+    values: [BigNumberish, BigNumberish],
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'getSigningCohortDataHash',
+    values: [BigNumberish],
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'getSigningCohortState',
+    values: [BigNumberish],
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'getSigningCoordinatorChild',
     values: [BigNumberish],
   ): string;
   encodeFunctionData(
@@ -335,42 +224,26 @@ export interface SigningCoordinatorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: 'initialize',
-    values: [BigNumberish, BigNumberish, string],
+    values: [BigNumberish, BigNumberish, string, string],
   ): string;
   encodeFunctionData(
-    functionFragment: 'initializeNumberOfRituals',
-    values?: undefined,
+    functionFragment: 'initiateSigningCohort',
+    values: [BigNumberish, string, string[], BigNumberish, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: 'initiateRitual',
-    values: [string, string[], string, BigNumberish, string],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'isEncryptionAuthorized',
-    values: [BigNumberish, BytesLike, BytesLike],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'isParticipant',
-    values: [BigNumberish, string],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'isProviderKeySet',
-    values: [string],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'isProviderPublicKeySet',
-    values: [string],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'isRitualActive',
+    functionFragment: 'isCohortActive',
     values: [BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: 'maxDkgSize',
+    functionFragment: 'isSigner',
+    values: [BigNumberish, string],
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'maxCohortSize',
     values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: 'numberOfRituals',
+    functionFragment: 'numberOfSigningCohorts',
     values?: undefined,
   ): string;
   encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
@@ -383,20 +256,8 @@ export interface SigningCoordinatorInterface extends utils.Interface {
     values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: 'postAggregation',
-    values: [BigNumberish, BytesLike, BLS12381.G1PointStruct, BytesLike],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'postTranscript',
+    functionFragment: 'postSigningCohortSignature',
     values: [BigNumberish, BytesLike],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'publishTranscript',
-    values: [BigNumberish, BytesLike],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'reinitializeDefaultAdmin',
-    values: [string],
   ): string;
   encodeFunctionData(
     functionFragment: 'renounceRole',
@@ -407,53 +268,45 @@ export interface SigningCoordinatorInterface extends utils.Interface {
     values: [BytesLike, string],
   ): string;
   encodeFunctionData(
-    functionFragment: 'rituals',
-    values: [BigNumberish],
-  ): string;
-  encodeFunctionData(
     functionFragment: 'rollbackDefaultAdminDelay',
     values?: undefined,
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'setDispatcher',
+    values: [string],
   ): string;
   encodeFunctionData(
     functionFragment: 'setMaxDkgSize',
     values: [BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: 'setProviderPublicKey',
-    values: [BLS12381.G2PointStruct],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'setReimbursementPool',
-    values: [string],
+    functionFragment: 'setSigningCohortConditions',
+    values: [BigNumberish, BigNumberish, BytesLike],
   ): string;
   encodeFunctionData(
     functionFragment: 'setTimeout',
     values: [BigNumberish],
   ): string;
   encodeFunctionData(
+    functionFragment: 'signingCohorts',
+    values: [BigNumberish],
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'signingCoordinatorDispatcher',
+    values?: undefined,
+  ): string;
+  encodeFunctionData(
     functionFragment: 'supportsInterface',
     values: [BytesLike],
   ): string;
   encodeFunctionData(functionFragment: 'timeout', values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: 'transferRitualAuthority',
-    values: [BigNumberish, string],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'withdrawAllTokens',
-    values: [string],
-  ): string;
 
   decodeFunctionResult(
     functionFragment: 'DEFAULT_ADMIN_ROLE',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'FEE_MODEL_MANAGER_ROLE',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'TREASURY_ROLE',
+    functionFragment: 'INITIATOR_ROLE',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
@@ -462,10 +315,6 @@ export interface SigningCoordinatorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: 'application',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'approveFeeModel',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
@@ -481,10 +330,6 @@ export interface SigningCoordinatorInterface extends utils.Interface {
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'cohortFingerprint',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
     functionFragment: 'defaultAdmin',
     data: BytesLike,
   ): Result;
@@ -497,115 +342,54 @@ export interface SigningCoordinatorInterface extends utils.Interface {
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'expectedTranscriptSize',
+    functionFragment: 'deployAdditionalChainForSigningMultisig',
     data: BytesLike,
   ): Result;
+  decodeFunctionResult(functionFragment: 'getChains', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: 'extendRitual',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'feeModelsRegistry',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'getAccessController',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'getAuthority',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'getFeeModel',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'getInitiator',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'getParticipant',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'getParticipantFromProvider',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'getParticipants(uint32)',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'getParticipants(uint32,uint256,uint256,bool)',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'getProviderPublicKey',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'getProviders',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'getPublicKeyFromRitualId',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'getRitualIdFromPublicKey',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'getRitualState',
+    functionFragment: 'getCondition',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: 'getRoleAdmin',
     data: BytesLike,
   ): Result;
+  decodeFunctionResult(functionFragment: 'getSigner', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getSigners', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: 'getThresholdForRitualSize',
+    functionFragment: 'getSigningCohortConditions',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'getTimestamps',
+    functionFragment: 'getSigningCohortDataHash',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'getSigningCohortState',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'getSigningCoordinatorChild',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: 'grantRole', data: BytesLike): Result;
   decodeFunctionResult(functionFragment: 'hasRole', data: BytesLike): Result;
   decodeFunctionResult(functionFragment: 'initialize', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: 'initializeNumberOfRituals',
+    functionFragment: 'initiateSigningCohort',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'initiateRitual',
+    functionFragment: 'isCohortActive',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(functionFragment: 'isSigner', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: 'maxCohortSize',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'isEncryptionAuthorized',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'isParticipant',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'isProviderKeySet',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'isProviderPublicKeySet',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'isRitualActive',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(functionFragment: 'maxDkgSize', data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: 'numberOfRituals',
+    functionFragment: 'numberOfSigningCohorts',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
@@ -618,19 +402,7 @@ export interface SigningCoordinatorInterface extends utils.Interface {
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'postAggregation',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'postTranscript',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'publishTranscript',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'reinitializeDefaultAdmin',
+    functionFragment: 'postSigningCohortSignature',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
@@ -638,9 +410,12 @@ export interface SigningCoordinatorInterface extends utils.Interface {
     data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: 'revokeRole', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'rituals', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'rollbackDefaultAdminDelay',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'setDispatcher',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
@@ -648,52 +423,42 @@ export interface SigningCoordinatorInterface extends utils.Interface {
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'setProviderPublicKey',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'setReimbursementPool',
+    functionFragment: 'setSigningCohortConditions',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: 'setTimeout', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: 'signingCohorts',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'signingCoordinatorDispatcher',
+    data: BytesLike,
+  ): Result;
   decodeFunctionResult(
     functionFragment: 'supportsInterface',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: 'timeout', data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: 'transferRitualAuthority',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'withdrawAllTokens',
-    data: BytesLike,
-  ): Result;
 
   events: {
-    'AggregationPosted(uint32,address,bytes32)': EventFragment;
     'DefaultAdminDelayChangeCanceled()': EventFragment;
     'DefaultAdminDelayChangeScheduled(uint48,uint48)': EventFragment;
     'DefaultAdminTransferCanceled()': EventFragment;
     'DefaultAdminTransferScheduled(address,uint48)': EventFragment;
-    'EndRitual(uint32,bool)': EventFragment;
-    'FeeModelApproved(address)': EventFragment;
+    'DispatcherChanged(address,address)': EventFragment;
     'Initialized(uint64)': EventFragment;
-    'MaxDkgSizeChanged(uint16,uint16)': EventFragment;
-    'ParticipantPublicKeySet(uint32,address,(bytes32,bytes32,bytes32))': EventFragment;
-    'ReimbursementPoolSet(address)': EventFragment;
-    'RitualAuthorityTransferred(uint32,address,address)': EventFragment;
-    'RitualExtended(uint32,uint32)': EventFragment;
+    'InitiateSigningCohort(uint32,uint256,address,address[])': EventFragment;
+    'MaxCohortSizeChanged(uint16,uint16)': EventFragment;
     'RoleAdminChanged(bytes32,bytes32,bytes32)': EventFragment;
     'RoleGranted(bytes32,address,address)': EventFragment;
     'RoleRevoked(bytes32,address,address)': EventFragment;
-    'StartAggregationRound(uint32)': EventFragment;
-    'StartRitual(uint32,address,address[])': EventFragment;
+    'SigningCohortConditionsSet(uint32,uint256,bytes)': EventFragment;
+    'SigningCohortDeployed(uint32,uint256)': EventFragment;
+    'SigningCohortSignaturePosted(uint32,address,bytes)': EventFragment;
     'TimeoutChanged(uint32,uint32)': EventFragment;
-    'TranscriptPosted(uint32,address,bytes32)': EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: 'AggregationPosted'): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: 'DefaultAdminDelayChangeCanceled',
   ): EventFragment;
@@ -706,35 +471,20 @@ export interface SigningCoordinatorInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: 'DefaultAdminTransferScheduled',
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'EndRitual'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'FeeModelApproved'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'DispatcherChanged'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'Initialized'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'MaxDkgSizeChanged'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'ParticipantPublicKeySet'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'ReimbursementPoolSet'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'RitualAuthorityTransferred'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'RitualExtended'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'InitiateSigningCohort'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'MaxCohortSizeChanged'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'RoleAdminChanged'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'RoleGranted'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'RoleRevoked'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'StartAggregationRound'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'StartRitual'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'SigningCohortConditionsSet'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'SigningCohortDeployed'): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: 'SigningCohortSignaturePosted',
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'TimeoutChanged'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'TranscriptPosted'): EventFragment;
 }
-
-export interface AggregationPostedEventObject {
-  ritualId: number;
-  node: string;
-  aggregatedTranscriptDigest: string;
-}
-export type AggregationPostedEvent = TypedEvent<
-  [number, string, string],
-  AggregationPostedEventObject
->;
-
-export type AggregationPostedEventFilter =
-  TypedEventFilter<AggregationPostedEvent>;
 
 export interface DefaultAdminDelayChangeCanceledEventObject {}
 export type DefaultAdminDelayChangeCanceledEvent = TypedEvent<
@@ -778,27 +528,17 @@ export type DefaultAdminTransferScheduledEvent = TypedEvent<
 export type DefaultAdminTransferScheduledEventFilter =
   TypedEventFilter<DefaultAdminTransferScheduledEvent>;
 
-export interface EndRitualEventObject {
-  ritualId: number;
-  successful: boolean;
+export interface DispatcherChangedEventObject {
+  oldDispatcher: string;
+  newDispatcher: string;
 }
-export type EndRitualEvent = TypedEvent<
-  [number, boolean],
-  EndRitualEventObject
+export type DispatcherChangedEvent = TypedEvent<
+  [string, string],
+  DispatcherChangedEventObject
 >;
 
-export type EndRitualEventFilter = TypedEventFilter<EndRitualEvent>;
-
-export interface FeeModelApprovedEventObject {
-  feeModel: string;
-}
-export type FeeModelApprovedEvent = TypedEvent<
-  [string],
-  FeeModelApprovedEventObject
->;
-
-export type FeeModelApprovedEventFilter =
-  TypedEventFilter<FeeModelApprovedEvent>;
+export type DispatcherChangedEventFilter =
+  TypedEventFilter<DispatcherChangedEvent>;
 
 export interface InitializedEventObject {
   version: BigNumber;
@@ -807,65 +547,31 @@ export type InitializedEvent = TypedEvent<[BigNumber], InitializedEventObject>;
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
-export interface MaxDkgSizeChangedEventObject {
+export interface InitiateSigningCohortEventObject {
+  cohortId: number;
+  chainId: BigNumber;
+  authority: string;
+  participants: string[];
+}
+export type InitiateSigningCohortEvent = TypedEvent<
+  [number, BigNumber, string, string[]],
+  InitiateSigningCohortEventObject
+>;
+
+export type InitiateSigningCohortEventFilter =
+  TypedEventFilter<InitiateSigningCohortEvent>;
+
+export interface MaxCohortSizeChangedEventObject {
   oldSize: number;
   newSize: number;
 }
-export type MaxDkgSizeChangedEvent = TypedEvent<
+export type MaxCohortSizeChangedEvent = TypedEvent<
   [number, number],
-  MaxDkgSizeChangedEventObject
+  MaxCohortSizeChangedEventObject
 >;
 
-export type MaxDkgSizeChangedEventFilter =
-  TypedEventFilter<MaxDkgSizeChangedEvent>;
-
-export interface ParticipantPublicKeySetEventObject {
-  ritualId: number;
-  participant: string;
-  publicKey: BLS12381.G2PointStructOutput;
-}
-export type ParticipantPublicKeySetEvent = TypedEvent<
-  [number, string, BLS12381.G2PointStructOutput],
-  ParticipantPublicKeySetEventObject
->;
-
-export type ParticipantPublicKeySetEventFilter =
-  TypedEventFilter<ParticipantPublicKeySetEvent>;
-
-export interface ReimbursementPoolSetEventObject {
-  pool: string;
-}
-export type ReimbursementPoolSetEvent = TypedEvent<
-  [string],
-  ReimbursementPoolSetEventObject
->;
-
-export type ReimbursementPoolSetEventFilter =
-  TypedEventFilter<ReimbursementPoolSetEvent>;
-
-export interface RitualAuthorityTransferredEventObject {
-  ritualId: number;
-  previousAuthority: string;
-  newAuthority: string;
-}
-export type RitualAuthorityTransferredEvent = TypedEvent<
-  [number, string, string],
-  RitualAuthorityTransferredEventObject
->;
-
-export type RitualAuthorityTransferredEventFilter =
-  TypedEventFilter<RitualAuthorityTransferredEvent>;
-
-export interface RitualExtendedEventObject {
-  ritualId: number;
-  endTimestamp: number;
-}
-export type RitualExtendedEvent = TypedEvent<
-  [number, number],
-  RitualExtendedEventObject
->;
-
-export type RitualExtendedEventFilter = TypedEventFilter<RitualExtendedEvent>;
+export type MaxCohortSizeChangedEventFilter =
+  TypedEventFilter<MaxCohortSizeChangedEvent>;
 
 export interface RoleAdminChangedEventObject {
   role: string;
@@ -904,28 +610,43 @@ export type RoleRevokedEvent = TypedEvent<
 
 export type RoleRevokedEventFilter = TypedEventFilter<RoleRevokedEvent>;
 
-export interface StartAggregationRoundEventObject {
-  ritualId: number;
+export interface SigningCohortConditionsSetEventObject {
+  cohortId: number;
+  chainId: BigNumber;
+  conditions: string;
 }
-export type StartAggregationRoundEvent = TypedEvent<
-  [number],
-  StartAggregationRoundEventObject
+export type SigningCohortConditionsSetEvent = TypedEvent<
+  [number, BigNumber, string],
+  SigningCohortConditionsSetEventObject
 >;
 
-export type StartAggregationRoundEventFilter =
-  TypedEventFilter<StartAggregationRoundEvent>;
+export type SigningCohortConditionsSetEventFilter =
+  TypedEventFilter<SigningCohortConditionsSetEvent>;
 
-export interface StartRitualEventObject {
-  ritualId: number;
-  authority: string;
-  participants: string[];
+export interface SigningCohortDeployedEventObject {
+  cohortId: number;
+  chainId: BigNumber;
 }
-export type StartRitualEvent = TypedEvent<
-  [number, string, string[]],
-  StartRitualEventObject
+export type SigningCohortDeployedEvent = TypedEvent<
+  [number, BigNumber],
+  SigningCohortDeployedEventObject
 >;
 
-export type StartRitualEventFilter = TypedEventFilter<StartRitualEvent>;
+export type SigningCohortDeployedEventFilter =
+  TypedEventFilter<SigningCohortDeployedEvent>;
+
+export interface SigningCohortSignaturePostedEventObject {
+  cohortId: number;
+  provider: string;
+  signature: string;
+}
+export type SigningCohortSignaturePostedEvent = TypedEvent<
+  [number, string, string],
+  SigningCohortSignaturePostedEventObject
+>;
+
+export type SigningCohortSignaturePostedEventFilter =
+  TypedEventFilter<SigningCohortSignaturePostedEvent>;
 
 export interface TimeoutChangedEventObject {
   oldTimeout: number;
@@ -938,25 +659,12 @@ export type TimeoutChangedEvent = TypedEvent<
 
 export type TimeoutChangedEventFilter = TypedEventFilter<TimeoutChangedEvent>;
 
-export interface TranscriptPostedEventObject {
-  ritualId: number;
-  node: string;
-  transcriptDigest: string;
-}
-export type TranscriptPostedEvent = TypedEvent<
-  [number, string, string],
-  TranscriptPostedEventObject
->;
-
-export type TranscriptPostedEventFilter =
-  TypedEventFilter<TranscriptPostedEvent>;
-
-export interface Coordinator extends BaseContract {
+export interface SigningCoordinator extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: CoordinatorInterface;
+  interface: SigningCoordinatorInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -980,20 +688,13 @@ export interface Coordinator extends BaseContract {
   functions: {
     DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
-    FEE_MODEL_MANAGER_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
-    TREASURY_ROLE(overrides?: CallOverrides): Promise<[string]>;
+    INITIATOR_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
     acceptDefaultAdminTransfer(
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     application(overrides?: CallOverrides): Promise<[string]>;
-
-    approveFeeModel(
-      feeModel: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
 
     beginDefaultAdminTransfer(
       newAdmin: string,
@@ -1009,119 +710,62 @@ export interface Coordinator extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
-    cohortFingerprint(
-      nodes: string[],
-      overrides?: CallOverrides,
-    ): Promise<[string]>;
-
     defaultAdmin(overrides?: CallOverrides): Promise<[string]>;
 
     defaultAdminDelay(overrides?: CallOverrides): Promise<[number]>;
 
     defaultAdminDelayIncreaseWait(overrides?: CallOverrides): Promise<[number]>;
 
-    expectedTranscriptSize(
-      dkgSize: BigNumberish,
-      threshold: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<[BigNumber]>;
-
-    extendRitual(
-      ritualId: BigNumberish,
-      duration: BigNumberish,
+    deployAdditionalChainForSigningMultisig(
+      chainId: BigNumberish,
+      cohortId: BigNumberish,
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
-    feeModelsRegistry(
-      arg0: string,
+    getChains(
+      cohortId: BigNumberish,
       overrides?: CallOverrides,
-    ): Promise<[boolean]>;
+    ): Promise<[BigNumber[]]>;
 
-    getAccessController(
-      ritualId: BigNumberish,
+    getCondition(
+      cohortId: BigNumberish,
+      chainId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<[string]>;
-
-    getAuthority(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<[string]>;
-
-    getFeeModel(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<[string]>;
-
-    getInitiator(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<[string]>;
-
-    getParticipant(
-      ritualId: BigNumberish,
-      provider: string,
-      transcript: boolean,
-      overrides?: CallOverrides,
-    ): Promise<[Coordinator.ParticipantStructOutput]>;
-
-    getParticipantFromProvider(
-      ritualId: BigNumberish,
-      provider: string,
-      overrides?: CallOverrides,
-    ): Promise<[Coordinator.ParticipantStructOutput]>;
-
-    'getParticipants(uint32)'(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<[Coordinator.ParticipantStructOutput[]]>;
-
-    'getParticipants(uint32,uint256,uint256,bool)'(
-      ritualId: BigNumberish,
-      startIndex: BigNumberish,
-      maxParticipants: BigNumberish,
-      includeTranscript: boolean,
-      overrides?: CallOverrides,
-    ): Promise<[Coordinator.ParticipantStructOutput[]]>;
-
-    getProviderPublicKey(
-      provider: string,
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<[BLS12381.G2PointStructOutput]>;
-
-    getProviders(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<[string[]]>;
-
-    getPublicKeyFromRitualId(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<[BLS12381.G1PointStructOutput]>;
-
-    getRitualIdFromPublicKey(
-      dkgPublicKey: BLS12381.G1PointStruct,
-      overrides?: CallOverrides,
-    ): Promise<[number] & { ritualId: number }>;
-
-    getRitualState(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<[number]>;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
-    getThresholdForRitualSize(
-      size: BigNumberish,
+    getSigner(
+      cohortId: BigNumberish,
+      provider: string,
+      overrides?: CallOverrides,
+    ): Promise<[SigningCoordinator.SigningCohortParticipantStructOutput]>;
+
+    getSigners(
+      cohortId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<[SigningCoordinator.SigningCohortParticipantStructOutput[]]>;
+
+    getSigningCohortConditions(
+      cohortId: BigNumberish,
+      chainId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<[string]>;
+
+    getSigningCohortDataHash(
+      cohortId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<[string]>;
+
+    getSigningCohortState(
+      cohortId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<[number]>;
 
-    getTimestamps(
-      ritualId: BigNumberish,
+    getSigningCoordinatorChild(
+      chainId: BigNumberish,
       overrides?: CallOverrides,
-    ): Promise<
-      [number, number] & { initTimestamp: number; endTimestamp: number }
-    >;
+    ): Promise<[string]>;
 
     grantRole(
       role: BytesLike,
@@ -1138,54 +782,34 @@ export interface Coordinator extends BaseContract {
     initialize(
       _timeout: BigNumberish,
       _maxDkgSize: BigNumberish,
+      _signingCoordinatorDispatcher: string,
       _admin: string,
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
-    initializeNumberOfRituals(
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
-
-    initiateRitual(
-      feeModel: string,
-      providers: string[],
+    initiateSigningCohort(
+      chainId: BigNumberish,
       authority: string,
+      providers: string[],
+      threshold: BigNumberish,
       duration: BigNumberish,
-      accessController: string,
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
-    isEncryptionAuthorized(
-      arg0: BigNumberish,
-      arg1: BytesLike,
-      arg2: BytesLike,
+    isCohortActive(
+      cohortId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<[boolean]>;
 
-    isParticipant(
-      ritualId: BigNumberish,
+    isSigner(
+      cohortId: BigNumberish,
       provider: string,
       overrides?: CallOverrides,
     ): Promise<[boolean]>;
 
-    isProviderKeySet(
-      provider: string,
-      overrides?: CallOverrides,
-    ): Promise<[boolean]>;
+    maxCohortSize(overrides?: CallOverrides): Promise<[number]>;
 
-    isProviderPublicKeySet(
-      arg0: string,
-      overrides?: CallOverrides,
-    ): Promise<[boolean]>;
-
-    isRitualActive(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<[boolean]>;
-
-    maxDkgSize(overrides?: CallOverrides): Promise<[number]>;
-
-    numberOfRituals(overrides?: CallOverrides): Promise<[BigNumber]>;
+    numberOfSigningCohorts(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
@@ -1197,28 +821,9 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<[number, number] & { newDelay: number; schedule: number }>;
 
-    postAggregation(
-      ritualId: BigNumberish,
-      aggregatedTranscript: BytesLike,
-      dkgPublicKey: BLS12381.G1PointStruct,
-      decryptionRequestStaticKey: BytesLike,
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
-
-    postTranscript(
-      arg0: BigNumberish,
-      arg1: BytesLike,
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
-
-    publishTranscript(
-      ritualId: BigNumberish,
-      transcript: BytesLike,
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
-
-    reinitializeDefaultAdmin(
-      newDefaultAdmin: string,
+    postSigningCohortSignature(
+      cohortId: BigNumberish,
+      signature: BytesLike,
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
@@ -1234,42 +839,12 @@ export interface Coordinator extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
-    rituals(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<
-      [
-        string,
-        number,
-        number,
-        number,
-        number,
-        string,
-        number,
-        number,
-        boolean,
-        string,
-        BLS12381.G1PointStructOutput,
-        string,
-        string,
-      ] & {
-        initiator: string;
-        initTimestamp: number;
-        endTimestamp: number;
-        totalTranscripts: number;
-        totalAggregations: number;
-        authority: string;
-        dkgSize: number;
-        threshold: number;
-        aggregationMismatch: boolean;
-        accessController: string;
-        publicKey: BLS12381.G1PointStructOutput;
-        aggregatedTranscript: string;
-        feeModel: string;
-      }
-    >;
-
     rollbackDefaultAdminDelay(
+      overrides?: Overrides & { from?: string },
+    ): Promise<ContractTransaction>;
+
+    setDispatcher(
+      dispatcher: string,
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
@@ -1278,13 +853,10 @@ export interface Coordinator extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
-    setProviderPublicKey(
-      publicKey: BLS12381.G2PointStruct,
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
-
-    setReimbursementPool(
-      pool: string,
+    setSigningCohortConditions(
+      cohortId: BigNumberish,
+      chainId: BigNumberish,
+      conditions: BytesLike,
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
@@ -1293,41 +865,40 @@ export interface Coordinator extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
+    signingCohorts(
+      arg0: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<
+      [string, number, number, string, number, number, number] & {
+        initiator: string;
+        initTimestamp: number;
+        endTimestamp: number;
+        authority: string;
+        totalSignatures: number;
+        numSigners: number;
+        threshold: number;
+      }
+    >;
+
+    signingCoordinatorDispatcher(overrides?: CallOverrides): Promise<[string]>;
+
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides,
     ): Promise<[boolean]>;
 
     timeout(overrides?: CallOverrides): Promise<[number]>;
-
-    transferRitualAuthority(
-      ritualId: BigNumberish,
-      newAuthority: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
-
-    withdrawAllTokens(
-      token: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
   };
 
   DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
-  FEE_MODEL_MANAGER_ROLE(overrides?: CallOverrides): Promise<string>;
-
-  TREASURY_ROLE(overrides?: CallOverrides): Promise<string>;
+  INITIATOR_ROLE(overrides?: CallOverrides): Promise<string>;
 
   acceptDefaultAdminTransfer(
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   application(overrides?: CallOverrides): Promise<string>;
-
-  approveFeeModel(
-    feeModel: string,
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
 
   beginDefaultAdminTransfer(
     newAdmin: string,
@@ -1343,116 +914,62 @@ export interface Coordinator extends BaseContract {
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
-  cohortFingerprint(
-    nodes: string[],
-    overrides?: CallOverrides,
-  ): Promise<string>;
-
   defaultAdmin(overrides?: CallOverrides): Promise<string>;
 
   defaultAdminDelay(overrides?: CallOverrides): Promise<number>;
 
   defaultAdminDelayIncreaseWait(overrides?: CallOverrides): Promise<number>;
 
-  expectedTranscriptSize(
-    dkgSize: BigNumberish,
-    threshold: BigNumberish,
-    overrides?: CallOverrides,
-  ): Promise<BigNumber>;
-
-  extendRitual(
-    ritualId: BigNumberish,
-    duration: BigNumberish,
+  deployAdditionalChainForSigningMultisig(
+    chainId: BigNumberish,
+    cohortId: BigNumberish,
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
-  feeModelsRegistry(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+  getChains(
+    cohortId: BigNumberish,
+    overrides?: CallOverrides,
+  ): Promise<BigNumber[]>;
 
-  getAccessController(
-    ritualId: BigNumberish,
+  getCondition(
+    cohortId: BigNumberish,
+    chainId: BigNumberish,
     overrides?: CallOverrides,
   ): Promise<string>;
-
-  getAuthority(
-    ritualId: BigNumberish,
-    overrides?: CallOverrides,
-  ): Promise<string>;
-
-  getFeeModel(
-    ritualId: BigNumberish,
-    overrides?: CallOverrides,
-  ): Promise<string>;
-
-  getInitiator(
-    ritualId: BigNumberish,
-    overrides?: CallOverrides,
-  ): Promise<string>;
-
-  getParticipant(
-    ritualId: BigNumberish,
-    provider: string,
-    transcript: boolean,
-    overrides?: CallOverrides,
-  ): Promise<Coordinator.ParticipantStructOutput>;
-
-  getParticipantFromProvider(
-    ritualId: BigNumberish,
-    provider: string,
-    overrides?: CallOverrides,
-  ): Promise<Coordinator.ParticipantStructOutput>;
-
-  'getParticipants(uint32)'(
-    ritualId: BigNumberish,
-    overrides?: CallOverrides,
-  ): Promise<Coordinator.ParticipantStructOutput[]>;
-
-  'getParticipants(uint32,uint256,uint256,bool)'(
-    ritualId: BigNumberish,
-    startIndex: BigNumberish,
-    maxParticipants: BigNumberish,
-    includeTranscript: boolean,
-    overrides?: CallOverrides,
-  ): Promise<Coordinator.ParticipantStructOutput[]>;
-
-  getProviderPublicKey(
-    provider: string,
-    ritualId: BigNumberish,
-    overrides?: CallOverrides,
-  ): Promise<BLS12381.G2PointStructOutput>;
-
-  getProviders(
-    ritualId: BigNumberish,
-    overrides?: CallOverrides,
-  ): Promise<string[]>;
-
-  getPublicKeyFromRitualId(
-    ritualId: BigNumberish,
-    overrides?: CallOverrides,
-  ): Promise<BLS12381.G1PointStructOutput>;
-
-  getRitualIdFromPublicKey(
-    dkgPublicKey: BLS12381.G1PointStruct,
-    overrides?: CallOverrides,
-  ): Promise<number>;
-
-  getRitualState(
-    ritualId: BigNumberish,
-    overrides?: CallOverrides,
-  ): Promise<number>;
 
   getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
-  getThresholdForRitualSize(
-    size: BigNumberish,
+  getSigner(
+    cohortId: BigNumberish,
+    provider: string,
+    overrides?: CallOverrides,
+  ): Promise<SigningCoordinator.SigningCohortParticipantStructOutput>;
+
+  getSigners(
+    cohortId: BigNumberish,
+    overrides?: CallOverrides,
+  ): Promise<SigningCoordinator.SigningCohortParticipantStructOutput[]>;
+
+  getSigningCohortConditions(
+    cohortId: BigNumberish,
+    chainId: BigNumberish,
+    overrides?: CallOverrides,
+  ): Promise<string>;
+
+  getSigningCohortDataHash(
+    cohortId: BigNumberish,
+    overrides?: CallOverrides,
+  ): Promise<string>;
+
+  getSigningCohortState(
+    cohortId: BigNumberish,
     overrides?: CallOverrides,
   ): Promise<number>;
 
-  getTimestamps(
-    ritualId: BigNumberish,
+  getSigningCoordinatorChild(
+    chainId: BigNumberish,
     overrides?: CallOverrides,
-  ): Promise<
-    [number, number] & { initTimestamp: number; endTimestamp: number }
-  >;
+  ): Promise<string>;
 
   grantRole(
     role: BytesLike,
@@ -1469,54 +986,34 @@ export interface Coordinator extends BaseContract {
   initialize(
     _timeout: BigNumberish,
     _maxDkgSize: BigNumberish,
+    _signingCoordinatorDispatcher: string,
     _admin: string,
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
-  initializeNumberOfRituals(
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
-  initiateRitual(
-    feeModel: string,
-    providers: string[],
+  initiateSigningCohort(
+    chainId: BigNumberish,
     authority: string,
+    providers: string[],
+    threshold: BigNumberish,
     duration: BigNumberish,
-    accessController: string,
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
-  isEncryptionAuthorized(
-    arg0: BigNumberish,
-    arg1: BytesLike,
-    arg2: BytesLike,
+  isCohortActive(
+    cohortId: BigNumberish,
     overrides?: CallOverrides,
   ): Promise<boolean>;
 
-  isParticipant(
-    ritualId: BigNumberish,
+  isSigner(
+    cohortId: BigNumberish,
     provider: string,
     overrides?: CallOverrides,
   ): Promise<boolean>;
 
-  isProviderKeySet(
-    provider: string,
-    overrides?: CallOverrides,
-  ): Promise<boolean>;
+  maxCohortSize(overrides?: CallOverrides): Promise<number>;
 
-  isProviderPublicKeySet(
-    arg0: string,
-    overrides?: CallOverrides,
-  ): Promise<boolean>;
-
-  isRitualActive(
-    ritualId: BigNumberish,
-    overrides?: CallOverrides,
-  ): Promise<boolean>;
-
-  maxDkgSize(overrides?: CallOverrides): Promise<number>;
-
-  numberOfRituals(overrides?: CallOverrides): Promise<BigNumber>;
+  numberOfSigningCohorts(overrides?: CallOverrides): Promise<BigNumber>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -1528,28 +1025,9 @@ export interface Coordinator extends BaseContract {
     overrides?: CallOverrides,
   ): Promise<[number, number] & { newDelay: number; schedule: number }>;
 
-  postAggregation(
-    ritualId: BigNumberish,
-    aggregatedTranscript: BytesLike,
-    dkgPublicKey: BLS12381.G1PointStruct,
-    decryptionRequestStaticKey: BytesLike,
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
-  postTranscript(
-    arg0: BigNumberish,
-    arg1: BytesLike,
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
-  publishTranscript(
-    ritualId: BigNumberish,
-    transcript: BytesLike,
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
-  reinitializeDefaultAdmin(
-    newDefaultAdmin: string,
+  postSigningCohortSignature(
+    cohortId: BigNumberish,
+    signature: BytesLike,
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
@@ -1565,42 +1043,12 @@ export interface Coordinator extends BaseContract {
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
-  rituals(
-    ritualId: BigNumberish,
-    overrides?: CallOverrides,
-  ): Promise<
-    [
-      string,
-      number,
-      number,
-      number,
-      number,
-      string,
-      number,
-      number,
-      boolean,
-      string,
-      BLS12381.G1PointStructOutput,
-      string,
-      string,
-    ] & {
-      initiator: string;
-      initTimestamp: number;
-      endTimestamp: number;
-      totalTranscripts: number;
-      totalAggregations: number;
-      authority: string;
-      dkgSize: number;
-      threshold: number;
-      aggregationMismatch: boolean;
-      accessController: string;
-      publicKey: BLS12381.G1PointStructOutput;
-      aggregatedTranscript: string;
-      feeModel: string;
-    }
-  >;
-
   rollbackDefaultAdminDelay(
+    overrides?: Overrides & { from?: string },
+  ): Promise<ContractTransaction>;
+
+  setDispatcher(
+    dispatcher: string,
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
@@ -1609,13 +1057,10 @@ export interface Coordinator extends BaseContract {
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
-  setProviderPublicKey(
-    publicKey: BLS12381.G2PointStruct,
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
-  setReimbursementPool(
-    pool: string,
+  setSigningCohortConditions(
+    cohortId: BigNumberish,
+    chainId: BigNumberish,
+    conditions: BytesLike,
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
@@ -1624,6 +1069,23 @@ export interface Coordinator extends BaseContract {
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
+  signingCohorts(
+    arg0: BigNumberish,
+    overrides?: CallOverrides,
+  ): Promise<
+    [string, number, number, string, number, number, number] & {
+      initiator: string;
+      initTimestamp: number;
+      endTimestamp: number;
+      authority: string;
+      totalSignatures: number;
+      numSigners: number;
+      threshold: number;
+    }
+  >;
+
+  signingCoordinatorDispatcher(overrides?: CallOverrides): Promise<string>;
+
   supportsInterface(
     interfaceId: BytesLike,
     overrides?: CallOverrides,
@@ -1631,29 +1093,14 @@ export interface Coordinator extends BaseContract {
 
   timeout(overrides?: CallOverrides): Promise<number>;
 
-  transferRitualAuthority(
-    ritualId: BigNumberish,
-    newAuthority: string,
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
-  withdrawAllTokens(
-    token: string,
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
   callStatic: {
     DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
-    FEE_MODEL_MANAGER_ROLE(overrides?: CallOverrides): Promise<string>;
-
-    TREASURY_ROLE(overrides?: CallOverrides): Promise<string>;
+    INITIATOR_ROLE(overrides?: CallOverrides): Promise<string>;
 
     acceptDefaultAdminTransfer(overrides?: CallOverrides): Promise<void>;
 
     application(overrides?: CallOverrides): Promise<string>;
-
-    approveFeeModel(feeModel: string, overrides?: CallOverrides): Promise<void>;
 
     beginDefaultAdminTransfer(
       newAdmin: string,
@@ -1667,119 +1114,62 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<void>;
 
-    cohortFingerprint(
-      nodes: string[],
-      overrides?: CallOverrides,
-    ): Promise<string>;
-
     defaultAdmin(overrides?: CallOverrides): Promise<string>;
 
     defaultAdminDelay(overrides?: CallOverrides): Promise<number>;
 
     defaultAdminDelayIncreaseWait(overrides?: CallOverrides): Promise<number>;
 
-    expectedTranscriptSize(
-      dkgSize: BigNumberish,
-      threshold: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    extendRitual(
-      ritualId: BigNumberish,
-      duration: BigNumberish,
+    deployAdditionalChainForSigningMultisig(
+      chainId: BigNumberish,
+      cohortId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<void>;
 
-    feeModelsRegistry(
-      arg0: string,
+    getChains(
+      cohortId: BigNumberish,
       overrides?: CallOverrides,
-    ): Promise<boolean>;
+    ): Promise<BigNumber[]>;
 
-    getAccessController(
-      ritualId: BigNumberish,
+    getCondition(
+      cohortId: BigNumberish,
+      chainId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<string>;
-
-    getAuthority(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<string>;
-
-    getFeeModel(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<string>;
-
-    getInitiator(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<string>;
-
-    getParticipant(
-      ritualId: BigNumberish,
-      provider: string,
-      transcript: boolean,
-      overrides?: CallOverrides,
-    ): Promise<Coordinator.ParticipantStructOutput>;
-
-    getParticipantFromProvider(
-      ritualId: BigNumberish,
-      provider: string,
-      overrides?: CallOverrides,
-    ): Promise<Coordinator.ParticipantStructOutput>;
-
-    'getParticipants(uint32)'(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<Coordinator.ParticipantStructOutput[]>;
-
-    'getParticipants(uint32,uint256,uint256,bool)'(
-      ritualId: BigNumberish,
-      startIndex: BigNumberish,
-      maxParticipants: BigNumberish,
-      includeTranscript: boolean,
-      overrides?: CallOverrides,
-    ): Promise<Coordinator.ParticipantStructOutput[]>;
-
-    getProviderPublicKey(
-      provider: string,
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<BLS12381.G2PointStructOutput>;
-
-    getProviders(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<string[]>;
-
-    getPublicKeyFromRitualId(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<BLS12381.G1PointStructOutput>;
-
-    getRitualIdFromPublicKey(
-      dkgPublicKey: BLS12381.G1PointStruct,
-      overrides?: CallOverrides,
-    ): Promise<number>;
-
-    getRitualState(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<number>;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
-    getThresholdForRitualSize(
-      size: BigNumberish,
+    getSigner(
+      cohortId: BigNumberish,
+      provider: string,
+      overrides?: CallOverrides,
+    ): Promise<SigningCoordinator.SigningCohortParticipantStructOutput>;
+
+    getSigners(
+      cohortId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<SigningCoordinator.SigningCohortParticipantStructOutput[]>;
+
+    getSigningCohortConditions(
+      cohortId: BigNumberish,
+      chainId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<string>;
+
+    getSigningCohortDataHash(
+      cohortId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<string>;
+
+    getSigningCohortState(
+      cohortId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<number>;
 
-    getTimestamps(
-      ritualId: BigNumberish,
+    getSigningCoordinatorChild(
+      chainId: BigNumberish,
       overrides?: CallOverrides,
-    ): Promise<
-      [number, number] & { initTimestamp: number; endTimestamp: number }
-    >;
+    ): Promise<string>;
 
     grantRole(
       role: BytesLike,
@@ -1796,52 +1186,34 @@ export interface Coordinator extends BaseContract {
     initialize(
       _timeout: BigNumberish,
       _maxDkgSize: BigNumberish,
+      _signingCoordinatorDispatcher: string,
       _admin: string,
       overrides?: CallOverrides,
     ): Promise<void>;
 
-    initializeNumberOfRituals(overrides?: CallOverrides): Promise<void>;
-
-    initiateRitual(
-      feeModel: string,
-      providers: string[],
+    initiateSigningCohort(
+      chainId: BigNumberish,
       authority: string,
+      providers: string[],
+      threshold: BigNumberish,
       duration: BigNumberish,
-      accessController: string,
       overrides?: CallOverrides,
     ): Promise<number>;
 
-    isEncryptionAuthorized(
-      arg0: BigNumberish,
-      arg1: BytesLike,
-      arg2: BytesLike,
+    isCohortActive(
+      cohortId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<boolean>;
 
-    isParticipant(
-      ritualId: BigNumberish,
+    isSigner(
+      cohortId: BigNumberish,
       provider: string,
       overrides?: CallOverrides,
     ): Promise<boolean>;
 
-    isProviderKeySet(
-      provider: string,
-      overrides?: CallOverrides,
-    ): Promise<boolean>;
+    maxCohortSize(overrides?: CallOverrides): Promise<number>;
 
-    isProviderPublicKeySet(
-      arg0: string,
-      overrides?: CallOverrides,
-    ): Promise<boolean>;
-
-    isRitualActive(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<boolean>;
-
-    maxDkgSize(overrides?: CallOverrides): Promise<number>;
-
-    numberOfRituals(overrides?: CallOverrides): Promise<BigNumber>;
+    numberOfSigningCohorts(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -1853,28 +1225,9 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<[number, number] & { newDelay: number; schedule: number }>;
 
-    postAggregation(
-      ritualId: BigNumberish,
-      aggregatedTranscript: BytesLike,
-      dkgPublicKey: BLS12381.G1PointStruct,
-      decryptionRequestStaticKey: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<void>;
-
-    postTranscript(
-      arg0: BigNumberish,
-      arg1: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<void>;
-
-    publishTranscript(
-      ritualId: BigNumberish,
-      transcript: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<void>;
-
-    reinitializeDefaultAdmin(
-      newDefaultAdmin: string,
+    postSigningCohortSignature(
+      cohortId: BigNumberish,
+      signature: BytesLike,
       overrides?: CallOverrides,
     ): Promise<void>;
 
@@ -1890,55 +1243,19 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<void>;
 
-    rituals(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<
-      [
-        string,
-        number,
-        number,
-        number,
-        number,
-        string,
-        number,
-        number,
-        boolean,
-        string,
-        BLS12381.G1PointStructOutput,
-        string,
-        string,
-      ] & {
-        initiator: string;
-        initTimestamp: number;
-        endTimestamp: number;
-        totalTranscripts: number;
-        totalAggregations: number;
-        authority: string;
-        dkgSize: number;
-        threshold: number;
-        aggregationMismatch: boolean;
-        accessController: string;
-        publicKey: BLS12381.G1PointStructOutput;
-        aggregatedTranscript: string;
-        feeModel: string;
-      }
-    >;
-
     rollbackDefaultAdminDelay(overrides?: CallOverrides): Promise<void>;
+
+    setDispatcher(dispatcher: string, overrides?: CallOverrides): Promise<void>;
 
     setMaxDkgSize(
       newSize: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<void>;
 
-    setProviderPublicKey(
-      publicKey: BLS12381.G2PointStruct,
-      overrides?: CallOverrides,
-    ): Promise<void>;
-
-    setReimbursementPool(
-      pool: string,
+    setSigningCohortConditions(
+      cohortId: BigNumberish,
+      chainId: BigNumberish,
+      conditions: BytesLike,
       overrides?: CallOverrides,
     ): Promise<void>;
 
@@ -1947,34 +1264,32 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<void>;
 
+    signingCohorts(
+      arg0: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<
+      [string, number, number, string, number, number, number] & {
+        initiator: string;
+        initTimestamp: number;
+        endTimestamp: number;
+        authority: string;
+        totalSignatures: number;
+        numSigners: number;
+        threshold: number;
+      }
+    >;
+
+    signingCoordinatorDispatcher(overrides?: CallOverrides): Promise<string>;
+
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides,
     ): Promise<boolean>;
 
     timeout(overrides?: CallOverrides): Promise<number>;
-
-    transferRitualAuthority(
-      ritualId: BigNumberish,
-      newAuthority: string,
-      overrides?: CallOverrides,
-    ): Promise<void>;
-
-    withdrawAllTokens(token: string, overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
-    'AggregationPosted(uint32,address,bytes32)'(
-      ritualId?: BigNumberish | null,
-      node?: string | null,
-      aggregatedTranscriptDigest?: null,
-    ): AggregationPostedEventFilter;
-    AggregationPosted(
-      ritualId?: BigNumberish | null,
-      node?: string | null,
-      aggregatedTranscriptDigest?: null,
-    ): AggregationPostedEventFilter;
-
     'DefaultAdminDelayChangeCanceled()'(): DefaultAdminDelayChangeCanceledEventFilter;
     DefaultAdminDelayChangeCanceled(): DefaultAdminDelayChangeCanceledEventFilter;
 
@@ -1999,65 +1314,39 @@ export interface Coordinator extends BaseContract {
       acceptSchedule?: null,
     ): DefaultAdminTransferScheduledEventFilter;
 
-    'EndRitual(uint32,bool)'(
-      ritualId?: BigNumberish | null,
-      successful?: null,
-    ): EndRitualEventFilter;
-    EndRitual(
-      ritualId?: BigNumberish | null,
-      successful?: null,
-    ): EndRitualEventFilter;
-
-    'FeeModelApproved(address)'(feeModel?: null): FeeModelApprovedEventFilter;
-    FeeModelApproved(feeModel?: null): FeeModelApprovedEventFilter;
+    'DispatcherChanged(address,address)'(
+      oldDispatcher?: null,
+      newDispatcher?: null,
+    ): DispatcherChangedEventFilter;
+    DispatcherChanged(
+      oldDispatcher?: null,
+      newDispatcher?: null,
+    ): DispatcherChangedEventFilter;
 
     'Initialized(uint64)'(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
 
-    'MaxDkgSizeChanged(uint16,uint16)'(
+    'InitiateSigningCohort(uint32,uint256,address,address[])'(
+      cohortId?: BigNumberish | null,
+      chainId?: null,
+      authority?: string | null,
+      participants?: null,
+    ): InitiateSigningCohortEventFilter;
+    InitiateSigningCohort(
+      cohortId?: BigNumberish | null,
+      chainId?: null,
+      authority?: string | null,
+      participants?: null,
+    ): InitiateSigningCohortEventFilter;
+
+    'MaxCohortSizeChanged(uint16,uint16)'(
       oldSize?: null,
       newSize?: null,
-    ): MaxDkgSizeChangedEventFilter;
-    MaxDkgSizeChanged(
+    ): MaxCohortSizeChangedEventFilter;
+    MaxCohortSizeChanged(
       oldSize?: null,
       newSize?: null,
-    ): MaxDkgSizeChangedEventFilter;
-
-    'ParticipantPublicKeySet(uint32,address,(bytes32,bytes32,bytes32))'(
-      ritualId?: BigNumberish | null,
-      participant?: string | null,
-      publicKey?: null,
-    ): ParticipantPublicKeySetEventFilter;
-    ParticipantPublicKeySet(
-      ritualId?: BigNumberish | null,
-      participant?: string | null,
-      publicKey?: null,
-    ): ParticipantPublicKeySetEventFilter;
-
-    'ReimbursementPoolSet(address)'(
-      pool?: string | null,
-    ): ReimbursementPoolSetEventFilter;
-    ReimbursementPoolSet(pool?: string | null): ReimbursementPoolSetEventFilter;
-
-    'RitualAuthorityTransferred(uint32,address,address)'(
-      ritualId?: BigNumberish | null,
-      previousAuthority?: string | null,
-      newAuthority?: string | null,
-    ): RitualAuthorityTransferredEventFilter;
-    RitualAuthorityTransferred(
-      ritualId?: BigNumberish | null,
-      previousAuthority?: string | null,
-      newAuthority?: string | null,
-    ): RitualAuthorityTransferredEventFilter;
-
-    'RitualExtended(uint32,uint32)'(
-      ritualId?: BigNumberish | null,
-      endTimestamp?: null,
-    ): RitualExtendedEventFilter;
-    RitualExtended(
-      ritualId?: BigNumberish | null,
-      endTimestamp?: null,
-    ): RitualExtendedEventFilter;
+    ): MaxCohortSizeChangedEventFilter;
 
     'RoleAdminChanged(bytes32,bytes32,bytes32)'(
       role?: BytesLike | null,
@@ -2092,23 +1381,36 @@ export interface Coordinator extends BaseContract {
       sender?: string | null,
     ): RoleRevokedEventFilter;
 
-    'StartAggregationRound(uint32)'(
-      ritualId?: BigNumberish | null,
-    ): StartAggregationRoundEventFilter;
-    StartAggregationRound(
-      ritualId?: BigNumberish | null,
-    ): StartAggregationRoundEventFilter;
+    'SigningCohortConditionsSet(uint32,uint256,bytes)'(
+      cohortId?: BigNumberish | null,
+      chainId?: null,
+      conditions?: null,
+    ): SigningCohortConditionsSetEventFilter;
+    SigningCohortConditionsSet(
+      cohortId?: BigNumberish | null,
+      chainId?: null,
+      conditions?: null,
+    ): SigningCohortConditionsSetEventFilter;
 
-    'StartRitual(uint32,address,address[])'(
-      ritualId?: BigNumberish | null,
-      authority?: string | null,
-      participants?: null,
-    ): StartRitualEventFilter;
-    StartRitual(
-      ritualId?: BigNumberish | null,
-      authority?: string | null,
-      participants?: null,
-    ): StartRitualEventFilter;
+    'SigningCohortDeployed(uint32,uint256)'(
+      cohortId?: BigNumberish | null,
+      chainId?: null,
+    ): SigningCohortDeployedEventFilter;
+    SigningCohortDeployed(
+      cohortId?: BigNumberish | null,
+      chainId?: null,
+    ): SigningCohortDeployedEventFilter;
+
+    'SigningCohortSignaturePosted(uint32,address,bytes)'(
+      cohortId?: BigNumberish | null,
+      provider?: string | null,
+      signature?: null,
+    ): SigningCohortSignaturePostedEventFilter;
+    SigningCohortSignaturePosted(
+      cohortId?: BigNumberish | null,
+      provider?: string | null,
+      signature?: null,
+    ): SigningCohortSignaturePostedEventFilter;
 
     'TimeoutChanged(uint32,uint32)'(
       oldTimeout?: null,
@@ -2118,36 +1420,18 @@ export interface Coordinator extends BaseContract {
       oldTimeout?: null,
       newTimeout?: null,
     ): TimeoutChangedEventFilter;
-
-    'TranscriptPosted(uint32,address,bytes32)'(
-      ritualId?: BigNumberish | null,
-      node?: string | null,
-      transcriptDigest?: null,
-    ): TranscriptPostedEventFilter;
-    TranscriptPosted(
-      ritualId?: BigNumberish | null,
-      node?: string | null,
-      transcriptDigest?: null,
-    ): TranscriptPostedEventFilter;
   };
 
   estimateGas: {
     DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    FEE_MODEL_MANAGER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    TREASURY_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+    INITIATOR_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
     acceptDefaultAdminTransfer(
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     application(overrides?: CallOverrides): Promise<BigNumber>;
-
-    approveFeeModel(
-      feeModel: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
 
     beginDefaultAdminTransfer(
       newAdmin: string,
@@ -2163,11 +1447,6 @@ export interface Coordinator extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
-    cohortFingerprint(
-      nodes: string[],
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
     defaultAdmin(overrides?: CallOverrides): Promise<BigNumber>;
 
     defaultAdminDelay(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2176,92 +1455,20 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
-    expectedTranscriptSize(
-      dkgSize: BigNumberish,
-      threshold: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    extendRitual(
-      ritualId: BigNumberish,
-      duration: BigNumberish,
+    deployAdditionalChainForSigningMultisig(
+      chainId: BigNumberish,
+      cohortId: BigNumberish,
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
-    feeModelsRegistry(
-      arg0: string,
+    getChains(
+      cohortId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
-    getAccessController(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    getAuthority(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    getFeeModel(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    getInitiator(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    getParticipant(
-      ritualId: BigNumberish,
-      provider: string,
-      transcript: boolean,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    getParticipantFromProvider(
-      ritualId: BigNumberish,
-      provider: string,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    'getParticipants(uint32)'(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    'getParticipants(uint32,uint256,uint256,bool)'(
-      ritualId: BigNumberish,
-      startIndex: BigNumberish,
-      maxParticipants: BigNumberish,
-      includeTranscript: boolean,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    getProviderPublicKey(
-      provider: string,
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    getProviders(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    getPublicKeyFromRitualId(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    getRitualIdFromPublicKey(
-      dkgPublicKey: BLS12381.G1PointStruct,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    getRitualState(
-      ritualId: BigNumberish,
+    getCondition(
+      cohortId: BigNumberish,
+      chainId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
@@ -2270,13 +1477,35 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
-    getThresholdForRitualSize(
-      size: BigNumberish,
+    getSigner(
+      cohortId: BigNumberish,
+      provider: string,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
-    getTimestamps(
-      ritualId: BigNumberish,
+    getSigners(
+      cohortId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>;
+
+    getSigningCohortConditions(
+      cohortId: BigNumberish,
+      chainId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>;
+
+    getSigningCohortDataHash(
+      cohortId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>;
+
+    getSigningCohortState(
+      cohortId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>;
+
+    getSigningCoordinatorChild(
+      chainId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
@@ -2295,54 +1524,34 @@ export interface Coordinator extends BaseContract {
     initialize(
       _timeout: BigNumberish,
       _maxDkgSize: BigNumberish,
+      _signingCoordinatorDispatcher: string,
       _admin: string,
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
-    initializeNumberOfRituals(
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
-
-    initiateRitual(
-      feeModel: string,
-      providers: string[],
+    initiateSigningCohort(
+      chainId: BigNumberish,
       authority: string,
+      providers: string[],
+      threshold: BigNumberish,
       duration: BigNumberish,
-      accessController: string,
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
-    isEncryptionAuthorized(
-      arg0: BigNumberish,
-      arg1: BytesLike,
-      arg2: BytesLike,
+    isCohortActive(
+      cohortId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
-    isParticipant(
-      ritualId: BigNumberish,
+    isSigner(
+      cohortId: BigNumberish,
       provider: string,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
-    isProviderKeySet(
-      provider: string,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
+    maxCohortSize(overrides?: CallOverrides): Promise<BigNumber>;
 
-    isProviderPublicKeySet(
-      arg0: string,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    isRitualActive(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    maxDkgSize(overrides?: CallOverrides): Promise<BigNumber>;
-
-    numberOfRituals(overrides?: CallOverrides): Promise<BigNumber>;
+    numberOfSigningCohorts(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -2350,28 +1559,9 @@ export interface Coordinator extends BaseContract {
 
     pendingDefaultAdminDelay(overrides?: CallOverrides): Promise<BigNumber>;
 
-    postAggregation(
-      ritualId: BigNumberish,
-      aggregatedTranscript: BytesLike,
-      dkgPublicKey: BLS12381.G1PointStruct,
-      decryptionRequestStaticKey: BytesLike,
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
-
-    postTranscript(
-      arg0: BigNumberish,
-      arg1: BytesLike,
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
-
-    publishTranscript(
-      ritualId: BigNumberish,
-      transcript: BytesLike,
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
-
-    reinitializeDefaultAdmin(
-      newDefaultAdmin: string,
+    postSigningCohortSignature(
+      cohortId: BigNumberish,
+      signature: BytesLike,
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
@@ -2387,12 +1577,12 @@ export interface Coordinator extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
-    rituals(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
+    rollbackDefaultAdminDelay(
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
-    rollbackDefaultAdminDelay(
+    setDispatcher(
+      dispatcher: string,
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
@@ -2401,13 +1591,10 @@ export interface Coordinator extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
-    setProviderPublicKey(
-      publicKey: BLS12381.G2PointStruct,
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
-
-    setReimbursementPool(
-      pool: string,
+    setSigningCohortConditions(
+      cohortId: BigNumberish,
+      chainId: BigNumberish,
+      conditions: BytesLike,
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
@@ -2416,23 +1603,19 @@ export interface Coordinator extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
+    signingCohorts(
+      arg0: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>;
+
+    signingCoordinatorDispatcher(overrides?: CallOverrides): Promise<BigNumber>;
+
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     timeout(overrides?: CallOverrides): Promise<BigNumber>;
-
-    transferRitualAuthority(
-      ritualId: BigNumberish,
-      newAuthority: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
-
-    withdrawAllTokens(
-      token: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -2440,22 +1623,13 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
-    FEE_MODEL_MANAGER_ROLE(
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    TREASURY_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    INITIATOR_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     acceptDefaultAdminTransfer(
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     application(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    approveFeeModel(
-      feeModel: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
 
     beginDefaultAdminTransfer(
       newAdmin: string,
@@ -2471,11 +1645,6 @@ export interface Coordinator extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
-    cohortFingerprint(
-      nodes: string[],
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
     defaultAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     defaultAdminDelay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -2484,92 +1653,20 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
-    expectedTranscriptSize(
-      dkgSize: BigNumberish,
-      threshold: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    extendRitual(
-      ritualId: BigNumberish,
-      duration: BigNumberish,
+    deployAdditionalChainForSigningMultisig(
+      chainId: BigNumberish,
+      cohortId: BigNumberish,
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
-    feeModelsRegistry(
-      arg0: string,
+    getChains(
+      cohortId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
-    getAccessController(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    getAuthority(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    getFeeModel(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    getInitiator(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    getParticipant(
-      ritualId: BigNumberish,
-      provider: string,
-      transcript: boolean,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    getParticipantFromProvider(
-      ritualId: BigNumberish,
-      provider: string,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    'getParticipants(uint32)'(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    'getParticipants(uint32,uint256,uint256,bool)'(
-      ritualId: BigNumberish,
-      startIndex: BigNumberish,
-      maxParticipants: BigNumberish,
-      includeTranscript: boolean,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    getProviderPublicKey(
-      provider: string,
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    getProviders(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    getPublicKeyFromRitualId(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    getRitualIdFromPublicKey(
-      dkgPublicKey: BLS12381.G1PointStruct,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    getRitualState(
-      ritualId: BigNumberish,
+    getCondition(
+      cohortId: BigNumberish,
+      chainId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
@@ -2578,13 +1675,35 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
-    getThresholdForRitualSize(
-      size: BigNumberish,
+    getSigner(
+      cohortId: BigNumberish,
+      provider: string,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
-    getTimestamps(
-      ritualId: BigNumberish,
+    getSigners(
+      cohortId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>;
+
+    getSigningCohortConditions(
+      cohortId: BigNumberish,
+      chainId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>;
+
+    getSigningCohortDataHash(
+      cohortId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>;
+
+    getSigningCohortState(
+      cohortId: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>;
+
+    getSigningCoordinatorChild(
+      chainId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
@@ -2603,54 +1722,36 @@ export interface Coordinator extends BaseContract {
     initialize(
       _timeout: BigNumberish,
       _maxDkgSize: BigNumberish,
+      _signingCoordinatorDispatcher: string,
       _admin: string,
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
-    initializeNumberOfRituals(
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
-    initiateRitual(
-      feeModel: string,
-      providers: string[],
+    initiateSigningCohort(
+      chainId: BigNumberish,
       authority: string,
+      providers: string[],
+      threshold: BigNumberish,
       duration: BigNumberish,
-      accessController: string,
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
-    isEncryptionAuthorized(
-      arg0: BigNumberish,
-      arg1: BytesLike,
-      arg2: BytesLike,
+    isCohortActive(
+      cohortId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
-    isParticipant(
-      ritualId: BigNumberish,
+    isSigner(
+      cohortId: BigNumberish,
       provider: string,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
-    isProviderKeySet(
-      provider: string,
+    maxCohortSize(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    numberOfSigningCohorts(
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
-
-    isProviderPublicKeySet(
-      arg0: string,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    isRitualActive(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    maxDkgSize(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    numberOfRituals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -2662,28 +1763,9 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
-    postAggregation(
-      ritualId: BigNumberish,
-      aggregatedTranscript: BytesLike,
-      dkgPublicKey: BLS12381.G1PointStruct,
-      decryptionRequestStaticKey: BytesLike,
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
-    postTranscript(
-      arg0: BigNumberish,
-      arg1: BytesLike,
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
-    publishTranscript(
-      ritualId: BigNumberish,
-      transcript: BytesLike,
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
-    reinitializeDefaultAdmin(
-      newDefaultAdmin: string,
+    postSigningCohortSignature(
+      cohortId: BigNumberish,
+      signature: BytesLike,
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
@@ -2699,12 +1781,12 @@ export interface Coordinator extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
-    rituals(
-      ritualId: BigNumberish,
-      overrides?: CallOverrides,
+    rollbackDefaultAdminDelay(
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
-    rollbackDefaultAdminDelay(
+    setDispatcher(
+      dispatcher: string,
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
@@ -2713,13 +1795,10 @@ export interface Coordinator extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
-    setProviderPublicKey(
-      publicKey: BLS12381.G2PointStruct,
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
-    setReimbursementPool(
-      pool: string,
+    setSigningCohortConditions(
+      cohortId: BigNumberish,
+      chainId: BigNumberish,
+      conditions: BytesLike,
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
@@ -2728,22 +1807,20 @@ export interface Coordinator extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
+    signingCohorts(
+      arg0: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>;
+
+    signingCoordinatorDispatcher(
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>;
+
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     timeout(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    transferRitualAuthority(
-      ritualId: BigNumberish,
-      newAuthority: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
-    withdrawAllTokens(
-      token: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
   };
 }

@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { beforeAll, describe, expect, test } from 'vitest';
 
 import { initialize } from '../src';
-import { sign191, signUserOp } from '../src/sign';
+import { signUserOp } from '../src/sign';
 import { UserOperation } from '../src/types';
 
 const RPC_PROVIDER_URL = 'https://rpc-amoy.polygon.technology';
@@ -31,31 +31,6 @@ describe('Taco Sign Integration Test', () => {
       );
     }
   });
-
-  test('should sign a message using sign191', async () => {
-    // Create test message
-    const message = 'This is a test message to sign';
-    
-    // Get porter URIs
-    const porterUris = await getPorterUris(DOMAIN as Domain);
-
-    // Sign message
-    const signResult = await sign191(
-      message,
-      RITUAL_ID,
-      DOMAIN as Domain,
-      { optimistic: true, returnAggregated: true },
-      porterUris
-    );
-
-    // Verify sign result
-    expect(signResult).toBeDefined();
-    expect(signResult.digest).toBeDefined();
-    expect(signResult.aggregatedSignature).toBeDefined();
-    expect(signResult.signingResults).toBeDefined();
-    expect(signResult.type).toBe('eip191');
-    expect(Object.keys(signResult.signingResults).length).toBeGreaterThan(0);
-  }, 15000);
 
   test('should sign a user operation', async () => {
     // Create a sample user operation with all required fields

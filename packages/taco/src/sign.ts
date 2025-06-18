@@ -2,33 +2,6 @@ import { Domain, getPorterUris, PorterClient } from '@nucypher/shared';
 
 import { SigningOptions, SignResult, UserOperation } from './types';
 
-// Core signing functions
-export async function sign191(
-  payload: Uint8Array | string,
-  cohortId: number,
-  domain: Domain,
-  options: SigningOptions = { optimistic: true, returnAggregated: true },
-  porterUris?: string[]
-): Promise<SignResult> {
-  const porterUrisFull: string[] = porterUris
-    ? porterUris
-    : await getPorterUris(domain);
-  const porter = new PorterClient(porterUrisFull); 
-  
-  // Convert string payload to Uint8Array if needed
-  const payloadBytes = typeof payload === 'string' 
-    ? new TextEncoder().encode(payload)
-    : payload;
-
-  const result = await porter.sign191(
-    payloadBytes,
-    cohortId,
-    options,
-  );
-
-  return result;
-}
-
 export async function signUserOp(
   userOp: UserOperation,
   chainId: number,

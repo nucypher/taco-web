@@ -89,7 +89,6 @@ const createMockSignImplementation = (endpoint: string, type: string) => (succes
   });
 };
 
-const mockSign191 = createMockSignImplementation('/sign191', 'eip191');
 const mockSignUserOp = createMockSignImplementation('/sign', 'userOp:zerodev');
 
 describe('getPorterUris', () => {
@@ -166,44 +165,6 @@ describe('PorterClient Signing', () => {
     await initialize();
   });
 
-  describe('sign191', () => {
-    it('should successfully sign a message', async () => {
-      mockSign191(true);
-      const porterClient = new PorterClient(fakePorterUris[2]);
-      const result = await porterClient.sign191(
-        new TextEncoder().encode('test message'),
-        5,
-        {
-          optimistic: true,
-          returnAggregated: true
-        }
-      );
-
-      expect(result).toEqual({
-        digest: '0x1234',
-        aggregatedSignature: '0x90ab0xijkl', // Combined signatures in sorted order
-        signingResults: {
-          '0x1234': ['0x5678', '0x90ab'],
-          '0xabcd': ['0xefgh', '0xijkl'],
-        },
-        errors: {},
-        type: 'eip191',
-      });
-    });
-
-    it('should handle signing failures', async () => {
-      mockSign191(false);
-      const porterClient = new PorterClient(fakePorterUris[2]);
-      const payload = new TextEncoder().encode('Hello, TACo!');
-
-      await expect(
-        porterClient.sign191(payload, 5, {
-          optimistic: true,
-          returnAggregated: true
-        })
-      ).rejects.toThrow('Porter returned bad response: 400 - ');
-    });
-  });
 
   describe('signUserOp', () => {
     const mockPackedUserOp = {
@@ -293,58 +254,6 @@ describe('PorterClient Signing', () => {
           '0x1234': 'Failed to decode signature: Invalid character',
         },
         type: 'zerodev:v0.6',
-      });
-    });
-
-    it('should handle signature decoding errors in sign191', async () => {
-      // Mock a response with invalid base64 signature
-      mockSign191(true, true);
-      const porterClient = new PorterClient(fakePorterUris[2]);
-      const result = await porterClient.sign191(
-        new TextEncoder().encode('test message'),
-        5,
-        {
-          optimistic: true,
-          returnAggregated: true
-        }
-      );
-
-      expect(result).toEqual({
-        digest: '0x1234',
-        aggregatedSignature: '0xijkl', // Only valid signature included
-        signingResults: {
-          '0xabcd': ['0xefgh', '0xijkl'],
-        },
-        errors: {
-          '0x1234': 'Failed to decode signature: Invalid character',
-        },
-        type: 'eip191',
-      });
-    });
-
-    it('should handle non-Error objects in signature decoding', async () => {
-      // Mock a response that will cause a non-Error to be thrown
-      mockSign191(true, true);
-      const porterClient = new PorterClient(fakePorterUris[2]);
-      const result = await porterClient.sign191(
-        new TextEncoder().encode('test message'),
-        5,
-        {
-          optimistic: true,
-          returnAggregated: true
-        }
-      );
-
-      expect(result).toEqual({
-        digest: '0x1234',
-        aggregatedSignature: '0xijkl', // Only valid signature included
-        signingResults: {
-          '0xabcd': ['0xefgh', '0xijkl'],
-        },
-        errors: {
-          '0x1234': 'Failed to decode signature: Invalid character',
-        },
-        type: 'eip191',
       });
     });
   });

@@ -12,4 +12,4 @@ export {
 export * as conditions from './conditions';
 
 export { decrypt, encrypt, encryptWithPublicKey } from './taco';
-export { sign191, signUserOp } from './sign';
+export { signUserOp } from './sign';

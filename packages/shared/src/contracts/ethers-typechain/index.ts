@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { Coordinator } from './Coordinator';
+export type { SigningCoordinator } from './SigningCoordinator';
 export * as factories from './factories';
 export { Coordinator__factory } from './factories/Coordinator__factory';
 export { GlobalAllowList__factory } from './factories/GlobalAllowList__factory';

@@ -158,13 +158,12 @@ type SigningOptions = {
   returnAggregated?: boolean;  // Whether to return the aggregated signature
 };
 
-type SignRequest = {
-  readonly payload?: Base64EncodedBytes | undefined;
-  readonly packed_user_op?: string | undefined;
+type SignUserOpRequest = {
+  readonly user_op: string;
   readonly signature_type: string;
-  readonly aa_version?: string | undefined;
+  readonly aa_version: string;
   readonly cohort_id: number;
-  readonly chain_id?: number | undefined;
+  readonly chain_id: number;
   readonly context?: Record<string, unknown> | undefined;
   readonly optimistic?: boolean | undefined;
   readonly return_aggregated?: boolean | undefined;
@@ -340,7 +339,7 @@ export class PorterClient {
     };
 
     const resp: AxiosResponse<SignResponse> = await this.tryAndCall({
-      url: '/sign191',
+      url: '/sign',
       method: 'post',
       data,
     });
@@ -372,22 +371,20 @@ export class PorterClient {
   }
 
   public async signUserOp(
-    packedUserOp: Record<string, unknown>,
+    userOp: Record<string, unknown>,
     chainId: number,
     aaVersion: string,
     cohortId: number,
     options: SigningOptions = { optimistic: true, returnAggregated: true },
     context: Record<string, unknown> = {},
   ): Promise<SignResult> {
-    const data: SignRequest = {
-      signature_type: 'packedUserOp',
+    const data: SignUserOpRequest = {
       aa_version: aaVersion,
-      packed_user_op: JSON.stringify(packedUserOp),
+      user_op: JSON.stringify(userOp),
       cohort_id: cohortId,
       chain_id: chainId,
       context,
-      optimistic: options.optimistic,
-      return_aggregated: options.returnAggregated,
+      signature_type: 'userop',
     };
 
     const resp: AxiosResponse<SignResponse> = await this.tryAndCall({

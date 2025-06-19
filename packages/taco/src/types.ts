@@ -11,7 +11,6 @@ export type SignResult = {
   signingResults: {    // Individual signing results from each participant
     [ursulaAddress: string]: [signerAddress: string, signatureB64: string]
   };
-  type: string;        // Signature type (e.g. "eip712", "userOp:zerodev")
 };
 
 export type SigningOptions = {

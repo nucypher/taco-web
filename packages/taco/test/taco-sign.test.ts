@@ -1,15 +1,24 @@
-import { PorterClient } from '@nucypher/shared';
+import { PorterClient, SigningCoordinatorAgent } from '@nucypher/shared';
 import { fakePorterUri } from '@nucypher/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ethers } from 'ethers';
 
 import { signUserOp } from '../src/sign';
 
 describe('TACo Signing', () => {
   let signUserOpMock: ReturnType<typeof vi.fn>;
+  let mockProvider: ethers.providers.Provider;
 
   beforeEach(() => {
     signUserOpMock = vi.fn();
+    mockProvider = {} as ethers.providers.Provider;
+    
     vi.spyOn(PorterClient.prototype, 'signUserOp').mockImplementation(signUserOpMock);
+    vi.spyOn(SigningCoordinatorAgent, 'getParticipants').mockResolvedValue([
+      { operator: '0x1234', provider: '0x5678', signature: '0x90ab' },
+      { operator: '0xabcd', provider: '0xefgh', signature: '0xijkl' }
+    ]);
+    vi.spyOn(SigningCoordinatorAgent, 'getThreshold').mockResolvedValue(2);
   });
 
   describe('signUserOp', () => {
@@ -44,24 +53,39 @@ describe('TACo Signing', () => {
           '0x1234': ['0x5678', '0x90ab'],
           '0xabcd': ['0xefgh', '0xijkl'],
         },
-        type: 'userOp:zerodev',
+        errors: {},
       });
 
       const result = await signUserOp(
+        mockProvider,
         userOp,
         chainId,
         aaVersion,
         cohortId,
         'lynx',
+        { optimistic: true, returnAggregated: true },
         undefined,
         porterUris
       );
 
       expect(signUserOpMock).toHaveBeenCalledWith(
-        userOp,
-        chainId,
-        aaVersion,
-        cohortId,
+        {
+          '0x1234': JSON.stringify({
+            userOp,
+            cohortId,
+            chainId,
+            aaVersion,
+            context: undefined
+          }),
+          '0xabcd': JSON.stringify({
+            userOp,
+            cohortId,
+            chainId,
+            aaVersion,
+            context: undefined
+          })
+        },
+        2,
         { optimistic: true, returnAggregated: true }
       );
 
@@ -72,7 +96,7 @@ describe('TACo Signing', () => {
           '0x1234': ['0x5678', '0x90ab'],
           '0xabcd': ['0xefgh', '0xijkl'],
         },
-        type: 'userOp:zerodev',
+        errors: {},
       });
     });
 
@@ -89,24 +113,39 @@ describe('TACo Signing', () => {
           '0x1234': ['0x5678', '0x90ab'],
           '0xabcd': ['0xefgh', '0xijkl'],
         },
-        type: 'userOp:kernel',
+        errors: {},
       });
 
       const result = await signUserOp(
+        mockProvider,
         userOp,
         chainId,
         aaVersion,
         cohortId,
         'lynx',
+        { optimistic: true, returnAggregated: true },
         undefined,
         porterUris
       );
 
       expect(signUserOpMock).toHaveBeenCalledWith(
-        userOp,
-        chainId,
-        aaVersion,
-        cohortId,
+        {
+          '0x1234': JSON.stringify({
+            userOp,
+            cohortId,
+            chainId,
+            aaVersion,
+            context: undefined
+          }),
+          '0xabcd': JSON.stringify({
+            userOp,
+            cohortId,
+            chainId,
+            aaVersion,
+            context: undefined
+          })
+        },
+        2,
         { optimistic: true, returnAggregated: true }
       );
 
@@ -117,7 +156,7 @@ describe('TACo Signing', () => {
           '0x1234': ['0x5678', '0x90ab'],
           '0xabcd': ['0xefgh', '0xijkl'],
         },
-        type: 'userOp:kernel',
+        errors: {},
       });
     });
 
@@ -135,24 +174,39 @@ describe('TACo Signing', () => {
           '0x1234': ['0x5678', '0x90ab'],
           '0xabcd': ['0xefgh', '0xijkl'],
         },
-        type: 'userOp:safe',
+        errors: {},
       });
 
       await signUserOp(
+        mockProvider,
         userOp,
         chainId,
         aaVersion,
         cohortId,
         'lynx',
         options,
+        undefined,
         porterUris
       );
 
       expect(signUserOpMock).toHaveBeenCalledWith(
-        userOp,
-        chainId,
-        aaVersion,
-        cohortId,
+        {
+          '0x1234': JSON.stringify({
+            userOp,
+            cohortId,
+            chainId,
+            aaVersion,
+            context: undefined
+          }),
+          '0xabcd': JSON.stringify({
+            userOp,
+            cohortId,
+            chainId,
+            aaVersion,
+            context: undefined
+          })
+        },
+        2,
         options
       );
     });

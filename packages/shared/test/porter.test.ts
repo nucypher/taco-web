@@ -189,10 +189,11 @@ describe('PorterClient Signing', () => {
       mockSignUserOp(true);
       const porterClient = new PorterClient(fakePorterUris[2]);
       const result = await porterClient.signUserOp(
-        mockPackedUserOp,
-        8453,
-        'zerodev:v0.6',
-        5,
+        {
+          '0x1234': JSON.stringify(mockPackedUserOp),
+          '0xabcd': JSON.stringify(mockPackedUserOp)
+        },
+        2,
         {
           optimistic: true,
           returnAggregated: true
@@ -207,7 +208,6 @@ describe('PorterClient Signing', () => {
           '0xabcd': ['0xefgh', '0xijkl'],
         },
         errors: {},
-        type: 'zerodev:v0.6',
       });
     });
 
@@ -217,10 +217,11 @@ describe('PorterClient Signing', () => {
 
       await expect(
         porterClient.signUserOp(
-          mockPackedUserOp,
-          8453,
-          'zerodev:v0.6',
-          5,
+          {
+            '0x1234': JSON.stringify(mockPackedUserOp),
+            '0xabcd': JSON.stringify(mockPackedUserOp)
+          },
+          2,
           {
             optimistic: true,
             returnAggregated: true
@@ -234,10 +235,11 @@ describe('PorterClient Signing', () => {
       mockSignUserOp(true, true);
       const porterClient = new PorterClient(fakePorterUris[2]);
       const result = await porterClient.signUserOp(
-        mockPackedUserOp,
-        8453,
-        'zerodev:v0.6',
-        5,
+        {
+          '0x1234': JSON.stringify(mockPackedUserOp),
+          '0xabcd': JSON.stringify(mockPackedUserOp)
+        },
+        2,
         {
           optimistic: true,
           returnAggregated: true
@@ -253,7 +255,6 @@ describe('PorterClient Signing', () => {
         errors: {
           '0x1234': 'Failed to decode signature: Invalid character',
         },
-        type: 'zerodev:v0.6',
       });
     });
   });

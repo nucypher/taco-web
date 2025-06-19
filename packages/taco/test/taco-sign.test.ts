@@ -1,7 +1,7 @@
 import { PorterClient, SigningCoordinatorAgent } from '@nucypher/shared';
 import { fakePorterUri } from '@nucypher/test-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ethers } from 'ethers';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { signUserOp } from '../src/sign';
 

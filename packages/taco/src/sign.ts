@@ -1,8 +1,8 @@
 import { Domain, getPorterUris, PorterClient } from '@nucypher/shared';
 import { SigningCoordinatorAgent } from '@nucypher/shared';
 import { ethers } from 'ethers';
-import { ConditionContext } from './conditions/context';
 
+import { ConditionContext } from './conditions/context';
 import { SigningOptions, SignResult, UserOperation } from './types';
 
 export async function signUserOp(

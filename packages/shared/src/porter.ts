@@ -158,23 +158,11 @@ type SigningOptions = {
   returnAggregated?: boolean;  // Whether to return the aggregated signature
 };
 
-type SignUserOpRequest = {
-  readonly user_op: string;
-  readonly signature_type: string;
-  readonly aa_version: string;
-  readonly cohort_id: number;
-  readonly chain_id: number;
-  readonly context?: Record<string, unknown> | undefined;
-  readonly optimistic?: boolean | undefined;
-  readonly return_aggregated?: boolean | undefined;
-};
-
 type SignResponse = {
   readonly result: {
     readonly digest: HexEncodedBytes;
     readonly signing_results: Record<ChecksumAddress, [ChecksumAddress, Base64EncodedBytes]>;
   };
-  readonly version: string;
 };
 
 type SignResult = {
@@ -182,7 +170,6 @@ type SignResult = {
   aggregatedSignature: string;
   signingResults: { [ursulaAddress: string]: [string, string] };
   errors: Record<string, string>;
-  type: string;
 };
 
 function aggregatePorterSignatures(
@@ -327,26 +314,23 @@ export class PorterClient {
 
 
   public async signUserOp(
-    userOp: Record<string, unknown>,
-    chainId: number,
-    aaVersion: string,
-    cohortId: number,
+    signingRequests: Record<string, unknown>,
+    threshold: number,
     options: SigningOptions = { optimistic: true, returnAggregated: true },
-    context: Record<string, unknown> = {},
   ): Promise<SignResult> {
-    const data: SignUserOpRequest = {
-      aa_version: aaVersion,
-      user_op: JSON.stringify(userOp),
-      cohort_id: cohortId,
-      chain_id: chainId,
-      context,
-      signature_type: 'userop',
+
+    console.log(options);
+    //TODO use options
+
+    const params: Record<string, unknown> = {
+      signing_requests: signingRequests,
+      threshold: threshold
     };
 
     const resp: AxiosResponse<SignResponse> = await this.tryAndCall({
       url: '/sign',
       method: 'post',
-      data,
+      params,
     });
 
     const signingResults: { [ursulaAddress: string]: [string, string] } = {};
@@ -373,7 +357,6 @@ export class PorterClient {
       aggregatedSignature: aggregatePorterSignatures(signingResults),
       signingResults,
       errors,
-      type: aaVersion
     };
   }
 }

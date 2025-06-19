@@ -15,10 +15,10 @@ export class SigningCoordinatorAgent {
   public static async getParticipants(
     provider: ethers.providers.Provider,
     domain: Domain,
-    ritualId: number,
+    cohortId: number,
   ): Promise<SignerInfo[]> {
     const coordinator = await this.connectReadOnly(provider, domain);
-    const participants = await coordinator.getSigners(ritualId);
+    const participants = await coordinator.getSigners(cohortId);
 
     return participants.map((participant: SigningCoordinator.SigningCohortParticipantStructOutput) => {
       return {
@@ -29,14 +29,14 @@ export class SigningCoordinatorAgent {
     });
   }
 
-//   public static async getThreshold(
-//     provider: ethers.providers.Provider,
-//     domain: Domain,
-//     cohortId: number,
-//   ): Promise<number> {
-//     const coordinator = await this.connectReadOnly(provider, domain);
-//     return await coordinator.getThreshold(cohortId);
-//   }
+  public static async getThreshold(
+    provider: ethers.providers.Provider,
+    domain: Domain,
+    cohortId: number,
+  ): Promise<number> {
+    const coordinator = await this.connectReadOnly(provider, domain);
+    return await coordinator.getThreshold(cohortId);
+  }
 
   private static async connectReadOnly(
     provider: ethers.providers.Provider,

@@ -20,6 +20,7 @@ import {
   CONTEXT_PARAM_REGEXP,
   USER_ADDRESS_PARAMS,
 } from '../const';
+import { SIGNING_CONDITION_OBJECT_CONTEXT_VAR } from '../schemas/signing';
 
 export type CustomContextParam =
   | string
@@ -57,7 +58,10 @@ const EXPECTED_AUTH_PROVIDER_TYPES: Record<string, AuthProviderType[]> = {
   ],
 };
 
-export const RESERVED_CONTEXT_PARAMS = [USER_ADDRESS_PARAM_DEFAULT];
+export const RESERVED_CONTEXT_PARAMS = [
+  USER_ADDRESS_PARAM_DEFAULT,
+  SIGNING_CONDITION_OBJECT_CONTEXT_VAR,
+];
 
 export class ConditionContext {
   public requestedContextParameters: Set<string>;

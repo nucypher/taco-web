@@ -153,7 +153,7 @@ export type TacoDecryptResult = {
 };
 
 // Signing types
-type SigningOptions = {
+export type SigningOptions = {
   optimistic?: boolean;        // Whether to return first signatures received or wait for all signatures
   returnAggregated?: boolean;  // Whether to return the aggregated signature
 };
@@ -165,9 +165,9 @@ type SignResponse = {
   };
 };
 
-type SignResult = {
+export type SignResult = {
   digest: string;
-  aggregatedSignature: string;
+  aggregatedSignature: string | undefined;
   signingResults: { [ursulaAddress: string]: [string, string] };
   errors: Record<string, string>;
 };
@@ -319,9 +319,6 @@ export class PorterClient {
     options: SigningOptions = { optimistic: true, returnAggregated: true },
   ): Promise<SignResult> {
 
-    console.log(options);
-    //TODO use options
-
     const params: Record<string, unknown> = {
       signing_requests: signingRequests,
       threshold: threshold
@@ -352,9 +349,14 @@ export class PorterClient {
       }
     }
 
+    // Only return aggregated signature if there are no errors
+    const aggregatedSignature = Object.keys(errors).length === 0 
+      ? aggregatePorterSignatures(signingResults)
+      : undefined;
+
     return {
       digest: messageHash,
-      aggregatedSignature: aggregatePorterSignatures(signingResults),
+      aggregatedSignature,
       signingResults,
       errors,
     };

@@ -6,7 +6,7 @@ _Union of the following possible types:_
 
 - [RpcCondition](#rpccondition)
 - [TimeCondition](#timecondition)
-- [AddressAllowlistCondition](#walletallowlistcondition)
+- [AddressAllowlistCondition](#addressallowlistcondition)
 - [ContractCondition](#contractcondition)
 - [CompoundCondition](#compoundcondition)
 - [JsonApiCondition](#jsonapicondition)
@@ -17,8 +17,7 @@ _Union of the following possible types:_
 
 ## UserAddress
 
-This is a context variable that will be replaced at decryption time. It
-represents the Ethereum address of the requester attempting decryption.
+This is a context variable that will be replaced at decryption time. It represents the Ethereum address of the requester attempting decryption.
 
 _Literal `':userAddress'` value._
 
@@ -52,20 +51,15 @@ _String._
 
 _Union of the following possible types:_
 
-- [PlainString](#plainstring), `boolean`, `number` (_int, ≥-9007199254740991,
-  ≤9007199254740991_) _or_ `bigint`
-  (_≤115792089237316195423570985008687907853269984665640564039457584007913129639935,
-  ≥-57896044618658097711785492504343953926634992332820282019728792003956564819968_)
+- [PlainString](#plainstring), `boolean`, `number` (_int, ≥-9007199254740991, ≤9007199254740991_) _or_ `bigint` (_≤115792089237316195423570985008687907853269984665640564039457584007913129639935, ≥-57896044618658097711785492504343953926634992332820282019728792003956564819968_)
 - [ContextParam](#contextparam)
-- _Array of [BlockchainParamOrContextParam](#blockchainparamorcontextparam)
-  items_
+- _Array of [BlockchainParamOrContextParam](#blockchainparamorcontextparam) items_
 
 ## ContextParam
 
-A Context Parameter i.e. a placeholder used within conditions and specified at
-the encryption time, whose value is provided at decryption time.
+A Context Parameter i.e. a placeholder used within conditions and specified at the encryption time, whose value is provided at decryption time.
 
-_String which matches the regular expression `/^:[a-zA-Z_][a-zA-Z0-9_]\*$/`.\_
+_String which matches the regular expression `/^:[a-zA-Z_][a-zA-Z0-9_]*$/`._
 
 ## ParamOrContextParam
 
@@ -79,11 +73,11 @@ _Union of the following possible types:_
 
 _Object containing the following properties:_
 
-| Property            | Type                                                                    | Default      |
-| :------------------ | :---------------------------------------------------------------------- | :----------- |
-| `conditionType`     | `'compound'`                                                            | `'compound'` |
-| **`operator`** (\*) | `'and' \| 'or' \| 'not'`                                                |              |
-| **`operands`** (\*) | _Array of at least 1 and at most 5 [AnyCondition](#anycondition) items_ |              |
+| Property            | Type                                                                      | Default      |
+| :------------------ | :------------------------------------------------------------------------ | :----------- |
+| `conditionType`     | `'compound'`                                                              | `'compound'` |
+| **`operator`** (\*) | `'and' \| 'or' \| 'not'`                                                  |              |
+| **`operands`** (\*) | _Array of at least 1  and  at most 5 [AnyCondition](#anycondition) items_ |              |
 
 _(\*) Required._
 
@@ -213,8 +207,7 @@ _(\*) Required._
 
 ## RpcCondition
 
-RPC Condition for calling
-[Ethereum JSON RPC APIs](https://ethereum.github.io/execution-apis/api-documentation/)
+RPC Condition for calling [Ethereum JSON RPC APIs](https://ethereum.github.io/execution-apis/api-documentation/)
 
 _Object containing the following properties:_
 
@@ -243,10 +236,10 @@ _(\*) Required._
 
 _Object containing the following properties:_
 
-| Property                      | Type                                                                              | Default        |
-| :---------------------------- | :-------------------------------------------------------------------------------- | :------------- |
-| `conditionType`               | `'sequential'`                                                                    | `'sequential'` |
-| **`conditionVariables`** (\*) | _Array of at least 2 and at most 5 [ConditionVariable](#conditionvariable) items_ |                |
+| Property                      | Type                                                                                | Default        |
+| :---------------------------- | :---------------------------------------------------------------------------------- | :------------- |
+| `conditionType`               | `'sequential'`                                                                      | `'sequential'` |
+| **`conditionVariables`** (\*) | _Array of at least 2  and  at most 5 [ConditionVariable](#conditionvariable) items_ |                |
 
 _(\*) Required._
 
@@ -267,10 +260,11 @@ _(\*) Required._
 
 _Object containing the following properties:_
 
-| Property                 | Description                                                                                                                | Type                                |
-| :----------------------- | :------------------------------------------------------------------------------------------------------------------------- | :---------------------------------- |
-| **`conditionType`** (\*) |                                                                                                                            | `'address-allowlist'`               |
-| **`addresses`** (\*)     | List of wallet addresses allowed to decrypt. Addresses should be provided in checksummed form. Matching is case-sensitive. | `Array<string>` (_min: 1, max: 25_) |
+| Property                 | Description                                                                                                                                     | Type                                |
+| :----------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------- |
+| **`conditionType`** (\*) |                                                                                                                                                 | `'address-allowlist'`               |
+| **`userAddress`** (\*)   | This is a context variable that will be replaced at decryption time. It represents the Ethereum address of the requester attempting decryption. | [UserAddress](#useraddress)         |
+| **`addresses`** (\*)     | List of wallet addresses allowed to decrypt. Addresses should be provided in checksummed form. Matching is case-sensitive.                      | `Array<string>` (_min: 1, max: 25_) |
 
 _(\*) Required._
 
@@ -279,5 +273,4 @@ _(\*) Required._
 For more information, please refer to the TACo documentation:
 https://docs.taco.build/.
 
-Visit the TACo Playground to see the condition schemas in action:
-https://playground.taco.build/.
+Visit the TACo Playground to see the condition schemas in action: https://playground.taco.build/.

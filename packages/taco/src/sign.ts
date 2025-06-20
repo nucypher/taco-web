@@ -13,11 +13,11 @@ import { UserOperation } from './types';
 
 export async function signUserOp(
   provider: ethers.providers.Provider,
-  userOp: UserOperation,
-  chainId: number,
-  aaVersion: 'mdt' | '0.8.0' | string,
-  cohortId: number,
   domain: Domain,
+  cohortId: number,
+  chainId: number,
+  userOp: UserOperation,
+  aaVersion: 'mdt' | '0.8.0' | string,
   options: SigningOptions = { optimistic: true, returnAggregated: true },
   context?: ConditionContext,
   porterUris?: string[],

@@ -1,15 +1,17 @@
 import { fakeUrsulas } from '@nucypher/test-utils';
 import axios, { HttpStatusCode } from 'axios';
-import { MockInstance, beforeAll, describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it, MockInstance, vi } from 'vitest';
+
 import {
-  GetUrsulasResult,
-  PorterClient,
-  Ursula,
   domains,
   getPorterUris,
   getPorterUrisFromSource,
+  GetUrsulasResult,
   initialize,
+  PorterClient,
+  toBase64,
   toHexString,
+  Ursula,
 } from '../src';
 
 const fakePorterUris = [
@@ -48,6 +50,45 @@ const mockGetUrsulas = (ursulas: Ursula[] = fakeUrsulas()): MockInstance => {
     }
   });
 };
+
+const createMockSignResponse = (errorCase?: boolean) => ({
+  result: {
+    digest: '0x1234',
+    signing_results: errorCase ? {
+      '0x1234': ['0x5678', 'invalid-base64'],
+      '0xabcd': ['0xefgh', toBase64(new TextEncoder().encode(JSON.stringify({
+        message_hash: '0x1234',
+        signature: '0xijkl'
+      })))]
+    } : {
+      '0x1234': ['0x5678', toBase64(new TextEncoder().encode(JSON.stringify({
+        message_hash: '0x1234',
+        signature: '0x90ab'
+      })))],
+      '0xabcd': ['0xefgh', toBase64(new TextEncoder().encode(JSON.stringify({
+        message_hash: '0x1234',
+        signature: '0xijkl'
+      })))]
+    }
+  },
+});
+
+const createMockSignImplementation = (endpoint: string) => (success: boolean = true, errorCase?: boolean): MockInstance => {
+  return vi.spyOn(axios, 'request').mockImplementation(async (config) => {
+    if (config.url === endpoint) {
+      if (success) {
+        return Promise.resolve({
+          status: HttpStatusCode.Ok,
+          data: createMockSignResponse(errorCase),
+        });
+      }
+      return Promise.resolve({ status: HttpStatusCode.BadRequest, data: '' });
+    }
+    throw new Error('Unexpected endpoint');
+  });
+};
+
+const mockSignUserOp = createMockSignImplementation('/sign');
 
 describe('getPorterUris', () => {
   beforeAll(async () => {
@@ -115,5 +156,105 @@ describe('PorterClient', () => {
     await expect(porterClient.getUrsulas(ursulas.length)).rejects.toThrowError(
       Error(`Test error`),
     );
+  });
+});
+
+describe('PorterClient Signing', () => {
+  beforeAll(async () => {
+    await initialize();
+  });
+
+
+  describe('signUserOp', () => {
+    const mockPackedUserOp = {
+      sender: '0x1234',
+      nonce: '0x1',
+      factory: '0x0',
+      factoryData: '0x',
+      callData: '0xabc',
+      callGasLimit: '0x20000',
+      verificationGasLimit: '0x15000',
+      preVerificationGas: '0x1000',
+      maxFeePerGas: '0xabc',
+      maxPriorityFeePerGas: '0x123',
+      paymaster: '0x0',
+      paymasterVerificationGasLimit: '0x0',
+      paymasterPostOpGasLimit: '0x0',
+      paymasterData: '0x',
+      signature: '0x',
+    };
+
+    it('should successfully sign a UserOperation', async () => {
+      mockSignUserOp(true);
+      const porterClient = new PorterClient(fakePorterUris[2]);
+      const result = await porterClient.signUserOp(
+        {
+          '0x1234': JSON.stringify(mockPackedUserOp),
+          '0xabcd': JSON.stringify(mockPackedUserOp)
+        },
+        2,
+        {
+          optimistic: true,
+          returnAggregated: true
+        }
+      );
+
+      expect(result).toEqual({
+        digest: '0x1234',
+        aggregatedSignature: '0x90ab0xijkl', // Combined signatures in sorted order
+        signingResults: {
+          '0x1234': ['0x5678', '0x90ab'],
+          '0xabcd': ['0xefgh', '0xijkl'],
+        },
+        errors: {},
+      });
+    });
+
+    it('should handle UserOperation signing failures', async () => {
+      mockSignUserOp(false);
+      const porterClient = new PorterClient(fakePorterUris[2]);
+
+      await expect(
+        porterClient.signUserOp(
+          {
+            '0x1234': JSON.stringify(mockPackedUserOp),
+            '0xabcd': JSON.stringify(mockPackedUserOp)
+          },
+          2,
+          {
+            optimistic: true,
+            returnAggregated: true
+          }
+        )
+      ).rejects.toThrow('Porter returned bad response: 400 - ');
+    });
+
+    it('should handle signature decoding errors in UserOperation signing', async () => {
+      // Mock a response with invalid base64 signature
+      mockSignUserOp(true, true);
+      const porterClient = new PorterClient(fakePorterUris[2]);
+      const result = await porterClient.signUserOp(
+        {
+          '0x1234': JSON.stringify(mockPackedUserOp),
+          '0xabcd': JSON.stringify(mockPackedUserOp)
+        },
+        2,
+        {
+          optimistic: true,
+          returnAggregated: true
+        }
+      );
+
+      expect(result).toEqual({
+        digest: '0x1234',
+        aggregatedSignature: undefined, // No aggregated signature when errors occur
+        signingResults: {
+          '0xabcd': ['0xefgh', '0xijkl'],
+        },
+        errors: {
+          '0x1234': 'Failed to decode signature: Invalid character',
+        },
+      });
+    });
   });
 });

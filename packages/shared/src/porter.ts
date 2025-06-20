@@ -152,6 +152,33 @@ export type TacoDecryptResult = {
   errors: Record<string, string>;
 };
 
+// Signing types
+export type SigningOptions = {
+  optimistic?: boolean;        // Whether to return first signatures received or wait for all signatures
+  returnAggregated?: boolean;  // Whether to return the aggregated signature
+};
+
+type SignResponse = {
+  readonly result: {
+    readonly digest: HexEncodedBytes;
+    readonly signing_results: Record<ChecksumAddress, [ChecksumAddress, Base64EncodedBytes]>;
+  };
+};
+
+export type SignResult = {
+  digest: string;
+  aggregatedSignature: string | undefined;
+  signingResults: { [ursulaAddress: string]: [string, string] };
+  errors: Record<string, string>;
+};
+
+function aggregatePorterSignatures(
+  signaturesWithAddress: { [checksumAddress: string]: [string, string] }
+): string {
+  const signatures = Object.values(signaturesWithAddress).map(([, signature]) => signature);
+  return signatures.join('');
+}
+
 export class PorterClient {
   readonly porterUrls: URL[];
 
@@ -283,5 +310,57 @@ export class PorterClient {
       EncryptedThresholdDecryptionResponse
     > = Object.fromEntries(decryptionResponses);
     return { encryptedResponses, errors };
+  }
+
+
+  public async signUserOp(
+    signingRequests: Record<string, unknown>,
+    threshold: number,
+    options: SigningOptions = { optimistic: true, returnAggregated: true },
+  ): Promise<SignResult> {
+
+    console.log({ options})
+
+    const params: Record<string, unknown> = {
+      signing_requests: signingRequests,
+      threshold: threshold
+    };
+
+    const resp: AxiosResponse<SignResponse> = await this.tryAndCall({
+      url: '/sign',
+      method: 'post',
+      params,
+    });
+
+    const signingResults: { [ursulaAddress: string]: [string, string] } = {};
+    const errors: Record<string, string> = {};
+    let messageHash = '';
+
+    for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(
+      resp.data.result.signing_results
+    )) {
+      try {
+        const decodedData = JSON.parse(
+          new TextDecoder().decode(fromBase64(signatureB64))
+        );
+        messageHash = decodedData.message_hash;
+        signingResults[ursulaAddress] = [signerAddress, decodedData.signature];
+      } catch (e: unknown) {
+        const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+        errors[ursulaAddress] = `Failed to decode signature: ${errorMessage}`;
+      }
+    }
+
+    // Only return aggregated signature if there are no errors
+    const aggregatedSignature = Object.keys(errors).length === 0 
+      ? aggregatePorterSignatures(signingResults)
+      : undefined;
+
+    return {
+      digest: messageHash,
+      aggregatedSignature,
+      signingResults,
+      errors,
+    };
   }
 }

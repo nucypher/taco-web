@@ -58,11 +58,11 @@ describe.skipIf(!process.env.RUNNING_IN_CI)('Taco Sign Integration Test', () => 
     // Sign user operation
     const signResult = await signUserOp(
       provider,
-      userOp,
-      CHAIN_ID,
-      '0.8.0',
-      RITUAL_ID,
       DOMAIN as Domain,
+      RITUAL_ID,
+      CHAIN_ID,
+      userOp,
+      '0.8.0',
       { optimistic: true, returnAggregated: true },
       undefined,
       porterUris

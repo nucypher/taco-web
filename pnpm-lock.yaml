@@ -513,8 +513,8 @@ importers:
         specifier: ^5.8.0
         version: 5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       '@nucypher/nucypher-contracts':
-        specifier: git+https://github.com/nucypher/nucypher-contracts.git#signing
-        version: https://codeload.github.com/nucypher/nucypher-contracts/tar.gz/2a0eda956b30618f3adaf944880ed055a5d956e7
+        specifier: file:nucypher-nucypher-contracts-0.25.0.tgz
+        version: file:packages/shared/nucypher-nucypher-contracts-0.25.0.tgz
       '@nucypher/nucypher-core':
         specifier: ^0.14.5
         version: 0.14.5
@@ -2533,8 +2533,8 @@ packages:
   '@nucypher/nucypher-contracts@0.25.0':
     resolution: {integrity: sha512-4fRPKY6RzkXY1Zv2O0auJZsvP6z7tuj+Fsy83yJvADqFwRuIJfSlwgSgLwISX6q838SRG/Ve2i+sMLZRaVJfYw==}
 
-  '@nucypher/nucypher-contracts@https://codeload.github.com/nucypher/nucypher-contracts/tar.gz/2a0eda956b30618f3adaf944880ed055a5d956e7':
-    resolution: {tarball: https://codeload.github.com/nucypher/nucypher-contracts/tar.gz/2a0eda956b30618f3adaf944880ed055a5d956e7}
+  '@nucypher/nucypher-contracts@file:packages/shared/nucypher-nucypher-contracts-0.25.0.tgz':
+    resolution: {integrity: sha512-bFRzG7Xu/azdpGTHErv+qNZx9Zw9nVrt2uPuFjDMTpnyIq3IYMd9EhJbQVh3lzbabykCJsM+969CgvoSKRI24Q==, tarball: file:packages/shared/nucypher-nucypher-contracts-0.25.0.tgz}
     version: 0.25.0
 
   '@nucypher/nucypher-core@0.14.5':
@@ -11958,7 +11958,7 @@ snapshots:
 
   '@nucypher/nucypher-contracts@0.25.0': {}
 
-  '@nucypher/nucypher-contracts@https://codeload.github.com/nucypher/nucypher-contracts/tar.gz/2a0eda956b30618f3adaf944880ed055a5d956e7': {}
+  '@nucypher/nucypher-contracts@file:packages/shared/nucypher-nucypher-contracts-0.25.0.tgz': {}
 
   '@nucypher/nucypher-core@0.14.5': {}
 

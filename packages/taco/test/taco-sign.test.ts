@@ -40,69 +40,9 @@ describe('TACo Signing', () => {
       signature: '0x',
     };
 
-    it('should sign a user operation with zerodev account', async () => {
+    it('should sign a user operation with a 0.8.0 account', async () => {
       const chainId = 1;
-      const aaVersion = 'zerodev:v0.6';
-      const cohortId = 5;
-      const porterUris = [fakePorterUri];
-
-      signUserOpMock.mockResolvedValue({
-        digest: '0x1234',
-        aggregatedSignature: '0x90ab0xijkl',
-        signingResults: {
-          '0x1234': ['0x5678', '0x90ab'],
-          '0xabcd': ['0xefgh', '0xijkl'],
-        },
-        errors: {},
-      });
-
-      const result = await signUserOp(
-        mockProvider,
-        userOp,
-        chainId,
-        aaVersion,
-        cohortId,
-        'lynx',
-        { optimistic: true, returnAggregated: true },
-        undefined,
-        porterUris
-      );
-
-      expect(signUserOpMock).toHaveBeenCalledWith(
-        {
-          '0x1234': JSON.stringify({
-            userOp,
-            cohortId,
-            chainId,
-            aaVersion,
-            context: undefined
-          }),
-          '0xabcd': JSON.stringify({
-            userOp,
-            cohortId,
-            chainId,
-            aaVersion,
-            context: undefined
-          })
-        },
-        2,
-        { optimistic: true, returnAggregated: true }
-      );
-
-      expect(result).toEqual({
-        digest: '0x1234',
-        aggregatedSignature: '0x90ab0xijkl',
-        signingResults: {
-          '0x1234': ['0x5678', '0x90ab'],
-          '0xabcd': ['0xefgh', '0xijkl'],
-        },
-        errors: {},
-      });
-    });
-
-    it('should sign a user operation with kernel account', async () => {
-      const chainId = 1;
-      const aaVersion = 'kernel:v0.7';
+      const aaVersion = '0.8.0';
       const cohortId = 5;
       const porterUris = [fakePorterUri];
 
@@ -162,7 +102,7 @@ describe('TACo Signing', () => {
 
     it('should handle custom signing options', async () => {
       const chainId = 1;
-      const aaVersion = 'safe:v0.8';
+      const aaVersion = '0.8.0';
       const cohortId = 5;
       const porterUris = [fakePorterUri];
       const options = { optimistic: false, returnAggregated: false };

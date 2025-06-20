@@ -319,6 +319,8 @@ export class PorterClient {
     options: SigningOptions = { optimistic: true, returnAggregated: true },
   ): Promise<SignResult> {
 
+    console.log({ options})
+
     const params: Record<string, unknown> = {
       signing_requests: signingRequests,
       threshold: threshold

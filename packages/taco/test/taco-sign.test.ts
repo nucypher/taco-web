@@ -58,11 +58,11 @@ describe('TACo Signing', () => {
 
       const result = await signUserOp(
         mockProvider,
-        userOp,
-        chainId,
-        aaVersion,
-        cohortId,
         'lynx',
+        cohortId,
+        chainId,
+        userOp,
+        aaVersion,
         { optimistic: true, returnAggregated: true },
         undefined,
         porterUris
@@ -119,11 +119,11 @@ describe('TACo Signing', () => {
 
       await signUserOp(
         mockProvider,
-        userOp,
-        chainId,
-        aaVersion,
-        cohortId,
         'lynx',
+        cohortId,
+        chainId,
+        userOp,
+        aaVersion,
         options,
         undefined,
         porterUris

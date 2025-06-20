@@ -8,11 +8,11 @@ import { UserOperation } from '../src/types';
 
 const RPC_PROVIDER_URL = 'https://rpc-amoy.polygon.technology';
 const SIGNER_PRIVATE_KEY = '0x900edb9e8214b2353f82aa195e915128f419a92cfb8bbc0f4784f10ef4112b86';
-const DOMAIN = 'lynx';
-const RITUAL_ID = 27;
-const CHAIN_ID = 80002;
+const DOMAIN = 'TESTNET';
+const RITUAL_ID = 2;
+const CHAIN_ID = 11155111;
 
-describe('Taco Sign Integration Test', () => {
+describe.skipIf(!process.env.RUNNING_IN_CI)('Taco Sign Integration Test', () => {
   let provider: ethers.providers.JsonRpcProvider;
   let signer: ethers.Wallet;
 
@@ -32,7 +32,7 @@ describe('Taco Sign Integration Test', () => {
     }
   });
 
-  test.skip('should sign a user operation', async () => {
+  test('should sign a user operation', async () => {
     // Create a sample user operation with all required fields
     const userOp: UserOperation = {
       sender: signer.address,
@@ -60,7 +60,7 @@ describe('Taco Sign Integration Test', () => {
       provider,
       userOp,
       CHAIN_ID,
-      'zerodev:v0.6',
+      '0.8.0',
       RITUAL_ID,
       DOMAIN as Domain,
       { optimistic: true, returnAggregated: true },

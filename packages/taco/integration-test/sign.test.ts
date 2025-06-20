@@ -6,9 +6,9 @@ import { initialize } from '../src';
 import { signUserOp } from '../src/sign';
 import { UserOperation } from '../src/types';
 
-const RPC_PROVIDER_URL = 'https://rpc-amoy.polygon.technology';
+const RPC_PROVIDER_URL = 'https://ethereum-sepolia-rpc.publicnode.com';
 const SIGNER_PRIVATE_KEY = '0x900edb9e8214b2353f82aa195e915128f419a92cfb8bbc0f4784f10ef4112b86';
-const DOMAIN = 'TESTNET';
+const DOMAIN = 'lynx';
 const RITUAL_ID = 2;
 const CHAIN_ID = 11155111;
 

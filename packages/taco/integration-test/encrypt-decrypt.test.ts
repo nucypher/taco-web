@@ -142,6 +142,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       // Create wallet allowlist condition with consumer address in the list
       const addressAllowlistCondition =
         new conditions.base.addressAllowlist.AddressAllowlistCondition({
+          userAddress: ':userAddress',
           addresses: [
             CONSUMER_ADDRESS,
             '0x742d35Cc6634C0532925a3b844Bc454e4438f44e', // Some other address

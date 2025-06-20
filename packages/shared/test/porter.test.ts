@@ -51,7 +51,7 @@ const mockGetUrsulas = (ursulas: Ursula[] = fakeUrsulas()): MockInstance => {
   });
 };
 
-const createMockSignResponse = (type: string, errorCase?: boolean) => ({
+const createMockSignResponse = (errorCase?: boolean) => ({
   result: {
     digest: '0x1234',
     signing_results: errorCase ? {
@@ -71,16 +71,15 @@ const createMockSignResponse = (type: string, errorCase?: boolean) => ({
       })))]
     }
   },
-  version: '5.2.0',
 });
 
-const createMockSignImplementation = (endpoint: string, type: string) => (success: boolean = true, errorCase?: boolean): MockInstance => {
+const createMockSignImplementation = (endpoint: string) => (success: boolean = true, errorCase?: boolean): MockInstance => {
   return vi.spyOn(axios, 'request').mockImplementation(async (config) => {
     if (config.url === endpoint) {
       if (success) {
         return Promise.resolve({
           status: HttpStatusCode.Ok,
-          data: createMockSignResponse(type, errorCase),
+          data: createMockSignResponse(errorCase),
         });
       }
       return Promise.resolve({ status: HttpStatusCode.BadRequest, data: '' });
@@ -89,7 +88,7 @@ const createMockSignImplementation = (endpoint: string, type: string) => (succes
   });
 };
 
-const mockSignUserOp = createMockSignImplementation('/sign', 'userOp:zerodev');
+const mockSignUserOp = createMockSignImplementation('/sign');
 
 describe('getPorterUris', () => {
   beforeAll(async () => {
@@ -248,7 +247,7 @@ describe('PorterClient Signing', () => {
 
       expect(result).toEqual({
         digest: '0x1234',
-        aggregatedSignature: '0xijkl', // Only valid signature included
+        aggregatedSignature: undefined, // No aggregated signature when errors occur
         signingResults: {
           '0xabcd': ['0xefgh', '0xijkl'],
         },

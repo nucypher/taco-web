@@ -133,7 +133,7 @@ describe('AddressAllowlistCondition', () => {
       expect(result.error).toBeDefined();
       expect(result.data).toBeUndefined();
       expect(result.error?.message).toContain(
-        'All addresses must be properly checksummed',
+        'Invalid Ethereum address - it must be valid and checksummed',
       );
     });
   });

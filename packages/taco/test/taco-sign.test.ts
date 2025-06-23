@@ -70,20 +70,20 @@ describe('TACo Signing', () => {
 
       expect(signUserOpMock).toHaveBeenCalledWith(
         {
-          '0x1234': JSON.stringify({
+          '0x1234': btoa(JSON.stringify({
             userOp,
             cohortId,
             chainId,
             aaVersion,
             context: undefined
-          }),
-          '0xabcd': JSON.stringify({
+          })),
+          '0xabcd': btoa(JSON.stringify({
             userOp,
             cohortId,
             chainId,
             aaVersion,
             context: undefined
-          })
+          }))
         },
         2,
         { optimistic: true, returnAggregated: true }
@@ -131,20 +131,20 @@ describe('TACo Signing', () => {
 
       expect(signUserOpMock).toHaveBeenCalledWith(
         {
-          '0x1234': JSON.stringify({
+          '0x1234': btoa(JSON.stringify({
             userOp,
             cohortId,
             chainId,
             aaVersion,
             context: undefined
-          }),
-          '0xabcd': JSON.stringify({
+          })),
+          '0xabcd': btoa(JSON.stringify({
             userOp,
             cohortId,
             chainId,
             aaVersion,
             context: undefined
-          })
+          }))
         },
         2,
         options

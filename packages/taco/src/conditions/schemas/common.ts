@@ -27,7 +27,11 @@ export const UserAddressSchema = z
   );
 
 export const baseConditionSchema = z.object({
-  conditionType: z.string(),
+  conditionType: z
+    .string()
+    .describe(
+      'This value is set automatically at every sub-class constructor when a new object is being created.',
+    ),
 });
 
 // Source: https://github.com/colinhacks/zod/issues/831#issuecomment-1063481764

@@ -102,6 +102,29 @@ describe('AddressAllowlistCondition', () => {
       );
     });
 
+    it('enforces a maximum of 25 addresses', () => {
+      // Create an array of 26 valid Ethereum addresses
+      const tooManyAddresses = Array(26)
+        .fill(0)
+        .map((_, i) => `0x${(i + 10).toString().padStart(40, '0')}`);
+
+      const conditionObj = {
+        ...testAddressAllowlistConditionObj,
+        addresses: tooManyAddresses,
+      } as unknown as AddressAllowlistConditionProps;
+
+      const result = AddressAllowlistCondition.validate(
+        addressAllowlistConditionSchema,
+        conditionObj,
+      );
+
+      expect(result.error).toBeDefined();
+      expect(result.data).toBeUndefined();
+      expect(result.error?.message).toContain(
+        'A maximum of 25 addresses is allowed',
+      );
+    });
+
     it('requires addresses to be valid Ethereum addresses', () => {
       const conditionObj = {
         ...testAddressAllowlistConditionObj,

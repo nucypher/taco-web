@@ -47,7 +47,10 @@ export async function signUserOp(
   };
 
   const signingRequests: Record<string, string> = Object.fromEntries(
-    signers.map((signer) => [signer.operator, JSON.stringify(signingRequest)]),
+    signers.map((signer) => [
+      signer.operator, 
+      btoa(JSON.stringify(signingRequest))
+    ]),
   );
 
   // Build signing request for the user operation

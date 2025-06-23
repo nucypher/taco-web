@@ -25,9 +25,9 @@ _Literal `':userAddress'` value._
 
 _Object containing the following properties:_
 
-| Property                 | Type     |
-| :----------------------- | :------- |
-| **`conditionType`** (\*) | `string` |
+| Property                 | Description                                                                                        | Type     |
+| :----------------------- | :------------------------------------------------------------------------------------------------- | :------- |
+| **`conditionType`** (\*) | This value is set automatically at every sub-class constructor when a new object is being created. | `string` |
 
 _(\*) Required._
 
@@ -257,6 +257,8 @@ _Object containing the following properties:_
 _(\*) Required._
 
 ## AddressAllowlistCondition
+
+Address Allowlist Condition for allowing decryption for specific wallet addresses. It may not be very handy on its own, but when combined with other conditions, it can be very useful.
 
 _Object containing the following properties:_
 

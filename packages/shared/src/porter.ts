@@ -321,7 +321,7 @@ export class PorterClient {
 
     console.log({ options})
 
-    const params: Record<string, unknown> = {
+    const data: Record<string, unknown> = {
       signing_requests: signingRequests,
       threshold: threshold
     };
@@ -329,7 +329,7 @@ export class PorterClient {
     const resp: AxiosResponse<SignResponse> = await this.tryAndCall({
       url: '/sign',
       method: 'post',
-      params,
+      data,
     });
 
     const signingResults: { [ursulaAddress: string]: [string, string] } = {};

@@ -39,10 +39,10 @@ export async function signUserOp(
   );
 
   const signingRequest = {
-    userOp,
-    cohortId,
-    chainId,
-    aaVersion,
+    data: JSON.stringify(userOp),
+    cohort_id: cohortId,
+    chain_id: chainId,
+    signature_type: aaVersion,
     context,
   };
 

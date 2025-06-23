@@ -17,7 +17,10 @@ export const addressAllowlistConditionSchema = baseConditionSchema
         'List of wallet addresses allowed to decrypt. Addresses should be provided in checksummed form. Matching is case-sensitive.',
       ),
   })
-  .strict();
+  .strict()
+  .describe(
+    'Address Allowlist Condition for allowing decryption for specific wallet addresses. It may not be very handy on its own, but when combined with other conditions, it can be very useful.',
+  );
 
 export type AddressAllowlistConditionProps = z.infer<
   typeof addressAllowlistConditionSchema

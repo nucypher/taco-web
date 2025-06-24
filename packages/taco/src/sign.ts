@@ -1,15 +1,18 @@
 import {
+  convertUserOperationToPython,
   Domain,
   getPorterUris,
   PorterClient,
   SigningCoordinatorAgent,
   SigningOptions,
   SignResult,
+  toBase64,
+  UserOperation,
+  UserOperationSignatureRequest,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
 import { ConditionContext } from './conditions/context';
-import { UserOperation } from './types';
 
 export async function signUserOp(
   provider: ethers.providers.Provider,
@@ -17,7 +20,7 @@ export async function signUserOp(
   cohortId: number,
   chainId: number,
   userOp: UserOperation,
-  aaVersion: 'mdt' | '0.8.0' | string,
+  aaVersion: '0.8.0' | string,
   options: SigningOptions = { optimistic: true, returnAggregated: true },
   context?: ConditionContext,
   porterUris?: string[],
@@ -38,22 +41,22 @@ export async function signUserOp(
     cohortId,
   );
 
-  // Convert UserOperation to sorted JSON string (matching Python: json.dumps(self.to_dict(), sort_keys=True))
-  const userOpString = JSON.stringify(userOp, Object.keys(userOp).sort());
+  const pythonUserOp = convertUserOperationToPython(userOp);
+  const userOpString = JSON.stringify(pythonUserOp, Object.keys(pythonUserOp).sort());
   
-  const signingRequest: any = {
-    user_op: userOpString,
-    aa_version: aaVersion,
-    cohort_id: cohortId,
-    chain_id: chainId,
-    context: context || {},
-    signature_type: aaVersion,
-  };
+  const signingRequest = new UserOperationSignatureRequest(
+    userOpString,
+    aaVersion,
+    cohortId,
+    chainId,
+    context || {},
+    "userop"
+  );
 
   const signingRequests: Record<string, string> = Object.fromEntries(
     signers.map((signer) => [
       signer.operator, 
-      btoa(JSON.stringify(signingRequest))
+      toBase64(signingRequest.toBytes())
     ]),
   );
 

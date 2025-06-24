@@ -35,7 +35,8 @@ export class SigningCoordinatorAgent {
     cohortId: number,
   ): Promise<number> {
     const coordinator = await this.connectReadOnly(provider, domain);
-    return await coordinator.getThreshold(cohortId);
+    const cohort = await coordinator.signingCohorts(cohortId);
+    return cohort.threshold;
   }
 
   private static async connectReadOnly(

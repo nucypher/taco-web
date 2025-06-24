@@ -59,6 +59,10 @@ import {
   RpcConditionType,
 } from '../src/conditions/base/rpc';
 import {
+  SigningObjectAttributeConditionProps,
+  SigningObjectAttributeConditionType,
+} from '../src/conditions/base/signing';
+import {
   TimeConditionMethod,
   TimeConditionProps,
   TimeConditionType,
@@ -346,6 +350,17 @@ export const testSequentialConditionObj: SequentialConditionProps = {
     },
   ],
 };
+
+export const testSigningAttributeConditionObj: SigningObjectAttributeConditionProps =
+  {
+    conditionType: SigningObjectAttributeConditionType,
+    signingObjectContextVar: ':signingConditionObject',
+    attributeName: 'value',
+    returnValueTest: {
+      comparator: '>',
+      value: 100,
+    },
+  };
 
 export const testFunctionAbi: FunctionAbiProps = {
   name: 'myFunction',

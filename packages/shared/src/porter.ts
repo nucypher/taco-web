@@ -202,7 +202,15 @@ export class PorterClient {
         if (resp.status === HttpStatusCode.Ok) {
           return resp;
         }
-      } catch (e) {
+      } catch (e: any) {
+        console.error('Porter request failed:', {
+          url: porterUrl.toString(),
+          method: config.method,
+          status: e.response?.status,
+          statusText: e.response?.statusText,
+          data: e.response?.data,
+          requestData: config.data
+        });
         lastError = e;
         continue;
       }
@@ -314,7 +322,7 @@ export class PorterClient {
 
 
   public async signUserOp(
-    signingRequests: Record<string, unknown>,
+    signingRequests: Record<string, string>,
     threshold: number,
     options: SigningOptions = { optimistic: true, returnAggregated: true },
   ): Promise<SignResult> {

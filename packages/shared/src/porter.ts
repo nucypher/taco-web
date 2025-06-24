@@ -202,15 +202,20 @@ export class PorterClient {
         if (resp.status === HttpStatusCode.Ok) {
           return resp;
         }
-      } catch (e: any) {
-        console.error('Porter request failed:', {
+      } catch (e: unknown) {
+        const errorDetails: Record<string, unknown> = {
           url: porterUrl.toString(),
           method: config.method,
-          status: e.response?.status,
-          statusText: e.response?.statusText,
-          data: e.response?.data,
           requestData: config.data
-        });
+        };
+        
+        if (axios.isAxiosError(e)) {
+          errorDetails.status = e.response?.status;
+          errorDetails.statusText = e.response?.statusText;
+          errorDetails.data = e.response?.data;
+        }
+        
+        console.error('Porter request failed:', errorDetails);
         lastError = e;
         continue;
       }
@@ -324,11 +329,9 @@ export class PorterClient {
   public async signUserOp(
     signingRequests: Record<string, string>,
     threshold: number,
-    options: SigningOptions = { optimistic: true, returnAggregated: true },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _options: SigningOptions = { optimistic: true, returnAggregated: true },
   ): Promise<SignResult> {
-
-    console.log({ options})
-
     const data: Record<string, unknown> = {
       signing_requests: signingRequests,
       threshold: threshold

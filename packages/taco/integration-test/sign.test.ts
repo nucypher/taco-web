@@ -1,10 +1,9 @@
-import { Domain, getPorterUris } from '@nucypher/shared';
+import { Domain, getPorterUris, UserOperation } from '@nucypher/shared';
 import { ethers } from 'ethers';
 import { beforeAll, describe, expect, test } from 'vitest';
 
 import { initialize } from '../src';
 import { signUserOp } from '../src/sign';
-import { UserOperation } from '../src/types';
 
 const RPC_PROVIDER_URL = 'https://ethereum-sepolia-rpc.publicnode.com';
 const SIGNER_PRIVATE_KEY = '0x900edb9e8214b2353f82aa195e915128f419a92cfb8bbc0f4784f10ef4112b86';
@@ -56,27 +55,17 @@ describe.skipIf(!process.env.RUNNING_IN_CI)('Taco Sign Integration Test', () => 
     const porterUris = await getPorterUris(DOMAIN as Domain);
 
     // Sign user operation
-    try {
-      const signResult = await signUserOp(
-        provider,
-        DOMAIN as Domain,
-        RITUAL_ID,
-        CHAIN_ID,
-        userOp,
-        '0.8.0',
-        { optimistic: true, returnAggregated: true },
-        undefined,
-        porterUris
-      );
-    } catch (error: any) {
-      console.error('Detailed error info:', {
-        status: error.response?.status,
-        statusText: error.response?.statusText, 
-        data: error.response?.data,
-        message: error.message
-      });
-      throw error;
-    }
+    const signResult = await signUserOp(
+      provider,
+      DOMAIN as Domain,
+      RITUAL_ID,
+      CHAIN_ID,
+      userOp,
+      '0.8.0',
+      { optimistic: true, returnAggregated: true },
+      undefined,
+      porterUris
+    );
 
     // Verify sign result
     expect(signResult).toBeDefined();
@@ -84,5 +73,5 @@ describe.skipIf(!process.env.RUNNING_IN_CI)('Taco Sign Integration Test', () => 
     expect(signResult.aggregatedSignature).toBeDefined();
     expect(signResult.signingResults).toBeDefined();
     expect(Object.keys(signResult.signingResults).length).toBeGreaterThan(0);
-  }, 15000);
+  }, 150000);
 }); 

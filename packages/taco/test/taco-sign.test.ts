@@ -1,4 +1,4 @@
-import { PorterClient, SigningCoordinatorAgent } from '@nucypher/shared';
+import { convertUserOperationToPython, PorterClient, SigningCoordinatorAgent } from '@nucypher/shared';
 import { fakePorterUri } from '@nucypher/test-utils';
 import { ethers } from 'ethers';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -68,7 +68,8 @@ describe('TACo Signing', () => {
         porterUris
       );
 
-      const expectedUserOpString = JSON.stringify(userOp, Object.keys(userOp).sort());
+      const pythonUserOp = convertUserOperationToPython(userOp);
+      const expectedUserOpString = JSON.stringify(pythonUserOp, Object.keys(pythonUserOp).sort());
 
       expect(signUserOpMock).toHaveBeenCalledWith(
         {
@@ -78,7 +79,7 @@ describe('TACo Signing', () => {
             cohort_id: cohortId,
             chain_id: chainId,
             context: {},
-            signature_type: aaVersion
+            signature_type: "userop"
           })),
           '0xabcd': btoa(JSON.stringify({
             user_op: expectedUserOpString,
@@ -86,7 +87,7 @@ describe('TACo Signing', () => {
             cohort_id: cohortId,
             chain_id: chainId,
             context: {},
-            signature_type: aaVersion
+            signature_type: "userop"
           }))
         },
         2,
@@ -133,7 +134,8 @@ describe('TACo Signing', () => {
         porterUris
       );
 
-      const expectedUserOpString2 = JSON.stringify(userOp, Object.keys(userOp).sort());
+      const pythonUserOp2 = convertUserOperationToPython(userOp);
+      const expectedUserOpString2 = JSON.stringify(pythonUserOp2, Object.keys(pythonUserOp2).sort());
 
       expect(signUserOpMock).toHaveBeenCalledWith(
         {
@@ -143,7 +145,7 @@ describe('TACo Signing', () => {
             cohort_id: cohortId,
             chain_id: chainId,
             context: {},
-            signature_type: aaVersion
+            signature_type: "userop"
           })),
           '0xabcd': btoa(JSON.stringify({
             user_op: expectedUserOpString2,
@@ -151,7 +153,7 @@ describe('TACo Signing', () => {
             cohort_id: cohortId,
             chain_id: chainId,
             context: {},
-            signature_type: aaVersion
+            signature_type: "userop"
           }))
         },
         2,

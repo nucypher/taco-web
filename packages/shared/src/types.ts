@@ -27,7 +27,7 @@ export class UserOperationSignatureRequest {
     private cohortId: number,
     private chainId: number,
     private context: unknown = {},
-    private signatureType: string = "userOp"
+    private signatureType: string = "userop"
   ) {}
 
   toBytes(): Uint8Array {

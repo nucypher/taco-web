@@ -658,25 +658,6 @@ const _abi = [
   },
   {
     type: 'function',
-    name: 'getThreshold',
-    stateMutability: 'view',
-    inputs: [
-      {
-        name: 'cohortId',
-        type: 'uint32',
-        internalType: 'uint32',
-      },
-    ],
-    outputs: [
-      {
-        name: '',
-        type: 'uint16',
-        internalType: 'uint16',
-      },
-    ],
-  },
-  {
-    type: 'function',
     name: 'getSigners',
     stateMutability: 'view',
     inputs: [

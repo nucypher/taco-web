@@ -68,21 +68,25 @@ describe('TACo Signing', () => {
         porterUris
       );
 
+      const expectedUserOpString = JSON.stringify(userOp, Object.keys(userOp).sort());
+
       expect(signUserOpMock).toHaveBeenCalledWith(
         {
           '0x1234': btoa(JSON.stringify({
-            data: JSON.stringify(userOp),
+            user_op: expectedUserOpString,
+            aa_version: aaVersion,
             cohort_id: cohortId,
             chain_id: chainId,
-            signature_type: aaVersion,
-            context: undefined
+            context: {},
+            signature_type: aaVersion
           })),
           '0xabcd': btoa(JSON.stringify({
-            data: JSON.stringify(userOp),
+            user_op: expectedUserOpString,
+            aa_version: aaVersion,
             cohort_id: cohortId,
             chain_id: chainId,
-            signature_type: aaVersion,
-            context: undefined
+            context: {},
+            signature_type: aaVersion
           }))
         },
         2,
@@ -129,21 +133,25 @@ describe('TACo Signing', () => {
         porterUris
       );
 
+      const expectedUserOpString2 = JSON.stringify(userOp, Object.keys(userOp).sort());
+
       expect(signUserOpMock).toHaveBeenCalledWith(
         {
           '0x1234': btoa(JSON.stringify({
-            data: JSON.stringify(userOp),
+            user_op: expectedUserOpString2,
+            aa_version: aaVersion,
             cohort_id: cohortId,
             chain_id: chainId,
-            signature_type: aaVersion,
-            context: undefined
+            context: {},
+            signature_type: aaVersion
           })),
           '0xabcd': btoa(JSON.stringify({
-            data: JSON.stringify(userOp),
+            user_op: expectedUserOpString2,
+            aa_version: aaVersion,
             cohort_id: cohortId,
             chain_id: chainId,
-            signature_type: aaVersion,
-            context: undefined
+            context: {},
+            signature_type: aaVersion
           }))
         },
         2,

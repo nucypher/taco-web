@@ -56,17 +56,27 @@ describe.skipIf(!process.env.RUNNING_IN_CI)('Taco Sign Integration Test', () => 
     const porterUris = await getPorterUris(DOMAIN as Domain);
 
     // Sign user operation
-    const signResult = await signUserOp(
-      provider,
-      DOMAIN as Domain,
-      RITUAL_ID,
-      CHAIN_ID,
-      userOp,
-      '0.8.0',
-      { optimistic: true, returnAggregated: true },
-      undefined,
-      porterUris
-    );
+    try {
+      const signResult = await signUserOp(
+        provider,
+        DOMAIN as Domain,
+        RITUAL_ID,
+        CHAIN_ID,
+        userOp,
+        '0.8.0',
+        { optimistic: true, returnAggregated: true },
+        undefined,
+        porterUris
+      );
+    } catch (error: any) {
+      console.error('Detailed error info:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText, 
+        data: error.response?.data,
+        message: error.message
+      });
+      throw error;
+    }
 
     // Verify sign result
     expect(signResult).toBeDefined();

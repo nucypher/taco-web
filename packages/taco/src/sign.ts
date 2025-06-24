@@ -38,12 +38,16 @@ export async function signUserOp(
     cohortId,
   );
 
-  const signingRequest = {
-    data: JSON.stringify(userOp),
+  // Convert UserOperation to sorted JSON string (matching Python: json.dumps(self.to_dict(), sort_keys=True))
+  const userOpString = JSON.stringify(userOp, Object.keys(userOp).sort());
+  
+  const signingRequest: any = {
+    user_op: userOpString,
+    aa_version: aaVersion,
     cohort_id: cohortId,
     chain_id: chainId,
+    context: context || {},
     signature_type: aaVersion,
-    context,
   };
 
   const signingRequests: Record<string, string> = Object.fromEntries(

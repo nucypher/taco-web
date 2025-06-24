@@ -17,7 +17,10 @@ const signingConditionSchema = baseConditionSchema.extend({
 
 const baseSigningObjectAttributeConditionSchema = signingConditionSchema.extend(
   {
-    attribute_name: z.string().describe('The name of the attribute to check'),
+    attributeName: z
+      .string()
+      .min(1)
+      .describe('The name of the attribute to check'),
   },
 );
 
@@ -28,6 +31,7 @@ export const signingObjectAttributeConditionSchema: z.ZodSchema =
     conditionType: z
       .literal(SigningObjectAttributeConditionType)
       .default(SigningObjectAttributeConditionType),
+    returnValueTest: blockchainReturnValueTestSchema,
   });
 
 export type SigningObjectAttributeConditionProps = z.infer<

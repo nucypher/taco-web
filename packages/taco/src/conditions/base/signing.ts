@@ -14,6 +14,7 @@ export {
   abiCallValidationSchema,
   AbiParameterValidationProps,
   abiParameterValidationSchema,
+  SIGNING_CONDITION_OBJECT_CONTEXT_VAR,
   SigningObjectAbiAttributeConditionProps,
   signingObjectAbiAttributeConditionSchema,
   SigningObjectAbiAttributeConditionType,

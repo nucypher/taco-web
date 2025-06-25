@@ -338,7 +338,7 @@ export class PorterClient {
       signing_requests: signingRequests,
       threshold: threshold
     };
-
+    
     let resp: AxiosResponse<SignResponse>;
     try {
       resp = await this.tryAndCall({

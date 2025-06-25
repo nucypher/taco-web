@@ -69,20 +69,19 @@ describe('TACo Signing', () => {
       );
 
       const pythonUserOp = convertUserOperationToPython(userOp);
-      const expectedUserOpString = JSON.stringify(pythonUserOp, Object.keys(pythonUserOp).sort());
 
       expect(signUserOpMock).toHaveBeenCalledWith(
         {
-          '0x1234': btoa(JSON.stringify({
-            user_op: expectedUserOpString,
+          '0x5678': btoa(JSON.stringify({
+            user_op: pythonUserOp,
             aa_version: aaVersion,
             cohort_id: cohortId,
             chain_id: chainId,
             context: {},
             signature_type: "userop"
           })),
-          '0xabcd': btoa(JSON.stringify({
-            user_op: expectedUserOpString,
+          '0xefgh': btoa(JSON.stringify({
+            user_op: pythonUserOp,
             aa_version: aaVersion,
             cohort_id: cohortId,
             chain_id: chainId,
@@ -135,20 +134,19 @@ describe('TACo Signing', () => {
       );
 
       const pythonUserOp2 = convertUserOperationToPython(userOp);
-      const expectedUserOpString2 = JSON.stringify(pythonUserOp2, Object.keys(pythonUserOp2).sort());
 
       expect(signUserOpMock).toHaveBeenCalledWith(
         {
-          '0x1234': btoa(JSON.stringify({
-            user_op: expectedUserOpString2,
+          '0x5678': btoa(JSON.stringify({
+            user_op: pythonUserOp2,
             aa_version: aaVersion,
             cohort_id: cohortId,
             chain_id: chainId,
             context: {},
             signature_type: "userop"
           })),
-          '0xabcd': btoa(JSON.stringify({
-            user_op: expectedUserOpString2,
+          '0xefgh': btoa(JSON.stringify({
+            user_op: pythonUserOp2,
             aa_version: aaVersion,
             cohort_id: cohortId,
             chain_id: chainId,

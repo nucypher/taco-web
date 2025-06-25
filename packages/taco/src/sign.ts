@@ -20,7 +20,7 @@ export async function signUserOp(
   cohortId: number,
   chainId: number,
   userOp: UserOperation,
-  aaVersion: '0.8.0' | string,
+  aaVersion: 'mdt' | '0.8.0' | string,
   options: SigningOptions = { optimistic: true, returnAggregated: true },
   context?: ConditionContext,
   porterUris?: string[],
@@ -44,10 +44,9 @@ export async function signUserOp(
   );
 
   const pythonUserOp = convertUserOperationToPython(userOp);
-  const userOpString = JSON.stringify(pythonUserOp, Object.keys(pythonUserOp).sort());
   
   const signingRequest = new UserOperationSignatureRequest(
-    userOpString,
+    pythonUserOp,
     aaVersion,
     cohortId,
     chainId,

@@ -22,7 +22,7 @@ export type UserOperation = {
 
 export class UserOperationSignatureRequest {
   constructor(
-    private userOpString: string,
+    private userOp: ReturnType<typeof convertUserOperationToPython>,
     private aaVersion: string,
     private cohortId: number,
     private chainId: number,
@@ -32,7 +32,7 @@ export class UserOperationSignatureRequest {
 
   toBytes(): Uint8Array {
     const data = {
-      user_op: this.userOpString,
+      user_op: this.userOp,
       aa_version: this.aaVersion,
       cohort_id: this.cohortId,
       chain_id: this.chainId,
@@ -48,8 +48,8 @@ export function convertUserOperationToPython(userOp: UserOperation) {
     sender: userOp.sender,
     nonce: parseInt(userOp.nonce, 16) || 0,
     factory: userOp.factory === '0x' ? null : userOp.factory,
-    factory_data: userOp.factoryData,
-    call_data: userOp.callData,
+    factory_data: userOp.factoryData || "0x",
+    call_data: userOp.callData || "0x",
     call_gas_limit: parseInt(userOp.callGasLimit, 16) || 0,
     verification_gas_limit: parseInt(userOp.verificationGasLimit, 16) || 0,
     pre_verification_gas: parseInt(userOp.preVerificationGas, 16) || 0,
@@ -58,7 +58,7 @@ export function convertUserOperationToPython(userOp: UserOperation) {
     paymaster: userOp.paymaster === '0x' ? null : userOp.paymaster,
     paymaster_verification_gas_limit: parseInt(userOp.paymasterVerificationGasLimit, 16) || 0,
     paymaster_post_op_gas_limit: parseInt(userOp.paymasterPostOpGasLimit, 16) || 0,
-    paymaster_data: userOp.paymasterData,
-    signature: userOp.signature,
+    paymaster_data: userOp.paymasterData || "0x",
+    signature: userOp.signature || "0x",
   };
 }

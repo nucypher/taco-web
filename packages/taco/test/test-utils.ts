@@ -55,6 +55,9 @@ import {
   RpcConditionType,
 } from '../src/conditions/base/rpc';
 import {
+  SIGNING_CONDITION_OBJECT_CONTEXT_VAR,
+  SigningObjectAbiAttributeConditionProps,
+  SigningObjectAbiAttributeConditionType,
   SigningObjectAttributeConditionProps,
   SigningObjectAttributeConditionType,
 } from '../src/conditions/base/signing';
@@ -344,6 +347,46 @@ export const testSigningAttributeConditionObj: SigningObjectAttributeConditionPr
     returnValueTest: {
       comparator: '>',
       value: 100,
+    },
+  };
+
+// lots of nested abi calls
+export const testSigningObjectAbiAttributeConditionObj: SigningObjectAbiAttributeConditionProps =
+  {
+    conditionType: SigningObjectAbiAttributeConditionType,
+    signingObjectContextVar: SIGNING_CONDITION_OBJECT_CONTEXT_VAR,
+    attributeName: 'callData',
+    abiValidation: {
+      allowedAbiCalls: {
+        'execute((address,uint256,bytes))': [
+          {
+            parameterIndex: 0,
+            indexWithinTuple: 0,
+            returnValueTest: {
+              comparator: '==',
+              value: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+            },
+          },
+          {
+            parameterIndex: 0,
+            indexWithinTuple: 2,
+            nestedAbiValidation: {
+              allowedAbiCalls: {
+                'execute(address,uint256,bytes)': [
+                  {
+                    parameterIndex: 2,
+                    nestedAbiValidation: {
+                      allowedAbiCalls: {
+                        'transfer(address,uint256)': [],
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        ],
+      },
     },
   };
 

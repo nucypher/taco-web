@@ -66,6 +66,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)('Taco Sign Integration Test', () => 
       undefined,
       porterUris
     );
+    console.log('Sign result:', signResult);
 
     // Verify sign result
     expect(signResult).toBeDefined();

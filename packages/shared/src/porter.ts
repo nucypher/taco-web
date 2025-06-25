@@ -160,8 +160,10 @@ export type SigningOptions = {
 
 type SignResponse = {
   readonly result: {
-    readonly digest: HexEncodedBytes;
-    readonly signing_results: Record<ChecksumAddress, [ChecksumAddress, Base64EncodedBytes]>;
+    readonly signing_results: {
+      readonly signatures: Record<ChecksumAddress, [ChecksumAddress, Base64EncodedBytes]>;
+      readonly errors: Record<ChecksumAddress, string>;
+    };
   };
 };
 
@@ -337,28 +339,49 @@ export class PorterClient {
       threshold: threshold
     };
 
-    const resp: AxiosResponse<SignResponse> = await this.tryAndCall({
-      url: '/sign',
-      method: 'post',
-      data,
-    });
+    let resp: AxiosResponse<SignResponse>;
+    try {
+      resp = await this.tryAndCall({
+        url: '/sign',
+        method: 'post',
+        data,
+      });
+    } catch (error) {
+      console.error('Error in tryAndCall:', error);
+      throw error;
+    }
+
 
     const signingResults: { [ursulaAddress: string]: [string, string] } = {};
     const errors: Record<string, string> = {};
     let messageHash = '';
 
-    for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(
-      resp.data.result.signing_results
-    )) {
-      try {
-        const decodedData = JSON.parse(
-          new TextDecoder().decode(fromBase64(signatureB64))
-        );
-        messageHash = decodedData.message_hash;
-        signingResults[ursulaAddress] = [signerAddress, decodedData.signature];
-      } catch (e: unknown) {
-        const errorMessage = e instanceof Error ? e.message : 'Unknown error';
-        errors[ursulaAddress] = `Failed to decode signature: ${errorMessage}`;
+    // Check if signing_results exists and has the expected structure
+    const signingResultsData = resp.data.result.signing_results;
+    if (!signingResultsData || typeof signingResultsData !== 'object') {
+      throw new Error(`Invalid signing_results in response: ${JSON.stringify(resp.data.result)}`);
+    }
+
+    // Copy errors from the response
+    if (signingResultsData.errors) {
+      Object.assign(errors, signingResultsData.errors);
+    }
+
+    // Process signatures
+    if (signingResultsData.signatures) {
+      for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(
+        signingResultsData.signatures
+      )) {
+        try {
+          const decodedData = JSON.parse(
+            new TextDecoder().decode(fromBase64(signatureB64))
+          );
+          messageHash = decodedData.message_hash;
+          signingResults[ursulaAddress] = [signerAddress, decodedData.signature];
+        } catch (e: unknown) {
+          const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+          errors[ursulaAddress] = `Failed to decode signature: ${errorMessage}`;
+        }
       }
     }
 

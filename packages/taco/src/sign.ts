@@ -35,6 +35,8 @@ export async function signUserOp(
     domain,
     cohortId,
   );
+  console.log({ signers });
+  
   const threshold = await SigningCoordinatorAgent.getThreshold(
     provider,
     domain,
@@ -55,7 +57,7 @@ export async function signUserOp(
 
   const signingRequests: Record<string, string> = Object.fromEntries(
     signers.map((signer) => [
-      signer.operator, 
+      signer.provider, 
       toBase64(signingRequest.toBytes())
     ]),
   );

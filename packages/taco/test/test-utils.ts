@@ -365,7 +365,7 @@ export const testSigningAttributeConditionObj: SigningObjectAttributeConditionPr
     },
   };
 
-// lots of nested abi calls
+// some nested abi calls
 export const testSigningObjectAbiAttributeConditionObj: SigningObjectAbiAttributeConditionProps =
   {
     conditionType: SigningObjectAbiAttributeConditionType,

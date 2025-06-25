@@ -6,18 +6,16 @@ import { initialize } from '../src';
 import { signUserOp } from '../src/sign';
 
 const RPC_PROVIDER_URL = 'https://ethereum-sepolia-rpc.publicnode.com';
-const SIGNER_PRIVATE_KEY = '0x900edb9e8214b2353f82aa195e915128f419a92cfb8bbc0f4784f10ef4112b86';
+const DUMMY_ADDRESS = '0x742d35Cc6634C0532925a3b8D33C9c0E7b66C8E8';
 const DOMAIN = 'lynx';
-const RITUAL_ID = 2;
+const RITUAL_ID = 1;
 const CHAIN_ID = 11155111;
 
 describe.skipIf(!process.env.RUNNING_IN_CI)('Taco Sign Integration Test', () => {
   let provider: ethers.providers.JsonRpcProvider;
-  let signer: ethers.Wallet;
 
   beforeAll(async () => {
     provider = new ethers.providers.JsonRpcProvider(RPC_PROVIDER_URL);
-    signer = new ethers.Wallet(SIGNER_PRIVATE_KEY, provider);
 
     // Initialize the library
     await initialize();
@@ -34,7 +32,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)('Taco Sign Integration Test', () => 
   test('should sign a user operation', async () => {
     // Create a sample user operation with all required fields
     const userOp: UserOperation = {
-      sender: signer.address,
+      sender: DUMMY_ADDRESS,
       nonce: '0x0',
       factory: '0x',
       factoryData: '0x',

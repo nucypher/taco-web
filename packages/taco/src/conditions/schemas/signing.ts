@@ -1,4 +1,4 @@
-import { FunctionFragment } from 'ethers/lib/utils';
+import { FunctionFragment, ParamType } from 'ethers/lib/utils';
 import { z } from 'zod';
 
 import { baseConditionSchema } from './common';
@@ -58,6 +58,7 @@ export const abiParameterValidationSchema: z.ZodSchema = z
       .describe('comparison check for value within calldata'),
     nestedAbiValidation: z
       .lazy(() => abiCallValidationSchema)
+      .optional()
       .describe('additional checks for nested abi calldata'),
   })
   .refine(
@@ -76,37 +77,66 @@ export type AbiParameterValidationProps = z.infer<
   typeof abiParameterValidationSchema
 >;
 
-const isValidFunctionSignature = (signature: string): boolean => {
+// TODO: is there something already built out there to validate Solidity types?
+const isValidSolidityType = (param: ParamType): boolean => {
+  // Recursive check for valid Solidity types
+  if (!param.baseType || !param.baseType.trim()) {
+    return false; // empty type is not valid
+  }
+
+  // Check for arrays and tuples
+  if (param.baseType === 'tuple') {
+    if (!param.components || param.components.length === 0) {
+      return false; // arrays and tuples must have components defined
+    }
+    return param.components.every(isValidSolidityType);
+  } else if (param.baseType === 'array') {
+    if (!param.arrayChildren) {
+      return false; // arrays must have children defined
+    }
+    return isValidSolidityType(param.arrayChildren);
+  } else {
+    // YIKES!
+    const solidityBaseTypePattern =
+      /^(u?int(8|16|24|32|40|48|56|64|72|80|88|96|104|112|120|128|136|144|152|160|168|176|184|192|200|208|216|224|232|240|248|256)?|bytes([1-9]|[1-2][0-9]|3[0-2])?|string|address|bool)$/;
+    return solidityBaseTypePattern.test(param.baseType);
+  }
+};
+
+// TODO; find a better way to validate the param type - incomplete best effort for now
+const isValidHumanAbiCallSignature = (signature: string): boolean => {
   try {
     // TODO: verify this works properly
     const fragment = FunctionFragment.from(signature);
-    return fragment.format() === signature; // ensure the same sighash format was provided
-  } catch (error) {
+    for (const parameter of fragment.inputs) {
+      if (!isValidSolidityType(parameter)) {
+        return false; // invalid Solidity type
+      }
+    }
+
+    // ensure the same sighash format was provided
+    return fragment.format() === signature;
+  } catch {
     return false;
   }
 };
 
+const humanAbiCallSignatureSchema = z
+  .string()
+  .refine(isValidHumanAbiCallSignature, {
+    message: 'Invalid human readable ABI signature provided',
+  })
+  .describe('A human readable ABI signature, e.g. "transfer(address,uint256)"');
+
 export const abiCallValidationSchema: z.ZodSchema = z
   .object({
     allowedAbiCalls: z.record(
-      z.string(),
+      humanAbiCallSignatureSchema,
       z.array(abiParameterValidationSchema),
     ),
   })
-  .refine(
-    (abiCallValidation) => {
-      // validate human readable abi signature
-      const keys = Object.keys(abiCallValidation.allowedAbiCalls);
-      keys.forEach((abiSignature) => {
-        if (!isValidFunctionSignature(abiSignature)) {
-          return false;
-        }
-      });
-      return true;
-    },
-    {
-      message: 'Invalid ABI signature provided',
-    },
+  .describe(
+    'A map of allowed ABI calls with their respective parameter validations.',
   );
 
 export type AbiCallValidationProps = z.infer<typeof abiCallValidationSchema>;

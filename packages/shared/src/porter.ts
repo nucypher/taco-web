@@ -339,54 +339,27 @@ export class PorterClient {
       threshold: threshold
     };
     
-    let resp: AxiosResponse<SignResponse>;
-    try {
-      resp = await this.tryAndCall({
-        url: '/sign',
-        method: 'post',
-        data,
-      });
-    } catch (error) {
-      console.error('Error in tryAndCall:', error);
-      throw error;
-    }
+    const resp: AxiosResponse<SignResponse> = await this.tryAndCall({
+      url: '/sign',
+      method: 'post',
+      data,
+    });
 
-
+    const { signatures, errors } = resp.data.result.signing_results;
+    
     const signingResults: { [ursulaAddress: string]: [string, string] } = {};
-    const errors: Record<string, string> = {};
     let messageHash = '';
 
-    // Check if signing_results exists and has the expected structure
-    const signingResultsData = resp.data.result.signing_results;
-    if (!signingResultsData || typeof signingResultsData !== 'object') {
-      throw new Error(`Invalid signing_results in response: ${JSON.stringify(resp.data.result)}`);
+    // Process signatures - decode the JSON payload to extract message hash and signature
+    for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(signatures || {})) {
+      const decodedData = JSON.parse(
+        new TextDecoder().decode(fromBase64(signatureB64))
+      );
+      messageHash = decodedData.message_hash;
+      signingResults[ursulaAddress] = [signerAddress, decodedData.signature];
     }
 
-    // Copy errors from the response
-    if (signingResultsData.errors) {
-      Object.assign(errors, signingResultsData.errors);
-    }
-
-    // Process signatures
-    if (signingResultsData.signatures) {
-      for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(
-        signingResultsData.signatures
-      )) {
-        try {
-          const decodedData = JSON.parse(
-            new TextDecoder().decode(fromBase64(signatureB64))
-          );
-          messageHash = decodedData.message_hash;
-          signingResults[ursulaAddress] = [signerAddress, decodedData.signature];
-        } catch (e: unknown) {
-          const errorMessage = e instanceof Error ? e.message : 'Unknown error';
-          errors[ursulaAddress] = `Failed to decode signature: ${errorMessage}`;
-        }
-      }
-    }
-
-    // Only return aggregated signature if there are no errors
-    const aggregatedSignature = Object.keys(errors).length === 0 
+    const aggregatedSignature = Object.keys(signingResults).length > 0 
       ? aggregatePorterSignatures(signingResults)
       : undefined;
 
@@ -394,7 +367,7 @@ export class PorterClient {
       messageHash,
       aggregatedSignature,
       signingResults,
-      errors,
+      errors: errors || {},
     };
   }
 }

@@ -55,7 +55,6 @@ const createMockSignResponse = (errorCase?: boolean) => ({
   result: {
     signing_results: {
       signatures: errorCase ? {
-        '0x1234': ['0x5678', 'invalid-base64'],
         '0xabcd': ['0xefgh', toBase64(new TextEncoder().encode(JSON.stringify({
           message_hash: '0x1234',
           signature: '0xijkl'
@@ -69,7 +68,10 @@ const createMockSignResponse = (errorCase?: boolean) => ({
           message_hash: '0x1234',
           signature: '0xijkl'
         })))]
-      }
+      },
+      errors: errorCase ? {
+        '0x1234': 'Failed to sign'
+      } : {}
     }
   },
 });
@@ -230,8 +232,8 @@ describe('PorterClient Signing', () => {
       ).rejects.toThrow('Porter returned bad response: 400 - ');
     });
 
-    it('should handle signature decoding errors in UserOperation signing', async () => {
-      // Mock a response with invalid base64 signature
+    it('should handle errors from Porter response in UserOperation signing', async () => {
+      // Mock a response with errors from Porter
       mockSignUserOp(true, true);
       const porterClient = new PorterClient(fakePorterUris[2]);
       const result = await porterClient.signUserOp(
@@ -248,12 +250,12 @@ describe('PorterClient Signing', () => {
 
       expect(result).toEqual({
         messageHash: '0x1234',
-        aggregatedSignature: undefined, // No aggregated signature when errors occur
+        aggregatedSignature: '0xijkl', // Still aggregated from successful signatures
         signingResults: {
           '0xabcd': ['0xefgh', '0xijkl'],
         },
         errors: {
-          '0x1234': 'Failed to decode signature: Invalid character',
+          '0x1234': 'Failed to sign',
         },
       });
     });

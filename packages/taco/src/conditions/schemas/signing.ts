@@ -44,22 +44,22 @@ export const abiParameterValidationSchema: z.ZodSchema = z
       .number()
       .int()
       .nonnegative()
-      .describe('index of parameter to check within abi calldata.'),
+      .describe('Index of parameter to check within abi calldata.'),
     indexWithinTuple: z
       .number()
       .int()
       .nonnegative()
       .optional()
       .describe(
-        'index of value within tuple value at parameter index to check',
+        'Index of value within tuple value at parameter index to check',
       ),
     returnValueTest: blockchainReturnValueTestSchema
       .optional()
-      .describe('comparison check for value within calldata'),
+      .describe('Comparison check for value within calldata'),
     nestedAbiValidation: z
       .lazy(() => abiCallValidationSchema)
       .optional()
-      .describe('additional checks for nested abi calldata'),
+      .describe('Additional checks for nested abi calldata'),
   })
   .refine(
     // An XOR check to see if either 'returnValueTest' or 'nestedAbiValidation' is set

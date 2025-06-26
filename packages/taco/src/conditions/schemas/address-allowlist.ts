@@ -19,7 +19,7 @@ export const addressAllowlistConditionSchema = baseConditionSchema
   })
   .strict()
   .describe(
-    'Address Allowlist Condition for allowing decryption for specific wallet addresses. It may not be very handy on its own, but when combined with other conditions, it can be very useful.',
+    'Address Allowlist Condition for allowing decryption for specific wallet addresses. It is very handy when combined with other conditions.',
   );
 
 export type AddressAllowlistConditionProps = z.infer<

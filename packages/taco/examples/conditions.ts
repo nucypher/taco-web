@@ -112,7 +112,7 @@ const myContractCallCondition = new conditions.base.contract.ContractCondition({
   method: 'myFunctionAbi', // `myMethodAbi.name`
   parameters: [':userAddress', ':myCustomParam'], // `myMethodAbi.inputs`
   functionAbi: myFunctionAbi,
-  contractAddress: '0x0...1',
+  contractAddress: '0x0000000000000000000000000000000000000001',
   chain: ChainId.SEPOLIA,
   returnValueTest: {
     comparator: '>',
@@ -121,8 +121,8 @@ const myContractCallCondition = new conditions.base.contract.ContractCondition({
 });
 
 console.assert(
-  !myContractCallCondition.requiresAuthentication(),
-  'ContractCondition does not require a signer',
+  myContractCallCondition.requiresAuthentication(),
+  'ContractCondition requires a signer',
 );
 
 // Address Allowlist Condition Example
@@ -146,3 +146,4 @@ const addressToCheck = '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77';
 const addresses = addressAllowlistCondition.toObj().addresses;
 // This would be checked by taco nodes after validating the wallet signature provided by encryptor (the value of the variable `addressToCheck`).
 const isAllowed = addresses.includes(addressToCheck);
+console.assert(isAllowed, 'Address should be allowed but it is not.');

@@ -168,7 +168,7 @@ type SignResponse = {
 };
 
 export type SignResult = {
-  digest: string;
+  messageHash: string;
   aggregatedSignature: string | undefined;
   signingResults: { [ursulaAddress: string]: [string, string] };
   errors: Record<string, string>;
@@ -391,7 +391,7 @@ export class PorterClient {
       : undefined;
 
     return {
-      digest: messageHash,
+      messageHash,
       aggregatedSignature,
       signingResults,
       errors,

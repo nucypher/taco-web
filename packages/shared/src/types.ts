@@ -1,3 +1,5 @@
+import { ethers } from 'ethers';
+
 export type ChecksumAddress = `0x${string}`;
 export type HexEncodedBytes = string;
 export type Base64EncodedBytes = string;
@@ -32,7 +34,7 @@ export class UserOperationSignatureRequest {
 
   toBytes(): Uint8Array {
     const data = {
-      user_op: this.userOp,
+      user_op: JSON.stringify(this.userOp),
       aa_version: this.aaVersion,
       cohort_id: this.cohortId,
       chain_id: this.chainId,
@@ -43,11 +45,25 @@ export class UserOperationSignatureRequest {
   }
 }
 
+function normalizeAddress(address: string): string | null {
+  if (!address || address === '0x') {
+    return null;
+  }
+  
+  try {
+    // Use ethers to get the checksummed address - this will throw on invalid addresses
+    return ethers.utils.getAddress(address);
+  } catch (error) {
+    // Re-throw the error to fail fast on invalid addresses
+    throw new Error(`Invalid address: ${address}. ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
 export function convertUserOperationToPython(userOp: UserOperation) {
   return {
-    sender: userOp.sender,
+    sender: normalizeAddress(userOp.sender),
     nonce: parseInt(userOp.nonce, 16) || 0,
-    factory: userOp.factory === '0x' ? null : userOp.factory,
+    factory: normalizeAddress(userOp.factory),
     factory_data: userOp.factoryData || "0x",
     call_data: userOp.callData || "0x",
     call_gas_limit: parseInt(userOp.callGasLimit, 16) || 0,
@@ -55,7 +71,7 @@ export function convertUserOperationToPython(userOp: UserOperation) {
     pre_verification_gas: parseInt(userOp.preVerificationGas, 16) || 0,
     max_fee_per_gas: parseInt(userOp.maxFeePerGas, 16) || 0,
     max_priority_fee_per_gas: parseInt(userOp.maxPriorityFeePerGas, 16) || 0,
-    paymaster: userOp.paymaster === '0x' ? null : userOp.paymaster,
+    paymaster: normalizeAddress(userOp.paymaster),
     paymaster_verification_gas_limit: parseInt(userOp.paymasterVerificationGasLimit, 16) || 0,
     paymaster_post_op_gas_limit: parseInt(userOp.paymasterPostOpGasLimit, 16) || 0,
     paymaster_data: userOp.paymasterData || "0x",

@@ -6,7 +6,7 @@ import { initialize } from '../src';
 import { signUserOp } from '../src/sign';
 
 const RPC_PROVIDER_URL = 'https://ethereum-sepolia-rpc.publicnode.com';
-const DUMMY_ADDRESS = '0x742d35Cc6634C0532925a3b8D33C9c0E7b66C8E8';
+const DUMMY_ADDRESS = '0x742D35Cc6634C0532925A3b8D33c9c0E7B66C8E8';
 const DOMAIN = 'lynx';
 const RITUAL_ID = 1;
 const CHAIN_ID = 11155111;
@@ -68,7 +68,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)('Taco Sign Integration Test', () => 
 
     // Verify sign result
     expect(signResult).toBeDefined();
-    expect(signResult.digest).toBeDefined();
+    expect(signResult.messageHash).toBeDefined();
     expect(signResult.aggregatedSignature).toBeDefined();
     expect(signResult.signingResults).toBeDefined();
     expect(Object.keys(signResult.signingResults).length).toBeGreaterThan(0);

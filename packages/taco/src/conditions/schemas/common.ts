@@ -30,7 +30,7 @@ export const baseConditionSchema = z.object({
   conditionType: z
     .string()
     .describe(
-      'This value is set automatically at every sub-class constructor when a new object is being created.',
+      'A unique identifier that indicates the condition variant in its serialized form. It is set automatically at every sub-class constructor when a new object is being created.',
     ),
 });
 

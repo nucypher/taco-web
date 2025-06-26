@@ -10,8 +10,8 @@ import {
   SigningObjectAttributeConditionType,
 } from '../../../src/conditions/base/signing';
 import {
-  testSigningAttributeConditionObj,
   testSigningObjectAbiAttributeConditionObj,
+  testSigningObjectAttributeConditionObj,
 } from '../../test-utils';
 
 describe('SigningObjectAttributeCondition', () => {
@@ -19,17 +19,17 @@ describe('SigningObjectAttributeCondition', () => {
     it('accepts on a valid schema', () => {
       const result = SigningObjectAttributeCondition.validate(
         signingObjectAttributeConditionSchema,
-        testSigningAttributeConditionObj,
+        testSigningObjectAttributeConditionObj,
       );
 
       expect(result.error).toBeUndefined();
-      expect(result.data).toEqual(testSigningAttributeConditionObj);
+      expect(result.data).toEqual(testSigningObjectAttributeConditionObj);
     });
 
     describe('rejects an invalid schema', () => {
       it('rejects invalid condition type', () => {
         const badSigningAttributeConditionObj = {
-          ...testSigningAttributeConditionObj,
+          ...testSigningObjectAttributeConditionObj,
           conditionType: 'myAttribute',
         };
         const result = SigningObjectAttributeCondition.validate(
@@ -46,7 +46,7 @@ describe('SigningObjectAttributeCondition', () => {
       });
       it('rejects invalid context variable', () => {
         const badSigningAttributeConditionObj = {
-          ...testSigningAttributeConditionObj,
+          ...testSigningObjectAttributeConditionObj,
           signingObjectContextVar: ':contextVar',
         };
         const result = SigningObjectAttributeCondition.validate(
@@ -65,7 +65,7 @@ describe('SigningObjectAttributeCondition', () => {
       });
       it('rejects empty attributeName', () => {
         const badSigningAttributeConditionObj = {
-          ...testSigningAttributeConditionObj,
+          ...testSigningObjectAttributeConditionObj,
           // Intentionally replacing `attributeName` with an invalid value
           attributeName: '',
         };
@@ -84,7 +84,7 @@ describe('SigningObjectAttributeCondition', () => {
       });
       it('rejects invalid attributeName value type', () => {
         const badSigningAttributeConditionObj = {
-          ...testSigningAttributeConditionObj,
+          ...testSigningObjectAttributeConditionObj,
           // Intentionally replacing `attributeName` with an invalid value
           attributeName: 100,
         };
@@ -106,7 +106,7 @@ describe('SigningObjectAttributeCondition', () => {
     it('infers condition type from constructor', () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { conditionType, ...withoutType } =
-        testSigningAttributeConditionObj;
+        testSigningObjectAttributeConditionObj;
       const condition = new SigningObjectAttributeCondition(withoutType);
       expect(condition.value.conditionType).toEqual(
         SigningObjectAttributeConditionType,
@@ -115,7 +115,7 @@ describe('SigningObjectAttributeCondition', () => {
     it('infers context variable from constructor', () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { conditionType, signingObjectContextVar, ...withoutType } =
-        testSigningAttributeConditionObj;
+        testSigningObjectAttributeConditionObj;
       const condition = new SigningObjectAttributeCondition(withoutType);
       expect(condition.value.signingObjectContextVar).toEqual(
         SIGNING_CONDITION_OBJECT_CONTEXT_VAR,

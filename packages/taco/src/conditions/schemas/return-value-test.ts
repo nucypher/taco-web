@@ -7,7 +7,6 @@ import {
 
 const returnValueTestBaseSchema = z.object({
   index: z.number().int().nonnegative().optional(),
-  // TODO: should we add "!in"?
   comparator: z.enum(['==', '>', '<', '>=', '<=', '!=', 'in', '!in']),
 });
 

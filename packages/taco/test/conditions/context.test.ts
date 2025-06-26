@@ -35,6 +35,7 @@ import {
 import { RESERVED_CONTEXT_PARAMS } from '../../src/conditions/context/context';
 import { IfThenElseConditionType } from '../../src/conditions/if-then-else-condition';
 import { blockchainParamOrContextParamSchema } from '../../src/conditions/schemas/context';
+import { SIGNING_CONDITION_OBJECT_CONTEXT_VAR } from '../../src/conditions/schemas/signing';
 import { SequentialConditionType } from '../../src/conditions/sequential';
 import { paramOrContextParamSchema } from '../../src/conditions/shared';
 import { fromJSON, toJSON } from '../../src/utils';
@@ -46,6 +47,8 @@ import {
   testJsonRpcConditionObj,
   testRpcConditionObj,
   testRpcReturnValueTest,
+  testSigningObjectAbiAttributeConditionObj,
+  testSigningObjectAttributeConditionObj,
   testTimeConditionObj,
   UINT256_MAX,
 } from '../test-utils';
@@ -934,6 +937,14 @@ describe('recognition of context variables in conditions', () => {
     returnValueTest: rvt,
   };
 
+  const signingObjectAttributeCondition = {
+    ...testSigningObjectAttributeConditionObj,
+  };
+
+  const signingObjectAbiAttributeCondition = {
+    ...testSigningObjectAbiAttributeConditionObj,
+  };
+
   it('handles context params for rpc condition', () => {
     const condition = ConditionFactory.conditionFromProps(rpcCondition);
     const conditionContext = new ConditionContext(condition);
@@ -1012,6 +1023,28 @@ describe('recognition of context variables in conditions', () => {
       ]),
     );
   });
+  it('handles context params for signing object attribute condition', () => {
+    const condition = ConditionFactory.conditionFromProps(
+      signingObjectAttributeCondition,
+    );
+    const conditionContext = new ConditionContext(condition);
+
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([SIGNING_CONDITION_OBJECT_CONTEXT_VAR]),
+    );
+  });
+  it('handles context params for signing object abi attribute condition', () => {
+    const condition = ConditionFactory.conditionFromProps(
+      signingObjectAbiAttributeCondition,
+    );
+    const conditionContext = new ConditionContext(condition);
+
+    // Verify all context parameters are detected
+    expect(conditionContext.requestedContextParameters).toEqual(
+      new Set([SIGNING_CONDITION_OBJECT_CONTEXT_VAR]),
+    );
+  });
   it.each([
     {
       conditionType: SequentialConditionType,
@@ -1044,6 +1077,14 @@ describe('recognition of context variables in conditions', () => {
               {
                 varName: 'jsonRpcParamsArray',
                 condition: jsonRpcConditionParamsArray,
+              },
+              {
+                varName: 'signingObjectAttribute',
+                condition: signingObjectAttributeCondition,
+              },
+              {
+                varName: 'signingObjectAbiAttribute',
+                condition: signingObjectAbiAttributeCondition,
               },
             ],
           },
@@ -1100,6 +1141,7 @@ describe('recognition of context variables in conditions', () => {
         ':queryKey',
         ':authToken',
         ':expectedResult',
+        SIGNING_CONDITION_OBJECT_CONTEXT_VAR,
       ]),
     );
   });

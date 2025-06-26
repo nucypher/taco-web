@@ -10,6 +10,10 @@ import { jsonRpcConditionSchema } from './json-rpc';
 import { jwtConditionSchema } from './jwt';
 import { rpcConditionSchema } from './rpc';
 import { sequentialConditionSchema } from './sequential';
+import {
+  signingObjectAbiAttributeConditionSchema,
+  signingObjectAttributeConditionSchema,
+} from './signing';
 import { timeConditionSchema } from './time';
 
 export const anyConditionSchema: z.ZodSchema = z.lazy(() =>
@@ -18,10 +22,12 @@ export const anyConditionSchema: z.ZodSchema = z.lazy(() =>
     timeConditionSchema,
     addressAllowlistConditionSchema,
     contractConditionSchema,
-    compoundConditionSchema,
     jsonApiConditionSchema,
     jsonRpcConditionSchema,
     jwtConditionSchema,
+    signingObjectAttributeConditionSchema,
+    signingObjectAbiAttributeConditionSchema,
+    compoundConditionSchema,
     sequentialConditionSchema,
     ifThenElseConditionSchema,
   ]),

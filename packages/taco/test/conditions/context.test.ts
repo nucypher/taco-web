@@ -1096,10 +1096,16 @@ describe('recognition of context variables in conditions', () => {
       operands: [
         jsonApiCondition,
         jsonRpcConditionParamsDict,
+        signingObjectAbiAttributeCondition,
         {
           conditionType: CompoundConditionType,
           operator: 'and',
-          operands: [jsonRpcConditionParamsArray, rpcCondition, timeCondition],
+          operands: [
+            jsonRpcConditionParamsArray,
+            rpcCondition,
+            timeCondition,
+            signingObjectAbiAttributeCondition,
+          ],
         },
         {
           conditionType: CompoundConditionType,
@@ -1120,6 +1126,7 @@ describe('recognition of context variables in conditions', () => {
           contractCondition,
           jsonApiCondition,
           jsonRpcConditionParamsDict,
+          signingObjectAbiAttributeCondition,
         ],
       },
     },

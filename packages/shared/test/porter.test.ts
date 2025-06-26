@@ -53,29 +53,31 @@ const mockGetUrsulas = (ursulas: Ursula[] = fakeUrsulas()): MockInstance => {
 
 const createMockSignResponse = (errorCase?: boolean) => ({
   result: {
-    digest: '0x1234',
-    signing_results: errorCase ? {
-      '0x1234': ['0x5678', 'invalid-base64'],
-      '0xabcd': ['0xefgh', toBase64(new TextEncoder().encode(JSON.stringify({
-        message_hash: '0x1234',
-        signature: '0xijkl'
-      })))]
-    } : {
-      '0x1234': ['0x5678', toBase64(new TextEncoder().encode(JSON.stringify({
-        message_hash: '0x1234',
-        signature: '0x90ab'
-      })))],
-      '0xabcd': ['0xefgh', toBase64(new TextEncoder().encode(JSON.stringify({
-        message_hash: '0x1234',
-        signature: '0xijkl'
-      })))]
+    signing_results: {
+      signatures: errorCase ? {
+        '0x1234': ['0x5678', 'invalid-base64'],
+        '0xabcd': ['0xefgh', toBase64(new TextEncoder().encode(JSON.stringify({
+          message_hash: '0x1234',
+          signature: '0xijkl'
+        })))]
+      } : {
+        '0x1234': ['0x5678', toBase64(new TextEncoder().encode(JSON.stringify({
+          message_hash: '0x1234',
+          signature: '0x90ab'
+        })))],
+        '0xabcd': ['0xefgh', toBase64(new TextEncoder().encode(JSON.stringify({
+          message_hash: '0x1234',
+          signature: '0xijkl'
+        })))]
+      }
     }
   },
 });
 
 const createMockSignImplementation = (endpoint: string) => (success: boolean = true, errorCase?: boolean): MockInstance => {
   return vi.spyOn(axios, 'request').mockImplementation(async (config) => {
-    if (config.url === endpoint) {
+    // Handle sign requests
+    if (config.url === endpoint && config.baseURL === fakePorterUris[2]) {
       if (success) {
         return Promise.resolve({
           status: HttpStatusCode.Ok,
@@ -84,7 +86,6 @@ const createMockSignImplementation = (endpoint: string) => (success: boolean = t
       }
       return Promise.resolve({ status: HttpStatusCode.BadRequest, data: '' });
     }
-    throw new Error('Unexpected endpoint');
   });
 };
 
@@ -200,7 +201,7 @@ describe('PorterClient Signing', () => {
       );
 
       expect(result).toEqual({
-        digest: '0x1234',
+        messageHash: '0x1234',
         aggregatedSignature: '0x90ab0xijkl', // Combined signatures in sorted order
         signingResults: {
           '0x1234': ['0x5678', '0x90ab'],
@@ -246,7 +247,7 @@ describe('PorterClient Signing', () => {
       );
 
       expect(result).toEqual({
-        digest: '0x1234',
+        messageHash: '0x1234',
         aggregatedSignature: undefined, // No aggregated signature when errors occur
         signingResults: {
           '0xabcd': ['0xefgh', '0xijkl'],

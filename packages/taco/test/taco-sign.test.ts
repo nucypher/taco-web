@@ -23,9 +23,9 @@ describe('TACo Signing', () => {
 
   describe('signUserOp', () => {
     const userOp = {
-      sender: '0x123',
+      sender: '0x742D35Cc6634C0532925A3b8D33c9c0E7B66C8E8',
       nonce: '0x1',
-      factory: '0x0',
+      factory: '0x0000000000000000000000000000000000000000',
       factoryData: '0x',
       callData: '0xabc',
       callGasLimit: '0x20000',
@@ -33,7 +33,7 @@ describe('TACo Signing', () => {
       preVerificationGas: '0x1000',
       maxFeePerGas: '0xabc',
       maxPriorityFeePerGas: '0x123',
-      paymaster: '0x0',
+      paymaster: '0x0000000000000000000000000000000000000000',
       paymasterVerificationGasLimit: '0x0',
       paymasterPostOpGasLimit: '0x0',
       paymasterData: '0x',
@@ -47,7 +47,7 @@ describe('TACo Signing', () => {
       const porterUris = [fakePorterUri];
 
       signUserOpMock.mockResolvedValue({
-        digest: '0x1234',
+        messageHash: '0x1234',
         aggregatedSignature: '0x90ab0xijkl',
         signingResults: {
           '0x1234': ['0x5678', '0x90ab'],
@@ -73,7 +73,7 @@ describe('TACo Signing', () => {
       expect(signUserOpMock).toHaveBeenCalledWith(
         {
           '0x5678': btoa(JSON.stringify({
-            user_op: pythonUserOp,
+            user_op: JSON.stringify(pythonUserOp),
             aa_version: aaVersion,
             cohort_id: cohortId,
             chain_id: chainId,
@@ -81,7 +81,7 @@ describe('TACo Signing', () => {
             signature_type: "userop"
           })),
           '0xefgh': btoa(JSON.stringify({
-            user_op: pythonUserOp,
+            user_op: JSON.stringify(pythonUserOp),
             aa_version: aaVersion,
             cohort_id: cohortId,
             chain_id: chainId,
@@ -94,7 +94,7 @@ describe('TACo Signing', () => {
       );
 
       expect(result).toEqual({
-        digest: '0x1234',
+        messageHash: '0x1234',
         aggregatedSignature: '0x90ab0xijkl',
         signingResults: {
           '0x1234': ['0x5678', '0x90ab'],
@@ -112,7 +112,7 @@ describe('TACo Signing', () => {
       const options = { optimistic: false, returnAggregated: false };
 
       signUserOpMock.mockResolvedValue({
-        digest: '0x1234',
+        messageHash: '0x1234',
         aggregatedSignature: '0x90ab0xijkl',
         signingResults: {
           '0x1234': ['0x5678', '0x90ab'],
@@ -138,7 +138,7 @@ describe('TACo Signing', () => {
       expect(signUserOpMock).toHaveBeenCalledWith(
         {
           '0x5678': btoa(JSON.stringify({
-            user_op: pythonUserOp2,
+            user_op: JSON.stringify(pythonUserOp2),
             aa_version: aaVersion,
             cohort_id: cohortId,
             chain_id: chainId,
@@ -146,7 +146,7 @@ describe('TACo Signing', () => {
             signature_type: "userop"
           })),
           '0xefgh': btoa(JSON.stringify({
-            user_op: pythonUserOp2,
+            user_op: JSON.stringify(pythonUserOp2),
             aa_version: aaVersion,
             cohort_id: cohortId,
             chain_id: chainId,

@@ -339,7 +339,7 @@ export const testSequentialConditionObj: SequentialConditionProps = {
   ],
 };
 
-export const testSigningAttributeConditionObj: SigningObjectAttributeConditionProps =
+export const testSigningObjectAttributeConditionObj: SigningObjectAttributeConditionProps =
   {
     conditionType: SigningObjectAttributeConditionType,
     signingObjectContextVar: ':signingConditionObject',

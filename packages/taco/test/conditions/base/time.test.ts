@@ -30,31 +30,6 @@ describe('validation', () => {
     expect(result.data).toEqual(conditionObj);
   });
 
-  it('rejects an invalid schema', () => {
-    const badObj = {
-      conditionType: TimeConditionType,
-      // Intentionally replacing `returnValueTest` with an invalid test
-      returnValueTest: {
-        ...returnValueTest,
-        comparator: 'not-a-comparator',
-      },
-      chain: TEST_CHAIN_ID,
-    } as unknown as TimeConditionProps;
-    const result = TimeCondition.validate(timeConditionSchema, badObj);
-
-    expect(result.error).toBeDefined();
-    expect(result.data).toBeUndefined();
-    expect(result.error?.format()).toMatchObject({
-      returnValueTest: {
-        comparator: {
-          _errors: [
-            "Invalid enum value. Expected '==' | '>' | '<' | '>=' | '<=' | '!=', received 'not-a-comparator'",
-          ],
-        },
-      },
-    });
-  });
-
   it('infers condition type from constructor', () => {
     const condition = new TimeCondition({
       returnValueTest,

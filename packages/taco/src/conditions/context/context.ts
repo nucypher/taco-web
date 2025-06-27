@@ -273,12 +273,16 @@ export class ConditionContext {
     chainId: number,
   ): Promise<ConditionContext> {
     // get signing condition from SigningCoordinator contract
-    const cohortConditionJson = await SigningCoordinatorAgent.getSigningCohortConditions(
+    const cohortConditionHex = await SigningCoordinatorAgent.getSigningCohortConditions(
       provider,
       domain,
       cohortId,
       chainId,
     );
+    
+    // Convert hex string to UTF-8 JSON string
+    const cohortConditionJson = ethers.utils.toUtf8String(cohortConditionHex);
+    
     const cohortCondition = new CoreConditions(cohortConditionJson);
     const conditionExpr = ConditionExpression.fromCoreConditions(
       cohortCondition,

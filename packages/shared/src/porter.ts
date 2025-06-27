@@ -152,6 +152,35 @@ export type TacoDecryptResult = {
   errors: Record<string, string>;
 };
 
+// Signing types
+export type SigningOptions = {
+  optimistic?: boolean;        // Whether to return first signatures received or wait for all signatures
+  returnAggregated?: boolean;  // Whether to return the aggregated signature
+};
+
+type SignResponse = {
+  readonly result: {
+    readonly signing_results: {
+      readonly signatures: Record<ChecksumAddress, [ChecksumAddress, Base64EncodedBytes]>;
+      readonly errors: Record<ChecksumAddress, string>;
+    };
+  };
+};
+
+export type SignResult = {
+  messageHash: string;
+  aggregatedSignature: string | undefined;
+  signingResults: { [ursulaAddress: string]: [string, string] };
+  errors: Record<string, string>;
+};
+
+function aggregatePorterSignatures(
+  signaturesWithAddress: { [checksumAddress: string]: [string, string] }
+): string {
+  const signatures = Object.values(signaturesWithAddress).map(([, signature]) => signature);
+  return signatures.join('');
+}
+
 export class PorterClient {
   readonly porterUrls: URL[];
 
@@ -175,7 +204,20 @@ export class PorterClient {
         if (resp.status === HttpStatusCode.Ok) {
           return resp;
         }
-      } catch (e) {
+      } catch (e: unknown) {
+        const errorDetails: Record<string, unknown> = {
+          url: porterUrl.toString(),
+          method: config.method,
+          requestData: config.data
+        };
+        
+        if (axios.isAxiosError(e)) {
+          errorDetails.status = e.response?.status;
+          errorDetails.statusText = e.response?.statusText;
+          errorDetails.data = e.response?.data;
+        }
+        
+        console.error('Porter request failed:', errorDetails);
         lastError = e;
         continue;
       }
@@ -283,5 +325,49 @@ export class PorterClient {
       EncryptedThresholdDecryptionResponse
     > = Object.fromEntries(decryptionResponses);
     return { encryptedResponses, errors };
+  }
+
+
+  public async signUserOp(
+    signingRequests: Record<string, string>,
+    threshold: number,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _options: SigningOptions = { optimistic: true, returnAggregated: true },
+  ): Promise<SignResult> {
+    const data: Record<string, unknown> = {
+      signing_requests: signingRequests,
+      threshold: threshold
+    };
+    
+    const resp: AxiosResponse<SignResponse> = await this.tryAndCall({
+      url: '/sign',
+      method: 'post',
+      data,
+    });
+
+    const { signatures, errors } = resp.data.result.signing_results;
+    
+    const signingResults: { [ursulaAddress: string]: [string, string] } = {};
+    let messageHash = '';
+
+    // Process signatures - decode the JSON payload to extract message hash and signature
+    for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(signatures || {})) {
+      const decodedData = JSON.parse(
+        new TextDecoder().decode(fromBase64(signatureB64))
+      );
+      messageHash = decodedData.message_hash;
+      signingResults[ursulaAddress] = [signerAddress, decodedData.signature];
+    }
+
+    const aggregatedSignature = Object.keys(signingResults).length > 0 
+      ? aggregatePorterSignatures(signingResults)
+      : undefined;
+
+    return {
+      messageHash,
+      aggregatedSignature,
+      signingResults,
+      errors: errors || {},
+    };
   }
 }

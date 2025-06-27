@@ -39,6 +39,17 @@ export class SigningCoordinatorAgent {
     return cohort.threshold;
   }
 
+  public static async getSigningCohortConditions(
+    provider: ethers.providers.Provider,
+    domain: Domain,
+    cohortId: number,
+    chainId: number,
+  ): Promise<string> {
+    const coordinator = await this.connectReadOnly(provider, domain);
+    const cohortCondition = await coordinator.getSigningCohortConditions(cohortId, chainId);
+    return cohortCondition;
+  }
+
   private static async connectReadOnly(
     provider: ethers.providers.Provider,
     domain: Domain,

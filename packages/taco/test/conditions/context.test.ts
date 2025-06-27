@@ -1,4 +1,5 @@
 import { initialize } from '@nucypher/nucypher-core';
+import { Domain, SigningCoordinatorAgent } from '@nucypher/shared';
 import {
   AuthProvider,
   AuthSignature,
@@ -1101,5 +1102,221 @@ describe('recognition of context variables in conditions', () => {
         ':expectedResult',
       ]),
     );
+  });
+});
+
+describe('forSigningCohort', () => {
+  beforeAll(async () => {
+    await initialize();
+  });
+
+  it('creates ConditionContext from signing cohort conditions', async () => {
+    const mockProvider = fakeProvider();
+    const domain = 'lynx' as Domain;
+    const cohortId = 1;
+    const chainId = 11155111;
+    
+    // Mock signing cohort conditions JSON
+    const mockConditionsJson = JSON.stringify({
+      version: '1.0.0',
+      condition: {
+        conditionType: 'rpc',
+        chain: chainId,
+        method: 'eth_getBalance',
+        parameters: [':userAddress', 'latest'],
+        returnValueTest: {
+          comparator: '>',
+          value: 0
+        }
+      }
+    });
+    
+    // Convert to hex string as the contract would return
+    const mockConditionsHex = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(mockConditionsJson));
+
+    // Mock the SigningCoordinatorAgent method
+    const getSigningCohortConditionsSpy = vi.spyOn(
+      SigningCoordinatorAgent,
+      'getSigningCohortConditions'
+    ).mockResolvedValue(mockConditionsHex);
+
+    // Test the forSigningCohort method
+    const conditionContext = await ConditionContext.forSigningCohort(
+      mockProvider,
+      domain,
+      cohortId,
+      chainId
+    );
+
+    // Verify the method was called with correct parameters
+    expect(getSigningCohortConditionsSpy).toHaveBeenCalledWith(
+      mockProvider,
+      domain,
+      cohortId,
+      chainId
+    );
+
+    // Verify the context was created correctly
+    expect(conditionContext).toBeInstanceOf(ConditionContext);
+    expect(conditionContext.requestedContextParameters).toContain(':userAddress');
+
+    // Cleanup
+    getSigningCohortConditionsSpy.mockRestore();
+  });
+
+  it('handles errors when signing cohort conditions fail to load', async () => {
+    const mockProvider = fakeProvider();
+    const domain = 'lynx' as Domain;
+    const cohortId = 999;
+    const chainId = 11155111;
+
+    // Mock the SigningCoordinatorAgent method to throw an error
+    const getSigningCohortConditionsSpy = vi.spyOn(
+      SigningCoordinatorAgent,
+      'getSigningCohortConditions'
+    ).mockRejectedValue(new Error('Cohort not found'));
+
+    // Test that error is propagated
+    await expect(
+      ConditionContext.forSigningCohort(mockProvider, domain, cohortId, chainId)
+    ).rejects.toThrow('Cohort not found');
+
+    // Verify the method was called
+    expect(getSigningCohortConditionsSpy).toHaveBeenCalledWith(
+      mockProvider,
+      domain,
+      cohortId,
+      chainId
+    );
+
+    // Cleanup
+    getSigningCohortConditionsSpy.mockRestore();
+  });
+
+  it('handles invalid JSON from signing cohort conditions', async () => {
+    const mockProvider = fakeProvider();
+    const domain = 'lynx' as Domain;
+    const cohortId = 1;
+    const chainId = 11155111;
+
+    // Mock the SigningCoordinatorAgent method to return invalid hex
+    const getSigningCohortConditionsSpy = vi.spyOn(
+      SigningCoordinatorAgent,
+      'getSigningCohortConditions'
+    ).mockResolvedValue('0xinvalidhex');
+
+    // Test that JSON parse error is handled
+    await expect(
+      ConditionContext.forSigningCohort(mockProvider, domain, cohortId, chainId)
+    ).rejects.toThrow();
+
+    // Verify the method was called
+    expect(getSigningCohortConditionsSpy).toHaveBeenCalledWith(
+      mockProvider,
+      domain,
+      cohortId,
+      chainId
+    );
+
+    // Cleanup
+    getSigningCohortConditionsSpy.mockRestore();
+  });
+
+
+  it('handles complex condition structures', async () => {
+    const mockProvider = fakeProvider();
+    const domain = 'lynx' as Domain;
+    const cohortId = 1;
+    const chainId = 11155111;
+
+    // Mock compound condition JSON
+    const mockComplexConditionsJson = JSON.stringify({
+      version: '1.0.0',
+      condition: {
+        conditionType: 'compound',
+        operator: 'and',
+        operands: [
+          {
+            conditionType: 'rpc',
+            chain: chainId,
+            method: 'eth_getBalance',
+            parameters: [':userAddress', 'latest'],
+            returnValueTest: {
+              comparator: '>',
+              value: 0
+            }
+          },
+          {
+            conditionType: 'contract',
+            contractAddress: '0x1234567890123456789012345678901234567890',
+            chain: chainId,
+            standardContractType: 'ERC20',
+            method: 'balanceOf',
+            parameters: [':userAddress'],
+            returnValueTest: {
+              comparator: '>=',
+              value: 1000
+            }
+          }
+        ]
+      }
+    });
+    
+    // Convert to hex string as the contract would return
+    const mockComplexConditionsHex = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(mockComplexConditionsJson));
+
+    // Mock the SigningCoordinatorAgent method
+    const getSigningCohortConditionsSpy = vi.spyOn(
+      SigningCoordinatorAgent,
+      'getSigningCohortConditions'
+    ).mockResolvedValue(mockComplexConditionsHex);
+
+    // Test the forSigningCohort method with complex conditions
+    const conditionContext = await ConditionContext.forSigningCohort(
+      mockProvider,
+      domain,
+      cohortId,
+      chainId
+    );
+
+    // Verify the context was created correctly
+    expect(conditionContext).toBeInstanceOf(ConditionContext);
+    expect(conditionContext.requestedContextParameters).toContain(':userAddress');
+
+    // Cleanup
+    getSigningCohortConditionsSpy.mockRestore();
+  });
+
+  it('handles invalid condition schema', async () => {
+    const mockProvider = fakeProvider();
+    const domain = 'lynx' as Domain;
+    const cohortId = 1;
+    const chainId = 11155111;
+
+    // Mock invalid condition schema JSON
+    const mockInvalidConditionsJson = JSON.stringify({
+      version: '1.0.0',
+      condition: {
+        conditionType: 'invalid_type',
+        missingRequiredFields: true
+      }
+    });
+    
+    // Convert to hex string as the contract would return
+    const mockInvalidConditionsHex = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(mockInvalidConditionsJson));
+
+    // Mock the SigningCoordinatorAgent method
+    const getSigningCohortConditionsSpy = vi.spyOn(
+      SigningCoordinatorAgent,
+      'getSigningCohortConditions'
+    ).mockResolvedValue(mockInvalidConditionsHex);
+
+    // Test that invalid condition schema throws error
+    await expect(
+      ConditionContext.forSigningCohort(mockProvider, domain, cohortId, chainId)
+    ).rejects.toThrow();
+
+    // Cleanup
+    getSigningCohortConditionsSpy.mockRestore();
   });
 });

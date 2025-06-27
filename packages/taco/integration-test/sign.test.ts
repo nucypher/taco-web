@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 import { beforeAll, describe, expect, test } from 'vitest';
 
 import { initialize } from '../src';
+import { context } from '../src/conditions';
 import { signUserOp } from '../src/sign';
 
 const RPC_PROVIDER_URL = 'https://ethereum-sepolia-rpc.publicnode.com';
@@ -52,6 +53,9 @@ describe.skipIf(!process.env.RUNNING_IN_CI)('Taco Sign Integration Test', () => 
     // Get porter URIs
     const porterUris = await getPorterUris(DOMAIN as Domain);
 
+    // Get context
+    const signingContext = await context.ConditionContext.forSigningCohort(provider, DOMAIN as Domain, RITUAL_ID, CHAIN_ID);
+
     // Sign user operation
     const signResult = await signUserOp(
       provider,
@@ -61,7 +65,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)('Taco Sign Integration Test', () => 
       userOp,
       '0.8.0',
       { optimistic: true, returnAggregated: true },
-      undefined,
+      signingContext,
       porterUris
     );
     console.log('Sign result:', signResult);

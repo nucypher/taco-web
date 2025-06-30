@@ -64,7 +64,10 @@ export const AUTOMATICALLY_INJECTED_CONTEXT_PARAMS = [
   // These context parameters are automatically injected on the node side.
   SIGNING_CONDITION_OBJECT_CONTEXT_VAR,
 ];
-export const RESERVED_CONTEXT_PARAMS = [USER_ADDRESS_PARAM_DEFAULT];
+export const RESERVED_CONTEXT_PARAMS = [
+  USER_ADDRESS_PARAM_DEFAULT,
+  SIGNING_CONDITION_OBJECT_CONTEXT_VAR,
+];
 
 export class ConditionContext {
   public requestedContextParameters: Set<string>;

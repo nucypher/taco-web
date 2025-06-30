@@ -33,7 +33,10 @@ import {
   ConditionContext,
   CustomContextParam,
 } from '../../src/conditions/context';
-import { RESERVED_CONTEXT_PARAMS } from '../../src/conditions/context/context';
+import {
+  AUTOMATICALLY_INJECTED_CONTEXT_PARAMS,
+  RESERVED_CONTEXT_PARAMS,
+} from '../../src/conditions/context/context';
 import { IfThenElseConditionType } from '../../src/conditions/if-then-else-condition';
 import { blockchainParamOrContextParamSchema } from '../../src/conditions/schemas/context';
 import { SequentialConditionType } from '../../src/conditions/sequential';
@@ -410,11 +413,19 @@ describe('context', () => {
       RESERVED_CONTEXT_PARAMS.forEach((reservedParam) => {
         const badCustomParams: Record<string, CustomContextParam> = {};
         badCustomParams[reservedParam] = 'this-will-throw';
-        expect(() =>
-          conditionContext.addCustomContextParameterValues(badCustomParams),
-        ).toThrow(
-          `Cannot use reserved parameter name ${reservedParam} as custom parameter`,
-        );
+        if (AUTOMATICALLY_INJECTED_CONTEXT_PARAMS.includes(reservedParam)) {
+          expect(() =>
+            conditionContext.addCustomContextParameterValues(badCustomParams),
+          ).toThrow(
+            `Context parameter ${reservedParam} is automatically injected and cannot be set manually`,
+          );
+        } else {
+          expect(() =>
+            conditionContext.addCustomContextParameterValues(badCustomParams),
+          ).toThrow(
+            `Cannot use reserved parameter name ${reservedParam} as custom parameter`,
+          );
+        }
       });
     });
 

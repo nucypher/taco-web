@@ -63,7 +63,6 @@ describe('TACo Signing', () => {
         chainId,
         userOp,
         aaVersion,
-        { optimistic: true, returnAggregated: true },
         undefined,
         porterUris
       );
@@ -89,8 +88,7 @@ describe('TACo Signing', () => {
             signature_type: "userop"
           }))
         },
-        2,
-        { optimistic: true, returnAggregated: true }
+        2
       );
 
       expect(result).toEqual({
@@ -109,7 +107,6 @@ describe('TACo Signing', () => {
       const aaVersion = '0.8.0';
       const cohortId = 5;
       const porterUris = [fakePorterUri];
-      const options = { optimistic: false, returnAggregated: false };
 
       signUserOpMock.mockResolvedValue({
         messageHash: '0x1234',
@@ -128,7 +125,6 @@ describe('TACo Signing', () => {
         chainId,
         userOp,
         aaVersion,
-        options,
         undefined,
         porterUris
       );
@@ -154,8 +150,7 @@ describe('TACo Signing', () => {
             signature_type: "userop"
           }))
         },
-        2,
-        options
+        2
       );
     });
   });

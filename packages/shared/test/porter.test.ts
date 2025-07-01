@@ -195,11 +195,7 @@ describe('PorterClient Signing', () => {
           '0x1234': JSON.stringify(mockPackedUserOp),
           '0xabcd': JSON.stringify(mockPackedUserOp)
         },
-        2,
-        {
-          optimistic: true,
-          returnAggregated: true
-        }
+        2
       );
 
       expect(result).toEqual({
@@ -241,11 +237,7 @@ describe('PorterClient Signing', () => {
           '0x1234': JSON.stringify(mockPackedUserOp),
           '0xabcd': JSON.stringify(mockPackedUserOp)
         },
-        2,
-        {
-          optimistic: true,
-          returnAggregated: true
-        }
+        2
       );
 
       expect(result).toEqual({
@@ -258,6 +250,47 @@ describe('PorterClient Signing', () => {
           '0x1234': 'Failed to sign',
         },
       });
+    });
+
+    it('should throw error when message hashes do not match', async () => {
+      const createMismatchedResponse = () => ({
+        result: {
+          signing_results: {
+            signatures: {
+              '0x1234': ['0x5678', toBase64(new TextEncoder().encode(JSON.stringify({
+                message_hash: '0x1234',
+                signature: '0x90ab'
+              })))],
+              '0xabcd': ['0xefgh', toBase64(new TextEncoder().encode(JSON.stringify({
+                message_hash: '0xdifferent', // Different message hash
+                signature: '0xijkl'
+              })))]
+            },
+            errors: {}
+          }
+        },
+      });
+
+      vi.spyOn(axios, 'request').mockImplementation(async (config) => {
+        if (config.url === '/sign' && config.baseURL === fakePorterUris[2]) {
+          return Promise.resolve({
+            status: HttpStatusCode.Ok,
+            data: createMismatchedResponse(),
+          });
+        }
+      });
+
+      const porterClient = new PorterClient(fakePorterUris[2]);
+      
+      await expect(
+        porterClient.signUserOp(
+          {
+            '0x1234': JSON.stringify(mockPackedUserOp),
+            '0xabcd': JSON.stringify(mockPackedUserOp)
+          },
+          2
+        )
+      ).rejects.toThrow('Mismatched message hashes');
     });
   });
 });

@@ -359,7 +359,7 @@ export class PorterClient {
       signingResults[ursulaAddress] = [signerAddress, decodedData.signature];
     }
 
-    const aggregatedSignature = Object.keys(signingResults).length > 0 
+    const aggregatedSignature = Object.keys(signingResults).length >= threshold
       ? aggregatePorterSignatures(signingResults)
       : undefined;
 

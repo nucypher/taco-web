@@ -155,7 +155,6 @@ export type TacoDecryptResult = {
 // Signing types
 export type SigningOptions = {
   optimistic?: boolean;        // Whether to return first signatures received or wait for all signatures
-  returnAggregated?: boolean;  // Whether to return the aggregated signature
 };
 
 type SignResponse = {
@@ -331,8 +330,6 @@ export class PorterClient {
   public async signUserOp(
     signingRequests: Record<string, string>,
     threshold: number,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _options: SigningOptions = { optimistic: true, returnAggregated: true },
   ): Promise<SignResult> {
     const data: Record<string, unknown> = {
       signing_requests: signingRequests,
@@ -355,6 +352,9 @@ export class PorterClient {
       const decodedData = JSON.parse(
         new TextDecoder().decode(fromBase64(signatureB64))
       );
+      if (messageHash && messageHash !== decodedData.message_hash) {
+        throw new Error('Mismatched message hashes');
+      }
       messageHash = decodedData.message_hash;
       signingResults[ursulaAddress] = [signerAddress, decodedData.signature];
     }

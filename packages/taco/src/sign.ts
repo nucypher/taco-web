@@ -4,7 +4,6 @@ import {
   getPorterUris,
   PorterClient,
   SigningCoordinatorAgent,
-  SigningOptions,
   SignResult,
   toBase64,
   UserOperation,
@@ -21,7 +20,6 @@ export async function signUserOp(
   chainId: number,
   userOp: UserOperation,
   aaVersion: 'mdt' | '0.8.0' | string,
-  options: SigningOptions = { optimistic: true, returnAggregated: true },
   context?: ConditionContext,
   porterUris?: string[],
 ): Promise<SignResult> {
@@ -62,7 +60,7 @@ export async function signUserOp(
   );
 
   // Build signing request for the user operation
-  const result = await porter.signUserOp(signingRequests, threshold, options);
+  const result = await porter.signUserOp(signingRequests, threshold);
 
   return result;
 }

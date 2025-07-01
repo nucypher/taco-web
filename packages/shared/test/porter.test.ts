@@ -252,7 +252,7 @@ describe('PorterClient Signing', () => {
       });
     });
 
-    it('should throw error when message hashes do not match', async () => {
+    it('should include error when message hashes do not match', async () => {
       const createMismatchedResponse = () => ({
         result: {
           signing_results: {
@@ -281,16 +281,24 @@ describe('PorterClient Signing', () => {
       });
 
       const porterClient = new PorterClient(fakePorterUris[2]);
-      
-      await expect(
-        porterClient.signUserOp(
-          {
-            '0x1234': JSON.stringify(mockPackedUserOp),
-            '0xabcd': JSON.stringify(mockPackedUserOp)
-          },
-          2
-        )
-      ).rejects.toThrow('Mismatched message hashes');
+      const result = await porterClient.signUserOp(
+        {
+          '0x1234': JSON.stringify(mockPackedUserOp),
+          '0xabcd': JSON.stringify(mockPackedUserOp)
+        },
+        2
+      );
+
+      expect(result).toEqual({
+        messageHash: '0x1234', // First valid message hash
+        aggregatedSignature: undefined, // No aggregation since only 1 valid signature < threshold (2)
+        signingResults: {
+          '0x1234': ['0x5678', '0x90ab'], // Only the first valid signature
+        },
+        errors: {
+          '0xabcd': 'Mismatched message hash', // Error for the mismatched hash
+        },
+      });
     });
 
     it('should not return aggregated signature when threshold not met', async () => {

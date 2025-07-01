@@ -242,7 +242,7 @@ describe('PorterClient Signing', () => {
 
       expect(result).toEqual({
         messageHash: '0x1234',
-        aggregatedSignature: '0xijkl', // Still aggregated from successful signatures
+        aggregatedSignature: undefined, // No aggregation since threshold (2) not met (only 1 signature)
         signingResults: {
           '0xabcd': ['0xefgh', '0xijkl'],
         },
@@ -291,6 +291,50 @@ describe('PorterClient Signing', () => {
           2
         )
       ).rejects.toThrow('Mismatched message hashes');
+    });
+
+    it('should not return aggregated signature when threshold not met', async () => {
+      const createInsufficientResponse = () => ({
+        result: {
+          signing_results: {
+            signatures: {
+              '0x1234': ['0x5678', toBase64(new TextEncoder().encode(JSON.stringify({
+                message_hash: '0x1234',
+                signature: '0x90ab'
+              })))]
+              // Only 1 signature, but threshold is 2
+            },
+            errors: {}
+          }
+        },
+      });
+
+      vi.spyOn(axios, 'request').mockImplementation(async (config) => {
+        if (config.url === '/sign' && config.baseURL === fakePorterUris[2]) {
+          return Promise.resolve({
+            status: HttpStatusCode.Ok,
+            data: createInsufficientResponse(),
+          });
+        }
+      });
+
+      const porterClient = new PorterClient(fakePorterUris[2]);
+      const result = await porterClient.signUserOp(
+        {
+          '0x1234': JSON.stringify(mockPackedUserOp),
+          '0xabcd': JSON.stringify(mockPackedUserOp)
+        },
+        2 // threshold of 2, but only 1 signature
+      );
+
+      expect(result).toEqual({
+        messageHash: '0x1234',
+        aggregatedSignature: undefined, // Should be undefined since threshold not met
+        signingResults: {
+          '0x1234': ['0x5678', '0x90ab'],
+        },
+        errors: {},
+      });
     });
   });
 });

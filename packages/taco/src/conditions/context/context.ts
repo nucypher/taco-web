@@ -57,9 +57,8 @@ const EXPECTED_AUTH_PROVIDER_TYPES: Record<string, AuthProviderType[]> = {
   ],
 };
 
-const INTERNAL_SIGNING_CONDITION = ':signingConditionObject';
 
-export const RESERVED_CONTEXT_PARAMS = [USER_ADDRESS_PARAM_DEFAULT, INTERNAL_SIGNING_CONDITION];
+export const RESERVED_CONTEXT_PARAMS = [USER_ADDRESS_PARAM_DEFAULT];
 
 export class ConditionContext {
   public requestedContextParameters: Set<string>;

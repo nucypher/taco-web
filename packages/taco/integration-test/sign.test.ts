@@ -64,7 +64,6 @@ describe.skipIf(!process.env.RUNNING_IN_CI)('Taco Sign Integration Test', () => 
       CHAIN_ID,
       userOp,
       '0.8.0',
-      { optimistic: true, returnAggregated: true },
       signingContext,
       porterUris
     );

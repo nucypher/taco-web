@@ -345,18 +345,24 @@ export class PorterClient {
     const { signatures, errors } = resp.data.result.signing_results;
     
     const signingResults: { [ursulaAddress: string]: [string, string] } = {};
+    const allErrors: Record<string, string> = { ...errors };
     let messageHash = '';
 
     // Process signatures - decode the JSON payload to extract message hash and signature
     for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(signatures || {})) {
-      const decodedData = JSON.parse(
-        new TextDecoder().decode(fromBase64(signatureB64))
-      );
-      if (messageHash && messageHash !== decodedData.message_hash) {
-        throw new Error('Mismatched message hashes');
+      try {
+        const decodedData = JSON.parse(
+          new TextDecoder().decode(fromBase64(signatureB64))
+        );
+        if (messageHash && messageHash !== decodedData.message_hash) {
+          allErrors[ursulaAddress] = 'Mismatched message hash';
+          continue;
+        }
+        messageHash = decodedData.message_hash;
+        signingResults[ursulaAddress] = [signerAddress, decodedData.signature];
+      } catch (error) {
+        allErrors[ursulaAddress] = `Failed to decode signature: ${error}`;
       }
-      messageHash = decodedData.message_hash;
-      signingResults[ursulaAddress] = [signerAddress, decodedData.signature];
     }
 
     const aggregatedSignature = Object.keys(signingResults).length >= threshold
@@ -367,7 +373,7 @@ export class PorterClient {
       messageHash,
       aggregatedSignature,
       signingResults,
-      errors: errors || {},
+      errors: allErrors,
     };
   }
 }

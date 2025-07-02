@@ -40,7 +40,7 @@ describe('SigningObjectAttributeCondition', () => {
         expect(result.data).toBeUndefined();
         expect(result.error!.format()).toMatchObject({
           conditionType: {
-            _errors: ['Invalid literal value, expected "attribute"'],
+            _errors: ['Invalid literal value, expected "signing-attribute"'],
           },
         });
       });
@@ -147,7 +147,7 @@ describe('SigningObjectAbiAttributeCondition', () => {
     expect(result.data).toBeUndefined();
     expect(result.error!.format()).toMatchObject({
       conditionType: {
-        _errors: ['Invalid literal value, expected "abi-attribute"'],
+        _errors: ['Invalid literal value, expected "signing-abi-attribute"'],
       },
     });
   });

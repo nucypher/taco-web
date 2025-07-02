@@ -6,18 +6,18 @@ export type Base64EncodedBytes = string;
 
 export type UserOperation = {
   sender: string;
-  nonce: string;
+  nonce: number;
   factory: string;
   factoryData: string;
   callData: string;
-  callGasLimit: string;
-  verificationGasLimit: string;
-  preVerificationGas: string;
-  maxFeePerGas: string;
-  maxPriorityFeePerGas: string;
+  callGasLimit: number;
+  verificationGasLimit: number;
+  preVerificationGas: number;
+  maxFeePerGas: number;
+  maxPriorityFeePerGas: number;
   paymaster: string;
-  paymasterVerificationGasLimit: string;
-  paymasterPostOpGasLimit: string;
+  paymasterVerificationGasLimit: number;
+  paymasterPostOpGasLimit: number;
   paymasterData: string;
   signature: string;
 };
@@ -64,20 +64,18 @@ function normalizeAddress(address: string): string | null {
 export function convertUserOperationToPython(userOp: UserOperation) {
   return {
     sender: normalizeAddress(userOp.sender),
-    nonce: parseInt(userOp.nonce, 16) || 0,
+    nonce: userOp.nonce,
     factory: normalizeAddress(userOp.factory),
     factory_data: userOp.factoryData || '0x',
     call_data: userOp.callData || '0x',
-    call_gas_limit: parseInt(userOp.callGasLimit, 16) || 0,
-    verification_gas_limit: parseInt(userOp.verificationGasLimit, 16) || 0,
-    pre_verification_gas: parseInt(userOp.preVerificationGas, 16) || 0,
-    max_fee_per_gas: parseInt(userOp.maxFeePerGas, 16) || 0,
-    max_priority_fee_per_gas: parseInt(userOp.maxPriorityFeePerGas, 16) || 0,
+    call_gas_limit: userOp.callGasLimit,
+    verification_gas_limit: userOp.verificationGasLimit,
+    pre_verification_gas: userOp.preVerificationGas,
+    max_fee_per_gas: userOp.maxFeePerGas,
+    max_priority_fee_per_gas: userOp.maxPriorityFeePerGas,
     paymaster: normalizeAddress(userOp.paymaster),
-    paymaster_verification_gas_limit:
-      parseInt(userOp.paymasterVerificationGasLimit, 16) || 0,
-    paymaster_post_op_gas_limit:
-      parseInt(userOp.paymasterPostOpGasLimit, 16) || 0,
+    paymaster_verification_gas_limit: userOp.paymasterVerificationGasLimit,
+    paymaster_post_op_gas_limit: userOp.paymasterPostOpGasLimit,
     paymaster_data: userOp.paymasterData || '0x',
     signature: userOp.signature || '0x',
   };

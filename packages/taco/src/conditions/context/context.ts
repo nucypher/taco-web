@@ -1,4 +1,5 @@
 import { ThresholdMessageKit } from '@nucypher/nucypher-core';
+import { Domain, SigningCoordinatorAgent } from '@nucypher/shared';
 import {
   AuthProvider,
   AuthSignature,
@@ -7,6 +8,7 @@ import {
   SingleSignOnEIP4361AuthProvider,
   USER_ADDRESS_PARAM_DEFAULT,
 } from '@nucypher/taco-auth';
+import { ethers } from 'ethers';
 
 import { CoreConditions, CoreContext } from '../../types';
 import { toJSON } from '../../utils';
@@ -259,6 +261,30 @@ export class ConditionContext {
     const conditionExpr = ConditionExpression.fromCoreConditions(
       messageKit.acp.conditions,
     );
+    return new ConditionContext(conditionExpr.condition);
+  }
+
+  public static async forSigningCohort(
+    provider: ethers.providers.JsonRpcProvider,
+    domain: Domain,
+    cohortId: number,
+    chainId: number,
+  ): Promise<ConditionContext> {
+    // get signing condition from SigningCoordinator contract
+    const cohortConditionHex =
+      await SigningCoordinatorAgent.getSigningCohortConditions(
+        provider,
+        domain,
+        cohortId,
+        chainId,
+      );
+
+    // Convert hex string to UTF-8 JSON string
+    const cohortConditionJson = ethers.utils.toUtf8String(cohortConditionHex);
+
+    const cohortCondition = new CoreConditions(cohortConditionJson);
+    const conditionExpr =
+      ConditionExpression.fromCoreConditions(cohortCondition);
     return new ConditionContext(conditionExpr.condition);
   }
 }

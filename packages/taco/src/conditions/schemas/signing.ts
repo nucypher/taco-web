@@ -24,7 +24,7 @@ const baseSigningObjectAttributeConditionSchema = signingConditionSchema.extend(
   },
 );
 
-export const SigningObjectAttributeConditionType = 'attribute';
+export const SigningObjectAttributeConditionType = 'signing-attribute';
 
 export const signingObjectAttributeConditionSchema: z.ZodSchema =
   baseSigningObjectAttributeConditionSchema.extend({
@@ -247,7 +247,7 @@ export const abiCallValidationSchema: z.ZodSchema = z
 
 export type AbiCallValidationProps = z.infer<typeof abiCallValidationSchema>;
 
-export const SigningObjectAbiAttributeConditionType = 'abi-attribute';
+export const SigningObjectAbiAttributeConditionType = 'signing-abi-attribute';
 
 export const signingObjectAbiAttributeConditionSchema: z.ZodSchema =
   baseSigningObjectAttributeConditionSchema.extend({

@@ -290,14 +290,13 @@ describe('PorterClient Signing', () => {
       );
 
       expect(result).toEqual({
-        messageHash: '0x1234', // First valid message hash
-        aggregatedSignature: undefined, // No aggregation since only 1 valid signature < threshold (2)
+        messageHash: '0x1234', // First message hash
+        aggregatedSignature: undefined, // No aggregation since no hash meets threshold (2)
         signingResults: {
-          '0x1234': ['0x5678', '0x90ab'], // Only the first valid signature
+          '0x1234': ['0x5678', '0x90ab'],
+          '0xabcd': ['0xefgh', '0xijkl'], // All signatures included in signingResults
         },
-        errors: {
-          '0xabcd': 'Mismatched message hash', // Error for the mismatched hash
-        },
+        errors: {}, // No errors - mismatched hashes don't generate errors, just prevent aggregation
       });
     });
 
@@ -340,6 +339,130 @@ describe('PorterClient Signing', () => {
         aggregatedSignature: undefined, // Should be undefined since threshold not met
         signingResults: {
           '0x1234': ['0x5678', '0x90ab'],
+        },
+        errors: {},
+      });
+    });
+
+    it('should successfully sign with optimistic mode', async () => {
+      mockSignUserOp(true);
+      const porterClient = new PorterClient(fakePorterUris[2]);
+      const result = await porterClient.signUserOp(
+        {
+          '0x1234': JSON.stringify(mockPackedUserOp),
+          '0xabcd': JSON.stringify(mockPackedUserOp)
+        },
+        2,
+        { optimistic: true }
+      );
+
+      expect(result).toEqual({
+        messageHash: '0x1234',
+        aggregatedSignature: '0x90ab0xijkl', // All signatures aggregated in optimistic mode
+        signingResults: {
+          '0x1234': ['0x5678', '0x90ab'],
+          '0xabcd': ['0xefgh', '0xijkl'],
+        },
+        errors: {},
+      });
+    });
+
+    it('should handle decode errors in optimistic mode', async () => {
+      const createOptimisticErrorResponse = () => ({
+        result: {
+          signing_results: {
+            signatures: {
+              '0x1234': ['0x5678', toBase64(new TextEncoder().encode(JSON.stringify({
+                message_hash: '0x1234',
+                signature: '0x90ab'
+              })))],
+              '0xabcd': ['0xefgh', 'invalid-base64-data!!!'] // Invalid signature data
+            },
+            errors: {}
+          }
+        },
+      });
+
+      vi.spyOn(axios, 'request').mockImplementation(async (config) => {
+        if (config.url === '/sign' && config.baseURL === fakePorterUris[2]) {
+          return Promise.resolve({
+            status: HttpStatusCode.Ok,
+            data: createOptimisticErrorResponse(),
+          });
+        }
+      });
+
+      const porterClient = new PorterClient(fakePorterUris[2]);
+      const result = await porterClient.signUserOp(
+        {
+          '0x1234': JSON.stringify(mockPackedUserOp),
+          '0xabcd': JSON.stringify(mockPackedUserOp)
+        },
+        2,
+        { optimistic: true }
+      );
+
+      expect(result).toEqual({
+        messageHash: '0x1234',
+        aggregatedSignature: undefined, // No aggregation since only 1 valid signature < threshold
+        signingResults: {
+          '0x1234': ['0x5678', '0x90ab'], // Only valid signature included
+        },
+        errors: {
+          '0xabcd': expect.stringContaining('Failed to decode signature'), // Decode error
+        },
+      });
+    });
+
+    it('should aggregate only threshold-meeting hash in non-optimistic mode', async () => {
+      const createMixedHashResponse = () => ({
+        result: {
+          signing_results: {
+            signatures: {
+              '0x1234': ['0x5678', toBase64(new TextEncoder().encode(JSON.stringify({
+                message_hash: '0xhash1',
+                signature: '0x90ab'
+              })))],
+              '0xabcd': ['0xefgh', toBase64(new TextEncoder().encode(JSON.stringify({
+                message_hash: '0xhash1', // Same hash, meets threshold
+                signature: '0xijkl'
+              })))],
+              '0xdef0': ['0xabc1', toBase64(new TextEncoder().encode(JSON.stringify({
+                message_hash: '0xhash2', // Different hash, doesn't meet threshold
+                signature: '0xmnop'
+              })))]
+            },
+            errors: {}
+          }
+        },
+      });
+
+      vi.spyOn(axios, 'request').mockImplementation(async (config) => {
+        if (config.url === '/sign' && config.baseURL === fakePorterUris[2]) {
+          return Promise.resolve({
+            status: HttpStatusCode.Ok,
+            data: createMixedHashResponse(),
+          });
+        }
+      });
+
+      const porterClient = new PorterClient(fakePorterUris[2]);
+      const result = await porterClient.signUserOp(
+        {
+          '0x1234': JSON.stringify(mockPackedUserOp),
+          '0xabcd': JSON.stringify(mockPackedUserOp),
+          '0xdef0': JSON.stringify(mockPackedUserOp)
+        },
+        2 // threshold of 2
+      );
+
+      expect(result).toEqual({
+        messageHash: '0xhash1', // First hash seen
+        aggregatedSignature: '0x90ab0xijkl', // Only signatures from threshold-meeting hash
+        signingResults: {
+          '0x1234': ['0x5678', '0x90ab'],
+          '0xabcd': ['0xefgh', '0xijkl'],
+          '0xdef0': ['0xabc1', '0xmnop'], // All signatures included in results
         },
         errors: {},
       });

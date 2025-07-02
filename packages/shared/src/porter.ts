@@ -180,6 +180,35 @@ function aggregatePorterSignatures(
   return signatures.join('');
 }
 
+type DecodedSignature = {
+  messageHash: string;
+  signature: string;
+  signerAddress: string;
+};
+
+function decodeSignature(
+  ursulaAddress: string,
+  signerAddress: string,
+  signatureB64: string
+): { result?: DecodedSignature; error?: string } {
+  try {
+    const decodedData = JSON.parse(
+      new TextDecoder().decode(fromBase64(signatureB64))
+    );
+    return {
+      result: {
+        messageHash: decodedData.message_hash,
+        signature: decodedData.signature,
+        signerAddress,
+      },
+    };
+  } catch (error) {
+    return {
+      error: `Failed to decode signature: ${error}`,
+    };
+  }
+}
+
 export class PorterClient {
   readonly porterUrls: URL[];
 
@@ -330,6 +359,7 @@ export class PorterClient {
   public async signUserOp(
     signingRequests: Record<string, string>,
     threshold: number,
+    options: SigningOptions = {},
   ): Promise<SignResult> {
     const data: Record<string, unknown> = {
       signing_requests: signingRequests,
@@ -343,31 +373,63 @@ export class PorterClient {
     });
 
     const { signatures, errors } = resp.data.result.signing_results;
+    const allErrors: Record<string, string> = { ...errors };
+    const { optimistic = false } = options;
     
     const signingResults: { [ursulaAddress: string]: [string, string] } = {};
-    const allErrors: Record<string, string> = { ...errors };
     let messageHash = '';
-
-    // Process signatures - decode the JSON payload to extract message hash and signature
+    
+    // For non-optimistic path
+    const hashCounts: Map<string, number> = new Map();
+    const hashToSignatures: Map<string, { [ursulaAddress: string]: [string, string] }> = new Map();
+    
+    // Single pass: decode signatures and populate signingResults
     for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(signatures || {})) {
-      try {
-        const decodedData = JSON.parse(
-          new TextDecoder().decode(fromBase64(signatureB64))
-        );
-        if (messageHash && messageHash !== decodedData.message_hash) {
-          allErrors[ursulaAddress] = 'Mismatched message hash';
-          continue;
+      const decoded = decodeSignature(ursulaAddress, signerAddress, signatureB64);
+      if (decoded.error) {
+        allErrors[ursulaAddress] = decoded.error;
+        continue;
+      }
+      
+      if (!messageHash) {
+        messageHash = decoded.result!.messageHash;
+      }
+      
+      // Always include all decoded signatures in signingResults
+      signingResults[ursulaAddress] = [decoded.result!.signerAddress, decoded.result!.signature];
+      
+      if (!optimistic) {
+        // For non-optimistic: track hashes and group signatures for aggregation
+        const hash = decoded.result!.messageHash;
+        hashCounts.set(hash, (hashCounts.get(hash) || 0) + 1);
+        
+        if (!hashToSignatures.has(hash)) {
+          hashToSignatures.set(hash, {});
         }
-        messageHash = decodedData.message_hash;
-        signingResults[ursulaAddress] = [signerAddress, decodedData.signature];
-      } catch (error) {
-        allErrors[ursulaAddress] = `Failed to decode signature: ${error}`;
+        hashToSignatures.get(hash)![ursulaAddress] = [decoded.result!.signerAddress, decoded.result!.signature];
       }
     }
 
-    const aggregatedSignature = Object.keys(signingResults).length >= threshold
-      ? aggregatePorterSignatures(signingResults)
+    // Determine which signatures to aggregate
+    let signaturesToAggregate: { [ursulaAddress: string]: [string, string] } = {};
+    
+    if (optimistic) {
+      // Optimistic: aggregate all signatures
+      signaturesToAggregate = signingResults;
+    } else {
+      // Non-optimistic: only aggregate signatures from hash that meets threshold
+      for (const [hash, count] of hashCounts.entries()) {
+        if (count >= threshold) {
+          signaturesToAggregate = hashToSignatures.get(hash)!;
+          break;
+        }
+      }
+    }
+    
+    const aggregatedSignature = Object.keys(signaturesToAggregate).length >= threshold
+      ? aggregatePorterSignatures(signaturesToAggregate)
       : undefined;
+
 
     return {
       messageHash,

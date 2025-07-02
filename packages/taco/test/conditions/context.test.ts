@@ -1115,7 +1115,7 @@ describe('forSigningCohort', () => {
     const domain = 'lynx' as Domain;
     const cohortId = 1;
     const chainId = 11155111;
-    
+
     // Mock signing cohort conditions JSON
     const mockConditionsJson = JSON.stringify({
       version: '1.0.0',
@@ -1126,26 +1126,27 @@ describe('forSigningCohort', () => {
         parameters: [':userAddress', 'latest'],
         returnValueTest: {
           comparator: '>',
-          value: 0
-        }
-      }
+          value: 0,
+        },
+      },
     });
-    
+
     // Convert to hex string as the contract would return
-    const mockConditionsHex = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(mockConditionsJson));
+    const mockConditionsHex = ethers.utils.hexlify(
+      ethers.utils.toUtf8Bytes(mockConditionsJson),
+    );
 
     // Mock the SigningCoordinatorAgent method
-    const getSigningCohortConditionsSpy = vi.spyOn(
-      SigningCoordinatorAgent,
-      'getSigningCohortConditions'
-    ).mockResolvedValue(mockConditionsHex);
+    const getSigningCohortConditionsSpy = vi
+      .spyOn(SigningCoordinatorAgent, 'getSigningCohortConditions')
+      .mockResolvedValue(mockConditionsHex);
 
     // Test the forSigningCohort method
     const conditionContext = await ConditionContext.forSigningCohort(
       mockProvider,
       domain,
       cohortId,
-      chainId
+      chainId,
     );
 
     // Verify the method was called with correct parameters
@@ -1153,12 +1154,14 @@ describe('forSigningCohort', () => {
       mockProvider,
       domain,
       cohortId,
-      chainId
+      chainId,
     );
 
     // Verify the context was created correctly
     expect(conditionContext).toBeInstanceOf(ConditionContext);
-    expect(conditionContext.requestedContextParameters).toContain(':userAddress');
+    expect(conditionContext.requestedContextParameters).toContain(
+      ':userAddress',
+    );
 
     // Cleanup
     getSigningCohortConditionsSpy.mockRestore();
@@ -1171,14 +1174,18 @@ describe('forSigningCohort', () => {
     const chainId = 11155111;
 
     // Mock the SigningCoordinatorAgent method to throw an error
-    const getSigningCohortConditionsSpy = vi.spyOn(
-      SigningCoordinatorAgent,
-      'getSigningCohortConditions'
-    ).mockRejectedValue(new Error('Cohort not found'));
+    const getSigningCohortConditionsSpy = vi
+      .spyOn(SigningCoordinatorAgent, 'getSigningCohortConditions')
+      .mockRejectedValue(new Error('Cohort not found'));
 
     // Test that error is propagated
     await expect(
-      ConditionContext.forSigningCohort(mockProvider, domain, cohortId, chainId)
+      ConditionContext.forSigningCohort(
+        mockProvider,
+        domain,
+        cohortId,
+        chainId,
+      ),
     ).rejects.toThrow('Cohort not found');
 
     // Verify the method was called
@@ -1186,7 +1193,7 @@ describe('forSigningCohort', () => {
       mockProvider,
       domain,
       cohortId,
-      chainId
+      chainId,
     );
 
     // Cleanup
@@ -1200,14 +1207,18 @@ describe('forSigningCohort', () => {
     const chainId = 11155111;
 
     // Mock the SigningCoordinatorAgent method to return invalid hex
-    const getSigningCohortConditionsSpy = vi.spyOn(
-      SigningCoordinatorAgent,
-      'getSigningCohortConditions'
-    ).mockResolvedValue('0xinvalidhex');
+    const getSigningCohortConditionsSpy = vi
+      .spyOn(SigningCoordinatorAgent, 'getSigningCohortConditions')
+      .mockResolvedValue('0xinvalidhex');
 
     // Test that JSON parse error is handled
     await expect(
-      ConditionContext.forSigningCohort(mockProvider, domain, cohortId, chainId)
+      ConditionContext.forSigningCohort(
+        mockProvider,
+        domain,
+        cohortId,
+        chainId,
+      ),
     ).rejects.toThrow();
 
     // Verify the method was called
@@ -1215,13 +1226,12 @@ describe('forSigningCohort', () => {
       mockProvider,
       domain,
       cohortId,
-      chainId
+      chainId,
     );
 
     // Cleanup
     getSigningCohortConditionsSpy.mockRestore();
   });
-
 
   it('handles complex condition structures', async () => {
     const mockProvider = fakeProvider();
@@ -1243,8 +1253,8 @@ describe('forSigningCohort', () => {
             parameters: [':userAddress', 'latest'],
             returnValueTest: {
               comparator: '>',
-              value: 0
-            }
+              value: 0,
+            },
           },
           {
             conditionType: 'contract',
@@ -1255,33 +1265,36 @@ describe('forSigningCohort', () => {
             parameters: [':userAddress'],
             returnValueTest: {
               comparator: '>=',
-              value: 1000
-            }
-          }
-        ]
-      }
+              value: 1000,
+            },
+          },
+        ],
+      },
     });
-    
+
     // Convert to hex string as the contract would return
-    const mockComplexConditionsHex = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(mockComplexConditionsJson));
+    const mockComplexConditionsHex = ethers.utils.hexlify(
+      ethers.utils.toUtf8Bytes(mockComplexConditionsJson),
+    );
 
     // Mock the SigningCoordinatorAgent method
-    const getSigningCohortConditionsSpy = vi.spyOn(
-      SigningCoordinatorAgent,
-      'getSigningCohortConditions'
-    ).mockResolvedValue(mockComplexConditionsHex);
+    const getSigningCohortConditionsSpy = vi
+      .spyOn(SigningCoordinatorAgent, 'getSigningCohortConditions')
+      .mockResolvedValue(mockComplexConditionsHex);
 
     // Test the forSigningCohort method with complex conditions
     const conditionContext = await ConditionContext.forSigningCohort(
       mockProvider,
       domain,
       cohortId,
-      chainId
+      chainId,
     );
 
     // Verify the context was created correctly
     expect(conditionContext).toBeInstanceOf(ConditionContext);
-    expect(conditionContext.requestedContextParameters).toContain(':userAddress');
+    expect(conditionContext.requestedContextParameters).toContain(
+      ':userAddress',
+    );
 
     // Cleanup
     getSigningCohortConditionsSpy.mockRestore();
@@ -1298,22 +1311,28 @@ describe('forSigningCohort', () => {
       version: '1.0.0',
       condition: {
         conditionType: 'invalid_type',
-        missingRequiredFields: true
-      }
+        missingRequiredFields: true,
+      },
     });
-    
+
     // Convert to hex string as the contract would return
-    const mockInvalidConditionsHex = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(mockInvalidConditionsJson));
+    const mockInvalidConditionsHex = ethers.utils.hexlify(
+      ethers.utils.toUtf8Bytes(mockInvalidConditionsJson),
+    );
 
     // Mock the SigningCoordinatorAgent method
-    const getSigningCohortConditionsSpy = vi.spyOn(
-      SigningCoordinatorAgent,
-      'getSigningCohortConditions'
-    ).mockResolvedValue(mockInvalidConditionsHex);
+    const getSigningCohortConditionsSpy = vi
+      .spyOn(SigningCoordinatorAgent, 'getSigningCohortConditions')
+      .mockResolvedValue(mockInvalidConditionsHex);
 
     // Test that invalid condition schema throws error
     await expect(
-      ConditionContext.forSigningCohort(mockProvider, domain, cohortId, chainId)
+      ConditionContext.forSigningCohort(
+        mockProvider,
+        domain,
+        cohortId,
+        chainId,
+      ),
     ).rejects.toThrow();
 
     // Cleanup

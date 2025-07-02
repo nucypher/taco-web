@@ -154,13 +154,16 @@ export type TacoDecryptResult = {
 
 // Signing types
 export type SigningOptions = {
-  optimistic?: boolean;        // Whether to return first signatures received or wait for all signatures
+  optimistic?: boolean; // Whether to return first signatures received or wait for all signatures
 };
 
 type SignResponse = {
   readonly result: {
     readonly signing_results: {
-      readonly signatures: Record<ChecksumAddress, [ChecksumAddress, Base64EncodedBytes]>;
+      readonly signatures: Record<
+        ChecksumAddress,
+        [ChecksumAddress, Base64EncodedBytes]
+      >;
       readonly errors: Record<ChecksumAddress, string>;
     };
   };
@@ -173,10 +176,12 @@ export type SignResult = {
   errors: Record<string, string>;
 };
 
-function aggregatePorterSignatures(
-  signaturesWithAddress: { [checksumAddress: string]: [string, string] }
-): string {
-  const signatures = Object.values(signaturesWithAddress).map(([, signature]) => signature);
+function aggregatePorterSignatures(signaturesWithAddress: {
+  [checksumAddress: string]: [string, string];
+}): string {
+  const signatures = Object.values(signaturesWithAddress).map(
+    ([, signature]) => signature,
+  );
   return signatures.join('');
 }
 
@@ -188,11 +193,11 @@ type DecodedSignature = {
 
 function decodeSignature(
   signerAddress: string,
-  signatureB64: string
+  signatureB64: string,
 ): { result?: DecodedSignature; error?: string } {
   try {
     const decodedData = JSON.parse(
-      new TextDecoder().decode(fromBase64(signatureB64))
+      new TextDecoder().decode(fromBase64(signatureB64)),
     );
     return {
       result: {
@@ -235,15 +240,15 @@ export class PorterClient {
         const errorDetails: Record<string, unknown> = {
           url: porterUrl.toString(),
           method: config.method,
-          requestData: config.data
+          requestData: config.data,
         };
-        
+
         if (axios.isAxiosError(e)) {
           errorDetails.status = e.response?.status;
           errorDetails.statusText = e.response?.statusText;
           errorDetails.data = e.response?.data;
         }
-        
+
         console.error('Porter request failed:', errorDetails);
         lastError = e;
         continue;
@@ -354,7 +359,6 @@ export class PorterClient {
     return { encryptedResponses, errors };
   }
 
-
   public async signUserOp(
     signingRequests: Record<string, string>,
     threshold: number,
@@ -362,9 +366,9 @@ export class PorterClient {
   ): Promise<SignResult> {
     const data: Record<string, unknown> = {
       signing_requests: signingRequests,
-      threshold: threshold
+      threshold: threshold,
     };
-    
+
     const resp: AxiosResponse<SignResponse> = await this.tryAndCall({
       url: '/sign',
       method: 'post',
@@ -374,44 +378,56 @@ export class PorterClient {
     const { signatures, errors } = resp.data.result.signing_results;
     const allErrors: Record<string, string> = { ...errors };
     const { optimistic = false } = options;
-    
+
     const signingResults: { [ursulaAddress: string]: [string, string] } = {};
     let messageHash = '';
-    
+
     // For non-optimistic path
     const hashCounts: Map<string, number> = new Map();
-    const hashToSignatures: Map<string, { [ursulaAddress: string]: [string, string] }> = new Map();
-    
+    const hashToSignatures: Map<
+      string,
+      { [ursulaAddress: string]: [string, string] }
+    > = new Map();
+
     // Single pass: decode signatures and populate signingResults
-    for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(signatures || {})) {
+    for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(
+      signatures || {},
+    )) {
       const decoded = decodeSignature(signerAddress, signatureB64);
       if (decoded.error) {
         allErrors[ursulaAddress] = decoded.error;
         continue;
       }
-      
+
       if (!messageHash) {
         messageHash = decoded.result!.messageHash;
       }
-      
+
       // Always include all decoded signatures in signingResults
-      signingResults[ursulaAddress] = [decoded.result!.signerAddress, decoded.result!.signature];
-      
+      signingResults[ursulaAddress] = [
+        decoded.result!.signerAddress,
+        decoded.result!.signature,
+      ];
+
       if (!optimistic) {
         // For non-optimistic: track hashes and group signatures for aggregation
         const hash = decoded.result!.messageHash;
         hashCounts.set(hash, (hashCounts.get(hash) || 0) + 1);
-        
+
         if (!hashToSignatures.has(hash)) {
           hashToSignatures.set(hash, {});
         }
-        hashToSignatures.get(hash)![ursulaAddress] = [decoded.result!.signerAddress, decoded.result!.signature];
+        hashToSignatures.get(hash)![ursulaAddress] = [
+          decoded.result!.signerAddress,
+          decoded.result!.signature,
+        ];
       }
     }
 
     // Determine which signatures to aggregate
-    let signaturesToAggregate: { [ursulaAddress: string]: [string, string] } = {};
-    
+    let signaturesToAggregate: { [ursulaAddress: string]: [string, string] } =
+      {};
+
     if (optimistic) {
       // Optimistic: aggregate all signatures
       signaturesToAggregate = signingResults;
@@ -425,11 +441,11 @@ export class PorterClient {
         }
       }
     }
-    
-    const aggregatedSignature = Object.keys(signaturesToAggregate).length >= threshold
-      ? aggregatePorterSignatures(signaturesToAggregate)
-      : undefined;
 
+    const aggregatedSignature =
+      Object.keys(signaturesToAggregate).length >= threshold
+        ? aggregatePorterSignatures(signaturesToAggregate)
+        : undefined;
 
     return {
       messageHash,

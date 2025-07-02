@@ -57,7 +57,6 @@ const EXPECTED_AUTH_PROVIDER_TYPES: Record<string, AuthProviderType[]> = {
   ],
 };
 
-
 export const RESERVED_CONTEXT_PARAMS = [USER_ADDRESS_PARAM_DEFAULT];
 
 export class ConditionContext {
@@ -272,20 +271,20 @@ export class ConditionContext {
     chainId: number,
   ): Promise<ConditionContext> {
     // get signing condition from SigningCoordinator contract
-    const cohortConditionHex = await SigningCoordinatorAgent.getSigningCohortConditions(
-      provider,
-      domain,
-      cohortId,
-      chainId,
-    );
-    
+    const cohortConditionHex =
+      await SigningCoordinatorAgent.getSigningCohortConditions(
+        provider,
+        domain,
+        cohortId,
+        chainId,
+      );
+
     // Convert hex string to UTF-8 JSON string
     const cohortConditionJson = ethers.utils.toUtf8String(cohortConditionHex);
-    
+
     const cohortCondition = new CoreConditions(cohortConditionJson);
-    const conditionExpr = ConditionExpression.fromCoreConditions(
-      cohortCondition,
-    );
+    const conditionExpr =
+      ConditionExpression.fromCoreConditions(cohortCondition);
     return new ConditionContext(conditionExpr.condition);
   }
 }

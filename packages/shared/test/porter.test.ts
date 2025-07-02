@@ -54,42 +54,69 @@ const mockGetUrsulas = (ursulas: Ursula[] = fakeUrsulas()): MockInstance => {
 const createMockSignResponse = (errorCase?: boolean) => ({
   result: {
     signing_results: {
-      signatures: errorCase ? {
-        '0xabcd': ['0xefgh', toBase64(new TextEncoder().encode(JSON.stringify({
-          message_hash: '0x1234',
-          signature: '0xijkl'
-        })))]
-      } : {
-        '0x1234': ['0x5678', toBase64(new TextEncoder().encode(JSON.stringify({
-          message_hash: '0x1234',
-          signature: '0x90ab'
-        })))],
-        '0xabcd': ['0xefgh', toBase64(new TextEncoder().encode(JSON.stringify({
-          message_hash: '0x1234',
-          signature: '0xijkl'
-        })))]
-      },
-      errors: errorCase ? {
-        '0x1234': 'Failed to sign'
-      } : {}
-    }
+      signatures: errorCase
+        ? {
+            '0xabcd': [
+              '0xefgh',
+              toBase64(
+                new TextEncoder().encode(
+                  JSON.stringify({
+                    message_hash: '0x1234',
+                    signature: '0xijkl',
+                  }),
+                ),
+              ),
+            ],
+          }
+        : {
+            '0x1234': [
+              '0x5678',
+              toBase64(
+                new TextEncoder().encode(
+                  JSON.stringify({
+                    message_hash: '0x1234',
+                    signature: '0x90ab',
+                  }),
+                ),
+              ),
+            ],
+            '0xabcd': [
+              '0xefgh',
+              toBase64(
+                new TextEncoder().encode(
+                  JSON.stringify({
+                    message_hash: '0x1234',
+                    signature: '0xijkl',
+                  }),
+                ),
+              ),
+            ],
+          },
+      errors: errorCase
+        ? {
+            '0x1234': 'Failed to sign',
+          }
+        : {},
+    },
   },
 });
 
-const createMockSignImplementation = (endpoint: string) => (success: boolean = true, errorCase?: boolean): MockInstance => {
-  return vi.spyOn(axios, 'request').mockImplementation(async (config) => {
-    // Handle sign requests
-    if (config.url === endpoint && config.baseURL === fakePorterUris[2]) {
-      if (success) {
-        return Promise.resolve({
-          status: HttpStatusCode.Ok,
-          data: createMockSignResponse(errorCase),
-        });
+const createMockSignImplementation =
+  (endpoint: string) =>
+  (success: boolean = true, errorCase?: boolean): MockInstance => {
+    return vi.spyOn(axios, 'request').mockImplementation(async (config) => {
+      // Handle sign requests
+      if (config.url === endpoint && config.baseURL === fakePorterUris[2]) {
+        if (success) {
+          return Promise.resolve({
+            status: HttpStatusCode.Ok,
+            data: createMockSignResponse(errorCase),
+          });
+        }
+        return Promise.resolve({ status: HttpStatusCode.BadRequest, data: '' });
       }
-      return Promise.resolve({ status: HttpStatusCode.BadRequest, data: '' });
-    }
-  });
-};
+    });
+  };
 
 const mockSignUserOp = createMockSignImplementation('/sign');
 
@@ -167,7 +194,6 @@ describe('PorterClient Signing', () => {
     await initialize();
   });
 
-
   describe('signUserOp', () => {
     const mockPackedUserOp = {
       sender: '0x1234',
@@ -193,9 +219,9 @@ describe('PorterClient Signing', () => {
       const result = await porterClient.signUserOp(
         {
           '0x1234': JSON.stringify(mockPackedUserOp),
-          '0xabcd': JSON.stringify(mockPackedUserOp)
+          '0xabcd': JSON.stringify(mockPackedUserOp),
         },
-        2
+        2,
       );
 
       expect(result).toEqual({
@@ -217,14 +243,13 @@ describe('PorterClient Signing', () => {
         porterClient.signUserOp(
           {
             '0x1234': JSON.stringify(mockPackedUserOp),
-            '0xabcd': JSON.stringify(mockPackedUserOp)
+            '0xabcd': JSON.stringify(mockPackedUserOp),
           },
           2,
           {
             optimistic: true,
-            returnAggregated: true
-          }
-        )
+          },
+        ),
       ).rejects.toThrow('Porter returned bad response: 400 - ');
     });
 
@@ -235,9 +260,9 @@ describe('PorterClient Signing', () => {
       const result = await porterClient.signUserOp(
         {
           '0x1234': JSON.stringify(mockPackedUserOp),
-          '0xabcd': JSON.stringify(mockPackedUserOp)
+          '0xabcd': JSON.stringify(mockPackedUserOp),
         },
-        2
+        2,
       );
 
       expect(result).toEqual({
@@ -257,17 +282,31 @@ describe('PorterClient Signing', () => {
         result: {
           signing_results: {
             signatures: {
-              '0x1234': ['0x5678', toBase64(new TextEncoder().encode(JSON.stringify({
-                message_hash: '0x1234',
-                signature: '0x90ab'
-              })))],
-              '0xabcd': ['0xefgh', toBase64(new TextEncoder().encode(JSON.stringify({
-                message_hash: '0xdifferent', // Different message hash
-                signature: '0xijkl'
-              })))]
+              '0x1234': [
+                '0x5678',
+                toBase64(
+                  new TextEncoder().encode(
+                    JSON.stringify({
+                      message_hash: '0x1234',
+                      signature: '0x90ab',
+                    }),
+                  ),
+                ),
+              ],
+              '0xabcd': [
+                '0xefgh',
+                toBase64(
+                  new TextEncoder().encode(
+                    JSON.stringify({
+                      message_hash: '0xdifferent', // Different message hash
+                      signature: '0xijkl',
+                    }),
+                  ),
+                ),
+              ],
             },
-            errors: {}
-          }
+            errors: {},
+          },
         },
       });
 
@@ -284,9 +323,9 @@ describe('PorterClient Signing', () => {
       const result = await porterClient.signUserOp(
         {
           '0x1234': JSON.stringify(mockPackedUserOp),
-          '0xabcd': JSON.stringify(mockPackedUserOp)
+          '0xabcd': JSON.stringify(mockPackedUserOp),
         },
-        2
+        2,
       );
 
       expect(result).toEqual({
@@ -305,14 +344,21 @@ describe('PorterClient Signing', () => {
         result: {
           signing_results: {
             signatures: {
-              '0x1234': ['0x5678', toBase64(new TextEncoder().encode(JSON.stringify({
-                message_hash: '0x1234',
-                signature: '0x90ab'
-              })))]
+              '0x1234': [
+                '0x5678',
+                toBase64(
+                  new TextEncoder().encode(
+                    JSON.stringify({
+                      message_hash: '0x1234',
+                      signature: '0x90ab',
+                    }),
+                  ),
+                ),
+              ],
               // Only 1 signature, but threshold is 2
             },
-            errors: {}
-          }
+            errors: {},
+          },
         },
       });
 
@@ -329,9 +375,9 @@ describe('PorterClient Signing', () => {
       const result = await porterClient.signUserOp(
         {
           '0x1234': JSON.stringify(mockPackedUserOp),
-          '0xabcd': JSON.stringify(mockPackedUserOp)
+          '0xabcd': JSON.stringify(mockPackedUserOp),
         },
-        2 // threshold of 2, but only 1 signature
+        2, // threshold of 2, but only 1 signature
       );
 
       expect(result).toEqual({
@@ -350,10 +396,10 @@ describe('PorterClient Signing', () => {
       const result = await porterClient.signUserOp(
         {
           '0x1234': JSON.stringify(mockPackedUserOp),
-          '0xabcd': JSON.stringify(mockPackedUserOp)
+          '0xabcd': JSON.stringify(mockPackedUserOp),
         },
         2,
-        { optimistic: true }
+        { optimistic: true },
       );
 
       expect(result).toEqual({
@@ -372,14 +418,21 @@ describe('PorterClient Signing', () => {
         result: {
           signing_results: {
             signatures: {
-              '0x1234': ['0x5678', toBase64(new TextEncoder().encode(JSON.stringify({
-                message_hash: '0x1234',
-                signature: '0x90ab'
-              })))],
-              '0xabcd': ['0xefgh', 'invalid-base64-data!!!'] // Invalid signature data
+              '0x1234': [
+                '0x5678',
+                toBase64(
+                  new TextEncoder().encode(
+                    JSON.stringify({
+                      message_hash: '0x1234',
+                      signature: '0x90ab',
+                    }),
+                  ),
+                ),
+              ],
+              '0xabcd': ['0xefgh', 'invalid-base64-data!!!'], // Invalid signature data
             },
-            errors: {}
-          }
+            errors: {},
+          },
         },
       });
 
@@ -396,10 +449,10 @@ describe('PorterClient Signing', () => {
       const result = await porterClient.signUserOp(
         {
           '0x1234': JSON.stringify(mockPackedUserOp),
-          '0xabcd': JSON.stringify(mockPackedUserOp)
+          '0xabcd': JSON.stringify(mockPackedUserOp),
         },
         2,
-        { optimistic: true }
+        { optimistic: true },
       );
 
       expect(result).toEqual({
@@ -419,21 +472,42 @@ describe('PorterClient Signing', () => {
         result: {
           signing_results: {
             signatures: {
-              '0x1234': ['0x5678', toBase64(new TextEncoder().encode(JSON.stringify({
-                message_hash: '0xhash1',
-                signature: '0x90ab'
-              })))],
-              '0xabcd': ['0xefgh', toBase64(new TextEncoder().encode(JSON.stringify({
-                message_hash: '0xhash1', // Same hash, meets threshold
-                signature: '0xijkl'
-              })))],
-              '0xdef0': ['0xabc1', toBase64(new TextEncoder().encode(JSON.stringify({
-                message_hash: '0xhash2', // Different hash, doesn't meet threshold
-                signature: '0xmnop'
-              })))]
+              '0x1234': [
+                '0x5678',
+                toBase64(
+                  new TextEncoder().encode(
+                    JSON.stringify({
+                      message_hash: '0xhash1',
+                      signature: '0x90ab',
+                    }),
+                  ),
+                ),
+              ],
+              '0xabcd': [
+                '0xefgh',
+                toBase64(
+                  new TextEncoder().encode(
+                    JSON.stringify({
+                      message_hash: '0xhash1', // Same hash, meets threshold
+                      signature: '0xijkl',
+                    }),
+                  ),
+                ),
+              ],
+              '0xdef0': [
+                '0xabc1',
+                toBase64(
+                  new TextEncoder().encode(
+                    JSON.stringify({
+                      message_hash: '0xhash2', // Different hash, doesn't meet threshold
+                      signature: '0xmnop',
+                    }),
+                  ),
+                ),
+              ],
             },
-            errors: {}
-          }
+            errors: {},
+          },
         },
       });
 
@@ -451,9 +525,9 @@ describe('PorterClient Signing', () => {
         {
           '0x1234': JSON.stringify(mockPackedUserOp),
           '0xabcd': JSON.stringify(mockPackedUserOp),
-          '0xdef0': JSON.stringify(mockPackedUserOp)
+          '0xdef0': JSON.stringify(mockPackedUserOp),
         },
-        2 // threshold of 2
+        2, // threshold of 2
       );
 
       expect(result).toEqual({

@@ -1,4 +1,8 @@
-import { convertUserOperationToPython, PorterClient, SigningCoordinatorAgent } from '@nucypher/shared';
+import {
+  convertUserOperationToPython,
+  PorterClient,
+  SigningCoordinatorAgent,
+} from '@nucypher/shared';
 import { fakePorterUri } from '@nucypher/test-utils';
 import { ethers } from 'ethers';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -12,11 +16,13 @@ describe('TACo Signing', () => {
   beforeEach(() => {
     signUserOpMock = vi.fn();
     mockProvider = {} as ethers.providers.Provider;
-    
-    vi.spyOn(PorterClient.prototype, 'signUserOp').mockImplementation(signUserOpMock);
+
+    vi.spyOn(PorterClient.prototype, 'signUserOp').mockImplementation(
+      signUserOpMock,
+    );
     vi.spyOn(SigningCoordinatorAgent, 'getParticipants').mockResolvedValue([
       { operator: '0x1234', provider: '0x5678', signature: '0x90ab' },
-      { operator: '0xabcd', provider: '0xefgh', signature: '0xijkl' }
+      { operator: '0xabcd', provider: '0xefgh', signature: '0xijkl' },
     ]);
     vi.spyOn(SigningCoordinatorAgent, 'getThreshold').mockResolvedValue(2);
   });
@@ -64,31 +70,35 @@ describe('TACo Signing', () => {
         userOp,
         aaVersion,
         undefined,
-        porterUris
+        porterUris,
       );
 
       const pythonUserOp = convertUserOperationToPython(userOp);
 
       expect(signUserOpMock).toHaveBeenCalledWith(
         {
-          '0x5678': btoa(JSON.stringify({
-            user_op: JSON.stringify(pythonUserOp),
-            aa_version: aaVersion,
-            cohort_id: cohortId,
-            chain_id: chainId,
-            context: {},
-            signature_type: "userop"
-          })),
-          '0xefgh': btoa(JSON.stringify({
-            user_op: JSON.stringify(pythonUserOp),
-            aa_version: aaVersion,
-            cohort_id: cohortId,
-            chain_id: chainId,
-            context: {},
-            signature_type: "userop"
-          }))
+          '0x5678': btoa(
+            JSON.stringify({
+              user_op: JSON.stringify(pythonUserOp),
+              aa_version: aaVersion,
+              cohort_id: cohortId,
+              chain_id: chainId,
+              context: {},
+              signature_type: 'userop',
+            }),
+          ),
+          '0xefgh': btoa(
+            JSON.stringify({
+              user_op: JSON.stringify(pythonUserOp),
+              aa_version: aaVersion,
+              cohort_id: cohortId,
+              chain_id: chainId,
+              context: {},
+              signature_type: 'userop',
+            }),
+          ),
         },
-        2
+        2,
       );
 
       expect(result).toEqual({
@@ -126,31 +136,35 @@ describe('TACo Signing', () => {
         userOp,
         aaVersion,
         undefined,
-        porterUris
+        porterUris,
       );
 
       const pythonUserOp2 = convertUserOperationToPython(userOp);
 
       expect(signUserOpMock).toHaveBeenCalledWith(
         {
-          '0x5678': btoa(JSON.stringify({
-            user_op: JSON.stringify(pythonUserOp2),
-            aa_version: aaVersion,
-            cohort_id: cohortId,
-            chain_id: chainId,
-            context: {},
-            signature_type: "userop"
-          })),
-          '0xefgh': btoa(JSON.stringify({
-            user_op: JSON.stringify(pythonUserOp2),
-            aa_version: aaVersion,
-            cohort_id: cohortId,
-            chain_id: chainId,
-            context: {},
-            signature_type: "userop"
-          }))
+          '0x5678': btoa(
+            JSON.stringify({
+              user_op: JSON.stringify(pythonUserOp2),
+              aa_version: aaVersion,
+              cohort_id: cohortId,
+              chain_id: chainId,
+              context: {},
+              signature_type: 'userop',
+            }),
+          ),
+          '0xefgh': btoa(
+            JSON.stringify({
+              user_op: JSON.stringify(pythonUserOp2),
+              aa_version: aaVersion,
+              cohort_id: cohortId,
+              chain_id: chainId,
+              context: {},
+              signature_type: 'userop',
+            }),
+          ),
         },
-        2
+        2,
       );
     });
   });

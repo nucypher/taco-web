@@ -20,13 +20,17 @@ export class SigningCoordinatorAgent {
     const coordinator = await this.connectReadOnly(provider, domain);
     const participants = await coordinator.getSigners(cohortId);
 
-    return participants.map((participant: SigningCoordinator.SigningCohortParticipantStructOutput) => {
-      return {
-        operator: participant.operator,
-        provider: participant.provider,
-        signature: participant.signature,
-      };
-    });
+    return participants.map(
+      (
+        participant: SigningCoordinator.SigningCohortParticipantStructOutput,
+      ) => {
+        return {
+          operator: participant.operator,
+          provider: participant.provider,
+          signature: participant.signature,
+        };
+      },
+    );
   }
 
   public static async getThreshold(
@@ -46,7 +50,10 @@ export class SigningCoordinatorAgent {
     chainId: number,
   ): Promise<string> {
     const coordinator = await this.connectReadOnly(provider, domain);
-    const cohortCondition = await coordinator.getSigningCohortConditions(cohortId, chainId);
+    const cohortCondition = await coordinator.getSigningCohortConditions(
+      cohortId,
+      chainId,
+    );
     return cohortCondition;
   }
 
@@ -63,7 +70,14 @@ export class SigningCoordinatorAgent {
     signer?: ethers.Signer,
   ): Promise<SigningCoordinator> {
     const network = await provider.getNetwork();
-    const contractAddress = getContract(domain, network.chainId, 'SigningCoordinator');
-    return SigningCoordinator__factory.connect(contractAddress, signer ?? provider);
+    const contractAddress = getContract(
+      domain,
+      network.chainId,
+      'SigningCoordinator',
+    );
+    return SigningCoordinator__factory.connect(
+      contractAddress,
+      signer ?? provider,
+    );
   }
 }

@@ -187,7 +187,6 @@ type DecodedSignature = {
 };
 
 function decodeSignature(
-  ursulaAddress: string,
   signerAddress: string,
   signatureB64: string
 ): { result?: DecodedSignature; error?: string } {
@@ -385,7 +384,7 @@ export class PorterClient {
     
     // Single pass: decode signatures and populate signingResults
     for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(signatures || {})) {
-      const decoded = decodeSignature(ursulaAddress, signerAddress, signatureB64);
+      const decoded = decodeSignature(signerAddress, signatureB64);
       if (decoded.error) {
         allErrors[ursulaAddress] = decoded.error;
         continue;

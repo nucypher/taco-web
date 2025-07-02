@@ -419,6 +419,7 @@ export class PorterClient {
       // Non-optimistic: only aggregate signatures from hash that meets threshold
       for (const [hash, count] of hashCounts.entries()) {
         if (count >= threshold) {
+          messageHash = hash;
           signaturesToAggregate = hashToSignatures.get(hash)!;
           break;
         }

@@ -11,5 +11,5 @@ export {
 
 export * as conditions from './conditions';
 
-export { decrypt, encrypt, encryptWithPublicKey } from './taco';
 export { signUserOp } from './sign';
+export { decrypt, encrypt, encryptWithPublicKey } from './taco';

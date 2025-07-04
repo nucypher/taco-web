@@ -266,7 +266,7 @@ _Object containing the following properties:_
 | :----------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------- |
 | **`conditionType`** (\*) |                                                                                                                                                 | `'address-allowlist'`               |
 | **`userAddress`** (\*)   | This is a context variable that will be replaced at decryption time. It represents the Ethereum address of the requester attempting decryption. | [UserAddress](#useraddress)         |
-| **`addresses`** (\*)     | List of wallet addresses allowed to decrypt. Addresses should be provided in checksummed form. Matching is case-sensitive.                      | `Array<string>` (_min: 1, max: 25_) |
+| **`addresses`** (\*)     | List of wallet addresses allowed to decrypt. Addresses should be provided in checksummed form.                                                  | `Array<string>` (_min: 1, max: 25_) |
 
 _(\*) Required._
 

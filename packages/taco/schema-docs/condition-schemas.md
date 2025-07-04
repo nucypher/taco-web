@@ -36,6 +36,16 @@ _(\*) Required._
 
 _String which is a valid URL._
 
+## JsonAuthorizationType
+
+The type of authorization to use when making the request.
+
+_Enum string, one of the following possible values:_
+
+- `'Bearer'`
+- `'Basic'`
+- `'X-API-Key'`
+
 ## JsonPath
 
 A string containing either a valid JSON Path Expression, or a Context Parameter.
@@ -149,6 +159,7 @@ _Object containing the following properties:_
 | `parameters`               | _Object with dynamic keys of type_ `string` _and values of type_ `unknown` (_optional & nullable_) |              |
 | `query`                    | [JsonPath](#jsonpath)                                                                              |              |
 | `authorizationToken`       | [ContextParam](#contextparam)                                                                      |              |
+| `authorizationType`        | [JsonAuthorizationType](#jsonauthorizationtype)                                                    |              |
 | **`returnValueTest`** (\*) | [ReturnValueTest](#returnvaluetest)                                                                |              |
 
 _(\*) Required._
@@ -165,6 +176,7 @@ _Object containing the following properties:_
 | `params`                   | `Array<unknown>` _or_ _Object with dynamic keys of type_ `string` _and values of type_ `unknown` (_optional & nullable_) |              |
 | `query`                    | [JsonPath](#jsonpath)                                                                                                    |              |
 | `authorizationToken`       | [ContextParam](#contextparam)                                                                                            |              |
+| `authorizationType`        | [JsonAuthorizationType](#jsonauthorizationtype)                                                                          |              |
 | **`returnValueTest`** (\*) | [ReturnValueTest](#returnvaluetest)                                                                                      |              |
 
 _(\*) Required._
@@ -275,7 +287,7 @@ _Object containing the following properties:_
 
 | Property                  | Description                                                                   | Type                                    | Default                     |
 | :------------------------ | :---------------------------------------------------------------------------- | :-------------------------------------- | :-------------------------- |
-| `conditionType`           |                                                                               | `'abi-attribute'`                       | `'abi-attribute'`           |
+| `conditionType`           |                                                                               | `'signing-abi-attribute'`               | `'signing-abi-attribute'`   |
 | `signingObjectContextVar` | The context variable that will be replaced with the signing object at signing | `':signingConditionObject'`             | `':signingConditionObject'` |
 | **`attributeName`** (\*)  | The name of the attribute to check                                            | `string` (_min length: 1_)              |                             |
 | **`abiValidation`** (\*)  | A map of allowed ABI calls with their respective parameter validations.       | [AbiCallValidation](#abicallvalidation) |                             |
@@ -288,7 +300,7 @@ _Object containing the following properties:_
 
 | Property                   | Description                                                                   | Type                                                    | Default                     |
 | :------------------------- | :---------------------------------------------------------------------------- | :------------------------------------------------------ | :-------------------------- |
-| `conditionType`            |                                                                               | `'attribute'`                                           | `'attribute'`               |
+| `conditionType`            |                                                                               | `'signing-attribute'`                                   | `'signing-attribute'`       |
 | `signingObjectContextVar`  | The context variable that will be replaced with the signing object at signing | `':signingConditionObject'`                             | `':signingConditionObject'` |
 | **`attributeName`** (\*)   | The name of the attribute to check                                            | `string` (_min length: 1_)                              |                             |
 | **`returnValueTest`** (\*) |                                                                               | [BlockchainReturnValueTest](#blockchainreturnvaluetest) |                             |

@@ -92,6 +92,12 @@ const validateHttpsURL = (url: string): boolean => {
   return URL.canParse(url) && url.startsWith('https://');
 };
 
+export const jsonAuthorizationTypeSchema = z.enum([
+  'Bearer',
+  'Basic',
+  'X-API-Key',
+]);
+
 // Use our own URL refinement check due to https://github.com/colinhacks/zod/issues/2236
 export const httpsURLSchema = z
   .string()

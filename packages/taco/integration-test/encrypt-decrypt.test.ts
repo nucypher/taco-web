@@ -26,7 +26,7 @@ const RITUAL_ID = 27;
 const CHAIN_ID = 80002;
 
 describe.skipIf(!process.env.RUNNING_IN_CI)(
-  'Taco Encrypt/Decrypt Integration Test',
+  'TACo Encrypt/Decrypt Integration Test',
   () => {
     let provider: ethers.providers.JsonRpcProvider;
     let encryptorSigner: ethers.Wallet;

@@ -14,7 +14,7 @@ export const addressAllowlistConditionSchema = baseConditionSchema
       .min(1, 'At least one address must be provided')
       .max(25, 'A maximum of 25 addresses is allowed')
       .describe(
-        'List of wallet addresses allowed to decrypt. Addresses should be provided in checksummed form. Matching is case-sensitive.',
+        'List of wallet addresses allowed to decrypt. Addresses should be provided in checksummed form.',
       ),
   })
   .strict()

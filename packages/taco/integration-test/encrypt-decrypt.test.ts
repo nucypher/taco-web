@@ -109,10 +109,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
           USER_ADDRESS_PARAM_DEFAULT,
         )
       ) {
-        const authProvider = new EIP4361AuthProvider(provider, consumerSigner, {
-          domain: 'localhost',
-          uri: 'http://localhost:3000',
-        });
+        const authProvider = new EIP4361AuthProvider(provider, consumerSigner);
         conditionContext.addAuthProvider(
           USER_ADDRESS_PARAM_DEFAULT,
           authProvider,
@@ -132,8 +129,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       expect(decryptedMessageString).toEqual(messageString);
     }, 15000); // 15s timeout
 
-    // TODO: Unskip this test when wallet allowlist condition is implemented and running at the nodes as per https://github.com/nucypher/nucypher/issues/3600
-    test.skip('should encrypt and decrypt according to wallet allowlist condition', async () => {
+    test('should encrypt and decrypt according to wallet allowlist condition', async () => {
       // Create test message
       const messageString =
         'This message should only be accessible to allowed wallet addresses';

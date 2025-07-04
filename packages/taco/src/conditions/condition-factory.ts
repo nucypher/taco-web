@@ -21,6 +21,14 @@ import {
 import { JWTCondition, JWTConditionProps, JWTConditionType } from './base/jwt';
 import { RpcCondition, RpcConditionProps, RpcConditionType } from './base/rpc';
 import {
+  SigningObjectAbiAttributeCondition,
+  SigningObjectAbiAttributeConditionProps,
+  SigningObjectAbiAttributeConditionType,
+  SigningObjectAttributeCondition,
+  SigningObjectAttributeConditionProps,
+  SigningObjectAttributeConditionType,
+} from './base/signing';
+import {
   TimeCondition,
   TimeConditionProps,
   TimeConditionType,
@@ -64,6 +72,14 @@ export class ConditionFactory {
       case AddressAllowlistConditionType:
         return new AddressAllowlistCondition(
           props as AddressAllowlistConditionProps,
+        );
+      case SigningObjectAttributeConditionType:
+        return new SigningObjectAttributeCondition(
+          props as SigningObjectAttributeConditionProps,
+        );
+      case SigningObjectAbiAttributeConditionType:
+        return new SigningObjectAbiAttributeCondition(
+          props as SigningObjectAbiAttributeConditionProps,
         );
       // Logical Conditions
       case CompoundConditionType:

@@ -42,7 +42,7 @@ describe('validation', () => {
   it('infers condition type from constructor', () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { conditionType, ...withoutType } = testRpcConditionObj;
-    const condition = new RpcCondition(testRpcConditionObj);
+    const condition = new RpcCondition(withoutType);
     expect(condition.value.conditionType).toEqual(RpcConditionType);
   });
 

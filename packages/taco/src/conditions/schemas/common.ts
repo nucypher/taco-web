@@ -85,7 +85,14 @@ export const jsonPathSchema = z
   );
 
 const validateHttpsURL = (url: string): boolean => {
-  return URL.canParse(url) && url.startsWith('https://');
+  try {
+    const parsedUrl = new URL(url);
+    // Check if the URL is valid and uses HTTPS
+    return parsedUrl.protocol === 'https:';
+  } catch (e) {
+    // If URL constructor throws, the URL is invalid
+    return false;
+  }
 };
 
 export const jsonAuthorizationTypeSchema = z

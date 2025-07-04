@@ -27,12 +27,16 @@ import {
   ContractConditionType,
 } from '../../src/conditions/base/contract';
 import { RpcCondition } from '../../src/conditions/base/rpc';
+import { SIGNING_CONDITION_OBJECT_CONTEXT_VAR } from '../../src/conditions/base/signing';
 import { CompoundConditionType } from '../../src/conditions/compound-condition';
 import {
   ConditionContext,
   CustomContextParam,
 } from '../../src/conditions/context';
-import { RESERVED_CONTEXT_PARAMS } from '../../src/conditions/context/context';
+import {
+  AUTOMATICALLY_INJECTED_CONTEXT_PARAMS,
+  RESERVED_CONTEXT_PARAMS,
+} from '../../src/conditions/context/context';
 import { IfThenElseConditionType } from '../../src/conditions/if-then-else-condition';
 import { blockchainParamOrContextParamSchema } from '../../src/conditions/schemas/context';
 import { SequentialConditionType } from '../../src/conditions/sequential';
@@ -46,6 +50,8 @@ import {
   testJsonRpcConditionObj,
   testRpcConditionObj,
   testRpcReturnValueTest,
+  testSigningObjectAbiAttributeConditionObj,
+  testSigningObjectAttributeConditionObj,
   testTimeConditionObj,
   UINT256_MAX,
 } from '../test-utils';
@@ -407,11 +413,19 @@ describe('context', () => {
       RESERVED_CONTEXT_PARAMS.forEach((reservedParam) => {
         const badCustomParams: Record<string, CustomContextParam> = {};
         badCustomParams[reservedParam] = 'this-will-throw';
-        expect(() =>
-          conditionContext.addCustomContextParameterValues(badCustomParams),
-        ).toThrow(
-          `Cannot use reserved parameter name ${reservedParam} as custom parameter`,
-        );
+        if (AUTOMATICALLY_INJECTED_CONTEXT_PARAMS.includes(reservedParam)) {
+          expect(() =>
+            conditionContext.addCustomContextParameterValues(badCustomParams),
+          ).toThrow(
+            `Context parameter ${reservedParam} is automatically injected and cannot be set manually`,
+          );
+        } else {
+          expect(() =>
+            conditionContext.addCustomContextParameterValues(badCustomParams),
+          ).toThrow(
+            `Cannot use reserved parameter name ${reservedParam} as custom parameter`,
+          );
+        }
       });
     });
 
@@ -424,6 +438,47 @@ describe('context', () => {
       expect(() =>
         conditionContext.addCustomContextParameterValues(badCustomParams),
       ).toThrow(`Unknown custom context parameter: ${badCustomParamKey}`);
+    });
+
+    describe('signing object context parameter', () => {
+      it.each([
+        testSigningObjectAttributeConditionObj,
+        testSigningObjectAbiAttributeConditionObj,
+      ])(
+        'rejects on using an auto injected signing object context parameter',
+        (signingObjectConditionProps) => {
+          const condition = ConditionFactory.conditionFromProps(
+            signingObjectConditionProps,
+          );
+          const conditionContext = new ConditionContext(condition);
+          const badCustomParams: Record<string, CustomContextParam> = {};
+          badCustomParams[SIGNING_CONDITION_OBJECT_CONTEXT_VAR] =
+            'this-will-throw';
+          expect(() =>
+            conditionContext.addCustomContextParameterValues(badCustomParams),
+          ).toThrow(
+            `Context parameter ${SIGNING_CONDITION_OBJECT_CONTEXT_VAR} is automatically injected and cannot be set manually`,
+          );
+        },
+      );
+
+      it.each([
+        testSigningObjectAttributeConditionObj,
+        testSigningObjectAbiAttributeConditionObj,
+      ])(
+        'empty condition context generated since context var will be automatically injected',
+        async (signingObjectConditionProps) => {
+          const condition = ConditionFactory.conditionFromProps(
+            signingObjectConditionProps,
+          );
+          const conditionContext = new ConditionContext(condition);
+          expect(async () =>
+            conditionContext.toContextParameters(),
+          ).not.toThrow();
+          const asObj = await conditionContext.toContextParameters();
+          expect(Object.keys(asObj).length).toBe(0);
+        },
+      );
     });
 
     describe('custom method parameters', () => {
@@ -934,6 +989,14 @@ describe('recognition of context variables in conditions', () => {
     returnValueTest: rvt,
   };
 
+  const signingObjectAttributeCondition = {
+    ...testSigningObjectAttributeConditionObj,
+  };
+
+  const signingObjectAbiAttributeCondition = {
+    ...testSigningObjectAbiAttributeConditionObj,
+  };
+
   it('handles context params for rpc condition', () => {
     const condition = ConditionFactory.conditionFromProps(rpcCondition);
     const conditionContext = new ConditionContext(condition);
@@ -1012,6 +1075,23 @@ describe('recognition of context variables in conditions', () => {
       ]),
     );
   });
+  it('handles context params for signing object attribute condition', () => {
+    const condition = ConditionFactory.conditionFromProps(
+      signingObjectAttributeCondition,
+    );
+    const conditionContext = new ConditionContext(condition);
+    // Signing object context var is auto injected so not included in requested context params
+    expect(conditionContext.requestedContextParameters.size).toBe(0);
+  });
+  it('handles context params for signing object abi attribute condition', () => {
+    const condition = ConditionFactory.conditionFromProps(
+      signingObjectAbiAttributeCondition,
+    );
+    const conditionContext = new ConditionContext(condition);
+
+    // Signing object context var is auto injected so not included in requested context params
+    expect(conditionContext.requestedContextParameters.size).toBe(0);
+  });
   it.each([
     {
       conditionType: SequentialConditionType,
@@ -1045,6 +1125,14 @@ describe('recognition of context variables in conditions', () => {
                 varName: 'jsonRpcParamsArray',
                 condition: jsonRpcConditionParamsArray,
               },
+              {
+                varName: 'signingObjectAttribute',
+                condition: signingObjectAttributeCondition,
+              },
+              {
+                varName: 'signingObjectAbiAttribute',
+                condition: signingObjectAbiAttributeCondition,
+              },
             ],
           },
         },
@@ -1056,10 +1144,16 @@ describe('recognition of context variables in conditions', () => {
       operands: [
         jsonApiCondition,
         jsonRpcConditionParamsDict,
+        signingObjectAbiAttributeCondition,
         {
           conditionType: CompoundConditionType,
           operator: 'and',
-          operands: [jsonRpcConditionParamsArray, rpcCondition, timeCondition],
+          operands: [
+            jsonRpcConditionParamsArray,
+            rpcCondition,
+            timeCondition,
+            signingObjectAbiAttributeCondition,
+          ],
         },
         {
           conditionType: CompoundConditionType,
@@ -1080,6 +1174,7 @@ describe('recognition of context variables in conditions', () => {
           contractCondition,
           jsonApiCondition,
           jsonRpcConditionParamsDict,
+          signingObjectAbiAttributeCondition,
         ],
       },
     },
@@ -1101,6 +1196,10 @@ describe('recognition of context variables in conditions', () => {
         ':authToken',
         ':expectedResult',
       ]),
+    );
+    // automatically injected signing object context variable is not included
+    expect(conditionContext.requestedContextParameters).not.toContain(
+      SIGNING_CONDITION_OBJECT_CONTEXT_VAR,
     );
   });
 });

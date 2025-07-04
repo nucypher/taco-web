@@ -29,7 +29,7 @@ const CHAIN_ID = 80002;
 const CONSUMER_ADDRESS = ethers.utils.computeAddress(CONSUMER_PRIVATE_KEY);
 
 describe.skipIf(!process.env.RUNNING_IN_CI)(
-  'Taco Encrypt/Decrypt Integration Test',
+  'TACo Encrypt/Decrypt Integration Test',
   () => {
     let provider: ethers.providers.JsonRpcProvider;
     let encryptorSigner: ethers.Wallet;

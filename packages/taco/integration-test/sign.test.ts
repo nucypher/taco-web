@@ -13,7 +13,7 @@ const RITUAL_ID = 1;
 const CHAIN_ID = 11155111;
 
 describe.skipIf(!process.env.RUNNING_IN_CI)(
-  'Taco Sign Integration Test',
+  'TACo Sign Integration Test',
   () => {
     let provider: ethers.providers.JsonRpcProvider;
 
@@ -82,6 +82,6 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       expect(signResult.aggregatedSignature).toBeDefined();
       expect(signResult.signingResults).toBeDefined();
       expect(Object.keys(signResult.signingResults).length).toBeGreaterThan(0);
-    }, 150000);
+    }, 15000);
   },
 );

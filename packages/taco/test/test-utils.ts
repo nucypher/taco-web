@@ -265,7 +265,7 @@ export const testTimeConditionObj: TimeConditionProps = {
 
 export const testJsonApiConditionObj: JsonApiConditionProps = {
   conditionType: JsonApiConditionType,
-  endpoint: 'https://_this_would_totally_fail.com',
+  endpoint: 'https://api.example.com/data',
   parameters: {
     ids: 'ethereum',
     vs_currencies: 'usd',

@@ -25,8 +25,9 @@ const DOMAIN = 'lynx';
 const RITUAL_ID = 27;
 const CHAIN_ID = 80002;
 
+// skip integration test if RUNNING_IN_CI is not set (it is set in CI environments)
 describe.skipIf(!process.env.RUNNING_IN_CI)(
-  'Taco Encrypt/Decrypt Integration Test',
+  'TACo Encrypt/Decrypt Integration Test',
   () => {
     let provider: ethers.providers.JsonRpcProvider;
     let encryptorSigner: ethers.Wallet;

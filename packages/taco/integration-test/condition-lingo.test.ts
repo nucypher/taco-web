@@ -48,6 +48,7 @@ async function validateConditionExpression(
   return;
 }
 
+// skip integration test if RUNNING_IN_CI is not set (it is set in CI environments)
 describe.skipIf(!process.env.RUNNING_IN_CI)(
   'TACo Condition Lingos Integration Test',
   () => {

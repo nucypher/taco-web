@@ -12,6 +12,7 @@ const DOMAIN = 'lynx';
 const RITUAL_ID = 1;
 const CHAIN_ID = 11155111;
 
+// skip integration test if RUNNING_IN_CI is not set (it is set in CI environments)
 describe.skipIf(!process.env.RUNNING_IN_CI)(
   'TACo Sign Integration Test',
   () => {

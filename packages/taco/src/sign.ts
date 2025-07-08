@@ -37,7 +37,7 @@ export type SignResult = {
 function aggregateSignatures(signaturesByAddress: {
   [checksumAddress: string]: TacoSignature;
 }): string {
-  // Aggregate hex signatures by concatenating them; being carefule to remove the '0x' prefix from each signature except the first one.
+  // Aggregate hex signatures by concatenating them; being careful to remove the '0x' prefix from each signature except the first one.
   const signatures = Object.values(signaturesByAddress).map(
     (sig) => sig.signature,
   );
@@ -107,7 +107,7 @@ export async function signUserOp(
 
   // Single pass: decode signatures and populate signingResults
   for (const [ursulaAddress, signature] of Object.entries(
-    porterSignResult.signingResults || {},
+    porterSignResult.signingResults,
   )) {
     // For non-optimistic: track hashes and group signatures for aggregation
     const hash = signature.messageHash;
@@ -131,18 +131,19 @@ export async function signUserOp(
   if (!messageHash || !signaturesToAggregate) {
     if (
       hashToSignatures.size > 1 &&
-      Object.keys(porterSignResult.errors || {}).length <
-        signers.length - threshold
+      Object.keys(porterSignResult.errors).length < signers.length - threshold
     ) {
       // Two things are true:
       // 1. we have multiple hashes, which means we have mismatched hashes from different nodes
       //    we don't really expect this to happen (other than some malicious nodes)
       // 2. number of errors still could have allowed for a threshold of signatures
+      console.error(
+        'Porter returned mismatched message hashes:',
+        hashToSignatures,
+      );
       throw new Error(ERR_MISMATCHED_HASHES(hashToSignatures));
     } else {
-      throw new Error(
-        ERR_INSUFFICIENT_SIGNATURES(porterSignResult.errors || {}),
-      );
+      throw new Error(ERR_INSUFFICIENT_SIGNATURES(porterSignResult.errors));
     }
   }
 
@@ -151,7 +152,7 @@ export async function signUserOp(
   return {
     messageHash,
     aggregatedSignature,
-    signingResults: porterSignResult.signingResults || {},
-    errors: porterSignResult.errors || {},
+    signingResults: porterSignResult.signingResults,
+    errors: porterSignResult.errors,
   };
 }

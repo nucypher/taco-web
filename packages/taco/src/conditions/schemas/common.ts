@@ -89,8 +89,19 @@ export const jsonPathSchema = z
   );
 
 const validateHttpsURL = (url: string): boolean => {
-  return URL.canParse(url) && url.startsWith('https://');
+  try {
+    const parsedUrl = new URL(url);
+    // Check if the URL is valid and uses HTTPS
+    return parsedUrl.protocol === 'https:';
+  } catch (e) {
+    // If URL constructor throws, the URL is invalid
+    return false;
+  }
 };
+
+export const jsonAuthorizationTypeSchema = z
+  .enum(['Bearer', 'Basic', 'X-API-Key'])
+  .describe('The type of authorization to use when making the request.');
 
 // Use our own URL refinement check due to https://github.com/colinhacks/zod/issues/2236
 export const httpsURLSchema = z

@@ -53,30 +53,51 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
   'TACo Condition Lingos Integration Test',
   () => {
     test('validate condition lingo with lynx node to confirm consistency', async () => {
+      // Note: there are limits to conditions
+      // - max 5 operands in a multi-condition (compound, sequential)
+      // - max 2 nested levels of multi-conditions (compound, sequential, if-then-else)
       const overallCondition = new SequentialCondition({
         conditionVariables: [
           {
-            varName: 'rpc',
-            condition: testRpcConditionObj,
+            varName: 'compound-1',
+            condition: {
+              conditionType: CompoundConditionType,
+              operator: 'and',
+              operands: [
+                testRpcConditionObj,
+                testTimeConditionObj,
+                testContractConditionObj,
+                testJsonApiConditionObj,
+                testJsonRpcConditionObj,
+              ],
+            },
           },
           {
-            varName: 'time',
-            condition: testTimeConditionObj,
-          },
-          {
-            varName: 'contract',
-            condition: testContractConditionObj,
-          },
-          {
-            varName: 'compound',
+            varName: 'compound-2',
             condition: {
               conditionType: CompoundConditionType,
               operator: 'or',
               operands: [
-                testJsonApiConditionObj,
-                testJsonRpcConditionObj,
-                testSigningObjectAbiAttributeConditionObj,
-                testSigningObjectAttributeConditionObj,
+                {
+                  ...testJsonApiConditionObj,
+                  authorizationToken: ':authToken',
+                },
+                {
+                  ...testJsonApiConditionObj,
+                  authorizationToken: ':authToken',
+                  authorizationType: 'Bearer',
+                },
+                {
+                  ...testJsonApiConditionObj,
+                  authorizationToken: ':authToken',
+                  authorizationType: 'X-API-Key',
+                },
+                {
+                  ...testJsonRpcConditionObj,
+                  authorizationToken: ':otherAuthToken',
+                  authorizationType: 'Basic',
+                },
+                testJWTConditionObj,
               ],
             },
           },
@@ -84,15 +105,9 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
             varName: 'ifThenElse',
             condition: {
               conditionType: IfThenElseConditionType,
-              ifCondition: testJWTConditionObj,
-              thenCondition: {
-                ...testJsonApiConditionObj,
-                authorizationToken: ':authToken',
-              },
-              elseCondition: {
-                ...testJsonRpcConditionObj,
-                authorizationToken: ':otherAuthToken',
-              },
+              ifCondition: testSigningObjectAttributeConditionObj,
+              thenCondition: testSigningObjectAbiAttributeConditionObj,
+              elseCondition: false,
             },
           },
         ],

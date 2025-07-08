@@ -10,19 +10,19 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { signUserOp } from '../src/sign';
 
 describe('TACo Signing', () => {
-  let signUserOpMock: ReturnType<typeof vi.fn>;
+  let porterSignUserOpMock: ReturnType<typeof vi.fn>;
   let mockProvider: ethers.providers.Provider;
 
   beforeEach(() => {
-    signUserOpMock = vi.fn();
+    porterSignUserOpMock = vi.fn();
     mockProvider = {} as ethers.providers.Provider;
 
     vi.spyOn(PorterClient.prototype, 'signUserOp').mockImplementation(
-      signUserOpMock,
+      porterSignUserOpMock,
     );
     vi.spyOn(SigningCoordinatorAgent, 'getParticipants').mockResolvedValue([
-      { operator: '0x1234', provider: '0x5678', signature: '0x90ab' },
-      { operator: '0xabcd', provider: '0xefgh', signature: '0xijkl' },
+      { operator: '0xsnr1', provider: '0xnode1', signature: '0xdead' },
+      { operator: '0xsnr2', provider: '0xnode2', signature: '0xbeef' },
     ]);
     vi.spyOn(SigningCoordinatorAgent, 'getThreshold').mockResolvedValue(2);
   });
@@ -45,21 +45,226 @@ describe('TACo Signing', () => {
       paymasterData: '0x',
       signature: '0x',
     };
+    const chainId = 1;
+    const cohortId = 5;
+    const porterUris = [fakePorterUri];
+    const aaVersion = '0.8.0';
+    const threshold = 2;
 
-    it('should sign a user operation with a 0.8.0 account', async () => {
-      const chainId = 1;
-      const aaVersion = '0.8.0';
-      const cohortId = 5;
-      const porterUris = [fakePorterUri];
+    it.each(['0.8.0', 'mdt'])(
+      'should sign a user operation with a valid aa versions',
+      async (validAAVersion) => {
+        const signingResults = {
+          '0xnode1': {
+            messageHash: '0xhash1',
+            signature: '0xdead',
+            signerAddress: '0xsnr1',
+          },
+          '0xnode2': {
+            messageHash: '0xhash1',
+            signature: '0xbeef',
+            signerAddress: '0xsnr2',
+          },
+        };
+        const errors = {};
 
-      signUserOpMock.mockResolvedValue({
-        messageHash: '0x1234',
-        aggregatedSignature: '0x90ab0xijkl',
-        signingResults: {
-          '0x1234': ['0x5678', '0x90ab'],
-          '0xabcd': ['0xefgh', '0xijkl'],
+        porterSignUserOpMock.mockResolvedValue({
+          signingResults,
+          errors,
+        });
+
+        const result = await signUserOp(
+          mockProvider,
+          'lynx',
+          cohortId,
+          chainId,
+          userOp,
+          validAAVersion,
+          undefined,
+          porterUris,
+        );
+
+        const pythonUserOp = convertUserOperationToPython(userOp);
+
+        expect(porterSignUserOpMock).toHaveBeenCalledWith(
+          {
+            '0xnode1': btoa(
+              JSON.stringify({
+                user_op: JSON.stringify(pythonUserOp),
+                aa_version: validAAVersion,
+                cohort_id: cohortId,
+                chain_id: chainId,
+                context: {},
+                signature_type: 'userop',
+              }),
+            ),
+            '0xnode2': btoa(
+              JSON.stringify({
+                user_op: JSON.stringify(pythonUserOp),
+                aa_version: validAAVersion,
+                cohort_id: cohortId,
+                chain_id: chainId,
+                context: {},
+                signature_type: 'userop',
+              }),
+            ),
+          },
+          threshold,
+        );
+
+        expect(result).toEqual({
+          messageHash: '0xhash1',
+          aggregatedSignature: '0xdeadbeef',
+          signingResults,
+          errors,
+        });
+      },
+    );
+
+    it('should handle only errors in Porter response', async () => {
+      // Mock a response with errors from Porter
+      const signingResults = {};
+      const errors = {
+        '0xnode1': 'Failed to sign',
+        '0xnode2': 'Failed to sign',
+      };
+
+      porterSignUserOpMock.mockResolvedValue({
+        signingResults,
+        errors,
+      });
+
+      await expect(
+        signUserOp(
+          mockProvider,
+          'lynx',
+          cohortId,
+          chainId,
+          userOp,
+          aaVersion,
+          undefined,
+          porterUris,
+        ),
+      ).rejects.toThrow(
+        `Threshold of signatures not met; TACo signing failed with errors: ${JSON.stringify(errors)}`,
+      );
+
+      const pythonUserOp = convertUserOperationToPython(userOp);
+      expect(porterSignUserOpMock).toHaveBeenCalledWith(
+        {
+          '0xnode1': btoa(
+            JSON.stringify({
+              user_op: JSON.stringify(pythonUserOp),
+              aa_version: aaVersion,
+              cohort_id: cohortId,
+              chain_id: chainId,
+              context: {},
+              signature_type: 'userop',
+            }),
+          ),
+          '0xnode2': btoa(
+            JSON.stringify({
+              user_op: JSON.stringify(pythonUserOp),
+              aa_version: aaVersion,
+              cohort_id: cohortId,
+              chain_id: chainId,
+              context: {},
+              signature_type: 'userop',
+            }),
+          ),
         },
-        errors: {},
+        threshold,
+      );
+    });
+    it('should handle insufficient signatures in Porter response', async () => {
+      const signingResults = {
+        '0xnode1': {
+          messageHash: '0xhash1',
+          signature: '0xdead',
+          signerAddress: '0xsnr1',
+        },
+      };
+      const errors = {
+        '0xnode2': 'Failed to sign',
+      };
+
+      porterSignUserOpMock.mockResolvedValue({
+        signingResults,
+        errors,
+      });
+
+      await expect(
+        signUserOp(
+          mockProvider,
+          'lynx',
+          cohortId,
+          chainId,
+          userOp,
+          aaVersion,
+          undefined,
+          porterUris,
+        ),
+      ).rejects.toThrow(
+        `Threshold of signatures not met; TACo signing failed with errors: ${JSON.stringify(errors)}`,
+      );
+    });
+
+    it('should handle insufficient matched hashes in Porter response', async () => {
+      const signingResults = {
+        '0xnode1': {
+          messageHash: '0xhash1',
+          signature: '0xdead',
+          signerAddress: '0xsnr1',
+        },
+        '0xnode2': {
+          messageHash: '0xhash2',
+          signature: '0xbeef',
+          signerAddress: '0xsnr2',
+        },
+        '0xnode3': {
+          messageHash: '0xhash3',
+          signature: '0xcafe',
+          signerAddress: '0xsnr3',
+        },
+      };
+      const errors = {};
+
+      porterSignUserOpMock.mockResolvedValue({
+        signingResults,
+        errors,
+      });
+
+      await expect(
+        signUserOp(
+          mockProvider,
+          'lynx',
+          cohortId,
+          chainId,
+          userOp,
+          aaVersion,
+          undefined,
+          porterUris,
+        ),
+      ).rejects.toThrowError(/multiple mismatched hashes/);
+    });
+
+    it('properly handles threshold of 1 signature from Porter', async () => {
+      vi.spyOn(SigningCoordinatorAgent, 'getThreshold').mockResolvedValue(1);
+
+      const signingResults = {
+        '0xnode1': {
+          messageHash: '0xhash1',
+          signature: '0xdead',
+          signerAddress: '0xsnr1',
+        },
+      };
+      const errors = {
+        '0xnode2': 'Failed to sign',
+      };
+
+      porterSignUserOpMock.mockResolvedValue({
+        signingResults,
+        errors,
       });
 
       const result = await signUserOp(
@@ -73,62 +278,47 @@ describe('TACo Signing', () => {
         porterUris,
       );
 
-      const pythonUserOp = convertUserOperationToPython(userOp);
-
-      expect(signUserOpMock).toHaveBeenCalledWith(
-        {
-          '0x5678': btoa(
-            JSON.stringify({
-              user_op: JSON.stringify(pythonUserOp),
-              aa_version: aaVersion,
-              cohort_id: cohortId,
-              chain_id: chainId,
-              context: {},
-              signature_type: 'userop',
-            }),
-          ),
-          '0xefgh': btoa(
-            JSON.stringify({
-              user_op: JSON.stringify(pythonUserOp),
-              aa_version: aaVersion,
-              cohort_id: cohortId,
-              chain_id: chainId,
-              context: {},
-              signature_type: 'userop',
-            }),
-          ),
-        },
-        2,
-      );
-
       expect(result).toEqual({
-        messageHash: '0x1234',
-        aggregatedSignature: '0x90ab0xijkl',
-        signingResults: {
-          '0x1234': ['0x5678', '0x90ab'],
-          '0xabcd': ['0xefgh', '0xijkl'],
-        },
-        errors: {},
+        messageHash: '0xhash1',
+        aggregatedSignature: '0xdead',
+        signingResults,
+        errors,
       });
     });
 
-    it('should handle custom signing options', async () => {
-      const chainId = 1;
-      const aaVersion = '0.8.0';
-      const cohortId = 5;
-      const porterUris = [fakePorterUri];
-
-      signUserOpMock.mockResolvedValue({
-        messageHash: '0x1234',
-        aggregatedSignature: '0x90ab0xijkl',
-        signingResults: {
-          '0x1234': ['0x5678', '0x90ab'],
-          '0xabcd': ['0xefgh', '0xijkl'],
+    it('ignore errors/mismatched hashes if threshold of matching hashes and signatures from Porter', async () => {
+      const signingResults = {
+        '0xnode1': {
+          messageHash: '0xhash1',
+          signature: '0xdead',
+          signerAddress: '0xsnr1',
         },
-        errors: {},
+        '0xnode2': {
+          messageHash: '0xhash2',
+          signature: '0xcafe',
+          signerAddress: '0xsnr2',
+        },
+        '0xnode3': {
+          messageHash: '0xhash3',
+          signature: '0xbabe',
+          signerAddress: '0xsnr3',
+        },
+        '0xnode4': {
+          messageHash: '0xhash1',
+          signature: '0xbeef',
+          signerAddress: '0xsnr4',
+        },
+      };
+      const errors = {
+        '0x7890': 'Failed to sign',
+      };
+
+      porterSignUserOpMock.mockResolvedValue({
+        signingResults,
+        errors,
       });
 
-      await signUserOp(
+      const result = await signUserOp(
         mockProvider,
         'lynx',
         cohortId,
@@ -139,33 +329,12 @@ describe('TACo Signing', () => {
         porterUris,
       );
 
-      const pythonUserOp2 = convertUserOperationToPython(userOp);
-
-      expect(signUserOpMock).toHaveBeenCalledWith(
-        {
-          '0x5678': btoa(
-            JSON.stringify({
-              user_op: JSON.stringify(pythonUserOp2),
-              aa_version: aaVersion,
-              cohort_id: cohortId,
-              chain_id: chainId,
-              context: {},
-              signature_type: 'userop',
-            }),
-          ),
-          '0xefgh': btoa(
-            JSON.stringify({
-              user_op: JSON.stringify(pythonUserOp2),
-              aa_version: aaVersion,
-              cohort_id: cohortId,
-              chain_id: chainId,
-              context: {},
-              signature_type: 'userop',
-            }),
-          ),
-        },
-        2,
-      );
+      expect(result).toEqual({
+        messageHash: '0xhash1',
+        aggregatedSignature: '0xdeadbeef',
+        signingResults,
+        errors,
+      });
     });
   });
 });

@@ -21,8 +21,8 @@ describe('TACo Signing', () => {
       porterSignUserOpMock,
     );
     vi.spyOn(SigningCoordinatorAgent, 'getParticipants').mockResolvedValue([
-      { operator: '0xsnr1', provider: '0xnode1', signature: '0xdead' },
-      { operator: '0xsnr2', provider: '0xnode2', signature: '0xbeef' },
+      { operator: '0xsnr1', provider: '0xnode1', signature: '0xa' },
+      { operator: '0xsnr2', provider: '0xnode2', signature: '0xb' },
     ]);
     vi.spyOn(SigningCoordinatorAgent, 'getThreshold').mockResolvedValue(2);
   });
@@ -210,6 +210,13 @@ describe('TACo Signing', () => {
     });
 
     it('should handle insufficient matched hashes in Porter response', async () => {
+      // set up 3 signers - it matters based on how mismatched hashes are handled
+      vi.spyOn(SigningCoordinatorAgent, 'getParticipants').mockResolvedValue([
+        { operator: '0xsnr1', provider: '0xnode1', signature: '0xa' },
+        { operator: '0xsnr2', provider: '0xnode2', signature: '0xb' },
+        { operator: '0xsnr3', provider: '0xnode3', signature: '0xc' },
+      ]);
+
       const signingResults = {
         '0xnode1': {
           messageHash: '0xhash1',

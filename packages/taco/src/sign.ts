@@ -69,7 +69,6 @@ export async function signUserOp(
     domain,
     cohortId,
   );
-  console.log({ signers });
 
   const threshold = await SigningCoordinatorAgent.getThreshold(
     provider,
@@ -130,18 +129,16 @@ export async function signUserOp(
 
   // Insufficient signatures for a message hash to meet the threshold
   if (!messageHash || !signaturesToAggregate) {
-    // TODO: think more about this logic
     if (
-      porterSignResult.errors &&
-      Object.keys(porterSignResult.errors).length > signers.length - threshold
+      hashToSignatures.size > 1 &&
+      Object.keys(porterSignResult.errors || {}).length <
+        signers.length - threshold
     ) {
-      // too many errors to achieve threshold
-      throw new Error(ERR_INSUFFICIENT_SIGNATURES(porterSignResult.errors));
-    } else if (hashToSignatures.size > 1) {
-      // If we have multiple hashes, it means we have mismatched hashes from different nodes
-      // we don't really expect this to happen (other than some malicious nodes)
+      // Two things are true:
+      // 1. we have multiple hashes, which means we have mismatched hashes from different nodes
+      //    we don't really expect this to happen (other than some malicious nodes)
+      // 2. number of errors still could have allowed for a threshold of signatures
       throw new Error(ERR_MISMATCHED_HASHES(hashToSignatures));
-      // since there weren't too many errors, the issue is likely hashes
     } else {
       throw new Error(
         ERR_INSUFFICIENT_SIGNATURES(porterSignResult.errors || {}),

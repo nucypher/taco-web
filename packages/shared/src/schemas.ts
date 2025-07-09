@@ -23,11 +23,9 @@ export const EthAddressSchema = z
   .string()
   .refine(isAddress, { message: 'Invalid Ethereum address' });
 
-export const EthAddressSchemaStrict = z
-  .string()
-  .refine(isAddressStrict, {
-    message: 'Invalid Ethereum address - it must be valid and checksummed',
-  });
+export const EthAddressSchemaStrict = z.string().refine(isAddressStrict, {
+  message: 'Invalid Ethereum address - it must be valid and checksummed',
+});
 
 const BLOCK_HASH_REGEXP = new RegExp('^0x[a-fA-F0-9]{64}$');
 const BlockNumber = z.number().int().nonnegative();

@@ -9,6 +9,11 @@ import {
   ContractConditionType,
 } from './base/contract';
 import {
+  ECDSACondition,
+  ECDSAConditionProps,
+  ECDSAConditionType,
+} from './base/ecdsa';
+import {
   JsonApiCondition,
   JsonApiConditionProps,
   JsonApiConditionType,
@@ -63,6 +68,8 @@ export class ConditionFactory {
         return new TimeCondition(props as TimeConditionProps);
       case ContractConditionType:
         return new ContractCondition(props as ContractConditionProps);
+      case ECDSAConditionType:
+        return new ECDSACondition(props as ECDSAConditionProps);
       case JsonApiConditionType:
         return new JsonApiCondition(props as JsonApiConditionProps);
       case JsonRpcConditionType:

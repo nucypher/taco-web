@@ -4,6 +4,7 @@ import { compoundConditionSchema } from '../compound-condition';
 
 import { addressAllowlistConditionSchema } from './address-allowlist';
 import { contractConditionSchema } from './contract';
+import { ecdsaConditionSchema } from './ecdsa';
 import { ifThenElseConditionSchema } from './if-then-else';
 import { jsonApiConditionSchema } from './json-api';
 import { jsonRpcConditionSchema } from './json-rpc';
@@ -22,6 +23,7 @@ export const anyConditionSchema: z.ZodSchema = z.lazy(() =>
     timeConditionSchema,
     addressAllowlistConditionSchema,
     contractConditionSchema,
+    ecdsaConditionSchema,
     jsonApiConditionSchema,
     jsonRpcConditionSchema,
     jwtConditionSchema,

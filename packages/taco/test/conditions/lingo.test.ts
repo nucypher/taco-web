@@ -5,6 +5,7 @@ import { ContractCondition } from '../../src/conditions/base/contract';
 import { ConditionExpression } from '../../src/conditions/condition-expr';
 import {
   INT256_MIN,
+  testECDSAConditionObj,
   testJsonApiConditionObj,
   testJsonRpcConditionObj,
   testJWTConditionObj,
@@ -89,6 +90,7 @@ describe('check that valid lingo in python is valid in typescript', () => {
     testJsonApiConditionObj,
     testJsonRpcConditionObj,
     testJWTConditionObj,
+    testECDSAConditionObj,
     compoundConditionProps,
     sequentialConditionProps,
     ifThenElseConditionProps,

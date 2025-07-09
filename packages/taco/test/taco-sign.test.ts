@@ -116,7 +116,6 @@ describe('TACo Signing', () => {
           messageHash: '0xhash1',
           aggregatedSignature: '0xdeadbeef',
           signingResults,
-          errors,
         });
       },
     );
@@ -289,7 +288,6 @@ describe('TACo Signing', () => {
         messageHash: '0xhash1',
         aggregatedSignature: '0xdead',
         signingResults,
-        errors,
       });
     });
 
@@ -340,7 +338,6 @@ describe('TACo Signing', () => {
         messageHash: '0xhash1',
         aggregatedSignature: '0xdeadbeef',
         signingResults,
-        errors,
       });
     });
   });

@@ -62,7 +62,7 @@ const createMockSignResponse = (errorCase?: boolean) => ({
                 new TextEncoder().encode(
                   JSON.stringify({
                     message_hash: '0x1234',
-                    signature: '0xijkl',
+                    signature: '0xbeef',
                   }),
                 ),
               ),
@@ -75,7 +75,7 @@ const createMockSignResponse = (errorCase?: boolean) => ({
                 new TextEncoder().encode(
                   JSON.stringify({
                     message_hash: '0x1234',
-                    signature: '0x90ab',
+                    signature: '0xdead',
                   }),
                 ),
               ),
@@ -86,7 +86,7 @@ const createMockSignResponse = (errorCase?: boolean) => ({
                 new TextEncoder().encode(
                   JSON.stringify({
                     message_hash: '0x1234',
-                    signature: '0xijkl',
+                    signature: '0xbeef',
                   }),
                 ),
               ),
@@ -225,11 +225,17 @@ describe('PorterClient Signing', () => {
       );
 
       expect(result).toEqual({
-        messageHash: '0x1234',
-        aggregatedSignature: '0x90ab0xijkl', // Combined signatures in sorted order
         signingResults: {
-          '0x1234': ['0x5678', '0x90ab'],
-          '0xabcd': ['0xefgh', '0xijkl'],
+          '0x1234': {
+            messageHash: '0x1234',
+            signature: '0xdead',
+            signerAddress: '0x5678',
+          },
+          '0xabcd': {
+            messageHash: '0x1234',
+            signature: '0xbeef',
+            signerAddress: '0xefgh',
+          },
         },
         errors: {},
       });
@@ -246,9 +252,6 @@ describe('PorterClient Signing', () => {
             '0xabcd': JSON.stringify(mockPackedUserOp),
           },
           2,
-          {
-            optimistic: true,
-          },
         ),
       ).rejects.toThrow('Porter returned bad response: 400 - ');
     });
@@ -266,10 +269,12 @@ describe('PorterClient Signing', () => {
       );
 
       expect(result).toEqual({
-        messageHash: '0x1234',
-        aggregatedSignature: undefined, // No aggregation since threshold (2) not met (only 1 signature)
         signingResults: {
-          '0xabcd': ['0xefgh', '0xijkl'],
+          '0xabcd': {
+            messageHash: '0x1234',
+            signature: '0xbeef',
+            signerAddress: '0xefgh',
+          },
         },
         errors: {
           '0x1234': 'Failed to sign',
@@ -288,7 +293,7 @@ describe('PorterClient Signing', () => {
                   new TextEncoder().encode(
                     JSON.stringify({
                       message_hash: '0x1234',
-                      signature: '0x90ab',
+                      signature: '0xdead',
                     }),
                   ),
                 ),
@@ -299,7 +304,7 @@ describe('PorterClient Signing', () => {
                   new TextEncoder().encode(
                     JSON.stringify({
                       message_hash: '0xdifferent', // Different message hash
-                      signature: '0xijkl',
+                      signature: '0xbeef',
                     }),
                   ),
                 ),
@@ -329,11 +334,17 @@ describe('PorterClient Signing', () => {
       );
 
       expect(result).toEqual({
-        messageHash: '0x1234', // First message hash
-        aggregatedSignature: undefined, // No aggregation since no hash meets threshold (2)
         signingResults: {
-          '0x1234': ['0x5678', '0x90ab'],
-          '0xabcd': ['0xefgh', '0xijkl'], // All signatures included in signingResults
+          '0x1234': {
+            messageHash: '0x1234',
+            signature: '0xdead',
+            signerAddress: '0x5678',
+          },
+          '0xabcd': {
+            messageHash: '0xdifferent', // Different hash
+            signature: '0xbeef',
+            signerAddress: '0xefgh',
+          },
         },
         errors: {}, // No errors - mismatched hashes don't generate errors, just prevent aggregation
       });
@@ -350,7 +361,7 @@ describe('PorterClient Signing', () => {
                   new TextEncoder().encode(
                     JSON.stringify({
                       message_hash: '0x1234',
-                      signature: '0x90ab',
+                      signature: '0xdead',
                     }),
                   ),
                 ),
@@ -381,16 +392,18 @@ describe('PorterClient Signing', () => {
       );
 
       expect(result).toEqual({
-        messageHash: '0x1234',
-        aggregatedSignature: undefined, // Should be undefined since threshold not met
         signingResults: {
-          '0x1234': ['0x5678', '0x90ab'],
+          '0x1234': {
+            messageHash: '0x1234',
+            signature: '0xdead',
+            signerAddress: '0x5678',
+          },
         },
         errors: {},
       });
     });
 
-    it('should successfully sign with optimistic mode', async () => {
+    it('should successfully sign', async () => {
       mockSignUserOp(true);
       const porterClient = new PorterClient(fakePorterUris[2]);
       const result = await porterClient.signUserOp(
@@ -399,21 +412,26 @@ describe('PorterClient Signing', () => {
           '0xabcd': JSON.stringify(mockPackedUserOp),
         },
         2,
-        { optimistic: true },
       );
 
       expect(result).toEqual({
-        messageHash: '0x1234',
-        aggregatedSignature: '0x90ab0xijkl', // All signatures aggregated in optimistic mode
         signingResults: {
-          '0x1234': ['0x5678', '0x90ab'],
-          '0xabcd': ['0xefgh', '0xijkl'],
+          '0x1234': {
+            messageHash: '0x1234',
+            signature: '0xdead',
+            signerAddress: '0x5678',
+          },
+          '0xabcd': {
+            messageHash: '0x1234',
+            signature: '0xbeef',
+            signerAddress: '0xefgh',
+          },
         },
         errors: {},
       });
     });
 
-    it('should handle decode errors in optimistic mode', async () => {
+    it('should handle decode errors', async () => {
       const createOptimisticErrorResponse = () => ({
         result: {
           signing_results: {
@@ -424,7 +442,7 @@ describe('PorterClient Signing', () => {
                   new TextEncoder().encode(
                     JSON.stringify({
                       message_hash: '0x1234',
-                      signature: '0x90ab',
+                      signature: '0xdead',
                     }),
                   ),
                 ),
@@ -452,14 +470,15 @@ describe('PorterClient Signing', () => {
           '0xabcd': JSON.stringify(mockPackedUserOp),
         },
         2,
-        { optimistic: true },
       );
 
       expect(result).toEqual({
-        messageHash: '0x1234',
-        aggregatedSignature: undefined, // No aggregation since only 1 valid signature < threshold
         signingResults: {
-          '0x1234': ['0x5678', '0x90ab'], // Only valid signature included
+          '0x1234': {
+            messageHash: '0x1234',
+            signature: '0xdead',
+            signerAddress: '0x5678',
+          },
         },
         errors: {
           '0xabcd': expect.stringContaining('Failed to decode signature'), // Decode error
@@ -467,7 +486,7 @@ describe('PorterClient Signing', () => {
       });
     });
 
-    it('should aggregate only threshold-meeting hash in non-optimistic mode', async () => {
+    it('should aggregate only threshold-meeting hash', async () => {
       const createMixedHashResponse = () => ({
         result: {
           signing_results: {
@@ -478,7 +497,7 @@ describe('PorterClient Signing', () => {
                   new TextEncoder().encode(
                     JSON.stringify({
                       message_hash: '0xhash1',
-                      signature: '0x90ab',
+                      signature: '0xdead',
                     }),
                   ),
                 ),
@@ -489,7 +508,7 @@ describe('PorterClient Signing', () => {
                   new TextEncoder().encode(
                     JSON.stringify({
                       message_hash: '0xhash1', // Same hash, meets threshold
-                      signature: '0xijkl',
+                      signature: '0xbeef',
                     }),
                   ),
                 ),
@@ -500,7 +519,7 @@ describe('PorterClient Signing', () => {
                   new TextEncoder().encode(
                     JSON.stringify({
                       message_hash: '0xhash2', // Different hash, doesn't meet threshold
-                      signature: '0xmnop',
+                      signature: '0xcafe',
                     }),
                   ),
                 ),
@@ -531,12 +550,23 @@ describe('PorterClient Signing', () => {
       );
 
       expect(result).toEqual({
-        messageHash: '0xhash1', // First hash seen
-        aggregatedSignature: '0x90ab0xijkl', // Only signatures from threshold-meeting hash
+        // different hashes returned separately
         signingResults: {
-          '0x1234': ['0x5678', '0x90ab'],
-          '0xabcd': ['0xefgh', '0xijkl'],
-          '0xdef0': ['0xabc1', '0xmnop'], // All signatures included in results
+          '0x1234': {
+            messageHash: '0xhash1',
+            signature: '0xdead',
+            signerAddress: '0x5678',
+          },
+          '0xabcd': {
+            messageHash: '0xhash1',
+            signature: '0xbeef',
+            signerAddress: '0xefgh',
+          },
+          '0xdef0': {
+            messageHash: '0xhash2',
+            signature: '0xcafe',
+            signerAddress: '0xabc1',
+          },
         },
         errors: {},
       });

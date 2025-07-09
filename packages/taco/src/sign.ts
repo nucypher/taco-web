@@ -31,16 +31,18 @@ export type SignResult = {
   messageHash: string;
   aggregatedSignature: string;
   signingResults: { [ursulaAddress: string]: TacoSignature };
-  errors: Record<string, string>;
 };
 
-function aggregateSignatures(signaturesByAddress: {
-  [checksumAddress: string]: TacoSignature;
-}): string {
+function aggregateSignatures(
+  signaturesByAddress: {
+    [checksumAddress: string]: TacoSignature;
+  },
+  threshold: number,
+): string {
   // Aggregate hex signatures by concatenating them; being careful to remove the '0x' prefix from each signature except the first one.
-  const signatures = Object.values(signaturesByAddress).map(
-    (sig) => sig.signature,
-  );
+  const signatures = Object.values(signaturesByAddress)
+    .map((sig) => sig.signature)
+    .slice(0, threshold);
   if (signatures.length === 1) {
     return signatures[0];
   }
@@ -49,6 +51,19 @@ function aggregateSignatures(signaturesByAddress: {
   return `0x${toHexString(new Uint8Array(allBytes))}`;
 }
 
+/**
+ * Signs a UserOperation.
+ * @param provider - The Ethereum provider to use for signing.
+ * @param domain - The TACo domain being used.
+ * @param cohortId - The cohort ID that identifies the signing cohort.
+ * @param chainId - The chain ID for the signing operation.
+ * @param userOp - The UserOperation to be signed.
+ * @param aaVersion - The AA version of the account abstraction to use for signing.
+ * @param context - Optional condition context for the context variable resolution.
+ * @param porterUris - Optional URIs for the Porter service. If not provided, will fetch the default URIs from the domain.
+ * @returns A promise that resolves to a SignResult containing the message hash, aggregated signature, and signing results from the Porter service.
+ * @throws An error if the signing process fails due to insufficient signatures or mismatched hashes.
+ */
 export async function signUserOp(
   provider: ethers.providers.Provider,
   domain: Domain,
@@ -147,12 +162,14 @@ export async function signUserOp(
     }
   }
 
-  const aggregatedSignature = aggregateSignatures(signaturesToAggregate);
+  const aggregatedSignature = aggregateSignatures(
+    signaturesToAggregate,
+    threshold,
+  );
 
   return {
     messageHash,
     aggregatedSignature,
     signingResults: porterSignResult.signingResults,
-    errors: porterSignResult.errors,
   };
 }

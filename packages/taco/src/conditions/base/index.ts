@@ -3,6 +3,7 @@
 
 export * as addressAllowlist from './address-allowlist';
 export * as contract from './contract';
+export * as ecdsa from './ecdsa';
 export * as jsonApi from './json-api';
 export * as jsonRpc from './json-rpc';
 export * as jwt from './jwt';

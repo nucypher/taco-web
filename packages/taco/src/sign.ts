@@ -11,6 +11,7 @@ import {
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
+import { ConditionExpression } from './conditions/condition-expr';
 import { ConditionContext } from './conditions/context';
 
 export async function signUserOp(
@@ -63,4 +64,26 @@ export async function signUserOp(
   const result = await porter.signUserOp(signingRequests, threshold);
 
   return result;
+}
+
+export async function setSigningCohortConditions(
+  conditions: ConditionExpression,
+  provider: ethers.providers.JsonRpcProvider,
+  domain: Domain,
+  cohortId: number,
+  chainId: number,
+  signer: ethers.Signer,
+): Promise<ethers.ContractTransaction> {
+  // Convert ConditionContext to CoreConditions JSON
+  const conditionsJson = conditions.toJson();
+
+  // Set conditions on the SigningCoordinator contract
+  return await SigningCoordinatorAgent.setSigningCohortConditions(
+    provider,
+    domain,
+    cohortId,
+    chainId,
+    conditionsJson,
+    signer,
+  );
 }

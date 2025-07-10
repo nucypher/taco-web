@@ -1,4 +1,5 @@
 import { ThresholdMessageKit } from '@nucypher/nucypher-core';
+import { Domain, SigningCoordinatorAgent } from '@nucypher/shared';
 import {
   AuthProvider,
   AuthSignature,
@@ -7,6 +8,7 @@ import {
   SingleSignOnEIP4361AuthProvider,
   USER_ADDRESS_PARAM_DEFAULT,
 } from '@nucypher/taco-auth';
+import { ethers } from 'ethers';
 
 import { CoreConditions, CoreContext } from '../../types';
 import { toJSON } from '../../utils';
@@ -18,6 +20,7 @@ import {
   CONTEXT_PARAM_REGEXP,
   USER_ADDRESS_PARAMS,
 } from '../const';
+import { SIGNING_CONDITION_OBJECT_CONTEXT_VAR } from '../schemas/signing';
 
 export type CustomContextParam =
   | string
@@ -41,6 +44,8 @@ const ERR_INVALID_AUTH_PROVIDER_TYPE = (param: string, expected: string) =>
   `Invalid AuthProvider type for ${param}; expected ${expected}`;
 const ERR_AUTH_PROVIDER_NOT_NEEDED_FOR_CONTEXT_PARAM = (param: string) =>
   `AuthProvider not necessary for context parameter: ${param}`;
+const ERR_AUTO_INJECTED_CONTEXT_PARAM = (param: string) =>
+  `Context parameter ${param} is automatically injected and cannot be set manually`;
 
 type AuthProviderType =
   | typeof EIP4361AuthProvider
@@ -55,7 +60,14 @@ const EXPECTED_AUTH_PROVIDER_TYPES: Record<string, AuthProviderType[]> = {
   ],
 };
 
-export const RESERVED_CONTEXT_PARAMS = [USER_ADDRESS_PARAM_DEFAULT];
+export const AUTOMATICALLY_INJECTED_CONTEXT_PARAMS = [
+  // These context parameters are automatically injected on the node side.
+  SIGNING_CONDITION_OBJECT_CONTEXT_VAR,
+];
+export const RESERVED_CONTEXT_PARAMS = [
+  USER_ADDRESS_PARAM_DEFAULT,
+  SIGNING_CONDITION_OBJECT_CONTEXT_VAR,
+];
 
 export class ConditionContext {
   public requestedContextParameters: Set<string>;
@@ -135,6 +147,10 @@ export class ConditionContext {
       throw new Error(ERR_INVALID_CUSTOM_PARAM(customParam));
     }
 
+    if (AUTOMATICALLY_INJECTED_CONTEXT_PARAMS.includes(customParam)) {
+      throw new Error(ERR_AUTO_INJECTED_CONTEXT_PARAM(customParam));
+    }
+
     if (RESERVED_CONTEXT_PARAMS.includes(customParam)) {
       throw new Error(ERR_RESERVED_PARAM(customParam));
     }
@@ -201,7 +217,9 @@ export class ConditionContext {
     const properties = Object.keys(condition) as (keyof typeof condition)[];
     properties.forEach((prop) => {
       this.findContextParameter(condition[prop]).forEach((contextVar) => {
-        requestedParameters.add(contextVar);
+        if (!AUTOMATICALLY_INJECTED_CONTEXT_PARAMS.includes(contextVar)) {
+          requestedParameters.add(contextVar);
+        }
       });
     });
 
@@ -259,6 +277,30 @@ export class ConditionContext {
     const conditionExpr = ConditionExpression.fromCoreConditions(
       messageKit.acp.conditions,
     );
+    return new ConditionContext(conditionExpr.condition);
+  }
+
+  public static async forSigningCohort(
+    provider: ethers.providers.JsonRpcProvider,
+    domain: Domain,
+    cohortId: number,
+    chainId: number,
+  ): Promise<ConditionContext> {
+    // get signing condition from SigningCoordinator contract
+    const cohortConditionHex =
+      await SigningCoordinatorAgent.getSigningCohortConditions(
+        provider,
+        domain,
+        cohortId,
+        chainId,
+      );
+
+    // Convert hex string to UTF-8 JSON string
+    const cohortConditionJson = ethers.utils.toUtf8String(cohortConditionHex);
+
+    const cohortCondition = new CoreConditions(cohortConditionJson);
+    const conditionExpr =
+      ConditionExpression.fromCoreConditions(cohortCondition);
     return new ConditionContext(conditionExpr.condition);
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@nucypher/shared",
-  "version": "0.5.0",
+  "version": "0.6.0-alpha.0",
   "keywords": [
     "pre",
     "taco",
@@ -42,7 +42,7 @@
   "dependencies": {
     "@ethersproject/abi": "^5.8.0",
     "@ethersproject/providers": "^5.8.0",
-    "@nucypher/nucypher-contracts": "^0.25.0",
+    "@nucypher/nucypher-contracts": "file:nucypher-nucypher-contracts-0.25.0.tgz",
     "@nucypher/nucypher-core": "^0.14.5",
     "axios": "^1.8.4",
     "deep-equal": "^2.2.3",

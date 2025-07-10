@@ -152,6 +152,52 @@ export type TacoDecryptResult = {
   errors: Record<string, string>;
 };
 
+// Signing types
+type TacoSignResponse = {
+  readonly result: {
+    readonly signing_results: {
+      readonly signatures: Record<
+        ChecksumAddress,
+        [ChecksumAddress, Base64EncodedBytes]
+      >;
+      readonly errors: Record<ChecksumAddress, string>;
+    };
+  };
+};
+
+export type TacoSignature = {
+  messageHash: string;
+  signature: string;
+  signerAddress: string;
+};
+
+export type TacoSignResult = {
+  signingResults: { [ursulaAddress: string]: TacoSignature };
+  errors: Record<string, string>;
+};
+
+function decodeSignature(
+  signerAddress: string,
+  signatureB64: string,
+): { result?: TacoSignature; error?: string } {
+  try {
+    const decodedData = JSON.parse(
+      new TextDecoder().decode(fromBase64(signatureB64)),
+    );
+    return {
+      result: {
+        messageHash: decodedData.message_hash,
+        signature: decodedData.signature,
+        signerAddress,
+      },
+    };
+  } catch (error) {
+    return {
+      error: `Failed to decode signature: ${error}`,
+    };
+  }
+}
+
 export class PorterClient {
   readonly porterUrls: URL[];
 
@@ -175,7 +221,20 @@ export class PorterClient {
         if (resp.status === HttpStatusCode.Ok) {
           return resp;
         }
-      } catch (e) {
+      } catch (e: unknown) {
+        const errorDetails: Record<string, unknown> = {
+          url: porterUrl.toString(),
+          method: config.method,
+          requestData: config.data,
+        };
+
+        if (axios.isAxiosError(e)) {
+          errorDetails.status = e.response?.status;
+          errorDetails.statusText = e.response?.statusText;
+          errorDetails.data = e.response?.data;
+        }
+
+        console.error('Porter request failed:', errorDetails);
         lastError = e;
         continue;
       }
@@ -283,5 +342,43 @@ export class PorterClient {
       EncryptedThresholdDecryptionResponse
     > = Object.fromEntries(decryptionResponses);
     return { encryptedResponses, errors };
+  }
+
+  public async signUserOp(
+    signingRequests: Record<string, string>,
+    threshold: number,
+  ): Promise<TacoSignResult> {
+    const data: Record<string, unknown> = {
+      signing_requests: signingRequests,
+      threshold: threshold,
+    };
+
+    const resp: AxiosResponse<TacoSignResponse> = await this.tryAndCall({
+      url: '/sign',
+      method: 'post',
+      data,
+    });
+
+    const { signatures, errors } = resp.data.result.signing_results;
+    const allErrors: Record<string, string> = { ...errors };
+
+    const signingResults: { [ursulaAddress: string]: TacoSignature } = {};
+    for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(
+      signatures || {},
+    )) {
+      const decoded = decodeSignature(signerAddress, signatureB64);
+      if (decoded.error) {
+        // issue with decoding signature, add to errors
+        allErrors[ursulaAddress] = decoded.error;
+        continue;
+      }
+      // Always include all decoded signatures in signingResults
+      signingResults[ursulaAddress] = decoded.result!;
+    }
+
+    return {
+      signingResults,
+      errors: allErrors,
+    };
   }
 }

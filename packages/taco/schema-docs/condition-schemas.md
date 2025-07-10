@@ -8,10 +8,12 @@ _Union of the following possible types:_
 - [TimeCondition](#timecondition)
 - [AddressAllowlistCondition](#addressallowlistcondition)
 - [ContractCondition](#contractcondition)
-- [CompoundCondition](#compoundcondition)
 - [JsonApiCondition](#jsonapicondition)
 - [JsonRpcCondition](#jsonrpccondition)
 - [JwtCondition](#jwtcondition)
+- [SigningObjectAttributeCondition](#signingobjectattributecondition)
+- [SigningObjectAbiAttributeCondition](#signingobjectabiattributecondition)
+- [CompoundCondition](#compoundcondition)
 - [SequentialCondition](#sequentialcondition)
 - [IfThenElseCondition](#ifthenelsecondition)
 
@@ -34,6 +36,16 @@ _(\*) Required._
 ## HttpsURL
 
 _String which is a valid URL._
+
+## JsonAuthorizationType
+
+The type of authorization to use when making the request.
+
+_Enum string, one of the following possible values:_
+
+- `'Bearer'`
+- `'Basic'`
+- `'X-API-Key'`
 
 ## JsonPath
 
@@ -148,6 +160,7 @@ _Object containing the following properties:_
 | `parameters`               | _Object with dynamic keys of type_ `string` _and values of type_ `unknown` (_optional & nullable_) |              |
 | `query`                    | [JsonPath](#jsonpath)                                                                              |              |
 | `authorizationToken`       | [ContextParam](#contextparam)                                                                      |              |
+| `authorizationType`        | [JsonAuthorizationType](#jsonauthorizationtype)                                                    |              |
 | **`returnValueTest`** (\*) | [ReturnValueTest](#returnvaluetest)                                                                |              |
 
 _(\*) Required._
@@ -164,6 +177,7 @@ _Object containing the following properties:_
 | `params`                   | `Array<unknown>` _or_ _Object with dynamic keys of type_ `string` _and values of type_ `unknown` (_optional & nullable_) |              |
 | `query`                    | [JsonPath](#jsonpath)                                                                                                    |              |
 | `authorizationToken`       | [ContextParam](#contextparam)                                                                                            |              |
+| `authorizationType`        | [JsonAuthorizationType](#jsonauthorizationtype)                                                                          |              |
 | **`returnValueTest`** (\*) | [ReturnValueTest](#returnvaluetest)                                                                                      |              |
 
 _(\*) Required._
@@ -188,7 +202,7 @@ _Object containing the following properties:_
 | Property              | Type                                                            |
 | :-------------------- | :-------------------------------------------------------------- |
 | `index`               | `number` (_int, ≥0_)                                            |
-| **`comparator`** (\*) | `'==' \| '>' \| '<' \| '>=' \| '<=' \| '!='`                    |
+| **`comparator`** (\*) | `'==' \| '>' \| '<' \| '>=' \| '<=' \| '!=' \| 'in' \| '!in'`   |
 | **`value`** (\*)      | [BlockchainParamOrContextParam](#blockchainparamorcontextparam) |
 
 _(\*) Required._
@@ -197,11 +211,11 @@ _(\*) Required._
 
 _Object containing the following properties:_
 
-| Property              | Type                                         |
-| :-------------------- | :------------------------------------------- |
-| `index`               | `number` (_int, ≥0_)                         |
-| **`comparator`** (\*) | `'==' \| '>' \| '<' \| '>=' \| '<=' \| '!='` |
-| **`value`** (\*)      | [ParamOrContextParam](#paramorcontextparam)  |
+| Property              | Type                                                          |
+| :-------------------- | :------------------------------------------------------------ |
+| `index`               | `number` (_int, ≥0_)                                          |
+| **`comparator`** (\*) | `'==' \| '>' \| '<' \| '>=' \| '<=' \| '!=' \| 'in' \| '!in'` |
+| **`value`** (\*)      | [ParamOrContextParam](#paramorcontextparam)                   |
 
 _(\*) Required._
 
@@ -240,6 +254,57 @@ _Object containing the following properties:_
 | :---------------------------- | :---------------------------------------------------------------------------------- | :------------- |
 | `conditionType`               | `'sequential'`                                                                      | `'sequential'` |
 | **`conditionVariables`** (\*) | _Array of at least 2  and  at most 5 [ConditionVariable](#conditionvariable) items_ |                |
+
+_(\*) Required._
+
+## AbiCallValidation
+
+A map of allowed ABI calls with their respective parameter validations.
+
+_Object containing the following properties:_
+
+| Property                   | Type                                                                                                                                |
+| :------------------------- | :---------------------------------------------------------------------------------------------------------------------------------- |
+| **`allowedAbiCalls`** (\*) | _Object with dynamic keys of type_ `string` _and values of type_ _Array of [AbiParameterValidation](#abiparametervalidation) items_ |
+
+_(\*) Required._
+
+## AbiParameterValidation
+
+_Object containing the following properties:_
+
+| Property                  | Description                                                   | Type                                                                                                                                                                                              |
+| :------------------------ | :------------------------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **`parameterIndex`** (\*) | Index of parameter to check within abi calldata.              | `number` (_int, ≥0_)                                                                                                                                                                              |
+| `indexWithinTuple`        | Index of value within tuple value at parameter index to check | `number` (_int, ≥0_)                                                                                                                                                                              |
+| `returnValueTest`         | Comparison check for value within calldata                    | [BlockchainReturnValueTest](#blockchainreturnvaluetest)                                                                                                                                           |
+| `nestedAbiValidation`     | Additional checks for nested abi calldata                     | _Object with properties:_<ul><li>`allowedAbiCalls`: _Object with dynamic keys of type_ `string` _and values of type_ _Array of [AbiParameterValidation](#abiparametervalidation) items_</li></ul> |
+
+_(\*) Required._
+
+## SigningObjectAbiAttributeCondition
+
+_Object containing the following properties:_
+
+| Property                  | Description                                                                   | Type                                    | Default                     |
+| :------------------------ | :---------------------------------------------------------------------------- | :-------------------------------------- | :-------------------------- |
+| `conditionType`           |                                                                               | `'signing-abi-attribute'`               | `'signing-abi-attribute'`   |
+| `signingObjectContextVar` | The context variable that will be replaced with the signing object at signing | `':signingConditionObject'`             | `':signingConditionObject'` |
+| **`attributeName`** (\*)  | The name of the attribute to check                                            | `string` (_min length: 1_)              |                             |
+| **`abiValidation`** (\*)  | A map of allowed ABI calls with their respective parameter validations.       | [AbiCallValidation](#abicallvalidation) |                             |
+
+_(\*) Required._
+
+## SigningObjectAttributeCondition
+
+_Object containing the following properties:_
+
+| Property                   | Description                                                                   | Type                                                    | Default                     |
+| :------------------------- | :---------------------------------------------------------------------------- | :------------------------------------------------------ | :-------------------------- |
+| `conditionType`            |                                                                               | `'signing-attribute'`                                   | `'signing-attribute'`       |
+| `signingObjectContextVar`  | The context variable that will be replaced with the signing object at signing | `':signingConditionObject'`                             | `':signingConditionObject'` |
+| **`attributeName`** (\*)   | The name of the attribute to check                                            | `string` (_min length: 1_)                              |                             |
+| **`returnValueTest`** (\*) |                                                                               | [BlockchainReturnValueTest](#blockchainreturnvaluetest) |                             |
 
 _(\*) Required._
 

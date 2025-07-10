@@ -1,6 +1,6 @@
 {
   "name": "@nucypher/taco",
-  "version": "0.6.0",
+  "version": "0.7.0-alpha.0",
   "keywords": [
     "taco",
     "threshold",
@@ -52,6 +52,7 @@
   "devDependencies": {
     "@nucypher/test-utils": "workspace:*",
     "@types/semver": "^7.7.0",
+    "axios": "^1.8.4",
     "dotenv": "^16.5.0",
     "glob": "^11.0.1",
     "modified-zod2md": "0.1.5-modified.4"

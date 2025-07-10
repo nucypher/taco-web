@@ -1,4 +1,5 @@
 import { initialize } from '@nucypher/nucypher-core';
+import { Domain, SigningCoordinatorAgent } from '@nucypher/shared';
 import {
   AuthProvider,
   AuthSignature,
@@ -26,12 +27,16 @@ import {
   ContractConditionType,
 } from '../../src/conditions/base/contract';
 import { RpcCondition } from '../../src/conditions/base/rpc';
+import { SIGNING_CONDITION_OBJECT_CONTEXT_VAR } from '../../src/conditions/base/signing';
 import { CompoundConditionType } from '../../src/conditions/compound-condition';
 import {
   ConditionContext,
   CustomContextParam,
 } from '../../src/conditions/context';
-import { RESERVED_CONTEXT_PARAMS } from '../../src/conditions/context/context';
+import {
+  AUTOMATICALLY_INJECTED_CONTEXT_PARAMS,
+  RESERVED_CONTEXT_PARAMS,
+} from '../../src/conditions/context/context';
 import { IfThenElseConditionType } from '../../src/conditions/if-then-else-condition';
 import { blockchainParamOrContextParamSchema } from '../../src/conditions/schemas/context';
 import { SequentialConditionType } from '../../src/conditions/sequential';
@@ -45,6 +50,8 @@ import {
   testJsonRpcConditionObj,
   testRpcConditionObj,
   testRpcReturnValueTest,
+  testSigningObjectAbiAttributeConditionObj,
+  testSigningObjectAttributeConditionObj,
   testTimeConditionObj,
   UINT256_MAX,
 } from '../test-utils';
@@ -406,11 +413,19 @@ describe('context', () => {
       RESERVED_CONTEXT_PARAMS.forEach((reservedParam) => {
         const badCustomParams: Record<string, CustomContextParam> = {};
         badCustomParams[reservedParam] = 'this-will-throw';
-        expect(() =>
-          conditionContext.addCustomContextParameterValues(badCustomParams),
-        ).toThrow(
-          `Cannot use reserved parameter name ${reservedParam} as custom parameter`,
-        );
+        if (AUTOMATICALLY_INJECTED_CONTEXT_PARAMS.includes(reservedParam)) {
+          expect(() =>
+            conditionContext.addCustomContextParameterValues(badCustomParams),
+          ).toThrow(
+            `Context parameter ${reservedParam} is automatically injected and cannot be set manually`,
+          );
+        } else {
+          expect(() =>
+            conditionContext.addCustomContextParameterValues(badCustomParams),
+          ).toThrow(
+            `Cannot use reserved parameter name ${reservedParam} as custom parameter`,
+          );
+        }
       });
     });
 
@@ -423,6 +438,47 @@ describe('context', () => {
       expect(() =>
         conditionContext.addCustomContextParameterValues(badCustomParams),
       ).toThrow(`Unknown custom context parameter: ${badCustomParamKey}`);
+    });
+
+    describe('signing object context parameter', () => {
+      it.each([
+        testSigningObjectAttributeConditionObj,
+        testSigningObjectAbiAttributeConditionObj,
+      ])(
+        'rejects on using an auto injected signing object context parameter',
+        (signingObjectConditionProps) => {
+          const condition = ConditionFactory.conditionFromProps(
+            signingObjectConditionProps,
+          );
+          const conditionContext = new ConditionContext(condition);
+          const badCustomParams: Record<string, CustomContextParam> = {};
+          badCustomParams[SIGNING_CONDITION_OBJECT_CONTEXT_VAR] =
+            'this-will-throw';
+          expect(() =>
+            conditionContext.addCustomContextParameterValues(badCustomParams),
+          ).toThrow(
+            `Context parameter ${SIGNING_CONDITION_OBJECT_CONTEXT_VAR} is automatically injected and cannot be set manually`,
+          );
+        },
+      );
+
+      it.each([
+        testSigningObjectAttributeConditionObj,
+        testSigningObjectAbiAttributeConditionObj,
+      ])(
+        'empty condition context generated since context var will be automatically injected',
+        async (signingObjectConditionProps) => {
+          const condition = ConditionFactory.conditionFromProps(
+            signingObjectConditionProps,
+          );
+          const conditionContext = new ConditionContext(condition);
+          expect(async () =>
+            conditionContext.toContextParameters(),
+          ).not.toThrow();
+          const asObj = await conditionContext.toContextParameters();
+          expect(Object.keys(asObj).length).toBe(0);
+        },
+      );
     });
 
     describe('custom method parameters', () => {
@@ -933,6 +989,14 @@ describe('recognition of context variables in conditions', () => {
     returnValueTest: rvt,
   };
 
+  const signingObjectAttributeCondition = {
+    ...testSigningObjectAttributeConditionObj,
+  };
+
+  const signingObjectAbiAttributeCondition = {
+    ...testSigningObjectAbiAttributeConditionObj,
+  };
+
   it('handles context params for rpc condition', () => {
     const condition = ConditionFactory.conditionFromProps(rpcCondition);
     const conditionContext = new ConditionContext(condition);
@@ -1011,6 +1075,23 @@ describe('recognition of context variables in conditions', () => {
       ]),
     );
   });
+  it('handles context params for signing object attribute condition', () => {
+    const condition = ConditionFactory.conditionFromProps(
+      signingObjectAttributeCondition,
+    );
+    const conditionContext = new ConditionContext(condition);
+    // Signing object context var is auto injected so not included in requested context params
+    expect(conditionContext.requestedContextParameters.size).toBe(0);
+  });
+  it('handles context params for signing object abi attribute condition', () => {
+    const condition = ConditionFactory.conditionFromProps(
+      signingObjectAbiAttributeCondition,
+    );
+    const conditionContext = new ConditionContext(condition);
+
+    // Signing object context var is auto injected so not included in requested context params
+    expect(conditionContext.requestedContextParameters.size).toBe(0);
+  });
   it.each([
     {
       conditionType: SequentialConditionType,
@@ -1044,6 +1125,14 @@ describe('recognition of context variables in conditions', () => {
                 varName: 'jsonRpcParamsArray',
                 condition: jsonRpcConditionParamsArray,
               },
+              {
+                varName: 'signingObjectAttribute',
+                condition: signingObjectAttributeCondition,
+              },
+              {
+                varName: 'signingObjectAbiAttribute',
+                condition: signingObjectAbiAttributeCondition,
+              },
             ],
           },
         },
@@ -1055,10 +1144,16 @@ describe('recognition of context variables in conditions', () => {
       operands: [
         jsonApiCondition,
         jsonRpcConditionParamsDict,
+        signingObjectAbiAttributeCondition,
         {
           conditionType: CompoundConditionType,
           operator: 'and',
-          operands: [jsonRpcConditionParamsArray, rpcCondition, timeCondition],
+          operands: [
+            jsonRpcConditionParamsArray,
+            rpcCondition,
+            timeCondition,
+            signingObjectAbiAttributeCondition,
+          ],
         },
         {
           conditionType: CompoundConditionType,
@@ -1079,6 +1174,7 @@ describe('recognition of context variables in conditions', () => {
           contractCondition,
           jsonApiCondition,
           jsonRpcConditionParamsDict,
+          signingObjectAbiAttributeCondition,
         ],
       },
     },
@@ -1101,5 +1197,244 @@ describe('recognition of context variables in conditions', () => {
         ':expectedResult',
       ]),
     );
+    // automatically injected signing object context variable is not included
+    expect(conditionContext.requestedContextParameters).not.toContain(
+      SIGNING_CONDITION_OBJECT_CONTEXT_VAR,
+    );
+  });
+});
+
+describe('forSigningCohort', () => {
+  beforeAll(async () => {
+    await initialize();
+  });
+
+  it('creates ConditionContext from signing cohort conditions', async () => {
+    const mockProvider = fakeProvider();
+    const domain = 'lynx' as Domain;
+    const cohortId = 1;
+    const chainId = 11155111;
+
+    // Mock signing cohort conditions JSON
+    const mockConditionsJson = JSON.stringify({
+      version: '1.0.0',
+      condition: {
+        conditionType: 'rpc',
+        chain: chainId,
+        method: 'eth_getBalance',
+        parameters: [':userAddress', 'latest'],
+        returnValueTest: {
+          comparator: '>',
+          value: 0,
+        },
+      },
+    });
+
+    // Convert to hex string as the contract would return
+    const mockConditionsHex = ethers.utils.hexlify(
+      ethers.utils.toUtf8Bytes(mockConditionsJson),
+    );
+
+    // Mock the SigningCoordinatorAgent method
+    const getSigningCohortConditionsSpy = vi
+      .spyOn(SigningCoordinatorAgent, 'getSigningCohortConditions')
+      .mockResolvedValue(mockConditionsHex);
+
+    // Test the forSigningCohort method
+    const conditionContext = await ConditionContext.forSigningCohort(
+      mockProvider,
+      domain,
+      cohortId,
+      chainId,
+    );
+
+    // Verify the method was called with correct parameters
+    expect(getSigningCohortConditionsSpy).toHaveBeenCalledWith(
+      mockProvider,
+      domain,
+      cohortId,
+      chainId,
+    );
+
+    // Verify the context was created correctly
+    expect(conditionContext).toBeInstanceOf(ConditionContext);
+    expect(conditionContext.requestedContextParameters).toContain(
+      ':userAddress',
+    );
+
+    // Cleanup
+    getSigningCohortConditionsSpy.mockRestore();
+  });
+
+  it('handles errors when signing cohort conditions fail to load', async () => {
+    const mockProvider = fakeProvider();
+    const domain = 'lynx' as Domain;
+    const cohortId = 999;
+    const chainId = 11155111;
+
+    // Mock the SigningCoordinatorAgent method to throw an error
+    const getSigningCohortConditionsSpy = vi
+      .spyOn(SigningCoordinatorAgent, 'getSigningCohortConditions')
+      .mockRejectedValue(new Error('Cohort not found'));
+
+    // Test that error is propagated
+    await expect(
+      ConditionContext.forSigningCohort(
+        mockProvider,
+        domain,
+        cohortId,
+        chainId,
+      ),
+    ).rejects.toThrow('Cohort not found');
+
+    // Verify the method was called
+    expect(getSigningCohortConditionsSpy).toHaveBeenCalledWith(
+      mockProvider,
+      domain,
+      cohortId,
+      chainId,
+    );
+
+    // Cleanup
+    getSigningCohortConditionsSpy.mockRestore();
+  });
+
+  it('handles invalid JSON from signing cohort conditions', async () => {
+    const mockProvider = fakeProvider();
+    const domain = 'lynx' as Domain;
+    const cohortId = 1;
+    const chainId = 11155111;
+
+    // Mock the SigningCoordinatorAgent method to return invalid hex
+    const getSigningCohortConditionsSpy = vi
+      .spyOn(SigningCoordinatorAgent, 'getSigningCohortConditions')
+      .mockResolvedValue('0xinvalidhex');
+
+    // Test that JSON parse error is handled
+    await expect(
+      ConditionContext.forSigningCohort(
+        mockProvider,
+        domain,
+        cohortId,
+        chainId,
+      ),
+    ).rejects.toThrow();
+
+    // Verify the method was called
+    expect(getSigningCohortConditionsSpy).toHaveBeenCalledWith(
+      mockProvider,
+      domain,
+      cohortId,
+      chainId,
+    );
+
+    // Cleanup
+    getSigningCohortConditionsSpy.mockRestore();
+  });
+
+  it('handles complex condition structures', async () => {
+    const mockProvider = fakeProvider();
+    const domain = 'lynx' as Domain;
+    const cohortId = 1;
+    const chainId = 11155111;
+
+    // Mock compound condition JSON
+    const mockComplexConditionsJson = JSON.stringify({
+      version: '1.0.0',
+      condition: {
+        conditionType: 'compound',
+        operator: 'and',
+        operands: [
+          {
+            conditionType: 'rpc',
+            chain: chainId,
+            method: 'eth_getBalance',
+            parameters: [':userAddress', 'latest'],
+            returnValueTest: {
+              comparator: '>',
+              value: 0,
+            },
+          },
+          {
+            conditionType: 'contract',
+            contractAddress: '0x1234567890123456789012345678901234567890',
+            chain: chainId,
+            standardContractType: 'ERC20',
+            method: 'balanceOf',
+            parameters: [':userAddress'],
+            returnValueTest: {
+              comparator: '>=',
+              value: 1000,
+            },
+          },
+        ],
+      },
+    });
+
+    // Convert to hex string as the contract would return
+    const mockComplexConditionsHex = ethers.utils.hexlify(
+      ethers.utils.toUtf8Bytes(mockComplexConditionsJson),
+    );
+
+    // Mock the SigningCoordinatorAgent method
+    const getSigningCohortConditionsSpy = vi
+      .spyOn(SigningCoordinatorAgent, 'getSigningCohortConditions')
+      .mockResolvedValue(mockComplexConditionsHex);
+
+    // Test the forSigningCohort method with complex conditions
+    const conditionContext = await ConditionContext.forSigningCohort(
+      mockProvider,
+      domain,
+      cohortId,
+      chainId,
+    );
+
+    // Verify the context was created correctly
+    expect(conditionContext).toBeInstanceOf(ConditionContext);
+    expect(conditionContext.requestedContextParameters).toContain(
+      ':userAddress',
+    );
+
+    // Cleanup
+    getSigningCohortConditionsSpy.mockRestore();
+  });
+
+  it('handles invalid condition schema', async () => {
+    const mockProvider = fakeProvider();
+    const domain = 'lynx' as Domain;
+    const cohortId = 1;
+    const chainId = 11155111;
+
+    // Mock invalid condition schema JSON
+    const mockInvalidConditionsJson = JSON.stringify({
+      version: '1.0.0',
+      condition: {
+        conditionType: 'invalid_type',
+        missingRequiredFields: true,
+      },
+    });
+
+    // Convert to hex string as the contract would return
+    const mockInvalidConditionsHex = ethers.utils.hexlify(
+      ethers.utils.toUtf8Bytes(mockInvalidConditionsJson),
+    );
+
+    // Mock the SigningCoordinatorAgent method
+    const getSigningCohortConditionsSpy = vi
+      .spyOn(SigningCoordinatorAgent, 'getSigningCohortConditions')
+      .mockResolvedValue(mockInvalidConditionsHex);
+
+    // Test that invalid condition schema throws error
+    await expect(
+      ConditionContext.forSigningCohort(
+        mockProvider,
+        domain,
+        cohortId,
+        chainId,
+      ),
+    ).rejects.toThrow();
+
+    // Cleanup
+    getSigningCohortConditionsSpy.mockRestore();
   });
 });

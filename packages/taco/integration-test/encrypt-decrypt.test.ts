@@ -28,8 +28,9 @@ const CHAIN_ID = 80002;
 // The wallet address of our consumer
 const CONSUMER_ADDRESS = ethers.utils.computeAddress(CONSUMER_PRIVATE_KEY);
 
+// skip integration test if RUNNING_IN_CI is not set (it is set in CI environments)
 describe.skipIf(!process.env.RUNNING_IN_CI)(
-  'Taco Encrypt/Decrypt Integration Test',
+  'TACo Encrypt/Decrypt Integration Test',
   () => {
     let provider: ethers.providers.JsonRpcProvider;
     let encryptorSigner: ethers.Wallet;

@@ -57,6 +57,23 @@ export class SigningCoordinatorAgent {
     return cohortCondition;
   }
 
+  public static async setSigningCohortConditions(
+    provider: ethers.providers.Provider,
+    domain: Domain,
+    cohortId: number,
+    chainId: number,
+    conditions: string,
+    signer: ethers.Signer,
+  ): Promise<ethers.ContractTransaction> {
+    const coordinator = await this.connect(provider, domain, signer);
+    const conditionsHex = ethers.utils.toUtf8Bytes(conditions);
+    return await coordinator.setSigningCohortConditions(
+      cohortId,
+      chainId,
+      conditionsHex,
+    );
+  }
+
   private static async connectReadOnly(
     provider: ethers.providers.Provider,
     domain: Domain,

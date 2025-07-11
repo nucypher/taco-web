@@ -11,6 +11,7 @@ export * from './context';
 // ts-unused-exports:disable-next-line - this comment line is added to prevent lint from changing or objecting the export order.
 export * from './compound';
 export * from './contract';
+export * from './ecdsa';
 export * from './if-then-else';
 export * from './json-api';
 export * from './json-rpc';

@@ -15,6 +15,7 @@ import {
 } from '../src';
 import { CompoundCondition } from '../src/conditions/compound-condition';
 import { UINT256_MAX } from '../test/test-utils';
+import { randomBytes, createHash } from 'crypto';
 
 const RPC_PROVIDER_URL = 'https://rpc-amoy.polygon.technology';
 const ENCRYPTOR_PRIVATE_KEY =
@@ -189,5 +190,227 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       // Verify decryption was successful
       expect(decryptedMessageString).toEqual(messageString);
     }, 15000); // 15s timeout
+
+    test('should encrypt and decrypt according to ECDSA signature condition', async () => {
+      // Create test message
+      const messageString = 'This message is protected by ECDSA signature verification 🔐';
+      const message = toBytes(messageString);
+
+      // Create a test ECDSA keypair for this test
+      const ecdsaWallet = ethers.Wallet.createRandom();
+      const verifyingKey = ecdsaWallet.publicKey.slice(2); // Remove '0x' prefix for uncompressed public key
+
+      // Message that needs to be signed for authorization
+      const authorizationMessage = 'I authorize access to this encrypted data';
+      
+      // Create the signature that matches Python backend expectations
+      // Python uses SHA-256 and expects raw signature format
+      const messageHash = createHash('sha256').update(Buffer.from(authorizationMessage, 'utf8')).digest();
+      
+      // Sign the hash with our private key
+      const signingKey = new ethers.utils.SigningKey(ecdsaWallet.privateKey);
+      const signature = signingKey.signDigest(messageHash);
+      
+      // Convert signature to hex format expected by Python (r+s format without 0x prefix)
+      const rHex = signature.r.slice(2).padStart(64, '0');
+      const sHex = signature.s.slice(2).padStart(64, '0');
+      const signatureHex = rHex + sHex;
+
+      console.log('🔐 ECDSA Test Setup:');
+      console.log(`   Message: "${authorizationMessage}"`);
+      console.log(`   Message Hash: ${messageHash.toString('hex')}`);
+      console.log(`   Private Key: ${ecdsaWallet.privateKey}`);
+      console.log(`   Public Key: ${verifyingKey}`);
+      console.log(`   Signature R: ${rHex}`);
+      console.log(`   Signature S: ${sHex}`);
+      console.log(`   Full Signature: ${signatureHex}`);
+
+      // Create ECDSA condition that verifies the signature
+      const ecdsaCondition = new conditions.base.ecdsa.ECDSACondition({
+        message: authorizationMessage,
+        signature: ':ecdsaSignature',
+        verifyingKey: verifyingKey,
+        curve: 'SECP256k1',
+      });
+
+      // ECDSA condition doesn't require wallet authentication (requiresAuthentication = false)
+      // but it does have context variables that need to be provided
+      expect(ecdsaCondition.requiresAuthentication()).toBe(false);
+
+      // Encrypt message with the ECDSA condition
+      const messageKit = await encrypt(
+        provider,
+        DOMAIN,
+        message,
+        ecdsaCondition,
+        RITUAL_ID,
+        encryptorSigner,
+      );
+
+      const encryptedBytes = messageKit.toBytes();
+
+      // Prepare for decryption
+      const messageKitFromBytes = ThresholdMessageKit.fromBytes(encryptedBytes);
+      const conditionContext =
+        conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
+
+      // Verify that the context requires the ECDSA signature parameter
+      expect(conditionContext.requestedContextParameters.has(':ecdsaSignature')).toBe(true);
+
+      // Add the signature to the condition context in the format expected by Python
+      conditionContext.addCustomContextParameterValues({
+        ':ecdsaSignature': signatureHex
+      });
+
+      // Decrypt message
+      const decryptedBytes = await decrypt(
+        provider,
+        DOMAIN,
+        messageKitFromBytes,
+        conditionContext,
+      );
+      const decryptedMessageString = fromBytes(decryptedBytes);
+
+      // Verify decryption was successful
+      expect(decryptedMessageString).toEqual(messageString);
+
+      console.log('✅ ECDSA condition test passed!');
+      console.log(`   Decrypted Message: "${decryptedMessageString}"`);
+    }, 20000); // 20s timeout
+
+    test('should fail to decrypt with ECDSA condition when signature is invalid', async () => {
+      // Create test message
+      const messageString = 'This should fail with wrong signature';
+      const message = toBytes(messageString);
+
+      // Create a test ECDSA keypair
+      const ecdsaWallet = ethers.Wallet.createRandom();
+      const verifyingKey = ecdsaWallet.publicKey.slice(2);
+
+      // Message that needs to be signed
+      const authorizationMessage = 'I authorize access to this encrypted data';
+
+      // Create ECDSA condition
+      const ecdsaCondition = new conditions.base.ecdsa.ECDSACondition({
+        message: authorizationMessage,
+        signature: ':ecdsaSignature',
+        verifyingKey: verifyingKey,
+        curve: 'SECP256k1',
+      });
+
+      // Encrypt message
+      const messageKit = await encrypt(
+        provider,
+        DOMAIN,
+        message,
+        ecdsaCondition,
+        RITUAL_ID,
+        encryptorSigner,
+      );
+
+      const encryptedBytes = messageKit.toBytes();
+
+      // Prepare for decryption with INVALID signature
+      const messageKitFromBytes = ThresholdMessageKit.fromBytes(encryptedBytes);
+      const conditionContext =
+        conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
+
+      // Add an INVALID signature (just random hex)
+      const invalidSignature = '0x' + randomBytes(64).toString('hex');
+      conditionContext.addCustomContextParameterValues({
+        ':ecdsaSignature': invalidSignature.slice(2)
+      });
+
+      // Attempt to decrypt should fail
+      await expect(
+        decrypt(
+          provider,
+          DOMAIN,
+          messageKitFromBytes,
+          conditionContext,
+        )
+      ).rejects.toThrow();
+
+      console.log('✅ ECDSA invalid signature test passed - decryption properly failed');
+    }, 20000); // 20s timeout
+
+    test('should encrypt and decrypt with ECDSA condition using user address context', async () => {
+      // Create test message
+      const messageString = 'This message uses both ECDSA and user address authentication 🔐🆔';
+      const message = toBytes(messageString);
+
+      // Create a test ECDSA keypair
+      const ecdsaWallet = ethers.Wallet.createRandom();
+      const verifyingKey = ecdsaWallet.publicKey.slice(2);
+
+      // Create ECDSA condition that uses user address as the message
+      const ecdsaCondition = new conditions.base.ecdsa.ECDSACondition({
+        message: USER_ADDRESS_PARAM_DEFAULT, // This makes it require wallet authentication
+        signature: ':ecdsaSignature',
+        verifyingKey: verifyingKey,
+        curve: 'SECP256k1',
+      });
+
+      // Now it should require authentication because it uses :userAddress
+      expect(ecdsaCondition.requiresAuthentication()).toBe(true);
+
+      // Encrypt message
+      const messageKit = await encrypt(
+        provider,
+        DOMAIN,
+        message,
+        ecdsaCondition,
+        RITUAL_ID,
+        encryptorSigner,
+      );
+
+      const encryptedBytes = messageKit.toBytes();
+
+      // Prepare for decryption
+      const messageKitFromBytes = ThresholdMessageKit.fromBytes(encryptedBytes);
+      const conditionContext =
+        conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
+
+      // Verify context parameters
+      expect(conditionContext.requestedContextParameters.has(USER_ADDRESS_PARAM_DEFAULT)).toBe(true);
+      expect(conditionContext.requestedContextParameters.has(':ecdsaSignature')).toBe(true);
+
+      // Add auth provider for user address
+      const authProvider = new EIP4361AuthProvider(provider, consumerSigner);
+      conditionContext.addAuthProvider(USER_ADDRESS_PARAM_DEFAULT, authProvider);
+
+      // Sign the user's address with our test key using correct format
+      const userAddress = await consumerSigner.getAddress();
+      const messageHash = createHash('sha256').update(Buffer.from(userAddress, 'utf8')).digest();
+      const signingKey = new ethers.utils.SigningKey(ecdsaWallet.privateKey);
+      const signature = signingKey.signDigest(messageHash);
+      
+      // Convert signature to hex format expected by Python (r+s format without 0x prefix)
+      const rHex = signature.r.slice(2).padStart(64, '0');
+      const sHex = signature.s.slice(2).padStart(64, '0');
+      const signatureHex = rHex + sHex;
+
+      // Add the ECDSA signature to context
+      conditionContext.addCustomContextParameterValues({
+        ':ecdsaSignature': signatureHex
+      });
+
+      // Decrypt message
+      const decryptedBytes = await decrypt(
+        provider,
+        DOMAIN,
+        messageKitFromBytes,
+        conditionContext,
+      );
+      const decryptedMessageString = fromBytes(decryptedBytes);
+
+      // Verify decryption was successful
+      expect(decryptedMessageString).toEqual(messageString);
+
+      console.log('✅ ECDSA + User Address condition test passed!');
+      console.log(`   Message: "${messageString}"`);
+      console.log(`   User Address: ${userAddress}`);
+      console.log(`   ECDSA Signature: ${signatureHex.slice(0, 20)}...`);
+    }, 25000); // 25s timeout
   },
 );

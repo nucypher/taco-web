@@ -19,7 +19,7 @@ const dynamicECDSACondition = new ECDSACondition({
   message: ':userMessage',
   signature: ':userSignature',
   verifyingKey: '04a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bd5b8dec5235a0fa8722476c7709c02559e3aa73aa03918ba2d492eea75abea235',
-  curve: 'secp256k1',
+  curve: 'SECP256k1',
 });
 
 console.log('\nDynamic ECDSA Condition (with context variables):');
@@ -30,7 +30,7 @@ const p256ECDSACondition = new ECDSACondition({
   message: 'Authenticated message',
   signature: ':ecdsaSignature',
   verifyingKey: '04a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bd5b8dec5235a0fa8722476c7709c02559e3aa73aa03918ba2d492eea75abea235',
-  curve: 'secp256r1',
+  curve: 'NIST256p',
 });
 
 console.log('\nECDSA Condition with P-256 curve:');
@@ -41,7 +41,7 @@ const defaultECDSACondition = new ECDSACondition({
   message: ':ecdsaMessage', // Default context variable
   signature: ':ecdsaSignature', // Default context variable
   verifyingKey: '04a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bd5b8dec5235a0fa8722476c7709c02559e3aa73aa03918ba2d492eea75abea235',
-  curve: 'secp256k1', // Default curve
+  curve: 'SECP256k1', // Default curve
 });
 
 console.log('\nECDSA Condition with defaults:');
@@ -87,7 +87,7 @@ const authorizationCondition = CompoundCondition.and([
     message: 'I authorize access to this encrypted data',
     signature: ':userSignature',
     verifyingKey: ':userPublicKey',
-    curve: 'secp256k1',
+    curve: 'SECP256k1',
   }),
 ]);
 

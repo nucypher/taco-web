@@ -46,15 +46,15 @@ import {
   FunctionAbiProps,
 } from '../src/conditions/base/contract';
 import {
-  JsonApiConditionProps,
-  JsonApiConditionType,
-} from '../src/conditions/base/json-api';
-import {
   ECDSA_MESSAGE_PARAM_DEFAULT,
   ECDSA_SIGNATURE_PARAM_DEFAULT,
   ECDSAConditionProps,
   ECDSAConditionType,
 } from '../src/conditions/base/ecdsa';
+import {
+  JsonApiConditionProps,
+  JsonApiConditionType,
+} from '../src/conditions/base/json-api';
 import {
   JWT_PARAM_DEFAULT,
   JWTConditionProps,

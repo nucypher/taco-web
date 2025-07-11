@@ -135,14 +135,14 @@ describe('ECDSACondition', () => {
         message: 'test message',
         signature: 'abcdef123456',
         verifyingKey: '04a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bd5b8dec5235a0fa8722476c7709c02559e3aa73aa03918ba2d492eea75abea235',
-        curve: 'secp256k1',
+        curve: 'SECP256k1',
       });
 
       expect(condition.value.conditionType).toBe(ECDSAConditionType);
       expect(condition.value.message).toBe('test message');
       expect(condition.value.signature).toBe('abcdef123456');
       expect(condition.value.verifyingKey).toBe('04a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bd5b8dec5235a0fa8722476c7709c02559e3aa73aa03918ba2d492eea75abea235');
-      expect(condition.value.curve).toBe('secp256k1');
+      expect(condition.value.curve).toBe('SECP256k1');
     });
   });
 }); 

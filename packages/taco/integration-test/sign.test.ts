@@ -75,7 +75,6 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         signingContext,
         porterUris,
       );
-      console.log('Sign result:', signResult);
 
       // Verify sign result
       expect(signResult).toBeDefined();

@@ -51,7 +51,7 @@ describe('ECDSACondition', () => {
       expect(result.data).toBeUndefined();
       expect(result.error?.format()).toMatchObject({
         signature: {
-          _errors: ['Signature must be a valid hex string'],
+          _errors: ['Invalid hex string'],
         },
       });
     });
@@ -68,7 +68,7 @@ describe('ECDSACondition', () => {
       expect(result.data).toBeUndefined();
       expect(result.error?.format()).toMatchObject({
         verifyingKey: {
-          _errors: ['Verifying key must be a valid hex string'],
+          _errors: ['Invalid hex string'],
         },
       });
     });

@@ -35,6 +35,7 @@ import {
 } from '@nucypher/test-utils';
 import { ethers } from 'ethers';
 import { MockInstance, vi } from 'vitest';
+import { createHash } from 'crypto';
 
 import {
   AddressAllowlistConditionProps,
@@ -45,6 +46,14 @@ import {
   ContractConditionType,
   FunctionAbiProps,
 } from '../src/conditions/base/contract';
+import {
+  ECDSA_MESSAGE_PARAM_DEFAULT,
+  ECDSA_SIGNATURE_PARAM_DEFAULT,
+  ECDSACondition,
+  ECDSAConditionProps,
+  ECDSAConditionType,
+  ECDSACurve,
+} from '../src/conditions/base/ecdsa';
 import {
   JsonApiConditionProps,
   JsonApiConditionType,
@@ -90,6 +99,59 @@ import {
 } from '../src/conditions/shared';
 import { DkgClient, DkgRitual } from '../src/dkg';
 import { encryptMessage } from '../src/tdec';
+import { z } from 'zod';
+import { Condition } from '../src/conditions/condition';
+import { baseConditionSchema, hexStringSchema } from '../src/conditions/schemas/common';
+import { contextParamSchema } from '../src/conditions/schemas/context';
+
+// Test-specific ECDSA condition that includes verifying key for integration testing
+// This simulates how predefined ECDSA conditions would work in production
+interface TestECDSAConditionProps extends ECDSAConditionProps {
+  verifyingKey: string;
+}
+
+const testECDSAConditionSchema = baseConditionSchema.extend({
+  conditionType: z.literal(ECDSAConditionType).default(ECDSAConditionType),
+  message: z.union([
+    z.string(),
+    contextParamSchema,
+  ]).default(ECDSA_MESSAGE_PARAM_DEFAULT),
+  signature: z.union([
+    hexStringSchema,
+    contextParamSchema,
+  ]).default(ECDSA_SIGNATURE_PARAM_DEFAULT),
+  verifyingKey: hexStringSchema, // Test-only: includes verifying key
+  curve: z.enum(['SECP256k1', 'NIST256p', 'NIST384p', 'NIST521p', 'Ed25519', 'BRAINPOOLP256r1']).default('SECP256k1'),
+});
+
+export class TestECDSACondition extends Condition {
+  constructor(value: Omit<TestECDSAConditionProps, 'conditionType'>) {
+    super(testECDSAConditionSchema, {
+      conditionType: ECDSAConditionType,
+      ...value,
+    });
+  }
+}
+
+export function createTestECDSACondition(
+  message: string,
+  curve: ECDSACurve = 'SECP256k1'
+): { condition: TestECDSACondition; privateKey: string } {
+  // Simulate server-side key generation for the predefined condition
+  const testWallet = ethers.Wallet.createRandom();
+  
+  const condition = new TestECDSACondition({
+    message: message,
+    signature: ECDSA_SIGNATURE_PARAM_DEFAULT,
+    verifyingKey: testWallet.publicKey.slice(2), // Remove '0x' prefix
+    curve: curve,
+  });
+
+  return {
+    condition,
+    privateKey: testWallet.privateKey, // For test signature generation
+  };
+}
 
 export const fakeDkgTDecFlowE2E: (
   ritualId?: number,
@@ -296,6 +358,55 @@ export const testJWTConditionObj: JWTConditionProps = {
   // issuedWindow: 86400,
   jwtToken: JWT_PARAM_DEFAULT,
 };
+
+export const testECDSAConditionObj: ECDSAConditionProps = {
+  conditionType: ECDSAConditionType,
+  message: ECDSA_MESSAGE_PARAM_DEFAULT,
+  signature: ECDSA_SIGNATURE_PARAM_DEFAULT,
+  curve: 'SECP256k1',
+};
+
+// Test utility for creating predefined ECDSA conditions (simulates server-side creation)
+// In production, these would be created by servers/admins and stored with their verifying keys
+export interface PredefinedECDSACondition {
+  condition: ECDSAConditionProps;
+  verifyingKey: string;
+  privateKey: string; // For test signature generation only
+}
+
+export function createPredefinedECDSACondition(
+  message: string,
+  curve: ECDSACurve = 'SECP256k1'
+): PredefinedECDSACondition {
+  // Simulate server-side key generation for the predefined condition
+  const testWallet = ethers.Wallet.createRandom();
+  
+  return {
+    condition: {
+      conditionType: ECDSAConditionType,
+      message: message,
+      signature: ECDSA_SIGNATURE_PARAM_DEFAULT,
+      curve: curve,
+    },
+    verifyingKey: testWallet.publicKey.slice(2), // Remove '0x' prefix
+    privateKey: testWallet.privateKey, // For test purposes only
+  };
+}
+
+export function createSignatureForPredefinedCondition(
+  predefinedCondition: PredefinedECDSACondition,
+  messageToSign: string
+): string {
+  // Create signature that matches Python backend expectations
+  const messageHash = createHash('sha256').update(Buffer.from(messageToSign, 'utf8')).digest();
+  const signingKey = new ethers.utils.SigningKey(predefinedCondition.privateKey);
+  const signature = signingKey.signDigest(messageHash);
+  
+  // Convert to hex format expected by Python (r+s format without 0x prefix)
+  const rHex = signature.r.slice(2).padStart(64, '0');
+  const sHex = signature.s.slice(2).padStart(64, '0');
+  return rHex + sHex;
+}
 
 export const testRpcConditionObj: RpcConditionProps = {
   conditionType: RpcConditionType,

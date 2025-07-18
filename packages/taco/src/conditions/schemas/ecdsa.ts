@@ -57,10 +57,6 @@ export const ecdsaConditionSchema = baseConditionSchema.extend({
     hexStringSchema,
     contextParamSchema,
   ]).default(ECDSA_SIGNATURE_PARAM_DEFAULT),
-  verifyingKey: z.union([
-    hexStringSchema,
-    contextParamSchema,
-  ]),
   curve: z.enum(SUPPORTED_ECDSA_CURVES).default(DEFAULT_ECDSA_CURVE),
 });
 

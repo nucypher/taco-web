@@ -1,10 +1,9 @@
 import { ECDSACondition } from '../src/conditions/base/ecdsa';
 
-// Example 1: Practical ECDSA condition - attestation with hardcoded message, dynamic signature
+// Example 1: ECDSA condition with hardcoded message, dynamic signature
 const attestationCondition = new ECDSACondition({
   message: 'I attest that I am authorized to access this data and agree to use it responsibly',
   signature: ':userSignature', // User provides signature at runtime
-  verifyingKey: '04a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bd5b8dec5235a0fa8722476c7709c02559e3aa73aa03918ba2d492eea75abea235',
   curve: 'SECP256k1',
 });
 
@@ -12,7 +11,6 @@ const attestationCondition = new ECDSACondition({
 const dynamicECDSACondition = new ECDSACondition({
   message: ':userMessage',
   signature: ':userSignature',
-  verifyingKey: '04a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bd5b8dec5235a0fa8722476c7709c02559e3aa73aa03918ba2d492eea75abea235',
   curve: 'SECP256k1',
 });
 
@@ -20,7 +18,6 @@ const dynamicECDSACondition = new ECDSACondition({
 const p256ECDSACondition = new ECDSACondition({
   message: 'Authenticated message',
   signature: ':ecdsaSignature',
-  verifyingKey: '04a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bd5b8dec5235a0fa8722476c7709c02559e3aa73aa03918ba2d492eea75abea235',
   curve: 'NIST256p',
 });
 
@@ -28,7 +25,6 @@ const p256ECDSACondition = new ECDSACondition({
 const defaultECDSACondition = new ECDSACondition({
   message: ':ecdsaMessage', // Default context variable
   signature: ':ecdsaSignature', // Default context variable
-  verifyingKey: '04a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bd5b8dec5235a0fa8722476c7709c02559e3aa73aa03918ba2d492eea75abea235',
   curve: 'SECP256k1', // Default curve
 });
 
@@ -63,7 +59,6 @@ const authorizationCondition = CompoundCondition.and([
   new ECDSACondition({
     message: 'I authorize access to this encrypted data',
     signature: ':userSignature',
-    verifyingKey: ':userPublicKey',
     curve: 'SECP256k1',
   }),
 ]);
@@ -72,7 +67,6 @@ const authorizationCondition = CompoundCondition.and([
 const ed25519Condition = new ECDSACondition({
   message: 'Edwards curve signature verification',
   signature: ':ed25519Signature',
-  verifyingKey: 'a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bd',
   curve: 'Ed25519',
 });
 
@@ -80,7 +74,6 @@ const ed25519Condition = new ECDSACondition({
 const brainpoolCondition = new ECDSACondition({
   message: 'Brainpool P-256 verification',
   signature: ':brainpoolSignature', 
-  verifyingKey: '04a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bd5b8dec5235a0fa8722476c7709c02559e3aa73aa03918ba2d492eea75abea235',
   curve: 'BRAINPOOLP256r1',
 });
 
@@ -88,6 +81,5 @@ const brainpoolCondition = new ECDSACondition({
 const p384Condition = new ECDSACondition({
   message: 'High-security P-384 verification',
   signature: ':p384Signature',
-  verifyingKey: '04a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bd5b8dec5235a0fa8722476c7709c02559e3aa73aa03918ba2d492eea75abea235',
   curve: 'NIST384p',
 }); 

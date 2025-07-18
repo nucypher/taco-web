@@ -14,7 +14,11 @@ import {
   ThresholdMessageKit,
 } from '../src';
 import { CompoundCondition } from '../src/conditions/compound-condition';
-import { UINT256_MAX } from '../test/test-utils';
+import { 
+  UINT256_MAX,
+  createTestECDSACondition,
+  createSignatureForPredefinedCondition,
+} from '../test/test-utils';
 import { randomBytes, createHash } from 'crypto';
 
 const RPC_PROVIDER_URL = 'https://rpc-amoy.polygon.technology';
@@ -171,20 +175,145 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       expect(decryptedMessageString).toEqual(messageString);
     }, 15000);
 
-    // ECDSA tests temporarily disabled - verifyingKey is no longer user-configurable
-    // These tests need to be updated to work with server-side predefined conditions
-    // that include the verifyingKey to prevent users from creating conditions they can always satisfy
-    
-    // test('should encrypt and decrypt according to ECDSA signature condition', async () => {
-    //   // TODO: Update to use predefined ECDSA conditions with server-controlled verifyingKey
-    // }, 20000);
+    test('should encrypt and decrypt according to ECDSA signature condition with predefined verifying key', async () => {
+      const messageString = 'This message is protected by ECDSA signature verification 🔐';
+      const message = toBytes(messageString);
 
-    // test('should fail to decrypt with ECDSA condition when signature is invalid', async () => {
-    //   // TODO: Update to use predefined ECDSA conditions with server-controlled verifyingKey
-    // }, 20000);
+      const authorizationMessage = 'I authorize access to this encrypted data';
+      
+      // Create a predefined ECDSA condition (simulates server-side condition creation)
+      const { condition: ecdsaCondition, privateKey } = createTestECDSACondition(authorizationMessage);
 
-    // test('should encrypt and decrypt with ECDSA condition using user address context', async () => {
-    //   // TODO: Update to use predefined ECDSA conditions with server-controlled verifyingKey
-    // }, 25000);
+      expect(ecdsaCondition.requiresAuthentication()).toBe(false);
+
+      const messageKit = await encrypt(
+        provider,
+        DOMAIN,
+        message,
+        ecdsaCondition,
+        RITUAL_ID,
+        encryptorSigner,
+      );
+
+      const encryptedBytes = messageKit.toBytes();
+
+      const messageKitFromBytes = ThresholdMessageKit.fromBytes(encryptedBytes);
+      const conditionContext =
+        conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
+
+      expect(conditionContext.requestedContextParameters.has(':ecdsaSignature')).toBe(true);
+
+      // Create signature using the predefined condition's private key
+      const signatureHex = createSignatureForPredefinedCondition(
+        { condition: ecdsaCondition.value, verifyingKey: ecdsaCondition.value.verifyingKey, privateKey },
+        authorizationMessage
+      );
+
+      conditionContext.addCustomContextParameterValues({
+        ':ecdsaSignature': signatureHex
+      });
+
+      const decryptedBytes = await decrypt(
+        provider,
+        DOMAIN,
+        messageKitFromBytes,
+        conditionContext,
+      );
+      const decryptedMessageString = fromBytes(decryptedBytes);
+
+      expect(decryptedMessageString).toEqual(messageString);
+    }, 20000);
+
+    test('should fail to decrypt with ECDSA condition when signature is invalid', async () => {
+      const messageString = 'This should fail with wrong signature';
+      const message = toBytes(messageString);
+
+      const authorizationMessage = 'I authorize access to this encrypted data';
+
+      // Create a predefined ECDSA condition (simulates server-side condition creation)
+      const { condition: ecdsaCondition } = createTestECDSACondition(authorizationMessage);
+
+      const messageKit = await encrypt(
+        provider,
+        DOMAIN,
+        message,
+        ecdsaCondition,
+        RITUAL_ID,
+        encryptorSigner,
+      );
+
+      const encryptedBytes = messageKit.toBytes();
+
+      const messageKitFromBytes = ThresholdMessageKit.fromBytes(encryptedBytes);
+      const conditionContext =
+        conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
+
+      // Add invalid signature
+      const invalidSignature = '0x' + randomBytes(64).toString('hex');
+      conditionContext.addCustomContextParameterValues({
+        ':ecdsaSignature': invalidSignature.slice(2)
+      });
+
+      await expect(
+        decrypt(
+          provider,
+          DOMAIN,
+          messageKitFromBytes,
+          conditionContext,
+        )
+      ).rejects.toThrow();
+    }, 20000);
+
+    test('should encrypt and decrypt with ECDSA condition using user address context', async () => {
+      const messageString = 'This message uses both ECDSA and user address authentication 🔐🆔';
+      const message = toBytes(messageString);
+
+      // Create a predefined ECDSA condition that uses user address as the message
+      const { condition: ecdsaCondition, privateKey } = createTestECDSACondition(USER_ADDRESS_PARAM_DEFAULT);
+
+      expect(ecdsaCondition.requiresAuthentication()).toBe(true);
+
+      const messageKit = await encrypt(
+        provider,
+        DOMAIN,
+        message,
+        ecdsaCondition,
+        RITUAL_ID,
+        encryptorSigner,
+      );
+
+      const encryptedBytes = messageKit.toBytes();
+
+      const messageKitFromBytes = ThresholdMessageKit.fromBytes(encryptedBytes);
+      const conditionContext =
+        conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
+
+      expect(conditionContext.requestedContextParameters.has(USER_ADDRESS_PARAM_DEFAULT)).toBe(true);
+      expect(conditionContext.requestedContextParameters.has(':ecdsaSignature')).toBe(true);
+
+      const authProvider = new EIP4361AuthProvider(provider, consumerSigner);
+      conditionContext.addAuthProvider(USER_ADDRESS_PARAM_DEFAULT, authProvider);
+
+      // Sign the user's address with the predefined condition's private key
+      const userAddress = await consumerSigner.getAddress();
+      const signatureHex = createSignatureForPredefinedCondition(
+        { condition: ecdsaCondition.value, verifyingKey: ecdsaCondition.value.verifyingKey, privateKey },
+        userAddress
+      );
+
+      conditionContext.addCustomContextParameterValues({
+        ':ecdsaSignature': signatureHex
+      });
+
+      const decryptedBytes = await decrypt(
+        provider,
+        DOMAIN,
+        messageKitFromBytes,
+        conditionContext,
+      );
+      const decryptedMessageString = fromBytes(decryptedBytes);
+
+      expect(decryptedMessageString).toEqual(messageString);
+    }, 25000);
   },
 );

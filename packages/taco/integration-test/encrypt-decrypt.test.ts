@@ -216,15 +216,6 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       const sHex = signature.s.slice(2).padStart(64, '0');
       const signatureHex = rHex + sHex;
 
-      console.log('🔐 ECDSA Test Setup:');
-      console.log(`   Message: "${authorizationMessage}"`);
-      console.log(`   Message Hash: ${messageHash.toString('hex')}`);
-      console.log(`   Private Key: ${ecdsaWallet.privateKey}`);
-      console.log(`   Public Key: ${verifyingKey}`);
-      console.log(`   Signature R: ${rHex}`);
-      console.log(`   Signature S: ${sHex}`);
-      console.log(`   Full Signature: ${signatureHex}`);
-
       // Create ECDSA condition that verifies the signature
       const ecdsaCondition = new conditions.base.ecdsa.ECDSACondition({
         message: authorizationMessage,
@@ -273,9 +264,6 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
 
       // Verify decryption was successful
       expect(decryptedMessageString).toEqual(messageString);
-
-      console.log('✅ ECDSA condition test passed!');
-      console.log(`   Decrypted Message: "${decryptedMessageString}"`);
     }, 20000); // 20s timeout
 
     test('should fail to decrypt with ECDSA condition when signature is invalid', async () => {
@@ -330,8 +318,6 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
           conditionContext,
         )
       ).rejects.toThrow();
-
-      console.log('✅ ECDSA invalid signature test passed - decryption properly failed');
     }, 20000); // 20s timeout
 
     test('should encrypt and decrypt with ECDSA condition using user address context', async () => {
@@ -406,11 +392,6 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
 
       // Verify decryption was successful
       expect(decryptedMessageString).toEqual(messageString);
-
-      console.log('✅ ECDSA + User Address condition test passed!');
-      console.log(`   Message: "${messageString}"`);
-      console.log(`   User Address: ${userAddress}`);
-      console.log(`   ECDSA Signature: ${signatureHex.slice(0, 20)}...`);
     }, 25000); // 25s timeout
   },
 );

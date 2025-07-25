@@ -1,9 +1,55 @@
 import { z } from 'zod';
 
+import { ConditionProps } from '../condition';
 import { maxNestedDepth } from '../multi-condition';
 
 import { baseConditionSchema, plainStringSchema } from './common';
+import { CompoundConditionType } from './compound';
+import { IfThenElseConditionType } from './if-then-else';
 import { anyConditionSchema } from './utils';
+
+const getAllNestedConditionVariableNames = (
+  condition: ConditionProps,
+): string[] => {
+  const conditionVariables: string[] = [];
+  if (condition.conditionType === SequentialConditionType) {
+    for (const variable of condition.conditionVariables) {
+      conditionVariables.push(variable.varName);
+      conditionVariables.push(
+        ...getAllNestedConditionVariableNames(variable.condition),
+      );
+    }
+  } else if (condition.conditionType === IfThenElseConditionType) {
+    conditionVariables.push(
+      ...getAllNestedConditionVariableNames(condition.ifCondition),
+    );
+    conditionVariables.push(
+      ...getAllNestedConditionVariableNames(condition.thenCondition),
+    );
+    if (typeof condition.elseCondition !== 'boolean') {
+      conditionVariables.push(
+        ...getAllNestedConditionVariableNames(condition.elseCondition),
+      );
+    }
+  } else if (condition.conditionType === CompoundConditionType) {
+    for (const operand of condition.operands) {
+      conditionVariables.push(...getAllNestedConditionVariableNames(operand));
+    }
+  }
+  return conditionVariables;
+};
+
+const noDuplicateVarNames = (condition: ConditionProps): boolean => {
+  const allVarNames = getAllNestedConditionVariableNames(condition);
+  const seen = new Set();
+  for (const varName of allVarNames) {
+    if (seen.has(varName)) {
+      return false; // Duplicate variable name found
+    }
+    seen.add(varName);
+  }
+  return true; // No duplicates found
+};
 
 export const SequentialConditionType = 'sequential';
 
@@ -30,18 +76,8 @@ export const sequentialConditionSchema: z.ZodSchema = baseConditionSchema
     }, // Max nested depth of 2
   )
   .refine(
-    // check for duplicate var names
     (condition) => {
-      const seen = new Set();
-      return condition.conditionVariables.every(
-        (child: ConditionVariableProps) => {
-          if (seen.has(child.varName)) {
-            return false;
-          }
-          seen.add(child.varName);
-          return true;
-        },
-      );
+      return noDuplicateVarNames(condition);
     },
     {
       message: 'Duplicate variable names are not allowed',

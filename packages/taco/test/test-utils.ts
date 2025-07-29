@@ -51,7 +51,6 @@ import {
   ECDSA_MESSAGE_PARAM_DEFAULT,
   ECDSA_SIGNATURE_PARAM_DEFAULT,
   ECDSAConditionProps,
-  ecdsaConditionSchema,
   ECDSAConditionType,
   ECDSACurve,
 } from '../src/conditions/base/ecdsa';
@@ -84,7 +83,6 @@ import {
   CompoundConditionProps,
   CompoundConditionType,
 } from '../src/conditions/compound-condition';
-import { Condition } from '../src/conditions/condition';
 import { ConditionExpression } from '../src/conditions/condition-expr';
 import { ERC721Balance } from '../src/conditions/predefined/erc721';
 import {
@@ -102,34 +100,23 @@ import {
 import { DkgClient, DkgRitual } from '../src/dkg';
 import { encryptMessage } from '../src/tdec';
 
-// Test ECDSA condition that uses the main schema (verifyingKey is now included)
-const testECDSAConditionSchema = ecdsaConditionSchema;
-
-export class TestECDSACondition extends Condition {
-  constructor(value: Omit<ECDSAConditionProps, 'conditionType'>) {
-    super(testECDSAConditionSchema, {
-      conditionType: ECDSAConditionType,
-      ...value,
-    });
-  }
-}
-
 export function createTestECDSACondition(
   message: string,
   curve: ECDSACurve = 'SECP256k1',
-): { condition: TestECDSACondition; privateKey: string } {
+): { conditionProps: ECDSAConditionProps; privateKey: string } {
   // Simulate server-side key generation for the predefined condition
   const testWallet = ethers.Wallet.createRandom();
 
-  const condition = new TestECDSACondition({
+  const conditionProps: ECDSAConditionProps = {
+    conditionType: ECDSAConditionType,
     message: message,
     signature: ECDSA_SIGNATURE_PARAM_DEFAULT,
     verifyingKey: testWallet.publicKey.slice(2), // Remove '0x' prefix
     curve: curve,
-  });
+  };
 
   return {
-    condition,
+    conditionProps,
     privateKey: testWallet.privateKey, // For test signature generation
   };
 }
@@ -352,8 +339,7 @@ export const testECDSAConditionObj: ECDSAConditionProps = {
 // Test utility for creating predefined ECDSA conditions (simulates server-side creation)
 // In production, these would be created by servers/admins and stored with their verifying keys
 export interface PredefinedECDSACondition {
-  condition: ECDSAConditionProps;
-  verifyingKey: string;
+  conditionProps: ECDSAConditionProps;
   privateKey: string; // For test signature generation only
 }
 
@@ -366,14 +352,13 @@ export function createPredefinedECDSACondition(
   const verifyingKey = testWallet.publicKey.slice(2); // Remove '0x' prefix
 
   return {
-    condition: {
+    conditionProps: {
       conditionType: ECDSAConditionType,
       message: message,
       signature: ECDSA_SIGNATURE_PARAM_DEFAULT,
-      verifyingKey: verifyingKey, // Include verifyingKey in the condition
+      verifyingKey: verifyingKey,
       curve: curve,
     },
-    verifyingKey: verifyingKey,
     privateKey: testWallet.privateKey, // For test purposes only
   };
 }

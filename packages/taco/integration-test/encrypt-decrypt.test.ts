@@ -14,6 +14,7 @@ import {
   initialize,
   ThresholdMessageKit,
 } from '../src';
+import { ECDSACondition } from '../src/conditions/base/ecdsa';
 import { CompoundCondition } from '../src/conditions/compound-condition';
 import {
   createSignatureForPredefinedCondition,
@@ -183,9 +184,10 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       const authorizationMessage = 'I authorize access to this encrypted data';
 
       // Create a predefined ECDSA condition (simulates server-side condition creation)
-      const { condition: ecdsaCondition, privateKey } =
+      const { conditionProps, privateKey } =
         createTestECDSACondition(authorizationMessage);
 
+      const ecdsaCondition = new ECDSACondition(conditionProps);
       expect(ecdsaCondition.requiresAuthentication()).toBe(false);
 
       const messageKit = await encrypt(
@@ -210,8 +212,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       // Create signature using the predefined condition's private key
       const signatureHex = createSignatureForPredefinedCondition(
         {
-          condition: ecdsaCondition.value,
-          verifyingKey: ecdsaCondition.value.verifyingKey,
+          conditionProps,
           privateKey,
         },
         authorizationMessage,
@@ -239,9 +240,9 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       const authorizationMessage = 'I authorize access to this encrypted data';
 
       // Create a predefined ECDSA condition (simulates server-side condition creation)
-      const { condition: ecdsaCondition } =
-        createTestECDSACondition(authorizationMessage);
+      const { conditionProps } = createTestECDSACondition(authorizationMessage);
 
+      const ecdsaCondition = new ECDSACondition(conditionProps);
       const messageKit = await encrypt(
         provider,
         DOMAIN,
@@ -274,11 +275,12 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       const message = toBytes(messageString);
 
       // Create a predefined ECDSA condition that uses :message context parameter
-      const { condition: ecdsaCondition, privateKey } =
+      const { conditionProps, privateKey } =
         createTestECDSACondition(':message');
 
       // ECDSA conditions with :message and :signature don't require auth providers
       // like :userAddress does, they just need context parameters to be provided
+      const ecdsaCondition = new ECDSACondition(conditionProps);
       expect(ecdsaCondition.requiresAuthentication()).toBe(false);
 
       const messageKit = await encrypt(
@@ -309,8 +311,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       // Sign the message with the predefined condition's private key
       const signatureHex = createSignatureForPredefinedCondition(
         {
-          condition: ecdsaCondition.value,
-          verifyingKey: ecdsaCondition.value.verifyingKey,
+          conditionProps,
           privateKey,
         },
         messageToSign,

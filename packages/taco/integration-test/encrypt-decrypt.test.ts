@@ -204,8 +204,8 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
 
       expect(
-        conditionContext.requestedContextParameters.has(':ecdsaSignature'),
-      ).toBe(true);
+        conditionContext.requestedContextParameters.has(':signature'),
+      ).toBeTruthy();
 
       // Create signature using the predefined condition's private key
       const signatureHex = createSignatureForPredefinedCondition(
@@ -218,7 +218,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       );
 
       conditionContext.addCustomContextParameterValues({
-        ':ecdsaSignature': signatureHex,
+        ':signature': signatureHex,
       });
 
       const decryptedBytes = await decrypt(
@@ -260,7 +260,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       // Add invalid signature
       const invalidSignature = '0x' + randomBytes(64).toString('hex');
       conditionContext.addCustomContextParameterValues({
-        ':ecdsaSignature': invalidSignature.slice(2),
+        ':signature': invalidSignature.slice(2),
       });
 
       await expect(
@@ -268,16 +268,18 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       ).rejects.toThrow();
     }, 20000);
 
-    test('should encrypt and decrypt with ECDSA condition using user address context', async () => {
+    test('should encrypt and decrypt with ECDSA condition using context parameters', async () => {
       const messageString =
-        'This message uses both ECDSA and user address authentication 🔐🆔';
+        'This message uses ECDSA signature verification with context parameters 🔐✍️';
       const message = toBytes(messageString);
 
-      // Create a predefined ECDSA condition that uses user address as the message
+      // Create a predefined ECDSA condition that uses :message context parameter
       const { condition: ecdsaCondition, privateKey } =
-        createTestECDSACondition(USER_ADDRESS_PARAM_DEFAULT);
+        createTestECDSACondition(':message');
 
-      expect(ecdsaCondition.requiresAuthentication()).toBe(true);
+      // ECDSA conditions with :message and :signature don't require auth providers
+      // like :userAddress does, they just need context parameters to be provided
+      expect(ecdsaCondition.requiresAuthentication()).toBe(false);
 
       const messageKit = await encrypt(
         provider,
@@ -295,33 +297,28 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
 
       expect(
-        conditionContext.requestedContextParameters.has(
-          USER_ADDRESS_PARAM_DEFAULT,
-        ),
-      ).toBe(true);
+        conditionContext.requestedContextParameters.has(':message'),
+      ).toBeTruthy();
       expect(
-        conditionContext.requestedContextParameters.has(':ecdsaSignature'),
-      ).toBe(true);
+        conditionContext.requestedContextParameters.has(':signature'),
+      ).toBeTruthy();
 
-      const authProvider = new EIP4361AuthProvider(provider, consumerSigner);
-      conditionContext.addAuthProvider(
-        USER_ADDRESS_PARAM_DEFAULT,
-        authProvider,
-      );
-
-      // Sign the user's address with the predefined condition's private key
-      const userAddress = await consumerSigner.getAddress();
+            // Define the message to be signed (provided via :message context parameter)
+      const messageToSign = 'User authentication message';
+      
+      // Sign the message with the predefined condition's private key
       const signatureHex = createSignatureForPredefinedCondition(
         {
           condition: ecdsaCondition.value,
           verifyingKey: ecdsaCondition.value.verifyingKey,
           privateKey,
         },
-        userAddress,
+        messageToSign,
       );
 
       conditionContext.addCustomContextParameterValues({
-        ':ecdsaSignature': signatureHex,
+        ':message': messageToSign,
+        ':signature': signatureHex,
       });
 
       const decryptedBytes = await decrypt(

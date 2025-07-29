@@ -17,16 +17,16 @@ const dynamicECDSACondition = new ECDSACondition({
 
 // Example 3: ECDSA condition with different curve
 const p256ECDSACondition = new ECDSACondition({
-  message: 'Authenticated message',
-  signature: ':ecdsaSignature',
+  message: 'hello world',
+  signature: ':signature',
   curve: 'NIST256p',
 });
 
-// Example 4: Using defaults for message and signature
+// This ECDSA condition uses the default context variables
 const defaultECDSACondition = new ECDSACondition({
-  message: ':ecdsaMessage', // Default context variable
-  signature: ':ecdsaSignature', // Default context variable
-  curve: 'SECP256k1', // Default curve
+  message: ':message', // Default context variable
+  signature: ':signature', // Default context variable
+  curve: 'SECP256k1',
 });
 
 // Example 5: Complex usage with compound condition

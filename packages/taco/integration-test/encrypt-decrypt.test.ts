@@ -258,9 +258,9 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
 
       // Add invalid signature
-      const invalidSignature = '0x' + randomBytes(64).toString('hex');
+      const invalidSignature = randomBytes(64).toString('hex');
       conditionContext.addCustomContextParameterValues({
-        ':signature': invalidSignature.slice(2),
+        ':signature': invalidSignature,
       });
 
       await expect(

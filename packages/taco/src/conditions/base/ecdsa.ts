@@ -7,7 +7,6 @@ import {
 import { OmitConditionType } from '../shared';
 
 export {
-  DEFAULT_ECDSA_CURVE,
   ECDSACurve,
   ECDSA_MESSAGE_PARAM_DEFAULT,
   ECDSA_SIGNATURE_PARAM_DEFAULT,

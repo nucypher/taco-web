@@ -42,6 +42,9 @@ export const ecdsaConditionSchema = baseConditionSchema
       message: 'Message must be a valid hex string if it starts with "0x"',
       path: ['message'],
     },
+  )
+  .describe(
+    'ECDSA Condition for verifying the authenticity of a message using ECDSA signatures.',
   );
 
 export type ECDSAConditionProps = z.infer<typeof ecdsaConditionSchema>;

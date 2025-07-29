@@ -41,14 +41,10 @@ const getAllNestedConditionVariableNames = (
 
 const noDuplicateVarNames = (condition: ConditionProps): boolean => {
   const allVarNames = getAllNestedConditionVariableNames(condition);
-  const seen = new Set();
-  for (const varName of allVarNames) {
-    if (seen.has(varName)) {
-      return false; // Duplicate variable name found
-    }
-    seen.add(varName);
-  }
-  return true; // No duplicates found
+  const duplicates = allVarNames.filter(
+    (item, index) => allVarNames.indexOf(item) !== index,
+  );
+  return duplicates.length === 0;
 };
 
 export const SequentialConditionType = 'sequential';

@@ -5,6 +5,7 @@ import {
   EIP4361AuthProvider,
   USER_ADDRESS_PARAM_DEFAULT,
 } from '@nucypher/taco-auth';
+import { randomBytes } from 'crypto';
 import { ethers } from 'ethers';
 import {
   conditions,
@@ -14,12 +15,11 @@ import {
   ThresholdMessageKit,
 } from '../src';
 import { CompoundCondition } from '../src/conditions/compound-condition';
-import { 
-  UINT256_MAX,
-  createTestECDSACondition,
+import {
   createSignatureForPredefinedCondition,
+  createTestECDSACondition,
+  UINT256_MAX,
 } from '../test/test-utils';
-import { randomBytes, createHash } from 'crypto';
 
 const RPC_PROVIDER_URL = 'https://rpc-amoy.polygon.technology';
 const ENCRYPTOR_PRIVATE_KEY =
@@ -176,13 +176,15 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
     }, 15000);
 
     test('should encrypt and decrypt according to ECDSA signature condition with predefined verifying key', async () => {
-      const messageString = 'This message is protected by ECDSA signature verification 🔐';
+      const messageString =
+        'This message is protected by ECDSA signature verification 🔐';
       const message = toBytes(messageString);
 
       const authorizationMessage = 'I authorize access to this encrypted data';
-      
+
       // Create a predefined ECDSA condition (simulates server-side condition creation)
-      const { condition: ecdsaCondition, privateKey } = createTestECDSACondition(authorizationMessage);
+      const { condition: ecdsaCondition, privateKey } =
+        createTestECDSACondition(authorizationMessage);
 
       expect(ecdsaCondition.requiresAuthentication()).toBe(false);
 
@@ -201,16 +203,22 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       const conditionContext =
         conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
 
-      expect(conditionContext.requestedContextParameters.has(':ecdsaSignature')).toBe(true);
+      expect(
+        conditionContext.requestedContextParameters.has(':ecdsaSignature'),
+      ).toBe(true);
 
       // Create signature using the predefined condition's private key
       const signatureHex = createSignatureForPredefinedCondition(
-        { condition: ecdsaCondition.value, verifyingKey: ecdsaCondition.value.verifyingKey, privateKey },
-        authorizationMessage
+        {
+          condition: ecdsaCondition.value,
+          verifyingKey: ecdsaCondition.value.verifyingKey,
+          privateKey,
+        },
+        authorizationMessage,
       );
 
       conditionContext.addCustomContextParameterValues({
-        ':ecdsaSignature': signatureHex
+        ':ecdsaSignature': signatureHex,
       });
 
       const decryptedBytes = await decrypt(
@@ -231,7 +239,8 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       const authorizationMessage = 'I authorize access to this encrypted data';
 
       // Create a predefined ECDSA condition (simulates server-side condition creation)
-      const { condition: ecdsaCondition } = createTestECDSACondition(authorizationMessage);
+      const { condition: ecdsaCondition } =
+        createTestECDSACondition(authorizationMessage);
 
       const messageKit = await encrypt(
         provider,
@@ -251,25 +260,22 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       // Add invalid signature
       const invalidSignature = '0x' + randomBytes(64).toString('hex');
       conditionContext.addCustomContextParameterValues({
-        ':ecdsaSignature': invalidSignature.slice(2)
+        ':ecdsaSignature': invalidSignature.slice(2),
       });
 
       await expect(
-        decrypt(
-          provider,
-          DOMAIN,
-          messageKitFromBytes,
-          conditionContext,
-        )
+        decrypt(provider, DOMAIN, messageKitFromBytes, conditionContext),
       ).rejects.toThrow();
     }, 20000);
 
     test('should encrypt and decrypt with ECDSA condition using user address context', async () => {
-      const messageString = 'This message uses both ECDSA and user address authentication 🔐🆔';
+      const messageString =
+        'This message uses both ECDSA and user address authentication 🔐🆔';
       const message = toBytes(messageString);
 
       // Create a predefined ECDSA condition that uses user address as the message
-      const { condition: ecdsaCondition, privateKey } = createTestECDSACondition(USER_ADDRESS_PARAM_DEFAULT);
+      const { condition: ecdsaCondition, privateKey } =
+        createTestECDSACondition(USER_ADDRESS_PARAM_DEFAULT);
 
       expect(ecdsaCondition.requiresAuthentication()).toBe(true);
 
@@ -288,21 +294,34 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       const conditionContext =
         conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
 
-      expect(conditionContext.requestedContextParameters.has(USER_ADDRESS_PARAM_DEFAULT)).toBe(true);
-      expect(conditionContext.requestedContextParameters.has(':ecdsaSignature')).toBe(true);
+      expect(
+        conditionContext.requestedContextParameters.has(
+          USER_ADDRESS_PARAM_DEFAULT,
+        ),
+      ).toBe(true);
+      expect(
+        conditionContext.requestedContextParameters.has(':ecdsaSignature'),
+      ).toBe(true);
 
       const authProvider = new EIP4361AuthProvider(provider, consumerSigner);
-      conditionContext.addAuthProvider(USER_ADDRESS_PARAM_DEFAULT, authProvider);
+      conditionContext.addAuthProvider(
+        USER_ADDRESS_PARAM_DEFAULT,
+        authProvider,
+      );
 
       // Sign the user's address with the predefined condition's private key
       const userAddress = await consumerSigner.getAddress();
       const signatureHex = createSignatureForPredefinedCondition(
-        { condition: ecdsaCondition.value, verifyingKey: ecdsaCondition.value.verifyingKey, privateKey },
-        userAddress
+        {
+          condition: ecdsaCondition.value,
+          verifyingKey: ecdsaCondition.value.verifyingKey,
+          privateKey,
+        },
+        userAddress,
       );
 
       conditionContext.addCustomContextParameterValues({
-        ':ecdsaSignature': signatureHex
+        ':ecdsaSignature': signatureHex,
       });
 
       const decryptedBytes = await decrypt(

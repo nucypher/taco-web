@@ -2,7 +2,8 @@ import { ECDSACondition } from '../src/conditions/base/ecdsa';
 
 // Example 1: ECDSA condition with hardcoded message, dynamic signature
 const attestationCondition = new ECDSACondition({
-  message: 'I attest that I am authorized to access this data and agree to use it responsibly',
+  message:
+    'I attest that I am authorized to access this data and agree to use it responsibly',
   signature: ':userSignature', // User provides signature at runtime
   curve: 'SECP256k1',
 });
@@ -29,8 +30,8 @@ const defaultECDSACondition = new ECDSACondition({
 });
 
 // Example 5: Complex usage with compound condition
-import { CompoundCondition } from '../src/conditions/compound-condition';
 import { TimeCondition } from '../src/conditions/base/time';
+import { CompoundCondition } from '../src/conditions/compound-condition';
 
 const timeCondition = new TimeCondition({
   returnValueTest: {
@@ -73,13 +74,13 @@ const ed25519Condition = new ECDSACondition({
 // Example 8: Brainpool curve example
 const brainpoolCondition = new ECDSACondition({
   message: 'Brainpool P-256 verification',
-  signature: ':brainpoolSignature', 
+  signature: ':brainpoolSignature',
   curve: 'BRAINPOOLP256r1',
 });
 
-// Example 9: NIST P-384 curve 
+// Example 9: NIST P-384 curve
 const p384Condition = new ECDSACondition({
   message: 'High-security P-384 verification',
   signature: ':p384Signature',
   curve: 'NIST384p',
-}); 
+});

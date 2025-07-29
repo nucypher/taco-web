@@ -8,14 +8,16 @@ export const ECDSA_SIGNATURE_PARAM_DEFAULT = ':signature';
 export const ECDSAConditionType = 'ecdsa';
 
 // Allowed context parameters for ECDSA message field - ONLY :message
-const ecdsaMessageContextParamSchema = z.enum([
-  ':message',
-]).describe('Context parameter for ECDSA message - only :message is allowed');
+const ecdsaMessageContextParamSchema = z
+  .enum([':message'])
+  .describe('Context parameter for ECDSA message - only :message is allowed');
 
 // Allowed context parameters for ECDSA signature field - ONLY :signature
-const ecdsaSignatureContextParamSchema = z.enum([
-  ':signature',
-]).describe('Context parameter for ECDSA signature - only :signature is allowed');
+const ecdsaSignatureContextParamSchema = z
+  .enum([':signature'])
+  .describe(
+    'Context parameter for ECDSA signature - only :signature is allowed',
+  );
 
 // Message field that properly validates context parameters
 const ecdsaMessageSchema = z.string().superRefine((val, ctx) => {
@@ -95,7 +97,7 @@ export const SUPPORTED_ECDSA_CURVES = [
   'Ed448',
 ] as const;
 
-export type ECDSACurve = typeof SUPPORTED_ECDSA_CURVES[number];
+export type ECDSACurve = (typeof SUPPORTED_ECDSA_CURVES)[number];
 
 export const ecdsaConditionSchema = baseConditionSchema.extend({
   conditionType: z.literal(ECDSAConditionType).default(ECDSAConditionType),
@@ -104,4 +106,4 @@ export const ecdsaConditionSchema = baseConditionSchema.extend({
   curve: z.enum(SUPPORTED_ECDSA_CURVES),
 });
 
-export type ECDSAConditionProps = z.infer<typeof ecdsaConditionSchema>; 
+export type ECDSAConditionProps = z.infer<typeof ecdsaConditionSchema>;

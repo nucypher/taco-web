@@ -32,9 +32,7 @@ describe('ECDSACondition', () => {
       expect(result.data).toBeUndefined();
       expect(result.error?.format()).toMatchObject({
         message: {
-          _errors: expect.arrayContaining([
-            'Expected string, received number',
-          ]),
+          _errors: expect.arrayContaining(['Expected string, received number']),
         },
       });
     });
@@ -55,8 +53,6 @@ describe('ECDSACondition', () => {
         },
       });
     });
-
-
 
     it('rejects invalid curve', () => {
       const badECDSAObj = {
@@ -164,12 +160,13 @@ describe('ECDSACondition', () => {
     });
 
     it('rejects when curve parameter is missing', () => {
-      const ecdsaObj = {
-        ...testECDSAConditionObj,
-      };
-      delete (ecdsaObj as any).curve; // Remove the curve parameter
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { curve: _curve, ...ecdsaObjWithoutCurve } = testECDSAConditionObj;
 
-      const result = ECDSACondition.validate(ecdsaConditionSchema, ecdsaObj);
+      const result = ECDSACondition.validate(
+        ecdsaConditionSchema,
+        ecdsaObjWithoutCurve,
+      );
 
       expect(result.error).toBeDefined();
       expect(result.error!.issues[0].code).toEqual('invalid_type');
@@ -189,4 +186,4 @@ describe('ECDSACondition', () => {
       expect(condition.value.curve).toBe('SECP256k1');
     });
   });
-}); 
+});

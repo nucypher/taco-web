@@ -3,6 +3,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
+import { createHash } from 'crypto';
+
 import {
   AggregatedTranscript,
   DecryptionShareSimple,
@@ -35,7 +37,7 @@ import {
 } from '@nucypher/test-utils';
 import { ethers } from 'ethers';
 import { MockInstance, vi } from 'vitest';
-import { createHash } from 'crypto';
+import { z } from 'zod';
 
 import {
   AddressAllowlistConditionProps,
@@ -49,7 +51,6 @@ import {
 import {
   ECDSA_MESSAGE_PARAM_DEFAULT,
   ECDSA_SIGNATURE_PARAM_DEFAULT,
-  ECDSACondition,
   ECDSAConditionProps,
   ECDSAConditionType,
   ECDSACurve,
@@ -83,8 +84,14 @@ import {
   CompoundConditionProps,
   CompoundConditionType,
 } from '../src/conditions/compound-condition';
+import { Condition } from '../src/conditions/condition';
 import { ConditionExpression } from '../src/conditions/condition-expr';
 import { ERC721Balance } from '../src/conditions/predefined/erc721';
+import {
+  baseConditionSchema,
+  hexStringSchema,
+} from '../src/conditions/schemas/common';
+import { contextParamSchema } from '../src/conditions/schemas/context';
 import {
   JsonRpcConditionProps,
   JsonRpcConditionType,
@@ -99,10 +106,6 @@ import {
 } from '../src/conditions/shared';
 import { DkgClient, DkgRitual } from '../src/dkg';
 import { encryptMessage } from '../src/tdec';
-import { z } from 'zod';
-import { Condition } from '../src/conditions/condition';
-import { baseConditionSchema, hexStringSchema } from '../src/conditions/schemas/common';
-import { contextParamSchema } from '../src/conditions/schemas/context';
 
 // Test-specific ECDSA condition that includes verifying key for integration testing
 // This simulates how predefined ECDSA conditions would work in production
@@ -112,16 +115,23 @@ interface TestECDSAConditionProps extends ECDSAConditionProps {
 
 const testECDSAConditionSchema = baseConditionSchema.extend({
   conditionType: z.literal(ECDSAConditionType).default(ECDSAConditionType),
-  message: z.union([
-    z.string(),
-    contextParamSchema,
-  ]).default(ECDSA_MESSAGE_PARAM_DEFAULT),
-  signature: z.union([
-    hexStringSchema,
-    contextParamSchema,
-  ]).default(ECDSA_SIGNATURE_PARAM_DEFAULT),
+  message: z
+    .union([z.string(), contextParamSchema])
+    .default(ECDSA_MESSAGE_PARAM_DEFAULT),
+  signature: z
+    .union([hexStringSchema, contextParamSchema])
+    .default(ECDSA_SIGNATURE_PARAM_DEFAULT),
   verifyingKey: hexStringSchema, // Test-only: includes verifying key
-  curve: z.enum(['SECP256k1', 'NIST256p', 'NIST384p', 'NIST521p', 'Ed25519', 'BRAINPOOLP256r1']).default('SECP256k1'),
+  curve: z
+    .enum([
+      'SECP256k1',
+      'NIST256p',
+      'NIST384p',
+      'NIST521p',
+      'Ed25519',
+      'BRAINPOOLP256r1',
+    ])
+    .default('SECP256k1'),
 });
 
 export class TestECDSACondition extends Condition {
@@ -135,11 +145,11 @@ export class TestECDSACondition extends Condition {
 
 export function createTestECDSACondition(
   message: string,
-  curve: ECDSACurve = 'SECP256k1'
+  curve: ECDSACurve = 'SECP256k1',
 ): { condition: TestECDSACondition; privateKey: string } {
   // Simulate server-side key generation for the predefined condition
   const testWallet = ethers.Wallet.createRandom();
-  
+
   const condition = new TestECDSACondition({
     message: message,
     signature: ECDSA_SIGNATURE_PARAM_DEFAULT,
@@ -376,11 +386,11 @@ export interface PredefinedECDSACondition {
 
 export function createPredefinedECDSACondition(
   message: string,
-  curve: ECDSACurve = 'SECP256k1'
+  curve: ECDSACurve = 'SECP256k1',
 ): PredefinedECDSACondition {
   // Simulate server-side key generation for the predefined condition
   const testWallet = ethers.Wallet.createRandom();
-  
+
   return {
     condition: {
       conditionType: ECDSAConditionType,
@@ -395,13 +405,17 @@ export function createPredefinedECDSACondition(
 
 export function createSignatureForPredefinedCondition(
   predefinedCondition: PredefinedECDSACondition,
-  messageToSign: string
+  messageToSign: string,
 ): string {
   // Create signature that matches Python backend expectations
-  const messageHash = createHash('sha256').update(Buffer.from(messageToSign, 'utf8')).digest();
-  const signingKey = new ethers.utils.SigningKey(predefinedCondition.privateKey);
+  const messageHash = createHash('sha256')
+    .update(Buffer.from(messageToSign, 'utf8'))
+    .digest();
+  const signingKey = new ethers.utils.SigningKey(
+    predefinedCondition.privateKey,
+  );
   const signature = signingKey.signDigest(messageHash);
-  
+
   // Convert to hex format expected by Python (r+s format without 0x prefix)
   const rHex = signature.r.slice(2).padStart(64, '0');
   const sHex = signature.s.slice(2).padStart(64, '0');

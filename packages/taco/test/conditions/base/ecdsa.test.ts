@@ -90,7 +90,7 @@ describe('ECDSACondition', () => {
     it('accepts context variables for message', () => {
       const ecdsaObj = {
         ...testECDSAConditionObj,
-        message: ':message',
+        message: ':customMessage',
       };
 
       const result = ECDSACondition.validate(ecdsaConditionSchema, ecdsaObj);
@@ -102,61 +102,13 @@ describe('ECDSACondition', () => {
     it('accepts context variables for signature', () => {
       const ecdsaObj = {
         ...testECDSAConditionObj,
-        signature: ':signature',
+        signature: ':customSignature',
       };
 
       const result = ECDSACondition.validate(ecdsaConditionSchema, ecdsaObj);
 
       expect(result.error).toBeUndefined();
       expect(result.data).toEqual(ecdsaObj);
-    });
-
-    it('rejects arbitrary context variables for message', () => {
-      const ecdsaObj = {
-        ...testECDSAConditionObj,
-        message: ':customMessage',
-      };
-
-      const result = ECDSACondition.validate(ecdsaConditionSchema, ecdsaObj);
-
-      expect(result.error).toBeDefined();
-      expect(result.error!.issues[0].code).toEqual('invalid_enum_value');
-    });
-
-    it('rejects arbitrary context variables for signature', () => {
-      const ecdsaObj = {
-        ...testECDSAConditionObj,
-        signature: ':customSignature',
-      };
-
-      const result = ECDSACondition.validate(ecdsaConditionSchema, ecdsaObj);
-
-      expect(result.error).toBeDefined();
-      expect(result.error!.issues[0].code).toEqual('invalid_enum_value');
-    });
-
-    it('rejects the old default context variable :ecdsaMessage', () => {
-      const ecdsaObj = {
-        ...testECDSAConditionObj,
-        message: ':ecdsaMessage',
-      };
-
-      const result = ECDSACondition.validate(ecdsaConditionSchema, ecdsaObj);
-
-      expect(result.error).toBeDefined();
-      expect(result.error!.issues[0].code).toEqual('invalid_enum_value');
-    });
-
-    it('rejects the old default context variable :ecdsaSignature', () => {
-      const ecdsaObj = {
-        ...testECDSAConditionObj,
-        signature: ':ecdsaSignature',
-      };
-
-      const result = ECDSACondition.validate(ecdsaConditionSchema, ecdsaObj);
-
-      expect(result.error).toBeDefined();
-      expect(result.error!.issues[0].code).toEqual('invalid_enum_value');
     });
 
     it('rejects when curve parameter is missing', () => {

@@ -303,9 +303,9 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         conditionContext.requestedContextParameters.has(':signature'),
       ).toBeTruthy();
 
-            // Define the message to be signed (provided via :message context parameter)
+      // Define the message to be signed (provided via :message context parameter)
       const messageToSign = 'User authentication message';
-      
+
       // Sign the message with the predefined condition's private key
       const signatureHex = createSignatureForPredefinedCondition(
         {

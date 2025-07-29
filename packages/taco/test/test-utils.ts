@@ -91,6 +91,7 @@ import {
   baseConditionSchema,
   hexStringSchema,
 } from '../src/conditions/schemas/common';
+import { contextParamSchema } from '../src/conditions/schemas/context';
 import {
   JsonRpcConditionProps,
   JsonRpcConditionType,
@@ -112,58 +113,14 @@ interface TestECDSAConditionProps extends ECDSAConditionProps {
   verifyingKey: string;
 }
 
-// Restricted context parameters for test ECDSA conditions (matching production)
-const testEcdsaMessageContextParamSchema = z
-  .enum([':message'])
-  .describe('Test ECDSA message context parameter - only :message allowed');
-
-const testEcdsaSignatureContextParamSchema = z
-  .enum([':signature'])
-  .describe('Test ECDSA signature context parameter - only :signature allowed');
-
-// Message field with restricted context parameter validation (for tests)
-const testEcdsaMessageSchema = z.string().superRefine((val, ctx) => {
-  if (val.startsWith(':')) {
-    const result = testEcdsaMessageContextParamSchema.safeParse(val);
-    if (!result.success) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.invalid_enum_value,
-        options: [':message'],
-        received: val,
-        message: `Invalid context parameter for message. Only ':message' is allowed.`,
-      });
-    }
-  }
-});
-
-// Signature field with restricted context parameter validation (for tests)
-const testEcdsaSignatureSchema = z.string().superRefine((val, ctx) => {
-  if (val.startsWith(':')) {
-    const result = testEcdsaSignatureContextParamSchema.safeParse(val);
-    if (!result.success) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.invalid_enum_value,
-        options: [':signature'],
-        received: val,
-        message: `Invalid context parameter for signature. Only ':signature' is allowed.`,
-      });
-    }
-  } else {
-    const result = hexStringSchema.safeParse(val);
-    if (!result.success) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.invalid_string,
-        validation: 'regex',
-        message: 'Invalid hex string',
-      });
-    }
-  }
-});
-
 const testECDSAConditionSchema = baseConditionSchema.extend({
   conditionType: z.literal(ECDSAConditionType).default(ECDSAConditionType),
-  message: testEcdsaMessageSchema.default(ECDSA_MESSAGE_PARAM_DEFAULT),
-  signature: testEcdsaSignatureSchema.default(ECDSA_SIGNATURE_PARAM_DEFAULT),
+  message: z
+    .union([z.string(), contextParamSchema])
+    .default(ECDSA_MESSAGE_PARAM_DEFAULT),
+  signature: z
+    .union([hexStringSchema, contextParamSchema])
+    .default(ECDSA_SIGNATURE_PARAM_DEFAULT),
   verifyingKey: hexStringSchema, // Test-only: includes verifying key
   curve: z.enum([
     'SECP256k1',
@@ -172,7 +129,7 @@ const testECDSAConditionSchema = baseConditionSchema.extend({
     'NIST521p',
     'Ed25519',
     'BRAINPOOLP256r1',
-  ]), // Required, no default for tests
+  ]),
 });
 
 export class TestECDSACondition extends Condition {

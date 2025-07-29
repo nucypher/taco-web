@@ -22,11 +22,29 @@ const p256ECDSACondition = new ECDSACondition({
   curve: 'NIST256p',
 });
 
-// This ECDSA condition uses the default context variables
+// This ECDSA condition uses the default context variables (:message and :signature)
 const defaultECDSACondition = new ECDSACondition({
   message: ':message', // Default context variable
   signature: ':signature', // Default context variable
   curve: 'SECP256k1',
+});
+
+// For compound conditions with multiple ECDSA conditions, use custom context parameters
+// to avoid variable name conflicts
+const compoundECDSACondition = new CompoundCondition({
+  operator: 'and',
+  operands: [
+    new ECDSACondition({
+      message: ':message1', // Custom context parameter
+      signature: ':signature1', // Custom context parameter
+      curve: 'SECP256k1',
+    }),
+    new ECDSACondition({
+      message: ':message2', // Different context parameter
+      signature: ':signature2', // Different context parameter
+      curve: 'NIST256p',
+    }),
+  ],
 });
 
 // Example 5: Complex usage with compound condition

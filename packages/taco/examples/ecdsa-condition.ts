@@ -1,10 +1,19 @@
 import { ECDSACondition } from '../src/conditions/base/ecdsa';
 
+// Example verifying keys (public keys) - in production these would come from actual key pairs
+const EXAMPLE_VERIFYING_KEY_SECP256K1 =
+  '0437a1c9c0e8ff7a2e0e0a9b5a8c3d5b7e9f1c3e5a7b9d1f3e5c7a9b1d3f5e7c9a1e3f5a7b9c1d3e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1f3a5';
+const EXAMPLE_VERIFYING_KEY_NIST256P =
+  '0423456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
+const EXAMPLE_VERIFYING_KEY_ED25519 =
+  '0fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba987654321';
+
 // Example 1: ECDSA condition with hardcoded message, dynamic signature
 const attestationCondition = new ECDSACondition({
   message:
     'I attest that I am authorized to access this data and agree to use it responsibly',
   signature: ':userSignature', // User provides signature at runtime
+  verifyingKey: EXAMPLE_VERIFYING_KEY_SECP256K1,
   curve: 'SECP256k1',
 });
 
@@ -12,6 +21,7 @@ const attestationCondition = new ECDSACondition({
 const dynamicECDSACondition = new ECDSACondition({
   message: ':userMessage',
   signature: ':userSignature',
+  verifyingKey: EXAMPLE_VERIFYING_KEY_SECP256K1,
   curve: 'SECP256k1',
 });
 
@@ -19,6 +29,7 @@ const dynamicECDSACondition = new ECDSACondition({
 const p256ECDSACondition = new ECDSACondition({
   message: 'hello world',
   signature: ':signature',
+  verifyingKey: EXAMPLE_VERIFYING_KEY_NIST256P,
   curve: 'NIST256p',
 });
 
@@ -26,6 +37,7 @@ const p256ECDSACondition = new ECDSACondition({
 const defaultECDSACondition = new ECDSACondition({
   message: ':message', // Default context variable
   signature: ':signature', // Default context variable
+  verifyingKey: EXAMPLE_VERIFYING_KEY_SECP256K1,
   curve: 'SECP256k1',
 });
 
@@ -37,11 +49,13 @@ const compoundECDSACondition = new CompoundCondition({
     new ECDSACondition({
       message: ':message1', // Custom context parameter
       signature: ':signature1', // Custom context parameter
+      verifyingKey: EXAMPLE_VERIFYING_KEY_SECP256K1,
       curve: 'SECP256k1',
     }),
     new ECDSACondition({
       message: ':message2', // Different context parameter
       signature: ':signature2', // Different context parameter
+      verifyingKey: EXAMPLE_VERIFYING_KEY_NIST256P,
       curve: 'NIST256p',
     }),
   ],
@@ -78,6 +92,7 @@ const authorizationCondition = CompoundCondition.and([
   new ECDSACondition({
     message: 'I authorize access to this encrypted data',
     signature: ':userSignature',
+    verifyingKey: EXAMPLE_VERIFYING_KEY_SECP256K1,
     curve: 'SECP256k1',
   }),
 ]);
@@ -86,6 +101,7 @@ const authorizationCondition = CompoundCondition.and([
 const ed25519Condition = new ECDSACondition({
   message: 'Edwards curve signature verification',
   signature: ':ed25519Signature',
+  verifyingKey: EXAMPLE_VERIFYING_KEY_ED25519,
   curve: 'Ed25519',
 });
 
@@ -93,6 +109,7 @@ const ed25519Condition = new ECDSACondition({
 const brainpoolCondition = new ECDSACondition({
   message: 'Brainpool P-256 verification',
   signature: ':brainpoolSignature',
+  verifyingKey: EXAMPLE_VERIFYING_KEY_SECP256K1,
   curve: 'BRAINPOOLP256r1',
 });
 
@@ -100,5 +117,6 @@ const brainpoolCondition = new ECDSACondition({
 const p384Condition = new ECDSACondition({
   message: 'High-security P-384 verification',
   signature: ':p384Signature',
+  verifyingKey: EXAMPLE_VERIFYING_KEY_NIST256P,
   curve: 'NIST384p',
 });

@@ -129,6 +129,8 @@ describe('ECDSACondition', () => {
       const condition = new ECDSACondition({
         message: 'test message',
         signature: 'abcdef123456',
+        verifyingKey:
+          '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
         curve: 'SECP256k1',
       });
 

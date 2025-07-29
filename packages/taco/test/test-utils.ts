@@ -37,7 +37,6 @@ import {
 } from '@nucypher/test-utils';
 import { ethers } from 'ethers';
 import { MockInstance, vi } from 'vitest';
-import { z } from 'zod';
 
 import {
   AddressAllowlistConditionProps,
@@ -52,6 +51,7 @@ import {
   ECDSA_MESSAGE_PARAM_DEFAULT,
   ECDSA_SIGNATURE_PARAM_DEFAULT,
   ECDSAConditionProps,
+  ecdsaConditionSchema,
   ECDSAConditionType,
   ECDSACurve,
 } from '../src/conditions/base/ecdsa';
@@ -88,11 +88,6 @@ import { Condition } from '../src/conditions/condition';
 import { ConditionExpression } from '../src/conditions/condition-expr';
 import { ERC721Balance } from '../src/conditions/predefined/erc721';
 import {
-  baseConditionSchema,
-  hexStringSchema,
-} from '../src/conditions/schemas/common';
-import { contextParamSchema } from '../src/conditions/schemas/context';
-import {
   JsonRpcConditionProps,
   JsonRpcConditionType,
 } from '../src/conditions/schemas/json-rpc';
@@ -107,33 +102,11 @@ import {
 import { DkgClient, DkgRitual } from '../src/dkg';
 import { encryptMessage } from '../src/tdec';
 
-// Test-specific ECDSA condition that includes verifying key for integration testing
-// This simulates how predefined ECDSA conditions would work in production
-interface TestECDSAConditionProps extends ECDSAConditionProps {
-  verifyingKey: string;
-}
-
-const testECDSAConditionSchema = baseConditionSchema.extend({
-  conditionType: z.literal(ECDSAConditionType).default(ECDSAConditionType),
-  message: z
-    .union([z.string(), contextParamSchema])
-    .default(ECDSA_MESSAGE_PARAM_DEFAULT),
-  signature: z
-    .union([hexStringSchema, contextParamSchema])
-    .default(ECDSA_SIGNATURE_PARAM_DEFAULT),
-  verifyingKey: hexStringSchema, // Test-only: includes verifying key
-  curve: z.enum([
-    'SECP256k1',
-    'NIST256p',
-    'NIST384p',
-    'NIST521p',
-    'Ed25519',
-    'BRAINPOOLP256r1',
-  ]),
-});
+// Test ECDSA condition that uses the main schema (verifyingKey is now included)
+const testECDSAConditionSchema = ecdsaConditionSchema;
 
 export class TestECDSACondition extends Condition {
-  constructor(value: Omit<TestECDSAConditionProps, 'conditionType'>) {
+  constructor(value: Omit<ECDSAConditionProps, 'conditionType'>) {
     super(testECDSAConditionSchema, {
       conditionType: ECDSAConditionType,
       ...value,
@@ -371,6 +344,8 @@ export const testECDSAConditionObj: ECDSAConditionProps = {
   conditionType: ECDSAConditionType,
   message: ECDSA_MESSAGE_PARAM_DEFAULT,
   signature: ECDSA_SIGNATURE_PARAM_DEFAULT,
+  verifyingKey:
+    '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef', // Test verifying key
   curve: 'SECP256k1',
 };
 
@@ -388,15 +363,17 @@ export function createPredefinedECDSACondition(
 ): PredefinedECDSACondition {
   // Simulate server-side key generation for the predefined condition
   const testWallet = ethers.Wallet.createRandom();
+  const verifyingKey = testWallet.publicKey.slice(2); // Remove '0x' prefix
 
   return {
     condition: {
       conditionType: ECDSAConditionType,
       message: message,
       signature: ECDSA_SIGNATURE_PARAM_DEFAULT,
+      verifyingKey: verifyingKey, // Include verifyingKey in the condition
       curve: curve,
     },
-    verifyingKey: testWallet.publicKey.slice(2), // Remove '0x' prefix
+    verifyingKey: verifyingKey,
     privateKey: testWallet.privateKey, // For test purposes only
   };
 }

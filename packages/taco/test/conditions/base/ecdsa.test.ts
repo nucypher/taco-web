@@ -37,6 +37,38 @@ describe('ECDSACondition', () => {
       });
     });
 
+    it('rejects 0x-prefixed hex message that is not valid hex', () => {
+      const badECDSAObj = {
+        ...testECDSAConditionObj,
+        message: '0x123g', // Invalid hex
+      };
+      const result = ECDSACondition.validate(ecdsaConditionSchema, badECDSAObj);
+      expect(result.error).toBeDefined();
+      expect(result.data).toBeUndefined();
+      expect(result.error?.format()).toMatchObject({
+        message: {
+          _errors: [
+            'Message must be a valid hex string if it starts with "0x"',
+          ],
+        },
+      });
+    });
+
+    it('accepts valid hex message', () => {
+      const validECDSAObj = {
+        ...testECDSAConditionObj,
+        message: '0xabcdef1234567890',
+      };
+
+      const result = ECDSACondition.validate(
+        ecdsaConditionSchema,
+        validECDSAObj,
+      );
+
+      expect(result.error).toBeUndefined();
+      expect(result.data).toEqual(validECDSAObj);
+    });
+
     it('rejects invalid signature that is not a hex string', () => {
       const badECDSAObj = {
         ...testECDSAConditionObj,

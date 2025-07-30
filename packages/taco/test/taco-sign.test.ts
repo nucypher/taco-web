@@ -7,7 +7,11 @@ import { fakePorterUri } from '@nucypher/test-utils';
 import { ethers } from 'ethers';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { signUserOp } from '../src/sign';
+import { ContractCondition } from '../src/conditions/base/contract';
+import { RpcCondition } from '../src/conditions/base/rpc';
+import { CompoundCondition } from '../src/conditions/compound-condition';
+import { ConditionExpression } from '../src/conditions/condition-expr';
+import { setSigningCohortConditions, signUserOp } from '../src/sign';
 
 describe('TACo Signing', () => {
   let porterSignUserOpMock: ReturnType<typeof vi.fn>;
@@ -339,6 +343,164 @@ describe('TACo Signing', () => {
         aggregatedSignature: '0xdeadbeef',
         signingResults,
       });
+    });
+  });
+
+  describe('setSigningCohortConditions', () => {
+    let mockSigner: ethers.Signer;
+    let mockProvider: ethers.providers.JsonRpcProvider;
+    let setSigningCohortConditionsSpy: ReturnType<typeof vi.fn>;
+
+    beforeEach(() => {
+      mockProvider = {} as ethers.providers.JsonRpcProvider;
+      mockSigner = {} as ethers.Signer;
+      setSigningCohortConditionsSpy = vi.fn();
+      
+      vi.spyOn(SigningCoordinatorAgent, 'setSigningCohortConditions').mockImplementation(
+        setSigningCohortConditionsSpy,
+      );
+    });
+
+    it('should set signing cohort conditions successfully', async () => {
+      const domain = 'lynx';
+      const cohortId = 1;
+      const chainId = 11155111;
+      const mockTransaction = { hash: '0x123' } as ethers.ContractTransaction;
+      
+      // Create a real ConditionExpression with RPC condition
+      const rpcCondition = new RpcCondition({
+        chain: chainId,
+        method: 'eth_getBalance',
+        parameters: [':userAddress', 'latest'],
+        returnValueTest: {
+          comparator: '>',
+          value: BigInt(0),
+        },
+      });
+      
+      const conditionExpression = new ConditionExpression(rpcCondition);
+      const expectedJson = conditionExpression.toJson();
+      const expectedBytes = ethers.utils.toUtf8Bytes(expectedJson);
+
+      setSigningCohortConditionsSpy.mockResolvedValue(mockTransaction);
+
+      const result = await setSigningCohortConditions(
+        mockProvider,
+        domain,
+        rpcCondition,
+        cohortId,
+        chainId,
+        mockSigner,
+      );
+
+      expect(setSigningCohortConditionsSpy).toHaveBeenCalledWith(
+        mockProvider,
+        domain,
+        cohortId,
+        chainId,
+        expectedBytes,
+        mockSigner,
+      );
+      expect(result).toBe(mockTransaction);
+    });
+
+    it('should handle complex condition expressions', async () => {
+      const domain = 'lynx';
+      const cohortId = 1;
+      const chainId = 11155111;
+      const mockTransaction = { hash: '0x456' } as ethers.ContractTransaction;
+      
+      // Create a real compound ConditionExpression
+      const rpcCondition = new RpcCondition({
+        chain: chainId,
+        method: 'eth_getBalance',
+        parameters: [':userAddress', 'latest'],
+        returnValueTest: {
+          comparator: '>',
+          value: BigInt(0),
+        },
+      });
+      
+      const contractCondition = new ContractCondition({
+        contractAddress: '0x1234567890123456789012345678901234567890',
+        chain: chainId,
+        standardContractType: 'ERC20',
+        method: 'balanceOf',
+        parameters: [':userAddress'],
+        returnValueTest: {
+          comparator: '>=',
+          value: BigInt(1000),
+        },
+      });
+
+      const compoundCondition = CompoundCondition.and([rpcCondition, contractCondition]);
+      const conditionExpression = new ConditionExpression(compoundCondition);
+      const expectedJson = conditionExpression.toJson();
+      const expectedBytes = ethers.utils.toUtf8Bytes(expectedJson);
+
+      setSigningCohortConditionsSpy.mockResolvedValue(mockTransaction);
+
+      const result = await setSigningCohortConditions(
+        mockProvider,
+        domain,
+        compoundCondition,
+        cohortId,
+        chainId,
+        mockSigner,
+      );
+
+      expect(setSigningCohortConditionsSpy).toHaveBeenCalledWith(
+        mockProvider,
+        domain,
+        cohortId,
+        chainId,
+        expectedBytes,
+        mockSigner,
+      );
+      expect(result).toBe(mockTransaction);
+    });
+
+    it('should handle errors from SigningCoordinatorAgent', async () => {
+      const domain = 'lynx';
+      const cohortId = 999;
+      const chainId = 11155111;
+      
+      // Create a real ConditionExpression
+      const rpcCondition = new RpcCondition({
+        chain: chainId,
+        method: 'eth_getBalance',
+        parameters: [':userAddress', 'latest'],
+        returnValueTest: {
+          comparator: '>',
+          value: BigInt(0),
+        },
+      });
+      
+      const conditionExpression = new ConditionExpression(rpcCondition);
+      const expectedJson = conditionExpression.toJson();
+      const expectedBytes = ethers.utils.toUtf8Bytes(expectedJson);
+
+      setSigningCohortConditionsSpy.mockRejectedValue(new Error('Cohort not found'));
+
+      await expect(
+        setSigningCohortConditions(
+          mockProvider,
+          domain,
+          rpcCondition,
+          cohortId,
+          chainId,
+          mockSigner,
+        ),
+      ).rejects.toThrow('Cohort not found');
+
+      expect(setSigningCohortConditionsSpy).toHaveBeenCalledWith(
+        mockProvider,
+        domain,
+        cohortId,
+        chainId,
+        expectedBytes,
+        mockSigner,
+      );
     });
   });
 });

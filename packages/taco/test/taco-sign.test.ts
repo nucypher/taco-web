@@ -384,9 +384,9 @@ describe('TACo Signing', () => {
       setSigningCohortConditionsSpy.mockResolvedValue(mockTransaction);
 
       const result = await setSigningCohortConditions(
-        conditionExpression,
         mockProvider,
         domain,
+        rpcCondition,
         cohortId,
         chainId,
         mockSigner,
@@ -439,9 +439,9 @@ describe('TACo Signing', () => {
       setSigningCohortConditionsSpy.mockResolvedValue(mockTransaction);
 
       const result = await setSigningCohortConditions(
-        conditionExpression,
         mockProvider,
         domain,
+        compoundCondition,
         cohortId,
         chainId,
         mockSigner,
@@ -481,9 +481,9 @@ describe('TACo Signing', () => {
 
       await expect(
         setSigningCohortConditions(
-          conditionExpression,
           mockProvider,
           domain,
+          rpcCondition,
           cohortId,
           chainId,
           mockSigner,

@@ -14,6 +14,8 @@ import {
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
+import { Condition } from './conditions/condition';
+import { ConditionExpression } from './conditions/condition-expr';
 import { ConditionContext } from './conditions/context';
 
 const ERR_INSUFFICIENT_SIGNATURES = (errors: unknown) =>
@@ -177,18 +179,23 @@ export async function signUserOp(
 export async function setSigningCohortConditions(
   provider: ethers.providers.JsonRpcProvider,
   domain: Domain,
-  conditions: Uint8Array,
+  conditions: Condition,
   cohortId: number,
   chainId: number,
   signer: ethers.Signer,
 ): Promise<ethers.ContractTransaction> {
+  // Convert Condition to ConditionExpression, then to JSON, then to bytes
+  const conditionExpression = new ConditionExpression(conditions);
+  const conditionsJson = conditionExpression.toJson();
+  const conditionsBytes = ethers.utils.toUtf8Bytes(conditionsJson);
+
   // Set conditions on the SigningCoordinator contract
   return await SigningCoordinatorAgent.setSigningCohortConditions(
     provider,
     domain,
     cohortId,
     chainId,
-    conditions,
+    conditionsBytes,
     signer,
   );
 }

@@ -387,7 +387,7 @@ describe('TACo Signing', () => {
       const result = await setSigningCohortConditions(
         mockProvider,
         domain,
-        expectedBytes,
+        rpcCondition,
         cohortId,
         chainId,
         mockSigner,
@@ -443,7 +443,7 @@ describe('TACo Signing', () => {
       const result = await setSigningCohortConditions(
         mockProvider,
         domain,
-        expectedBytes,
+        compoundCondition,
         cohortId,
         chainId,
         mockSigner,
@@ -486,7 +486,7 @@ describe('TACo Signing', () => {
         setSigningCohortConditions(
           mockProvider,
           domain,
-          expectedBytes,
+          rpcCondition,
           cohortId,
           chainId,
           mockSigner,

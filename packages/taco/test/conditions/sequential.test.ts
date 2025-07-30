@@ -2,6 +2,7 @@ import { ChainId } from '@nucypher/shared';
 import { describe, expect, it } from 'vitest';
 
 import { CompoundConditionType } from '../../src/conditions/compound-condition';
+import { IfThenElseConditionType } from '../../src/conditions/if-then-else-condition';
 import {
   ConditionVariableProps,
   SequentialCondition,
@@ -12,8 +13,8 @@ import {
 import {
   testCompoundConditionObj,
   testContractConditionObj,
+  testJsonApiConditionObj,
   testRpcConditionObj,
-  testSequentialConditionObj,
   testTimeConditionObj,
 } from '../test-utils';
 
@@ -34,9 +35,25 @@ describe('validation', () => {
     varName: 'compound',
     condition: testCompoundConditionObj,
   };
-  const sequentialConditionVariable: ConditionVariableProps = {
+  const nestedSequentialConditionVariable: ConditionVariableProps = {
     varName: 'nestedSequential',
-    condition: testSequentialConditionObj,
+    condition: {
+      conditionType: SequentialConditionType,
+      conditionVariables: [
+        {
+          varName: 'nestedRpc',
+          condition: testRpcConditionObj,
+        },
+        {
+          varName: 'nestedTime',
+          condition: testTimeConditionObj,
+        },
+        {
+          varName: 'nestedContract',
+          condition: testContractConditionObj,
+        },
+      ],
+    },
   };
 
   it('rejects no varName', () => {
@@ -135,7 +152,84 @@ describe('validation', () => {
       ],
     });
   });
-
+  it('rejects nested sequential with duplicate varname', () => {
+    const conditionObj = {
+      conditionType: SequentialConditionType,
+      conditionVariables: [
+        rpcConditionVariable,
+        timeConditionVariable,
+        contractConditionVariable,
+        {
+          varName: 'nestedSequential',
+          condition: {
+            conditionType: SequentialConditionType,
+            conditionVariables: [
+              contractConditionVariable,
+              {
+                varName: 'nestedTime',
+                condition: testTimeConditionObj,
+              },
+            ],
+          },
+        },
+      ],
+    };
+    const result = SequentialCondition.validate(
+      sequentialConditionSchema,
+      conditionObj,
+    );
+    expect(result.error).toBeDefined();
+    expect(result.data).toBeUndefined();
+    expect(result.error?.format()).toMatchObject({
+      conditionVariables: {
+        _errors: ['Duplicate variable names are not allowed'],
+      },
+    });
+  });
+  it.each([true, false, testJsonApiConditionObj])(
+    'rejects nested sequential with duplicate varname within nested if-then-else',
+    (variedElseCondition) => {
+      const conditionObj = {
+        conditionType: SequentialConditionType,
+        conditionVariables: [
+          {
+            varName: 'ifThenElse',
+            condition: {
+              conditionType: IfThenElseConditionType,
+              ifCondition: testRpcConditionObj,
+              thenCondition: testTimeConditionObj,
+              elseCondition: variedElseCondition,
+            },
+          },
+          contractConditionVariable,
+          {
+            varName: 'nestedSequential',
+            condition: {
+              conditionType: SequentialConditionType,
+              conditionVariables: [
+                contractConditionVariable,
+                {
+                  varName: 'nestedTime',
+                  condition: testTimeConditionObj,
+                },
+              ],
+            },
+          },
+        ],
+      };
+      const result = SequentialCondition.validate(
+        sequentialConditionSchema,
+        conditionObj,
+      );
+      expect(result.error).toBeDefined();
+      expect(result.data).toBeUndefined();
+      expect(result.error?.format()).toMatchObject({
+        conditionVariables: {
+          _errors: ['Duplicate variable names are not allowed'],
+        },
+      });
+    },
+  );
   it('accepts nested sequential and compound conditions', () => {
     const conditionObj = {
       conditionType: SequentialConditionType,
@@ -144,7 +238,7 @@ describe('validation', () => {
         timeConditionVariable,
         contractConditionVariable,
         compoundConditionVariable,
-        sequentialConditionVariable,
+        nestedSequentialConditionVariable,
       ],
     };
     const result = SequentialCondition.validate(
@@ -159,7 +253,7 @@ describe('validation', () => {
         timeConditionVariable,
         contractConditionVariable,
         compoundConditionVariable,
-        sequentialConditionVariable,
+        nestedSequentialConditionVariable,
       ],
     });
   });
@@ -205,7 +299,7 @@ describe('validation', () => {
             conditionType: SequentialConditionType,
             conditionVariables: [
               timeConditionVariable,
-              sequentialConditionVariable,
+              nestedSequentialConditionVariable,
             ],
           },
         },

@@ -50,9 +50,9 @@ import {
 import {
   ECDSA_MESSAGE_PARAM_DEFAULT,
   ECDSA_SIGNATURE_PARAM_DEFAULT,
+  ECDSACondition,
   ECDSAConditionProps,
   ECDSAConditionType,
-  ECDSACurve,
 } from '../src/conditions/base/ecdsa';
 import {
   JsonApiConditionProps,
@@ -99,27 +99,6 @@ import {
 } from '../src/conditions/shared';
 import { DkgClient, DkgRitual } from '../src/dkg';
 import { encryptMessage } from '../src/tdec';
-
-export function createTestECDSACondition(
-  message: string,
-  curve: ECDSACurve = 'SECP256k1',
-): { conditionProps: ECDSAConditionProps; privateKey: string } {
-  // Simulate server-side key generation for the predefined condition
-  const testWallet = ethers.Wallet.createRandom();
-
-  const conditionProps: ECDSAConditionProps = {
-    conditionType: ECDSAConditionType,
-    message: message,
-    signature: ECDSA_SIGNATURE_PARAM_DEFAULT,
-    verifyingKey: testWallet.publicKey.slice(2), // Remove '0x' prefix
-    curve: curve,
-  };
-
-  return {
-    conditionProps,
-    privateKey: testWallet.privateKey, // For test signature generation
-  };
-}
 
 export const fakeDkgTDecFlowE2E: (
   ritualId?: number,
@@ -338,33 +317,34 @@ export const testECDSAConditionObj: ECDSAConditionProps = {
 
 // Test utility for creating predefined ECDSA conditions (simulates server-side creation)
 // In production, these would be created by servers/admins and stored with their verifying keys
-export interface PredefinedECDSACondition {
-  conditionProps: ECDSAConditionProps;
+export interface TestSecp256k1ECDSAConditionInfo {
+  condition: ECDSACondition;
   privateKey: string; // For test signature generation only
 }
 
-export function createPredefinedECDSACondition(
+export function createTestSecp256k1ECDSACondition(
   message: string,
-  curve: ECDSACurve = 'SECP256k1',
-): PredefinedECDSACondition {
+): TestSecp256k1ECDSAConditionInfo {
+  const curve = 'SECP256k1';
+
   // Simulate server-side key generation for the predefined condition
+  // ethers.Wallet uses SECP256k1 by default
   const testWallet = ethers.Wallet.createRandom();
   const verifyingKey = testWallet.publicKey.slice(2); // Remove '0x' prefix
 
   return {
-    conditionProps: {
-      conditionType: ECDSAConditionType,
+    condition: new ECDSACondition({
       message: message,
       signature: ECDSA_SIGNATURE_PARAM_DEFAULT,
       verifyingKey: verifyingKey,
       curve: curve,
-    },
+    }),
     privateKey: testWallet.privateKey, // For test purposes only
   };
 }
 
-export function createSignatureForPredefinedCondition(
-  predefinedCondition: PredefinedECDSACondition,
+export function createSignatureForTestSecp256k1ECDSACondition(
+  predefinedCondition: TestSecp256k1ECDSAConditionInfo,
   messageToSign: string,
 ): string {
   // Create signature that matches Python backend expectations

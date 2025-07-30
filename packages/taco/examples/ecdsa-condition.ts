@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { ECDSACondition } from '../src/conditions/base/ecdsa';
 
 // Example verifying keys (public keys) - in production these would come from actual key pairs

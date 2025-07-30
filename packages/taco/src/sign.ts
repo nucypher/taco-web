@@ -179,22 +179,18 @@ export async function signUserOp(
 export async function setSigningCohortConditions(
   provider: ethers.providers.JsonRpcProvider,
   domain: Domain,
-  conditions: Condition,
+  conditions: Uint8Array,
   cohortId: number,
   chainId: number,
   signer: ethers.Signer,
 ): Promise<ethers.ContractTransaction> {
-  // Convert Condition to ConditionExpression, then to JSON
-  const conditionExpression = new ConditionExpression(conditions);
-  const conditionsJson = conditionExpression.toJson();
-
   // Set conditions on the SigningCoordinator contract
   return await SigningCoordinatorAgent.setSigningCohortConditions(
     provider,
     domain,
     cohortId,
     chainId,
-    conditionsJson,
+    conditions,
     signer,
   );
 }

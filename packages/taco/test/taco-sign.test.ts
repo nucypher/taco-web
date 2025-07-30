@@ -380,13 +380,14 @@ describe('TACo Signing', () => {
       
       const conditionExpression = new ConditionExpression(rpcCondition);
       const expectedJson = conditionExpression.toJson();
+      const expectedBytes = ethers.utils.toUtf8Bytes(expectedJson);
 
       setSigningCohortConditionsSpy.mockResolvedValue(mockTransaction);
 
       const result = await setSigningCohortConditions(
         mockProvider,
         domain,
-        rpcCondition,
+        expectedBytes,
         cohortId,
         chainId,
         mockSigner,
@@ -397,7 +398,7 @@ describe('TACo Signing', () => {
         domain,
         cohortId,
         chainId,
-        expectedJson,
+        expectedBytes,
         mockSigner,
       );
       expect(result).toBe(mockTransaction);
@@ -435,13 +436,14 @@ describe('TACo Signing', () => {
       const compoundCondition = CompoundCondition.and([rpcCondition, contractCondition]);
       const conditionExpression = new ConditionExpression(compoundCondition);
       const expectedJson = conditionExpression.toJson();
+      const expectedBytes = ethers.utils.toUtf8Bytes(expectedJson);
 
       setSigningCohortConditionsSpy.mockResolvedValue(mockTransaction);
 
       const result = await setSigningCohortConditions(
         mockProvider,
         domain,
-        compoundCondition,
+        expectedBytes,
         cohortId,
         chainId,
         mockSigner,
@@ -452,7 +454,7 @@ describe('TACo Signing', () => {
         domain,
         cohortId,
         chainId,
-        expectedJson,
+        expectedBytes,
         mockSigner,
       );
       expect(result).toBe(mockTransaction);
@@ -476,6 +478,7 @@ describe('TACo Signing', () => {
       
       const conditionExpression = new ConditionExpression(rpcCondition);
       const expectedJson = conditionExpression.toJson();
+      const expectedBytes = ethers.utils.toUtf8Bytes(expectedJson);
 
       setSigningCohortConditionsSpy.mockRejectedValue(new Error('Cohort not found'));
 
@@ -483,7 +486,7 @@ describe('TACo Signing', () => {
         setSigningCohortConditions(
           mockProvider,
           domain,
-          rpcCondition,
+          expectedBytes,
           cohortId,
           chainId,
           mockSigner,
@@ -495,7 +498,7 @@ describe('TACo Signing', () => {
         domain,
         cohortId,
         chainId,
-        expectedJson,
+        expectedBytes,
         mockSigner,
       );
     });

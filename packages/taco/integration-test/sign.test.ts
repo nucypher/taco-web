@@ -83,7 +83,6 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         signingContext,
         porterUris,
       );
-      console.log('Sign result:', signResult);
 
       const threshold = await SigningCoordinatorAgent.getThreshold(
         provider,
@@ -100,7 +99,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       );
       expect(signResult.signingResults).toBeDefined();
       expect(Object.keys(signResult.signingResults).length).toBeGreaterThan(0);
-    }, 150000);
+    }, 15000);
 
     test('should validate condition serialization round-trip with existing cohort conditions', async () => {
       // This integration test validates condition serialization/deserialization without writing to blockchain:
@@ -109,54 +108,37 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       // 3. Convert the object back to bytes (what would be written to chain)
       // 4. Verify the bytes match exactly
       
-      // Try to read conditions from the existing ritual/cohort
-      let retrievedConditionHex: string;
-      try {
-        retrievedConditionHex = await SigningCoordinatorAgent.getSigningCohortConditions(
-          provider,
-          DOMAIN as Domain,
-          COHORT_ID,
-          CHAIN_ID,
-        );
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        if (errorMessage.includes('cohort does not exist') || 
-            errorMessage.includes('invalid cohort') ||
-            errorMessage.includes('conditions not set')) {
-          console.log(`Skipping test - no conditions found for cohort ${COHORT_ID}. This test requires an existing cohort with conditions set.`);
-          return;
-        }
-        throw error;
-      }
-      
-      // If the hex is empty or just '0x', skip the test
-      if (!retrievedConditionHex || retrievedConditionHex === '0x' || retrievedConditionHex.length <= 2) {
-        console.log(`Skipping test - cohort ${COHORT_ID} has no conditions set.`);
-        return;
-      }
-      
-      console.log('Retrieved condition hex from chain:', retrievedConditionHex);
-      
-      // Convert hex back to JSON string (simulating what the chain stores)
-      const chainConditionJson = ethers.utils.toUtf8String(retrievedConditionHex);
-      console.log('Chain condition JSON:', chainConditionJson);
-      
-      // Parse the JSON and recreate the ConditionExpression from the chain data
-      // This simulates reading conditions from chain and converting to our object model
-      const coreConditions = new CoreConditions(chainConditionJson);
-      const retrievedConditions = ConditionExpression.fromCoreConditions(coreConditions);
-      
-      // Also verify we can create a ConditionContext from it (this validates the data is readable)
-      const retrievedContext = await context.ConditionContext.forSigningCohort(
+      // Read conditions from the existing ritual/cohort
+      const retrievedConditionHex = await SigningCoordinatorAgent.getSigningCohortConditions(
         provider,
         DOMAIN as Domain,
         COHORT_ID,
         CHAIN_ID,
       );
       
+      // Verify that conditions are set for this cohort/chain combination
+      expect(retrievedConditionHex).toBeDefined();
+      expect(retrievedConditionHex).not.toBe('0x');
+      expect(retrievedConditionHex.length).toBeGreaterThan(2);
+      
+      // Convert hex back to JSON string (simulating what the chain stores)
+      const chainConditionJson = ethers.utils.toUtf8String(retrievedConditionHex);
+      
+      // Parse the JSON and recreate the ConditionExpression from the chain data
+      // This simulates reading conditions from chain and converting to our object model
+      const coreConditions = new CoreConditions(chainConditionJson);
+      const retrievedConditions = ConditionExpression.fromCoreConditions(coreConditions);
+      
+      // Verify we can create a ConditionContext from it (this validates the data is readable)
+      await expect(context.ConditionContext.forSigningCohort(
+        provider,
+        DOMAIN as Domain,
+        COHORT_ID,
+        CHAIN_ID,
+      )).resolves.not.toThrow();
+      
       // Convert back to JSON (this is what would be written to chain)
       const roundTripJson = retrievedConditions.toJson();
-      console.log('Round-trip JSON:', roundTripJson);
       
       // The core verification: ensure serialization round-trip is identical
       // This proves that read → object → write produces identical bytes
@@ -165,11 +147,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       // Additional verification: ensure the objects have expected properties
       expect(retrievedConditions.condition).toBeDefined();
       
-      // Verify that the semantic content is identical (JSON property order may differ)
-      expect(JSON.parse(roundTripJson)).toEqual(JSON.parse(chainConditionJson));
       
-      console.log('Condition serialization round-trip validation completed successfully!');
-      
-    }, 60000); // Shorter timeout since no blockchain writes
+    }, 6000); // Shorter timeout since no blockchain writes
   },
 );

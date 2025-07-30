@@ -81,7 +81,6 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         signingContext,
         porterUris,
       );
-      console.log('Sign result:', signResult);
 
       const threshold = await SigningCoordinatorAgent.getThreshold(
         provider,

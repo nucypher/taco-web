@@ -5,6 +5,7 @@ import {
   EIP4361AuthProvider,
   USER_ADDRESS_PARAM_DEFAULT,
 } from '@nucypher/taco-auth';
+import { randomBytes } from 'crypto';
 import { ethers } from 'ethers';
 import {
   conditions,
@@ -14,7 +15,11 @@ import {
   ThresholdMessageKit,
 } from '../src';
 import { CompoundCondition } from '../src/conditions/compound-condition';
-import { UINT256_MAX } from '../test/test-utils';
+import {
+  createSignatureForTestSecp256k1ECDSACondition,
+  createTestSecp256k1ECDSACondition,
+  UINT256_MAX,
+} from '../test/test-utils';
 
 const RPC_PROVIDER_URL = 'https://rpc-amoy.polygon.technology';
 const ENCRYPTOR_PRIVATE_KEY =
@@ -25,10 +30,8 @@ const DOMAIN = 'lynx';
 const RITUAL_ID = 27;
 const CHAIN_ID = 80002;
 
-// The wallet address of our consumer
 const CONSUMER_ADDRESS = ethers.utils.computeAddress(CONSUMER_PRIVATE_KEY);
 
-// skip integration test if RUNNING_IN_CI is not set (it is set in CI environments)
 describe.skipIf(!process.env.RUNNING_IN_CI)(
   'TACo Encrypt/Decrypt Integration Test',
   () => {
@@ -41,10 +44,8 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       encryptorSigner = new ethers.Wallet(ENCRYPTOR_PRIVATE_KEY, provider);
       consumerSigner = new ethers.Wallet(CONSUMER_PRIVATE_KEY, provider);
 
-      // Initialize the library
       await initialize();
 
-      // Verify network connection
       const network = await provider.getNetwork();
       if (network.chainId !== CHAIN_ID) {
         throw new Error(
@@ -54,11 +55,9 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
     });
 
     test('should encrypt and decrypt a message with RPC balance condition less than UINT256_MAX', async (value) => {
-      // Create test message
       const messageString = 'This is a secret 🤐';
       const message = toBytes(messageString);
 
-      // Create conditions
       const hasPositiveBalance = new conditions.base.rpc.RpcCondition({
         chain: CHAIN_ID,
         method: 'eth_getBalance',
@@ -76,7 +75,6 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
           parameters: [':userAddress', 'latest'],
           returnValueTest: {
             comparator: '<',
-            // max uint256
             value: UINT256_MAX,
           },
         },
@@ -87,7 +85,6 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         balanceLessThanMaxUintBigInt,
       ]);
 
-      // Encrypt message
       const messageKit = await encrypt(
         provider,
         DOMAIN,
@@ -99,12 +96,10 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
 
       const encryptedBytes = messageKit.toBytes();
 
-      // Prepare for decryption
       const messageKitFromBytes = ThresholdMessageKit.fromBytes(encryptedBytes);
       const conditionContext =
         conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
 
-      // Add auth provider for condition
       if (
         conditionContext.requestedContextParameters.has(
           USER_ADDRESS_PARAM_DEFAULT,
@@ -117,7 +112,6 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         );
       }
 
-      // Decrypt message
       const decryptedBytes = await decrypt(
         provider,
         DOMAIN,
@@ -126,31 +120,26 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       );
       const decryptedMessageString = fromBytes(decryptedBytes);
 
-      // Verify decryption
       expect(decryptedMessageString).toEqual(messageString);
-    }, 15000); // 15s timeout
+    }, 15000);
 
     test('should encrypt and decrypt according to wallet allowlist condition', async () => {
-      // Create test message
       const messageString =
         'This message should only be accessible to allowed wallet addresses';
       const message = toBytes(messageString);
 
-      // Create wallet allowlist condition with consumer address in the list
       const addressAllowlistCondition =
         new conditions.base.addressAllowlist.AddressAllowlistCondition({
           userAddress: ':userAddress',
           addresses: [
             CONSUMER_ADDRESS,
-            '0x742d35Cc6634C0532925a3b844Bc454e4438f44e', // Some other address
-            '0x0000000000000000000000000000000000000001', // Another address
+            '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+            '0x0000000000000000000000000000000000000001',
           ],
         });
 
-      // Verify that the condition requires authentication
       expect(addressAllowlistCondition.requiresAuthentication()).toBe(true);
 
-      // Encrypt message with the wallet allowlist condition
       const messageKit = await encrypt(
         provider,
         DOMAIN,
@@ -162,12 +151,10 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
 
       const encryptedBytes = messageKit.toBytes();
 
-      // Prepare for decryption
       const messageKitFromBytes = ThresholdMessageKit.fromBytes(encryptedBytes);
       const conditionContext =
         conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
 
-      // Add auth provider for the consumer wallet
       const authProvider = new EIP4361AuthProvider(provider, consumerSigner, {
         domain: 'localhost',
         uri: 'http://localhost:3000',
@@ -177,7 +164,6 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         authProvider,
       );
 
-      // Decrypt message
       const decryptedBytes = await decrypt(
         provider,
         DOMAIN,
@@ -186,8 +172,162 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       );
       const decryptedMessageString = fromBytes(decryptedBytes);
 
-      // Verify decryption was successful
       expect(decryptedMessageString).toEqual(messageString);
-    }, 15000); // 15s timeout
+    }, 15000);
+
+    test('should encrypt and decrypt according to ECDSA signature condition with predefined verifying key', async () => {
+      const messageString =
+        'This message is protected by ECDSA signature verification 🔐';
+      const message = toBytes(messageString);
+
+      const authorizationMessage = 'I authorize access to this encrypted data';
+
+      // Create a predefined ECDSA condition (simulates server-side condition creation)
+      const { condition: ecdsaCondition, privateKey } =
+        createTestSecp256k1ECDSACondition(authorizationMessage);
+
+      expect(ecdsaCondition.requiresAuthentication()).toBe(false);
+
+      const messageKit = await encrypt(
+        provider,
+        DOMAIN,
+        message,
+        ecdsaCondition,
+        RITUAL_ID,
+        encryptorSigner,
+      );
+
+      const encryptedBytes = messageKit.toBytes();
+
+      const messageKitFromBytes = ThresholdMessageKit.fromBytes(encryptedBytes);
+      const conditionContext =
+        conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
+
+      expect(
+        conditionContext.requestedContextParameters.has(':signature'),
+      ).toBeTruthy();
+
+      // Create signature using the predefined condition's private key
+      const signatureHex = createSignatureForTestSecp256k1ECDSACondition(
+        {
+          condition: ecdsaCondition,
+          privateKey,
+        },
+        authorizationMessage,
+      );
+
+      conditionContext.addCustomContextParameterValues({
+        ':signature': signatureHex,
+      });
+
+      const decryptedBytes = await decrypt(
+        provider,
+        DOMAIN,
+        messageKitFromBytes,
+        conditionContext,
+      );
+      const decryptedMessageString = fromBytes(decryptedBytes);
+
+      expect(decryptedMessageString).toEqual(messageString);
+    }, 20000);
+
+    test('should fail to decrypt with ECDSA condition when signature is invalid', async () => {
+      const messageString = 'This should fail with wrong signature';
+      const message = toBytes(messageString);
+
+      const authorizationMessage = 'I authorize access to this encrypted data';
+
+      // Create a predefined ECDSA condition (simulates server-side condition creation)
+      const { condition: ecdsaCondition } =
+        createTestSecp256k1ECDSACondition(authorizationMessage);
+
+      const messageKit = await encrypt(
+        provider,
+        DOMAIN,
+        message,
+        ecdsaCondition,
+        RITUAL_ID,
+        encryptorSigner,
+      );
+
+      const encryptedBytes = messageKit.toBytes();
+
+      const messageKitFromBytes = ThresholdMessageKit.fromBytes(encryptedBytes);
+      const conditionContext =
+        conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
+
+      // Add invalid signature
+      const invalidSignature = randomBytes(64).toString('hex');
+      conditionContext.addCustomContextParameterValues({
+        ':signature': invalidSignature,
+      });
+
+      await expect(
+        decrypt(provider, DOMAIN, messageKitFromBytes, conditionContext),
+      ).rejects.toThrow();
+    }, 20000);
+
+    test('should encrypt and decrypt with ECDSA condition using context parameters', async () => {
+      const messageString =
+        'This message uses ECDSA signature verification with context parameters 🔐✍️';
+      const message = toBytes(messageString);
+
+      // Create a predefined ECDSA condition that uses :message context parameter
+      const { condition: ecdsaCondition, privateKey } =
+        createTestSecp256k1ECDSACondition(':message');
+
+      // ECDSA conditions with :message and :signature don't require auth providers
+      // like :userAddress does, they just need context parameters to be provided
+      expect(ecdsaCondition.requiresAuthentication()).toBe(false);
+
+      const messageKit = await encrypt(
+        provider,
+        DOMAIN,
+        message,
+        ecdsaCondition,
+        RITUAL_ID,
+        encryptorSigner,
+      );
+
+      const encryptedBytes = messageKit.toBytes();
+
+      const messageKitFromBytes = ThresholdMessageKit.fromBytes(encryptedBytes);
+      const conditionContext =
+        conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
+
+      expect(
+        conditionContext.requestedContextParameters.has(':message'),
+      ).toBeTruthy();
+      expect(
+        conditionContext.requestedContextParameters.has(':signature'),
+      ).toBeTruthy();
+
+      // Define the message to be signed (provided via :message context parameter)
+      const messageToSign = 'User authentication message';
+
+      // Sign the message with the predefined condition's private key
+      const signatureHex = createSignatureForTestSecp256k1ECDSACondition(
+        {
+          condition: ecdsaCondition,
+          privateKey,
+        },
+        messageToSign,
+      );
+
+      conditionContext.addCustomContextParameterValues({
+        ':message': messageToSign,
+        ':signature': signatureHex,
+      });
+
+      const decryptedBytes = await decrypt(
+        provider,
+        DOMAIN,
+        messageKitFromBytes,
+        conditionContext,
+      );
+      const decryptedMessageString = fromBytes(decryptedBytes);
+
+      expect(decryptedMessageString).toEqual(messageString);
+    }, 25000);
   },
 );

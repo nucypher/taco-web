@@ -110,3 +110,8 @@ export const httpsURLSchema = z
   .refine((url) => validateHttpsURL(url), {
     message: 'Invalid URL',
   });
+
+export const hexStringSchema = z
+  .string()
+  .regex(/^[0-9a-fA-F]+$/, 'Invalid hex string')
+  .describe('A string containing only hexadecimal characters (0-9, a-f, A-F)');

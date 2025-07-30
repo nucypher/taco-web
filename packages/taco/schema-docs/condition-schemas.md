@@ -8,6 +8,7 @@ _Union of the following possible types:_
 - [TimeCondition](#timecondition)
 - [AddressAllowlistCondition](#addressallowlistcondition)
 - [ContractCondition](#contractcondition)
+- [EcdsaCondition](#ecdsacondition)
 - [JsonApiCondition](#jsonapicondition)
 - [JsonRpcCondition](#jsonrpccondition)
 - [JwtCondition](#jwtcondition)
@@ -32,6 +33,12 @@ _Object containing the following properties:_
 | **`conditionType`** (\*) | A unique identifier that indicates the condition variant in its serialized form. It is set automatically at every sub-class constructor when a new object is being created. | `string` |
 
 _(\*) Required._
+
+## HexString
+
+A string containing only hexadecimal characters (0-9, a-f, A-F)
+
+_String which matches the regular expression `/^[0-9a-fA-F]+$/`._
 
 ## HttpsURL
 
@@ -133,6 +140,22 @@ _Object containing the following properties:_
 | **`name`** (\*)         | `string`                                                                                                                                                                                                                                                             |
 | **`type`** (\*)         | `'bool' \| 'string' \| 'address' \| 'address payable' \| 'bytes1' \| 'bytes2' \| 'bytes3' \| 'bytes4' \| 'bytes5' \| 'bytes6' \| 'bytes7' \| 'bytes8' \| 'bytes9' \| 'bytes10' \| 'bytes11' \| 'bytes12' \| 'bytes13' \| 'bytes14' \| 'bytes15' \| 'bytes16' \| ...` |
 | **`internalType`** (\*) | `'bool' \| 'string' \| 'address' \| 'address payable' \| 'bytes1' \| 'bytes2' \| 'bytes3' \| 'bytes4' \| 'bytes5' \| 'bytes6' \| 'bytes7' \| 'bytes8' \| 'bytes9' \| 'bytes10' \| 'bytes11' \| 'bytes12' \| 'bytes13' \| 'bytes14' \| 'bytes15' \| 'bytes16' \| ...` |
+
+_(\*) Required._
+
+## EcdsaCondition
+
+ECDSA Condition for verifying the authenticity of a message using ECDSA signatures.
+
+_Object containing the following properties:_
+
+| Property                | Type                                                                                      | Default        |
+| :---------------------- | :---------------------------------------------------------------------------------------- | :------------- |
+| `conditionType`         | `'ecdsa'`                                                                                 | `'ecdsa'`      |
+| `message`               | `string` _or_ [ContextParam](#contextparam)                                               | `':message'`   |
+| `signature`             | [HexString](#hexstring) _or_ [ContextParam](#contextparam)                                | `':signature'` |
+| **`verifyingKey`** (\*) | [HexString](#hexstring)                                                                   |                |
+| **`curve`** (\*)        | `'SECP256k1' \| 'NIST256p' \| 'NIST384p' \| 'NIST521p' \| 'Ed25519' \| 'BRAINPOOLP256r1'` |                |
 
 _(\*) Required._
 

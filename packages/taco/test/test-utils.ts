@@ -3,6 +3,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
+import { createHash } from 'crypto';
+
 import {
   AggregatedTranscript,
   DecryptionShareSimple,
@@ -45,6 +47,13 @@ import {
   ContractConditionType,
   FunctionAbiProps,
 } from '../src/conditions/base/contract';
+import {
+  ECDSA_MESSAGE_PARAM_DEFAULT,
+  ECDSA_SIGNATURE_PARAM_DEFAULT,
+  ECDSACondition,
+  ECDSAConditionProps,
+  ECDSAConditionType,
+} from '../src/conditions/base/ecdsa';
 import {
   JsonApiConditionProps,
   JsonApiConditionType,
@@ -296,6 +305,62 @@ export const testJWTConditionObj: JWTConditionProps = {
   // issuedWindow: 86400,
   jwtToken: JWT_PARAM_DEFAULT,
 };
+
+export const testECDSAConditionObj: ECDSAConditionProps = {
+  conditionType: ECDSAConditionType,
+  message: ECDSA_MESSAGE_PARAM_DEFAULT,
+  signature: ECDSA_SIGNATURE_PARAM_DEFAULT,
+  verifyingKey:
+    '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef', // Test verifying key
+  curve: 'SECP256k1',
+};
+
+// Test utility for creating predefined ECDSA conditions (simulates server-side creation)
+// In production, these would be created by servers/admins and stored with their verifying keys
+export interface TestSecp256k1ECDSAConditionInfo {
+  condition: ECDSACondition;
+  privateKey: string; // For test signature generation only
+}
+
+export function createTestSecp256k1ECDSACondition(
+  message: string,
+): TestSecp256k1ECDSAConditionInfo {
+  const curve = 'SECP256k1';
+
+  // Simulate server-side key generation for the predefined condition
+  // ethers.Wallet uses SECP256k1 by default
+  const testWallet = ethers.Wallet.createRandom();
+  const verifyingKey = testWallet.publicKey.slice(2); // Remove '0x' prefix
+
+  return {
+    condition: new ECDSACondition({
+      message: message,
+      signature: ECDSA_SIGNATURE_PARAM_DEFAULT,
+      verifyingKey: verifyingKey,
+      curve: curve,
+    }),
+    privateKey: testWallet.privateKey, // For test purposes only
+  };
+}
+
+export function createSignatureForTestSecp256k1ECDSACondition(
+  predefinedCondition: TestSecp256k1ECDSAConditionInfo,
+  messageToSign: string,
+): string {
+  // Create signature that matches Python backend expectations
+  const messageHash = createHash('sha256')
+    .update(Buffer.from(messageToSign, 'utf8'))
+    .digest();
+  const signingKey = new ethers.utils.SigningKey(
+    predefinedCondition.privateKey,
+  );
+  const signature = signingKey.signDigest(messageHash);
+
+  // Convert to hex format expected by Python (r+s format without 0x prefix)
+  const rHex = signature.r.slice(2).padStart(64, '0');
+  const sHex = signature.s.slice(2).padStart(64, '0');
+  return rHex + sHex;
+}
 
 export const testRpcConditionObj: RpcConditionProps = {
   conditionType: RpcConditionType,

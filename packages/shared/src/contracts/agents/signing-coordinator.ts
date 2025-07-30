@@ -62,15 +62,14 @@ export class SigningCoordinatorAgent {
     domain: Domain,
     cohortId: number,
     chainId: number,
-    conditions: string,
+    conditions: Uint8Array,
     signer: ethers.Signer,
   ): Promise<ethers.ContractTransaction> {
     const coordinator = await this.connect(provider, domain, signer);
-    const conditionsHex = ethers.utils.toUtf8Bytes(conditions);
     return await coordinator.setSigningCohortConditions(
       cohortId,
       chainId,
-      conditionsHex,
+      conditions,
     );
   }
 

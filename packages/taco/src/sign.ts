@@ -14,8 +14,6 @@ import {
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
-import { Condition } from './conditions/condition';
-import { ConditionExpression } from './conditions/condition-expr';
 import { ConditionContext } from './conditions/context';
 
 const ERR_INSUFFICIENT_SIGNATURES = (errors: unknown) =>

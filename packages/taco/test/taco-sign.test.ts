@@ -355,10 +355,11 @@ describe('TACo Signing', () => {
       mockProvider = {} as ethers.providers.JsonRpcProvider;
       mockSigner = {} as ethers.Signer;
       setSigningCohortConditionsSpy = vi.fn();
-      
-      vi.spyOn(SigningCoordinatorAgent, 'setSigningCohortConditions').mockImplementation(
-        setSigningCohortConditionsSpy,
-      );
+
+      vi.spyOn(
+        SigningCoordinatorAgent,
+        'setSigningCohortConditions',
+      ).mockImplementation(setSigningCohortConditionsSpy);
     });
 
     it('should set signing cohort conditions successfully', async () => {
@@ -366,7 +367,7 @@ describe('TACo Signing', () => {
       const cohortId = 1;
       const chainId = 11155111;
       const mockTransaction = { hash: '0x123' } as ethers.ContractTransaction;
-      
+
       // Create a real ConditionExpression with RPC condition
       const rpcCondition = new RpcCondition({
         chain: chainId,
@@ -377,7 +378,7 @@ describe('TACo Signing', () => {
           value: BigInt(0),
         },
       });
-      
+
       const conditionExpression = new ConditionExpression(rpcCondition);
       const expectedJson = conditionExpression.toJson();
       const expectedBytes = ethers.utils.toUtf8Bytes(expectedJson);
@@ -409,7 +410,7 @@ describe('TACo Signing', () => {
       const cohortId = 1;
       const chainId = 11155111;
       const mockTransaction = { hash: '0x456' } as ethers.ContractTransaction;
-      
+
       // Create a real compound ConditionExpression
       const rpcCondition = new RpcCondition({
         chain: chainId,
@@ -420,7 +421,7 @@ describe('TACo Signing', () => {
           value: BigInt(0),
         },
       });
-      
+
       const contractCondition = new ContractCondition({
         contractAddress: '0x1234567890123456789012345678901234567890',
         chain: chainId,
@@ -433,7 +434,10 @@ describe('TACo Signing', () => {
         },
       });
 
-      const compoundCondition = CompoundCondition.and([rpcCondition, contractCondition]);
+      const compoundCondition = CompoundCondition.and([
+        rpcCondition,
+        contractCondition,
+      ]);
       const conditionExpression = new ConditionExpression(compoundCondition);
       const expectedJson = conditionExpression.toJson();
       const expectedBytes = ethers.utils.toUtf8Bytes(expectedJson);
@@ -464,7 +468,7 @@ describe('TACo Signing', () => {
       const domain = 'lynx';
       const cohortId = 999;
       const chainId = 11155111;
-      
+
       // Create a real ConditionExpression
       const rpcCondition = new RpcCondition({
         chain: chainId,
@@ -475,12 +479,14 @@ describe('TACo Signing', () => {
           value: BigInt(0),
         },
       });
-      
+
       const conditionExpression = new ConditionExpression(rpcCondition);
       const expectedJson = conditionExpression.toJson();
       const expectedBytes = ethers.utils.toUtf8Bytes(expectedJson);
 
-      setSigningCohortConditionsSpy.mockRejectedValue(new Error('Cohort not found'));
+      setSigningCohortConditionsSpy.mockRejectedValue(
+        new Error('Cohort not found'),
+      );
 
       await expect(
         setSigningCohortConditions(

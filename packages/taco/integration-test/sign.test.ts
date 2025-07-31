@@ -107,47 +107,51 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       // 2. Convert those bytes to ConditionExpression object
       // 3. Convert the object back to bytes (what would be written to chain)
       // 4. Verify the bytes match exactly
-      
+
       // Read conditions from the existing ritual/cohort
-      const retrievedConditionHex = await SigningCoordinatorAgent.getSigningCohortConditions(
-        provider,
-        DOMAIN as Domain,
-        COHORT_ID,
-        CHAIN_ID,
-      );
-      
+      const retrievedConditionHex =
+        await SigningCoordinatorAgent.getSigningCohortConditions(
+          provider,
+          DOMAIN as Domain,
+          COHORT_ID,
+          CHAIN_ID,
+        );
+
       // Verify that conditions are set for this cohort/chain combination
       expect(retrievedConditionHex).toBeDefined();
       expect(retrievedConditionHex).not.toBe('0x');
       expect(retrievedConditionHex.length).toBeGreaterThan(2);
-      
+
       // Convert hex back to JSON string (simulating what the chain stores)
-      const chainConditionJson = ethers.utils.toUtf8String(retrievedConditionHex);
-      
+      const chainConditionJson = ethers.utils.toUtf8String(
+        retrievedConditionHex,
+      );
+
       // Parse the JSON and recreate the ConditionExpression from the chain data
       // This simulates reading conditions from chain and converting to our object model
       const coreConditions = new CoreConditions(chainConditionJson);
-      const retrievedConditions = ConditionExpression.fromCoreConditions(coreConditions);
-      
+      const retrievedConditions =
+        ConditionExpression.fromCoreConditions(coreConditions);
+
       // Verify we can create a ConditionContext from it (this validates the data is readable)
-      await expect(context.ConditionContext.forSigningCohort(
-        provider,
-        DOMAIN as Domain,
-        COHORT_ID,
-        CHAIN_ID,
-      )).resolves.not.toThrow();
-      
+      await expect(
+        context.ConditionContext.forSigningCohort(
+          provider,
+          DOMAIN as Domain,
+          COHORT_ID,
+          CHAIN_ID,
+        ),
+      ).resolves.not.toThrow();
+
       // Convert back to JSON (this is what would be written to chain)
       const roundTripJson = retrievedConditions.toJson();
-      
+
       // The core verification: ensure serialization round-trip is identical
       // This proves that read → object → write produces identical bytes
       expect(JSON.parse(roundTripJson)).toEqual(JSON.parse(chainConditionJson));
-      
+
       // Additional verification: ensure the objects have expected properties
       expect(retrievedConditions.condition).toBeDefined();
-      
-      
     }, 6000); // Shorter timeout since no blockchain writes
   },
 );

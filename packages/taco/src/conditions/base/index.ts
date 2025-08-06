@@ -10,3 +10,4 @@ export * as jwt from './jwt';
 export * as rpc from './rpc';
 export * as signing from './signing';
 export * as time from './time';
+export * as contextVariable from './context-variable';

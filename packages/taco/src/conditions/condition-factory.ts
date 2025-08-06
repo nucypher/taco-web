@@ -4,6 +4,11 @@ import {
   AddressAllowlistConditionType,
 } from './base/address-allowlist';
 import {
+  ContextVariableCondition,
+  ContextVariableConditionProps,
+  ContextVariableConditionType,
+} from './base/context-variable';
+import {
   ContractCondition,
   ContractConditionProps,
   ContractConditionType,
@@ -87,6 +92,10 @@ export class ConditionFactory {
       case SigningObjectAbiAttributeConditionType:
         return new SigningObjectAbiAttributeCondition(
           props as SigningObjectAbiAttributeConditionProps,
+        );
+      case ContextVariableConditionType:
+        return new ContextVariableCondition(
+          props as ContextVariableConditionProps,
         );
       // Logical Conditions
       case CompoundConditionType:

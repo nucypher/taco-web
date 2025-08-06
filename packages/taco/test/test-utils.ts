@@ -374,6 +374,18 @@ export const testRpcConditionObj: RpcConditionProps = {
   returnValueTest: testRpcReturnValueTest,
 };
 
+export const testContextVariableConditionObj: ContextVariableConditionProps = {
+  conditionType: ContextVariableConditionType,
+  contextVariable: ':userAddress',
+  returnValueTest: {
+    comparator: 'in',
+    value: [
+      '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
+      '0x0000000000000000000000000000000000000001',
+    ],
+  },
+};
+
 export const testAddressAllowlistConditionObj: AddressAllowlistConditionProps = {
   conditionType: AddressAllowlistConditionType,
   userAddress: ':userAddress',
@@ -382,14 +394,6 @@ export const testAddressAllowlistConditionObj: AddressAllowlistConditionProps = 
     '0x0000000000000000000000000000000000000001',
     '0x0000000000000000000000000000000000000002',
   ],
-  returnValueTest: {
-    comparator: 'in',
-    value: [
-      '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
-      '0x0000000000000000000000000000000000000001',
-      '0x0000000000000000000000000000000000000002',
-    ],
-  },
 };
 
 export const testContractConditionObj: ContractConditionProps = {

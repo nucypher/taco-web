@@ -100,6 +100,20 @@ _Object containing the following properties:_
 
 _(\*) Required._
 
+## ContextVariableCondition
+
+Context Variable Condition for performing comparison operations on context variable values.
+
+_Object containing the following properties:_
+
+| Property                   | Description                                                                                  | Type                                              |
+| :------------------------- | :------------------------------------------------------------------------------------------- | :------------------------------------------------ |
+| **`conditionType`** (\*)   |                                                                                              | `'context-variable'`                              |
+| **`contextVariable`** (\*) | The context variable to check (e.g., ":userAddress", ":customParam")                         | `string` (_regex: `/^:[a-zA-Z_][a-zA-Z0-9_]*$/`_) |
+| **`returnValueTest`** (\*) | Test to perform on a value. Supports comparison operators like ==, >, <, >=, <=, !=, in, !in | [ReturnValueTest](#returnvaluetest)               |
+
+_(\*) Required._
+
 ## ContractCondition
 
 _Object containing the following properties:_
@@ -343,20 +357,6 @@ _Object containing the following properties:_
 | **`chain`** (\*)           | `number` (_int, ≥0_)                                    |               |
 | `method`                   | `'blocktime'`                                           | `'blocktime'` |
 | **`returnValueTest`** (\*) | [BlockchainReturnValueTest](#blockchainreturnvaluetest) |               |
-
-_(\*) Required._
-
-## ContextVariableCondition
-
-Context Variable Condition for performing comparison operations on context variable values. Supports various comparison operators.
-
-_Object containing the following properties:_
-
-| Property                   | Description                                                                                  | Type                                              |
-| :------------------------- | :------------------------------------------------------------------------------------------- | :------------------------------------------------ |
-| **`conditionType`** (\*)   |                                                                                              | `'context-variable'`                              |
-| **`contextVariable`** (\*) | The context variable to check (e.g., ":userAddress", ":customParam")                         | `string` (_regex: `/^:[a-zA-Z_][a-zA-Z0-9_]*$/`_) |
-| **`returnValueTest`** (\*) | Test to perform on a value. Supports comparison operators like ==, >, <, >=, <=, !=, in, !in | [ReturnValueTest](#returnvaluetest)               |
 
 _(\*) Required._
 

@@ -10,7 +10,6 @@ export { ContextVariableConditionProps, ContextVariableConditionType };
 
 /**
  * A condition that performs comparison operations on context variable values.
- * Supports various comparison operators like ==, >, <, >=, <=, !=, in, !in.
  */
 export class ContextVariableCondition extends Condition {
   constructor(value: OmitConditionType<ContextVariableConditionProps>) {

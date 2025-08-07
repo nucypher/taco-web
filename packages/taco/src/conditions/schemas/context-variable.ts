@@ -16,7 +16,7 @@ export const contextVariableConditionSchema = baseConditionSchema
   })
   .strict()
   .describe(
-    'Context Variable Condition for performing comparison operations on context variable values. Supports various comparison operators.',
+    'Context Variable Condition for performing comparison operations on context variable values.',
   );
 
 export type ContextVariableConditionProps = z.infer<

@@ -123,57 +123,6 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       expect(decryptedMessageString).toEqual(messageString);
     }, 15000);
 
-    test('should encrypt and decrypt according to wallet allowlist condition', async () => {
-      const messageString =
-        'This message should only be accessible to allowed wallet addresses';
-      const message = toBytes(messageString);
-
-      const addressAllowlistCondition =
-        new conditions.base.addressAllowlist.AddressAllowlistCondition({
-          userAddress: ':userAddress',
-          addresses: [
-            CONSUMER_ADDRESS,
-            '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-            '0x0000000000000000000000000000000000000001',
-          ],
-        });
-
-      expect(addressAllowlistCondition.requiresAuthentication()).toBe(true);
-
-      const messageKit = await encrypt(
-        provider,
-        DOMAIN,
-        message,
-        addressAllowlistCondition,
-        RITUAL_ID,
-        encryptorSigner,
-      );
-
-      const encryptedBytes = messageKit.toBytes();
-
-      const messageKitFromBytes = ThresholdMessageKit.fromBytes(encryptedBytes);
-      const conditionContext =
-        conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
-
-      const authProvider = new EIP4361AuthProvider(provider, consumerSigner, {
-        domain: 'localhost',
-        uri: 'http://localhost:3000',
-      });
-      conditionContext.addAuthProvider(
-        USER_ADDRESS_PARAM_DEFAULT,
-        authProvider,
-      );
-
-      const decryptedBytes = await decrypt(
-        provider,
-        DOMAIN,
-        messageKitFromBytes,
-        conditionContext,
-      );
-      const decryptedMessageString = fromBytes(decryptedBytes);
-
-      expect(decryptedMessageString).toEqual(messageString);
-    }, 15000);
 
     test('should encrypt and decrypt according to ECDSA signature condition with predefined verifying key', async () => {
       const messageString =

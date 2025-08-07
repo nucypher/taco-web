@@ -1,9 +1,4 @@
 import {
-  AddressAllowlistCondition,
-  AddressAllowlistConditionProps,
-  AddressAllowlistConditionType,
-} from './base/address-allowlist';
-import {
   ContextVariableCondition,
   ContextVariableConditionProps,
   ContextVariableConditionType,
@@ -81,10 +76,6 @@ export class ConditionFactory {
         return new JsonRpcCondition(props as JsonRpcConditionProps);
       case JWTConditionType:
         return new JWTCondition(props as JWTConditionProps);
-      case AddressAllowlistConditionType:
-        return new AddressAllowlistCondition(
-          props as AddressAllowlistConditionProps,
-        );
       case SigningObjectAttributeConditionType:
         return new SigningObjectAttributeCondition(
           props as SigningObjectAttributeConditionProps,

@@ -39,10 +39,6 @@ import { ethers } from 'ethers';
 import { MockInstance, vi } from 'vitest';
 
 import {
-  AddressAllowlistConditionProps,
-  AddressAllowlistConditionType,
-} from '../src/conditions/base/address-allowlist';
-import {
   ContextVariableConditionProps,
   ContextVariableConditionType,
 } from '../src/conditions/base/context-variable';
@@ -386,15 +382,6 @@ export const testContextVariableConditionObj: ContextVariableConditionProps = {
   },
 };
 
-export const testAddressAllowlistConditionObj: AddressAllowlistConditionProps = {
-  conditionType: AddressAllowlistConditionType,
-  userAddress: ':userAddress',
-  addresses: [
-    '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
-    '0x0000000000000000000000000000000000000001',
-    '0x0000000000000000000000000000000000000002',
-  ],
-};
 
 export const testContractConditionObj: ContractConditionProps = {
   conditionType: ContractConditionType,

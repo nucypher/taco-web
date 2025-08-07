@@ -81,27 +81,23 @@ describe('ContextVariableCondition', () => {
       expect(result.error?.message).toContain('Invalid');
     });
 
-    it('accepts valid context parameters', () => {
-      const validContextParams = [
-        ':userAddress',
-        ':customParam',
-        ':myVariable',
-      ];
+    it.each([
+      ':userAddress', 
+      ':customParam', 
+      ':myVariable'
+    ])('accepts valid context parameters: %s', (param) => {
+      const conditionObj = {
+        ...testContextVariableConditionObj,
+        contextVariable: param,
+      };
 
-      for (const param of validContextParams) {
-        const conditionObj = {
-          ...testContextVariableConditionObj,
-          contextVariable: param,
-        };
+      const result = ContextVariableCondition.validate(
+        contextVariableConditionSchema,
+        conditionObj,
+      );
 
-        const result = ContextVariableCondition.validate(
-          contextVariableConditionSchema,
-          conditionObj,
-        );
-
-        expect(result.error).toBeUndefined();
-        expect(result.data?.contextVariable).toBe(param);
-      }
+      expect(result.error).toBeUndefined();
+      expect(result.data?.contextVariable).toBe(param);
     });
 
     it('requires returnValueTest to be present', () => {

@@ -6,7 +6,7 @@ _Union of the following possible types:_
 
 - [RpcCondition](#rpccondition)
 - [TimeCondition](#timecondition)
-- [AddressAllowlistCondition](#addressallowlistcondition)
+- [ContextVariableCondition](#contextvariablecondition)
 - [ContractCondition](#contractcondition)
 - [EcdsaCondition](#ecdsacondition)
 - [JsonApiCondition](#jsonapicondition)
@@ -232,6 +232,8 @@ _(\*) Required._
 
 ## ReturnValueTest
 
+Test to perform on a value. Supports comparison operators like ==, >, <, >=, <=, !=, in, !in
+
 _Object containing the following properties:_
 
 | Property              | Type                                                          |
@@ -344,17 +346,17 @@ _Object containing the following properties:_
 
 _(\*) Required._
 
-## AddressAllowlistCondition
+## ContextVariableCondition
 
-Address Allowlist Condition for allowing decryption for specific wallet addresses. It is very handy when combined with other conditions.
+Context Variable Condition for performing comparison operations on context variable values. Supports various comparison operators.
 
 _Object containing the following properties:_
 
-| Property                 | Description                                                                                                                                     | Type                                |
-| :----------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------- |
-| **`conditionType`** (\*) |                                                                                                                                                 | `'address-allowlist'`               |
-| **`userAddress`** (\*)   | This is a context variable that will be replaced at decryption time. It represents the Ethereum address of the requester attempting decryption. | [UserAddress](#useraddress)         |
-| **`addresses`** (\*)     | List of wallet addresses allowed to decrypt. Addresses should be provided in checksummed form.                                                  | `Array<string>` (_min: 1, max: 25_) |
+| Property                   | Description                                                                                  | Type                                              |
+| :------------------------- | :------------------------------------------------------------------------------------------- | :------------------------------------------------ |
+| **`conditionType`** (\*)   |                                                                                              | `'context-variable'`                              |
+| **`contextVariable`** (\*) | The context variable to check (e.g., ":userAddress", ":customParam")                         | `string` (_regex: `/^:[a-zA-Z_][a-zA-Z0-9_]*$/`_) |
+| **`returnValueTest`** (\*) | Test to perform on a value. Supports comparison operators like ==, >, <, >=, <=, !=, in, !in | [ReturnValueTest](#returnvaluetest)               |
 
 _(\*) Required._
 

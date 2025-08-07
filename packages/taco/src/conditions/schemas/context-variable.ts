@@ -4,7 +4,7 @@ import { baseConditionSchema } from './common';
 import { contextParamSchema } from './context';
 import { returnValueTestSchema } from './return-value-test';
 
-export const ContextVariableConditionType = 'variable-match';
+export const ContextVariableConditionType = 'context-variable';
 
 export const contextVariableConditionSchema = baseConditionSchema
   .extend({
@@ -12,13 +12,11 @@ export const contextVariableConditionSchema = baseConditionSchema
     contextVariable: contextParamSchema.describe(
       'The context variable to check (e.g., ":userAddress", ":customParam")',
     ),
-    returnValueTest: returnValueTestSchema.describe(
-      'Test to perform on the context variable value. Supports comparators like ==, >, <, >=, <=, !=, in, !in',
-    ),
+    returnValueTest: returnValueTestSchema,
   })
   .strict()
   .describe(
-    'Context Variable Condition for checking if a context variable value passes a specified test. Supports various comparison operators.',
+    'Context Variable Condition for performing comparison operations on context variable values. Supports various comparison operators.',
   );
 
 export type ContextVariableConditionProps = z.infer<

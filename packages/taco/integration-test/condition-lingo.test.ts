@@ -15,6 +15,7 @@ import {
 import { SequentialCondition } from '../src/conditions/sequential';
 import {
   testContractConditionObj,
+  testContextVariableConditionObj,
   testJsonApiConditionObj,
   testJsonRpcConditionObj,
   testJWTConditionObj,
@@ -161,6 +162,11 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         const conditionExpr = new ConditionExpression(overallCondition);
         await validateConditionExpression(conditionExpr);
       }
+    }, 15000);
+    
+    test('validate context variable condition structure', async () => {
+      const conditionExpr = new ConditionExpression(testContextVariableConditionObj);
+      await validateConditionExpression(conditionExpr);
     }, 15000);
   },
 );

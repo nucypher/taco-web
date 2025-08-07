@@ -124,4 +124,3 @@ console.assert(
   myContractCallCondition.requiresAuthentication(),
   'ContractCondition requires a signer',
 );
-

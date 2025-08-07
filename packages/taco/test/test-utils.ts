@@ -382,7 +382,6 @@ export const testContextVariableConditionObj: ContextVariableConditionProps = {
   },
 };
 
-
 export const testContractConditionObj: ContractConditionProps = {
   conditionType: ContractConditionType,
   contractAddress: '0x0000000000000000000000000000000000000000',

@@ -15,8 +15,8 @@ import {
 } from '../src/conditions/schemas/ecdsa';
 import { SequentialCondition } from '../src/conditions/sequential';
 import {
-  testContractConditionObj,
   testContextVariableConditionObj,
+  testContractConditionObj,
   testJsonApiConditionObj,
   testJsonRpcConditionObj,
   testJWTConditionObj,
@@ -164,9 +164,12 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         await validateConditionExpression(conditionExpr);
       }
     }, 15000);
-    
+
     test('validate context variable condition structure', async () => {
-      const contextVariableCondition = new conditions.base.contextVariable.ContextVariableCondition(testContextVariableConditionObj);
+      const contextVariableCondition =
+        new conditions.base.contextVariable.ContextVariableCondition(
+          testContextVariableConditionObj,
+        );
       const conditionExpr = new ConditionExpression(contextVariableCondition);
       await validateConditionExpression(conditionExpr);
     }, 15000);

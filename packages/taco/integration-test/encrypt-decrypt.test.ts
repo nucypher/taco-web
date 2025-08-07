@@ -123,7 +123,6 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       expect(decryptedMessageString).toEqual(messageString);
     }, 15000);
 
-
     test('should encrypt and decrypt according to ECDSA signature condition with predefined verifying key', async () => {
       const messageString =
         'This message is protected by ECDSA signature verification 🔐';

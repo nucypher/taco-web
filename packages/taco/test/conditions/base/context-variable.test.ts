@@ -28,7 +28,9 @@ describe('ContextVariableCondition', () => {
         testContextVariableConditionObj;
       const condition = new ContextVariableCondition(withoutType);
 
-      expect(condition.toObj().conditionType).toBe(ContextVariableConditionType);
+      expect(condition.toObj().conditionType).toBe(
+        ContextVariableConditionType,
+      );
     });
 
     it('rejects unknown fields', () => {
@@ -81,24 +83,23 @@ describe('ContextVariableCondition', () => {
       expect(result.error?.message).toContain('Invalid');
     });
 
-    it.each([
-      ':userAddress', 
-      ':customParam', 
-      ':myVariable'
-    ])('accepts valid context parameters: %s', (param) => {
-      const conditionObj = {
-        ...testContextVariableConditionObj,
-        contextVariable: param,
-      };
+    it.each([':userAddress', ':customParam', ':myVariable'])(
+      'accepts valid context parameters: %s',
+      (param) => {
+        const conditionObj = {
+          ...testContextVariableConditionObj,
+          contextVariable: param,
+        };
 
-      const result = ContextVariableCondition.validate(
-        contextVariableConditionSchema,
-        conditionObj,
-      );
+        const result = ContextVariableCondition.validate(
+          contextVariableConditionSchema,
+          conditionObj,
+        );
 
-      expect(result.error).toBeUndefined();
-      expect(result.data?.contextVariable).toBe(param);
-    });
+        expect(result.error).toBeUndefined();
+        expect(result.data?.contextVariable).toBe(param);
+      },
+    );
 
     it('requires returnValueTest to be present', () => {
       const conditionObj = {
@@ -119,7 +120,9 @@ describe('ContextVariableCondition', () => {
 
   describe('constructor', () => {
     it('creates a condition from a valid object', () => {
-      const condition = new ContextVariableCondition(testContextVariableConditionObj);
+      const condition = new ContextVariableCondition(
+        testContextVariableConditionObj,
+      );
       expect(condition.toObj()).toEqual(testContextVariableConditionObj);
     });
 

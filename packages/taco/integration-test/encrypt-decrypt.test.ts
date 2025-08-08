@@ -18,6 +18,7 @@ import { CompoundCondition } from '../src/conditions/compound-condition';
 import {
   createSignatureForTestSecp256k1ECDSACondition,
   createTestSecp256k1ECDSACondition,
+  testContextVariableConditionObj,
   UINT256_MAX,
 } from '../test/test-utils';
 
@@ -277,5 +278,106 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
 
       expect(decryptedMessageString).toEqual(messageString);
     }, 25000);
+
+    test('should encrypt and decrypt with ContextVariableCondition', async () => {
+      const messageString =
+        'This message is protected by context variable condition 🔐';
+      const message = toBytes(messageString);
+
+      // Create a context variable condition that checks if userAddress is in allowlist
+      const contextVariableCondition = new conditions.base.contextVariable.ContextVariableCondition({
+        ...testContextVariableConditionObj,
+        returnValueTest: {
+          comparator: 'in',
+          value: [
+            CONSUMER_ADDRESS.toLowerCase(),
+            '0x0000000000000000000000000000000000000001',
+          ],
+        },
+      });
+
+      expect(contextVariableCondition.requiresAuthentication()).toBe(true);
+
+      const messageKit = await encrypt(
+        provider,
+        DOMAIN,
+        message,
+        contextVariableCondition,
+        RITUAL_ID,
+        encryptorSigner,
+      );
+
+      const encryptedBytes = messageKit.toBytes();
+
+      const messageKitFromBytes = ThresholdMessageKit.fromBytes(encryptedBytes);
+      const conditionContext =
+        conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
+
+      expect(
+        conditionContext.requestedContextParameters.has(
+          USER_ADDRESS_PARAM_DEFAULT,
+        ),
+      ).toBeTruthy();
+
+      // Add auth provider for userAddress context parameter
+      const authProvider = new EIP4361AuthProvider(provider, consumerSigner);
+      conditionContext.addAuthProvider(
+        USER_ADDRESS_PARAM_DEFAULT,
+        authProvider,
+      );
+
+      const decryptedBytes = await decrypt(
+        provider,
+        DOMAIN,
+        messageKitFromBytes,
+        conditionContext,
+      );
+      const decryptedMessageString = fromBytes(decryptedBytes);
+
+      expect(decryptedMessageString).toEqual(messageString);
+    }, 20000);
+
+    test('should fail to decrypt with ContextVariableCondition when userAddress is not in allowlist', async () => {
+      const messageString = 'This should fail with wrong address';
+      const message = toBytes(messageString);
+
+      // Create a context variable condition with specific allowed addresses
+      const restrictedContextVariableCondition = new conditions.base.contextVariable.ContextVariableCondition({
+        ...testContextVariableConditionObj,
+        returnValueTest: {
+          comparator: 'in',
+          value: [
+            '0x0000000000000000000000000000000000000001', // Not our consumer address
+            '0x0000000000000000000000000000000000000002',
+          ],
+        },
+      });
+
+      const messageKit = await encrypt(
+        provider,
+        DOMAIN,
+        message,
+        restrictedContextVariableCondition,
+        RITUAL_ID,
+        encryptorSigner,
+      );
+
+      const encryptedBytes = messageKit.toBytes();
+
+      const messageKitFromBytes = ThresholdMessageKit.fromBytes(encryptedBytes);
+      const conditionContext =
+        conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
+
+      // Add auth provider for userAddress context parameter (but with wrong address)
+      const authProvider = new EIP4361AuthProvider(provider, consumerSigner);
+      conditionContext.addAuthProvider(
+        USER_ADDRESS_PARAM_DEFAULT,
+        authProvider,
+      );
+
+      await expect(
+        decrypt(provider, DOMAIN, messageKitFromBytes, conditionContext),
+      ).rejects.toThrow();
+    }, 20000);
   },
 );

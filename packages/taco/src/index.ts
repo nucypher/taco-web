@@ -12,3 +12,6 @@ export {
 export * as conditions from './conditions';
 
 export { decrypt, encrypt, encryptWithPublicKey } from './taco';
+
+// Viem-compatible functions
+export { decryptWithViem, encryptWithViem } from './viem-taco';

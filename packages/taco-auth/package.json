@@ -47,6 +47,14 @@
   "devDependencies": {
     "@nucypher/test-utils": "workspace:*"
   },
+  "peerDependencies": {
+    "viem": "^2.0.0"
+  },
+  "peerDependenciesMeta": {
+    "viem": {
+      "optional": true
+    }
+  },
   "engines": {
     "node": ">=18",
     "pnpm": ">=8.0.0"

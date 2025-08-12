@@ -1,6 +1,7 @@
 import axios from 'axios';
 import * as https from 'https';
 import { describe, test } from 'vitest';
+import { conditions } from '../src';
 import {
   CompoundCondition,
   CompoundConditionType,
@@ -14,6 +15,7 @@ import {
 } from '../src/conditions/schemas/ecdsa';
 import { SequentialCondition } from '../src/conditions/sequential';
 import {
+  testContextVariableConditionObj,
   testContractConditionObj,
   testJsonApiConditionObj,
   testJsonRpcConditionObj,
@@ -161,6 +163,15 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         const conditionExpr = new ConditionExpression(overallCondition);
         await validateConditionExpression(conditionExpr);
       }
+    }, 15000);
+
+    test('validate context variable condition structure', async () => {
+      const contextVariableCondition =
+        new conditions.base.contextVariable.ContextVariableCondition(
+          testContextVariableConditionObj,
+        );
+      const conditionExpr = new ConditionExpression(contextVariableCondition);
+      await validateConditionExpression(conditionExpr);
     }, 15000);
   },
 );

@@ -1,7 +1,7 @@
 // Exporting classes here instead of their respective schema files to
 // avoid circular dependency on Condition class.
 
-export * as addressAllowlist from './address-allowlist';
+export * as contextVariable from './context-variable';
 export * as contract from './contract';
 export * as ecdsa from './ecdsa';
 export * as jsonApi from './json-api';

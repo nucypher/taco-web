@@ -1,8 +1,8 @@
 import {
-  AddressAllowlistCondition,
-  AddressAllowlistConditionProps,
-  AddressAllowlistConditionType,
-} from './base/address-allowlist';
+  ContextVariableCondition,
+  ContextVariableConditionProps,
+  ContextVariableConditionType,
+} from './base/context-variable';
 import {
   ContractCondition,
   ContractConditionProps,
@@ -76,10 +76,6 @@ export class ConditionFactory {
         return new JsonRpcCondition(props as JsonRpcConditionProps);
       case JWTConditionType:
         return new JWTCondition(props as JWTConditionProps);
-      case AddressAllowlistConditionType:
-        return new AddressAllowlistCondition(
-          props as AddressAllowlistConditionProps,
-        );
       case SigningObjectAttributeConditionType:
         return new SigningObjectAttributeCondition(
           props as SigningObjectAttributeConditionProps,
@@ -87,6 +83,10 @@ export class ConditionFactory {
       case SigningObjectAbiAttributeConditionType:
         return new SigningObjectAbiAttributeCondition(
           props as SigningObjectAbiAttributeConditionProps,
+        );
+      case ContextVariableConditionType:
+        return new ContextVariableCondition(
+          props as ContextVariableConditionProps,
         );
       // Logical Conditions
       case CompoundConditionType:

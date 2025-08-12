@@ -30,7 +30,10 @@ export const returnValueTestSchema = returnValueTestBaseSchema
   .extend({
     value: paramOrContextParamSchema,
   })
-  .refine(requireNonEmptyArrayIfComparatorIsIn, inComparatorErrorConfig);
+  .refine(requireNonEmptyArrayIfComparatorIsIn, inComparatorErrorConfig)
+  .describe(
+    'Test to perform on a value. Supports comparison operators like ==, >, <, >=, <=, !=, in, !in',
+  );
 
 export const blockchainReturnValueTestSchema = returnValueTestBaseSchema
   .extend({

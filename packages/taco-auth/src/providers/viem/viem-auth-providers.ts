@@ -1,4 +1,9 @@
-import { EIP4361AuthProvider, EIP4361AuthProviderParams } from '../eip4361/eip4361';
+import { ethers } from 'ethers';
+
+import {
+  EIP4361AuthProvider,
+  EIP4361AuthProviderParams,
+} from '../eip4361/eip4361';
 
 import { createEthersProvider, createEthersSigner } from './viem-wrappers';
 
@@ -10,29 +15,29 @@ type PublicClient = any;
 
 /**
  * Viem-compatible EIP4361 authentication provider.
- * 
+ *
  * This class provides a clean viem-native API for EIP4361 authentication
  * while internally handling the conversion to ethers.js objects that the
  * underlying EIP4361AuthProvider expects.
- * 
+ *
  * @example
  * ```typescript
  * import { createPublicClient, http } from 'viem';
  * import { privateKeyToAccount } from 'viem/accounts';
  * import { ViemEIP4361AuthProvider } from '@nucypher/taco-auth';
- * 
+ *
  * const publicClient = createPublicClient({
  *   chain: polygon,
  *   transport: http()
  * });
  * const account = privateKeyToAccount('0x...');
- * 
+ *
  * const authProvider = new ViemEIP4361AuthProvider(
  *   publicClient,
  *   account,
  *   { domain: 'my-app.com', uri: 'https://my-app.com' }
  * );
- * 
+ *
  * const signature = await authProvider.getOrCreateAuthSignature();
  * ```
  */
@@ -41,7 +46,7 @@ export class ViemEIP4361AuthProvider {
 
   /**
    * Create a new ViemEIP4361AuthProvider
-   * 
+   *
    * @param viemPublicClient - viem PublicClient for blockchain interactions
    * @param viemAccount - viem Account for signing operations
    * @param options - Optional EIP4361 parameters (domain, uri)
@@ -49,17 +54,19 @@ export class ViemEIP4361AuthProvider {
   constructor(
     viemPublicClient: PublicClient,
     viemAccount: Account,
-    options?: EIP4361AuthProviderParams
+    options?: EIP4361AuthProviderParams,
   ) {
     // Convert viem objects to ethers objects internally
     const ethersProvider = createEthersProvider(viemPublicClient);
     const ethersSigner = createEthersSigner(viemAccount, ethersProvider);
 
     // Create the underlying ethers auth provider
+    // Type assertions are safe here because our TacoProvider/TacoSigner interfaces
+    // are designed to be compatible with ethers Provider/Signer interfaces
     this.ethersAuthProvider = new EIP4361AuthProvider(
-      ethersProvider,
-      ethersSigner,
-      options
+      ethersProvider as unknown as ethers.providers.Provider,
+      ethersSigner as unknown as ethers.Signer,
+      options,
     );
   }
 

@@ -19,15 +19,11 @@ async function viemAuthExample() {
   const account = privateKeyToAccount('0x...' as `0x${string}`);
 
   // Create viem-compatible auth provider
-  const authProvider = new ViemEIP4361AuthProvider(
-    publicClient,
-    account,
-    {
-      // EIP4361AuthProviderParams only accepts domain and uri
-      domain: 'my-app.com',
-      uri: 'https://my-app.com',
-    }
-  );
+  const authProvider = new ViemEIP4361AuthProvider(publicClient, account, {
+    // EIP4361AuthProviderParams only accepts domain and uri
+    domain: 'my-app.com',
+    uri: 'https://my-app.com',
+  });
 
   // Get or create authentication signature
   const authSignature = await authProvider.getOrCreateAuthSignature();
@@ -35,10 +31,10 @@ async function viemAuthExample() {
 
   // Use the auth provider with TACo domain (example)
   const domain = 'testnet'; // or 'mainnet' - Domain is a type alias for string
-  
+
   // The auth provider is now ready to be used with TACo operations
   // For example, in a condition context or with custom authentication flows
-  
+
   return {
     authProvider,
     authSignature,
@@ -59,10 +55,7 @@ export async function createViemAuthProviders() {
   const account = privateKeyToAccount('0x...' as `0x${string}`);
 
   // Simple auth provider (minimal configuration)
-  const simpleAuthProvider = new ViemEIP4361AuthProvider(
-    publicClient,
-    account
-  );
+  const simpleAuthProvider = new ViemEIP4361AuthProvider(publicClient, account);
 
   // Configured auth provider with custom options
   const configuredAuthProvider = new ViemEIP4361AuthProvider(
@@ -71,7 +64,7 @@ export async function createViemAuthProviders() {
     {
       domain: 'dapp.example.com',
       uri: 'https://dapp.example.com/login',
-    }
+    },
   );
 
   return {

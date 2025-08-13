@@ -1,5 +1,6 @@
 import { ThresholdMessageKit } from '@nucypher/nucypher-core';
 import { Domain } from '@nucypher/shared';
+import { ethers } from 'ethers';
 
 // Dynamic viem types (available only when viem is installed)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -62,18 +63,19 @@ export const encryptWithViem = async (
   ritualId: number,
   viemAuthSigner: Account,
 ): Promise<ThresholdMessageKit> => {
-  // Create ethers-compatible provider and signer from viem objects
-  const ethersProvider = createEthersProvider(viemPublicClient);
-  const ethersSigner = createEthersSigner(viemAuthSigner, ethersProvider);
+  // Create TACo-compatible provider and signer from viem objects
+  const tacoProvider = createEthersProvider(viemPublicClient);
+  const tacoSigner = createEthersSigner(viemAuthSigner, tacoProvider);
 
-  // Use the existing ethers-based encrypt function
+  // Use the existing ethers-based encrypt function with type assertions
+  // Our interfaces provide all the methods that the TACo SDK actually uses
   return await ethersEncrypt(
-    ethersProvider,
+    tacoProvider as unknown as ethers.providers.Provider,
     domain,
     message,
     condition,
     ritualId,
-    ethersSigner,
+    tacoSigner as unknown as ethers.Signer,
   );
 };
 
@@ -121,12 +123,13 @@ export const decryptWithViem = async (
   context?: ConditionContext,
   porterUris?: string[],
 ): Promise<Uint8Array> => {
-  // Create ethers-compatible provider from viem object
-  const ethersProvider = createEthersProvider(viemPublicClient);
+  // Create TACo-compatible provider from viem object
+  const tacoProvider = createEthersProvider(viemPublicClient);
 
-  // Use the existing ethers-based decrypt function
+  // Use the existing ethers-based decrypt function with type assertion
+  // Our interface provides all the methods that the TACo SDK actually uses
   return await ethersDecrypt(
-    ethersProvider,
+    tacoProvider as unknown as ethers.providers.Provider,
     domain,
     messageKit,
     context,

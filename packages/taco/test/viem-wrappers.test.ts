@@ -32,7 +32,7 @@ describe('viem wrapper utilities', () => {
       } as any;
 
       const provider = createEthersProvider(mockViemPublicClient);
-      
+
       expect(provider).toBeDefined();
       expect(provider.getNetwork).toBeDefined();
       expect(provider.getBlockNumber).toBeDefined();
@@ -56,7 +56,7 @@ describe('viem wrapper utilities', () => {
       } as any;
 
       const signer = createEthersSigner(mockViemAccount, mockProvider);
-      
+
       expect(signer).toBeDefined();
       expect(signer.getAddress).toBeDefined();
       expect(signer.signMessage).toBeDefined();
@@ -88,9 +88,9 @@ describe('viem wrapper utilities', () => {
 
       const { provider, signer } = createEthersFromViem(
         mockViemPublicClient,
-        mockViemWalletClient
+        mockViemWalletClient,
       );
-      
+
       expect(provider).toBeDefined();
       expect(signer).toBeDefined();
       expect(signer.provider).toBe(provider);
@@ -102,10 +102,9 @@ describe('viem wrapper utilities', () => {
         account: undefined,
       } as any;
 
-      expect(() => createEthersFromViem(
-        mockViemPublicClient,
-        mockViemWalletClient
-      )).toThrow('Wallet client must have an account attached');
+      expect(() =>
+        createEthersFromViem(mockViemPublicClient, mockViemWalletClient),
+      ).toThrow('Wallet client must have an account attached');
     });
   });
 

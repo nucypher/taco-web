@@ -1,20 +1,21 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ethers } from 'ethers';
 
+import { TacoProvider, TacoSigner } from './base-interfaces';
+
 // Dynamic viem types (available only when viem is installed)
-// instead of `import type { Account, PublicClient, WalletClient } from 'viem';`
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Account = any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type PublicClient = any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type WalletClient = any;
 
 /**
- * Checks if viem is available and throws a helpful error if not
+ * Check if viem is available and throw helpful error if not
  */
-function checkViemAvailability(): void {
+async function checkViemAvailability(): Promise<void> {
   try {
-    // Try to actually require viem to check if it's available
-    require('viem');
+    await import('viem');
   } catch (error) {
     throw new Error(
       'viem is required for viem wrapper functions. Install it with: npm install viem',
@@ -23,21 +24,26 @@ function checkViemAvailability(): void {
 }
 
 /**
- * Dynamically imports viem types for runtime type checking
+ * A provider that wraps viem PublicClient for TACo SDK compatibility
+ *
+ * This class implements the TacoProvider interface, providing only the methods
+ * needed for the TACo SDK to work correctly.
  */
-async function importViem() {
-  checkViemAvailability();
-  return await import('viem');
-}
-
-/**
- * A provider that wraps viem PublicClient to work with ethers.js
- */
-class ViemWrappedProvider {
+class ViemTacoProvider implements TacoProvider {
   private viemPublicClient: PublicClient;
+
+  // Ethers.js compatibility properties for contract validation
+  readonly _isProvider: boolean = true;
+  readonly _network: Promise<ethers.providers.Network>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  readonly formatter?: any = undefined;
+  readonly _networkPromise?: Promise<ethers.providers.Network>;
 
   constructor(viemPublicClient: PublicClient) {
     this.viemPublicClient = viemPublicClient;
+    // Initialize network for ethers compatibility
+    this._network = this.getNetwork();
+    this._networkPromise = this._network;
   }
 
   async getNetwork(): Promise<ethers.providers.Network> {
@@ -57,30 +63,48 @@ class ViemWrappedProvider {
     return ethers.BigNumber.from(gasPrice.toString());
   }
 
-  async getBalance(address: string, blockTag?: string | number): Promise<ethers.BigNumber> {
+  async getBalance(
+    address: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _blockTag?: string | number,
+  ): Promise<ethers.BigNumber> {
     const balance = await this.viemPublicClient.getBalance({
       address: address as `0x${string}`,
     });
     return ethers.BigNumber.from(balance.toString());
   }
 
-  async getTransactionCount(address: string, blockTag?: string | number): Promise<number> {
+  async getTransactionCount(
+    address: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _blockTag?: string | number,
+  ): Promise<number> {
     return await this.viemPublicClient.getTransactionCount({
       address: address as `0x${string}`,
     });
   }
 
-  async getCode(address: string, blockTag?: string | number): Promise<string> {
+  async getCode(
+    address: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _blockTag?: string | number,
+  ): Promise<string> {
     return await this.viemPublicClient.getCode({
       address: address as `0x${string}`,
     });
   }
 
-  async call(transaction: ethers.providers.TransactionRequest, blockTag?: string | number): Promise<string> {
+  async call(
+    transaction: ethers.providers.TransactionRequest,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _blockTag?: string | number,
+  ): Promise<string> {
     const result = await this.viemPublicClient.call({
       to: transaction.to as `0x${string}`,
       data: transaction.data as `0x${string}`,
-      value: transaction.value ? BigInt(transaction.value.toString()) : undefined,
+      value: transaction.value
+        ? BigInt(transaction.value.toString())
+        : undefined,
     });
     // viem returns {data: "0x..."} but ethers expects just "0x..."
     if (typeof result === 'object' && result && 'data' in result) {
@@ -89,17 +113,25 @@ class ViemWrappedProvider {
     return result as string;
   }
 
-  async estimateGas(transaction: ethers.providers.TransactionRequest): Promise<ethers.BigNumber> {
+  async estimateGas(
+    transaction: ethers.providers.TransactionRequest,
+  ): Promise<ethers.BigNumber> {
     const gas = await this.viemPublicClient.estimateGas({
       to: transaction.to as `0x${string}`,
       data: transaction.data as `0x${string}`,
-      value: transaction.value ? BigInt(transaction.value.toString()) : undefined,
+      value: transaction.value
+        ? BigInt(transaction.value.toString())
+        : undefined,
     });
-    return ethers.BigNumber.from(gas.toString());
+    return gas;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getBlock(blockHashOrBlockTag: string | number): Promise<any> {
-    if (typeof blockHashOrBlockTag === 'string' && blockHashOrBlockTag.startsWith('0x')) {
+    if (
+      typeof blockHashOrBlockTag === 'string' &&
+      blockHashOrBlockTag.startsWith('0x')
+    ) {
       return await this.viemPublicClient.getBlock({
         blockHash: blockHashOrBlockTag as `0x${string}`,
       });
@@ -110,18 +142,21 @@ class ViemWrappedProvider {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getTransaction(transactionHash: string): Promise<any> {
     return await this.viemPublicClient.getTransaction({
       hash: transactionHash as `0x${string}`,
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getTransactionReceipt(transactionHash: string): Promise<any> {
     return await this.viemPublicClient.getTransactionReceipt({
       hash: transactionHash as `0x${string}`,
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async waitForTransaction(transactionHash: string): Promise<any> {
     return await this.viemPublicClient.waitForTransactionReceipt({
       hash: transactionHash as `0x${string}`,
@@ -129,11 +164,13 @@ class ViemWrappedProvider {
   }
 
   // Additional methods that ethers contracts might need
-  async resolveName(name: string): Promise<string | null> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async resolveName(_name: string): Promise<string | null> {
     return null; // ENS resolution not implemented
   }
 
-  async lookupAddress(address: string): Promise<string | null> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async lookupAddress(_address: string): Promise<string | null> {
     return null; // Reverse ENS lookup not implemented
   }
 
@@ -146,178 +183,135 @@ class ViemWrappedProvider {
       lastBaseFeePerGas: null,
     };
   }
-
-  // Mark this as a viem wrapped provider
-  _isViemWrappedProvider = true;
-  
-  // Additional required Provider methods (stubs for compatibility)
-  async getStorageAt(address: string, position: string, blockTag?: string | number): Promise<string> {
-    throw new Error('getStorageAt not implemented in viem wrapper');
-  }
-
-  async sendTransaction(signedTransaction: string): Promise<any> {
-    throw new Error('sendTransaction not implemented in viem wrapper');
-  }
-
-  async getBlockWithTransactions(blockHashOrBlockTag: string | number): Promise<any> {
-    throw new Error('getBlockWithTransactions not implemented in viem wrapper');
-  }
-
-  async getLogs(filter: any): Promise<any[]> {
-    throw new Error('getLogs not implemented in viem wrapper');
-  }
-
-  // Ethers provider interface compatibility
-  connection?: any;
-  _network?: ethers.providers.Network;
-  _isProvider = true;
-  
-  // Additional stubs for compatibility
-  async on(): Promise<any> { return this; }
-  async once(): Promise<any> { return this; }
-  async off(): Promise<any> { return this; }
-  async emit(): Promise<any> { return false; }
-  async listenerCount(): Promise<number> { return 0; }
-  async listeners(): Promise<any[]> { return []; }
-  async removeAllListeners(): Promise<any> { return this; }
-  async addListener(): Promise<any> { return this; }
-  async removeListener(): Promise<any> { return this; }
-  
-  get _viemPublicClient() {
-    return this.viemPublicClient;
-  }
 }
 
 /**
- * Creates an ethers.js provider from a viem public client
+ * Create a TACo-compatible provider from viem PublicClient
  *
- * @param viemPublicClient - Viem PublicClient to wrap as ethers provider
- * @returns ethers.providers.Provider compatible with TACo SDK
+ * Returns a provider that implements TacoProvider interface with only
+ * the methods needed for TACo SDK operations.
  */
 export function createEthersProvider(
   viemPublicClient: PublicClient,
-): ethers.providers.Provider {
-  // Check if viem is available
+): TacoProvider {
   checkViemAvailability();
-
-  return new ViemWrappedProvider(viemPublicClient) as unknown as ethers.providers.Provider;
+  return new ViemTacoProvider(viemPublicClient);
 }
 
 /**
- * Creates an ethers.js signer from a viem account and provider
+ * A signer that wraps viem Account for TACo SDK compatibility
  *
- * @param viemAccount - The viem account (from wallet client or account)
- * @param provider - Ethers provider (can be created with createEthersProvider)
- * @returns ethers.Signer compatible with TACo SDK
+ * This class implements the TacoSigner interface, providing only the methods
+ * needed for the TACo SDK to work correctly.
+ */
+class ViemTacoSigner implements TacoSigner {
+  private viemAccount: Account;
+  public readonly provider: TacoProvider;
+
+  constructor(viemAccount: Account, provider: TacoProvider) {
+    this.viemAccount = viemAccount;
+    this.provider = provider;
+  }
+
+  async getAddress(): Promise<string> {
+    return this.viemAccount.address;
+  }
+
+  async signMessage(message: string | Uint8Array): Promise<string> {
+    checkViemAvailability();
+    const messageToSign =
+      typeof message === 'string' ? message : new TextDecoder().decode(message);
+    return await this.viemAccount.signMessage({ message: messageToSign });
+  }
+
+  async signTransaction(
+    transaction: ethers.providers.TransactionRequest,
+  ): Promise<string> {
+    checkViemAvailability();
+    if (!this.viemAccount.signTransaction) {
+      throw new Error('Account does not support transaction signing');
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const viemTx: any = {
+      to: transaction.to as `0x${string}`,
+      value: transaction.value
+        ? BigInt(transaction.value.toString())
+        : undefined,
+      data: transaction.data as `0x${string}`,
+      gas: transaction.gasLimit
+        ? BigInt(transaction.gasLimit.toString())
+        : undefined,
+      gasPrice: transaction.gasPrice
+        ? BigInt(transaction.gasPrice.toString())
+        : undefined,
+      nonce: transaction.nonce ? Number(transaction.nonce) : undefined,
+    };
+
+    return await this.viemAccount.signTransaction(viemTx);
+  }
+
+  async signTypedData(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    domain: any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    types: Record<string, any>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    message: Record<string, any>,
+  ): Promise<string> {
+    checkViemAvailability();
+    if (!this.viemAccount.signTypedData) {
+      throw new Error('Account does not support typed data signing');
+    }
+
+    return await this.viemAccount.signTypedData({
+      domain,
+      types,
+      message,
+      primaryType:
+        Object.keys(types).find((key) => key !== 'EIP712Domain') || 'Message',
+    });
+  }
+
+  connect(provider: TacoProvider): TacoSigner {
+    return new ViemTacoSigner(this.viemAccount, provider);
+  }
+
+  async getBalance(
+    blockTag?: ethers.providers.BlockTag,
+  ): Promise<ethers.BigNumber> {
+    return await this.provider.getBalance(this.viemAccount.address, blockTag);
+  }
+
+  async getTransactionCount(): Promise<number> {
+    return await this.provider.getTransactionCount(this.viemAccount.address);
+  }
+
+  async estimateGas(
+    transaction: ethers.providers.TransactionRequest,
+  ): Promise<ethers.BigNumber> {
+    return await this.provider.estimateGas(transaction);
+  }
+
+  async call(
+    transaction: ethers.providers.TransactionRequest,
+  ): Promise<string> {
+    return await this.provider.call(transaction);
+  }
+}
+
+/**
+ * Create a TACo-compatible signer from viem Account
+ *
+ * Returns a signer that implements TacoSigner interface with only
+ * the methods needed for TACo SDK operations.
  */
 export function createEthersSigner(
   viemAccount: Account,
-  provider: ethers.providers.Provider,
-): ethers.Signer {
-  // Check if viem is available
+  provider: TacoProvider,
+): TacoSigner {
   checkViemAvailability();
-
-  const signerAdapter = {
-    address: viemAccount.address,
-    provider,
-
-    async getAddress(): Promise<string> {
-      return viemAccount.address;
-    },
-
-    async signMessage(message: ethers.utils.Bytes | string): Promise<string> {
-      const messageToSign =
-        typeof message === 'string'
-          ? message
-          : typeof message === 'object' && message.constructor === Uint8Array
-            ? new TextDecoder().decode(message as Uint8Array)
-            : String(message);
-
-      if (!viemAccount.signMessage) {
-        throw new Error('Account does not support message signing');
-      }
-      return await viemAccount.signMessage({ message: messageToSign });
-    },
-
-    async signTransaction(
-      transaction: ethers.providers.TransactionRequest,
-    ): Promise<string> {
-      if (!viemAccount.signTransaction) {
-        throw new Error('Account does not support transaction signing');
-      }
-
-      // Convert ethers transaction to viem format
-      const viemTx: any = {
-        to: transaction.to as `0x${string}`,
-        value: transaction.value
-          ? BigInt(transaction.value.toString())
-          : undefined,
-        data: transaction.data as `0x${string}`,
-        gas: transaction.gasLimit
-          ? BigInt(transaction.gasLimit.toString())
-          : undefined,
-        gasPrice: transaction.gasPrice
-          ? BigInt(transaction.gasPrice.toString())
-          : undefined,
-        nonce: transaction.nonce ? Number(transaction.nonce) : undefined,
-      };
-
-      return await viemAccount.signTransaction(viemTx);
-    },
-
-    async signTypedData(
-      domain: any,
-      types: Record<string, any>,
-      message: Record<string, any>,
-    ): Promise<string> {
-      if (!viemAccount.signTypedData) {
-        throw new Error('Account does not support typed data signing');
-      }
-
-      return await viemAccount.signTypedData({
-        domain,
-        types,
-        message,
-        primaryType:
-          Object.keys(types).find((key) => key !== 'EIP712Domain') || 'Message',
-      });
-    },
-
-    connect(provider: ethers.providers.Provider): ethers.Signer {
-      return createEthersSigner(viemAccount, provider);
-    },
-
-    // Additional signer methods for ethers compatibility
-    async getBalance() {
-      const balance = await provider.getBalance(viemAccount.address);
-      return balance;
-    },
-
-    async getTransactionCount() {
-      return await provider.getTransactionCount(viemAccount.address);
-    },
-
-    async estimateGas(transaction: ethers.providers.TransactionRequest) {
-      return await provider.estimateGas(transaction);
-    },
-
-    async call(transaction: ethers.providers.TransactionRequest) {
-      return await provider.call(transaction);
-    },
-
-    async sendTransaction(transaction: ethers.providers.TransactionRequest) {
-      throw new Error(
-        'sendTransaction not implemented for viem wrapper - use signTransaction instead',
-      );
-    },
-
-    // Type identification
-    _isSigner: true,
-    _isViemWrappedSigner: true,
-    _viemAccount: viemAccount,
-  };
-
-  return signerAdapter as unknown as ethers.Signer;
+  return new ViemTacoSigner(viemAccount, provider);
 }
 
 /**
@@ -325,13 +319,12 @@ export function createEthersSigner(
  *
  * @param viemPublicClient - Viem public client for provider functionality
  * @param viemWalletClient - Viem wallet client for signing functionality
- * @returns Object with ethers provider and signer
+ * @returns Object with TACo provider and signer
  */
 export function createEthersFromViem(
   viemPublicClient: PublicClient,
   viemWalletClient: WalletClient,
-) {
-  // Check if viem is available
+): { provider: TacoProvider; signer: TacoSigner } {
   checkViemAvailability();
 
   if (!viemWalletClient.account) {

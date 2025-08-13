@@ -68,7 +68,13 @@ describe('viem unit tests', () => {
       const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
       const mockedDkgRitual = fakeDkgRitual(mockedDkg);
       const mockEthersProvider = fakeProvider(aliceSecretKeyBytes);
-      const mockEthersSigner = mockEthersProvider.getSigner();
+      const mockEthersSigner = {
+        ...mockEthersProvider.getSigner(),
+        signTypedData: vi.fn().mockResolvedValue('0x'),
+      };
+      // Type assertion for test compatibility
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const typedSigner = mockEthersSigner as any;
 
       // Mock the viem clients with more complete interfaces
       const mockViemPublicClient = {
@@ -100,7 +106,7 @@ describe('viem unit tests', () => {
           await import('../src/wrappers/viem-wrappers'),
           'createEthersSigner',
         )
-        .mockReturnValue(mockEthersSigner);
+        .mockReturnValue(typedSigner);
 
       const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);
 
@@ -150,7 +156,7 @@ describe('viem unit tests', () => {
 
       const authProvider = new tacoAuth.EIP4361AuthProvider(
         mockEthersProvider,
-        mockEthersSigner,
+        typedSigner,
         TEST_SIWE_PARAMS,
       );
 

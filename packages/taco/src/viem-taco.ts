@@ -2,8 +2,9 @@ import { ThresholdMessageKit } from '@nucypher/nucypher-core';
 import { Domain } from '@nucypher/shared';
 
 // Dynamic viem types (available only when viem is installed)
-// instead of `import type { Account, PublicClient } from 'viem';`
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Account = any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type PublicClient = any;
 
 import { Condition } from './conditions/condition';

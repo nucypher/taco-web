@@ -2,8 +2,10 @@ import { EIP4361AuthProvider, EIP4361AuthProviderParams } from '../eip4361/eip43
 
 import { createEthersProvider, createEthersSigner } from './viem-wrappers';
 
-// Dynamic viem types (available only when viem is installed) 
+// Dynamic viem types (available only when viem is installed)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Account = any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type PublicClient = any;
 
 /**

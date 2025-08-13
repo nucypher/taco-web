@@ -1,7 +1,9 @@
 import { ethers } from 'ethers';
 
 // Dynamic viem types (available only when viem is installed)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Account = any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type PublicClient = any;
 
 /**
@@ -52,21 +54,30 @@ class ViemAuthProvider {
   }
 
   // Stub methods for ethers compatibility (not used by EIP4361AuthProvider)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getBlockNumber(): Promise<number> { return 0; }
   async getGasPrice(): Promise<ethers.BigNumber> { return ethers.BigNumber.from(0); }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getFeeData(): Promise<any> { return null; }
   async getBalance(): Promise<ethers.BigNumber> { return ethers.BigNumber.from(0); }
   async getTransactionCount(): Promise<number> { return 0; }
   async getCode(): Promise<string> { return '0x'; }
   async getStorageAt(): Promise<string> { return '0x'; }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async sendTransaction(): Promise<any> { throw new Error('Not implemented'); }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getTransaction(): Promise<any> { return null; }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getTransactionReceipt(): Promise<any> { return null; }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getLogs(): Promise<any[]> { return []; }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getBlock(): Promise<any> { return null; }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getBlockWithTransactions(): Promise<any> { return null; }
   async resolveName(): Promise<string | null> { return null; }
   async lookupAddress(): Promise<string | null> { return null; }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async waitForTransaction(): Promise<any> { return null; }
   
   // Event emitter methods (not used by EIP4361AuthProvider)
@@ -74,6 +85,7 @@ class ViemAuthProvider {
   off(): this { return this; }
   removeAllListeners(): this { return this; }
   listenerCount(): number { return 0; }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   listeners(): any[] { return []; }
   emit(): boolean { return false; }
 }
@@ -107,6 +119,7 @@ class ViemAuthSigner {
     return await this.viemAccount.signMessage({ message: messageToSign });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async signTypedData(domain: any, types: any, message: any): Promise<string> {
     checkViemAvailability();
     return await this.viemAccount.signTypedData({
@@ -130,13 +143,17 @@ class ViemAuthSigner {
   async getBalance(): Promise<ethers.BigNumber> { return ethers.BigNumber.from(0); }
   async getTransactionCount(): Promise<number> { return 0; }
   async getGasPrice(): Promise<ethers.BigNumber> { return ethers.BigNumber.from(0); }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getFeeData(): Promise<any> { return null; }
   async estimateGas(): Promise<ethers.BigNumber> { return ethers.BigNumber.from(0); }
   async call(): Promise<string> { return '0x'; }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async sendTransaction(): Promise<any> { throw new Error('Not implemented'); }
   async getChainId(): Promise<number> { return (await this.provider.getNetwork()).chainId; }
   async resolveName(): Promise<string | null> { return null; }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   checkTransaction(): any { return {}; }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   populateTransaction(): Promise<any> { return Promise.resolve({}); }
 }
 

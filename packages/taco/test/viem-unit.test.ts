@@ -20,8 +20,8 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { conditions, domains, toBytes } from '../src';
 import { ConditionContext } from '../src/conditions/context';
-import { encryptWithViem, decryptWithViem } from '../src/viem-taco';
-import { createEthersProvider, createEthersSigner, createEthersFromViem } from '../src/wrappers/viem-wrappers';
+import { decryptWithViem, encryptWithViem } from '../src/viem-taco';
+import { createEthersFromViem, createEthersProvider, createEthersSigner } from '../src/wrappers/viem-wrappers';
 
 import {
   fakeDkgRitual,
@@ -67,10 +67,12 @@ describe('viem unit tests', () => {
       const mockEthersSigner = mockEthersProvider.getSigner();
 
       // Mock the viem clients
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const mockViemPublicClient = {
         getChainId: vi.fn().mockResolvedValue(80002),
       } as any;
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const mockViemAccount = {
         address: '0x742d35Cc6632C0532c718F63b1a8D7d8a7fAd3b2',
         signMessage: vi.fn(),

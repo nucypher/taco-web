@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ethers } from 'ethers';
 
 // Dynamic viem types (available only when viem is installed)

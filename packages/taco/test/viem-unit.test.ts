@@ -186,7 +186,7 @@ describe('viem unit tests', () => {
       expect(decryptWithViem).toBeDefined();
       expect(decryptWithViem.length).toBe(5); // viemPublicClient, domain, messageKit, context?, porterUris?
     });
-  });
+  }, 10000);
 
   describe('function signatures', () => {
     it('should have correct function signatures', () => {

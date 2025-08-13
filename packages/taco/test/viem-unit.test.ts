@@ -66,16 +66,16 @@ describe('viem unit tests', () => {
       const mockEthersProvider = fakeProvider(aliceSecretKeyBytes);
       const mockEthersSigner = mockEthersProvider.getSigner();
 
-      // Mock the viem clients
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // Mock the viem clients  
       const mockViemPublicClient = {
         getChainId: vi.fn().mockResolvedValue(80002),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any;
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const mockViemAccount = {
         address: '0x742d35Cc6632C0532c718F63b1a8D7d8a7fAd3b2',
         signMessage: vi.fn(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any;
 
       // Mock the adapter functions to return ethers objects

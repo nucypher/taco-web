@@ -81,7 +81,7 @@ export const encryptWithViem = async (
 
 /**
  * Decrypts an encrypted message using viem clients.
- * 
+ *
  * This is a viem-compatible version of the decrypt function that accepts viem clients
  * instead of ethers providers.
  *
@@ -95,27 +95,28 @@ export const encryptWithViem = async (
  * @returns {Promise<Uint8Array>} Returns Promise that resolves with a decrypted message
  *
  * @throws {Error} If the active DKG Ritual cannot be retrieved or decryption process throws an error
- * 
+ *
  * @example
  * ```typescript
  * import { createPublicClient, http } from 'viem';
  * import { polygonAmoy } from 'viem/chains';
- * 
+ *
  * const viemPublicClient = createPublicClient({
  *   chain: polygonAmoy,
  *   transport: http()
  * });
- * 
+ *
  * const decrypted = await decryptWithViem(
  *   viemPublicClient,
  *   'lynx',
  *   messageKit,
  *   context
  * );
- * 
+ *
 
  * ```
  */
+
 export const decryptWithViem = async (
   viemPublicClient: PublicClient,
   domain: Domain,

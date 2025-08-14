@@ -1,27 +1,12 @@
+import {
+  type Account,
+  checkViemAvailability,
+  type PublicClient,
+  type WalletClient,
+} from '@nucypher/shared';
 import { ethers } from 'ethers';
 
 import { TacoProvider, TacoSigner } from './base-interfaces';
-
-// Dynamic viem types (available only when viem is installed)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Account = any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type PublicClient = any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type WalletClient = any;
-
-/**
- * Check if viem is available and throw helpful error if not
- */
-async function checkViemAvailability(): Promise<void> {
-  try {
-    await import('viem');
-  } catch (error) {
-    throw new Error(
-      'viem is required for viem wrapper functions. Install it with: npm install viem',
-    );
-  }
-}
 
 /**
  * A provider that wraps viem PublicClient for TACo SDK compatibility
@@ -123,7 +108,7 @@ class ViemTacoProvider implements TacoProvider {
         ? BigInt(transaction.value.toString())
         : undefined,
     });
-    return gas;
+    return ethers.BigNumber.from(gas.toString());
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -191,10 +176,10 @@ class ViemTacoProvider implements TacoProvider {
  * Returns a provider that implements TacoProvider interface with only
  * the methods needed for TACo SDK operations.
  */
-export function createEthersProvider(
+export async function createEthersProvider(
   viemPublicClient: PublicClient,
-): TacoProvider {
-  checkViemAvailability();
+): Promise<TacoProvider> {
+  await checkViemAvailability();
   return new ViemTacoProvider(viemPublicClient);
 }
 
@@ -218,7 +203,7 @@ class ViemTacoSigner implements TacoSigner {
   }
 
   async signMessage(message: string | Uint8Array): Promise<string> {
-    checkViemAvailability();
+    await checkViemAvailability();
     const messageToSign =
       typeof message === 'string' ? message : new TextDecoder().decode(message);
     return await this.viemAccount.signMessage({ message: messageToSign });
@@ -227,7 +212,7 @@ class ViemTacoSigner implements TacoSigner {
   async signTransaction(
     transaction: ethers.providers.TransactionRequest,
   ): Promise<string> {
-    checkViemAvailability();
+    await checkViemAvailability();
     if (!this.viemAccount.signTransaction) {
       throw new Error('Account does not support transaction signing');
     }
@@ -259,7 +244,7 @@ class ViemTacoSigner implements TacoSigner {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     message: Record<string, any>,
   ): Promise<string> {
-    checkViemAvailability();
+    await checkViemAvailability();
     if (!this.viemAccount.signTypedData) {
       throw new Error('Account does not support typed data signing');
     }
@@ -306,11 +291,11 @@ class ViemTacoSigner implements TacoSigner {
  * Returns a signer that implements TacoSigner interface with only
  * the methods needed for TACo SDK operations.
  */
-export function createEthersSigner(
+export async function createEthersSigner(
   viemAccount: Account,
   provider: TacoProvider,
-): TacoSigner {
-  checkViemAvailability();
+): Promise<TacoSigner> {
+  await checkViemAvailability();
   return new ViemTacoSigner(viemAccount, provider);
 }
 
@@ -321,18 +306,18 @@ export function createEthersSigner(
  * @param viemWalletClient - Viem wallet client for signing functionality
  * @returns Object with TACo provider and signer
  */
-export function createEthersFromViem(
+export async function createEthersFromViem(
   viemPublicClient: PublicClient,
   viemWalletClient: WalletClient,
-): { provider: TacoProvider; signer: TacoSigner } {
-  checkViemAvailability();
+): Promise<{ provider: TacoProvider; signer: TacoSigner }> {
+  await checkViemAvailability();
 
   if (!viemWalletClient.account) {
     throw new Error('Wallet client must have an account attached');
   }
 
-  const provider = createEthersProvider(viemPublicClient);
-  const signer = createEthersSigner(viemWalletClient.account, provider);
+  const provider = await createEthersProvider(viemPublicClient);
+  const signer = await createEthersSigner(viemWalletClient.account, provider);
 
   return { provider, signer };
 }

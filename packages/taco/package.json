@@ -54,7 +54,8 @@
     "@types/semver": "^7.7.0",
     "dotenv": "^16.5.0",
     "glob": "^11.0.1",
-    "modified-zod2md": "0.1.5-modified.4"
+    "modified-zod2md": "0.1.5-modified.4",
+    "viem": "^2.0.0"
   },
   "peerDependencies": {
     "viem": "^2.0.0"

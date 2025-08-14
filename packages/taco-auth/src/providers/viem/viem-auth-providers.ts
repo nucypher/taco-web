@@ -45,29 +45,38 @@ export class ViemEIP4361AuthProvider {
   private ethersAuthProvider: EIP4361AuthProvider;
 
   /**
+   * Private constructor - use create() static method instead
+   */
+  private constructor(ethersAuthProvider: EIP4361AuthProvider) {
+    this.ethersAuthProvider = ethersAuthProvider;
+  }
+
+  /**
    * Create a new ViemEIP4361AuthProvider
    *
    * @param viemPublicClient - viem PublicClient for blockchain interactions
    * @param viemAccount - viem Account for signing operations
    * @param options - Optional EIP4361 parameters (domain, uri)
    */
-  constructor(
+  static async create(
     viemPublicClient: PublicClient,
     viemAccount: Account,
     options?: EIP4361AuthProviderParams,
-  ) {
+  ): Promise<ViemEIP4361AuthProvider> {
     // Convert viem objects to ethers objects internally
-    const ethersProvider = createEthersProvider(viemPublicClient);
-    const ethersSigner = createEthersSigner(viemAccount, ethersProvider);
+    const ethersProvider = await createEthersProvider(viemPublicClient);
+    const ethersSigner = await createEthersSigner(viemAccount, ethersProvider);
 
     // Create the underlying ethers auth provider
     // Type assertions are safe here because our TacoProvider/TacoSigner interfaces
     // are designed to be compatible with ethers Provider/Signer interfaces
-    this.ethersAuthProvider = new EIP4361AuthProvider(
+    const ethersAuthProvider = new EIP4361AuthProvider(
       ethersProvider as unknown as ethers.providers.Provider,
       ethersSigner as unknown as ethers.Signer,
       options,
     );
+
+    return new ViemEIP4361AuthProvider(ethersAuthProvider);
   }
 
   /**

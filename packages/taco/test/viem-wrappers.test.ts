@@ -20,7 +20,7 @@ describe('viem wrapper utilities', () => {
   });
 
   describe('createEthersProvider', () => {
-    it('should create a provider from viem client', () => {
+    it('should create a provider from viem client', async () => {
       const mockViemPublicClient = {
         getChainId: vi.fn().mockResolvedValue(80002),
         getBlockNumber: vi.fn().mockResolvedValue(BigInt(1000)),
@@ -31,7 +31,7 @@ describe('viem wrapper utilities', () => {
         getGasPrice: vi.fn().mockResolvedValue(BigInt(20000000000)),
       } as any;
 
-      const provider = createEthersProvider(mockViemPublicClient);
+      const provider = await createEthersProvider(mockViemPublicClient);
 
       expect(provider).toBeDefined();
       expect(provider.getNetwork).toBeDefined();
@@ -44,7 +44,7 @@ describe('viem wrapper utilities', () => {
   });
 
   describe('createEthersSigner', () => {
-    it('should create a signer from viem account', () => {
+    it('should create a signer from viem account', async () => {
       const mockViemAccount = {
         address: '0x742d35Cc6632C0532c718F63b1a8D7d8a7fAd3b2',
         signMessage: vi.fn().mockResolvedValue('0xsignature'),
@@ -55,7 +55,7 @@ describe('viem wrapper utilities', () => {
         getNetwork: vi.fn().mockResolvedValue({ chainId: 80002 }),
       } as any;
 
-      const signer = createEthersSigner(mockViemAccount, mockProvider);
+      const signer = await createEthersSigner(mockViemAccount, mockProvider);
 
       expect(signer).toBeDefined();
       expect(signer.getAddress).toBeDefined();
@@ -66,7 +66,7 @@ describe('viem wrapper utilities', () => {
   });
 
   describe('createEthersFromViem', () => {
-    it('should create both provider and signer', () => {
+    it('should create both provider and signer', async () => {
       const mockViemPublicClient = {
         getChainId: vi.fn().mockResolvedValue(80002),
         getBlockNumber: vi.fn().mockResolvedValue(BigInt(1000)),
@@ -86,7 +86,7 @@ describe('viem wrapper utilities', () => {
         account: mockViemAccount,
       } as any;
 
-      const { provider, signer } = createEthersFromViem(
+      const { provider, signer } = await createEthersFromViem(
         mockViemPublicClient,
         mockViemWalletClient,
       );
@@ -96,15 +96,15 @@ describe('viem wrapper utilities', () => {
       expect(signer.provider).toBe(provider);
     });
 
-    it('should throw error when wallet client has no account', () => {
+    it('should throw error when wallet client has no account', async () => {
       const mockViemPublicClient = {} as any;
       const mockViemWalletClient = {
         account: undefined,
       } as any;
 
-      expect(() =>
-        createEthersFromViem(mockViemPublicClient, mockViemWalletClient),
-      ).toThrow('Wallet client must have an account attached');
+      await expect(
+        createEthersFromViem(mockViemPublicClient, mockViemWalletClient)
+      ).rejects.toThrow('Wallet client must have an account attached');
     });
   });
 

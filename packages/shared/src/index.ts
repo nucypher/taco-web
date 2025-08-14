@@ -3,6 +3,7 @@ export * from './porter';
 export * from './schemas';
 export type * from './types';
 export * from './utils';
+export * from './viem-utils';
 export * from './web3';
 
 // Re-exports

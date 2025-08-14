@@ -64,8 +64,8 @@ export const encryptWithViem = async (
   viemAuthSigner: Account,
 ): Promise<ThresholdMessageKit> => {
   // Create TACo-compatible provider and signer from viem objects
-  const tacoProvider = createEthersProvider(viemPublicClient);
-  const tacoSigner = createEthersSigner(viemAuthSigner, tacoProvider);
+  const tacoProvider = await createEthersProvider(viemPublicClient);
+  const tacoSigner = await createEthersSigner(viemAuthSigner, tacoProvider);
 
   // Use the existing ethers-based encrypt function with type assertions
   // Our interfaces provide all the methods that the TACo SDK actually uses
@@ -124,7 +124,7 @@ export const decryptWithViem = async (
   porterUris?: string[],
 ): Promise<Uint8Array> => {
   // Create TACo-compatible provider from viem object
-  const tacoProvider = createEthersProvider(viemPublicClient);
+  const tacoProvider = await createEthersProvider(viemPublicClient);
 
   // Use the existing ethers-based decrypt function with type assertion
   // Our interface provides all the methods that the TACo SDK actually uses

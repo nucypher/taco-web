@@ -1,25 +1,11 @@
+import {
+  type Account,
+  checkViemAvailability,
+  type PublicClient,
+} from '@nucypher/shared';
 import { ethers } from 'ethers';
 
 import { TacoAuthProvider, TacoAuthSigner } from './base-interfaces';
-
-// Dynamic imports and types for viem compatibility
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type PublicClient = any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Account = any;
-
-/**
- * Check if viem is available and throw helpful error if not
- */
-async function checkViemAvailability(): Promise<void> {
-  try {
-    await import('viem');
-  } catch (error) {
-    throw new Error(
-      'viem is required for viem wrapper functions. Install it with: npm install viem',
-    );
-  }
-}
 
 /**
  * A minimal provider that wraps viem PublicClient for auth provider compatibility
@@ -232,7 +218,7 @@ class ViemAuthSigner implements TacoAuthSigner {
   }
 
   async signMessage(message: string | Uint8Array): Promise<string> {
-    checkViemAvailability();
+    await checkViemAvailability();
     // Convert message to hex if it's Uint8Array
     const messageToSign =
       typeof message === 'string' ? message : ethers.utils.hexlify(message);
@@ -242,7 +228,7 @@ class ViemAuthSigner implements TacoAuthSigner {
   // Additional method needed for EIP4361 auth (signTypedData for SIWE)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async signTypedData(domain: any, types: any, message: any): Promise<string> {
-    checkViemAvailability();
+    await checkViemAvailability();
     return await this.viemAccount.signTypedData({
       domain,
       types,
@@ -256,7 +242,7 @@ class ViemAuthSigner implements TacoAuthSigner {
   async signTransaction(
     transaction: ethers.providers.TransactionRequest,
   ): Promise<string> {
-    checkViemAvailability();
+    await checkViemAvailability();
     // Convert ethers transaction format to viem format
     const viemTransaction = {
       to: transaction.to as `0x${string}`,
@@ -312,8 +298,8 @@ class ViemAuthSigner implements TacoAuthSigner {
  * Returns a provider that implements TacoAuthProvider interface with only
  * the methods needed for TACo authentication providers.
  */
-export function createEthersProvider(viemPublicClient: PublicClient) {
-  checkViemAvailability();
+export async function createEthersProvider(viemPublicClient: PublicClient) {
+  await checkViemAvailability();
   return new ViemAuthProvider(viemPublicClient) as unknown as TacoAuthProvider;
 }
 
@@ -323,10 +309,10 @@ export function createEthersProvider(viemPublicClient: PublicClient) {
  * Returns a signer that implements TacoAuthSigner interface with only
  * the methods needed for TACo authentication providers.
  */
-export function createEthersSigner(
+export async function createEthersSigner(
   viemAccount: Account,
   provider: TacoAuthProvider,
 ) {
-  checkViemAvailability();
+  await checkViemAvailability();
   return new ViemAuthSigner(viemAccount, provider) as unknown as TacoAuthSigner;
 }

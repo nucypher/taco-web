@@ -60,6 +60,14 @@
     "standard-version": "^9.5.0",
     "typechain": "^8.3.2"
   },
+  "peerDependencies": {
+    "viem": "^2.0.0"
+  },
+  "peerDependenciesMeta": {
+    "viem": {
+      "optional": true
+    }
+  },
   "engines": {
     "node": ">=18",
     "pnpm": ">=8.0.0"

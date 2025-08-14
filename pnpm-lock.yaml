@@ -530,6 +530,9 @@ importers:
       qs:
         specifier: ^6.14.0
         version: 6.14.0
+      viem:
+        specifier: ^2.0.0
+        version: 2.33.3(bufferutil@4.0.9)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.24.2)
       zod:
         specifier: ^3.24.2
         version: 3.24.2
@@ -579,9 +582,6 @@ importers:
       semver:
         specifier: ^7.7.1
         version: 7.7.1
-      viem:
-        specifier: ^2.0.0
-        version: 2.33.3(bufferutil@4.0.9)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.24.2)
       zod:
         specifier: ^3.24.2
         version: 3.24.2
@@ -601,6 +601,9 @@ importers:
       modified-zod2md:
         specifier: 0.1.5-modified.4
         version: 0.1.5-modified.4(zod@3.24.2)
+      viem:
+        specifier: ^2.0.0
+        version: 2.33.3(bufferutil@4.0.9)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.24.2)
 
   packages/taco-auth:
     dependencies:

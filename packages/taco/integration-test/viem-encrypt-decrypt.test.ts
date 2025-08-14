@@ -118,8 +118,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
           USER_ADDRESS_PARAM_DEFAULT,
         )
       ) {
-        // Use the new ViemEIP4361AuthProvider - no manual conversion needed!
-        const viemAuthProvider = new ViemEIP4361AuthProvider(
+        const viemAuthProvider = await ViemEIP4361AuthProvider.create(
           viemPublicClient,
           consumerAccount,
         );
@@ -179,12 +178,11 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
 
       // Add auth provider using ViemEIP4361AuthProvider
-      const viemAuthProvider = new ViemEIP4361AuthProvider(
+      const viemAuthProvider = await ViemEIP4361AuthProvider.create(
         viemPublicClient,
         consumerAccount,
       );
 
-      // Get the ethers-compatible auth provider for context
       const ethersAuthProvider = viemAuthProvider.ethersProvider;
       conditionContext.addAuthProvider(
         USER_ADDRESS_PARAM_DEFAULT,
@@ -243,7 +241,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
 
       // Add auth provider using ViemEIP4361AuthProvider with different client
-      const viemAuthProvider = new ViemEIP4361AuthProvider(
+      const viemAuthProvider = await ViemEIP4361AuthProvider.create(
         anotherViemPublicClient,
         consumerAccount,
       );

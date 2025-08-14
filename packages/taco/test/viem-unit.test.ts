@@ -100,13 +100,13 @@ describe('viem unit tests', () => {
           await import('../src/wrappers/viem-wrappers'),
           'createEthersProvider',
         )
-        .mockReturnValue(mockEthersProvider);
+        .mockResolvedValue(mockEthersProvider);
       const createEthersSignerSpy = vi
         .spyOn(
           await import('../src/wrappers/viem-wrappers'),
           'createEthersSigner',
         )
-        .mockReturnValue(typedSigner);
+        .mockResolvedValue(typedSigner);
 
       const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);
 

@@ -94,13 +94,18 @@ describe('viem unit tests', () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any;
 
-      // Mock the adapter functions to return ethers objects
+      const mockViemProvider = {
+        ...fakeProvider(aliceSecretKeyBytes),
+        viemPublicClient: mockViemPublicClient, // Add the required viem property
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any;
+
       const createEthersProviderSpy = vi
         .spyOn(
           await import('../src/wrappers/viem-wrappers'),
           'createEthersProvider',
         )
-        .mockResolvedValue(mockEthersProvider);
+        .mockResolvedValue(mockViemProvider);
       const createEthersSignerSpy = vi
         .spyOn(
           await import('../src/wrappers/viem-wrappers'),
@@ -125,7 +130,7 @@ describe('viem unit tests', () => {
       );
       expect(createEthersSignerSpy).toHaveBeenCalledWith(
         mockViemAccount,
-        mockEthersProvider,
+        mockViemProvider,
       );
       expect(getFinalizedRitualSpy).toHaveBeenCalled();
       expect(messageKit).toBeDefined();
@@ -155,7 +160,7 @@ describe('viem unit tests', () => {
       const getRitualSpy = mockGetActiveRitual(mockedDkgRitual);
 
       const authProvider = new tacoAuth.EIP4361AuthProvider(
-        mockEthersProvider,
+        mockViemProvider,
         typedSigner,
         TEST_SIWE_PARAMS,
       );

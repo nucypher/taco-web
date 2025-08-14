@@ -6,9 +6,6 @@ import {
   ViemSignerBase,
   type WalletClient,
 } from '@nucypher/shared';
-import { ethers } from 'ethers';
-
-import { TacoProvider, TacoSigner } from './base-interfaces';
 
 /**
  * A provider that wraps viem PublicClient for TACo SDK compatibility
@@ -16,23 +13,10 @@ import { TacoProvider, TacoSigner } from './base-interfaces';
  * This class extends ViemProviderBase and adds ethers.js specific formatting
  * for the TACo SDK requirements.
  */
-class ViemTacoProvider extends ViemProviderBase implements TacoProvider {
-  // Override network type for ethers compatibility
-  override readonly _network: Promise<ethers.providers.Network>;
-  override readonly _networkPromise?: Promise<ethers.providers.Network>;
-
+class ViemTacoProvider extends ViemProviderBase {
   constructor(viemPublicClient: PublicClient) {
     super(viemPublicClient);
-    // Initialize network for ethers compatibility with correct type
-    this._network = this.getNetwork();
-    this._networkPromise = this._network;
   }
-
-  override async getNetwork(): Promise<ethers.providers.Network> {
-    return await this.getEthersNetwork();
-  }
-
-  // Base class now handles ethers.BigNumber conversion and common methods directly
 }
 
 /**
@@ -43,7 +27,7 @@ class ViemTacoProvider extends ViemProviderBase implements TacoProvider {
  */
 export async function createEthersProvider(
   viemPublicClient: PublicClient,
-): Promise<TacoProvider> {
+): Promise<ViemProviderBase> {
   await checkViemAvailability();
   return new ViemTacoProvider(viemPublicClient);
 }
@@ -54,15 +38,12 @@ export async function createEthersProvider(
  * This class extends ViemSignerBase and adds ethers.js specific formatting
  * for the TACo SDK requirements.
  */
-class ViemTacoSigner extends ViemSignerBase implements TacoSigner {
-  public override readonly provider: TacoProvider;
-
-  constructor(viemAccount: Account, provider: TacoProvider) {
+class ViemTacoSigner extends ViemSignerBase {
+  constructor(viemAccount: Account, provider: ViemProviderBase) {
     super(viemAccount, provider);
-    this.provider = provider;
   }
 
-  connect(provider: TacoProvider): TacoSigner {
+  connect(provider: ViemProviderBase): ViemSignerBase {
     return new ViemTacoSigner(this.viemAccount, provider);
   }
 }
@@ -75,8 +56,8 @@ class ViemTacoSigner extends ViemSignerBase implements TacoSigner {
  */
 export async function createEthersSigner(
   viemAccount: Account,
-  provider: TacoProvider,
-): Promise<TacoSigner> {
+  provider: ViemProviderBase,
+): Promise<ViemSignerBase> {
   await checkViemAvailability();
   return new ViemTacoSigner(viemAccount, provider);
 }
@@ -91,7 +72,7 @@ export async function createEthersSigner(
 export async function createEthersFromViem(
   viemPublicClient: PublicClient,
   viemWalletClient: WalletClient,
-): Promise<{ provider: TacoProvider; signer: TacoSigner }> {
+): Promise<{ provider: ViemProviderBase; signer: ViemSignerBase }> {
   await checkViemAvailability();
 
   if (!viemWalletClient.account) {

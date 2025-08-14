@@ -113,7 +113,6 @@ export const encryptWithViem = async (
  *   context
  * );
  *
-
  * ```
  */
 

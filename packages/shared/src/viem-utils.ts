@@ -96,31 +96,17 @@ export abstract class ViemProviderBase {
 
   // Ethers.js compatibility properties for contract validation
   readonly _isProvider: boolean = true;
-  readonly _network: Promise<{ name: string; chainId: number }>;
+  readonly _network: Promise<ethers.providers.Network>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly formatter?: any = undefined;
-  readonly _networkPromise?: Promise<{ name: string; chainId: number }>;
 
   constructor(viemPublicClient: PublicClient) {
     this.viemPublicClient = viemPublicClient;
     // Initialize network for ethers compatibility
     this._network = this.getNetwork();
-    this._networkPromise = this._network;
   }
 
-  async getNetwork(): Promise<{ name: string; chainId: number }> {
-    const chainId = await this.viemPublicClient.getChainId();
-    return {
-      name: this.viemPublicClient.chain?.name || `chain-${chainId}`,
-      chainId,
-    };
-  }
-
-  /**
-   * Get network information in ethers.providers.Network format
-   * This is a common method used by both taco and taco-auth providers
-   */
-  async getEthersNetwork(): Promise<ethers.providers.Network> {
+  async getNetwork(): Promise<ethers.providers.Network> {
     const chainId = await this.viemPublicClient.getChainId();
     const name = this.viemPublicClient.chain?.name || `chain-${chainId}`;
     return {
@@ -256,8 +242,7 @@ export abstract class ViemProviderBase {
   async getFeeData(): Promise<ethers.providers.FeeData> {
     const feeData = await this.viemPublicClient.getFeeHistory({
       blockCount: 4,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      blockNumber: 'latest' as any,
+      blockNumber: 'latest' as const,
       rewardPercentiles: [25, 50, 75],
     });
     // Use the latest base fee and priority fee
@@ -279,8 +264,7 @@ export abstract class ViemProviderBase {
   async resolveName(name: string): Promise<string | null> {
     try {
       return await this.viemPublicClient.getEnsAddress({
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        name: name as any,
+        name: name as string,
       });
     } catch {
       return null;
@@ -299,18 +283,16 @@ export abstract class ViemProviderBase {
 }
 
 /**
- * Base signer class that implements common viem-to-ethers signer wrapper functionality
+ * Base class for signers that wrap viem Account objects
  *
  * This class contains all the shared implementation logic between taco and taco-auth packages.
  * Package-specific signer classes can extend this to add additional methods.
  */
 export abstract class ViemSignerBase {
   protected viemAccount: Account;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public readonly provider: any;
+  public readonly provider: ViemProviderBase;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(viemAccount: Account, provider: any) {
+  constructor(viemAccount: Account, provider: ViemProviderBase) {
     this.viemAccount = viemAccount;
     this.provider = provider;
   }

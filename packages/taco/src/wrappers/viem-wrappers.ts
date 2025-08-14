@@ -268,8 +268,13 @@ class ViemTacoSigner implements TacoSigner {
     return await this.provider.getBalance(this.viemAccount.address, blockTag);
   }
 
-  async getTransactionCount(): Promise<number> {
-    return await this.provider.getTransactionCount(this.viemAccount.address);
+  async getTransactionCount(
+    blockTag?: ethers.providers.BlockTag,
+  ): Promise<number> {
+    return await this.provider.getTransactionCount(
+      this.viemAccount.address,
+      blockTag,
+    );
   }
 
   async estimateGas(

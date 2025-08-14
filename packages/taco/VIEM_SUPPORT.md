@@ -116,39 +116,44 @@ const publicClient = createPublicClient({
 });
 const account = privateKeyToAccount('0x...');
 
-const authProvider = new ViemEIP4361AuthProvider(
+const authProvider = await ViemEIP4361AuthProvider.create(
   publicClient,
   account,
   {
     domain: 'my-app.com',
-    uri: 'https://my-app.com'
-  }
+    uri: 'https://my-app.com',
+  },
 );
 
 const authSignature = await authProvider.getOrCreateAuthSignature();
 ```
 
 **Parameters:**
+
 - `viemPublicClient`: `PublicClient` - Viem public client for network operations
 - `viemAccount`: `Account` - Viem account for signing
 - `options?`: `EIP4361AuthProviderParams` - Optional domain and URI for EIP-4361 messages
 
 **Methods:**
+
 - `getOrCreateAuthSignature()`: Returns authentication signature for TACo operations
 - `ethersProvider`: Getter for underlying ethers-compatible auth provider
 
 ## Package Architecture
 
 ### @nucypher/taco
+
 - **Purpose**: Core encryption and decryption functionality
 - **Viem Functions**: `encryptWithViem()`, `decryptWithViem()`
 - **Dependencies**: Only viem functions for encryption operations
 
 ### @nucypher/taco-auth
+
 - **Purpose**: Authentication providers and signing utilities
 - **Viem Functions**: `ViemEIP4361AuthProvider`
 - **Dependencies**: Viem authentication and EIP-4361 signing
 
 This separation follows clean architecture principles - use the appropriate package based on your needs:
+
 - **Encryption only**: Install `@nucypher/taco` + `viem`
 - **Authentication required**: Install both `@nucypher/taco` + `@nucypher/taco-auth` + `viem`

@@ -64,6 +64,45 @@ const decryptedMessage = await decrypt(
 );
 ```
 
+## Viem Support
+
+The TACo SDK also supports [viem](https://viem.sh) as an alternative to ethers.js:
+
+```bash
+$ yarn add @nucypher/taco viem
+```
+
+```typescript
+import { encryptWithViem, decryptWithViem } from '@nucypher/taco';
+import { createPublicClient, http } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+
+const viemClient = createPublicClient({
+  chain: polygonAmoy,
+  transport: http(),
+});
+const viemAccount = privateKeyToAccount('0x...');
+
+// Encrypt with viem
+const messageKit = await encryptWithViem(
+  viemClient,
+  'testnet',
+  'my secret message',
+  ownsNFT,
+  ritualId,
+  viemAccount,
+);
+
+// Decrypt with viem
+const decryptedMessage = await decryptWithViem(
+  viemClient,
+  'testnet',
+  messageKit,
+);
+```
+
+For detailed viem documentation, see [VIEM_SUPPORT.md](./VIEM_SUPPORT.md).
+
 ## Learn more
 
 Please find developer documentation for

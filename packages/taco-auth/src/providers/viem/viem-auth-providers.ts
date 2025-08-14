@@ -19,6 +19,9 @@ type PublicClient = any;
  * This class provides a clean viem-native API for EIP4361 authentication
  * while internally handling the conversion to ethers.js objects that the
  * underlying EIP4361AuthProvider expects.
+ * 
+ * **Note**: This class uses a static factory method pattern for async
+ * initialization. Use `ViemEIP4361AuthProvider.create()` instead of `new`.
  *
  * @example
  * ```typescript
@@ -32,7 +35,7 @@ type PublicClient = any;
  * });
  * const account = privateKeyToAccount('0x...');
  *
- * const authProvider = new ViemEIP4361AuthProvider(
+ * const authProvider = await ViemEIP4361AuthProvider.create(
  *   publicClient,
  *   account,
  *   { domain: 'my-app.com', uri: 'https://my-app.com' }

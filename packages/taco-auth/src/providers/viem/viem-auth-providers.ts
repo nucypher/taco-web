@@ -1,3 +1,4 @@
+import { type Account, type PublicClient } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
 import {
@@ -9,12 +10,6 @@ import {
   createTacoCompatibleProvider,
   createTacoCompatibleSigner,
 } from './viem-adapters';
-
-// Dynamic viem types (available only when viem is installed)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Account = any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type PublicClient = any;
 
 /**
  * Viem-compatible EIP4361 authentication provider.

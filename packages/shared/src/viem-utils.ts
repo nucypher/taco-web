@@ -80,7 +80,7 @@ export async function checkViemAvailability(): Promise<void> {
     isViemAvailable = true;
   } catch (error) {
     throw new Error(
-      'viem is required for viem wrapper functions. Install it with: npm install viem',
+      'viem is required for viem wrapper functions. Install it with: npm install viem@^2.0.0',
     );
   }
 }

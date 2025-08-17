@@ -1,12 +1,6 @@
 import { ThresholdMessageKit } from '@nucypher/nucypher-core';
-import { Domain } from '@nucypher/shared';
+import { type Account, Domain, type PublicClient } from '@nucypher/shared';
 import { ethers } from 'ethers';
-
-// Dynamic viem types (available only when viem is installed)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Account = any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type PublicClient = any;
 
 import { Condition } from './conditions/condition';
 import { ConditionContext } from './conditions/context';

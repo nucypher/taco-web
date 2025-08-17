@@ -1,6 +1,6 @@
 // Viem adapter utilities
 export {
   createEthersFromViem,
-  createEthersProvider,
-  createEthersSigner,
-} from './viem-wrappers';
+  createTacoCompatibleProvider,
+  createTacoCompatibleSigner,
+} from './viem-adapters';

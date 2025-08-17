@@ -25,7 +25,7 @@ class ViemTacoProvider extends ViemProviderBase {
  * Returns a provider that implements TacoProvider interface with only
  * the methods needed for TACo SDK operations.
  */
-export async function createEthersProvider(
+export async function createTacoCompatibleProvider(
   viemPublicClient: PublicClient,
 ): Promise<ViemProviderBase> {
   await checkViemAvailability();
@@ -54,7 +54,7 @@ class ViemTacoSigner extends ViemSignerBase {
  * Returns a signer that implements TacoSigner interface with only
  * the methods needed for TACo SDK operations.
  */
-export async function createEthersSigner(
+export async function createTacoCompatibleSigner(
   viemAccount: Account,
   provider: ViemProviderBase,
 ): Promise<ViemSignerBase> {
@@ -79,8 +79,8 @@ export async function createEthersFromViem(
     throw new Error('Wallet client must have an account attached');
   }
 
-  const provider = await createEthersProvider(viemPublicClient);
-  const signer = await createEthersSigner(viemWalletClient.account, provider);
+  const provider = await createTacoCompatibleProvider(viemPublicClient);
+  const signer = await createTacoCompatibleSigner(viemWalletClient.account, provider);
 
   return { provider, signer };
 }

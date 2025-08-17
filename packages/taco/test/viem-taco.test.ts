@@ -21,11 +21,7 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { conditions, domains, toBytes } from '../src';
 import { ConditionContext } from '../src/conditions/context';
 import { decryptWithViem, encryptWithViem } from '../src/viem-taco';
-import {
-  createEthersFromViem,
-  createEthersProvider,
-  createEthersSigner,
-} from '../src/wrappers/viem-wrappers';
+
 
 import {
   fakeDkgRitual,
@@ -43,27 +39,21 @@ const ownsNFT = new conditions.predefined.erc721.ERC721Ownership({
   chain: TEST_CHAIN_ID,
 });
 
-describe('viem unit tests', () => {
+describe('viem TACo integration', () => {
   beforeAll(async () => {
     await initialize();
   });
 
-  describe('viem availability checks', () => {
-    it('should check if viem functions are exported', () => {
+  describe('viem TACo functions', () => {
+    it('should export viem TACo integration functions', () => {
       expect(encryptWithViem).toBeDefined();
       expect(decryptWithViem).toBeDefined();
       expect(typeof encryptWithViem).toBe('function');
       expect(typeof decryptWithViem).toBe('function');
     });
-
-    it('should check if wrapper functions exist', () => {
-      expect(createEthersProvider).toBeDefined();
-      expect(createEthersSigner).toBeDefined();
-      expect(createEthersFromViem).toBeDefined();
-    });
   });
 
-  describe('viem encrypt/decrypt with mocked adapters', () => {
+  describe('TACo encryption workflow', () => {
     it('encrypts and decrypts using viem functions', async () => {
       const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
       const mockedDkgRitual = fakeDkgRitual(mockedDkg);
@@ -100,16 +90,16 @@ describe('viem unit tests', () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any;
 
-      const createEthersProviderSpy = vi
+      const createTacoCompatibleProviderSpy = vi
         .spyOn(
-          await import('../src/wrappers/viem-wrappers'),
-          'createEthersProvider',
+          await import('../src/wrappers/viem-adapters'),
+          'createTacoCompatibleProvider',
         )
         .mockResolvedValue(mockViemProvider);
-      const createEthersSignerSpy = vi
+      const createTacoCompatibleSignerSpy = vi
         .spyOn(
-          await import('../src/wrappers/viem-wrappers'),
-          'createEthersSigner',
+          await import('../src/wrappers/viem-adapters'),
+          'createTacoCompatibleSigner',
         )
         .mockResolvedValue(typedSigner);
 
@@ -125,10 +115,10 @@ describe('viem unit tests', () => {
         mockViemAccount,
       );
 
-      expect(createEthersProviderSpy).toHaveBeenCalledWith(
+      expect(createTacoCompatibleProviderSpy).toHaveBeenCalledWith(
         mockViemPublicClient,
       );
-      expect(createEthersSignerSpy).toHaveBeenCalledWith(
+      expect(createTacoCompatibleSignerSpy).toHaveBeenCalledWith(
         mockViemAccount,
         mockViemProvider,
       );
@@ -188,8 +178,8 @@ describe('viem unit tests', () => {
       expect(decryptSpy).toHaveBeenCalled();
 
       // Clean up spies
-      createEthersProviderSpy.mockRestore();
-      createEthersSignerSpy.mockRestore();
+      createTacoCompatibleProviderSpy.mockRestore();
+      createTacoCompatibleSignerSpy.mockRestore();
     });
 
     it('decrypts without optional parameters', async () => {

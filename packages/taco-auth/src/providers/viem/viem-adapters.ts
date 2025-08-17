@@ -7,10 +7,7 @@ import {
 } from '@nucypher/shared';
 
 /**
- * A minimal provider that wraps viem PublicClient for auth provider compatibility
- *
- * This class extends ViemProviderBase and adds ethers.js specific formatting
- * for TACo authentication providers.
+ * Minimal provider implementation for auth providers
  */
 class ViemAuthProvider extends ViemProviderBase {
   constructor(viemPublicClient: PublicClient) {
@@ -19,10 +16,7 @@ class ViemAuthProvider extends ViemProviderBase {
 }
 
 /**
- * A signer that wraps viem Account for auth provider compatibility
- *
- * This class extends ViemSignerBase and adds ethers.js specific formatting
- * for TACo authentication providers.
+ * Minimal signer implementation for auth providers  
  */
 class ViemAuthSigner extends ViemSignerBase {
   constructor(viemAccount: Account, provider: ViemProviderBase) {
@@ -40,7 +34,7 @@ class ViemAuthSigner extends ViemSignerBase {
  * Returns a provider based on ViemProviderBase with all
  * the methods needed for TACo authentication providers.
  */
-export async function createEthersProvider(
+export async function createTacoCompatibleProvider(
   viemPublicClient: PublicClient,
 ): Promise<ViemProviderBase> {
   await checkViemAvailability();
@@ -53,7 +47,7 @@ export async function createEthersProvider(
  * Returns a signer based on ViemSignerBase with all
  * the methods needed for TACo authentication providers.
  */
-export async function createEthersSigner(
+export async function createTacoCompatibleSigner(
   viemAccount: Account,
   provider: ViemProviderBase,
 ): Promise<ViemSignerBase> {

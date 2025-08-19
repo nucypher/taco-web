@@ -23,30 +23,89 @@
 
 import { ethers } from 'ethers';
 
-// Dynamic type definitions for viem objects
-// Using 'any' types to avoid compile-time viem dependency
-// These will be properly typed when viem is actually imported
+// Type helper: Use the real type from 'viem' if available, otherwise fallback to 'any'
+// This pattern preserves type safety for consumers who have 'viem' installed, but does not break for others.
+// See: https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1367016530
+// Dynamic imports resolve to 'unknown' when module is not available, no compile-time errors occur
+type _ViemPublicClient = import('viem').PublicClient;
+type _ViemAccount = import('viem').Account;
+type _ViemWalletClient = import('viem').WalletClient;
+type _ViemBlock = import('viem').Block;
+type _ViemTransaction = import('viem').Transaction;
+type _ViemTransactionReceipt = import('viem').TransactionReceipt;
+type _ViemTypedDataDomain = import('viem').TypedDataDomain;
+type _ViemTypedDataParameter = import('viem').TypedDataParameter;
+type _ViemTransactionRequest = import('viem').TransactionRequest;
 
 /**
  * Viem PublicClient type for read operations
  * @see https://viem.sh/docs/clients/public
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type PublicClient = any;
-
+export type PublicClient = [unknown] extends [_ViemPublicClient]
+  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any
+  : _ViemPublicClient;
 /**
  * Viem Account type for signing operations
  * @see https://viem.sh/docs/accounts/privateKey
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Account = any;
+export type Account = [unknown] extends [_ViemAccount] ? any : _ViemAccount;
 
 /**
  * Viem WalletClient type for wallet operations
  * @see https://viem.sh/docs/clients/wallet
  */
+export type WalletClient = [unknown] extends [_ViemWalletClient]
+  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any
+  : _ViemWalletClient;
+
+/**
+ * Viem Block type for block operations
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type WalletClient = any;
+export type ViemBlock = [unknown] extends [_ViemBlock] ? any : _ViemBlock;
+
+/**
+ * Viem Transaction type for transaction operations
+ */
+export type ViemTransaction = [unknown] extends [_ViemTransaction]
+  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any
+  : _ViemTransaction;
+
+/**
+ * Viem TransactionReceipt type for transaction receipt operations
+ */
+export type ViemTransactionReceipt = [unknown] extends [_ViemTransactionReceipt]
+  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any
+  : _ViemTransactionReceipt;
+
+/**
+ * Viem TypedDataDomain type for EIP-712 domain
+ */
+export type ViemTypedDataDomain = [unknown] extends [_ViemTypedDataDomain]
+  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any
+  : _ViemTypedDataDomain;
+
+/**
+ * Viem TypedDataParameter type for EIP-712 parameters
+ */
+export type ViemTypedDataParameter = [unknown] extends [_ViemTypedDataParameter]
+  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any
+  : _ViemTypedDataParameter;
+
+/**
+ * Viem TransactionRequest type for transaction requests
+ */
+export type ViemTransactionRequest = [unknown] extends [_ViemTransactionRequest]
+  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any
+  : _ViemTransactionRequest;
 
 // Internal state for tracking viem availability
 let isViemAvailable = false;
@@ -97,8 +156,7 @@ export abstract class ViemProviderBase {
   // Ethers.js compatibility properties for contract validation
   readonly _isProvider: boolean = true;
   readonly _network: Promise<ethers.providers.Network>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  readonly formatter?: any = undefined;
+  readonly formatter?: undefined = undefined;
 
   constructor(viemPublicClient: PublicClient) {
     this.viemPublicClient = viemPublicClient;
@@ -123,22 +181,36 @@ export abstract class ViemProviderBase {
     address: string,
     blockTag?: string | number,
   ): Promise<ethers.BigNumber> {
-    let block: bigint | 'latest' | 'pending' | undefined;
-    if (blockTag === 'latest' || blockTag === 'pending') {
-      block = blockTag;
-    } else if (typeof blockTag === 'number') {
-      block = BigInt(blockTag);
-    } else if (typeof blockTag === 'string') {
-      // Handle hex block numbers
-      block = BigInt(blockTag);
-    } else {
-      block = undefined; // Latest
-    }
+    const address_0x = address as `0x${string}`;
+    let balance: bigint;
 
-    const balance = await this.viemPublicClient.getBalance({
-      address: address as `0x${string}`,
-      blockNumber: block,
-    });
+    if (
+      blockTag === 'latest' ||
+      blockTag === 'pending' ||
+      blockTag === 'earliest' ||
+      blockTag === 'safe' ||
+      blockTag === 'finalized'
+    ) {
+      // Use blockTag for predefined string values
+      balance = await this.viemPublicClient.getBalance({
+        address: address_0x,
+        blockTag: blockTag,
+      });
+    } else if (
+      typeof blockTag === 'number' ||
+      (typeof blockTag === 'string' && blockTag.startsWith('0x'))
+    ) {
+      // Use blockNumber for hex string values
+      balance = await this.viemPublicClient.getBalance({
+        address: address_0x,
+        blockNumber: BigInt(blockTag),
+      });
+    } else {
+      // Default case (undefined or unrecognized) - use latest
+      balance = await this.viemPublicClient.getBalance({
+        address: address_0x,
+      });
+    }
     return ethers.BigNumber.from(balance.toString());
   }
 
@@ -156,16 +228,14 @@ export abstract class ViemProviderBase {
     address: string,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _blockTag?: string | number,
-  ): Promise<string> {
+  ): Promise<`0x${string}` | undefined> {
     return await this.viemPublicClient.getCode({
       address: address as `0x${string}`,
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async call(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    transaction: any,
+    transaction: ethers.providers.TransactionRequest,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _blockTag?: string | number,
   ): Promise<string> {
@@ -202,8 +272,7 @@ export abstract class ViemProviderBase {
     return ethers.BigNumber.from(gasPrice.toString());
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async getBlock(blockHashOrBlockTag: string | number): Promise<any> {
+  async getBlock(blockHashOrBlockTag: string | number): Promise<ViemBlock> {
     if (
       typeof blockHashOrBlockTag === 'string' &&
       blockHashOrBlockTag.startsWith('0x')
@@ -218,22 +287,23 @@ export abstract class ViemProviderBase {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async getTransaction(transactionHash: string): Promise<any> {
+  async getTransaction(transactionHash: string): Promise<ViemTransaction> {
     return await this.viemPublicClient.getTransaction({
       hash: transactionHash as `0x${string}`,
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async getTransactionReceipt(transactionHash: string): Promise<any> {
+  async getTransactionReceipt(
+    transactionHash: string,
+  ): Promise<ViemTransactionReceipt> {
     return await this.viemPublicClient.getTransactionReceipt({
       hash: transactionHash as `0x${string}`,
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async waitForTransaction(transactionHash: string): Promise<any> {
+  async waitForTransaction(
+    transactionHash: string,
+  ): Promise<ViemTransactionReceipt> {
     return await this.viemPublicClient.waitForTransactionReceipt({
       hash: transactionHash as `0x${string}`,
     });
@@ -242,7 +312,7 @@ export abstract class ViemProviderBase {
   async getFeeData(): Promise<ethers.providers.FeeData> {
     const feeData = await this.viemPublicClient.getFeeHistory({
       blockCount: 4,
-      blockNumber: 'latest' as const,
+      blockTag: 'latest' as const,
       rewardPercentiles: [25, 50, 75],
     });
     // Use the latest base fee and priority fee
@@ -303,6 +373,9 @@ export abstract class ViemSignerBase {
 
   async signMessage(message: string | Uint8Array): Promise<string> {
     await checkViemAvailability();
+    if (!this.viemAccount.signMessage) {
+      throw new Error('Account does not support message signing');
+    }
     // Convert message to hex if it's Uint8Array for compatibility
     const messageToSign =
       typeof message === 'string' ? message : ethers.utils.hexlify(message);
@@ -329,14 +402,10 @@ export abstract class ViemSignerBase {
     return await this.provider.call(transaction);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async signTypedData(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    domain: any,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    types: Record<string, any>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    message: Record<string, any>,
+    domain: ViemTypedDataDomain,
+    types: Record<string, readonly ViemTypedDataParameter[]>,
+    message: Record<string, unknown>,
   ): Promise<string> {
     await checkViemAvailability();
     if (!this.viemAccount.signTypedData) {
@@ -352,18 +421,15 @@ export abstract class ViemSignerBase {
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async signTransaction(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    transaction: any,
+    transaction: ethers.providers.TransactionRequest,
   ): Promise<string> {
     await checkViemAvailability();
     if (!this.viemAccount.signTransaction) {
       throw new Error('Account does not support transaction signing');
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const viemTx: any = {
+    const viemTx = {
       to: transaction.to as `0x${string}`,
       value: transaction.value
         ? BigInt(transaction.value.toString())
@@ -376,7 +442,7 @@ export abstract class ViemSignerBase {
         ? BigInt(transaction.gasPrice.toString())
         : undefined,
       nonce: transaction.nonce ? Number(transaction.nonce) : undefined,
-    };
+    } as const;
 
     return await this.viemAccount.signTransaction(viemTx);
   }

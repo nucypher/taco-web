@@ -5,7 +5,10 @@ import { ethers } from 'ethers';
 import { Condition } from './conditions/condition';
 import { ConditionContext } from './conditions/context';
 import { decrypt as ethersDecrypt, encrypt as ethersEncrypt } from './taco';
-import { createTacoCompatibleProvider, createTacoCompatibleSigner } from './wrappers';
+import {
+  createTacoCompatibleProvider,
+  createTacoCompatibleSigner,
+} from './wrappers';
 
 /**
  * Encrypts a message under given conditions using viem clients.
@@ -59,7 +62,10 @@ export const encryptWithViem = async (
 ): Promise<ThresholdMessageKit> => {
   // Create TACo-compatible provider and signer from viem objects
   const tacoProvider = await createTacoCompatibleProvider(viemPublicClient);
-  const tacoSigner = await createTacoCompatibleSigner(viemAuthSigner, tacoProvider);
+  const tacoSigner = await createTacoCompatibleSigner(
+    viemAuthSigner,
+    tacoProvider,
+  );
 
   // Use the existing ethers-based encrypt function with type assertions
   // Our interfaces provide all the methods that the TACo SDK actually uses

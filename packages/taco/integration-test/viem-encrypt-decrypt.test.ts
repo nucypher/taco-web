@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, test } from 'vitest';
 
 import { fromBytes, toBytes } from '@nucypher/shared';
+import { PublicClient, WalletClient } from '@nucypher/shared/src/viem-utils';
 import {
   USER_ADDRESS_PARAM_DEFAULT,
   ViemEIP4361AuthProvider,
@@ -33,8 +34,8 @@ const consumerAccount = privateKeyToAccount(
 describe.skipIf(!process.env.RUNNING_IN_CI)(
   'Viem Encrypt/Decrypt Integration Test',
   () => {
-    let viemPublicClient: any;
-    let viemWalletClient: any;
+    let viemPublicClient: PublicClient;
+    let viemWalletClient: WalletClient;
 
     beforeAll(async () => {
       // Create viem clients

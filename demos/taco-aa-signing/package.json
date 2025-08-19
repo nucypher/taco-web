@@ -1,0 +1,30 @@
+{
+  "name": "taco-aa-signing-demo",
+  "version": "0.0.0",
+  "description": "A demo showing TACo distributed signing with Account Abstraction wallets",
+  "private": true,
+  "author": "NuCypher <dev@nucypher.com>",
+  "scripts": {
+    "check": "pnpm type-check",
+    "start": "ts-node src/index.ts",
+    "dev": "ts-node src/index.ts --debug",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@metamask/delegation-toolkit": "^0.11.0",
+    "@metamask/delegation-utils": "^0.11.0",
+    "@nucypher/shared": "^0.6.0-alpha.2",
+    "@nucypher/taco": "^0.7.0-alpha.2",
+    "@nucypher/taco-auth": "^0.4.0-alpha.2",
+    "dotenv": "^16.5.0",
+    "ethers": "^5.8.0",
+    "permissionless": "^0.2.54",
+    "viem": "^2.34.0",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}

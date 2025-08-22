@@ -12,7 +12,13 @@ import {
 import { conditions, domains, initialize, signUserOp } from '@nucypher/taco';
 import * as dotenv from 'dotenv';
 import { ethers } from 'ethers';
-import { Address, createPublicClient, http, parseEther } from 'viem';
+import {
+  Address,
+  createPublicClient,
+  http,
+  parseEther,
+  PublicClient,
+} from 'viem';
 import {
   createBundlerClient,
   createPaymasterClient,
@@ -28,8 +34,8 @@ const COHORT_ID = 1;
 const AA_VERSION = 'mdt';
 
 async function createTacoSmartAccount(
-  publicClient: any,
-  localAccount: any,
+  publicClient: PublicClient,
+  localAccount: ReturnType<typeof privateKeyToAccount>,
   provider: ethers.providers.JsonRpcProvider,
 ) {
   await initialize();
@@ -46,7 +52,7 @@ async function createTacoSmartAccount(
   const signers = participants.map((p: any) => p.operator as Address).sort();
 
   const smartAccount = await toMetaMaskSmartAccount({
-    client: publicClient,
+    client: publicClient as any,
     implementation: Implementation.MultiSig,
     deployParams: [signers, BigInt(threshold)],
     deploySalt: '0x' as `0x${string}`,
@@ -107,7 +113,9 @@ async function logBalances(
   const eoaBalance = await provider.getBalance(eoaAddress);
   const smartAccountBalance = await provider.getBalance(smartAccountAddress);
   console.log(`\n💳 EOA Balance: ${ethers.utils.formatEther(eoaBalance)} ETH`);
-  console.log(`🏦 Smart Account: ${ethers.utils.formatEther(smartAccountBalance)} ETH\n`);
+  console.log(
+    `🏦 Smart Account: ${ethers.utils.formatEther(smartAccountBalance)} ETH\n`,
+  );
 }
 
 async function main() {
@@ -173,25 +181,29 @@ async function main() {
       account: smartAccount,
       calls: [
         {
-          target: localAccount.address,
-          value: transferAmount,
-          data: '0x',
+          target: localAccount.address as Address,
+          value: BigInt(transferAmount.toString()),
+          data: '0x' as `0x${string}`,
         },
       ],
       ...fee,
       verificationGasLimit: BigInt(500_000),
-    });
-    console.log(`💸 Transfer amount: ${ethers.utils.formatEther(transferAmount)} ETH\n`);
+    } as any);
+    console.log(
+      `💸 Transfer amount: ${ethers.utils.formatEther(transferAmount)} ETH\n`,
+    );
 
     console.log('🔏 Signing with TACo...');
     const signature = await signUserOpWithTaco(userOp, provider);
-    console.log(`✅ Signature collected (${signature.aggregatedSignature.length / 2 - 1} bytes)\n`);
+    console.log(
+      `✅ Signature collected (${signature.aggregatedSignature.length / 2 - 1} bytes)\n`,
+    );
 
     console.log('🚀 Executing transaction...');
     const userOpHash = await bundlerClient.sendUserOperation({
       ...userOp,
       signature: signature.aggregatedSignature as `0x${string}`,
-    });
+    } as any);
     console.log(`📝 UserOp Hash: ${userOpHash}`);
 
     const { receipt } = await bundlerClient.waitForUserOperationReceipt({
@@ -199,7 +211,9 @@ async function main() {
     });
     console.log(`\n🎉 Transaction successful!`);
     console.log(`🔗 Tx: ${receipt.transactionHash}`);
-    console.log(`🌐 View on Etherscan: https://sepolia.etherscan.io/tx/${receipt.transactionHash}\n`);
+    console.log(
+      `🌐 View on Etherscan: https://sepolia.etherscan.io/tx/${receipt.transactionHash}\n`,
+    );
 
     await logBalances(provider, localAccount.address, smartAccount.address);
     console.log('✨ Demo completed successfully! ✨');
@@ -211,5 +225,10 @@ async function main() {
 }
 
 if (require.main === module) {
+  // Check if --dry-run flag is present (used for CI syntax checking)
+  if (process.argv.includes('--dry-run')) {
+    console.log('✓ Syntax check passed');
+    process.exit(0);
+  }
   main();
 }

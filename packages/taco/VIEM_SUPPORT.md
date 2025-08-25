@@ -1,7 +1,6 @@
 # Viem Support
 
-The TACo SDK supports [viem](https://viem.sh) for encryption and decryption
-operations.
+The TACo SDK provides unified `encrypt` and `decrypt` functions that work seamlessly with both [ethers.js](https://docs.ethers.org/) and [viem](https://viem.sh) through TypeScript function overloads. The same function names automatically detect which library you're using based on parameter types.
 
 ## Installation
 
@@ -19,14 +18,18 @@ If you need viem-compatible authentication providers (like `ViemEIP4361AuthProvi
 npm install @nucypher/taco-auth viem
 ```
 
-## Sample Usage
+## Function Overloads
+
+The same `encrypt` and `decrypt` functions work with both ethers.js and viem. TypeScript automatically selects the correct implementation based on your parameter types:
 
 ```typescript
+import { encrypt, decrypt, conditions, domains, initialize } from '@nucypher/taco';
 import { createPublicClient, http } from 'viem';
 import { polygonAmoy } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
-import { encryptWithViem, decryptWithViem } from '@nucypher/taco';
-import * as conditions from '@nucypher/taco/conditions';
+
+// Initialize TACo
+await initialize();
 
 // Create viem client
 const viemPublicClient = createPublicClient({
@@ -37,11 +40,9 @@ const viemPublicClient = createPublicClient({
 const viemAccount = privateKeyToAccount('0x...');
 
 // Create access condition
-const condition = conditions.predefined.erc20Balance({
+const condition = new conditions.predefined.erc20.ERC20Balance({
   contractAddress: '0x...',
-  standardContractType: 'ERC20',
   chain: 80002,
-  method: 'balanceOf',
   parameters: [':userAddress'],
   returnValueTest: {
     comparator: '>',
@@ -49,52 +50,107 @@ const condition = conditions.predefined.erc20Balance({
   },
 });
 
-// Encrypt a message
-const encryptedKit = await encryptWithViem(
-  viemPublicClient,
-  'lynx',
+// Same function names work with viem - TypeScript automatically detects the right overload
+const encryptedKit = await encrypt(
+  viemPublicClient,  // viem PublicClient - TypeScript detects this
+  domains.DEVNET,    // or 'lynx'
   'Hello, secret!',
   condition,
   27, // ritual ID
-  viemAccount,
+  viemAccount,       // viem Account - TypeScript detects this
 );
 
-// Decrypt the message
-const decryptedMessage = await decryptWithViem(
+// Same decrypt function works with viem
+const decryptedMessage = await decrypt(
   viemPublicClient,
-  'lynx',
+  domains.DEVNET,
   encryptedKit,
 );
 
 console.log(new TextDecoder().decode(decryptedMessage)); // "Hello, secret!"
 ```
 
-### Viem-Compatible Functions
+## Automatic Library Detection
 
-#### `encryptWithViem(viemPublicClient, domain, message, condition, ritualId, viemAccount)`
+The overload system automatically detects which library you're using:
 
-Encrypts a message using viem objects.
+```typescript
+import { encrypt, decrypt, domains } from '@nucypher/taco';
+import { ethers } from 'ethers';
+import { createPublicClient, http } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
 
+// Using ethers.js - automatically uses ethers implementation
+const ethersEncrypted = await encrypt(
+  ethersProvider,    // ethers.providers.Provider
+  domains.TESTNET,
+  message,
+  condition,
+  ritualId,
+  ethersSigner       // ethers.Signer
+);
+
+// Using viem - automatically uses viem implementation
+const viemEncrypted = await encrypt(
+  viemPublicClient,  // viem PublicClient  
+  domains.TESTNET,
+  message,
+  condition,
+  ritualId,
+  viemAccount        // viem Account
+);
+
+// Both return the same ThresholdMessageKit type
+// Both can be decrypted with either library
+```
+
+## Function Signatures
+
+The overloaded functions support both ethers.js and viem parameter types:
+
+### `encrypt()` - Viem Overload
+
+```typescript
+function encrypt(
+  viemPublicClient: PublicClient,
+  domain: Domain,
+  message: Uint8Array | string,
+  condition: Condition,
+  ritualId: number,
+  viemAuthSigner: Account,
+): Promise<ThresholdMessageKit>
+```
+
+**Parameters:**
 - `viemPublicClient`: `PublicClient` - Viem PublicClient for network operations
-- `domain`: `Domain` - TACo domain ('lynx', 'TESTNET', 'MAINNET')
+- `domain`: `Domain` - TACo domain ('lynx', 'tapir', 'mainnet')
 - `message`: `Uint8Array | string` - Message to encrypt
 - `condition`: `Condition` - Access condition for decryption
 - `ritualId`: `number` - DKG ritual ID
-- `viemAccount`: `Account` - Viem account for signing
+- `viemAuthSigner`: `Account` - Viem account for signing
 
-Returns: `Promise<ThresholdMessageKit>`
+**Returns:** `Promise<ThresholdMessageKit>`
 
-#### `decryptWithViem(viemPublicClient, domain, messageKit, context?, porterUris?)`
+### `decrypt()` - Viem Overload
 
-Decrypts a message using viem objects.
+```typescript
+function decrypt(
+  viemPublicClient: PublicClient,
+  domain: Domain,
+  messageKit: ThresholdMessageKit,
+  context?: ConditionContext,
+  porterUris?: string[],
+): Promise<Uint8Array>
+```
 
+**Parameters:**
 - `viemPublicClient`: `PublicClient` - Viem PublicClient for network operations
 - `domain`: `Domain` - TACo domain
 - `messageKit`: `ThresholdMessageKit` - Encrypted message kit
 - `context?`: `ConditionContext` - Optional context for conditions
 - `porterUris?`: `string[]` - Optional Porter service URIs
 
-Returns: `Promise<Uint8Array>`
+**Returns:** `Promise<Uint8Array>`
 
 ## Viem Authentication Providers
 
@@ -144,7 +200,7 @@ const authSignature = await authProvider.getOrCreateAuthSignature();
 ### @nucypher/taco
 
 - **Purpose**: Core encryption and decryption functionality
-- **Viem Functions**: `encryptWithViem()`, `decryptWithViem()`
+- **Viem Functions**: `encrypt()`, `decrypt()` (automatic overload detection)
 - **Dependencies**: Only viem functions for encryption operations
 
 ### @nucypher/taco-auth

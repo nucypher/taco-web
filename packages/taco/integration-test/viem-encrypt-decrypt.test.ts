@@ -11,7 +11,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 import { polygonAmoy } from 'viem/chains';
 import { conditions, initialize, ThresholdMessageKit } from '../src';
 import { CompoundCondition } from '../src/conditions/compound-condition';
-import { decryptWithViem, encryptWithViem } from '../src/viem-taco';
+import { decrypt, encrypt } from '../src/viem-taco';
 import { UINT256_MAX } from '../test/test-utils';
 
 const RPC_PROVIDER_URL = 'https://rpc-amoy.polygon.technology';
@@ -97,7 +97,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       ]);
 
       // Encrypt message using viem
-      const messageKit = await encryptWithViem(
+      const messageKit = await encrypt(
         viemPublicClient,
         DOMAIN,
         message,
@@ -133,7 +133,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       }
 
       // Decrypt message using viem
-      const decryptedBytes = await decryptWithViem(
+      const decryptedBytes = await decrypt(
         viemPublicClient,
         DOMAIN,
         messageKitFromBytes,
@@ -162,7 +162,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       });
 
       // Encrypt message with viem using simple condition
-      const messageKit = await encryptWithViem(
+      const messageKit = await encrypt(
         viemPublicClient,
         DOMAIN,
         message,
@@ -191,7 +191,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       );
 
       // Decrypt message using viem
-      const decryptedBytes = await decryptWithViem(
+      const decryptedBytes = await decrypt(
         viemPublicClient,
         DOMAIN,
         messageKitFromBytes,
@@ -220,7 +220,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       });
 
       // Test encryption with viem account
-      const messageKit = await encryptWithViem(
+      const messageKit = await encrypt(
         viemPublicClient,
         DOMAIN,
         message,
@@ -255,7 +255,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       );
 
       // Decrypt using the different client
-      const decryptedBytes = await decryptWithViem(
+      const decryptedBytes = await decrypt(
         anotherViemPublicClient,
         DOMAIN,
         messageKitFromBytes,

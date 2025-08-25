@@ -13,7 +13,7 @@ import {
 /**
  * Encrypts a message under given conditions using viem clients.
  *
- * This is a viem-compatible version of the encrypt function that accepts viem clients
+ * This is a viem-compatible overload of the encrypt function that accepts viem clients
  * instead of ethers providers and signers.
  *
  * @export
@@ -42,7 +42,7 @@ import {
  *
  * const viemAuthSigner = privateKeyToAccount('0x...');
  *
- * const encrypted = await encryptWithViem(
+ * const encrypted = await encrypt(
  *   viemPublicClient, // Your viem public client
  *   'lynx',           // TACo domain
  *   'Hello, secret!', // Message to encrypt
@@ -52,7 +52,7 @@ import {
  * );
  * ```
  */
-export const encryptWithViem = async (
+export const encrypt = async (
   viemPublicClient: PublicClient,
   domain: Domain,
   message: Uint8Array | string,
@@ -82,7 +82,7 @@ export const encryptWithViem = async (
 /**
  * Decrypts an encrypted message using viem clients.
  *
- * This is a viem-compatible version of the decrypt function that accepts viem clients
+ * This is a viem-compatible overload of the decrypt function that accepts viem clients
  * instead of ethers providers.
  *
  * @export
@@ -106,7 +106,7 @@ export const encryptWithViem = async (
  *   transport: http()
  * });
  *
- * const decrypted = await decryptWithViem(
+ * const decrypted = await decrypt(
  *   viemPublicClient,
  *   'lynx',
  *   messageKit,
@@ -115,8 +115,7 @@ export const encryptWithViem = async (
  *
  * ```
  */
-
-export const decryptWithViem = async (
+export const decrypt = async (
   viemPublicClient: PublicClient,
   domain: Domain,
   messageKit: ThresholdMessageKit,

@@ -20,7 +20,7 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { conditions, domains, toBytes } from '../src';
 import { ConditionContext } from '../src/conditions/context';
-import { decryptWithViem, encryptWithViem } from '../src/viem-taco';
+import { decrypt, encrypt } from '../src/viem-taco';
 
 
 import {
@@ -46,10 +46,10 @@ describe('viem TACo integration', () => {
 
   describe('viem TACo functions', () => {
     it('should export viem TACo integration functions', () => {
-      expect(encryptWithViem).toBeDefined();
-      expect(decryptWithViem).toBeDefined();
-      expect(typeof encryptWithViem).toBe('function');
-      expect(typeof decryptWithViem).toBe('function');
+      expect(encrypt).toBeDefined();
+      expect(decrypt).toBeDefined();
+      expect(typeof encrypt).toBe('function');
+      expect(typeof decrypt).toBe('function');
     });
   });
 
@@ -106,7 +106,7 @@ describe('viem TACo integration', () => {
       const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);
 
       // Test encryption
-      const messageKit = await encryptWithViem(
+      const messageKit = await encrypt(
         mockViemPublicClient,
         domains.DEVNET,
         message,
@@ -162,7 +162,7 @@ describe('viem TACo integration', () => {
       );
 
       // Test decryption
-      const decryptedMessage = await decryptWithViem(
+      const decryptedMessage = await decrypt(
         mockViemPublicClient,
         domains.DEVNET,
         messageKit,
@@ -184,15 +184,15 @@ describe('viem TACo integration', () => {
 
     it('decrypts without optional parameters', async () => {
       // This test just verifies the function exists and has the right signature
-      expect(decryptWithViem).toBeDefined();
-      expect(decryptWithViem.length).toBe(5); // viemPublicClient, domain, messageKit, context?, porterUris?
+      expect(decrypt).toBeDefined();
+      expect(decrypt.length).toBe(5); // viemPublicClient, domain, messageKit, context?, porterUris?
     });
   }, 10000);
 
   describe('function signatures', () => {
     it('should have correct function signatures', () => {
-      expect(encryptWithViem.length).toBe(6); // viemPublicClient, domain, message, condition, ritualId, viemAccount
-      expect(decryptWithViem.length).toBe(5); // viemPublicClient, domain, messageKit, context?, porterUris?
+      expect(encrypt.length).toBe(6); // viemPublicClient, domain, message, condition, ritualId, viemAccount
+      expect(decrypt.length).toBe(5); // viemPublicClient, domain, messageKit, context?, porterUris?
     });
   });
 });

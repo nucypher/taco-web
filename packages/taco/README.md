@@ -66,16 +66,20 @@ const decryptedMessage = await decrypt(
 
 ## Viem Support
 
-The TACo SDK also supports [viem](https://viem.sh) as an alternative to ethers.js:
+The TACo SDK supports both [ethers.js](https://docs.ethers.org/) natively, and [viem](https://viem.sh) through function overloads. The same `encrypt` and `decrypt` functions work with both libraries:
 
 ```bash
 $ yarn add @nucypher/taco viem
 ```
 
 ```typescript
-import { encryptWithViem, decryptWithViem } from '@nucypher/taco';
+import { encrypt, decrypt, conditions, domains, initialize } from '@nucypher/taco';
 import { createPublicClient, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
+import { polygonAmoy } from 'viem/chains';
+
+// Initialize TACo
+await initialize();
 
 const viemClient = createPublicClient({
   chain: polygonAmoy,
@@ -83,21 +87,53 @@ const viemClient = createPublicClient({
 });
 const viemAccount = privateKeyToAccount('0x...');
 
-// Encrypt with viem
-const messageKit = await encryptWithViem(
-  viemClient,
-  'testnet',
+const ownsNFT = new conditions.predefined.ERC721Ownership({
+  contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
+  parameters: [3591],
+  chain: 5,
+});
+
+// Same function names work with viem - TypeScript automatically selects the right overload
+const messageKit = await encrypt(
+  viemClient,        // viem PublicClient
+  domains.TESTNET,
   'my secret message',
   ownsNFT,
   ritualId,
-  viemAccount,
+  viemAccount,       // viem Account
 );
 
 // Decrypt with viem
-const decryptedMessage = await decryptWithViem(
+const decryptedMessage = await decrypt(
   viemClient,
-  'testnet',
+  domains.TESTNET,
   messageKit,
+);
+```
+
+### Automatic Library Detection
+
+TypeScript automatically detects which library you're using based on the parameter types:
+
+```typescript
+// Using ethers.js - automatically uses ethers implementation
+const ethersEncrypted = await encrypt(
+  ethersProvider,    // ethers.providers.Provider
+  domains.TESTNET,
+  message,
+  condition,
+  ritualId,
+  ethersSigner       // ethers.Signer
+);
+
+// Using viem - automatically uses viem implementation  
+const viemEncrypted = await encrypt(
+  viemPublicClient,  // viem PublicClient
+  domains.TESTNET,
+  message,
+  condition,
+  ritualId,
+  viemAccount        // viem Account
 );
 ```
 

@@ -37,6 +37,9 @@ export async function encrypt(
 ): Promise<ThresholdMessageKit> {
   // Type guard to determine if we're using viem or ethers
   if (isViemClient(providerOrClient)) {
+    console.trace(
+      'viem encrypt function will be used as viem client has been detected',
+    );
     return viemEncrypt(
       providerOrClient as PublicClient,
       domain,
@@ -46,6 +49,9 @@ export async function encrypt(
       signerOrAccount as Account,
     );
   } else {
+    console.trace(
+      'ethers encrypt function will be used as viem client has not been detected',
+    );
     return ethersEncrypt(
       providerOrClient as ethers.providers.Provider,
       domain,
@@ -84,6 +90,9 @@ export async function decrypt(
 ): Promise<Uint8Array> {
   // Type guard to determine if we're using viem or ethers
   if (isViemClient(providerOrClient)) {
+    console.trace(
+      'viem decrypt function will be used as viem client has been detected',
+    );
     return viemDecrypt(
       providerOrClient as PublicClient,
       domain,
@@ -92,6 +101,9 @@ export async function decrypt(
       porterUris,
     );
   } else {
+    console.trace(
+      'ethers decrypt function will be used as viem client has not been detected',
+    );
     return ethersDecrypt(
       providerOrClient as ethers.providers.Provider,
       domain,
@@ -106,12 +118,8 @@ export async function decrypt(
 function isViemClient(
   client: ethers.providers.Provider | PublicClient,
 ): client is PublicClient {
-  // Viem clients have a 'mode' property and 'chain' property
+  // If it's not an ethers provider, and it has `chain` property, assume it's a viem client
   return (
-    typeof client === 'object' &&
-    client !== null &&
-    'mode' in client &&
-    'chain' in client &&
-    !('provider' in client) // ethers providers have this
+    !(client instanceof ethers.providers.BaseProvider) && 'chain' in client
   );
 }

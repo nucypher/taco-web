@@ -214,30 +214,29 @@ export abstract class ViemProviderBase {
     return ethers.BigNumber.from(balance.toString());
   }
 
-  async getTransactionCount(
-    address: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _blockTag?: string | number,
-  ): Promise<number> {
+  /**
+   * @remarks The _blockTag?: string | number parameter is not used in TACo and so it is not implemented
+   */
+  async getTransactionCount(address: string): Promise<number> {
     return await this.viemPublicClient.getTransactionCount({
       address: address as `0x${string}`,
     });
   }
 
-  async getCode(
-    address: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _blockTag?: string | number,
-  ): Promise<`0x${string}` | undefined> {
+  /**
+   * @remarks The _blockTag?: string | number parameter is not used in TACo and so it is not implemented
+   */
+  async getCode(address: string): Promise<`0x${string}` | undefined> {
     return await this.viemPublicClient.getCode({
       address: address as `0x${string}`,
     });
   }
 
+  /**
+   * @remarks The _blockTag?: string | number parameter is not used in TACo and so it is not implemented
+   */
   async call(
     transaction: ethers.providers.TransactionRequest,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _blockTag?: string | number,
   ): Promise<string> {
     const result = await this.viemPublicClient.call({
       to: transaction.to as `0x${string}`,

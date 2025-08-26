@@ -1,13 +1,17 @@
 import { ThresholdMessageKit } from '@nucypher/nucypher-core';
-import { type Account, Domain, type PublicClient } from '@nucypher/shared';
+import { 
+  type Account,
+  type Domain,
+  type PublicClient,
+} from '@nucypher/shared';
 import { ethers } from 'ethers';
 
 import { Condition } from './conditions/condition';
 import { ConditionContext } from './conditions/context';
 import { decrypt as ethersDecrypt, encrypt as ethersEncrypt } from './taco';
 import {
-  createTacoCompatibleProvider,
-  createTacoCompatibleSigner,
+  createTacoProvider,
+  createTacoSigner,
 } from './wrappers';
 
 /**
@@ -60,15 +64,12 @@ export const encrypt = async (
   ritualId: number,
   viemAuthSigner: Account,
 ): Promise<ThresholdMessageKit> => {
-  // Create TACo-compatible provider and signer from viem objects
-  const tacoProvider = await createTacoCompatibleProvider(viemPublicClient);
-  const tacoSigner = await createTacoCompatibleSigner(
-    viemAuthSigner,
-    tacoProvider,
-  );
+  // Create TACo provider and signer adapters from viem objects
+  const tacoProvider = await createTacoProvider(viemPublicClient);
+  const tacoSigner = await createTacoSigner(viemAuthSigner, tacoProvider);
 
   // Use the existing ethers-based encrypt function with type assertions
-  // Our interfaces provide all the methods that the TACo SDK actually uses
+  // Our adapters provide all the methods that the TACo SDK actually uses
   return await ethersEncrypt(
     tacoProvider as unknown as ethers.providers.Provider,
     domain,
@@ -122,11 +123,11 @@ export const decrypt = async (
   context?: ConditionContext,
   porterUris?: string[],
 ): Promise<Uint8Array> => {
-  // Create TACo-compatible provider from viem object
-  const tacoProvider = await createTacoCompatibleProvider(viemPublicClient);
+  // Create TACo provider adapter from viem object
+  const tacoProvider = await createTacoProvider(viemPublicClient);
 
   // Use the existing ethers-based decrypt function with type assertion
-  // Our interface provides all the methods that the TACo SDK actually uses
+  // Our adapter provides all the methods that the TACo SDK actually uses
   return await ethersDecrypt(
     tacoProvider as unknown as ethers.providers.Provider,
     domain,

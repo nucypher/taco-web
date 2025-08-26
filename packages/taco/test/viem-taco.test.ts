@@ -90,16 +90,16 @@ describe('viem TACo integration', () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any;
 
-      const createTacoCompatibleProviderSpy = vi
+      const createTacoProviderSpy = vi
         .spyOn(
           await import('../src/wrappers/viem-adapters'),
-          'createTacoCompatibleProvider',
+          'createTacoProvider',
         )
         .mockResolvedValue(mockViemProvider);
-      const createTacoCompatibleSignerSpy = vi
+      const createTacoSignerSpy = vi
         .spyOn(
           await import('../src/wrappers/viem-adapters'),
-          'createTacoCompatibleSigner',
+          'createTacoSigner',
         )
         .mockResolvedValue(typedSigner);
 
@@ -115,10 +115,10 @@ describe('viem TACo integration', () => {
         mockViemAccount,
       );
 
-      expect(createTacoCompatibleProviderSpy).toHaveBeenCalledWith(
+      expect(createTacoProviderSpy).toHaveBeenCalledWith(
         mockViemPublicClient,
       );
-      expect(createTacoCompatibleSignerSpy).toHaveBeenCalledWith(
+      expect(createTacoSignerSpy).toHaveBeenCalledWith(
         mockViemAccount,
         mockViemProvider,
       );
@@ -178,8 +178,8 @@ describe('viem TACo integration', () => {
       expect(decryptSpy).toHaveBeenCalled();
 
       // Clean up spies
-      createTacoCompatibleProviderSpy.mockRestore();
-      createTacoCompatibleSignerSpy.mockRestore();
+      createTacoProviderSpy.mockRestore();
+      createTacoSignerSpy.mockRestore();
     });
 
     it('decrypts without optional parameters', async () => {

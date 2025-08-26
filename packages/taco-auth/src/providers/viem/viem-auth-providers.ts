@@ -7,8 +7,8 @@ import {
 } from '../eip4361/eip4361';
 
 import {
-  createTacoCompatibleProvider,
-  createTacoCompatibleSigner,
+  createTacoProvider,
+  createTacoSigner,
 } from './viem-adapters';
 
 /**
@@ -65,8 +65,8 @@ export class ViemEIP4361AuthProvider {
     options?: EIP4361AuthProviderParams,
   ): Promise<ViemEIP4361AuthProvider> {
     // Convert viem objects to ethers objects internally
-    const ethersProvider = await createTacoCompatibleProvider(viemPublicClient);
-    const ethersSigner = await createTacoCompatibleSigner(viemAccount, ethersProvider);
+    const ethersProvider = await createTacoProvider(viemPublicClient);
+    const ethersSigner = await createTacoSigner(viemAccount, ethersProvider);
 
     // Create the underlying ethers auth provider
     // Type assertions are safe here because our TacoProvider/TacoSigner interfaces

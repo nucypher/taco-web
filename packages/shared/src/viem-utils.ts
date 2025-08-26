@@ -31,11 +31,8 @@ type _ViemPublicClient = import('viem').PublicClient;
 type _ViemAccount = import('viem').Account;
 type _ViemWalletClient = import('viem').WalletClient;
 type _ViemBlock = import('viem').Block;
-type _ViemTransaction = import('viem').Transaction;
-type _ViemTransactionReceipt = import('viem').TransactionReceipt;
 type _ViemTypedDataDomain = import('viem').TypedDataDomain;
 type _ViemTypedDataParameter = import('viem').TypedDataParameter;
-type _ViemTransactionRequest = import('viem').TransactionRequest;
 
 /**
  * Viem PublicClient type for read operations
@@ -68,24 +65,9 @@ export type WalletClient = [unknown] extends [_ViemWalletClient]
 export type ViemBlock = [unknown] extends [_ViemBlock] ? any : _ViemBlock;
 
 /**
- * Viem Transaction type for transaction operations
- */
-export type ViemTransaction = [unknown] extends [_ViemTransaction]
-  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    any
-  : _ViemTransaction;
-
-/**
- * Viem TransactionReceipt type for transaction receipt operations
- */
-export type ViemTransactionReceipt = [unknown] extends [_ViemTransactionReceipt]
-  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    any
-  : _ViemTransactionReceipt;
-
-/**
  * Viem TypedDataDomain type for EIP-712 domain
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ViemTypedDataDomain = [unknown] extends [_ViemTypedDataDomain]
   ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
     any
@@ -98,14 +80,6 @@ export type ViemTypedDataParameter = [unknown] extends [_ViemTypedDataParameter]
   ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
     any
   : _ViemTypedDataParameter;
-
-/**
- * Viem TransactionRequest type for transaction requests
- */
-export type ViemTransactionRequest = [unknown] extends [_ViemTransactionRequest]
-  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    any
-  : _ViemTransactionRequest;
 
 // Internal state for tracking viem availability
 let isViemAvailable = false;
@@ -286,28 +260,6 @@ export abstract class ViemProviderBase {
     }
   }
 
-  async getTransaction(transactionHash: string): Promise<ViemTransaction> {
-    return await this.viemPublicClient.getTransaction({
-      hash: transactionHash as `0x${string}`,
-    });
-  }
-
-  async getTransactionReceipt(
-    transactionHash: string,
-  ): Promise<ViemTransactionReceipt> {
-    return await this.viemPublicClient.getTransactionReceipt({
-      hash: transactionHash as `0x${string}`,
-    });
-  }
-
-  async waitForTransaction(
-    transactionHash: string,
-  ): Promise<ViemTransactionReceipt> {
-    return await this.viemPublicClient.waitForTransactionReceipt({
-      hash: transactionHash as `0x${string}`,
-    });
-  }
-
   async getFeeData(): Promise<ethers.providers.FeeData> {
     const feeData = await this.viemPublicClient.getFeeHistory({
       blockCount: 4,
@@ -360,6 +312,9 @@ export abstract class ViemProviderBase {
 export abstract class ViemSignerBase {
   protected viemAccount: Account;
   public readonly provider: ViemProviderBase;
+  
+  // Ethers.js compatibility properties for contract validation
+  readonly _isSigner: boolean = true;
 
   constructor(viemAccount: Account, provider: ViemProviderBase) {
     this.viemAccount = viemAccount;
@@ -420,29 +375,9 @@ export abstract class ViemSignerBase {
     });
   }
 
-  async signTransaction(
-    transaction: ethers.providers.TransactionRequest,
-  ): Promise<string> {
-    await checkViemAvailability();
-    if (!this.viemAccount.signTransaction) {
-      throw new Error('Account does not support transaction signing');
-    }
-
-    const viemTx = {
-      to: transaction.to as `0x${string}`,
-      value: transaction.value
-        ? BigInt(transaction.value.toString())
-        : undefined,
-      data: transaction.data as `0x${string}`,
-      gas: transaction.gasLimit
-        ? BigInt(transaction.gasLimit.toString())
-        : undefined,
-      gasPrice: transaction.gasPrice
-        ? BigInt(transaction.gasPrice.toString())
-        : undefined,
-      nonce: transaction.nonce ? Number(transaction.nonce) : undefined,
-    } as const;
-
-    return await this.viemAccount.signTransaction(viemTx);
-  }
+  /**
+   * Connect this signer to a different provider
+   * This method should be implemented by concrete signer classes
+   */
+  abstract connect(provider: ViemProviderBase): ViemSignerBase;
 }

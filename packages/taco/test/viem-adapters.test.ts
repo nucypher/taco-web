@@ -2,24 +2,24 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import {
-  createEthersFromViem,
-  createTacoCompatibleProvider,
-  createTacoCompatibleSigner,
+  createTacoFromViem,
+  createTacoProvider,
+  createTacoSigner,
 } from '../src/wrappers/viem-adapters';
 
 describe('viem adapter utilities', () => {
   describe('function exports', () => {
     it('should export all adapter functions', () => {
-      expect(createTacoCompatibleProvider).toBeDefined();
-      expect(createTacoCompatibleSigner).toBeDefined();
-      expect(createEthersFromViem).toBeDefined();
-      expect(typeof createTacoCompatibleProvider).toBe('function');
-      expect(typeof createTacoCompatibleSigner).toBe('function');
-      expect(typeof createEthersFromViem).toBe('function');
+      expect(createTacoProvider).toBeDefined();
+      expect(createTacoSigner).toBeDefined();
+      expect(createTacoFromViem).toBeDefined();
+      expect(typeof createTacoProvider).toBe('function');
+      expect(typeof createTacoSigner).toBe('function');
+      expect(typeof createTacoFromViem).toBe('function');
     });
   });
 
-  describe('createTacoCompatibleProvider', () => {
+  describe('createTacoProvider', () => {
     it('should create a provider from viem client', async () => {
       const mockViemPublicClient = {
         getChainId: vi.fn().mockResolvedValue(80002),
@@ -31,7 +31,7 @@ describe('viem adapter utilities', () => {
         getGasPrice: vi.fn().mockResolvedValue(BigInt(20000000000)),
       } as any;
 
-      const provider = await createTacoCompatibleProvider(mockViemPublicClient);
+      const provider = await createTacoProvider(mockViemPublicClient);
 
       expect(provider).toBeDefined();
       expect(provider.getNetwork).toBeDefined();
@@ -43,29 +43,34 @@ describe('viem adapter utilities', () => {
     });
   });
 
-  describe('createTacoCompatibleSigner', () => {
+  describe('createTacoSigner', () => {
     it('should create a signer from viem account', async () => {
       const mockViemAccount = {
         address: '0x742d35Cc6632C0532c718F63b1a8D7d8a7fAd3b2',
         signMessage: vi.fn().mockResolvedValue('0xsignature'),
-        signTransaction: vi.fn().mockResolvedValue('0xsignedtx'),
       } as any;
 
-      const mockProvider = {
-        getNetwork: vi.fn().mockResolvedValue({ chainId: 80002 }),
+      const mockViemPublicClient = {
+        getChainId: vi.fn().mockResolvedValue(80002),
+        getBlockNumber: vi.fn().mockResolvedValue(BigInt(1000)),
+        call: vi.fn().mockResolvedValue('0x'),
+        getBalance: vi.fn().mockResolvedValue(BigInt(0)),
+        getTransactionCount: vi.fn().mockResolvedValue(0),
+        estimateGas: vi.fn().mockResolvedValue(BigInt(21000)),
+        getGasPrice: vi.fn().mockResolvedValue(BigInt(20000000000)),
       } as any;
 
-      const signer = await createTacoCompatibleSigner(mockViemAccount, mockProvider);
+      const tacoProvider = await createTacoProvider(mockViemPublicClient);
+      const signer = await createTacoSigner(mockViemAccount, tacoProvider);
 
       expect(signer).toBeDefined();
       expect(signer.getAddress).toBeDefined();
       expect(signer.signMessage).toBeDefined();
-      expect(signer.signTransaction).toBeDefined();
-      expect(signer.provider).toBe(mockProvider);
+      expect(signer.provider).toBe(tacoProvider);
     });
   });
 
-  describe('createEthersFromViem', () => {
+  describe('createTacoFromViem', () => {
     it('should create both provider and signer', async () => {
       const mockViemPublicClient = {
         getChainId: vi.fn().mockResolvedValue(80002),
@@ -86,7 +91,7 @@ describe('viem adapter utilities', () => {
         account: mockViemAccount,
       } as any;
 
-      const { provider, signer } = await createEthersFromViem(
+      const { provider, signer } = await createTacoFromViem(
         mockViemPublicClient,
         mockViemWalletClient,
       );
@@ -103,7 +108,7 @@ describe('viem adapter utilities', () => {
       } as any;
 
       await expect(
-        createEthersFromViem(mockViemPublicClient, mockViemWalletClient)
+        createTacoFromViem(mockViemPublicClient, mockViemWalletClient)
       ).rejects.toThrow('Wallet client must have an account attached');
     });
   });
@@ -111,12 +116,12 @@ describe('viem adapter utilities', () => {
   describe('error handling', () => {
     it('should handle missing viem gracefully', () => {
       // This test verifies that the functions exist and are callable
-      expect(createTacoCompatibleProvider).toBeDefined();
-      expect(createTacoCompatibleSigner).toBeDefined();
-      expect(createEthersFromViem).toBeDefined();
-      expect(typeof createTacoCompatibleProvider).toBe('function');
-      expect(typeof createTacoCompatibleSigner).toBe('function');
-      expect(typeof createEthersFromViem).toBe('function');
+      expect(createTacoProvider).toBeDefined();
+      expect(createTacoSigner).toBeDefined();
+      expect(createTacoFromViem).toBeDefined();
+      expect(typeof createTacoProvider).toBe('function');
+      expect(typeof createTacoSigner).toBe('function');
+      expect(typeof createTacoFromViem).toBe('function');
     });
   });
 });

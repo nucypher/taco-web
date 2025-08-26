@@ -11,12 +11,15 @@ import { ethers } from 'ethers';
 
 /**
  * Viem adapter for TACo Auth Provider
- * 
+ *
  * This adapter implements the TacoProvider interface using viem wrappers
  * specifically for authentication operations.
  */
 class ViemTacoAuthProviderAdapter implements TacoProvider {
   private readonly viemWrapper: ViemProviderBase;
+
+  // Ethers.js compatibility property for contract validation
+  readonly _isProvider = true;
 
   constructor(viemWrapper: ViemProviderBase) {
     this.viemWrapper = viemWrapper;
@@ -26,7 +29,9 @@ class ViemTacoAuthProviderAdapter implements TacoProvider {
     return this.viemWrapper.getNetwork();
   }
 
-  async call(transaction: ethers.providers.TransactionRequest): Promise<string> {
+  async call(
+    transaction: ethers.providers.TransactionRequest,
+  ): Promise<string> {
     return this.viemWrapper.call(transaction);
   }
 
@@ -34,7 +39,10 @@ class ViemTacoAuthProviderAdapter implements TacoProvider {
     return this.viemWrapper.getBlockNumber();
   }
 
-  async getBalance(address: string, blockTag?: string | number): Promise<ethers.BigNumber> {
+  async getBalance(
+    address: string,
+    blockTag?: string | number,
+  ): Promise<ethers.BigNumber> {
     return this.viemWrapper.getBalance(address, blockTag);
   }
 
@@ -46,7 +54,9 @@ class ViemTacoAuthProviderAdapter implements TacoProvider {
     return this.viemWrapper.getCode(address);
   }
 
-  async estimateGas(transaction: ethers.providers.TransactionRequest): Promise<ethers.BigNumber> {
+  async estimateGas(
+    transaction: ethers.providers.TransactionRequest,
+  ): Promise<ethers.BigNumber> {
     return this.viemWrapper.estimateGas(transaction);
   }
 
@@ -69,13 +79,16 @@ class ViemTacoAuthProviderAdapter implements TacoProvider {
 
 /**
  * Viem adapter for TACo Auth Signer
- * 
+ *
  * This adapter implements the TacoSigner interface using viem wrappers
  * specifically for authentication operations.
  */
 class ViemTacoAuthSignerAdapter implements TacoSigner {
   private readonly viemWrapper: ViemSignerBase;
   public readonly provider: TacoProvider;
+
+  // Ethers.js compatibility property for contract validation
+  readonly _isSigner = true;
 
   constructor(viemWrapper: ViemSignerBase, provider: TacoProvider) {
     this.viemWrapper = viemWrapper;
@@ -106,11 +119,15 @@ class ViemTacoAuthSignerAdapter implements TacoSigner {
     return this.viemWrapper.getTransactionCount();
   }
 
-  async estimateGas(transaction: ethers.providers.TransactionRequest): Promise<ethers.BigNumber> {
+  async estimateGas(
+    transaction: ethers.providers.TransactionRequest,
+  ): Promise<ethers.BigNumber> {
     return this.viemWrapper.estimateGas(transaction);
   }
 
-  async call(transaction: ethers.providers.TransactionRequest): Promise<string> {
+  async call(
+    transaction: ethers.providers.TransactionRequest,
+  ): Promise<string> {
     return this.viemWrapper.call(transaction);
   }
 
@@ -164,12 +181,14 @@ export async function createTacoSigner(
   provider: TacoProvider,
 ): Promise<TacoSigner> {
   await checkViemAvailability();
-  
+
   if (!(provider instanceof ViemTacoAuthProviderAdapter)) {
     throw new Error('Provider must be a ViemTacoAuthProviderAdapter');
   }
-  
-  const viemWrapper = new ConcreteViemAuthSigner(viemAccount, provider['viemWrapper']);
+
+  const viemWrapper = new ConcreteViemAuthSigner(
+    viemAccount,
+    provider['viemWrapper'],
+  );
   return new ViemTacoAuthSignerAdapter(viemWrapper, provider);
 }
-

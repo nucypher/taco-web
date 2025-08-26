@@ -4,12 +4,17 @@ import type { ViemTypedDataDomain, ViemTypedDataParameter } from './viem-utils';
 
 /**
  * Basic TACo Provider interface
- * 
+ *
  * This interface defines the minimal provider contract needed for TACo operations.
- * It abstracts away the underlying blockchain library (ethers, viem, etc.) and 
+ * It abstracts away the underlying blockchain library (ethers, viem, etc.) and
  * focuses only on the methods that TACo actually uses.
  */
 export interface TacoProvider {
+  /**
+   * Ethers.js compatibility property for contract validation
+   */
+  readonly _isProvider: true;
+
   /**
    * Get network information
    */
@@ -28,7 +33,10 @@ export interface TacoProvider {
   /**
    * Get balance for an address
    */
-  getBalance(address: string, blockTag?: string | number): Promise<ethers.BigNumber>;
+  getBalance(
+    address: string,
+    blockTag?: string | number,
+  ): Promise<ethers.BigNumber>;
 
   /**
    * Get transaction count for an address
@@ -43,7 +51,9 @@ export interface TacoProvider {
   /**
    * Estimate gas for a transaction
    */
-  estimateGas(transaction: ethers.providers.TransactionRequest): Promise<ethers.BigNumber>;
+  estimateGas(
+    transaction: ethers.providers.TransactionRequest,
+  ): Promise<ethers.BigNumber>;
 
   /**
    * Get current gas price
@@ -68,14 +78,19 @@ export interface TacoProvider {
 
 /**
  * Basic TACo Signer interface
- * 
+ *
  * This interface defines the minimal signer contract needed for TACo operations.
- * It abstracts away the underlying blockchain library (ethers, viem, etc.) and 
+ * It abstracts away the underlying blockchain library (ethers, viem, etc.) and
  * focuses only on the methods that TACo actually uses.
  */
 export interface TacoSigner {
   /**
-   * The provider associated with this signer
+   * Ethers.js compatibility property for contract validation
+   */
+  readonly _isSigner: true;
+
+  /**
+   * The provider this signer is connected to
    */
   readonly provider: TacoProvider;
 
@@ -111,7 +126,9 @@ export interface TacoSigner {
   /**
    * Estimate gas for a transaction
    */
-  estimateGas(transaction: ethers.providers.TransactionRequest): Promise<ethers.BigNumber>;
+  estimateGas(
+    transaction: ethers.providers.TransactionRequest,
+  ): Promise<ethers.BigNumber>;
 
   /**
    * Make a contract call using this signer's address

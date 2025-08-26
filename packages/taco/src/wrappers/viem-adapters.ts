@@ -19,6 +19,9 @@ import { ethers } from 'ethers';
 class ViemTacoProviderAdapter implements TacoProvider {
   private readonly viemWrapper: ViemProviderBase;
 
+  // Ethers.js compatibility property for contract validation
+  readonly _isProvider = true;
+
   constructor(viemWrapper: ViemProviderBase) {
     this.viemWrapper = viemWrapper;
   }
@@ -77,6 +80,9 @@ class ViemTacoProviderAdapter implements TacoProvider {
 class ViemTacoSignerAdapter implements TacoSigner {
   private readonly viemWrapper: ViemSignerBase;
   public readonly provider: TacoProvider;
+
+  // Ethers.js compatibility property for contract validation
+  readonly _isSigner = true;
 
   constructor(viemWrapper: ViemSignerBase, provider: TacoProvider) {
     this.viemWrapper = viemWrapper;

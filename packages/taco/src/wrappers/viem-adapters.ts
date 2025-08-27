@@ -6,13 +6,15 @@ import {
   type TacoSigner,
   ViemProviderBase,
   ViemSignerBase,
+  type ViemTypedDataDomain,
+  type ViemTypedDataParameter,
   type WalletClient,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
 /**
  * Viem adapter for TACo Provider
- * 
+ *
  * This adapter implements the TacoProvider interface using viem wrappers.
  * It bridges the gap between the generic TACo interface and viem-specific implementations.
  */
@@ -30,7 +32,9 @@ class ViemTacoProviderAdapter implements TacoProvider {
     return this.viemWrapper.getNetwork();
   }
 
-  async call(transaction: ethers.providers.TransactionRequest): Promise<string> {
+  async call(
+    transaction: ethers.providers.TransactionRequest,
+  ): Promise<string> {
     return this.viemWrapper.call(transaction);
   }
 
@@ -38,7 +42,10 @@ class ViemTacoProviderAdapter implements TacoProvider {
     return this.viemWrapper.getBlockNumber();
   }
 
-  async getBalance(address: string, blockTag?: string | number): Promise<ethers.BigNumber> {
+  async getBalance(
+    address: string,
+    blockTag?: string | number,
+  ): Promise<ethers.BigNumber> {
     return this.viemWrapper.getBalance(address, blockTag);
   }
 
@@ -50,7 +57,9 @@ class ViemTacoProviderAdapter implements TacoProvider {
     return this.viemWrapper.getCode(address);
   }
 
-  async estimateGas(transaction: ethers.providers.TransactionRequest): Promise<ethers.BigNumber> {
+  async estimateGas(
+    transaction: ethers.providers.TransactionRequest,
+  ): Promise<ethers.BigNumber> {
     return this.viemWrapper.estimateGas(transaction);
   }
 
@@ -73,7 +82,7 @@ class ViemTacoProviderAdapter implements TacoProvider {
 
 /**
  * Viem adapter for TACo Signer
- * 
+ *
  * This adapter implements the TacoSigner interface using viem wrappers.
  * It bridges the gap between the generic TACo interface and viem-specific implementations.
  */
@@ -98,8 +107,8 @@ class ViemTacoSignerAdapter implements TacoSigner {
   }
 
   async signTypedData(
-    domain: import('@nucypher/shared').ViemTypedDataDomain,
-    types: Record<string, readonly import('@nucypher/shared').ViemTypedDataParameter[]>,
+    domain: ViemTypedDataDomain,
+    types: Record<string, readonly ViemTypedDataParameter[]>,
     message: Record<string, unknown>,
   ): Promise<string> {
     return this.viemWrapper.signTypedData(domain, types, message);
@@ -113,11 +122,15 @@ class ViemTacoSignerAdapter implements TacoSigner {
     return this.viemWrapper.getTransactionCount();
   }
 
-  async estimateGas(transaction: ethers.providers.TransactionRequest): Promise<ethers.BigNumber> {
+  async estimateGas(
+    transaction: ethers.providers.TransactionRequest,
+  ): Promise<ethers.BigNumber> {
     return this.viemWrapper.estimateGas(transaction);
   }
 
-  async call(transaction: ethers.providers.TransactionRequest): Promise<string> {
+  async call(
+    transaction: ethers.providers.TransactionRequest,
+  ): Promise<string> {
     return this.viemWrapper.call(transaction);
   }
 
@@ -176,12 +189,15 @@ export async function createTacoSigner(
   provider: TacoProvider,
 ): Promise<TacoSigner> {
   await checkViemAvailability();
-  
+
   if (!(provider instanceof ViemTacoProviderAdapter)) {
     throw new Error('Provider must be a ViemTacoProviderAdapter');
   }
-  
-  const viemWrapper = new ConcreteViemSigner(viemAccount, provider['viemWrapper']);
+
+  const viemWrapper = new ConcreteViemSigner(
+    viemAccount,
+    provider['viemWrapper'],
+  );
   return new ViemTacoSignerAdapter(viemWrapper, provider);
 }
 
@@ -207,4 +223,3 @@ export async function createTacoFromViem(
 
   return { provider, signer };
 }
-

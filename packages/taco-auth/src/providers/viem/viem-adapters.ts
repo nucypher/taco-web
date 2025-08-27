@@ -6,6 +6,8 @@ import {
   type TacoSigner,
   ViemProviderBase,
   ViemSignerBase,
+  type ViemTypedDataDomain,
+  type ViemTypedDataParameter,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
@@ -104,8 +106,8 @@ class ViemTacoAuthSignerAdapter implements TacoSigner {
   }
 
   async signTypedData(
-    domain: import('@nucypher/shared').ViemTypedDataDomain,
-    types: Record<string, readonly import('@nucypher/shared').ViemTypedDataParameter[]>,
+    domain: ViemTypedDataDomain,
+    types: Record<string, readonly ViemTypedDataParameter[]>,
     message: Record<string, unknown>,
   ): Promise<string> {
     return this.viemWrapper.signTypedData(domain, types, message);

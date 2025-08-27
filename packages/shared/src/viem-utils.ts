@@ -127,8 +127,6 @@ export async function checkViemAvailability(): Promise<void> {
 export abstract class ViemProviderBase {
   protected viemPublicClient: PublicClient;
 
-  // Ethers.js compatibility properties for contract validation
-  readonly _isProvider: boolean = true;
   readonly _network: Promise<ethers.providers.Network>;
   readonly formatter?: undefined = undefined;
 
@@ -312,7 +310,7 @@ export abstract class ViemProviderBase {
 export abstract class ViemSignerBase {
   protected viemAccount: Account;
   public readonly provider: ViemProviderBase;
-  
+
   // Ethers.js compatibility properties for contract validation
   readonly _isSigner: boolean = true;
 

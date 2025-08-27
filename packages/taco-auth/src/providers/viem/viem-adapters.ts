@@ -87,10 +87,11 @@ class ViemTacoAuthProviderAdapter implements TacoProvider {
  */
 class ViemTacoAuthSignerAdapter implements TacoSigner {
   private readonly viemWrapper: ViemSignerBase;
-  public readonly provider: TacoProvider;
 
   // Ethers.js compatibility property for contract validation
   readonly _isSigner = true;
+
+  public readonly provider: TacoProvider;
 
   constructor(viemWrapper: ViemSignerBase, provider: TacoProvider) {
     this.viemWrapper = viemWrapper;

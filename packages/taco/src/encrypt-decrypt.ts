@@ -118,8 +118,21 @@ export async function decrypt(
 function isViemClient(
   client: ethers.providers.Provider | PublicClient,
 ): client is PublicClient {
-  // If it's not an ethers provider, and it has `chain` property, assume it's a viem client
-  return (
-    !(client instanceof ethers.providers.BaseProvider) && 'chain' in client
+  const hasViemProperties = 'chain' in client;
+  const hasViemMethods =
+    typeof (client as { getChainId: () => Promise<number> }).getChainId ===
+    'function';
+  const isNotEthersProvider = !(
+    client instanceof ethers.providers.BaseProvider
   );
+
+  console.trace('Viem detection debug:', {
+    hasViemProperties,
+    hasViemMethods,
+    isNotEthersProvider,
+    clientType: (client as { type: string }).type,
+    client,
+  });
+
+  return isNotEthersProvider && (hasViemProperties || hasViemMethods);
 }

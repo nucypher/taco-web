@@ -37,7 +37,7 @@ export async function encrypt(
 ): Promise<ThresholdMessageKit> {
   // Type guard to determine if we're using viem or ethers
   if (isViemClient(providerOrClient)) {
-    console.trace(
+    console.debug(
       'viem encrypt function will be used as viem client has been detected',
     );
     return viemEncrypt(
@@ -49,7 +49,7 @@ export async function encrypt(
       signerOrAccount as Account,
     );
   } else {
-    console.trace(
+    console.debug(
       'ethers encrypt function will be used as viem client has not been detected',
     );
     return ethersEncrypt(
@@ -90,7 +90,7 @@ export async function decrypt(
 ): Promise<Uint8Array> {
   // Type guard to determine if we're using viem or ethers
   if (isViemClient(providerOrClient)) {
-    console.trace(
+    console.debug(
       'viem decrypt function will be used as viem client has been detected',
     );
     return viemDecrypt(
@@ -101,7 +101,7 @@ export async function decrypt(
       porterUris,
     );
   } else {
-    console.trace(
+    console.debug(
       'ethers decrypt function will be used as viem client has not been detected',
     );
     return ethersDecrypt(
@@ -125,14 +125,6 @@ function isViemClient(
   const isNotEthersProvider = !(
     client instanceof ethers.providers.BaseProvider
   );
-
-  console.trace('Viem detection debug:', {
-    hasViemProperties,
-    hasViemMethods,
-    isNotEthersProvider,
-    clientType: (client as { type: string }).type,
-    client,
-  });
 
   return isNotEthersProvider && (hasViemProperties || hasViemMethods);
 }

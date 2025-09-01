@@ -187,7 +187,7 @@ export abstract class ViemProviderBase {
   }
 
   /**
-   * @remarks The _blockTag?: string | number parameter is not used in TACo and so it is not implemented
+   * @remarks The _blockTag?: string | number parameter is not used in TACo, so it is not implemented
    */
   async getTransactionCount(address: string): Promise<number> {
     return await this.viemPublicClient.getTransactionCount({
@@ -196,7 +196,7 @@ export abstract class ViemProviderBase {
   }
 
   /**
-   * @remarks The _blockTag?: string | number parameter is not used in TACo and so it is not implemented
+   * @remarks The _blockTag?: string | number parameter is not used in TACo, so it is not implemented
    */
   async getCode(address: string): Promise<`0x${string}` | undefined> {
     return await this.viemPublicClient.getCode({
@@ -205,7 +205,7 @@ export abstract class ViemProviderBase {
   }
 
   /**
-   * @remarks The _blockTag?: string | number parameter is not used in TACo and so it is not implemented
+   * @remarks The _blockTag?: string | number parameter is not used in TACo, so it is not implemented
    */
   async call(
     transaction: ethers.providers.TransactionRequest,

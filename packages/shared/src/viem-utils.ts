@@ -309,12 +309,12 @@ export abstract class ViemProviderBase {
  */
 export abstract class ViemSignerBase {
   protected viemAccount: Account;
-  public readonly provider: ViemProviderBase;
+  public readonly provider?: ViemProviderBase | undefined;
 
   // Ethers.js compatibility properties for contract validation
   readonly _isSigner: boolean = true;
 
-  constructor(viemAccount: Account, provider: ViemProviderBase) {
+  constructor(viemAccount: Account, provider?: ViemProviderBase | undefined) {
     this.viemAccount = viemAccount;
     this.provider = provider;
   }
@@ -335,22 +335,34 @@ export abstract class ViemSignerBase {
   }
 
   async getBalance(): Promise<ethers.BigNumber> {
+    if (!this.provider) {
+      throw new Error('Provider is required for getBalance operation');
+    }
     return await this.provider.getBalance(this.viemAccount.address);
   }
 
   async getTransactionCount(): Promise<number> {
+    if (!this.provider) {
+      throw new Error('Provider is required for getTransactionCount operation');
+    }
     return await this.provider.getTransactionCount(this.viemAccount.address);
   }
 
   async estimateGas(
     transaction: ethers.providers.TransactionRequest,
   ): Promise<ethers.BigNumber> {
+    if (!this.provider) {
+      throw new Error('Provider is required for estimateGas operation');
+    }
     return await this.provider.estimateGas(transaction);
   }
 
   async call(
     transaction: ethers.providers.TransactionRequest,
   ): Promise<string> {
+    if (!this.provider) {
+      throw new Error('Provider is required for call operation');
+    }
     return await this.provider.call(transaction);
   }
 
@@ -377,5 +389,5 @@ export abstract class ViemSignerBase {
    * Connect this signer to a different provider
    * This method should be implemented by concrete signer classes
    */
-  abstract connect(provider: ViemProviderBase): ViemSignerBase;
+  abstract connect(provider?: ViemProviderBase): ViemSignerBase;
 }

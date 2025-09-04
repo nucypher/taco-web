@@ -88,9 +88,9 @@ export interface TacoSigner {
   readonly _isSigner: true;
 
   /**
-   * The provider this signer is connected to
+   * The provider this signer is connected to (optional for signing-only operations)
    */
-  readonly provider: TacoProvider;
+  readonly provider?: TacoProvider | undefined;
 
   /**
    * Get the address of this signer

@@ -188,4 +188,44 @@ describe('taco', () => {
       'Type mismatch: viem PublicClient provided but ethers.Signer detected',
     );
   });
+
+  describe('encryptWithPublicKey', () => {
+    it('encrypts with ethers.Signer', async () => {
+      const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
+      const provider = fakeProvider(aliceSecretKeyBytes);
+      const signer = provider.getSigner();
+
+      const messageKit = await taco.encryptWithPublicKey(
+        message,
+        ownsNFT,
+        mockedDkg.dkg.publicKey(),
+        signer,
+      );
+
+      expect(messageKit).toBeDefined();
+      expect(messageKit).toBeInstanceOf(Object);
+    });
+
+    it('encrypts with viem Account', async () => {
+      const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
+
+      // Mock viem account
+      const mockViemAccount = {
+        address: '0x742d35Cc6632C0532c718F63b1a8D7d8a7fAd3b2',
+        signMessage: () => Promise.resolve('0x'),
+        signTypedData: () => Promise.resolve('0x'),
+      };
+
+      const messageKit = await taco.encryptWithPublicKey(
+        message,
+        ownsNFT,
+        mockedDkg.dkg.publicKey(),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        mockViemAccount as any,
+      );
+
+      expect(messageKit).toBeDefined();
+      expect(messageKit).toBeInstanceOf(Object);
+    });
+  });
 });

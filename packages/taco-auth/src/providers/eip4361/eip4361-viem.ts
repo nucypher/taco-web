@@ -1,7 +1,7 @@
 import {
+  type Account,
   createTacoProvider,
   createTacoSigner,
-  type Account,
   type PublicClient,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';

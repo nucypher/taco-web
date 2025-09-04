@@ -90,12 +90,12 @@ export class ViemProviderAdapter implements TacoProvider {
  */
 class ViemSignerAdapter implements TacoSigner {
   private readonly viemWrapper: ViemSignerBase;
-  public readonly provider: TacoProvider;
+  public readonly provider?: TacoProvider | undefined;
 
   // Ethers.js compatibility property for contract validation
   readonly _isSigner = true;
 
-  constructor(viemWrapper: ViemSignerBase, provider: TacoProvider) {
+  constructor(viemWrapper: ViemSignerBase, provider?: TacoProvider | undefined) {
     this.viemWrapper = viemWrapper;
     this.provider = provider;
   }
@@ -168,11 +168,11 @@ export class ConcreteViemProvider extends ViemProviderBase {
  * Concrete viem signer wrapper implementation
  */
 class ConcreteViemSigner extends ViemSignerBase {
-  constructor(viemAccount: Account, provider: ViemProviderBase) {
+  constructor(viemAccount: Account, provider?: ViemProviderBase | undefined) {
     super(viemAccount, provider);
   }
 
-  connect(provider: ViemProviderBase): ViemSignerBase {
+  connect(provider?: ViemProviderBase | undefined): ViemSignerBase {
     return new ConcreteViemSigner(this['viemAccount'], provider);
   }
 }
@@ -194,21 +194,32 @@ export async function createTacoProvider(
  * Create a TACo signer adapter from viem Account
  *
  * This function creates a viem wrapper and then wraps it in a TacoSigner adapter.
+ * 
+ * @param viemAccount - Viem account for signing operations
+ * @param provider - Optional TACo provider. If not provided, a minimal provider will be created for signing-only operations
  */
 export async function createTacoSigner(
   viemAccount: Account,
-  provider: TacoProvider,
+  provider?: TacoProvider,
+): Promise<TacoSigner>;
+export async function createTacoSigner(
+  viemAccount: Account,
+): Promise<TacoSigner>;
+export async function createTacoSigner(
+  viemAccount: Account,
+  provider?: TacoProvider,
 ): Promise<TacoSigner> {
   await checkViemAvailability();
 
-  if (!(provider instanceof ViemProviderAdapter)) {
+  // If provider is provided, validate it's a ViemProviderAdapter
+  if (provider && !(provider instanceof ViemProviderAdapter)) {
     throw new Error('Provider must be a ViemProviderAdapter');
   }
 
   const viemWrapper = new ConcreteViemSigner(
     viemAccount,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (provider as any).viemWrapper,
+    provider ? (provider as any).viemWrapper : undefined,
   );
   return new ViemSignerAdapter(viemWrapper, provider);
 }

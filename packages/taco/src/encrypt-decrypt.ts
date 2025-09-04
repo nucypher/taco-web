@@ -1,11 +1,19 @@
-import { ThresholdMessageKit } from '@nucypher/nucypher-core';
+import { DkgPublicKey, ThresholdMessageKit } from '@nucypher/nucypher-core';
 import { type Account, Domain, type PublicClient } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
 import { Condition } from './conditions/condition';
 import { ConditionContext } from './conditions/context';
-import { decrypt as ethersDecrypt, encrypt as ethersEncrypt } from './taco';
-import { decrypt as viemDecrypt, encrypt as viemEncrypt } from './viem-taco';
+import {
+  decrypt as ethersDecrypt,
+  encrypt as ethersEncrypt,
+  encryptWithPublicKey as ethersEncryptWithPublicKey,
+} from './taco';
+import {
+  decrypt as viemDecrypt,
+  encrypt as viemEncrypt,
+  encryptWithPublicKey as viemEncryptWithPublicKey,
+} from './viem-taco';
 
 // Function overloads for encrypt
 export function encrypt(
@@ -40,9 +48,6 @@ export async function encrypt(
 
   // Type guard to determine if we're using viem or ethers
   if (isViemClient(providerOrClient)) {
-    console.debug(
-      'viem encrypt function will be used as viem client has been detected',
-    );
     return viemEncrypt(
       providerOrClient as PublicClient,
       domain,
@@ -52,15 +57,52 @@ export async function encrypt(
       signerOrAccount as Account,
     );
   } else {
-    console.debug(
-      'ethers encrypt function will be used as viem client has not been detected',
-    );
     return ethersEncrypt(
       providerOrClient as ethers.providers.Provider,
       domain,
       message,
       condition,
       ritualId,
+      signerOrAccount as ethers.Signer,
+    );
+  }
+}
+
+// Function overloads for encryptWithPublicKey
+export function encryptWithPublicKey(
+  message: Uint8Array | string,
+  condition: Condition,
+  dkgPublicKey: DkgPublicKey,
+  authSigner: ethers.Signer,
+): Promise<ThresholdMessageKit>;
+
+export function encryptWithPublicKey(
+  message: Uint8Array | string,
+  condition: Condition,
+  dkgPublicKey: DkgPublicKey,
+  viemAuthSigner: Account,
+): Promise<ThresholdMessageKit>;
+
+// Implementation that routes to the appropriate function
+export async function encryptWithPublicKey(
+  message: Uint8Array | string,
+  condition: Condition,
+  dkgPublicKey: DkgPublicKey,
+  signerOrAccount: ethers.Signer | Account,
+): Promise<ThresholdMessageKit> {
+  // Type guard to determine if we're using viem or ethers
+  if (isViemAccount(signerOrAccount)) {
+    return viemEncryptWithPublicKey(
+      message,
+      condition,
+      dkgPublicKey,
+      signerOrAccount as Account,
+    );
+  } else {
+    return ethersEncryptWithPublicKey(
+      message,
+      condition,
+      dkgPublicKey,
       signerOrAccount as ethers.Signer,
     );
   }
@@ -93,9 +135,6 @@ export async function decrypt(
 ): Promise<Uint8Array> {
   // Type guard to determine if we're using viem or ethers
   if (isViemClient(providerOrClient)) {
-    console.debug(
-      'viem decrypt function will be used as viem client has been detected',
-    );
     return viemDecrypt(
       providerOrClient as PublicClient,
       domain,
@@ -104,9 +143,6 @@ export async function decrypt(
       porterUris,
     );
   } else {
-    console.debug(
-      'ethers decrypt function will be used as viem client has not been detected',
-    );
     return ethersDecrypt(
       providerOrClient as ethers.providers.Provider,
       domain,
@@ -133,18 +169,16 @@ function isViemClient(
 }
 
 // Type guard to determine if the signer is a viem Account
-function isViemAccount(
-  signer: ethers.Signer | Account,
-): signer is Account {
+function isViemAccount(signer: ethers.Signer | Account): signer is Account {
   // Check for viem Account properties
-  const hasViemAccountProperties = 
-    'address' in signer && 
+  const hasViemAccountProperties =
+    'address' in signer &&
     typeof (signer as { address: string }).address === 'string' &&
     !('provider' in signer); // ethers.Signer has provider property
-  
+
   // Check if it's not an ethers.Signer
   const isNotEthersSigner = !(signer instanceof ethers.Signer);
-  
+
   return isNotEthersSigner && hasViemAccountProperties;
 }
 
@@ -159,16 +193,16 @@ function validateProviderSignerCompatibility(
   if (isViemProvider && !isViemSigner) {
     throw new Error(
       'Type mismatch: viem PublicClient provided but ethers.Signer detected. ' +
-      'When using viem, please provide a viem Account. ' +
-      'Use either: (ethers.Provider + ethers.Signer) or (viem.PublicClient + viem.Account)'
+        'When using viem, please provide a viem Account. ' +
+        'Use either: (ethers.Provider + ethers.Signer) or (viem.PublicClient + viem.Account)',
     );
   }
 
   if (!isViemProvider && isViemSigner) {
     throw new Error(
       'Type mismatch: ethers.Provider provided but viem Account detected. ' +
-      'When using ethers, please provide an ethers.Signer. ' +
-      'Use either: (ethers.Provider + ethers.Signer) or (viem.PublicClient + viem.Account)'
+        'When using ethers, please provide an ethers.Signer. ' +
+        'Use either: (ethers.Provider + ethers.Signer) or (viem.PublicClient + viem.Account)',
     );
   }
 }

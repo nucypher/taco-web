@@ -22,7 +22,6 @@ import { conditions, domains, toBytes } from '../src';
 import { ConditionContext } from '../src/conditions/context';
 import { decrypt, encrypt } from '../src/viem-taco';
 
-
 import {
   fakeDkgRitual,
   mockDkgParticipants,
@@ -115,9 +114,7 @@ describe('viem TACo integration', () => {
         mockViemAccount,
       );
 
-      expect(createTacoProviderSpy).toHaveBeenCalledWith(
-        mockViemPublicClient,
-      );
+      expect(createTacoProviderSpy).toHaveBeenCalledWith(mockViemPublicClient);
       expect(createTacoSignerSpy).toHaveBeenCalledWith(
         mockViemAccount,
         mockViemProvider,

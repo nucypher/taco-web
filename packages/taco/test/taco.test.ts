@@ -136,4 +136,56 @@ describe('taco', () => {
       new Set([customParamKey, USER_ADDRESS_PARAM_DEFAULT]),
     );
   });
+
+  it('should throw error when ethers provider is used with viem account', async () => {
+    const ethersProvider = fakeProvider(aliceSecretKeyBytes);
+
+    // Mock viem account (no provider property, distinguishes from ethers.Signer)
+    const mockViemAccount = {
+      address: '0x742d35Cc6632C0532c718F63b1a8D7d8a7fAd3b2',
+      signMessage: () => Promise.resolve('0x'),
+      signTypedData: () => Promise.resolve('0x'),
+    };
+
+    // Should throw type mismatch error
+    await expect(
+      taco.encrypt(
+        ethersProvider, // ethers provider
+        domains.DEVNET,
+        message,
+        ownsNFT,
+        0,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        mockViemAccount as any, // viem account - MISMATCH!
+      ),
+    ).rejects.toThrow(
+      'Type mismatch: ethers.Provider provided but viem Account detected',
+    );
+  });
+
+  it('should throw error when viem client is used with ethers signer', async () => {
+    const ethersProvider = fakeProvider(aliceSecretKeyBytes);
+    const ethersSigner = ethersProvider.getSigner();
+
+    // Mock viem client (chain property makes isViemClient return true)
+    const mockViemClient = {
+      chain: { id: 80002, name: 'polygon-amoy' },
+      getChainId: () => Promise.resolve(80002),
+    };
+
+    // Should throw type mismatch error
+    await expect(
+      taco.encrypt(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        mockViemClient as any, // viem client
+        domains.DEVNET,
+        message,
+        ownsNFT,
+        0,
+        ethersSigner, // ethers signer - MISMATCH!
+      ),
+    ).rejects.toThrow(
+      'Type mismatch: viem PublicClient provided but ethers.Signer detected',
+    );
+  });
 });

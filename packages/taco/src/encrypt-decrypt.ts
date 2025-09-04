@@ -35,6 +35,9 @@ export async function encrypt(
   ritualId: number,
   signerOrAccount: ethers.Signer | Account,
 ): Promise<ThresholdMessageKit> {
+  // Validate that provider and signer types are compatible
+  validateProviderSignerCompatibility(providerOrClient, signerOrAccount);
+
   // Type guard to determine if we're using viem or ethers
   if (isViemClient(providerOrClient)) {
     console.debug(
@@ -127,4 +130,45 @@ function isViemClient(
   );
 
   return isNotEthersProvider && (hasViemProperties || hasViemMethods);
+}
+
+// Type guard to determine if the signer is a viem Account
+function isViemAccount(
+  signer: ethers.Signer | Account,
+): signer is Account {
+  // Check for viem Account properties
+  const hasViemAccountProperties = 
+    'address' in signer && 
+    typeof (signer as { address: string }).address === 'string' &&
+    !('provider' in signer); // ethers.Signer has provider property
+  
+  // Check if it's not an ethers.Signer
+  const isNotEthersSigner = !(signer instanceof ethers.Signer);
+  
+  return isNotEthersSigner && hasViemAccountProperties;
+}
+
+// Validate that provider and signer types are compatible
+function validateProviderSignerCompatibility(
+  providerOrClient: ethers.providers.Provider | PublicClient,
+  signerOrAccount: ethers.Signer | Account,
+): void {
+  const isViemProvider = isViemClient(providerOrClient);
+  const isViemSigner = isViemAccount(signerOrAccount);
+
+  if (isViemProvider && !isViemSigner) {
+    throw new Error(
+      'Type mismatch: viem PublicClient provided but ethers.Signer detected. ' +
+      'When using viem, please provide a viem Account. ' +
+      'Use either: (ethers.Provider + ethers.Signer) or (viem.PublicClient + viem.Account)'
+    );
+  }
+
+  if (!isViemProvider && isViemSigner) {
+    throw new Error(
+      'Type mismatch: ethers.Provider provided but viem Account detected. ' +
+      'When using ethers, please provide an ethers.Signer. ' +
+      'Use either: (ethers.Provider + ethers.Signer) or (viem.PublicClient + viem.Account)'
+    );
+  }
 }

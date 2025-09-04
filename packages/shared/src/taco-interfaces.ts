@@ -1,6 +1,4 @@
-import { ethers } from 'ethers';
-
-import type { ViemTypedDataDomain, ViemTypedDataParameter } from './viem-utils';
+import { ethers, TypedDataDomain, TypedDataField } from 'ethers';
 
 /**
  * Basic TACo Provider interface
@@ -108,8 +106,8 @@ export interface TacoSigner {
    * Sign typed data (EIP-712)
    */
   signTypedData(
-    domain: ViemTypedDataDomain,
-    types: Record<string, readonly ViemTypedDataParameter[]>,
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
     message: Record<string, unknown>,
   ): Promise<string>;
 

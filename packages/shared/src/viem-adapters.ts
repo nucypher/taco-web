@@ -1,24 +1,25 @@
+import { ethers, TypedDataDomain, TypedDataField } from 'ethers';
+
+import { type TacoProvider, type TacoSigner } from './taco-interfaces';
 import {
   type Account,
   checkViemAvailability,
   type PublicClient,
-  type TacoProvider,
-  type TacoSigner,
   ViemProviderBase,
   ViemSignerBase,
   type ViemTypedDataDomain,
   type ViemTypedDataParameter,
   type WalletClient,
-} from '@nucypher/shared';
-import { ethers } from 'ethers';
+} from './viem-utils';
 
 /**
- * Viem adapter for TACo Provider
+ * Unified Viem Provider Adapter
  *
  * This adapter implements the TacoProvider interface using viem wrappers.
- * It bridges the gap between the generic TACo interface and viem-specific implementations.
+ * It bridges the gap between viem and ethers.js interfaces.
+ * Used by both taco and taco-auth packages to avoid code duplication.
  */
-class ViemTacoProviderAdapter implements TacoProvider {
+export class ViemProviderAdapter implements TacoProvider {
   private readonly viemWrapper: ViemProviderBase;
 
   // Ethers.js compatibility property for contract validation
@@ -81,12 +82,13 @@ class ViemTacoProviderAdapter implements TacoProvider {
 }
 
 /**
- * Viem adapter for TACo Signer
+ * Unified Viem Signer Adapter
  *
  * This adapter implements the TacoSigner interface using viem wrappers.
- * It bridges the gap between the generic TACo interface and viem-specific implementations.
+ * It bridges the gap between viem and ethers.js interfaces.
+ * Used by both taco and taco-auth packages to avoid code duplication.
  */
-class ViemTacoSignerAdapter implements TacoSigner {
+class ViemSignerAdapter implements TacoSigner {
   private readonly viemWrapper: ViemSignerBase;
   public readonly provider: TacoProvider;
 
@@ -107,11 +109,17 @@ class ViemTacoSignerAdapter implements TacoSigner {
   }
 
   async signTypedData(
-    domain: ViemTypedDataDomain,
-    types: Record<string, readonly ViemTypedDataParameter[]>,
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
     message: Record<string, unknown>,
   ): Promise<string> {
-    return this.viemWrapper.signTypedData(domain, types, message);
+    // Convert ethers types to viem types for compatibility
+    const viemDomain = domain as unknown as ViemTypedDataDomain;
+    const viemTypes = types as unknown as Record<
+      string,
+      readonly ViemTypedDataParameter[]
+    >;
+    return this.viemWrapper.signTypedData(viemDomain, viemTypes, message);
   }
 
   async getBalance(): Promise<ethers.BigNumber> {
@@ -136,18 +144,21 @@ class ViemTacoSignerAdapter implements TacoSigner {
 
   connect(provider: TacoProvider): TacoSigner {
     // For viem adapters, we need to create a new signer with the new provider
-    if (!(provider instanceof ViemTacoProviderAdapter)) {
-      throw new Error('Provider must be a ViemTacoProviderAdapter');
+    if (!(provider instanceof ViemProviderAdapter)) {
+      throw new Error('Provider must be a ViemProviderAdapter');
     }
-    const newViemWrapper = this.viemWrapper.connect(provider['viemWrapper']);
-    return new ViemTacoSignerAdapter(newViemWrapper, provider);
+    const newViemWrapper = this.viemWrapper.connect(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (provider as any).viemWrapper,
+    );
+    return new ViemSignerAdapter(newViemWrapper, provider);
   }
 }
 
 /**
  * Concrete viem provider wrapper implementation
  */
-class ConcreteViemProvider extends ViemProviderBase {
+export class ConcreteViemProvider extends ViemProviderBase {
   constructor(viemPublicClient: PublicClient) {
     super(viemPublicClient);
   }
@@ -176,7 +187,7 @@ export async function createTacoProvider(
 ): Promise<TacoProvider> {
   await checkViemAvailability();
   const viemWrapper = new ConcreteViemProvider(viemPublicClient);
-  return new ViemTacoProviderAdapter(viemWrapper);
+  return new ViemProviderAdapter(viemWrapper);
 }
 
 /**
@@ -190,15 +201,16 @@ export async function createTacoSigner(
 ): Promise<TacoSigner> {
   await checkViemAvailability();
 
-  if (!(provider instanceof ViemTacoProviderAdapter)) {
-    throw new Error('Provider must be a ViemTacoProviderAdapter');
+  if (!(provider instanceof ViemProviderAdapter)) {
+    throw new Error('Provider must be a ViemProviderAdapter');
   }
 
   const viemWrapper = new ConcreteViemSigner(
     viemAccount,
-    provider['viemWrapper'],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (provider as any).viemWrapper,
   );
-  return new ViemTacoSignerAdapter(viemWrapper, provider);
+  return new ViemSignerAdapter(viemWrapper, provider);
 }
 
 /**

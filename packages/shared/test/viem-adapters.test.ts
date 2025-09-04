@@ -5,7 +5,7 @@ import {
   createTacoFromViem,
   createTacoProvider,
   createTacoSigner,
-} from '../src/wrappers/viem-adapters';
+} from '@nucypher/shared';
 
 describe('viem adapter utilities', () => {
   describe('function exports', () => {

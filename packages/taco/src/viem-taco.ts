@@ -2,10 +2,10 @@ import { ThresholdMessageKit } from '@nucypher/nucypher-core';
 import { type Account, type Domain, type PublicClient } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
+import { createTacoProvider, createTacoSigner } from '@nucypher/shared';
 import { Condition } from './conditions/condition';
 import { ConditionContext } from './conditions/context';
 import { decrypt as ethersDecrypt, encrypt as ethersEncrypt } from './taco';
-import { createTacoProvider, createTacoSigner } from './wrappers';
 
 /**
  * Encrypts a message under given conditions using viem clients.

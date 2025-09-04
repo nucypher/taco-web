@@ -4,6 +4,7 @@ export * from './schemas';
 export * from './taco-interfaces';
 export type * from './types';
 export * from './utils';
+export * from './viem-adapters';
 export * from './viem-utils';
 export * from './web3';
 

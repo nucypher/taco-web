@@ -5,7 +5,7 @@ import type { ViemTypedDataDomain, ViemTypedDataParameter } from './viem-utils';
 /**
  * Basic TACo Provider interface
  *
- * This interface defines the minimal provider contract needed for TACo operations.
+ * This interface defines the minimal provider functionality needed for TACo operations.
  * It abstracts away the underlying blockchain library (ethers, viem, etc.) and
  * focuses only on the methods that TACo actually uses.
  */
@@ -79,7 +79,7 @@ export interface TacoProvider {
 /**
  * Basic TACo Signer interface
  *
- * This interface defines the minimal signer contract needed for TACo operations.
+ * This interface defines the minimal signer functionality needed for TACo operations.
  * It abstracts away the underlying blockchain library (ethers, viem, etc.) and
  * focuses only on the methods that TACo actually uses.
  */

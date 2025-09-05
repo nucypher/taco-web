@@ -90,6 +90,26 @@ export function encryptWithPublicKey(
   viemAuthSigner: Account,
 ): Promise<ThresholdMessageKit>;
 
+/**
+ * Encrypts a message with the given DKG public key under a specified condition.
+ * Supports both ethers.js and viem signers for maximum flexibility.
+ * 
+ * Note: This function can be used offline since it doesn't require network access to fetch
+ * the DKG public key (unlike the `encrypt` function which fetches it from the ritual).
+ *
+ * @export
+ * @param {Uint8Array | string} message - The message to be encrypted.
+ * @param {Condition} condition - Condition under which the message will be encrypted. Those conditions must be
+ * satisfied in order to decrypt the message.
+ * @param {DkgPublicKey} dkgPublicKey - The public key of an active DKG Ritual to be used for encryption.
+ * @param {ethers.Signer | Account} signerOrAccount - The signer that will be used to sign the encrypter authorization.
+ * Can be either an ethers.js Signer or a viem Account object.
+ *
+ * @returns {Promise<ThresholdMessageKit>} Returns Promise that resolves with an instance of ThresholdMessageKit.
+ * It represents the encrypted message.
+ *
+ * @throws {Error} If the encryption process throws an error, an error is thrown.
+ */
 // Implementation that routes to the appropriate function
 export async function encryptWithPublicKey(
   message: Uint8Array | string,

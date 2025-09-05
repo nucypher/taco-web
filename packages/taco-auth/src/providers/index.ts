@@ -7,4 +7,3 @@ export {
 } from './eip4361/auth';
 export * from './eip4361/eip4361';
 export * from './eip4361/external-eip4361';
-export { ViemEIP4361AuthProvider } from './eip4361/eip4361-viem';

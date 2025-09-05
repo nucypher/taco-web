@@ -6,7 +6,6 @@ import {
   EIP4361AuthProvider,
   SingleSignOnEIP4361AuthProvider,
   USER_ADDRESS_PARAM_DEFAULT,
-  ViemEIP4361AuthProvider,
 } from '@nucypher/taco-auth';
 
 import { CoreConditions, CoreContext } from '../../types';
@@ -46,15 +45,13 @@ const ERR_AUTH_PROVIDER_NOT_NEEDED_FOR_CONTEXT_PARAM = (param: string) =>
 type AuthProviderType =
   | typeof EIP4361AuthProvider
   | typeof EIP1271AuthProvider
-  | typeof SingleSignOnEIP4361AuthProvider
-  | typeof ViemEIP4361AuthProvider;
+  | typeof SingleSignOnEIP4361AuthProvider;
 
 const EXPECTED_AUTH_PROVIDER_TYPES: Record<string, AuthProviderType[]> = {
   [USER_ADDRESS_PARAM_DEFAULT]: [
     EIP4361AuthProvider,
     EIP1271AuthProvider,
     SingleSignOnEIP4361AuthProvider,
-    ViemEIP4361AuthProvider,
   ],
 };
 

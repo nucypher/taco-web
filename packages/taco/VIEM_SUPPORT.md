@@ -12,7 +12,7 @@ npm install viem
 
 ### For Authentication Providers
 
-If you need viem-compatible authentication providers (like `ViemEIP4361AuthProvider`), install the taco-auth package:
+If you need authentication providers that work with viem, install the taco-auth package:
 
 ```bash
 npm install @nucypher/taco-auth viem
@@ -156,15 +156,15 @@ function decrypt(
 
 For applications that need authentication providers compatible with viem, use the `@nucypher/taco-auth` package:
 
-### ViemEIP4361AuthProvider
+### EIP4361AuthProvider with Viem Support
 
-Creates an EIP-4361 compliant authentication provider from viem objects:
+The consolidated `EIP4361AuthProvider` now supports both ethers.js and viem through static factory methods:
 
 ```typescript
-import { createPublicClient, createWalletClient, http } from 'viem';
+import { createPublicClient, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { polygonAmoy } from 'viem/chains';
-import { ViemEIP4361AuthProvider } from '@nucypher/taco-auth';
+import { EIP4361AuthProvider } from '@nucypher/taco-auth';
 
 const publicClient = createPublicClient({
   chain: polygonAmoy,
@@ -172,7 +172,8 @@ const publicClient = createPublicClient({
 });
 const account = privateKeyToAccount('0x...');
 
-const authProvider = await ViemEIP4361AuthProvider.create(
+// Viem usage - uses async factory method
+const authProvider = await EIP4361AuthProvider.create(
   publicClient,
   account,
   {
@@ -184,16 +185,30 @@ const authProvider = await ViemEIP4361AuthProvider.create(
 const authSignature = await authProvider.getOrCreateAuthSignature();
 ```
 
-**Parameters:**
+**Viem Factory Method Parameters:**
 
 - `viemPublicClient`: `PublicClient` - Viem public client for network operations
 - `viemAccount`: `Account` - Viem account for signing
 - `options?`: `EIP4361AuthProviderParams` - Optional domain and URI for EIP-4361 messages
 
+**Ethers.js Usage (for comparison):**
+
+```typescript
+import { ethers } from 'ethers';
+import { EIP4361AuthProvider } from '@nucypher/taco-auth';
+
+const provider = new ethers.providers.JsonRpcProvider();
+const signer = new ethers.Wallet('0x...', provider);
+
+// Ethers usage - can use constructor or factory method
+const authProvider = new EIP4361AuthProvider(provider, signer);
+// OR
+const authProvider = await EIP4361AuthProvider.create(provider, signer);
+```
+
 **Methods:**
 
 - `getOrCreateAuthSignature()`: Returns authentication signature for TACo operations
-- `ethersProvider`: Getter for underlying ethers-compatible auth provider
 
 ## Package Architecture
 
@@ -206,7 +221,7 @@ const authSignature = await authProvider.getOrCreateAuthSignature();
 ### @nucypher/taco-auth
 
 - **Purpose**: Authentication providers and signing utilities
-- **Viem Functions**: `ViemEIP4361AuthProvider`
+- **Viem Functions**: `EIP4361AuthProvider.create()` with viem parameter overloading
 - **Dependencies**: Viem authentication and EIP-4361 signing
 
 This separation follows clean architecture principles - use the appropriate package based on your needs:

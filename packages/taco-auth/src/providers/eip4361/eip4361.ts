@@ -1,3 +1,12 @@
+import {
+  type Account,
+  createTacoProvider,
+  createTacoSigner,
+  isViemAccount,
+  isViemClient,
+  type PublicClient,
+  validateProviderSignerCompatibility,
+} from '@nucypher/shared';
 import { ethers } from 'ethers';
 import { SiweMessage } from 'siwe';
 
@@ -31,14 +40,30 @@ const TACO_DEFAULT_URI = 'https://taco.build';
  *
  * Messages are valid for 2 hours from creation and stored locally keyed by the signer's address.
  *
+ * Supports both ethers.js and viem via constructor overloading and static factory methods.
+ *
  * @implements {AuthProvider}
+ *
+ * @example Ethers.js usage
+ * ```typescript
+ * const provider = new ethers.providers.JsonRpcProvider();
+ * const signer = new ethers.Wallet(privateKey, provider);
+ * const authProvider = new EIP4361AuthProvider(provider, signer);
+ * ```
+ *
+ * @example Viem usage
+ * ```typescript
+ * const publicClient = createPublicClient({ chain: polygon, transport: http() });
+ * const account = privateKeyToAccount('0x...');
+ * const authProvider = await EIP4361AuthProvider.create(publicClient, account);
+ * ```
  */
 export class EIP4361AuthProvider implements AuthProvider {
   private readonly storage: LocalStorage<EIP4361AuthSignature>;
   private readonly providerParams: EIP4361AuthProviderParams;
 
   /**
-   * Creates a new EIP4361AuthProvider instance.
+   * Creates a new EIP4361AuthProvider instance with ethers.js objects.
    *
    * @param provider - Ethers provider used to fetch the current chainId
    * @param signer - Ethers signer used to sign SIWE messages
@@ -65,6 +90,70 @@ export class EIP4361AuthProvider implements AuthProvider {
       this.providerParams = providerParams;
     } else {
       this.providerParams = this.getDefaultParameters();
+    }
+  }
+
+  /**
+   * Create a new EIP4361AuthProvider instance with viem objects (async factory method).
+   *
+   * @param viemPublicClient - viem PublicClient for blockchain interactions
+   * @param viemAccount - viem Account for signing operations
+   * @param options - Optional EIP4361 parameters (domain, uri)
+   * @returns Promise resolving to EIP4361AuthProvider instance
+   */
+  static async create(
+    viemPublicClient: PublicClient,
+    viemAccount: Account,
+    options?: EIP4361AuthProviderParams,
+  ): Promise<EIP4361AuthProvider>;
+
+  /**
+   * Create a new EIP4361AuthProvider instance with ethers.js objects (async factory method).
+   *
+   * @param provider - Ethers provider used to fetch the current chainId
+   * @param signer - Ethers signer used to sign SIWE messages
+   * @param options - Optional EIP4361 parameters (domain, uri)
+   * @returns Promise resolving to EIP4361AuthProvider instance
+   */
+  static create(
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer,
+    options?: EIP4361AuthProviderParams,
+  ): Promise<EIP4361AuthProvider>;
+
+  static async create(
+    providerOrClient: PublicClient | ethers.providers.Provider,
+    signerOrAccount: Account | ethers.Signer,
+    options?: EIP4361AuthProviderParams,
+  ): Promise<EIP4361AuthProvider> {
+    // Validate that provider and signer types are compatible
+    validateProviderSignerCompatibility(providerOrClient, signerOrAccount);
+
+    // Type guard to determine if we're using viem or ethers
+    if (isViemClient(providerOrClient) && isViemAccount(signerOrAccount)) {
+      // Viem path - async conversion needed
+      const viemPublicClient = providerOrClient as PublicClient;
+      const viemAccount = signerOrAccount as Account;
+
+      const ethersProvider = await createTacoProvider(viemPublicClient);
+      const ethersSigner = await createTacoSigner(viemAccount, ethersProvider);
+
+      // Type assertions are safe here because our TacoProvider/TacoSigner interfaces
+      // are designed to be compatible with ethers Provider/Signer interfaces
+      return new EIP4361AuthProvider(
+        ethersProvider as unknown as ethers.providers.Provider,
+        ethersSigner as unknown as ethers.Signer,
+        options,
+      );
+    } else {
+      // Ethers path - direct construction (return as Promise for consistency)
+      return Promise.resolve(
+        new EIP4361AuthProvider(
+          providerOrClient as ethers.providers.Provider,
+          signerOrAccount as ethers.Signer,
+          options,
+        ),
+      );
     }
   }
 

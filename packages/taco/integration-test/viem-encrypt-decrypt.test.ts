@@ -3,8 +3,8 @@ import { beforeAll, describe, expect, test } from 'vitest';
 import { fromBytes, toBytes } from '@nucypher/shared';
 import { PublicClient, WalletClient } from '@nucypher/shared/src/viem-utils';
 import {
+  EIP4361AuthProvider,
   USER_ADDRESS_PARAM_DEFAULT,
-  ViemEIP4361AuthProvider,
 } from '@nucypher/taco-auth';
 import { createPublicClient, createWalletClient, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
@@ -119,16 +119,14 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
           USER_ADDRESS_PARAM_DEFAULT,
         )
       ) {
-        const viemAuthProvider = await ViemEIP4361AuthProvider.create(
+        const authProvider = await EIP4361AuthProvider.create(
           viemPublicClient,
           consumerAccount,
         );
 
-        // Get the underlying ethers auth provider for context compatibility
-        const ethersAuthProvider = viemAuthProvider.ethersProvider;
         conditionContext.addAuthProvider(
           USER_ADDRESS_PARAM_DEFAULT,
-          ethersAuthProvider,
+          authProvider,
         );
       }
 
@@ -178,16 +176,15 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       const conditionContext =
         conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
 
-      // Add auth provider using ViemEIP4361AuthProvider
-      const viemAuthProvider = await ViemEIP4361AuthProvider.create(
+      // Add auth provider using consolidated EIP4361AuthProvider with viem support
+      const authProvider = await EIP4361AuthProvider.create(
         viemPublicClient,
         consumerAccount,
       );
 
-      const ethersAuthProvider = viemAuthProvider.ethersProvider;
       conditionContext.addAuthProvider(
         USER_ADDRESS_PARAM_DEFAULT,
-        ethersAuthProvider,
+        authProvider,
       );
 
       // Decrypt message using viem
@@ -241,17 +238,15 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       const conditionContext =
         conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
 
-      // Add auth provider using ViemEIP4361AuthProvider with different client
-      const viemAuthProvider = await ViemEIP4361AuthProvider.create(
+      // Add auth provider using consolidated EIP4361AuthProvider with different client
+      const authProvider = await EIP4361AuthProvider.create(
         anotherViemPublicClient,
         consumerAccount,
       );
 
-      // Get the ethers-compatible auth provider
-      const ethersAuthProvider = viemAuthProvider.ethersProvider;
       conditionContext.addAuthProvider(
         USER_ADDRESS_PARAM_DEFAULT,
-        ethersAuthProvider,
+        authProvider,
       );
 
       // Decrypt using the different client

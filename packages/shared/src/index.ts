@@ -2,6 +2,7 @@ export * from './contracts';
 export * from './porter';
 export * from './schemas';
 export * from './taco-interfaces';
+export * from './type-guards';
 export type * from './types';
 export * from './utils';
 export * from './viem-adapters';

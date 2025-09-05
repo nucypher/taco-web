@@ -26,6 +26,8 @@ import {
 import { privateKeyToAccount } from 'viem/accounts';
 import { sepolia } from 'viem/chains';
 
+import { createViemTacoAccount } from './taco-account';
+
 dotenv.config();
 
 const SEPOLIA_CHAIN_ID = 11155111;
@@ -35,7 +37,6 @@ const AA_VERSION = 'mdt';
 
 async function createTacoSmartAccount(
   publicClient: PublicClient,
-  localAccount: ReturnType<typeof privateKeyToAccount>,
   provider: ethers.providers.JsonRpcProvider,
 ) {
   await initialize();
@@ -49,21 +50,26 @@ async function createTacoSmartAccount(
     TACO_DOMAIN,
     COHORT_ID,
   );
-  const signers = participants.map((p: any) => p.operator as Address).sort();
+  const signers = participants.map((p) => p.operator as Address).sort();
+
+  // Create a TACo account using the first signer as placeholder address
+  // This satisfies MetaMask's signatory requirement without using a local wallet
+  const tacoAccount = createViemTacoAccount(signers[0]);
 
   const smartAccount = await toMetaMaskSmartAccount({
-    client: publicClient as any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    client: publicClient as any, // Required due to viem/delegation-toolkit type incompatibilities
     implementation: Implementation.MultiSig,
     deployParams: [signers, BigInt(threshold)],
     deploySalt: '0x' as `0x${string}`,
-    signatory: [{ account: localAccount }],
+    signatory: [{ account: tacoAccount }],
   });
 
   return { smartAccount, threshold };
 }
 
 async function signUserOpWithTaco(
-  userOp: any,
+  userOp: Record<string, unknown>,
   provider: ethers.providers.JsonRpcProvider,
 ) {
   const signingContext =
@@ -146,7 +152,6 @@ async function main() {
     console.log('🔧 Creating TACo smart account...\n');
     const { smartAccount, threshold } = await createTacoSmartAccount(
       publicClient,
-      localAccount,
       provider,
     );
     console.log(`✅ Smart account created: ${smartAccount.address}`);
@@ -188,7 +193,8 @@ async function main() {
       ],
       ...fee,
       verificationGasLimit: BigInt(500_000),
-    } as any);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any); // Required due to viem/delegation-toolkit type incompatibilities
     console.log(
       `💸 Transfer amount: ${ethers.utils.formatEther(transferAmount)} ETH\n`,
     );
@@ -203,7 +209,8 @@ async function main() {
     const userOpHash = await bundlerClient.sendUserOperation({
       ...userOp,
       signature: signature.aggregatedSignature as `0x${string}`,
-    } as any);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any); // Required due to viem/delegation-toolkit type incompatibilities
     console.log(`📝 UserOp Hash: ${userOpHash}`);
 
     const { receipt } = await bundlerClient.waitForUserOperationReceipt({
@@ -218,8 +225,9 @@ async function main() {
     await logBalances(provider, localAccount.address, smartAccount.address);
     console.log('✨ Demo completed successfully! ✨');
     process.exit(0);
-  } catch (error: any) {
-    console.error(`❌ Demo failed: ${error.message}`);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`❌ Demo failed: ${errorMessage}`);
     process.exit(1);
   }
 }

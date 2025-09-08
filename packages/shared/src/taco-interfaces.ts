@@ -1,4 +1,4 @@
-import { ethers, TypedDataDomain, TypedDataField } from 'ethers';
+import { ethers } from 'ethers';
 
 /**
  * Basic TACo Provider interface
@@ -22,56 +22,6 @@ export interface TacoProvider {
    * Make a contract call
    */
   call(transaction: ethers.providers.TransactionRequest): Promise<string>;
-
-  /**
-   * Get the current block number
-   */
-  getBlockNumber(): Promise<number>;
-
-  /**
-   * Get balance for an address
-   */
-  getBalance(
-    address: string,
-    blockTag?: string | number,
-  ): Promise<ethers.BigNumber>;
-
-  /**
-   * Get transaction count for an address
-   */
-  getTransactionCount(address: string): Promise<number>;
-
-  /**
-   * Get code at an address
-   */
-  getCode(address: string): Promise<string | undefined>;
-
-  /**
-   * Estimate gas for a transaction
-   */
-  estimateGas(
-    transaction: ethers.providers.TransactionRequest,
-  ): Promise<ethers.BigNumber>;
-
-  /**
-   * Get current gas price
-   */
-  getGasPrice(): Promise<ethers.BigNumber>;
-
-  /**
-   * Get fee data for EIP-1559 transactions
-   */
-  getFeeData(): Promise<ethers.providers.FeeData>;
-
-  /**
-   * Resolve ENS name to address
-   */
-  resolveName(name: string): Promise<string | null>;
-
-  /**
-   * Lookup ENS name for address
-   */
-  lookupAddress(address: string): Promise<string | null>;
 }
 
 /**
@@ -82,11 +32,6 @@ export interface TacoProvider {
  * focuses only on the methods that TACo actually uses.
  */
 export interface TacoSigner {
-  /**
-   * Ethers.js compatibility property for contract validation
-   */
-  readonly _isSigner: true;
-
   /**
    * The provider this signer is connected to (optional for signing-only operations)
    */
@@ -101,40 +46,4 @@ export interface TacoSigner {
    * Sign a message
    */
   signMessage(message: string | Uint8Array): Promise<string>;
-
-  /**
-   * Sign typed data (EIP-712)
-   */
-  signTypedData(
-    domain: TypedDataDomain,
-    types: Record<string, Array<TypedDataField>>,
-    message: Record<string, unknown>,
-  ): Promise<string>;
-
-  /**
-   * Get balance for this signer's address
-   */
-  getBalance(): Promise<ethers.BigNumber>;
-
-  /**
-   * Get transaction count for this signer's address
-   */
-  getTransactionCount(): Promise<number>;
-
-  /**
-   * Estimate gas for a transaction
-   */
-  estimateGas(
-    transaction: ethers.providers.TransactionRequest,
-  ): Promise<ethers.BigNumber>;
-
-  /**
-   * Make a contract call using this signer's address
-   */
-  call(transaction: ethers.providers.TransactionRequest): Promise<string>;
-
-  /**
-   * Connect this signer to a different provider
-   */
-  connect(provider: TacoProvider): TacoSigner;
 }

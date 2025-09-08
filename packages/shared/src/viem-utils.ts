@@ -24,9 +24,6 @@
 type _ViemPublicClient = import('viem').PublicClient;
 type _ViemAccount = import('viem').Account;
 type _ViemWalletClient = import('viem').WalletClient;
-type _ViemBlock = import('viem').Block;
-type _ViemTypedDataDomain = import('viem').TypedDataDomain;
-type _ViemTypedDataParameter = import('viem').TypedDataParameter;
 
 /**
  * Viem PublicClient type for read operations
@@ -51,29 +48,6 @@ export type WalletClient = [unknown] extends [_ViemWalletClient]
   ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
     any
   : _ViemWalletClient;
-
-/**
- * Viem Block type for block operations
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ViemBlock = [unknown] extends [_ViemBlock] ? any : _ViemBlock;
-
-/**
- * Viem TypedDataDomain type for EIP-712 domain
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ViemTypedDataDomain = [unknown] extends [_ViemTypedDataDomain]
-  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    any
-  : _ViemTypedDataDomain;
-
-/**
- * Viem TypedDataParameter type for EIP-712 parameters
- */
-export type ViemTypedDataParameter = [unknown] extends [_ViemTypedDataParameter]
-  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    any
-  : _ViemTypedDataParameter;
 
 // Internal state for tracking viem availability
 let isViemAvailable = false;

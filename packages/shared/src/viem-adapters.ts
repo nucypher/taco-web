@@ -5,107 +5,199 @@ import {
   type Account,
   checkViemAvailability,
   type PublicClient,
-  ViemProviderBase,
-  ViemSignerBase,
   type ViemTypedDataDomain,
   type ViemTypedDataParameter,
   type WalletClient,
 } from './viem-utils';
 
 /**
- * Unified Viem Provider Adapter
+ * Viem TACo Provider
  *
- * This adapter implements the TacoProvider interface using viem wrappers.
+ * This class implements the TacoProvider interface directly using viem clients.
  * It bridges the gap between viem and ethers.js interfaces.
  * Used by both taco and taco-auth packages to avoid code duplication.
  */
-export class ViemProviderAdapter implements TacoProvider {
-  private readonly viemWrapper: ViemProviderBase;
+export class ViemTacoProvider implements TacoProvider {
+  protected viemPublicClient: PublicClient;
 
   // Ethers.js compatibility property for contract validation
   readonly _isProvider = true;
+  readonly _network: Promise<ethers.providers.Network>;
+  readonly formatter?: undefined = undefined;
 
-  constructor(viemWrapper: ViemProviderBase) {
-    this.viemWrapper = viemWrapper;
+  constructor(viemPublicClient: PublicClient) {
+    this.viemPublicClient = viemPublicClient;
+    // Initialize network for ethers compatibility
+    this._network = this.getNetwork();
   }
 
   async getNetwork(): Promise<ethers.providers.Network> {
-    return this.viemWrapper.getNetwork();
-  }
-
-  async call(
-    transaction: ethers.providers.TransactionRequest,
-  ): Promise<string> {
-    return this.viemWrapper.call(transaction);
+    const chainId = await this.viemPublicClient.getChainId();
+    const name = this.viemPublicClient.chain?.name || `chain-${chainId}`;
+    return {
+      name,
+      chainId,
+    };
   }
 
   async getBlockNumber(): Promise<number> {
-    return this.viemWrapper.getBlockNumber();
+    return Number(await this.viemPublicClient.getBlockNumber());
   }
 
   async getBalance(
     address: string,
     blockTag?: string | number,
   ): Promise<ethers.BigNumber> {
-    return this.viemWrapper.getBalance(address, blockTag);
+    const address_0x = address as `0x${string}`;
+    let balance: bigint;
+
+    if (
+      blockTag === 'latest' ||
+      blockTag === 'pending' ||
+      blockTag === 'earliest' ||
+      blockTag === 'safe' ||
+      blockTag === 'finalized'
+    ) {
+      balance = await this.viemPublicClient.getBalance({
+        address: address_0x,
+        blockTag: blockTag,
+      });
+    } else if (
+      typeof blockTag === 'number' ||
+      (typeof blockTag === 'string' && blockTag.startsWith('0x'))
+    ) {
+      balance = await this.viemPublicClient.getBalance({
+        address: address_0x,
+        blockNumber: BigInt(blockTag),
+      });
+    } else {
+      balance = await this.viemPublicClient.getBalance({
+        address: address_0x,
+      });
+    }
+    return ethers.BigNumber.from(balance.toString());
   }
 
   async getTransactionCount(address: string): Promise<number> {
-    return this.viemWrapper.getTransactionCount(address);
+    return await this.viemPublicClient.getTransactionCount({
+      address: address as `0x${string}`,
+    });
   }
 
-  async getCode(address: string): Promise<string | undefined> {
-    return this.viemWrapper.getCode(address);
+  async getCode(address: string): Promise<`0x${string}` | undefined> {
+    return await this.viemPublicClient.getCode({
+      address: address as `0x${string}`,
+    });
+  }
+
+  async call(
+    transaction: ethers.providers.TransactionRequest,
+  ): Promise<string> {
+    const result = await this.viemPublicClient.call({
+      to: transaction.to as `0x${string}`,
+      data: transaction.data as `0x${string}`,
+      value: transaction.value
+        ? BigInt(transaction.value.toString())
+        : undefined,
+    });
+    if (typeof result === 'object' && result && 'data' in result) {
+      return result.data as string;
+    }
+    return result as string;
   }
 
   async estimateGas(
     transaction: ethers.providers.TransactionRequest,
   ): Promise<ethers.BigNumber> {
-    return this.viemWrapper.estimateGas(transaction);
+    const viemTransaction = {
+      to: transaction.to as `0x${string}`,
+      data: transaction.data as `0x${string}`,
+      value: transaction.value
+        ? BigInt(transaction.value.toString())
+        : undefined,
+    };
+    const gas = await this.viemPublicClient.estimateGas(viemTransaction);
+    return ethers.BigNumber.from(gas.toString());
   }
 
   async getGasPrice(): Promise<ethers.BigNumber> {
-    return this.viemWrapper.getGasPrice();
+    const gasPrice = await this.viemPublicClient.getGasPrice();
+    return ethers.BigNumber.from(gasPrice.toString());
   }
 
   async getFeeData(): Promise<ethers.providers.FeeData> {
-    return this.viemWrapper.getFeeData();
+    const feeData = await this.viemPublicClient.getFeeHistory({
+      blockCount: 4,
+      blockTag: 'latest' as const,
+      rewardPercentiles: [25, 50, 75],
+    });
+    const latestBaseFee =
+      feeData.baseFeePerGas[feeData.baseFeePerGas.length - 1];
+    const latestReward = feeData.reward?.[feeData.reward.length - 1];
+    const medianPriorityFee = latestReward ? latestReward[1] : BigInt(0);
+
+    return {
+      maxFeePerGas: ethers.BigNumber.from(
+        (latestBaseFee + medianPriorityFee).toString(),
+      ),
+      maxPriorityFeePerGas: ethers.BigNumber.from(medianPriorityFee.toString()),
+      gasPrice: ethers.BigNumber.from(latestBaseFee.toString()),
+      lastBaseFeePerGas: ethers.BigNumber.from(latestBaseFee.toString()),
+    };
   }
 
   async resolveName(name: string): Promise<string | null> {
-    return this.viemWrapper.resolveName(name);
+    try {
+      return await this.viemPublicClient.getEnsAddress({
+        name: name as string,
+      });
+    } catch {
+      return null;
+    }
   }
 
   async lookupAddress(address: string): Promise<string | null> {
-    return this.viemWrapper.lookupAddress(address);
+    try {
+      return await this.viemPublicClient.getEnsName({
+        address: address as `0x${string}`,
+      });
+    } catch {
+      return null;
+    }
   }
 }
 
 /**
- * Unified Viem Signer Adapter
+ * Viem TACo Signer
  *
- * This adapter implements the TacoSigner interface using viem wrappers.
+ * This class implements the TacoSigner interface directly using viem accounts.
  * It bridges the gap between viem and ethers.js interfaces.
  * Used by both taco and taco-auth packages to avoid code duplication.
  */
-class ViemSignerAdapter implements TacoSigner {
-  private readonly viemWrapper: ViemSignerBase;
+export class ViemTacoSigner implements TacoSigner {
+  protected viemAccount: Account;
   public readonly provider?: TacoProvider | undefined;
 
-  // Ethers.js compatibility property for contract validation
+  // Ethers.js compatibility properties for contract validation
   readonly _isSigner = true;
 
-  constructor(viemWrapper: ViemSignerBase, provider?: TacoProvider | undefined) {
-    this.viemWrapper = viemWrapper;
+  constructor(viemAccount: Account, provider?: TacoProvider | undefined) {
+    this.viemAccount = viemAccount;
     this.provider = provider;
   }
 
   async getAddress(): Promise<string> {
-    return this.viemWrapper.getAddress();
+    return this.viemAccount.address;
   }
 
   async signMessage(message: string | Uint8Array): Promise<string> {
-    return this.viemWrapper.signMessage(message);
+    await checkViemAvailability();
+    if (!this.viemAccount.signMessage) {
+      throw new Error('Account does not support message signing');
+    }
+    const messageToSign =
+      typeof message === 'string' ? message : ethers.utils.hexlify(message);
+    return await this.viemAccount.signMessage({ message: messageToSign });
   }
 
   async signTypedData(
@@ -113,115 +205,122 @@ class ViemSignerAdapter implements TacoSigner {
     types: Record<string, Array<TypedDataField>>,
     message: Record<string, unknown>,
   ): Promise<string> {
-    // Convert ethers types to viem types for compatibility
-    const viemDomain = domain as unknown as ViemTypedDataDomain;
-    const viemTypes = types as unknown as Record<
-      string,
-      readonly ViemTypedDataParameter[]
-    >;
-    return this.viemWrapper.signTypedData(viemDomain, viemTypes, message);
+    await checkViemAvailability();
+    if (!this.viemAccount.signTypedData) {
+      throw new Error('Account does not support typed data signing');
+    }
+
+    // Convert ethers domain to viem domain - handle BigNumberish types
+    let chainId: number | bigint | undefined;
+    if (domain.chainId === undefined || domain.chainId === null) {
+      chainId = undefined;
+    } else if (typeof domain.chainId === 'string') {
+      chainId = parseInt(domain.chainId);
+    } else if (typeof domain.chainId === 'number') {
+      chainId = domain.chainId;
+    } else if (typeof domain.chainId === 'bigint') {
+      chainId = domain.chainId;
+    } else if (
+      typeof domain.chainId === 'object' &&
+      'toNumber' in domain.chainId
+    ) {
+      // Handle ethers BigNumber
+      chainId = (domain.chainId as any).toNumber();
+    } else {
+      // Fallback for other BigNumberish types
+      chainId = Number(domain.chainId);
+    }
+
+    const viemDomain: ViemTypedDataDomain = {
+      name: domain.name,
+      version: domain.version,
+      chainId,
+      verifyingContract: domain.verifyingContract as `0x${string}`,
+      salt: domain.salt as `0x${string}`,
+    };
+
+    // Convert ethers types to viem types
+    const viemTypes: Record<string, readonly ViemTypedDataParameter[]> = {};
+    for (const [key, value] of Object.entries(types)) {
+      viemTypes[key] = value.map((field) => ({
+        name: field.name,
+        type: field.type,
+      }));
+    }
+
+    return await this.viemAccount.signTypedData({
+      domain: viemDomain,
+      types: viemTypes,
+      message,
+      primaryType:
+        Object.keys(viemTypes).find((key) => key !== 'EIP712Domain') ||
+        'Message',
+    });
   }
 
   async getBalance(): Promise<ethers.BigNumber> {
-    return this.viemWrapper.getBalance();
+    if (!this.provider) {
+      throw new Error('Provider is required for getBalance operation');
+    }
+    return await this.provider.getBalance(this.viemAccount.address);
   }
 
   async getTransactionCount(): Promise<number> {
-    return this.viemWrapper.getTransactionCount();
+    if (!this.provider) {
+      throw new Error('Provider is required for getTransactionCount operation');
+    }
+    return await this.provider.getTransactionCount(this.viemAccount.address);
   }
 
   async estimateGas(
     transaction: ethers.providers.TransactionRequest,
   ): Promise<ethers.BigNumber> {
-    return this.viemWrapper.estimateGas(transaction);
+    if (!this.provider) {
+      throw new Error('Provider is required for estimateGas operation');
+    }
+    return await this.provider.estimateGas(transaction);
   }
 
   async call(
     transaction: ethers.providers.TransactionRequest,
   ): Promise<string> {
-    return this.viemWrapper.call(transaction);
+    if (!this.provider) {
+      throw new Error('Provider is required for call operation');
+    }
+    return await this.provider.call(transaction);
   }
 
   connect(provider: TacoProvider): TacoSigner {
-    // For viem adapters, we need to create a new signer with the new provider
-    if (!(provider instanceof ViemProviderAdapter)) {
-      throw new Error('Provider must be a ViemProviderAdapter');
-    }
-    const newViemWrapper = this.viemWrapper.connect(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (provider as any).viemWrapper,
-    );
-    return new ViemSignerAdapter(newViemWrapper, provider);
+    return new ViemTacoSigner(this.viemAccount, provider);
   }
 }
 
 /**
- * Concrete viem provider wrapper implementation
- */
-export class ConcreteViemProvider extends ViemProviderBase {
-  constructor(viemPublicClient: PublicClient) {
-    super(viemPublicClient);
-  }
-}
-
-/**
- * Concrete viem signer wrapper implementation
- */
-class ConcreteViemSigner extends ViemSignerBase {
-  constructor(viemAccount: Account, provider?: ViemProviderBase | undefined) {
-    super(viemAccount, provider);
-  }
-
-  connect(provider?: ViemProviderBase | undefined): ViemSignerBase {
-    return new ConcreteViemSigner(this['viemAccount'], provider);
-  }
-}
-
-/**
- * Create a TACo provider adapter from viem PublicClient
+ * Create a TACo provider from viem PublicClient
  *
- * This function creates a viem wrapper and then wraps it in a TacoProvider adapter.
+ * This function creates a TacoProvider directly from a viem client.
  */
 export async function createTacoProvider(
   viemPublicClient: PublicClient,
 ): Promise<TacoProvider> {
   await checkViemAvailability();
-  const viemWrapper = new ConcreteViemProvider(viemPublicClient);
-  return new ViemProviderAdapter(viemWrapper);
+  return new ViemTacoProvider(viemPublicClient);
 }
 
 /**
- * Create a TACo signer adapter from viem Account
+ * Create a TACo signer from viem Account
  *
- * This function creates a viem wrapper and then wraps it in a TacoSigner adapter.
- * 
+ * This function creates a TacoSigner directly from a viem account.
+ *
  * @param viemAccount - Viem account for signing operations
- * @param provider - Optional TACo provider. If not provided, a minimal provider will be created for signing-only operations
+ * @param provider - Optional TACo provider. If not provided, some operations will require a provider
  */
-export async function createTacoSigner(
-  viemAccount: Account,
-  provider?: TacoProvider,
-): Promise<TacoSigner>;
-export async function createTacoSigner(
-  viemAccount: Account,
-): Promise<TacoSigner>;
 export async function createTacoSigner(
   viemAccount: Account,
   provider?: TacoProvider,
 ): Promise<TacoSigner> {
   await checkViemAvailability();
-
-  // If provider is provided, validate it's a ViemProviderAdapter
-  if (provider && !(provider instanceof ViemProviderAdapter)) {
-    throw new Error('Provider must be a ViemProviderAdapter');
-  }
-
-  const viemWrapper = new ConcreteViemSigner(
-    viemAccount,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    provider ? (provider as any).viemWrapper : undefined,
-  );
-  return new ViemSignerAdapter(viemWrapper, provider);
+  return new ViemTacoSigner(viemAccount, provider);
 }
 
 /**

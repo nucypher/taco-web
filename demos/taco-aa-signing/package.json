@@ -1,11 +1,11 @@
 {
   "name": "taco-aa-signing-demo",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "A demo showing TACo distributed signing with Account Abstraction wallets",
   "private": true,
   "author": "NuCypher <dev@nucypher.com>",
   "scripts": {
-    "check": "tsx --no-warnings src/index.ts --dry-run 2>/dev/null && echo '✓ Demo syntax check passed' || echo '✓ Demo syntax check passed'",
+    "check": "tsx --no-warnings src/index.ts --dry-run 2>/dev/null && echo '✓ Demo syntax check passed'",
     "start": "tsx src/index.ts",
     "dev": "tsx src/index.ts --debug",
     "type-check": "echo \"Note: Full type-check skipped due to viem/delegation-toolkit type incompatibilities\""

@@ -39,7 +39,7 @@ const TACO_DEFAULT_URI = 'https://taco.build';
  *
  * Messages are valid for 2 hours from creation and stored locally keyed by the signer's address.
  *
- * Supports both ethers.js and viem via constructor overloading and static factory methods.
+ * Supports both ethers.js and viem.
  *
  * @implements {AuthProvider}
  *
@@ -54,12 +54,14 @@ const TACO_DEFAULT_URI = 'https://taco.build';
  * ```typescript
  * const publicClient = createPublicClient({ chain: polygon, transport: http() });
  * const account = privateKeyToAccount('0x...');
- * const authProvider = await EIP4361AuthProvider.create(publicClient, account);
+ * const authProvider = new EIP4361AuthProvider(publicClient, account);
  * ```
  */
 export class EIP4361AuthProvider implements AuthProvider {
   private readonly storage: LocalStorage<EIP4361AuthSignature>;
   private readonly providerParams: EIP4361AuthProviderParams;
+  private readonly provider: ethers.providers.Provider;
+  private readonly signer: ethers.Signer;
 
   /**
    * Creates a new EIP4361AuthProvider instance with ethers.js objects.
@@ -80,55 +82,47 @@ export class EIP4361AuthProvider implements AuthProvider {
    * - Nonce: Auto-generated
    */
   constructor(
-    private readonly provider: ethers.providers.Provider,
-    private readonly signer: ethers.Signer,
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer,
+    providerParams?: EIP4361AuthProviderParams,
+  );
+
+  /**
+   * Creates a new EIP4361AuthProvider instance with viem objects.
+   *
+   * @param publicClient - Viem public client used to fetch the current chainId
+   * @param account - Viem account used to sign SIWE messages
+   * @param providerParams - Optional SIWE message configuration
+   * @param providerParams.domain - Domain name for the signing request (e.g. 'app.example.com').
+   *                               Defaults to current website domain or 'taco.build'
+   * @param providerParams.uri - Full URI of signing request origin (e.g. 'https://app.example.com').
+   *                            Defaults to current website URL or 'https://taco.build'
+   *
+   * The SIWE message will include:
+   * - A human-readable statement: "{domain} wants you to sign in with your Ethereum account: {address}"
+   * - Version: "1"
+   * - 2 hour expiration from creation time
+   * - Chain ID from the provided provider
+   * - Nonce: Auto-generated
+   */
+  constructor(
+    publicClient: PublicClient,
+    account: Account,
+    providerParams?: EIP4361AuthProviderParams,
+  );
+  constructor(
+    provider: ProviderLike,
+    signer: SignerLike,
     providerParams?: EIP4361AuthProviderParams,
   ) {
     this.storage = new LocalStorage(eip4361AuthSignatureSchema);
+    this.provider = toEthersProvider(provider);
+    this.signer = toEthersSigner(signer, this.provider);
     if (providerParams) {
       this.providerParams = providerParams;
     } else {
       this.providerParams = this.getDefaultParameters();
     }
-  }
-
-  /**
-   * Create a new EIP4361AuthProvider instance with viem objects.
-   *
-   * @param viemPublicClient - viem PublicClient for blockchain interactions
-   * @param viemAccount - viem Account for signing operations
-   * @param options - Optional EIP4361 parameters (domain, uri)
-   * @returns Promise resolving to EIP4361AuthProvider instance
-   */
-  static create(
-    viemPublicClient: PublicClient,
-    viemAccount: Account,
-    options?: EIP4361AuthProviderParams,
-  ): EIP4361AuthProvider;
-
-  /**
-   * Create a new EIP4361AuthProvider instance with ethers.js objects.
-   *
-   * @param provider - Ethers provider used to fetch the current chainId
-   * @param signer - Ethers signer used to sign SIWE messages
-   * @param options - Optional EIP4361 parameters (domain, uri)
-   * @returns Promise resolving to EIP4361AuthProvider instance
-   */
-  static create(
-    provider: ethers.providers.Provider,
-    signer: ethers.Signer,
-    options?: EIP4361AuthProviderParams,
-  ): EIP4361AuthProvider;
-
-  static create(
-    providerOrClient: ProviderLike,
-    signerOrAccount: SignerLike,
-    options?: EIP4361AuthProviderParams,
-  ): EIP4361AuthProvider {
-    const provider = toEthersProvider(providerOrClient);
-    const signer = toEthersSigner(signerOrAccount, provider);
-
-    return new EIP4361AuthProvider(provider, signer, options);
   }
 
   /**

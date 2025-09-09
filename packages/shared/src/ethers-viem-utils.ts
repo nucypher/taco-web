@@ -9,8 +9,6 @@ import { type Account, type PublicClient } from './viem-types';
  * Viem TACo Provider
  *
  * This class implements the TacoProvider interface directly using viem clients.
- * It bridges the gap between viem and ethers.js interfaces.
- * Used by both taco and taco-auth packages to avoid code duplication.
  */
 export class ViemTacoProvider implements TacoProvider {
   protected viemPublicClient: PublicClient;
@@ -56,8 +54,6 @@ export class ViemTacoProvider implements TacoProvider {
  * Viem TACo Signer
  *
  * This class implements the TacoSigner interface directly using viem accounts.
- * It bridges the gap between viem and ethers.js interfaces.
- * Used by both taco and taco-auth packages to avoid code duplication.
  */
 export class ViemTacoSigner implements TacoSigner {
   protected viemAccount: Account;

@@ -124,7 +124,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
           USER_ADDRESS_PARAM_DEFAULT,
         )
       ) {
-        const authProvider = await EIP4361AuthProvider.create(
+        const authProvider = new EIP4361AuthProvider(
           viemPublicClient,
           consumerAccount,
         );
@@ -182,7 +182,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
 
       // Add auth provider using consolidated EIP4361AuthProvider with viem support
-      const authProvider = await EIP4361AuthProvider.create(
+      const authProvider = new EIP4361AuthProvider(
         viemPublicClient,
         consumerAccount,
       );
@@ -244,7 +244,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
 
       // Add auth provider using consolidated EIP4361AuthProvider with different client
-      const authProvider = await EIP4361AuthProvider.create(
+      const authProvider = new EIP4361AuthProvider(
         anotherViemPublicClient,
         consumerAccount,
       );

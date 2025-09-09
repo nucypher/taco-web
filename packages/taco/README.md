@@ -66,7 +66,7 @@ const decryptedMessage = await decrypt(
 
 ## Viem Support
 
-The TACo SDK supports both [ethers.js](https://docs.ethers.org/) natively, and [viem](https://viem.sh) through function overloads. The same `encrypt` and `decrypt` functions work with both libraries:
+The TACo SDK supports both [ethers.js](https://docs.ethers.org/) natively, and [viem](https://viem.sh). The same `encrypt` and `decrypt` functions work with both libraries. Here is how to use them with viem:
 
 ```bash
 $ yarn add @nucypher/taco viem
@@ -113,7 +113,7 @@ const decryptedMessage = await decrypt(
 
 ### Automatic Library Detection
 
-TypeScript automatically detects which library you're using based on the parameter types:
+TypeScript automatically detects which library objects you're passing and works seamlessly:
 
 ```typescript
 // Using ethers.js - automatically uses ethers implementation

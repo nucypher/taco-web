@@ -1,12 +1,12 @@
 export * from './contracts';
+export * from './ethers-viem-utils';
 export * from './porter';
 export * from './schemas';
 export * from './taco-interfaces';
 export * from './type-guards';
 export type * from './types';
 export * from './utils';
-export * from './viem-adapters';
-export * from './viem-utils';
+export * from './viem-types';
 export * from './web3';
 
 // Re-exports

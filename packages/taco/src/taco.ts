@@ -5,12 +5,16 @@ import {
   ThresholdMessageKit,
 } from '@nucypher/nucypher-core';
 import {
+  Account,
   DkgCoordinatorAgent,
   Domain,
   fromHexString,
   getPorterUris,
   PorterClient,
+  PublicClient,
   toBytes,
+  toEthersProvider,
+  toEthersSigner,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
@@ -20,6 +24,35 @@ import { ConditionExpression } from './conditions/condition-expr';
 import { ConditionContext } from './conditions/context';
 import { DkgClient } from './dkg';
 import { retrieveAndDecrypt } from './tdec';
+
+/**
+ * Encrypts a message under given conditions using viem clients.
+ *
+ * This is a viem-compatible overload of the encrypt function that accepts viem clients
+ * instead of ethers providers and signers.
+ *
+ * @export
+ * @param {PublicClient} viemPublicClient - Viem PublicClient for network operations
+ * @param {Domain} domain - Represents the logical network for encryption (must match ritualId)
+ * @param {Uint8Array | string} message - The message to be encrypted
+ * @param {Condition} condition - Condition under which the message will be encrypted
+ * @param {number} ritualId - The ID of the DKG Ritual to be used for encryption
+ * @param {Account} viemAuthSigner - The viem account that will be used to sign the encrypter authorization
+ *
+ * @returns {Promise<ThresholdMessageKit>} Returns Promise that resolves with an instance of ThresholdMessageKit
+ *
+ * @throws {Error} If the active DKG Ritual cannot be retrieved an error is thrown
+
+ */
+// Function overloads for encrypt
+export async function encrypt(
+  provider: ethers.providers.Provider,
+  domain: Domain,
+  message: Uint8Array | string,
+  condition: Condition,
+  ritualId: number,
+  authSigner: ethers.Signer,
+): Promise<ThresholdMessageKit>;
 
 /**
  * Encrypts a message under given conditions using a public key from an active DKG ritual.
@@ -41,14 +74,23 @@ import { retrieveAndDecrypt } from './tdec';
  *
  * @throws {Error} If the active DKG Ritual cannot be retrieved an error is thrown.
  */
-export const encrypt = async (
-  provider: ethers.providers.Provider,
+export async function encrypt(
+  viemPublicClient: PublicClient,
   domain: Domain,
   message: Uint8Array | string,
   condition: Condition,
   ritualId: number,
-  authSigner: ethers.Signer,
-): Promise<ThresholdMessageKit> => {
+  viemAuthSigner: Account,
+): Promise<ThresholdMessageKit>;
+
+export async function encrypt(
+  providerOrClient: ethers.providers.Provider | PublicClient,
+  domain: Domain,
+  message: Uint8Array | string,
+  condition: Condition,
+  ritualId: number,
+  signerOrAccount: ethers.Signer | Account,
+): Promise<ThresholdMessageKit> {
   // TODO(#264): Enable ritual initialization
   // if (ritualId === undefined) {
   //   ritualId = await DkgClient.initializeRitual(
@@ -61,7 +103,16 @@ export const encrypt = async (
   //   // Given that we just initialized the ritual, this should never happen
   //   throw new Error('Ritual ID is undefined');
   // }
-  const dkgRitual = await DkgClient.getActiveRitual(provider, domain, ritualId);
+
+  // Create TACo provider and signer adapters from viem objects
+  const providerAdapter = toEthersProvider(providerOrClient);
+  const authSigner = toEthersSigner(signerOrAccount, providerAdapter);
+
+  const dkgRitual = await DkgClient.getActiveRitual(
+    providerAdapter,
+    domain,
+    ritualId,
+  );
 
   return await encryptWithPublicKey(
     message,
@@ -69,7 +120,7 @@ export const encrypt = async (
     dkgRitual.dkgPublicKey,
     authSigner,
   );
-};
+}
 
 /**
  * Encrypts a message with the given DKG public key under a specified condition.
@@ -86,15 +137,46 @@ export const encrypt = async (
  *
  * @throws {Error} If the encryption process throws an error, an error is thrown.
  */
-export const encryptWithPublicKey = async (
+export async function encryptWithPublicKey(
   message: Uint8Array | string,
   condition: Condition,
   dkgPublicKey: DkgPublicKey,
   authSigner: ethers.Signer,
-): Promise<ThresholdMessageKit> => {
+): Promise<ThresholdMessageKit>;
+
+/**
+ * Encrypts a message with the given DKG public key under a specified condition.
+ *
+ * @export
+ * @param {Uint8Array | string} message  - The message to be encrypted.
+ * @param {Condition} condition - Condition under which the message will be encrypted. Those conditions must be
+ * satisfied in order to decrypt the message.
+ * @param {DkgPublicKey} dkgPublicKey - The public key of an active DKG Ritual to be used for encryption
+ * @param {Account} viemAuthSigner - The viem account that will be used to sign the encrypter authorization.
+ *
+ * @returns {Promise<ThresholdMessageKit>} Returns Promise that resolves with an instance of ThresholdMessageKit.
+ * It represents the encrypted message.
+ *
+ * @throws {Error} If the encryption process throws an error, an error is thrown.
+ */
+export async function encryptWithPublicKey(
+  message: Uint8Array | string,
+  condition: Condition,
+  dkgPublicKey: DkgPublicKey,
+  viemAuthSigner: Account,
+): Promise<ThresholdMessageKit>;
+
+export async function encryptWithPublicKey(
+  message: Uint8Array | string,
+  condition: Condition,
+  dkgPublicKey: DkgPublicKey,
+  authOrAccount: ethers.Signer | Account,
+): Promise<ThresholdMessageKit> {
   if (typeof message === 'string') {
     message = toBytes(message);
   }
+
+  const signer = toEthersSigner(authOrAccount);
 
   const conditionExpr = new ConditionExpression(condition);
 
@@ -105,14 +187,14 @@ export const encryptWithPublicKey = async (
   );
 
   const headerHash = keccak256(ciphertext.header.toBytes());
-  const authorization = await authSigner.signMessage(fromHexString(headerHash));
+  const authorization = await signer.signMessage(fromHexString(headerHash));
   const acp = new AccessControlPolicy(
     authenticatedData,
     fromHexString(authorization),
   );
 
   return new ThresholdMessageKit(ciphertext, acp);
-};
+}
 
 /**
  * Decrypts an encrypted message.
@@ -132,17 +214,52 @@ export const encryptWithPublicKey = async (
  * @throws {Error} If the active DKG Ritual cannot be retrieved or decryption process throws an error,
  * an error is thrown.
  */
-export const decrypt = async (
+export function decrypt(
   provider: ethers.providers.Provider,
   domain: Domain,
   messageKit: ThresholdMessageKit,
   context?: ConditionContext,
   porterUris?: string[],
-): Promise<Uint8Array> => {
+): Promise<Uint8Array>;
+
+/**
+ * Decrypts an encrypted message.
+ *
+ * @export
+ * @param {PublicClient} viemPublicClient - Viem PublicClient for network operations
+ * @param {Domain} domain - Represents the logical network in which the decryption will be performed.
+ * Must match the `ritualId`.
+ * @param {ThresholdMessageKit} messageKit - The kit containing the message to be decrypted
+ * @param {ConditionContext} context - Optional context data used for decryption time values for the condition(s) within the `messageKit`.
+ * @param {string[]} [porterUris] - Optional URI(s) for the Porter service. If not provided, a value will be obtained
+ * from the Domain
+ *
+ * @returns {Promise<Uint8Array>} Returns Promise that resolves with a decrypted message
+ *
+ * @throws {Error} If the active DKG Ritual cannot be retrieved or decryption process throws an error,
+ * an error is thrown.
+ */
+export function decrypt(
+  viemPublicClient: PublicClient,
+  domain: Domain,
+  messageKit: ThresholdMessageKit,
+  context?: ConditionContext,
+  porterUris?: string[],
+): Promise<Uint8Array>;
+
+export async function decrypt(
+  providerOrClient: ethers.providers.Provider | PublicClient,
+  domain: Domain,
+  messageKit: ThresholdMessageKit,
+  context?: ConditionContext,
+  porterUris?: string[],
+): Promise<Uint8Array> {
   const porterUrisFull: string[] = porterUris
     ? porterUris
     : await getPorterUris(domain);
   const porter = new PorterClient(porterUrisFull);
+
+  const provider = await toEthersProvider(providerOrClient);
 
   const ritualId = await DkgCoordinatorAgent.getRitualIdFromPublicKey(
     provider,
@@ -157,4 +274,4 @@ export const decrypt = async (
     ritualId,
     context,
   );
-};
+}

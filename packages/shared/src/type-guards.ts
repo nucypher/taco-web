@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 
-import { Account, PublicClient } from './viem-utils';
+import { Account, PublicClient } from './viem-types';
 
 /**
  * Type guard to determine if the client is a viem PublicClient

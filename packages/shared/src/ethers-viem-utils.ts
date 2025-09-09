@@ -1,11 +1,8 @@
 import { ethers } from 'ethers';
 
 import { type TacoProvider, type TacoSigner } from './taco-interfaces';
-import {
-  type Account,
-  type PublicClient,
-  type WalletClient,
-} from './viem-utils';
+import { isViemAccount, isViemClient } from './type-guards';
+import { type Account, type PublicClient } from './viem-types';
 
 /**
  * Viem TACo Provider
@@ -63,11 +60,16 @@ export class ViemTacoProvider implements TacoProvider {
  */
 export class ViemTacoSigner implements TacoSigner {
   protected viemAccount: Account;
-  public readonly provider?: TacoProvider | undefined;
+  public provider?: ethers.providers.Provider | undefined;
 
-  constructor(viemAccount: Account, provider?: TacoProvider | undefined) {
+  constructor(
+    viemAccount: Account,
+    provider?: ethers.providers.Provider | PublicClient | undefined,
+  ) {
     this.viemAccount = viemAccount;
-    this.provider = provider;
+    if (provider) {
+      this.provider = toEthersProvider(provider);
+    }
   }
 
   async getAddress(): Promise<string> {
@@ -83,10 +85,10 @@ export class ViemTacoSigner implements TacoSigner {
     return await this.viemAccount.signMessage({ message: messageToSign });
   }
 
-  // connect(provider: ethers.providers.Provider): ethers.Signer {
-  //   this.provider = provider;
-  //   return this as unknown as ethers.Signer;
-  // }
+  connect(provider: ethers.providers.Provider): ethers.Signer {
+    this.provider = provider;
+    return this as unknown as ethers.Signer;
+  }
 }
 
 /**
@@ -94,10 +96,16 @@ export class ViemTacoSigner implements TacoSigner {
  *
  * This function creates a TacoProvider directly from a viem client.
  */
-export function createTacoProvider(
-  viemPublicClient: PublicClient,
-): TacoProvider {
-  return new ViemTacoProvider(viemPublicClient);
+export function toEthersProvider(
+  provider: ethers.providers.Provider | PublicClient,
+): ethers.providers.Provider {
+  if (isViemClient(provider)) {
+    return new ViemTacoProvider(
+      provider,
+    ) as unknown as ethers.providers.Provider;
+  } else {
+    return provider;
+  }
 }
 
 /**
@@ -108,30 +116,17 @@ export function createTacoProvider(
  * @param viemAccount - Viem account for signing operations
  * @param provider - Optional TACo provider. If not provided, some operations will require a provider
  */
-export function createTacoSigner(
-  viemAccount: Account,
-  provider?: TacoProvider,
-): TacoSigner {
-  return new ViemTacoSigner(viemAccount, provider);
-}
-
-/**
- * Convenience function to create both provider and signer adapters from viem clients
- *
- * @param viemPublicClient - Viem public client for provider functionality
- * @param viemWalletClient - Viem wallet client for signing functionality
- * @returns Object with TACo provider and signer adapters
- */
-export function createTacoFromViem(
-  viemPublicClient: PublicClient,
-  viemWalletClient: WalletClient,
-): { provider: TacoProvider; signer: TacoSigner } {
-  if (!viemWalletClient.account) {
-    throw new Error('Wallet client must have an account attached');
+export function toEthersSigner(
+  signerLike: ethers.Signer | Account,
+  provider?: ethers.providers.Provider | PublicClient,
+): ethers.Signer {
+  const providerAdapter = provider ? toEthersProvider(provider) : undefined;
+  if (isViemAccount(signerLike)) {
+    return new ViemTacoSigner(
+      signerLike,
+      providerAdapter,
+    ) as unknown as ethers.Signer;
+  } else {
+    return signerLike as unknown as ethers.Signer;
   }
-
-  const provider = createTacoProvider(viemPublicClient);
-  const signer = createTacoSigner(viemWalletClient.account, provider);
-
-  return { provider, signer };
 }

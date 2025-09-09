@@ -13,7 +13,7 @@
  * import { type PublicClient } from '@nucypher/shared';
  *
  * // Use viem clients directly with TACo adapters
- * const tacoProvider = await createTacoProvider(viemPublicClient);
+ * const tacoProvider = await toEthersProvider(viemPublicClient);
  * ```
  */
 
@@ -23,7 +23,6 @@
 // Dynamic imports resolve to 'unknown' when module is not available, no compile-time errors occur
 type _ViemPublicClient = import('viem').PublicClient;
 type _ViemAccount = import('viem').Account;
-type _ViemWalletClient = import('viem').WalletClient;
 
 /**
  * Viem PublicClient type for read operations
@@ -39,12 +38,3 @@ export type PublicClient = [unknown] extends [_ViemPublicClient]
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Account = [unknown] extends [_ViemAccount] ? any : _ViemAccount;
-
-/**
- * Viem WalletClient type for wallet operations
- * @see https://viem.sh/docs/clients/wallet
- */
-export type WalletClient = [unknown] extends [_ViemWalletClient]
-  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    any
-  : _ViemWalletClient;

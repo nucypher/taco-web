@@ -1,17 +1,22 @@
 import { beforeAll, describe, expect, test } from 'vitest';
 
 import { fromBytes, toBytes } from '@nucypher/shared';
-import { PublicClient, WalletClient } from '@nucypher/shared/src/viem-utils';
 import {
   EIP4361AuthProvider,
   USER_ADDRESS_PARAM_DEFAULT,
 } from '@nucypher/taco-auth';
-import { createPublicClient, createWalletClient, http } from 'viem';
+import {
+  createPublicClient,
+  createWalletClient,
+  http,
+  PublicClient,
+  WalletClient,
+} from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { polygonAmoy } from 'viem/chains';
 import { conditions, initialize, ThresholdMessageKit } from '../src';
 import { CompoundCondition } from '../src/conditions/compound-condition';
-import { decrypt, encrypt } from '../src/viem-taco';
+import { decrypt, encrypt } from '../src/taco';
 import { UINT256_MAX } from '../test/test-utils';
 
 const RPC_PROVIDER_URL = 'https://rpc-amoy.polygon.technology';

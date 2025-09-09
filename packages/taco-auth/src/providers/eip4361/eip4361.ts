@@ -1,10 +1,8 @@
 import {
-  type Account,
-  createTacoProvider,
-  createTacoSigner,
-  isViemAccount,
-  isViemClient,
-  type PublicClient,
+  Account,
+  PublicClient,
+  toEthersProvider,
+  toEthersSigner,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
 import { SiweMessage } from 'siwe';
@@ -93,7 +91,7 @@ export class EIP4361AuthProvider implements AuthProvider {
   }
 
   /**
-   * Create a new EIP4361AuthProvider instance with viem objects (async factory method).
+   * Create a new EIP4361AuthProvider instance with viem objects.
    *
    * @param viemPublicClient - viem PublicClient for blockchain interactions
    * @param viemAccount - viem Account for signing operations
@@ -107,7 +105,7 @@ export class EIP4361AuthProvider implements AuthProvider {
   ): EIP4361AuthProvider;
 
   /**
-   * Create a new EIP4361AuthProvider instance with ethers.js objects (async factory method).
+   * Create a new EIP4361AuthProvider instance with ethers.js objects.
    *
    * @param provider - Ethers provider used to fetch the current chainId
    * @param signer - Ethers signer used to sign SIWE messages
@@ -121,34 +119,14 @@ export class EIP4361AuthProvider implements AuthProvider {
   ): EIP4361AuthProvider;
 
   static create(
-    providerOrClient: PublicClient | ethers.providers.Provider,
-    signerOrAccount: Account | ethers.Signer,
+    providerOrClient: ethers.providers.Provider | PublicClient,
+    signerOrAccount: ethers.Signer | Account,
     options?: EIP4361AuthProviderParams,
   ): EIP4361AuthProvider {
-    // Type guard to determine if we're using viem or ethers
-    if (isViemClient(providerOrClient) || isViemAccount(signerOrAccount)) {
-      // Viem path - async conversion needed
-      const viemPublicClient = providerOrClient as PublicClient;
-      const viemAccount = signerOrAccount as Account;
+    const provider = toEthersProvider(providerOrClient);
+    const signer = toEthersSigner(signerOrAccount, provider);
 
-      const ethersProvider = createTacoProvider(viemPublicClient);
-      const ethersSigner = createTacoSigner(viemAccount, ethersProvider);
-
-      // Type assertions are safe here because our TacoProvider/TacoSigner interfaces
-      // are designed to be compatible with ethers Provider/Signer interfaces
-      return new EIP4361AuthProvider(
-        ethersProvider as unknown as ethers.providers.Provider,
-        ethersSigner as unknown as ethers.Signer,
-        options,
-      );
-    } else {
-      // Ethers path - direct construction
-      return new EIP4361AuthProvider(
-        providerOrClient as ethers.providers.Provider,
-        signerOrAccount as ethers.Signer,
-        options,
-      );
-    }
+    return new EIP4361AuthProvider(provider, signer, options);
   }
 
   /**

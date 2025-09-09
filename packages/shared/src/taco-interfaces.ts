@@ -4,8 +4,9 @@ import { ethers } from 'ethers';
  * Basic TACo Provider interface
  *
  * This interface defines the minimal provider functionality needed for TACo operations.
- * It abstracts away the underlying blockchain library (ethers, viem, etc.) and
- * focuses only on the methods that TACo actually uses.
+ * It contains only the methods that TACo actually uses.
+ * This interface is implemented by ViemTacoProvider. And any future provider implementation
+ * would need to implement this interface.
  */
 export interface TacoProvider {
   /**
@@ -28,8 +29,9 @@ export interface TacoProvider {
  * Basic TACo Signer interface
  *
  * This interface defines the minimal signer functionality needed for TACo operations.
- * It abstracts away the underlying blockchain library (ethers, viem, etc.) and
- * focuses only on the methods that TACo actually uses.
+ * It contains only the methods that TACo actually uses.
+ * This interface is implemented by ViemTacoSigner. And any future signer implementation
+ * would need to implement this interface.
  */
 export interface TacoSigner {
   /**

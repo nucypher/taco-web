@@ -20,7 +20,7 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { conditions, domains, toBytes } from '../src';
 import { ConditionContext } from '../src/conditions/context';
-import { decrypt, encrypt } from '../src/viem-taco';
+import { decrypt, encrypt } from '../src/taco';
 
 import {
   fakeDkgRitual,
@@ -95,10 +95,10 @@ describe('viem TACo integration', () => {
       } as any;
 
       const createTacoProviderSpy = vi
-        .spyOn(await import('@nucypher/shared'), 'createTacoProvider')
+        .spyOn(await import('@nucypher/shared'), 'toEthersProvider')
         .mockReturnValue(mockViemProvider);
       const createTacoSignerSpy = vi
-        .spyOn(await import('@nucypher/shared'), 'createTacoSigner')
+        .spyOn(await import('@nucypher/shared'), 'toEthersSigner')
         .mockReturnValue(typedSigner);
 
       const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);

@@ -11,7 +11,9 @@ import {
   fromHexString,
   getPorterUris,
   PorterClient,
+  ProviderLike,
   PublicClient,
+  SignerLike,
   toBytes,
   toEthersProvider,
   toEthersSigner,
@@ -84,12 +86,12 @@ export async function encrypt(
 ): Promise<ThresholdMessageKit>;
 
 export async function encrypt(
-  providerOrClient: ethers.providers.Provider | PublicClient,
+  providerOrClient: ProviderLike,
   domain: Domain,
   message: Uint8Array | string,
   condition: Condition,
   ritualId: number,
-  signerOrAccount: ethers.Signer | Account,
+  signerOrAccount: SignerLike,
 ): Promise<ThresholdMessageKit> {
   // TODO(#264): Enable ritual initialization
   // if (ritualId === undefined) {
@@ -170,7 +172,7 @@ export async function encryptWithPublicKey(
   message: Uint8Array | string,
   condition: Condition,
   dkgPublicKey: DkgPublicKey,
-  authOrAccount: ethers.Signer | Account,
+  authOrAccount: SignerLike,
 ): Promise<ThresholdMessageKit> {
   if (typeof message === 'string') {
     message = toBytes(message);
@@ -248,7 +250,7 @@ export function decrypt(
 ): Promise<Uint8Array>;
 
 export async function decrypt(
-  providerOrClient: ethers.providers.Provider | PublicClient,
+  providerOrClient: ProviderLike,
   domain: Domain,
   messageKit: ThresholdMessageKit,
   context?: ConditionContext,

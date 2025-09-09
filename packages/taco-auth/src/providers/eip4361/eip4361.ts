@@ -1,6 +1,8 @@
 import {
   Account,
+  ProviderLike,
   PublicClient,
+  SignerLike,
   toEthersProvider,
   toEthersSigner,
 } from '@nucypher/shared';
@@ -119,8 +121,8 @@ export class EIP4361AuthProvider implements AuthProvider {
   ): EIP4361AuthProvider;
 
   static create(
-    providerOrClient: ethers.providers.Provider | PublicClient,
-    signerOrAccount: ethers.Signer | Account,
+    providerOrClient: ProviderLike,
+    signerOrAccount: SignerLike,
     options?: EIP4361AuthProviderParams,
   ): EIP4361AuthProvider {
     const provider = toEthersProvider(providerOrClient);

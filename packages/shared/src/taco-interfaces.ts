@@ -11,7 +11,7 @@ export interface TacoProvider {
   /**
    * Ethers.js compatibility property for contract validation
    */
-  readonly _isProvider: true;
+  readonly _isProvider: boolean;
 
   /**
    * Get network information

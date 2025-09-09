@@ -32,7 +32,7 @@
     "clean": "rm -rf dist",
     "exports:lint": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
     "generate-zod-docs": "pnpm dlx tsx scripts/schema-docs-generation.ts",
-    "integration-test": "vitest run --config integration-test/vitest.config.ts",
+    "integration-test": "export RUNNING_IN_CI=true && vitest run --config integration-test/vitest.config.ts",
     "lint": "eslint --ext .ts src test",
     "lint:fix": "pnpm lint --fix",
     "package-check": "package-check",

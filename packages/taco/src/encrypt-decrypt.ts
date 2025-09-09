@@ -5,7 +5,6 @@ import {
   isViemAccount,
   isViemClient,
   PublicClient,
-  validateProviderSignerCompatibility,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
@@ -50,9 +49,6 @@ export async function encrypt(
   ritualId: number,
   signerOrAccount: ethers.Signer | Account,
 ): Promise<ThresholdMessageKit> {
-  // Validate that provider and signer types are compatible
-  validateProviderSignerCompatibility(providerOrClient, signerOrAccount);
-
   // Type guard to determine if we're using viem or ethers
   if (isViemClient(providerOrClient) && isViemAccount(signerOrAccount)) {
     return viemEncrypt(
@@ -93,7 +89,7 @@ export function encryptWithPublicKey(
 /**
  * Encrypts a message with the given DKG public key under a specified condition.
  * Supports both ethers.js and viem signers for maximum flexibility.
- * 
+ *
  * Note: This function can be used offline since it doesn't require network access to fetch
  * the DKG public key (unlike the `encrypt` function which fetches it from the ritual).
  *

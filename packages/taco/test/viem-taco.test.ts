@@ -59,6 +59,11 @@ describe('viem TACo integration', () => {
       const mockEthersProvider = fakeProvider(aliceSecretKeyBytes);
       const mockEthersSigner = {
         ...mockEthersProvider.getSigner(),
+        signMessage: vi
+          .fn()
+          .mockResolvedValue(
+            '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b',
+          ),
         signTypedData: vi.fn().mockResolvedValue('0x'),
       };
       // Type assertion for test compatibility
@@ -91,10 +96,10 @@ describe('viem TACo integration', () => {
 
       const createTacoProviderSpy = vi
         .spyOn(await import('@nucypher/shared'), 'createTacoProvider')
-        .mockResolvedValue(mockViemProvider);
+        .mockReturnValue(mockViemProvider);
       const createTacoSignerSpy = vi
         .spyOn(await import('@nucypher/shared'), 'createTacoSigner')
-        .mockResolvedValue(typedSigner);
+        .mockReturnValue(typedSigner);
 
       const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);
 

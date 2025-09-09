@@ -3,7 +3,6 @@ import { ethers } from 'ethers';
 import { type TacoProvider, type TacoSigner } from './taco-interfaces';
 import {
   type Account,
-  checkViemAvailability,
   type PublicClient,
   type WalletClient,
 } from './viem-utils';
@@ -76,7 +75,6 @@ export class ViemTacoSigner implements TacoSigner {
   }
 
   async signMessage(message: string | Uint8Array): Promise<string> {
-    await checkViemAvailability();
     if (!this.viemAccount.signMessage) {
       throw new Error('Account does not support message signing');
     }
@@ -84,6 +82,11 @@ export class ViemTacoSigner implements TacoSigner {
       typeof message === 'string' ? message : ethers.utils.hexlify(message);
     return await this.viemAccount.signMessage({ message: messageToSign });
   }
+
+  // connect(provider: ethers.providers.Provider): ethers.Signer {
+  //   this.provider = provider;
+  //   return this as unknown as ethers.Signer;
+  // }
 }
 
 /**
@@ -91,10 +94,9 @@ export class ViemTacoSigner implements TacoSigner {
  *
  * This function creates a TacoProvider directly from a viem client.
  */
-export async function createTacoProvider(
+export function createTacoProvider(
   viemPublicClient: PublicClient,
-): Promise<TacoProvider> {
-  await checkViemAvailability();
+): TacoProvider {
   return new ViemTacoProvider(viemPublicClient);
 }
 
@@ -106,11 +108,10 @@ export async function createTacoProvider(
  * @param viemAccount - Viem account for signing operations
  * @param provider - Optional TACo provider. If not provided, some operations will require a provider
  */
-export async function createTacoSigner(
+export function createTacoSigner(
   viemAccount: Account,
   provider?: TacoProvider,
-): Promise<TacoSigner> {
-  await checkViemAvailability();
+): TacoSigner {
   return new ViemTacoSigner(viemAccount, provider);
 }
 
@@ -121,18 +122,16 @@ export async function createTacoSigner(
  * @param viemWalletClient - Viem wallet client for signing functionality
  * @returns Object with TACo provider and signer adapters
  */
-export async function createTacoFromViem(
+export function createTacoFromViem(
   viemPublicClient: PublicClient,
   viemWalletClient: WalletClient,
-): Promise<{ provider: TacoProvider; signer: TacoSigner }> {
-  await checkViemAvailability();
-
+): { provider: TacoProvider; signer: TacoSigner } {
   if (!viemWalletClient.account) {
     throw new Error('Wallet client must have an account attached');
   }
 
-  const provider = await createTacoProvider(viemPublicClient);
-  const signer = await createTacoSigner(viemWalletClient.account, provider);
+  const provider = createTacoProvider(viemPublicClient);
+  const signer = createTacoSigner(viemWalletClient.account, provider);
 
   return { provider, signer };
 }

@@ -45,8 +45,8 @@ describe('viem adapter utilities', () => {
         call: vi.fn().mockResolvedValue('0x'),
       } as any;
 
-      const tacoProvider = await createTacoProvider(mockViemPublicClient);
-      const signer = await createTacoSigner(mockViemAccount, tacoProvider);
+      const tacoProvider = createTacoProvider(mockViemPublicClient);
+      const signer = createTacoSigner(mockViemAccount, tacoProvider);
 
       expect(signer).toBeDefined();
       expect(signer.getAddress).toBeDefined();
@@ -86,15 +86,15 @@ describe('viem adapter utilities', () => {
       expect(signer.provider).toBe(provider);
     });
 
-    it('should throw error when wallet client has no account', async () => {
+    it('should throw error when wallet client has no account', () => {
       const mockViemPublicClient = {} as any;
       const mockViemWalletClient = {
         account: undefined,
       } as any;
 
-      await expect(
+      expect(() =>
         createTacoFromViem(mockViemPublicClient, mockViemWalletClient),
-      ).rejects.toThrow('Wallet client must have an account attached');
+      ).toThrow('Wallet client must have an account attached');
     });
   });
 

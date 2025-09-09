@@ -137,7 +137,7 @@ describe('taco', () => {
     );
   });
 
-  it('should throw error when ethers provider is used with viem account', async () => {
+  it('should handle well when ethers provider is used with viem account', async () => {
     const ethersProvider = fakeProvider(aliceSecretKeyBytes);
 
     // Mock viem account (no provider property, distinguishes from ethers.Signer)
@@ -147,23 +147,20 @@ describe('taco', () => {
       signTypedData: () => Promise.resolve('0x'),
     };
 
-    // Should throw type mismatch error
-    await expect(
-      taco.encrypt(
-        ethersProvider, // ethers provider
-        domains.DEVNET,
-        message,
-        ownsNFT,
-        0,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        mockViemAccount as any, // viem account - MISMATCH!
-      ),
-    ).rejects.toThrow(
-      'Type mismatch: ethers.Provider provided but viem Account detected',
+    const messageKit = await taco.encrypt(
+      ethersProvider, // ethers provider
+      domains.DEVNET,
+      message,
+      ownsNFT,
+      0,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockViemAccount as any, // viem account - MISMATCH!
     );
+
+    expect(messageKit).toBeDefined();
   });
 
-  it('should throw error when viem client is used with ethers signer', async () => {
+  it('should handle well when viem client is used with ethers signer', async () => {
     const ethersProvider = fakeProvider(aliceSecretKeyBytes);
     const ethersSigner = ethersProvider.getSigner();
 
@@ -174,19 +171,17 @@ describe('taco', () => {
     };
 
     // Should throw type mismatch error
-    await expect(
-      taco.encrypt(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        mockViemClient as any, // viem client
-        domains.DEVNET,
-        message,
-        ownsNFT,
-        0,
-        ethersSigner, // ethers signer - MISMATCH!
-      ),
-    ).rejects.toThrow(
-      'Type mismatch: viem PublicClient provided but ethers.Signer detected',
+    const messageKit = await taco.encrypt(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockViemClient as any, // viem client
+      domains.DEVNET,
+      message,
+      ownsNFT,
+      0,
+      ethersSigner, // ethers signer - MISMATCH!
     );
+
+    expect(messageKit).toBeDefined();
   });
 
   describe('encryptWithPublicKey', () => {

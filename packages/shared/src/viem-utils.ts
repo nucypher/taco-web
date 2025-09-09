@@ -10,7 +10,7 @@
  *
  * Usage:
  * ```typescript
- * import { checkViemAvailability, type PublicClient } from '@nucypher/shared';
+ * import { type PublicClient } from '@nucypher/shared';
  *
  * // Use viem clients directly with TACo adapters
  * const tacoProvider = await createTacoProvider(viemPublicClient);
@@ -48,40 +48,3 @@ export type WalletClient = [unknown] extends [_ViemWalletClient]
   ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
     any
   : _ViemWalletClient;
-
-// Internal state for tracking viem availability
-let isViemAvailable = false;
-
-/**
- * Check if viem is available and dynamically import it
- *
- * This function performs a dynamic import of viem to check availability.
- * It uses caching to avoid repeated imports and provides helpful error
- * messages when viem is not installed.
- *
- * @throws {Error} When viem is not installed with installation instructions
- * @example
- * ```typescript
- * try {
- *   await checkViemAvailability();
- *   // viem is available, safe to use viem functions
- * } catch (error) {
- *   console.error(error.message); // "viem is required..."
- * }
- * ```
- */
-export async function checkViemAvailability(): Promise<void> {
-  if (isViemAvailable) {
-    return;
-  }
-  try {
-    // Use direct string literal for webpack compatibility
-    // This prevents "Critical dependency: the request of a dependency is an expression" warnings
-    await import('viem');
-    isViemAvailable = true;
-  } catch (error) {
-    throw new Error(
-      'viem is required for viem wrapper functions. Install it with: npm install viem@^2.0.0',
-    );
-  }
-}

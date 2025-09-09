@@ -36,30 +36,3 @@ export function isViemAccount(
 
   return isNotEthersSigner && hasViemAccountProperties;
 }
-
-/**
- * Validate that provider and signer types are compatible
- */
-export function validateProviderSignerCompatibility(
-  providerOrClient: ethers.providers.Provider | PublicClient,
-  signerOrAccount: ethers.Signer | Account,
-): void {
-  const isViemProvider = isViemClient(providerOrClient);
-  const isViemSigner = isViemAccount(signerOrAccount);
-
-  if (isViemProvider && !isViemSigner) {
-    throw new Error(
-      'Type mismatch: viem PublicClient provided but ethers.Signer detected. ' +
-        'When using viem, please provide a viem Account. ' +
-        'Use either: (ethers.Provider + ethers.Signer) or (viem.PublicClient + viem.Account)',
-    );
-  }
-
-  if (!isViemProvider && isViemSigner) {
-    throw new Error(
-      'Type mismatch: ethers.Provider provided but viem Account detected. ' +
-        'When using ethers, please provide an ethers.Signer. ' +
-        'Use either: (ethers.Provider + ethers.Signer) or (viem.PublicClient + viem.Account)',
-    );
-  }
-}

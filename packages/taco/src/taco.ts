@@ -261,7 +261,7 @@ export async function decrypt(
     : await getPorterUris(domain);
   const porter = new PorterClient(porterUrisFull);
 
-  const providerAdapter = await toEthersProvider(providerLike);
+  const providerAdapter = toEthersProvider(providerLike);
 
   const ritualId = await DkgCoordinatorAgent.getRitualIdFromPublicKey(
     providerAdapter,

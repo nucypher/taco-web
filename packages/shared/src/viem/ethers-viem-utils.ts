@@ -1,9 +1,10 @@
 import { ethers } from 'ethers';
 
-import { type TacoProvider, type TacoSigner } from './taco-interfaces';
+import { type TacoProvider, type TacoSigner } from '../taco-interfaces';
+import { ProviderLike, SignerLike } from '../types';
+
 import { isViemAccount, isViemClient } from './type-guards';
-import { ProviderLike, SignerLike } from './types';
-import { type Account, type PublicClient } from './viem-types';
+import { type Account, type PublicClient } from './types';
 
 /**
  * Viem TACo Provider
@@ -59,10 +60,10 @@ export class ViemTacoSigner implements TacoSigner {
   protected viemAccount: Account;
   public provider?: ethers.providers.Provider | undefined;
 
-  constructor(viemAccount: Account, provider?: ProviderLike | undefined) {
+  constructor(viemAccount: Account, providerLike?: ProviderLike | undefined) {
     this.viemAccount = viemAccount;
-    if (provider) {
-      this.provider = toEthersProvider(provider);
+    if (providerLike) {
+      this.provider = toEthersProvider(providerLike);
     }
   }
 
@@ -91,14 +92,14 @@ export class ViemTacoSigner implements TacoSigner {
  * This function creates a TacoProvider directly from a viem client.
  */
 export function toEthersProvider(
-  provider: ProviderLike,
+  providerLike: ProviderLike,
 ): ethers.providers.Provider {
-  if (isViemClient(provider)) {
+  if (isViemClient(providerLike)) {
     return new ViemTacoProvider(
-      provider,
+      providerLike,
     ) as unknown as ethers.providers.Provider;
   } else {
-    return provider;
+    return providerLike;
   }
 }
 
@@ -112,9 +113,11 @@ export function toEthersProvider(
  */
 export function toEthersSigner(
   signerLike: SignerLike,
-  provider?: ProviderLike,
+  providerLike?: ProviderLike,
 ): ethers.Signer {
-  const providerAdapter = provider ? toEthersProvider(provider) : undefined;
+  const providerAdapter = providerLike
+    ? toEthersProvider(providerLike)
+    : undefined;
   if (isViemAccount(signerLike)) {
     return new ViemTacoSigner(
       signerLike,

@@ -17,7 +17,8 @@
  * ```
  */
 
-// Type helper: Use the real type from 'viem' if available, otherwise fallback to 'any'
+// Type helper: Use the real type from 'viem' if available, otherwise fallback to 'any'.
+// This is because viem is an optional dependency, so the viem types may or may not be present.
 // This pattern preserves type safety for consumers who have 'viem' installed, but does not break for others.
 // See: https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1367016530
 // Dynamic imports resolve to 'unknown' when module is not available, no compile-time errors occur

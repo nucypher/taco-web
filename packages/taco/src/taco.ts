@@ -86,12 +86,12 @@ export async function encrypt(
 ): Promise<ThresholdMessageKit>;
 
 export async function encrypt(
-  providerOrClient: ProviderLike,
+  providerLike: ProviderLike,
   domain: Domain,
   message: Uint8Array | string,
   condition: Condition,
   ritualId: number,
-  signerOrAccount: SignerLike,
+  signerLike: SignerLike,
 ): Promise<ThresholdMessageKit> {
   // TODO(#264): Enable ritual initialization
   // if (ritualId === undefined) {
@@ -107,8 +107,8 @@ export async function encrypt(
   // }
 
   // Create TACo provider and signer adapters from viem objects
-  const providerAdapter = toEthersProvider(providerOrClient);
-  const authSigner = toEthersSigner(signerOrAccount, providerAdapter);
+  const providerAdapter = toEthersProvider(providerLike);
+  const signerAdapter = toEthersSigner(signerLike, providerAdapter);
 
   const dkgRitual = await DkgClient.getActiveRitual(
     providerAdapter,
@@ -120,7 +120,7 @@ export async function encrypt(
     message,
     condition,
     dkgRitual.dkgPublicKey,
-    authSigner,
+    signerAdapter,
   );
 }
 
@@ -154,7 +154,7 @@ export async function encryptWithPublicKey(
  * @param {Condition} condition - Condition under which the message will be encrypted. Those conditions must be
  * satisfied in order to decrypt the message.
  * @param {DkgPublicKey} dkgPublicKey - The public key of an active DKG Ritual to be used for encryption
- * @param {Account} viemAuthSigner - The viem account that will be used to sign the encrypter authorization.
+ * @param {Account} account - The viem account that will be used to sign the encrypter authorization.
  *
  * @returns {Promise<ThresholdMessageKit>} Returns Promise that resolves with an instance of ThresholdMessageKit.
  * It represents the encrypted message.
@@ -165,20 +165,20 @@ export async function encryptWithPublicKey(
   message: Uint8Array | string,
   condition: Condition,
   dkgPublicKey: DkgPublicKey,
-  viemAuthSigner: Account,
+  authAccount: Account,
 ): Promise<ThresholdMessageKit>;
 
 export async function encryptWithPublicKey(
   message: Uint8Array | string,
   condition: Condition,
   dkgPublicKey: DkgPublicKey,
-  authOrAccount: SignerLike,
+  signerLike: SignerLike,
 ): Promise<ThresholdMessageKit> {
   if (typeof message === 'string') {
     message = toBytes(message);
   }
 
-  const signer = toEthersSigner(authOrAccount);
+  const signer = toEthersSigner(signerLike);
 
   const conditionExpr = new ConditionExpression(condition);
 
@@ -250,7 +250,7 @@ export function decrypt(
 ): Promise<Uint8Array>;
 
 export async function decrypt(
-  providerOrClient: ProviderLike,
+  providerLike: ProviderLike,
   domain: Domain,
   messageKit: ThresholdMessageKit,
   context?: ConditionContext,
@@ -261,15 +261,15 @@ export async function decrypt(
     : await getPorterUris(domain);
   const porter = new PorterClient(porterUrisFull);
 
-  const provider = await toEthersProvider(providerOrClient);
+  const providerAdapter = await toEthersProvider(providerLike);
 
   const ritualId = await DkgCoordinatorAgent.getRitualIdFromPublicKey(
-    provider,
+    providerAdapter,
     domain,
     messageKit.acp.publicKey,
   );
   return retrieveAndDecrypt(
-    provider,
+    providerAdapter,
     domain,
     porter,
     messageKit,

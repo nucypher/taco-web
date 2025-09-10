@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 
-import { Account, PublicClient } from './viem-types';
+import { Account, PublicClient } from './viem/types';
 
 export type ChecksumAddress = `0x${string}`;
 export type HexEncodedBytes = string;

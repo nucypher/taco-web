@@ -111,13 +111,13 @@ export class EIP4361AuthProvider implements AuthProvider {
     providerParams?: EIP4361AuthProviderParams,
   );
   constructor(
-    provider: ProviderLike,
-    signer: SignerLike,
+    providerLike: ProviderLike,
+    signerLike: SignerLike,
     providerParams?: EIP4361AuthProviderParams,
   ) {
     this.storage = new LocalStorage(eip4361AuthSignatureSchema);
-    this.provider = toEthersProvider(provider);
-    this.signer = toEthersSigner(signer, this.provider);
+    this.provider = toEthersProvider(providerLike);
+    this.signer = toEthersSigner(signerLike, this.provider);
     if (providerParams) {
       this.providerParams = providerParams;
     } else {

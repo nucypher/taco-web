@@ -1,18 +1,21 @@
 import { ethers } from 'ethers';
 
-import { ProviderLike, SignerLike } from './types';
-import { Account, PublicClient } from './viem-types';
+import { ProviderLike, SignerLike } from '../types';
+
+import { Account, PublicClient } from './types';
 
 /**
  * Type guard to determine if the client is a viem PublicClient
  */
-export function isViemClient(client: ProviderLike): client is PublicClient {
-  const hasViemProperties = 'chain' in client;
+export function isViemClient(
+  providerLike: ProviderLike,
+): providerLike is PublicClient {
+  const hasViemProperties = 'chain' in providerLike;
   const hasViemMethods =
-    typeof (client as { getChainId: () => Promise<number> }).getChainId ===
-    'function';
+    typeof (providerLike as { getChainId: () => Promise<number> })
+      .getChainId === 'function';
   const isNotEthersProvider = !(
-    client instanceof ethers.providers.BaseProvider
+    providerLike instanceof ethers.providers.BaseProvider
   );
 
   return isNotEthersProvider && (hasViemProperties || hasViemMethods);

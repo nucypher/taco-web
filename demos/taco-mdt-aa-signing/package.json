@@ -1,5 +1,5 @@
 {
-  "name": "taco-aa-signing-demo",
+  "name": "taco-mdt-aa-signing-demo",
   "version": "0.1.0",
   "description": "A demo showing TACo distributed signing with Account Abstraction wallets",
   "private": true,

@@ -1,6 +1,8 @@
-# TACo Account Abstraction Demo
+# TACo MetaMask Delegation Toolkit Account Abstraction Demo
 
-Shows how to create smart accounts with TACo's distributed threshold signatures and execute real transactions using Account Abstraction.
+Shows how to create smart accounts with TACo's distributed threshold signatures and execute real transactions using Account Abstraction with the MetaMask Delegation Toolkit.
+
+> **Note**: This demo is specifically built for MetaMask's Delegation Toolkit implementation of Account Abstraction. Some steps (like creating a placeholder viem account) are required due to MDT's architecture.
 
 ## What This Demo Does
 

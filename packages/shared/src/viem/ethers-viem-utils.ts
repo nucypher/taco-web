@@ -123,6 +123,6 @@ export function toEthersSigner(
       providerAdapter,
     ) as unknown as ethers.Signer;
   } else {
-    return signerLike as unknown as ethers.Signer;
+    return signerLike;
   }
 }

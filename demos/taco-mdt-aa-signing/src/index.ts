@@ -52,9 +52,19 @@ async function createTacoSmartAccount(
   );
   const signers = participants.map((p) => p.operator as Address).sort();
 
-  // Create a TACo account using the first signer as placeholder address
-  // This satisfies MetaMask's signatory requirement without using a local wallet
-  const tacoAccount = createViemTacoAccount(signers[0]);
+  // Get the cohort's actual multisig contract address
+  const cohortMultisigAddress =
+    await SigningCoordinatorAgent.getCohortMultisigAddress(
+      provider,
+      TACO_DOMAIN,
+      COHORT_ID,
+      SEPOLIA_CHAIN_ID,
+    );
+
+  // Create a TACo account using the cohort's multisig address
+  // This satisfies MetaMask's signatory requirement and uses the proper cohort multisig
+  const tacoAccount = createViemTacoAccount(cohortMultisigAddress as Address);
+  console.log(`🎯 Using cohort multisig: ${cohortMultisigAddress}`);
 
   const smartAccount = await toMetaMaskSmartAccount({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

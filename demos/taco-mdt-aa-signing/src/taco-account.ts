@@ -4,9 +4,9 @@ import { toAccount } from 'viem/accounts';
 /**
  * Creates a minimal Viem Account that serves as a placeholder for the MetaMask Smart Account.
  * This account is never actually used for signing - all real signing happens through the TACo network
- * via the separate signUserOp function.
+ * via the separate signUserOpWithTaco function.
  *
- * @param cohortAddress - Address of a TACo cohort participant (used as the account address)
+ * @param cohortAddress - Address of the TACo cohort's multisig contract (used as the account address)
  * @returns A Viem Account with stub implementations
  */
 export function createViemTacoAccount(cohortAddress: Address) {
@@ -28,4 +28,3 @@ export function createViemTacoAccount(cohortAddress: Address) {
     },
   });
 }
-

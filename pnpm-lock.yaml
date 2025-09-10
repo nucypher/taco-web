@@ -107,49 +107,6 @@ importers:
         specifier: ^3.0.9
         version: 3.2.4(@types/node@20.19.25)(jiti@2.6.1)(jsdom@16.7.0)(terser@5.44.1)(tsx@4.20.6)
 
-  demos/taco-aa-signing:
-    dependencies:
-      '@metamask/delegation-toolkit':
-        specifier: ^0.11.0
-        version: 0.11.0(viem@2.39.3(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
-      '@metamask/delegation-utils':
-        specifier: ^0.11.0
-        version: 0.11.0(viem@2.39.3(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
-      '@nucypher/shared':
-        specifier: ^0.6.0-alpha.2
-        version: 0.6.0-dev.viem(bufferutil@4.0.9)(utf-8-validate@5.0.10)(viem@2.39.3(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
-      '@nucypher/taco':
-        specifier: ^0.7.0-alpha.2
-        version: 0.7.0-dev.viem(bufferutil@4.0.9)(utf-8-validate@5.0.10)(viem@2.39.3(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
-      '@nucypher/taco-auth':
-        specifier: ^0.4.0-alpha.2
-        version: 0.4.0-dev.viem(bufferutil@4.0.9)(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)(viem@2.39.3(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
-      dotenv:
-        specifier: ^16.5.0
-        version: 16.6.1
-      ethers:
-        specifier: ^5.8.0
-        version: 5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      permissionless:
-        specifier: ^0.2.54
-        version: 0.2.57(viem@2.39.3(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
-      viem:
-        specifier: ^2.34.0
-        version: 2.39.3(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)
-      winston:
-        specifier: ^3.17.0
-        version: 3.18.3
-    devDependencies:
-      '@types/node':
-        specifier: ^20.17.9
-        version: 20.19.25
-      tsx:
-        specifier: ^4.20.4
-        version: 4.20.6
-      typescript:
-        specifier: ^5.7.2
-        version: 5.9.3
-
   demos/taco-demo:
     dependencies:
       '@irys/sdk':
@@ -237,6 +194,49 @@ importers:
       webpack-dev-server:
         specifier: ^5.2.2
         version: 5.2.2(bufferutil@4.0.9)(utf-8-validate@5.0.10)(webpack-cli@6.0.1)(webpack@5.103.0)
+
+  demos/taco-mdt-aa-signing:
+    dependencies:
+      '@metamask/delegation-toolkit':
+        specifier: ^0.11.0
+        version: 0.11.0(viem@2.39.3(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
+      '@metamask/delegation-utils':
+        specifier: ^0.11.0
+        version: 0.11.0(viem@2.39.3(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
+      '@nucypher/shared':
+        specifier: ^0.6.0-alpha.2
+        version: 0.6.0-dev.viem(bufferutil@4.0.9)(utf-8-validate@5.0.10)(viem@2.39.3(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
+      '@nucypher/taco':
+        specifier: ^0.7.0-alpha.2
+        version: 0.7.0-dev.viem(bufferutil@4.0.9)(utf-8-validate@5.0.10)(viem@2.39.3(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
+      '@nucypher/taco-auth':
+        specifier: ^0.4.0-alpha.2
+        version: 0.4.0-dev.viem(bufferutil@4.0.9)(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)(viem@2.39.3(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
+      dotenv:
+        specifier: ^16.5.0
+        version: 16.6.1
+      ethers:
+        specifier: ^5.8.0
+        version: 5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      permissionless:
+        specifier: ^0.2.54
+        version: 0.2.57(viem@2.39.3(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
+      viem:
+        specifier: ^2.34.0
+        version: 2.39.3(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)
+      winston:
+        specifier: ^3.17.0
+        version: 3.18.3
+    devDependencies:
+      '@types/node':
+        specifier: ^20.17.9
+        version: 20.19.25
+      tsx:
+        specifier: ^4.20.4
+        version: 4.20.6
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
 
   demos/taco-nft-demo:
     dependencies:
@@ -12627,7 +12627,7 @@ snapshots:
 
   '@scure/bip32@1.7.0':
     dependencies:
-      '@noble/curves': 1.9.1
+      '@noble/curves': 1.9.7
       '@noble/hashes': 1.8.0
       '@scure/base': 1.2.6
 
@@ -19404,7 +19404,7 @@ snapshots:
 
   refa@0.12.1:
     dependencies:
-      '@eslint-community/regexpp': 4.12.1
+      '@eslint-community/regexpp': 4.12.2
 
   reflect.getprototypeof@1.0.10:
     dependencies:
@@ -19429,7 +19429,7 @@ snapshots:
 
   regexp-ast-analysis@0.7.1:
     dependencies:
-      '@eslint-community/regexpp': 4.12.1
+      '@eslint-community/regexpp': 4.12.2
       refa: 0.12.1
 
   regexp.prototype.flags@1.5.4:
@@ -19676,7 +19676,7 @@ snapshots:
 
   scslre@0.3.0:
     dependencies:
-      '@eslint-community/regexpp': 4.12.1
+      '@eslint-community/regexpp': 4.12.2
       refa: 0.12.1
       regexp-ast-analysis: 0.7.1
 

@@ -17,7 +17,6 @@ export class ViemTacoProvider implements TacoProvider {
   // Ethers.js compatibility property for contract validation
   readonly _isProvider = true;
   readonly _network: Promise<ethers.providers.Network>;
-  readonly formatter?: undefined = undefined;
 
   constructor(viemPublicClient: PublicClient) {
     this.viemPublicClient = viemPublicClient;

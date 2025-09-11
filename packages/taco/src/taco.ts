@@ -34,12 +34,12 @@ import { retrieveAndDecrypt } from './tdec';
  * instead of ethers providers and signers.
  *
  * @export
- * @param {PublicClient} viemPublicClient - Viem PublicClient for network operations
+ * @param {PublicClient} publicClient - Viem PublicClient for network operations
  * @param {Domain} domain - Represents the logical network for encryption (must match ritualId)
  * @param {Uint8Array | string} message - The message to be encrypted
  * @param {Condition} condition - Condition under which the message will be encrypted
  * @param {number} ritualId - The ID of the DKG Ritual to be used for encryption
- * @param {Account} viemAuthSigner - The viem account that will be used to sign the encrypter authorization
+ * @param {Account} authAccount - The viem account that will be used to sign the encrypter authorization
  *
  * @returns {Promise<ThresholdMessageKit>} Returns Promise that resolves with an instance of ThresholdMessageKit
  *
@@ -77,12 +77,12 @@ export async function encrypt(
  * @throws {Error} If the active DKG Ritual cannot be retrieved an error is thrown.
  */
 export async function encrypt(
-  viemPublicClient: PublicClient,
+  publicClient: PublicClient,
   domain: Domain,
   message: Uint8Array | string,
   condition: Condition,
   ritualId: number,
-  viemAuthSigner: Account,
+  authAccount: Account,
 ): Promise<ThresholdMessageKit>;
 
 export async function encrypt(
@@ -228,7 +228,7 @@ export function decrypt(
  * Decrypts an encrypted message.
  *
  * @export
- * @param {PublicClient} viemPublicClient - Viem PublicClient for network operations
+ * @param {PublicClient} publicClient - Viem PublicClient for network operations
  * @param {Domain} domain - Represents the logical network in which the decryption will be performed.
  * Must match the `ritualId`.
  * @param {ThresholdMessageKit} messageKit - The kit containing the message to be decrypted
@@ -242,7 +242,7 @@ export function decrypt(
  * an error is thrown.
  */
 export function decrypt(
-  viemPublicClient: PublicClient,
+  publicClient: PublicClient,
   domain: Domain,
   messageKit: ThresholdMessageKit,
   context?: ConditionContext,

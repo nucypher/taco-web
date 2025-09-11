@@ -39,12 +39,12 @@ const consumerAccount = privateKeyToAccount(
 describe.skipIf(!process.env.RUNNING_IN_CI)(
   'Viem Encrypt/Decrypt Integration Test',
   () => {
-    let viemPublicClient: PublicClient;
+    let publicClient: PublicClient;
     let viemWalletClient: WalletClient;
 
     beforeAll(async () => {
       // Create viem clients
-      viemPublicClient = createPublicClient({
+      publicClient = createPublicClient({
         chain: polygonAmoy,
         transport: http(RPC_PROVIDER_URL),
       });
@@ -59,7 +59,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       await initialize();
 
       // Verify network connection
-      const chainId = await viemPublicClient.getChainId();
+      const chainId = await publicClient.getChainId();
       if (chainId !== CHAIN_ID) {
         throw new Error(
           `Provider connected to wrong network. Expected ${CHAIN_ID}, got ${chainId}`,
@@ -103,7 +103,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
 
       // Encrypt message using viem
       const messageKit = await encrypt(
-        viemPublicClient,
+        publicClient,
         DOMAIN,
         message,
         compoundCondition,
@@ -125,7 +125,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         )
       ) {
         const authProvider = new EIP4361AuthProvider(
-          viemPublicClient,
+          publicClient,
           consumerAccount,
         );
 
@@ -137,7 +137,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
 
       // Decrypt message using viem
       const decryptedBytes = await decrypt(
-        viemPublicClient,
+        publicClient,
         DOMAIN,
         messageKitFromBytes,
         conditionContext,
@@ -166,7 +166,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
 
       // Encrypt message with viem using simple condition
       const messageKit = await encrypt(
-        viemPublicClient,
+        publicClient,
         DOMAIN,
         message,
         positiveBalanceCondition,
@@ -183,7 +183,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
 
       // Add auth provider using consolidated EIP4361AuthProvider with viem support
       const authProvider = new EIP4361AuthProvider(
-        viemPublicClient,
+        publicClient,
         consumerAccount,
       );
 
@@ -194,7 +194,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
 
       // Decrypt message using viem
       const decryptedBytes = await decrypt(
-        viemPublicClient,
+        publicClient,
         DOMAIN,
         messageKitFromBytes,
         conditionContext,
@@ -223,7 +223,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
 
       // Test encryption with viem account
       const messageKit = await encrypt(
-        viemPublicClient,
+        publicClient,
         DOMAIN,
         message,
         simpleCondition,

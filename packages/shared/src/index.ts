@@ -4,9 +4,7 @@ export * from './schemas';
 export * from './taco-interfaces';
 export type * from './types';
 export * from './utils';
-export * from './viem/ethers-viem-utils';
-export * from './viem/type-guards';
-export * from './viem/types';
+export * from './viem/';
 export * from './web3';
 
 // Re-exports

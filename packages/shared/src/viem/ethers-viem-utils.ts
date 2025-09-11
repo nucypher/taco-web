@@ -12,21 +12,21 @@ import { type Account, type PublicClient } from './types';
  * This class implements the TacoProvider interface directly using viem clients.
  */
 export class ViemTacoProvider implements TacoProvider {
-  protected viemPublicClient: PublicClient;
+  protected publicClient: PublicClient;
 
   // Ethers.js compatibility property for contract validation
   readonly _isProvider = true;
   readonly _network: Promise<ethers.providers.Network>;
 
-  constructor(viemPublicClient: PublicClient) {
-    this.viemPublicClient = viemPublicClient;
+  constructor(publicClient: PublicClient) {
+    this.publicClient = publicClient;
     // Initialize network for ethers compatibility
     this._network = this.getNetwork();
   }
 
   async getNetwork(): Promise<ethers.providers.Network> {
-    const chainId = await this.viemPublicClient.getChainId();
-    const name = this.viemPublicClient.chain?.name || `chain-${chainId}`;
+    const chainId = await this.publicClient.getChainId();
+    const name = this.publicClient.chain?.name || `chain-${chainId}`;
     return {
       name,
       chainId,
@@ -36,7 +36,7 @@ export class ViemTacoProvider implements TacoProvider {
   async call(
     transaction: ethers.providers.TransactionRequest,
   ): Promise<string> {
-    const result = await this.viemPublicClient.call({
+    const result = await this.publicClient.call({
       to: transaction.to as `0x${string}`,
       data: transaction.data as `0x${string}`,
       value: transaction.value

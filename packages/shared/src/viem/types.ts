@@ -13,7 +13,7 @@
  * import { type PublicClient } from '@nucypher/shared';
  *
  * // Use viem clients directly with TACo adapters
- * const tacoProvider = await toEthersProvider(viemPublicClient);
+ * const tacoProvider = await toEthersProvider(publicClient);
  * ```
  */
 

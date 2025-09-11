@@ -90,7 +90,7 @@ describe('viem TACo integration', () => {
 
       const mockViemProvider = {
         ...fakeProvider(aliceSecretKeyBytes),
-        viemPublicClient: mockViemPublicClient, // Add the required viem property
+        publicClient: mockViemPublicClient, // Add the required viem property
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any;
 
@@ -181,14 +181,14 @@ describe('viem TACo integration', () => {
     it('decrypts without optional parameters', async () => {
       // This test just verifies the function exists and has the right signature
       expect(decrypt).toBeDefined();
-      expect(decrypt.length).toBe(5); // viemPublicClient, domain, messageKit, context?, porterUris?
+      expect(decrypt.length).toBe(5); // publicClient, domain, messageKit, context?, porterUris?
     });
   }, 10000);
 
   describe('function signatures', () => {
     it('should have correct function signatures', () => {
-      expect(encrypt.length).toBe(6); // viemPublicClient, domain, message, condition, ritualId, viemAccount
-      expect(decrypt.length).toBe(5); // viemPublicClient, domain, messageKit, context?, porterUris?
+      expect(encrypt.length).toBe(6); // publicClient, domain, message, condition, ritualId, viemAccount
+      expect(decrypt.length).toBe(5); // publicClient, domain, messageKit, context?, porterUris?
     });
   });
 });

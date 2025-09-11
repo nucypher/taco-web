@@ -128,7 +128,7 @@ const ethersEncrypted = await encrypt(
 
 // Using viem - automatically uses viem implementation  
 const viemEncrypted = await encrypt(
-  viemPublicClient,  // viem PublicClient
+  publicClient,  // viem PublicClient
   domains.TESTNET,
   message,
   condition,

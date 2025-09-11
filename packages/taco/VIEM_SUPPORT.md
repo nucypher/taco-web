@@ -44,7 +44,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 await initialize();
 
 // Create viem public client
-const viemPublicClient = createPublicClient({
+const publicClient = createPublicClient({
   chain: polygonAmoy,
   transport: http(),
 });
@@ -64,7 +64,7 @@ const condition = new conditions.predefined.erc20.ERC20Balance({
 
 // Same function names work with viem - TypeScript automatically detects the right overload
 const encryptedKit = await encrypt(
-  viemPublicClient, // viem PublicClient
+  publicClient, // viem PublicClient
   domains.DEVNET, // or 'lynx'
   'Hello, secret!',
   condition,
@@ -74,7 +74,7 @@ const encryptedKit = await encrypt(
 
 // Same decrypt function works with viem
 const decryptedMessage = await decrypt(
-  viemPublicClient,
+  publicClient,
   domains.DEVNET,
   encryptedKit,
 );

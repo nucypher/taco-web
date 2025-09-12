@@ -3,25 +3,21 @@
 import { ethers } from 'ethers';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {
-  toEthersProvider,
-  toEthersSigner,
-  ViemTacoProvider,
-  ViemTacoSigner,
-} from '../src/viem/ethers-viem-utils';
+import { toEthersProvider, ViemTacoProvider } from '../src/viem/taco-provider';
+import { toTacoSigner, ViemTacoSigner } from '../src/viem/taco-signer';
 import { isViemAccount, isViemClient } from '../src/viem/type-guards';
 
 describe('viem adapter utilities', () => {
   describe('function exports', () => {
     it('should export all adapter functions', () => {
       expect(toEthersProvider).toBeDefined();
-      expect(toEthersSigner).toBeDefined();
+      expect(toTacoSigner).toBeDefined();
       expect(ViemTacoProvider).toBeDefined();
       expect(ViemTacoSigner).toBeDefined();
       expect(isViemClient).toBeDefined();
       expect(isViemAccount).toBeDefined();
       expect(typeof toEthersProvider).toBe('function');
-      expect(typeof toEthersSigner).toBe('function');
+      expect(typeof toTacoSigner).toBe('function');
       expect(typeof isViemClient).toBe('function');
       expect(typeof isViemAccount).toBe('function');
     });
@@ -148,12 +144,6 @@ describe('viem adapter utilities', () => {
       await signer.signMessage('test');
     });
 
-    it('should create signer with provider', async () => {
-      const signer = new ViemTacoSigner(mockViemAccount, mockProvider);
-
-      expect(signer.provider).toBe(mockProvider);
-    });
-
     it('should get address from viem account', async () => {
       const signer = new ViemTacoSigner(mockViemAccount);
       const address = await signer.getAddress();
@@ -193,14 +183,6 @@ describe('viem adapter utilities', () => {
       await expect(signer.signMessage('test')).rejects.toThrow(
         'Account does not support message signing',
       );
-    });
-
-    it('should connect to provider', () => {
-      const signer = new ViemTacoSigner(mockViemAccount);
-      const connected = signer.connect(mockProvider);
-
-      expect(signer.provider).toBe(mockProvider);
-      expect(connected).toBe(signer);
     });
   });
 
@@ -243,37 +225,16 @@ describe('viem adapter utilities', () => {
     });
   });
 
-  describe('toEthersSigner', () => {
+  describe('toTacoSigner', () => {
     it('should create signer from viem account', async () => {
       const mockViemAccount = {
         address: '0x742d35Cc6632C0532c718F63b1a8D7d8a7fAd3b2',
         signMessage: vi.fn().mockResolvedValue('0xsignature'),
       } as any;
 
-      const mockProvider = {
-        getNetwork: vi.fn().mockResolvedValue({ chainId: 80002, name: 'test' }),
-      } as any;
-
-      const signer = toEthersSigner(mockViemAccount, mockProvider);
+      const signer = toTacoSigner(mockViemAccount);
 
       expect(signer).toBeInstanceOf(ViemTacoSigner);
-      expect(signer.provider).toBe(mockProvider);
-
-      // Actually call methods to ensure coverage
-      const address = await signer.getAddress();
-      expect(address).toBe('0x742d35Cc6632C0532c718F63b1a8D7d8a7fAd3b2');
-    });
-
-    it('should create signer without provider', async () => {
-      const mockViemAccount = {
-        address: '0x742d35Cc6632C0532c718F63b1a8D7d8a7fAd3b2',
-        signMessage: vi.fn().mockResolvedValue('0xsig'),
-      } as any;
-
-      const signer = toEthersSigner(mockViemAccount);
-
-      expect(signer).toBeInstanceOf(ViemTacoSigner);
-      expect(signer.provider).toBeUndefined();
 
       // Actually call methods to ensure coverage
       const address = await signer.getAddress();
@@ -282,7 +243,7 @@ describe('viem adapter utilities', () => {
 
     it('should return ethers signer unchanged', () => {
       const ethersSigner = new ethers.Wallet('0x' + '1'.repeat(64));
-      const result = toEthersSigner(ethersSigner);
+      const result = toTacoSigner(ethersSigner);
 
       expect(result).toBe(ethersSigner);
     });
@@ -294,35 +255,9 @@ describe('viem adapter utilities', () => {
         provider: {}, // This will make it fail the isViemAccount check
       } as any;
 
-      const result = toEthersSigner(nonViemSigner);
+      const result = toTacoSigner(nonViemSigner);
 
       expect(result).toBe(nonViemSigner);
-    });
-
-    it('should create signer with provider adapter', async () => {
-      const mockViemAccount = {
-        address: '0x742d35Cc6632C0532c718F63b1a8D7d8a7fAd3b2',
-        signMessage: vi.fn().mockResolvedValue('0xsignature'),
-      } as any;
-
-      const mockViemClient = {
-        getChainId: vi.fn().mockResolvedValue(80002),
-        call: vi.fn().mockResolvedValue('0x'),
-        chain: { name: 'test', id: 80002 },
-      } as any;
-
-      const result = toEthersSigner(mockViemAccount, mockViemClient);
-
-      expect(result).toBeInstanceOf(ViemTacoSigner);
-      expect(result.provider).toBeDefined();
-
-      // Actually call methods to test the provider adapter
-      const address = await result.getAddress();
-      expect(address).toBe('0x742d35Cc6632C0532c718F63b1a8D7d8a7fAd3b2');
-
-      // Test the provider was properly adapted
-      const network = await result.provider.getNetwork();
-      expect(network.chainId).toBe(80002);
     });
   });
 

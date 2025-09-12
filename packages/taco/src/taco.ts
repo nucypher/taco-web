@@ -14,9 +14,10 @@ import {
   ProviderLike,
   PublicClient,
   SignerLike,
+  TacoSigner,
   toBytes,
   toEthersProvider,
-  toEthersSigner,
+  toTacoSigner,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
@@ -108,7 +109,7 @@ export async function encrypt(
 
   // Create TACo provider and signer adapters from viem objects
   const providerAdapter = toEthersProvider(providerLike);
-  const signerAdapter = toEthersSigner(signerLike, providerAdapter);
+  const signerAdapter = toTacoSigner(signerLike);
 
   const dkgRitual = await DkgClient.getActiveRitual(
     providerAdapter,
@@ -143,7 +144,7 @@ export async function encryptWithPublicKey(
   message: Uint8Array | string,
   condition: Condition,
   dkgPublicKey: DkgPublicKey,
-  authSigner: ethers.Signer,
+  authSigner: TacoSigner,
 ): Promise<ThresholdMessageKit>;
 
 /**
@@ -178,7 +179,7 @@ export async function encryptWithPublicKey(
     message = toBytes(message);
   }
 
-  const signer = toEthersSigner(signerLike);
+  const signer = toTacoSigner(signerLike);
 
   const conditionExpr = new ConditionExpression(condition);
 

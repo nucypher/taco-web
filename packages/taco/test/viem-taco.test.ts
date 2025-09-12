@@ -98,7 +98,7 @@ describe('viem TACo integration', () => {
         .spyOn(await import('@nucypher/shared'), 'toEthersProvider')
         .mockReturnValue(mockViemProvider);
       const createTacoSignerSpy = vi
-        .spyOn(await import('@nucypher/shared'), 'toEthersSigner')
+        .spyOn(await import('@nucypher/shared'), 'toTacoSigner')
         .mockReturnValue(typedSigner);
 
       const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);
@@ -114,10 +114,7 @@ describe('viem TACo integration', () => {
       );
 
       expect(createTacoProviderSpy).toHaveBeenCalledWith(mockViemPublicClient);
-      expect(createTacoSignerSpy).toHaveBeenCalledWith(
-        mockViemAccount,
-        mockViemProvider,
-      );
+      expect(createTacoSignerSpy).toHaveBeenCalledWith(mockViemAccount);
       expect(getFinalizedRitualSpy).toHaveBeenCalled();
       expect(messageKit).toBeDefined();
 

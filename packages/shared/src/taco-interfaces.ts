@@ -35,11 +35,6 @@ export interface TacoProvider {
  */
 export interface TacoSigner {
   /**
-   * The provider this signer is connected to (optional for signing-only operations)
-   */
-  readonly provider?: TacoProvider | undefined;
-
-  /**
    * Get the address of this signer
    */
   getAddress(): Promise<string>;

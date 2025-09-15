@@ -14,7 +14,6 @@ import {
   ProviderLike,
   PublicClient,
   SignerLike,
-  TACoSigner,
   toBytes,
   toEthersProvider,
   toTACoSigner,
@@ -29,10 +28,9 @@ import { DkgClient } from './dkg';
 import { retrieveAndDecrypt } from './tdec';
 
 /**
- * Encrypts a message gated by TACo Conditions using an ethers.js provider and signer.
+ * Encrypts a message gated by TACo Conditions using an ethers.js `Provider` and `Signer`.
  *
- * Use this overload when your application uses ethers.js. For viem-based apps,
- * use the next overload that accepts a `PublicClient` and `Account`.
+ * Use this overload when your application uses ethers.js.
  *
  * @export
  * @param {ethers.providers.Provider} provider - Ethers provider for network operations.
@@ -40,9 +38,9 @@ import { retrieveAndDecrypt } from './tdec';
  * @param {Uint8Array | string} message - The message to be encrypted.
  * @param {Condition} condition - Access condition (single or composite) that must be satisfied at decryption time.
  * @param {number} ritualId - ID of the DKG ritual whose public key will be used for encryption.
- * @param {ethers.Signer} authSigner - Signer used to authorize the encryption (EIP‑191 message signature).
+ * @param {ethers.Signer} authSigner - Signer used to identify encryptor and verify authorization.
  *
- * @returns {Promise<ThresholdMessageKit>} Encrypted message kit representing the ciphertext and access policy.
+ * @returns {Promise<ThresholdMessageKit>} Encrypted message kit representing the ciphertext and associated metadata.
  *
  * @throws {Error} If the ritual cannot be retrieved or encryption fails.
  */
@@ -67,9 +65,10 @@ export async function encrypt(
  * @param {Uint8Array | string} message - The message to be encrypted.
  * @param {Condition} condition - Access condition (single or composite) that must be satisfied at decryption time.
  * @param {number} ritualId - ID of the DKG ritual whose public key will be used for encryption.
- * @param {Account} authAccount - Viem account used to authorize the encryption (message signature).
+ * @param {Account} authAccount - Viem account used to identify encryptor and verify authorization.
  *
- * @returns {Promise<ThresholdMessageKit>} Encrypted message kit representing the ciphertext and access policy.
+ * @returns {Promise<ThresholdMessageKit>} Encrypted message kit representing the ciphertext and associated metadata.
+ *
  *
  * @throws {Error} If the ritual cannot be retrieved or encryption fails.
  */
@@ -90,19 +89,6 @@ export async function encrypt(
   ritualId: number,
   signerLike: SignerLike,
 ): Promise<ThresholdMessageKit> {
-  // TODO(#264): Enable ritual initialization
-  // if (ritualId === undefined) {
-  //   ritualId = await DkgClient.initializeRitual(
-  //     provider,
-  //     this.cohort.ursulaAddresses,
-  //     true
-  //   );
-  // }
-  // if (ritualId === undefined) {
-  //   // Given that we just initialized the ritual, this should never happen
-  //   throw new Error('Ritual ID is undefined');
-  // }
-
   // Create TACo provider and signer adapters from viem objects
   const providerAdapter = toEthersProvider(providerLike);
 
@@ -117,7 +103,7 @@ export async function encrypt(
     condition,
     dkgRitual.dkgPublicKey,
     // Casting is needed because with the function definition of encryptWithPublicKey,
-    // this param can be either a TACoSigner or a viem Account. But not a type that is the union of both.
+    // this param can be either a Signer or a viem Account. But not a type that is the union of both.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     signerLike as any,
   );
@@ -130,9 +116,9 @@ export async function encrypt(
  * @param {Uint8Array | string} message - The message to be encrypted.
  * @param {Condition} condition - Access condition (single or composite) that must be satisfied at decryption time.
  * @param {DkgPublicKey} dkgPublicKey - The public key of an active DKG Ritual to be used for encryption
- * @param {SignerLike} authSigner - Signer used to authorize the encryption. Accepts an ethers `Signer` or a viem `Account`.
+ * @param {Signer} authSigner - Signer used to identify encryptor and verify authorization. Accepts an ethers `Signer` or a viem `Account`.
  *
- * @returns {Promise<ThresholdMessageKit>} Encrypted message kit representing the ciphertext and access policy.
+ * @returns {Promise<ThresholdMessageKit>} Encrypted message kit representing the ciphertext and associated metadata.
  *
  * @throws {Error} If the encryption process throws an error, an error is thrown.
  */
@@ -140,7 +126,7 @@ export async function encryptWithPublicKey(
   message: Uint8Array | string,
   condition: Condition,
   dkgPublicKey: DkgPublicKey,
-  authSigner: TACoSigner,
+  authSigner: ethers.Signer,
 ): Promise<ThresholdMessageKit>;
 
 /**
@@ -150,9 +136,9 @@ export async function encryptWithPublicKey(
  * @param {Uint8Array | string} message - The message to be encrypted.
  * @param {Condition} condition - Access condition (single or composite) that must be satisfied at decryption time.
  * @param {DkgPublicKey} dkgPublicKey - The public key of an active DKG Ritual to be used for encryption
- * @param {Account} authAccount - Viem account used to authorize the encryption.
+ * @param {Account} authAccount - Viem account used to identify encryptor and verify authorization.
  *
- * @returns {Promise<ThresholdMessageKit>} Encrypted message kit representing the ciphertext and access policy.
+ * @returns {Promise<ThresholdMessageKit>} Encrypted message kit representing the ciphertext and associated metadata.
  *
  * @throws {Error} If the encryption process throws an error, an error is thrown.
  */
@@ -199,8 +185,8 @@ export async function encryptWithPublicKey(
  * @export
  * @param {ethers.providers.Provider} provider - Ethers provider for network operations.
  * @param {Domain} domain - Logical TACo domain used for decryption.
- * @param {ThresholdMessageKit} messageKit - The kit containing the ciphertext and access policy.
- * @param {ConditionContext} [context] - Optional context data (e.g., time values) used by conditions in the `messageKit`.
+ * @param {ThresholdMessageKit} messageKit - The representation of the ciphertext and associated metadata.
+ * @param {ConditionContext} [context] - Optional context data required by conditions.
  * @param {string[]} [porterUris] - Optional Porter service URI(s). If omitted, they are resolved via `getPorterUris(domain)`.
  *
  * @returns {Promise<Uint8Array>} The decrypted message bytes.
@@ -222,7 +208,7 @@ export function decrypt(
  * @param {PublicClient} publicClient - Viem `PublicClient` for network operations.
  * @param {Domain} domain - Logical TACo domain used for decryption.
  * @param {ThresholdMessageKit} messageKit - The kit containing the ciphertext and access policy.
- * @param {ConditionContext} [context] - Optional context data (e.g., time values) used by conditions in the `messageKit`.
+ * @param {ConditionContext} [context] - Optional context data required by conditions.
  * @param {string[]} [porterUris] - Optional Porter service URI(s). If omitted, they are resolved via `getPorterUris(domain)`.
  *
  * @returns {Promise<Uint8Array>} The decrypted message bytes.

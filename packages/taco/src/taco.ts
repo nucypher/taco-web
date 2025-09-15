@@ -14,10 +14,10 @@ import {
   ProviderLike,
   PublicClient,
   SignerLike,
-  TacoSigner,
+  TACoSigner,
   toBytes,
   toEthersProvider,
-  toTacoSigner,
+  toTACoSigner,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
@@ -117,7 +117,7 @@ export async function encrypt(
     condition,
     dkgRitual.dkgPublicKey,
     // Casting is needed because with the function definition of encryptWithPublicKey,
-    // this param can be either a TacoSigner or a viem Account. But not a type that is the union of both.
+    // this param can be either a TACoSigner or a viem Account. But not a type that is the union of both.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     signerLike as any,
   );
@@ -140,7 +140,7 @@ export async function encryptWithPublicKey(
   message: Uint8Array | string,
   condition: Condition,
   dkgPublicKey: DkgPublicKey,
-  authSigner: TacoSigner,
+  authSigner: TACoSigner,
 ): Promise<ThresholdMessageKit>;
 
 /**
@@ -173,7 +173,7 @@ export async function encryptWithPublicKey(
     message = toBytes(message);
   }
 
-  const signer = toTacoSigner(signerLike);
+  const signer = toTACoSigner(signerLike);
 
   const conditionExpr = new ConditionExpression(condition);
 

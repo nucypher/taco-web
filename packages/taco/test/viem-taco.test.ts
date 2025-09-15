@@ -98,7 +98,7 @@ describe('viem TACo integration', () => {
         .spyOn(await import('@nucypher/shared'), 'toEthersProvider')
         .mockReturnValue(mockViemProvider);
       const createTacoSignerSpy = vi
-        .spyOn(await import('@nucypher/shared'), 'toTacoSigner')
+        .spyOn(await import('@nucypher/shared'), 'toTACoSigner')
         .mockReturnValue(typedSigner);
 
       const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);

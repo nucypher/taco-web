@@ -7,20 +7,20 @@ import {
   toEthersProvider,
   ViemEthersProviderAdapter,
 } from '../src/viem/ethers-adapter';
-import { toTacoSigner, ViemSignerAdapter } from '../src/viem/signer-adapter';
+import { toTACoSigner, ViemSignerAdapter } from '../src/viem/signer-adapter';
 import { isViemAccount, isViemClient } from '../src/viem/type-guards';
 
 describe('viem ethers adapter', () => {
   describe('function exports', () => {
     it('should export all adapter functions', () => {
       expect(toEthersProvider).toBeDefined();
-      expect(toTacoSigner).toBeDefined();
+      expect(toTACoSigner).toBeDefined();
       expect(ViemEthersProviderAdapter).toBeDefined();
       expect(ViemSignerAdapter).toBeDefined();
       expect(isViemClient).toBeDefined();
       expect(isViemAccount).toBeDefined();
       expect(typeof toEthersProvider).toBe('function');
-      expect(typeof toTacoSigner).toBe('function');
+      expect(typeof toTACoSigner).toBe('function');
       expect(typeof isViemClient).toBe('function');
       expect(typeof isViemAccount).toBe('function');
     });
@@ -270,14 +270,14 @@ describe('viem ethers adapter', () => {
     });
   });
 
-  describe('toTacoSigner', () => {
+  describe('toTACoSigner', () => {
     it('should create signer from viem account', async () => {
       const mockViemAccount = {
         address: '0x742d35Cc6632C0532c718F63b1a8D7d8a7fAd3b2',
         signMessage: vi.fn().mockResolvedValue('0xsignature'),
       } as any;
 
-      const signer = toTacoSigner(mockViemAccount);
+      const signer = toTACoSigner(mockViemAccount);
 
       expect(signer).toBeInstanceOf(ViemSignerAdapter);
 
@@ -287,7 +287,7 @@ describe('viem ethers adapter', () => {
 
     it('should return ethers signer unchanged', () => {
       const ethersSigner = new ethers.Wallet('0x' + '1'.repeat(64));
-      const result = toTacoSigner(ethersSigner);
+      const result = toTACoSigner(ethersSigner);
 
       expect(result).toBe(ethersSigner);
     });
@@ -298,7 +298,7 @@ describe('viem ethers adapter', () => {
         provider: {}, // This will make it fail the isViemAccount check
       } as any;
 
-      const result = toTacoSigner(nonViemSigner);
+      const result = toTACoSigner(nonViemSigner);
 
       expect(result).toBe(nonViemSigner);
     });

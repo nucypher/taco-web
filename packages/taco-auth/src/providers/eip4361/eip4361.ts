@@ -3,9 +3,9 @@ import {
   ProviderLike,
   PublicClient,
   SignerLike,
-  TacoSigner,
+  TACoSigner,
   toEthersProvider,
-  toTacoSigner,
+  toTACoSigner,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
 import { SiweMessage } from 'siwe';
@@ -62,7 +62,7 @@ export class EIP4361AuthProvider implements AuthProvider {
   private readonly storage: LocalStorage<EIP4361AuthSignature>;
   private readonly providerParams: EIP4361AuthProviderParams;
   private readonly provider: ethers.providers.Provider;
-  private readonly signer: TacoSigner;
+  private readonly signer: TACoSigner;
 
   /**
    * Creates a new EIP4361AuthProvider instance with ethers.js objects.
@@ -118,7 +118,7 @@ export class EIP4361AuthProvider implements AuthProvider {
   ) {
     this.storage = new LocalStorage(eip4361AuthSignatureSchema);
     this.provider = toEthersProvider(providerLike);
-    this.signer = toTacoSigner(signerLike);
+    this.signer = toTACoSigner(signerLike);
     if (providerParams) {
       this.providerParams = providerParams;
     } else {

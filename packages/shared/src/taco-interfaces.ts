@@ -10,7 +10,7 @@
  * - `ethers.Signer`: Directly compatible via structural typing (because it has the same method signatures)
  * - Future signer adapters can implement this same minimal interface
  */
-export interface TacoSigner {
+export interface TACoSigner {
   /**
    * Get the address of this signer
    */

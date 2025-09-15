@@ -167,6 +167,10 @@ describe('taco', () => {
     // Mock viem client (chain property makes isViemClient return true)
     const mockViemClient = {
       chain: { id: 80002, name: 'polygon-amoy' },
+      transport: {
+        type: 'http',
+        url: 'https://rpc.ankr.com/polygon_amoy',
+      },
       getChainId: () => Promise.resolve(80002),
     };
 

@@ -29,23 +29,22 @@ import { DkgClient } from './dkg';
 import { retrieveAndDecrypt } from './tdec';
 
 /**
- * Encrypts a message under given conditions using viem clients.
+ * Encrypts a message gated by TACo Conditions using an ethers.js provider and signer.
  *
- * This is a viem-compatible overload of the encrypt function that accepts viem clients
- * instead of ethers providers and signers.
+ * Use this overload when your application uses ethers.js. For viem-based apps,
+ * use the next overload that accepts a `PublicClient` and `Account`.
  *
  * @export
- * @param {PublicClient} publicClient - Viem PublicClient for network operations
- * @param {Domain} domain - Represents the logical network for encryption (must match ritualId)
- * @param {Uint8Array | string} message - The message to be encrypted
- * @param {Condition} condition - Condition under which the message will be encrypted
- * @param {number} ritualId - The ID of the DKG Ritual to be used for encryption
- * @param {Account} authAccount - The viem account that will be used to sign the encrypter authorization
+ * @param {ethers.providers.Provider} provider - Ethers provider for network operations.
+ * @param {Domain} domain - Logical TACo domain in which encryption will be performed (must match the ritual's domain).
+ * @param {Uint8Array | string} message - The message to be encrypted.
+ * @param {Condition} condition - Access condition (single or composite) that must be satisfied at decryption time.
+ * @param {number} ritualId - ID of the DKG ritual whose public key will be used for encryption.
+ * @param {ethers.Signer} authSigner - Signer used to authorize the encryption (EIP‑191 message signature).
  *
- * @returns {Promise<ThresholdMessageKit>} Returns Promise that resolves with an instance of ThresholdMessageKit
+ * @returns {Promise<ThresholdMessageKit>} Encrypted message kit representing the ciphertext and access policy.
  *
- * @throws {Error} If the active DKG Ritual cannot be retrieved an error is thrown
-
+ * @throws {Error} If the ritual cannot be retrieved or encryption fails.
  */
 // Function overloads for encrypt
 export async function encrypt(
@@ -58,24 +57,21 @@ export async function encrypt(
 ): Promise<ThresholdMessageKit>;
 
 /**
- * Encrypts a message under given conditions using a public key from an active DKG ritual.
+ * Encrypts a message gated by TACo Conditions using a viem `PublicClient` and `Account`.
+ *
+ * Use this overload when your application uses viem.
  *
  * @export
- * @param {ethers.providers.Provider} provider - Instance of ethers provider which is used to interact with
- * your selected network.
- * @param {Domain} domain - Represents the logical network in which the encryption will be performed.
- * Must match the `ritualId`.
- * @param {Uint8Array | string} message  - The message to be encrypted.
- * @param {Condition} condition - Condition under which the message will be encrypted. Those conditions must be
- * satisfied in order to decrypt the message.
- * @param {number} ritualId - The ID of the DKG Ritual to be used for encryption. The message will be encrypted
- * under the public key of this ritual.
- * @param {ethers.Signer} authSigner - The signer that will be used to sign the encrypter authorization.
+ * @param {PublicClient} publicClient - Viem `PublicClient` for network operations.
+ * @param {Domain} domain - Logical TACo domain in which encryption will be performed (must match the ritual's domain).
+ * @param {Uint8Array | string} message - The message to be encrypted.
+ * @param {Condition} condition - Access condition (single or composite) that must be satisfied at decryption time.
+ * @param {number} ritualId - ID of the DKG ritual whose public key will be used for encryption.
+ * @param {Account} authAccount - Viem account used to authorize the encryption (message signature).
  *
- * @returns {Promise<ThresholdMessageKit>} Returns Promise that resolves with an instance of ThresholdMessageKit.
- * It represents the encrypted message.
+ * @returns {Promise<ThresholdMessageKit>} Encrypted message kit representing the ciphertext and access policy.
  *
- * @throws {Error} If the active DKG Ritual cannot be retrieved an error is thrown.
+ * @throws {Error} If the ritual cannot be retrieved or encryption fails.
  */
 export async function encrypt(
   publicClient: PublicClient,
@@ -109,7 +105,6 @@ export async function encrypt(
 
   // Create TACo provider and signer adapters from viem objects
   const providerAdapter = toEthersProvider(providerLike);
-  const signerAdapter = toTacoSigner(signerLike);
 
   const dkgRitual = await DkgClient.getActiveRitual(
     providerAdapter,
@@ -121,22 +116,20 @@ export async function encrypt(
     message,
     condition,
     dkgRitual.dkgPublicKey,
-    signerAdapter,
+    signerLike,
   );
 }
 
 /**
- * Encrypts a message with the given DKG public key under a specified condition.
+ * Encrypts a message with the given DKG public key gated by TACo Conditions.
  *
  * @export
- * @param {Uint8Array | string} message  - The message to be encrypted.
- * @param {Condition} condition - Condition under which the message will be encrypted. Those conditions must be
- * satisfied in order to decrypt the message.
+ * @param {Uint8Array | string} message - The message to be encrypted.
+ * @param {Condition} condition - Access condition (single or composite) that must be satisfied at decryption time.
  * @param {DkgPublicKey} dkgPublicKey - The public key of an active DKG Ritual to be used for encryption
- * @param {ethers.Signer} authSigner - The signer that will be used to sign the encrypter authorization.
+ * @param {SignerLike} authSigner - Signer used to authorize the encryption. Accepts an ethers `Signer` or a viem `Account`.
  *
- * @returns {Promise<ThresholdMessageKit>} Returns Promise that resolves with an instance of ThresholdMessageKit.
- * It represents the encrypted message.
+ * @returns {Promise<ThresholdMessageKit>} Encrypted message kit representing the ciphertext and access policy.
  *
  * @throws {Error} If the encryption process throws an error, an error is thrown.
  */
@@ -148,17 +141,15 @@ export async function encryptWithPublicKey(
 ): Promise<ThresholdMessageKit>;
 
 /**
- * Encrypts a message with the given DKG public key under a specified condition.
+ * Encrypts a message with the given DKG public key gated by TACo Conditions.
  *
  * @export
- * @param {Uint8Array | string} message  - The message to be encrypted.
- * @param {Condition} condition - Condition under which the message will be encrypted. Those conditions must be
- * satisfied in order to decrypt the message.
+ * @param {Uint8Array | string} message - The message to be encrypted.
+ * @param {Condition} condition - Access condition (single or composite) that must be satisfied at decryption time.
  * @param {DkgPublicKey} dkgPublicKey - The public key of an active DKG Ritual to be used for encryption
- * @param {Account} account - The viem account that will be used to sign the encrypter authorization.
+ * @param {Account} authAccount - Viem account used to authorize the encryption.
  *
- * @returns {Promise<ThresholdMessageKit>} Returns Promise that resolves with an instance of ThresholdMessageKit.
- * It represents the encrypted message.
+ * @returns {Promise<ThresholdMessageKit>} Encrypted message kit representing the ciphertext and access policy.
  *
  * @throws {Error} If the encryption process throws an error, an error is thrown.
  */
@@ -167,6 +158,20 @@ export async function encryptWithPublicKey(
   condition: Condition,
   dkgPublicKey: DkgPublicKey,
   authAccount: Account,
+): Promise<ThresholdMessageKit>;
+
+/**
+ * Encrypts a message with the given DKG public key gated by TACo Conditions.
+ *
+ * Union-type overload that accepts either a TacoSigner (minimal TACo signer interface) or a viem Account.
+ * This aligns with the implementation signature and enables callers that pass a
+ * SignerLike union to resolve against an overload.
+ */
+export async function encryptWithPublicKey(
+  message: Uint8Array | string,
+  condition: Condition,
+  dkgPublicKey: DkgPublicKey,
+  signerLike: SignerLike,
 ): Promise<ThresholdMessageKit>;
 
 export async function encryptWithPublicKey(
@@ -200,22 +205,18 @@ export async function encryptWithPublicKey(
 }
 
 /**
- * Decrypts an encrypted message.
+ * Decrypts an encrypted message (ethers overload).
  *
  * @export
- * @param {ethers.providers.Provider} provider - Instance of ethers provider which is used to interact with
- * your selected network.
- * @param {Domain} domain - Represents the logical network in which the decryption will be performed.
- * Must match the `ritualId`.
- * @param {ThresholdMessageKit} messageKit - The kit containing the message to be decrypted
- * @param {ConditionContext} context - Optional context data used for decryption time values for the condition(s) within the `messageKit`.
- * @param {string[]} [porterUris] - Optional URI(s) for the Porter service. If not provided, a value will be obtained
- * from the Domain
+ * @param {ethers.providers.Provider} provider - Ethers provider for network operations.
+ * @param {Domain} domain - Logical TACo domain used for decryption.
+ * @param {ThresholdMessageKit} messageKit - The kit containing the ciphertext and access policy.
+ * @param {ConditionContext} [context] - Optional context data (e.g., time values) used by conditions in the `messageKit`.
+ * @param {string[]} [porterUris] - Optional Porter service URI(s). If omitted, they are resolved via `getPorterUris(domain)`.
  *
- * @returns {Promise<Uint8Array>} Returns Promise that resolves with a decrypted message
+ * @returns {Promise<Uint8Array>} The decrypted message bytes.
  *
- * @throws {Error} If the active DKG Ritual cannot be retrieved or decryption process throws an error,
- * an error is thrown.
+ * @throws {Error} If the ritual cannot be resolved, Porter retrieval fails, or decryption fails.
  */
 export function decrypt(
   provider: ethers.providers.Provider,
@@ -226,21 +227,18 @@ export function decrypt(
 ): Promise<Uint8Array>;
 
 /**
- * Decrypts an encrypted message.
+ * Decrypts an encrypted message (viem overload).
  *
  * @export
- * @param {PublicClient} publicClient - Viem PublicClient for network operations
- * @param {Domain} domain - Represents the logical network in which the decryption will be performed.
- * Must match the `ritualId`.
- * @param {ThresholdMessageKit} messageKit - The kit containing the message to be decrypted
- * @param {ConditionContext} context - Optional context data used for decryption time values for the condition(s) within the `messageKit`.
- * @param {string[]} [porterUris] - Optional URI(s) for the Porter service. If not provided, a value will be obtained
- * from the Domain
+ * @param {PublicClient} publicClient - Viem `PublicClient` for network operations.
+ * @param {Domain} domain - Logical TACo domain used for decryption.
+ * @param {ThresholdMessageKit} messageKit - The kit containing the ciphertext and access policy.
+ * @param {ConditionContext} [context] - Optional context data (e.g., time values) used by conditions in the `messageKit`.
+ * @param {string[]} [porterUris] - Optional Porter service URI(s). If omitted, they are resolved via `getPorterUris(domain)`.
  *
- * @returns {Promise<Uint8Array>} Returns Promise that resolves with a decrypted message
+ * @returns {Promise<Uint8Array>} The decrypted message bytes.
  *
- * @throws {Error} If the active DKG Ritual cannot be retrieved or decryption process throws an error,
- * an error is thrown.
+ * @throws {Error} If the ritual cannot be resolved, Porter retrieval fails, or decryption fails.
  */
 export function decrypt(
   publicClient: PublicClient,

@@ -1,37 +1,14 @@
-import { ethers } from 'ethers';
-
 /**
- * Basic TACo Provider interface
+ * Minimal TACo signer interface.
  *
- * This interface defines the minimal provider functionality needed for TACo operations.
- * It contains only the methods that TACo actually uses.
- * This interface is implemented by ViemTacoProvider. And any future provider implementation
- * would need to implement this interface.
- */
-export interface TacoProvider {
-  /**
-   * Ethers.js compatibility property for contract validation
-   */
-  readonly _isProvider: boolean;
-
-  /**
-   * Get network information
-   */
-  getNetwork(): Promise<ethers.providers.Network>;
-
-  /**
-   * Make a contract call
-   */
-  call(transaction: ethers.providers.TransactionRequest): Promise<string>;
-}
-
-/**
- * Basic TACo Signer interface
+ * This interface defines only the essential methods that TACo operations require:
+ * - `getAddress()`: Get the signer's address
+ * - `signMessage()`: Sign a message (string or bytes)
  *
- * This interface defines the minimal signer functionality needed for TACo operations.
- * It contains only the methods that TACo actually uses.
- * This interface is implemented by ViemTacoSigner. And any future signer implementation
- * would need to implement this interface.
+ * Implementations:
+ * - `ViemSignerAdapter`: Adapts viem Account objects to this interface
+ * - `ethers.Signer`: Directly compatible via structural typing (because it has the same method signatures)
+ * - Future signer adapters can implement this same minimal interface
  */
 export interface TacoSigner {
   /**

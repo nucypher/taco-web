@@ -24,6 +24,8 @@
 // Dynamic imports resolve to 'unknown' when module is not available, no compile-time errors occur
 type _ViemPublicClient = import('viem').PublicClient;
 type _ViemAccount = import('viem').Account;
+type _ViemChain = import('viem').Chain;
+type _ViemTransport = import('viem').Transport;
 
 /**
  * Viem PublicClient type for read operations
@@ -35,7 +37,23 @@ export type PublicClient = [unknown] extends [_ViemPublicClient]
   : _ViemPublicClient;
 /**
  * Viem Account type for signing operations
- * @see https://viem.sh/docs/accounts/privateKey
+ * @see https://viem.sh/docs/accounts/local
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Account = [unknown] extends [_ViemAccount] ? any : _ViemAccount;
+
+/**
+ * Viem Chain type for network metadata
+ * @see https://viem.sh/docs/glossary/types#chain
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Chain = [unknown] extends [_ViemChain] ? any : _ViemChain;
+
+/**
+ * Viem Transport type for network metadata
+ * @see https://viem.sh/docs/glossary/types#transport
+ */
+export type Transport = [unknown] extends [_ViemTransport]
+  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any
+  : _ViemTransport;

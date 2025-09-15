@@ -3,15 +3,20 @@
 import { ethers } from 'ethers';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { toEthersProvider } from '../src/viem/ethers-adapter';
+import {
+  toEthersProvider,
+  ViemEthersProviderAdapter,
+} from '../src/viem/ethers-adapter';
 import { toTacoSigner, ViemSignerAdapter } from '../src/viem/signer-adapter';
 import { isViemAccount, isViemClient } from '../src/viem/type-guards';
 
-describe('viem adapter utilities', () => {
+describe('viem ethers adapter', () => {
   describe('function exports', () => {
     it('should export all adapter functions', () => {
       expect(toEthersProvider).toBeDefined();
       expect(toTacoSigner).toBeDefined();
+      expect(ViemEthersProviderAdapter).toBeDefined();
+      expect(ViemSignerAdapter).toBeDefined();
       expect(isViemClient).toBeDefined();
       expect(isViemAccount).toBeDefined();
       expect(typeof toEthersProvider).toBe('function');
@@ -21,17 +26,19 @@ describe('viem adapter utilities', () => {
     });
   });
 
-  describe('ethers provider interop', () => {
+  describe('ViemEthersProviderAdapter', () => {
     let mockViemPublicClient: any;
 
     beforeEach(() => {
       mockViemPublicClient = {
         getChainId: vi.fn().mockResolvedValue(80002),
-        call: vi.fn().mockResolvedValue('0x1234'),
+        call: vi.fn().mockResolvedValue('0x'),
         chain: {
-          name: 'Polygon Amoy',
           id: 80002,
-          contracts: {},
+          name: 'Polygon Amoy',
+          contracts: {
+            ensRegistry: { address: '0x123' },
+          },
         },
         transport: {
           type: 'http',
@@ -40,8 +47,128 @@ describe('viem adapter utilities', () => {
       };
     });
 
-    it('should create an ethers provider from viem client (http)', () => {
-      const provider = toEthersProvider(mockViemPublicClient);
+    it('should create adapter from viem client', () => {
+      const adapter = new ViemEthersProviderAdapter(mockViemPublicClient);
+
+      expect(adapter).toBeInstanceOf(ViemEthersProviderAdapter);
+      expect(adapter.getViemClient()).toBe(mockViemPublicClient);
+    });
+
+    it('should create adapter using static factory method', () => {
+      const adapter = ViemEthersProviderAdapter.from(mockViemPublicClient);
+
+      expect(adapter).toBeInstanceOf(ViemEthersProviderAdapter);
+      expect(adapter.getViemClient()).toBe(mockViemPublicClient);
+    });
+
+    it('should convert to ethers provider with single transport', () => {
+      const adapter = new ViemEthersProviderAdapter(mockViemPublicClient);
+      const provider = adapter.toEthersProvider();
+
+      expect(provider).toBeInstanceOf(ethers.providers.JsonRpcProvider);
+    });
+
+    it('should throw error when converting to ethers provider with fallback transport', () => {
+      const mockFallbackClient = {
+        ...mockViemPublicClient,
+        transport: {
+          type: 'fallback',
+          transports: [
+            { value: { url: 'https://rpc1.example.com' } },
+            { value: { url: 'https://rpc2.example.com' } },
+          ],
+        },
+      };
+
+      const adapter = new ViemEthersProviderAdapter(mockFallbackClient);
+      expect(() => adapter.toEthersProvider()).toThrow(
+        'Fallback transport not supported',
+      );
+    });
+
+    it('should throw error when converting to ethers provider with webSocket transport', () => {
+      const mockWebSocketClient = {
+        ...mockViemPublicClient,
+        transport: {
+          type: 'webSocket',
+          url: 'wss://example.com',
+        },
+      };
+
+      const adapter = new ViemEthersProviderAdapter(mockWebSocketClient);
+      expect(() => adapter.toEthersProvider()).toThrow(
+        'WebSocket transport not supported',
+      );
+    });
+
+    it('should convert to ethers provider with custom transport (browser injected)', () => {
+      const mockEIP1193Provider = {
+        request: vi.fn(),
+      };
+
+      const mockCustomClient = {
+        ...mockViemPublicClient,
+        transport: {
+          type: 'custom',
+          value: {
+            provider: mockEIP1193Provider,
+          },
+        },
+      };
+
+      const adapter = new ViemEthersProviderAdapter(mockCustomClient);
+      const provider = adapter.toEthersProvider();
+      expect(provider).toBeDefined();
+      expect(provider.constructor.name).toBe('Web3Provider');
+    });
+
+    it('should throw error for custom transport without provider or URL', () => {
+      const mockCustomClient = {
+        ...mockViemPublicClient,
+        transport: {
+          type: 'custom',
+          value: {},
+        },
+      };
+
+      const adapter = new ViemEthersProviderAdapter(mockCustomClient);
+      expect(() => adapter.toEthersProvider()).toThrow(
+        'Custom non-EIP-1193 provider transport not supported',
+      );
+    });
+
+    it('should handle missing chain', () => {
+      const clientWithoutChain = {
+        ...mockViemPublicClient,
+        chain: undefined,
+      };
+
+      const adapter = new ViemEthersProviderAdapter(clientWithoutChain);
+
+      expect(() => adapter.toEthersProvider()).toThrow(
+        'Client must have a chain configured',
+      );
+    });
+
+    it('should handle missing transport URL', () => {
+      const clientWithoutUrl = {
+        ...mockViemPublicClient,
+        transport: {
+          type: 'http',
+          // missing url
+        },
+      };
+
+      const adapter = new ViemEthersProviderAdapter(clientWithoutUrl);
+
+      expect(() => adapter.toEthersProvider()).toThrow(
+        'Transport must have a URL',
+      );
+    });
+
+    it('should use static clientToProvider method', () => {
+      const provider =
+        ViemEthersProviderAdapter.clientToProvider(mockViemPublicClient);
 
       expect(provider).toBeInstanceOf(ethers.providers.JsonRpcProvider);
     });
@@ -57,19 +184,15 @@ describe('viem adapter utilities', () => {
       };
     });
 
-    it('should create signer without provider', async () => {
+    it('should create signer without provider', () => {
       const signer = new ViemSignerAdapter(mockViemAccount);
 
-      expect(signer.getAddress).toBeDefined();
-      expect(signer.signMessage).toBeDefined();
-
-      // Actually call the methods to ensure coverage
-      await signer.getAddress();
-      await signer.signMessage('test');
+      expect(signer).toBeInstanceOf(ViemSignerAdapter);
     });
 
     it('should get address from viem account', async () => {
       const signer = new ViemSignerAdapter(mockViemAccount);
+
       const address = await signer.getAddress();
 
       expect(address).toBe('0x742d35Cc6632C0532c718F63b1a8D7d8a7fAd3b2');
@@ -77,23 +200,25 @@ describe('viem adapter utilities', () => {
 
     it('should sign string message', async () => {
       const signer = new ViemSignerAdapter(mockViemAccount);
+
       const signature = await signer.signMessage('test message');
 
-      expect(signature).toBe('0xsignature');
       expect(mockViemAccount.signMessage).toHaveBeenCalledWith({
         message: 'test message',
       });
+      expect(signature).toBe('0xsignature');
     });
 
     it('should sign Uint8Array message', async () => {
       const signer = new ViemSignerAdapter(mockViemAccount);
-      const message = new Uint8Array([1, 2, 3, 4]);
+      const messageBytes = new Uint8Array([1, 2, 3]);
 
-      await signer.signMessage(message);
+      const signature = await signer.signMessage(messageBytes);
 
       expect(mockViemAccount.signMessage).toHaveBeenCalledWith({
-        message: '0x01020304',
+        message: ethers.utils.hexlify(messageBytes),
       });
+      expect(signature).toBe('0xsignature');
     });
 
     it('should throw error if account does not support signing', async () => {
@@ -115,8 +240,8 @@ describe('viem adapter utilities', () => {
       const mockViemPublicClient = {
         getChainId: vi.fn().mockResolvedValue(80002),
         call: vi.fn().mockResolvedValue('0x'),
-        chain: { name: 'test', id: 80002 },
-        transport: { type: 'http', url: 'https://rpc.ankr.com/polygon_amoy' },
+        chain: { id: 80002, name: 'test' },
+        transport: { type: 'http', url: 'https://test.com' },
       } as any;
 
       const provider = toEthersProvider(mockViemPublicClient);
@@ -125,7 +250,9 @@ describe('viem adapter utilities', () => {
     });
 
     it('should return ethers provider unchanged', () => {
-      const ethersProvider = new ethers.providers.JsonRpcProvider();
+      const ethersProvider = new ethers.providers.JsonRpcProvider(
+        'https://test.com',
+      );
       const result = toEthersProvider(ethersProvider);
 
       expect(result).toBe(ethersProvider);
@@ -133,8 +260,8 @@ describe('viem adapter utilities', () => {
 
     it('should handle non-viem provider correctly', () => {
       const nonViemProvider = {
-        someProperty: 'value',
-        someMethod: () => {},
+        send: vi.fn(),
+        // This will make it fail the isViemClient check
       } as any;
 
       const result = toEthersProvider(nonViemProvider);
@@ -154,7 +281,6 @@ describe('viem adapter utilities', () => {
 
       expect(signer).toBeInstanceOf(ViemSignerAdapter);
 
-      // Actually call methods to ensure coverage
       const address = await signer.getAddress();
       expect(address).toBe('0x742d35Cc6632C0532c718F63b1a8D7d8a7fAd3b2');
     });
@@ -168,8 +294,7 @@ describe('viem adapter utilities', () => {
 
     it('should handle non-viem signer correctly', () => {
       const nonViemSigner = {
-        someProperty: 'value',
-        someMethod: () => {},
+        getAddress: vi.fn(),
         provider: {}, // This will make it fail the isViemAccount check
       } as any;
 
@@ -183,7 +308,7 @@ describe('viem adapter utilities', () => {
     describe('isViemClient', () => {
       it('should identify viem client by chain property', () => {
         const viemClient = {
-          chain: { name: 'test', id: 1 },
+          chain: { id: 1, name: 'mainnet' },
           getChainId: vi.fn(),
         };
 
@@ -192,7 +317,7 @@ describe('viem adapter utilities', () => {
 
       it('should identify viem client by getChainId method', () => {
         const viemClient = {
-          getChainId: () => Promise.resolve(1),
+          getChainId: vi.fn(),
         };
 
         expect(isViemClient(viemClient)).toBe(true);
@@ -206,7 +331,7 @@ describe('viem adapter utilities', () => {
 
       it('should reject object without viem properties', () => {
         const notViemClient = {
-          someMethod: () => {},
+          send: vi.fn(),
         };
 
         expect(isViemClient(notViemClient)).toBe(false);
@@ -229,12 +354,12 @@ describe('viem adapter utilities', () => {
       });
 
       it('should reject object with provider property', () => {
-        const signerWithProvider = {
+        const notViemAccount = {
           address: '0x742d35Cc6632C0532c718F63b1a8D7d8a7fAd3b2',
-          provider: {},
+          provider: {}, // This makes it look like an ethers signer
         };
 
-        expect(isViemAccount(signerWithProvider)).toBe(false);
+        expect(isViemAccount(notViemAccount)).toBe(false);
       });
     });
   });

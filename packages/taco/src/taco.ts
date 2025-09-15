@@ -116,7 +116,10 @@ export async function encrypt(
     message,
     condition,
     dkgRitual.dkgPublicKey,
-    signerLike,
+    // Casting is needed because with the function definition of encryptWithPublicKey,
+    // this param can be either a TacoSigner or a viem Account. But not a type that is the union of both.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    signerLike as any,
   );
 }
 
@@ -158,20 +161,6 @@ export async function encryptWithPublicKey(
   condition: Condition,
   dkgPublicKey: DkgPublicKey,
   authAccount: Account,
-): Promise<ThresholdMessageKit>;
-
-/**
- * Encrypts a message with the given DKG public key gated by TACo Conditions.
- *
- * Union-type overload that accepts either a TacoSigner (minimal TACo signer interface) or a viem Account.
- * This aligns with the implementation signature and enables callers that pass a
- * SignerLike union to resolve against an overload.
- */
-export async function encryptWithPublicKey(
-  message: Uint8Array | string,
-  condition: Condition,
-  dkgPublicKey: DkgPublicKey,
-  signerLike: SignerLike,
 ): Promise<ThresholdMessageKit>;
 
 export async function encryptWithPublicKey(

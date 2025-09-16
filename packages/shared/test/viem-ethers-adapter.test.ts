@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // @ts-nocheck
 import { ethers } from 'ethers';
+import { privateKeyToAccount } from 'viem/accounts';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { fromHexString } from '../src';
 import {
   toEthersProvider,
   ViemEthersProviderAdapter,
@@ -175,50 +177,41 @@ describe('viem ethers adapter', () => {
   });
 
   describe('ViemSignerAdapter', () => {
-    let mockViemAccount: any;
+    const PRIVATE_KEY =
+      '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'; // 32-byte hex
 
-    beforeEach(() => {
-      mockViemAccount = {
-        address: '0x742d35Cc6632C0532c718F63b1a8D7d8a7fAd3b2',
-        signMessage: vi.fn().mockResolvedValue('0xsignature'),
-      };
-    });
+    const viemAccount = privateKeyToAccount(PRIVATE_KEY);
+    const ethersSigner = new ethers.Wallet(PRIVATE_KEY);
 
     it('should create signer without provider', () => {
-      const signer = new ViemSignerAdapter(mockViemAccount);
-
-      expect(signer).toBeInstanceOf(ViemSignerAdapter);
+      const viemAdaptedSigner = new ViemSignerAdapter(viemAccount);
+      expect(viemAdaptedSigner).toBeInstanceOf(ViemSignerAdapter);
     });
 
     it('should get address from viem account', async () => {
-      const signer = new ViemSignerAdapter(mockViemAccount);
+      const viemAdaptedSigner = new ViemSignerAdapter(viemAccount);
 
-      const address = await signer.getAddress();
-
-      expect(address).toBe('0x742d35Cc6632C0532c718F63b1a8D7d8a7fAd3b2');
+      const address = await viemAdaptedSigner.getAddress();
+      expect(address).toBe(ethersSigner.address);
     });
 
     it('should sign string message', async () => {
-      const signer = new ViemSignerAdapter(mockViemAccount);
+      const message = 'test message';
+      const viemAdaptedSigner = new ViemSignerAdapter(viemAccount);
+      const viemSignature = await viemAdaptedSigner.signMessage(message);
 
-      const signature = await signer.signMessage('test message');
-
-      expect(mockViemAccount.signMessage).toHaveBeenCalledWith({
-        message: 'test message',
-      });
-      expect(signature).toBe('0xsignature');
+      const ethersSignature = await ethersSigner.signMessage(message);
+      expect(viemSignature).toBe(ethersSignature);
     });
 
     it('should sign Uint8Array message', async () => {
-      const signer = new ViemSignerAdapter(mockViemAccount);
-      const messageBytes = new Uint8Array([1, 2, 3]);
+      const viemAdaptedSigner = new ViemSignerAdapter(viemAccount);
+      const messageBytes = fromHexString('0xdeadbeef');
 
-      const signature = await signer.signMessage(messageBytes);
+      const viemSignature = await viemAdaptedSigner.signMessage(messageBytes);
 
-      expect(mockViemAccount.signMessage).toHaveBeenCalledWith({
-        message: ethers.utils.hexlify(messageBytes),
-      });
-      expect(signature).toBe('0xsignature');
+      const ethersSignature = await ethersSigner.signMessage(messageBytes);
+      expect(viemSignature).toBe(ethersSignature);
     });
 
     it('should throw error if account does not support signing', async () => {

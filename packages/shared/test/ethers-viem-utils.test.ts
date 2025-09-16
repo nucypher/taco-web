@@ -92,7 +92,9 @@ describe('viem adapter utilities', () => {
       await signer.signMessage(message);
 
       expect(mockViemAccount.signMessage).toHaveBeenCalledWith({
-        message: '0x01020304',
+        message: {
+          raw: message,
+        },
       });
     });
 

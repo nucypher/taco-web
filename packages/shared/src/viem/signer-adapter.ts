@@ -1,5 +1,3 @@
-import { ethers } from 'ethers';
-
 import { type TACoSigner } from '../taco-interfaces';
 import { SignerLike } from '../types';
 
@@ -33,9 +31,13 @@ export class ViemSignerAdapter implements TACoSigner {
     if (!this.viemAccount.signMessage) {
       throw new Error('Account does not support message signing');
     }
-    const messageToSign =
-      typeof message === 'string' ? message : ethers.utils.hexlify(message);
-    return await this.viemAccount.signMessage({ message: messageToSign });
+    if (typeof message === 'string') {
+      return await this.viemAccount.signMessage({ message });
+    } else {
+      return await this.viemAccount.signMessage({
+        message: { raw: message },
+      });
+    }
   }
 }
 

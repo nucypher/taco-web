@@ -3,8 +3,8 @@
 import { ethers } from 'ethers';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { toEthersProvider } from '../src/viem/ethers-adapter';
-import { toTACoSigner, ViemSignerAdapter } from '../src/viem/signer-adapter';
+import { toEthersProvider, toTACoSigner } from '../src/adapters';
+import { ViemSignerAdapter } from '../src/viem/signer-adapter';
 import { isViemAccount, isViemClient } from '../src/viem/type-guards';
 
 describe('viem adapter utilities', () => {

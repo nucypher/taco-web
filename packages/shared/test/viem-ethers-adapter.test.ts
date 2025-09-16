@@ -5,11 +5,9 @@ import { privateKeyToAccount } from 'viem/accounts';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { fromHexString } from '../src';
-import {
-  toEthersProvider,
-  ViemEthersProviderAdapter,
-} from '../src/viem/ethers-adapter';
-import { toTACoSigner, ViemSignerAdapter } from '../src/viem/signer-adapter';
+import { toEthersProvider, toTACoSigner } from '../src/adapters';
+import { ViemEthersProviderAdapter } from '../src/viem/ethers-adapter';
+import { ViemSignerAdapter } from '../src/viem/signer-adapter';
 import { isViemAccount, isViemClient } from '../src/viem/type-guards';
 
 describe('viem ethers adapter', () => {

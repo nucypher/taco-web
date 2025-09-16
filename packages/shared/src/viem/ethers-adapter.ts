@@ -1,8 +1,5 @@
 import { ethers } from 'ethers';
 
-import { ProviderLike } from '../types';
-
-import { isViemClient } from './type-guards';
 import type { Chain, PublicClient } from './types';
 
 /**
@@ -148,25 +145,5 @@ export class ViemEthersProviderAdapter {
    */
   static clientToProvider(client: PublicClient): ethers.providers.Provider {
     return new ViemEthersProviderAdapter(client).toEthersProvider();
-  }
-}
-
-/**
- * Convert viem client or return existing ethers provider
- *
- * This is the main entry point for converting providers.
- * It handles both viem clients (converting them to ethers providers)
- * and existing ethers providers (returning them unchanged).
- *
- * @param providerLike - Either a viem PublicClient or an ethers.providers.Provider
- * @returns An actual ethers.providers.Provider instance
- */
-export function toEthersProvider(
-  providerLike: ProviderLike,
-): ethers.providers.Provider {
-  if (isViemClient(providerLike)) {
-    return ViemEthersProviderAdapter.clientToProvider(providerLike);
-  } else {
-    return providerLike;
   }
 }

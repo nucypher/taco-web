@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 
 import type { TACoSigner } from './taco-signer';
 import { ProviderLike, SignerLike } from './types';
-import { ViemEthersProviderAdapter } from './viem/ethers-adapter';
+import { viemClientToProvider } from './viem/ethers-adapter';
 import { ViemSignerAdapter } from './viem/signer-adapter';
 import { isViemAccount, isViemClient } from './viem/type-guards';
 
@@ -38,7 +38,7 @@ export function toEthersProvider(
   providerLike: ProviderLike,
 ): ethers.providers.Provider {
   if (isViemClient(providerLike)) {
-    return ViemEthersProviderAdapter.clientToProvider(providerLike);
+    return viemClientToProvider(providerLike);
   } else {
     return providerLike;
   }

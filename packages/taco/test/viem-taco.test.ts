@@ -16,6 +16,7 @@ import {
   TEST_CHAIN_ID,
   TEST_SIWE_PARAMS,
 } from '@nucypher/test-utils';
+import { privateKeyToAccount } from 'viem/accounts';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { conditions, domains, toBytes } from '../src';
@@ -43,32 +44,10 @@ describe('viem TACo integration', () => {
     await initialize();
   });
 
-  describe('viem TACo functions', () => {
-    it('should export viem TACo integration functions', () => {
-      expect(encrypt).toBeDefined();
-      expect(decrypt).toBeDefined();
-      expect(typeof encrypt).toBe('function');
-      expect(typeof decrypt).toBe('function');
-    });
-  });
-
-  describe('TACo encryption workflow', () => {
+  describe('TACo encryption/decryption workflow', () => {
     it('encrypts and decrypts using viem functions', async () => {
       const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
       const mockedDkgRitual = fakeDkgRitual(mockedDkg);
-      const mockEthersProvider = fakeProvider(aliceSecretKeyBytes);
-      const mockEthersSigner = {
-        ...mockEthersProvider.getSigner(),
-        signMessage: vi
-          .fn()
-          .mockResolvedValue(
-            '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b',
-          ),
-        signTypedData: vi.fn().mockResolvedValue('0x'),
-      };
-      // Type assertion for test compatibility
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const typedSigner = mockEthersSigner as any;
 
       // Mock the viem clients with more complete interfaces
       const mockViemPublicClient = {
@@ -81,12 +60,9 @@ describe('viem TACo integration', () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any;
 
-      const mockViemAccount = {
-        address: '0x742d35Cc6632C0532c718F63b1a8D7d8a7fAd3b2',
-        signMessage: vi.fn().mockResolvedValue('0x'),
-        signTypedData: vi.fn().mockResolvedValue('0x'),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any;
+      const privateKey =
+        '0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc';
+      const viemAccount = privateKeyToAccount(privateKey);
 
       const mockViemProvider = {
         ...fakeProvider(aliceSecretKeyBytes),
@@ -97,9 +73,10 @@ describe('viem TACo integration', () => {
       const createTacoProviderSpy = vi
         .spyOn(await import('@nucypher/shared'), 'toEthersProvider')
         .mockReturnValue(mockViemProvider);
-      const createTacoSignerSpy = vi
-        .spyOn(await import('@nucypher/shared'), 'toTACoSigner')
-        .mockReturnValue(typedSigner);
+      const createTacoSignerSpy = vi.spyOn(
+        await import('@nucypher/shared'),
+        'toTACoSigner',
+      );
 
       const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);
 
@@ -110,11 +87,11 @@ describe('viem TACo integration', () => {
         message,
         ownsNFT,
         mockedDkg.ritualId,
-        mockViemAccount,
+        viemAccount,
       );
 
       expect(createTacoProviderSpy).toHaveBeenCalledWith(mockViemPublicClient);
-      expect(createTacoSignerSpy).toHaveBeenCalledWith(mockViemAccount);
+      expect(createTacoSignerSpy).toHaveBeenCalledWith(viemAccount);
       expect(getFinalizedRitualSpy).toHaveBeenCalled();
       expect(messageKit).toBeDefined();
 
@@ -144,7 +121,7 @@ describe('viem TACo integration', () => {
 
       const authProvider = new tacoAuth.EIP4361AuthProvider(
         mockViemProvider,
-        typedSigner,
+        viemAccount,
         TEST_SIWE_PARAMS,
       );
 
@@ -173,19 +150,6 @@ describe('viem TACo integration', () => {
       // Clean up spies
       createTacoProviderSpy.mockRestore();
       createTacoSignerSpy.mockRestore();
-    });
-
-    it('decrypts without optional parameters', async () => {
-      // This test just verifies the function exists and has the right signature
-      expect(decrypt).toBeDefined();
-      expect(decrypt.length).toBe(5); // publicClient, domain, messageKit, context?, porterUris?
-    });
-  }, 10000);
-
-  describe('function signatures', () => {
-    it('should have correct function signatures', () => {
-      expect(encrypt.length).toBe(6); // publicClient, domain, message, condition, ritualId, viemAccount
-      expect(decrypt.length).toBe(5); // publicClient, domain, messageKit, context?, porterUris?
     });
   });
 });

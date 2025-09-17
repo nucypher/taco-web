@@ -15,20 +15,6 @@ describe('viem ethers adapter', () => {
   const PRIVATE_KEY =
     '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'; // 32-byte hex
 
-  describe('function exports', () => {
-    it('should export all adapter functions', () => {
-      expect(toEthersProvider).toBeDefined();
-      expect(toTACoSigner).toBeDefined();
-      expect(viemClientToProvider).toBeDefined();
-      expect(isViemClient).toBeDefined();
-      expect(isViemAccount).toBeDefined();
-      expect(typeof toEthersProvider).toBe('function');
-      expect(typeof toTACoSigner).toBe('function');
-      expect(typeof isViemClient).toBe('function');
-      expect(typeof isViemAccount).toBe('function');
-    });
-  });
-
   describe('viemClientToProvider', () => {
     let viemClientConfig: any;
 

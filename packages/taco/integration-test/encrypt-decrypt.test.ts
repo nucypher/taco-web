@@ -6,6 +6,9 @@ import {
   USER_ADDRESS_PARAM_DEFAULT,
 } from '@nucypher/taco-auth';
 import { ethers } from 'ethers';
+import { createPublicClient, http } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import { polygonAmoy } from 'viem/chains';
 import {
   conditions,
   decrypt,
@@ -25,31 +28,44 @@ const DOMAIN = 'lynx';
 const RITUAL_ID = 27;
 const CHAIN_ID = 80002;
 
-describe.skipIf(!process.env.RUNNING_IN_CI)(
+describe.skipIf(!process.env.RUNNING_IN_CI).each<[string, any, any, any]>([
+  [
+    'ethers',
+    new ethers.providers.JsonRpcProvider(RPC_PROVIDER_URL),
+    new ethers.Wallet(ENCRYPTOR_PRIVATE_KEY),
+    new ethers.Wallet(CONSUMER_PRIVATE_KEY),
+  ],
+  [
+    'viem',
+    createPublicClient({
+      chain: polygonAmoy,
+      transport: http(RPC_PROVIDER_URL),
+    }),
+    privateKeyToAccount(ENCRYPTOR_PRIVATE_KEY),
+    privateKeyToAccount(CONSUMER_PRIVATE_KEY),
+  ],
+])(
   'Taco Encrypt/Decrypt Integration Test',
-  () => {
-    let provider: ethers.providers.JsonRpcProvider;
-    let encryptorSigner: ethers.Wallet;
-    let consumerSigner: ethers.Wallet;
-
+  (label, provider, encryptorSigner, consumerSigner) => {
     beforeAll(async () => {
-      provider = new ethers.providers.JsonRpcProvider(RPC_PROVIDER_URL);
-      encryptorSigner = new ethers.Wallet(ENCRYPTOR_PRIVATE_KEY, provider);
-      consumerSigner = new ethers.Wallet(CONSUMER_PRIVATE_KEY, provider);
-
       // Initialize the library
       await initialize();
 
       // Verify network connection
-      const network = await provider.getNetwork();
-      if (network.chainId !== CHAIN_ID) {
+      let chainId: number;
+      if (provider instanceof ethers.providers.JsonRpcProvider) {
+        chainId = (await provider.getNetwork()).chainId;
+      } else {
+        chainId = provider.chain.id;
+      }
+      if (chainId !== CHAIN_ID) {
         throw new Error(
-          `Provider connected to wrong network. Expected ${CHAIN_ID}, got ${network.chainId}`,
+          `Provider connected to wrong network. Expected ${CHAIN_ID}, got ${chainId}`,
         );
       }
     });
 
-    test('should encrypt and decrypt a message with large condition values', async (value) => {
+    test(`should encrypt and decrypt a message with large condition values using ${label}`, async () => {
       // Create test message
       const messageString = 'This is a secret 🤐';
       const message = toBytes(messageString);

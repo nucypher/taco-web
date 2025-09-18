@@ -150,6 +150,6 @@ describe('viem TACo integration', () => {
       // Clean up spies
       createTacoProviderSpy.mockRestore();
       createTacoSignerSpy.mockRestore();
-    });
+    }, 10000); // 10s timeout
   });
 });

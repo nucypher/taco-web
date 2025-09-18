@@ -6,7 +6,7 @@ import {
   USER_ADDRESS_PARAM_DEFAULT,
 } from '@nucypher/taco-auth';
 import { ethers } from 'ethers';
-import { createPublicClient, http } from 'viem';
+import { Account, createPublicClient, http, PublicClient } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { polygonAmoy } from 'viem/chains';
 import {
@@ -28,23 +28,28 @@ const DOMAIN = 'lynx';
 const RITUAL_ID = 27;
 const CHAIN_ID = 80002;
 
-describe.skipIf(!process.env.RUNNING_IN_CI).each<[string, any, any, any]>([
-  [
-    'ethers',
-    new ethers.providers.JsonRpcProvider(RPC_PROVIDER_URL),
-    new ethers.Wallet(ENCRYPTOR_PRIVATE_KEY),
-    new ethers.Wallet(CONSUMER_PRIVATE_KEY),
-  ],
-  [
-    'viem',
-    createPublicClient({
-      chain: polygonAmoy,
-      transport: http(RPC_PROVIDER_URL),
-    }),
-    privateKeyToAccount(ENCRYPTOR_PRIVATE_KEY),
-    privateKeyToAccount(CONSUMER_PRIVATE_KEY),
-  ],
-])(
+describe
+  .skipIf(!process.env.RUNNING_IN_CI)
+  .each<
+    | [string, ethers.providers.Provider, ethers.Wallet, ethers.Wallet]
+    | [string, PublicClient, Account, Account]
+  >([
+    [
+      'ethers',
+      new ethers.providers.JsonRpcProvider(RPC_PROVIDER_URL),
+      new ethers.Wallet(ENCRYPTOR_PRIVATE_KEY),
+      new ethers.Wallet(CONSUMER_PRIVATE_KEY),
+    ],
+    [
+      'viem',
+      createPublicClient({
+        chain: polygonAmoy,
+        transport: http(RPC_PROVIDER_URL),
+      }),
+      privateKeyToAccount(ENCRYPTOR_PRIVATE_KEY),
+      privateKeyToAccount(CONSUMER_PRIVATE_KEY),
+    ],
+  ])(
   'Taco Encrypt/Decrypt Integration Test',
   (label, provider, encryptorSigner, consumerSigner) => {
     beforeAll(async () => {
@@ -53,10 +58,10 @@ describe.skipIf(!process.env.RUNNING_IN_CI).each<[string, any, any, any]>([
 
       // Verify network connection
       let chainId: number;
-      if (provider instanceof ethers.providers.JsonRpcProvider) {
+      if (provider instanceof ethers.providers.Provider) {
         chainId = (await provider.getNetwork()).chainId;
       } else {
-        chainId = provider.chain.id;
+        chainId = provider.chain!.id as number;
       }
       if (chainId !== CHAIN_ID) {
         throw new Error(

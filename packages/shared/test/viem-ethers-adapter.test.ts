@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createPublicClient, fallback, http, webSocket } from 'viem';
 import { fromHexString } from '../src';
-import { toEthersProvider, toTACoSigner } from '../src/adapters';
+import { toEthersProvider, toTacoSigner } from '../src/adapters';
 import { viemClientToProvider } from '../src/viem/ethers-adapter';
 import { ViemSignerAdapter } from '../src/viem/signer-adapter';
 import { isViemAccount, isViemClient } from '../src/viem/type-guards';
@@ -206,13 +206,13 @@ describe('viem ethers adapter', () => {
     });
   });
 
-  describe('toTACoSigner', () => {
+  describe('toTacoSigner', () => {
     const PRIVATE_KEY =
       '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'; // 32-byte hex
 
     it('should create signer from viem account', async () => {
       const viemAccount = privateKeyToAccount(PRIVATE_KEY);
-      const signer = toTACoSigner(viemAccount);
+      const signer = toTacoSigner(viemAccount);
 
       expect(signer).toBeInstanceOf(ViemSignerAdapter);
 
@@ -222,7 +222,7 @@ describe('viem ethers adapter', () => {
 
     it('should return ethers signer unchanged', () => {
       const ethersSigner = new ethers.Wallet(PRIVATE_KEY);
-      const result = toTACoSigner(ethersSigner);
+      const result = toTacoSigner(ethersSigner);
 
       expect(result).toBe(ethersSigner);
     });
@@ -233,7 +233,7 @@ describe('viem ethers adapter', () => {
         provider: {}, // This will make it fail the isViemAccount check
       } as any;
 
-      const result = toTACoSigner(nonViemSigner);
+      const result = toTacoSigner(nonViemSigner);
       expect(result).toBe(nonViemSigner);
     });
   });

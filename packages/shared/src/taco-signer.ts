@@ -7,7 +7,7 @@
  *
  * Future signer adapters can implement this same minimal interface
  */
-export interface TACoSigner {
+export interface TacoSigner {
   /**
    * Get the address of this signer
    */

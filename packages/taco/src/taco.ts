@@ -16,7 +16,7 @@ import {
   SignerLike,
   toBytes,
   toEthersProvider,
-  toTACoSigner,
+  toTacoSigner,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
@@ -159,7 +159,7 @@ export async function encryptWithPublicKey(
     message = toBytes(message);
   }
 
-  const signer = toTACoSigner(signerLike);
+  const signer = toTacoSigner(signerLike);
 
   const conditionExpr = new ConditionExpression(condition);
 

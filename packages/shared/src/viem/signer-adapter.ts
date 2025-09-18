@@ -1,13 +1,13 @@
-import { type TACoSigner } from '../taco-signer';
+import { type TacoSigner } from '../taco-signer';
 
 import { type Account } from './types';
 
 /**
  * Viem Signer Adapter
  *
- * This adapter implements the minimal TACoSigner interface for internal library use.
+ * This adapter implements the minimal TacoSigner interface for internal library use.
  */
-export class ViemSignerAdapter implements TACoSigner {
+export class ViemSignerAdapter implements TacoSigner {
   protected viemAccount: Account;
 
   constructor(viemAccount: Account) {

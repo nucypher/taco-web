@@ -559,8 +559,6 @@ importers:
         specifier: ^8.3.2
         version: 8.3.2(typescript@5.9.3)
 
-  packages/shared/dist/es: {}
-
   packages/taco:
     dependencies:
       '@astronautlabs/jsonpath':
@@ -622,10 +620,6 @@ importers:
       '@nucypher/test-utils':
         specifier: workspace:*
         version: link:../test-utils
-
-  packages/taco-auth/dist/es: {}
-
-  packages/taco/dist/es: {}
 
   packages/test-utils:
     dependencies:
@@ -8247,7 +8241,6 @@ packages:
     engines: {node: '>=0.6.0', teleport: '>=0.2.0'}
     deprecated: |-
       You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
-
       (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
 
   qs@6.14.2:

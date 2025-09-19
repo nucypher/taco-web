@@ -55,6 +55,11 @@ import {
   IfThenElseConditionType,
 } from './if-then-else-condition';
 import {
+  AddressAllowlistCondition,
+  AddressAllowlistConditionProps,
+  AddressAllowlistConditionType,
+} from './predefined/address-allowlist';
+import {
   SequentialCondition,
   SequentialConditionProps,
   SequentialConditionType,
@@ -71,6 +76,10 @@ export class ConditionFactory {
         return new RpcCondition(props as RpcConditionProps);
       case TimeConditionType:
         return new TimeCondition(props as TimeConditionProps);
+      case AddressAllowlistConditionType:
+        return new AddressAllowlistCondition(
+          props as AddressAllowlistConditionProps,
+        );
       case ContractConditionType:
         return new ContractCondition(props as ContractConditionProps);
       case ECDSAConditionType:

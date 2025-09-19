@@ -18,7 +18,6 @@ import { CompoundCondition } from '../src/conditions/compound-condition';
 import {
   createSignatureForTestSecp256k1ECDSACondition,
   createTestSecp256k1ECDSACondition,
-  testContextVariableConditionObj,
   UINT256_MAX,
 } from '../test/test-utils';
 
@@ -303,25 +302,24 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       const message = toBytes(messageString);
 
       // Create a context variable condition that checks if userAddress is in allowlist
-      const contextVariableCondition =
-        new conditions.base.contextVariable.ContextVariableCondition({
-          ...testContextVariableConditionObj,
-          returnValueTest: {
-            comparator: 'in',
-            value: [
-              CONSUMER_ADDRESS.toLowerCase(),
-              '0x0000000000000000000000000000000000000001',
-            ],
-          },
+
+      const addressAllowlistCondition =
+        new conditions.predefined.addressAllowlist.AddressAllowlistCondition({
+          userAddress: USER_ADDRESS_PARAM_DEFAULT,
+          addresses: [
+            CONSUMER_ADDRESS,
+            '0x742d35Cc6634C0532925a3b844Bc454e4438f44e', // Some other address
+            '0x0000000000000000000000000000000000000001', // Another address
+          ],
         });
 
-      expect(contextVariableCondition.requiresAuthentication()).toBe(true);
+      expect(addressAllowlistCondition.requiresAuthentication()).toBe(true);
 
       const messageKit = await encrypt(
         provider,
         DOMAIN,
         message,
-        contextVariableCondition,
+        addressAllowlistCondition,
         RITUAL_ID,
         encryptorSigner,
       );
@@ -361,23 +359,21 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       const message = toBytes(messageString);
 
       // Create a context variable condition with specific allowed addresses
-      const restrictedContextVariableCondition =
-        new conditions.base.contextVariable.ContextVariableCondition({
-          ...testContextVariableConditionObj,
-          returnValueTest: {
-            comparator: 'in',
-            value: [
-              '0x0000000000000000000000000000000000000001', // Not our consumer address
-              '0x0000000000000000000000000000000000000002',
-            ],
-          },
+      const restrictedAllowlistCondition =
+        new conditions.predefined.addressAllowlist.AddressAllowlistCondition({
+          userAddress: USER_ADDRESS_PARAM_DEFAULT,
+          addresses: [
+            // consumer address is not in the list
+            '0x0000000000000000000000000000000000000001',
+            '0x0000000000000000000000000000000000000002',
+          ],
         });
 
       const messageKit = await encrypt(
         provider,
         DOMAIN,
         message,
-        restrictedContextVariableCondition,
+        restrictedAllowlistCondition,
         RITUAL_ID,
         encryptorSigner,
       );

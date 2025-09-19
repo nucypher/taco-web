@@ -10,7 +10,7 @@ export { baseConditionSchema } from './schemas/common';
 type ConditionSchema = z.ZodSchema;
 export type ConditionProps = z.infer<ConditionSchema>;
 
-const ERR_INVALID_CONDITION = (error: z.ZodError) =>
+export const ERR_INVALID_CONDITION = (error: z.ZodError) =>
   `Invalid condition: ${JSON.stringify(error.issues)}`;
 
 export class Condition {

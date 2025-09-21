@@ -111,6 +111,7 @@ export class EIP4361AuthProvider implements AuthProvider {
     account: Account,
     providerParams?: EIP4361AuthProviderParams,
   );
+
   constructor(
     providerLike: ProviderLike,
     signerLike: SignerLike,

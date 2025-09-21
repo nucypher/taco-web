@@ -58,7 +58,8 @@
     "@types/tmp": "^0.2.6",
     "cz-conventional-changelog": "^3.3.0",
     "standard-version": "^9.5.0",
-    "typechain": "^8.3.2"
+    "typechain": "^8.3.2",
+    "viem": "^2.0.0"
   },
   "peerDependencies": {
     "viem": "^2.0.0"

@@ -38,7 +38,7 @@ describe('viem ethers adapter', () => {
       expect(provider.connection.url).toBe('https://rpc.ankr.com/polygon_amoy');
       expect(provider.network.chainId).toBe(80002);
       expect(provider.network.name).toBe('Polygon Amoy');
-      // TODO: ensRegistry?
+      expect(provider.network.ensAddress).toBe('0x123');
     });
 
     it('should throw error when converting to ethers provider with fallback transport', () => {

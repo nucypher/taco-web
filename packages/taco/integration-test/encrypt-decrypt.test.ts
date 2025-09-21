@@ -31,8 +31,8 @@ const CHAIN_ID = 80002;
 describe
   .skipIf(!process.env.RUNNING_IN_CI)
   .each<
-    | [string, ethers.providers.Provider, ethers.Wallet, ethers.Wallet]
-    | [string, PublicClient, Account, Account]
+    | ['ethers', ethers.providers.Provider, ethers.Wallet, ethers.Wallet]
+    | ['viem', PublicClient, Account, Account]
   >([
     [
       'ethers',
@@ -127,10 +127,12 @@ describe
           USER_ADDRESS_PARAM_DEFAULT,
         )
       ) {
-        const authProvider = new EIP4361AuthProvider(provider, consumerSigner, {
-          domain: 'localhost',
-          uri: 'http://localhost:3000',
-        });
+        const authProvider = new EIP4361AuthProvider(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          provider as any,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          consumerSigner as any,
+        );
         conditionContext.addAuthProvider(
           USER_ADDRESS_PARAM_DEFAULT,
           authProvider,

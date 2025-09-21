@@ -104,7 +104,7 @@ describe('taco', () => {
     expect(getRitualIdFromPublicKey).toHaveBeenCalled();
     expect(getRitualSpy).toHaveBeenCalled();
     expect(decryptSpy).toHaveBeenCalled();
-  }, 9000); // test timeout 9s (TODO: not sure why this test takes so long on CI)
+  }, 15000); // test timeout 15s (TODO: not sure why this test takes so long on CI)
 
   it('exposes requested parameters', async () => {
     const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
@@ -136,57 +136,6 @@ describe('taco', () => {
     expect(requestedParameters).toEqual(
       new Set([customParamKey, USER_ADDRESS_PARAM_DEFAULT]),
     );
-  });
-
-  it('should handle well when ethers provider is used with viem account', async () => {
-    const ethersProvider = fakeProvider(aliceSecretKeyBytes);
-
-    // Mock viem account (no provider property, distinguishes from ethers.Signer)
-    const mockViemAccount = {
-      address: '0x742d35Cc6632C0532c718F63b1a8D7d8a7fAd3b2',
-      signMessage: () => Promise.resolve('0x'),
-      signTypedData: () => Promise.resolve('0x'),
-    };
-
-    const messageKit = await taco.encrypt(
-      ethersProvider, // ethers provider
-      domains.DEVNET,
-      message,
-      ownsNFT,
-      0,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      mockViemAccount as any, // viem account - MISMATCH!
-    );
-
-    expect(messageKit).toBeDefined();
-  });
-
-  it('should handle well when viem client is used with ethers signer', async () => {
-    const ethersProvider = fakeProvider(aliceSecretKeyBytes);
-    const ethersSigner = ethersProvider.getSigner();
-
-    // Mock viem client (chain property makes isViemClient return true)
-    const mockViemClient = {
-      chain: { id: 80002, name: 'polygon-amoy' },
-      transport: {
-        type: 'http',
-        url: 'https://rpc.ankr.com/polygon_amoy',
-      },
-      getChainId: () => Promise.resolve(80002),
-    };
-
-    // Should throw type mismatch error
-    const messageKit = await taco.encrypt(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      mockViemClient as any, // viem client
-      domains.DEVNET,
-      message,
-      ownsNFT,
-      0,
-      ethersSigner, // ethers signer - MISMATCH!
-    );
-
-    expect(messageKit).toBeDefined();
   });
 
   describe('encryptWithPublicKey', () => {

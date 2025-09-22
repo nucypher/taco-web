@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 
 import { ProviderLike, SignerLike } from '../types';
 
-import { Account, PublicClient } from './types';
+import { PublicClient, SignerAccount } from './types';
 
 /**
  * Type guard to determine if the provider-like is a viem PublicClient
@@ -30,24 +30,30 @@ export function isViemClient(
 }
 
 /**
- * Type guard to determine if the signer is a viem Account
- *
+ * Type guard to determine if the signer is a viem account that can sign: LocalAccount or WalletClient
+ * Note: might need modification when supporting viem SmartAccount
  * Checks for:
- * - Presence of viem Account properties (address as string)
- * - Absence of ethers-specific properties (provider)
  * - Ensures it's not an ethers Signer instance
+ * - Absence of ethers-specific properties (provider)
+ * - Presence of viem Local Account properties (address as string) or viem Wallet Client properties (account.address as string)
  */
-export function isViemAccount(signer: SignerLike): signer is Account {
-  if (signer instanceof ethers.Signer) {
+export function isViemSignerAccount(
+  signer: SignerLike,
+): signer is SignerAccount {
+  if (signer instanceof ethers.Signer || 'provider' in signer) {
     return false;
   }
 
-  // Check for viem Account signature:
-  // - Has address property of type string
-  // - Does NOT have provider property (ethers.Signer characteristic)
-  return (
+  // Check for viem Account properties
+  const hasLocalAccountProperties =
+    // Local Account:
     'address' in signer &&
-    typeof (signer as { address: string }).address === 'string' &&
-    !('provider' in signer) // ethers.Signer has provider property
-  );
+    typeof (signer as { address: string }).address === 'string';
+  const hasWalletClientProperties =
+    // Wallet Client:
+    'account' in signer &&
+    typeof (signer as { account: { address: string } }).account.address ===
+      'string';
+
+  return hasLocalAccountProperties || hasWalletClientProperties;
 }

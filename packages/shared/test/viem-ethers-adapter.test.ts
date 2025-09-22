@@ -9,7 +9,7 @@ import { fromHexString } from '../src';
 import { toEthersProvider, toTacoSigner } from '../src/adapters';
 import { viemClientToProvider } from '../src/viem/ethers-adapter';
 import { ViemSignerAdapter } from '../src/viem/signer-adapter';
-import { isViemAccount, isViemClient } from '../src/viem/type-guards';
+import { isViemClient, isViemSignerAccount } from '../src/viem/type-guards';
 
 describe('viem ethers adapter', () => {
   const PRIVATE_KEY =
@@ -230,7 +230,7 @@ describe('viem ethers adapter', () => {
     it('should handle non-viem signer correctly', () => {
       const nonViemSigner = {
         getAddress: vi.fn(),
-        provider: {}, // This will make it fail the isViemAccount check
+        provider: {}, // This will make it fail the isViemSignerAccount check
       } as any;
 
       const result = toTacoSigner(nonViemSigner);
@@ -279,22 +279,22 @@ describe('viem ethers adapter', () => {
       });
     });
 
-    describe('isViemAccount', () => {
+    describe('isViemSignerAccount', () => {
       it('should identify actual viem account', () => {
         const viemAccount = privateKeyToAccount(PRIVATE_KEY);
-        expect(isViemAccount(viemAccount)).toBe(true);
+        expect(isViemSignerAccount(viemAccount)).toBe(true);
       });
       it('should identify viem account by address property', () => {
         const viemAccountByAddress = {
           address: '0x742d35Cc6632C0532c718F63b1a8D7d8a7fAd3b2',
         };
 
-        expect(isViemAccount(viemAccountByAddress)).toBe(true);
+        expect(isViemSignerAccount(viemAccountByAddress)).toBe(true);
       });
 
       it('should reject ethers signer', () => {
         const ethersSigner = new ethers.Wallet(PRIVATE_KEY);
-        expect(isViemAccount(ethersSigner)).toBe(false);
+        expect(isViemSignerAccount(ethersSigner)).toBe(false);
       });
 
       it('should reject object with provider property', () => {
@@ -303,7 +303,7 @@ describe('viem ethers adapter', () => {
           provider: {}, // This makes it look like an ethers signer
         };
 
-        expect(isViemAccount(notViemAccount)).toBe(false);
+        expect(isViemSignerAccount(notViemAccount)).toBe(false);
       });
     });
   });

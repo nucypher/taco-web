@@ -22,10 +22,18 @@
 // This pattern preserves type safety for consumers who have 'viem' installed, but does not break for others.
 // See: https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1367016530
 // Dynamic imports resolve to 'unknown' when module is not available, no compile-time errors occur
+type _Address = import('viem').Address;
 type _ViemPublicClient = import('viem').PublicClient;
-type _ViemAccount = import('viem').Account;
+type _LocalAccount = import('viem').LocalAccount;
 type _ViemChain = import('viem').Chain;
 type _ViemTransport = import('viem').Transport;
+type _WalletClient = import('viem').WalletClient;
+
+/**
+ * Viem Address type (`0x${string}`)
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Address = [unknown] extends [_Address] ? any : _Address;
 
 /**
  * Viem PublicClient type for read operations
@@ -35,12 +43,24 @@ export type PublicClient = [unknown] extends [_ViemPublicClient]
   ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
     any
   : _ViemPublicClient;
+
+export type LocalAccount = [unknown] extends [_LocalAccount]
+  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any
+  : _LocalAccount;
+
+export type WalletClient = [unknown] extends [_WalletClient]
+  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any
+  : _WalletClient;
+
 /**
- * Viem Account type for signing operations
+ * Viem signer account type for signing operations (LocalAccount or WalletClient)
+ * Note: SmartAccount is not supported yet
  * @see https://viem.sh/docs/accounts/local
+ * @see https://viem.sh/docs/clients/wallet
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Account = [unknown] extends [_ViemAccount] ? any : _ViemAccount;
+export type SignerAccount = LocalAccount | WalletClient;
 
 /**
  * Viem Chain type for network metadata

@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 
-import { Account, PublicClient } from './viem/types';
+import { PublicClient, SignerAccount } from './viem/types';
 
 export type ChecksumAddress = `0x${string}`;
 export type HexEncodedBytes = string;
@@ -13,4 +13,4 @@ export type ProviderLike = ethers.providers.Provider | PublicClient;
  *
  * Accepts either ethers Signer or viem Account
  */
-export type SignerLike = ethers.Signer | Account;
+export type SignerLike = ethers.Signer | SignerAccount;

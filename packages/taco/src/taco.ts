@@ -5,7 +5,6 @@ import {
   ThresholdMessageKit,
 } from '@nucypher/nucypher-core';
 import {
-  Account,
   DkgCoordinatorAgent,
   Domain,
   fromHexString,
@@ -13,6 +12,7 @@ import {
   PorterClient,
   ProviderLike,
   PublicClient,
+  SignerAccount,
   SignerLike,
   toBytes,
   toEthersProvider,
@@ -65,7 +65,7 @@ export async function encrypt(
  * @param {Uint8Array | string} message - The message to be encrypted.
  * @param {Condition} condition - Access condition (single or composite) that must be satisfied at decryption time.
  * @param {number} ritualId - ID of the DKG ritual whose public key will be used for encryption.
- * @param {Account} authAccount - Viem account used to identify encryptor and verify authorization.
+ * @param {SignerAccount} authAccount - Viem account used to identify encryptor and verify authorization.
  *
  * @returns {Promise<ThresholdMessageKit>} Encrypted message kit representing the ciphertext and associated metadata.
  *
@@ -78,7 +78,7 @@ export async function encrypt(
   message: Uint8Array | string,
   condition: Condition,
   ritualId: number,
-  authAccount: Account,
+  authAccount: SignerAccount,
 ): Promise<ThresholdMessageKit>;
 
 export async function encrypt(
@@ -136,7 +136,7 @@ export async function encryptWithPublicKey(
  * @param {Uint8Array | string} message - The message to be encrypted.
  * @param {Condition} condition - Access condition (single or composite) that must be satisfied at decryption time.
  * @param {DkgPublicKey} dkgPublicKey - The public key of an active DKG Ritual to be used for encryption
- * @param {Account} authAccount - Viem account used to identify encryptor and verify authorization.
+ * @param {SignerAccount} authAccount - Viem account used to identify encryptor and verify authorization.
  *
  * @returns {Promise<ThresholdMessageKit>} Encrypted message kit representing the ciphertext and associated metadata.
  *
@@ -146,7 +146,7 @@ export async function encryptWithPublicKey(
   message: Uint8Array | string,
   condition: Condition,
   dkgPublicKey: DkgPublicKey,
-  authAccount: Account,
+  authAccount: SignerAccount,
 ): Promise<ThresholdMessageKit>;
 
 export async function encryptWithPublicKey(

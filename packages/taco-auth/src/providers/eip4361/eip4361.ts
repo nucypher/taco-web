@@ -1,7 +1,7 @@
 import {
-  Account,
   ProviderLike,
   PublicClient,
+  SignerAccount,
   SignerLike,
   TacoSigner,
   toEthersProvider,
@@ -108,7 +108,7 @@ export class EIP4361AuthProvider implements AuthProvider {
    */
   constructor(
     publicClient: PublicClient,
-    account: Account,
+    account: SignerAccount,
     providerParams?: EIP4361AuthProviderParams,
   );
 

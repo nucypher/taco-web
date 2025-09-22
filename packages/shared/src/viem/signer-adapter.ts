@@ -1,6 +1,8 @@
+import { ethers } from 'ethers';
+
 import { type TacoSigner } from '../taco-signer';
 
-import { type Account } from './types';
+import { type Address, type SignerAccount } from './types';
 
 /**
  * Viem Signer Adapter
@@ -8,24 +10,50 @@ import { type Account } from './types';
  * This adapter implements the minimal TacoSigner interface for internal library use.
  */
 export class ViemSignerAdapter implements TacoSigner {
-  protected viemAccount: Account;
+  protected viemAccount: SignerAccount;
 
-  constructor(viemAccount: Account) {
+  constructor(viemAccount: SignerAccount) {
     this.viemAccount = viemAccount;
   }
 
-  async getAddress(): Promise<string> {
-    return this.viemAccount.address;
+  async getAddress(): Promise<Address> {
+    let address: Address | undefined;
+    if ('address' in this.viemAccount) {
+      // viemAccount is a LocalAccount
+      address = this.viemAccount.address;
+    } else if (
+      'account' in this.viemAccount &&
+      this.viemAccount.account &&
+      'address' in this.viemAccount.account
+    ) {
+      // viemAccount is a WalletClient
+      address = this.viemAccount.account.address;
+    }
+    if (address) {
+      // Get the checksummed address to avoid getting
+      // "invalid EIP-55 address - 0x31663c14545df87044d2c5407ad0c2696b6d1402"
+      // that might be thrown at package siwe-parser while perform decryption
+      return ethers.utils.getAddress(address) as Address;
+    }
+    throw new Error(
+      'Account does not support message signing. Could not retrieve account address.',
+    );
   }
 
   async signMessage(message: string | Uint8Array): Promise<string> {
     if (!this.viemAccount.signMessage) {
-      throw new Error('Account does not support message signing');
+      throw new Error(
+        'Account does not support message signing. Could not find `signMessage` method.',
+      );
     }
     if (typeof message === 'string') {
-      return await this.viemAccount.signMessage({ message });
+      return await this.viemAccount.signMessage({
+        account: await this.getAddress(),
+        message,
+      });
     } else {
       return await this.viemAccount.signMessage({
+        account: await this.getAddress(),
         message: { raw: message },
       });
     }

@@ -88,7 +88,7 @@ export function viemClientToProvider(
   // custom (EIP-1193) transport
   if (transport?.type === 'custom') {
     const value = transport?.value;
-    const provider = value?.provider ?? value;
+    const provider = value?.provider ?? value ?? transport;
 
     // Check if it's an EIP-1193 provider (e.g., MetaMask, WalletConnect)
     if (provider && typeof provider.request === 'function') {

@@ -4,7 +4,7 @@ import type { TacoSigner } from './taco-signer';
 import { ProviderLike, SignerLike } from './types';
 import { viemClientToProvider } from './viem/ethers-adapter';
 import { ViemSignerAdapter } from './viem/signer-adapter';
-import { isViemAccount, isViemClient } from './viem/type-guards';
+import { isViemClient, isViemSignerAccount } from './viem/type-guards';
 
 /**
  * Convert viem Account or ethers Signer to TacoSigner.
@@ -17,7 +17,7 @@ import { isViemAccount, isViemClient } from './viem/type-guards';
  * @returns A TacoSigner interface implementation
  */
 export function toTacoSigner(signerLike: SignerLike): TacoSigner {
-  if (isViemAccount(signerLike)) {
+  if (isViemSignerAccount(signerLike)) {
     return new ViemSignerAdapter(signerLike);
   } else {
     return signerLike;

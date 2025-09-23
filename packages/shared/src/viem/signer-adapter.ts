@@ -36,14 +36,14 @@ export class ViemSignerAdapter implements TacoSigner {
       return ethers.utils.getAddress(address) as Address;
     }
     throw new Error(
-      'Account does not support message signing. Could not retrieve account address.',
+      'Unable to retrieve address from viem account. Expected a LocalAccount with "address" property or WalletClient with "account.address" property.',
     );
   }
 
   async signMessage(message: string | Uint8Array): Promise<string> {
     if (!this.viemAccount.signMessage) {
       throw new Error(
-        'Account does not support message signing. Could not find `signMessage` method.',
+        'Account does not support message signing. Expected a LocalAccount or a WalletClient with signing capability.',
       );
     }
     if (typeof message === 'string') {

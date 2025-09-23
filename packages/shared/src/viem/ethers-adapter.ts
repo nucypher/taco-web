@@ -54,7 +54,9 @@ export function viemClientToProvider(
 
   // fallback transport (multiple RPC endpoints)
   if (transport?.type === 'fallback') {
-    throw new Error('Fallback transport not supported');
+    throw new Error(
+      'Fallback transport not supported. Please use a single HTTP transport instead.',
+    );
     // TODO: implement with a code like the following:
     // Note: The following takes only the first url of the transports urls.
     // const items = transport.transports as ReturnType<Transport>[];
@@ -112,7 +114,7 @@ export function viemClientToProvider(
   const url = transport?.url as string | undefined;
   if (!url) {
     throw new Error(
-      `Transport must have a URL (type=${transport?.type ?? 'unknown'}, chainId=${chain?.id ?? 'unknown'} name=${chain?.name ?? 'unknown'})`,
+      `Transport must have a URL (type=${transport?.type ?? 'unknown'}, chainId=${chain?.id ?? 'unknown'}, name=${chain?.name ?? 'unknown'})`,
     );
   }
   return new ethers.providers.JsonRpcProvider(url, networkish);

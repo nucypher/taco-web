@@ -32,8 +32,8 @@ type _WalletClient = import('viem').WalletClient;
 /**
  * Viem Address type (`0x${string}`)
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Address = [unknown] extends [_Address] ? any : _Address;
+// Fallback to hex string
+export type Address = [unknown] extends [_Address] ? `0x${string}` : _Address;
 
 /**
  * Viem PublicClient type for read operations

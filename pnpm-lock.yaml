@@ -460,6 +460,43 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1(@babel/plugin-syntax-flow@7.26.0(@babel/core@7.26.10))(@babel/plugin-transform-react-jsx@7.25.9(@babel/core@7.26.10))(@types/babel__core@7.20.5)(bufferutil@4.0.9)(eslint@8.57.1)(react@18.3.1)(ts-node@10.9.2(@types/node@20.17.28)(typescript@5.8.2))(type-fest@0.21.3)(typescript@5.8.2)(utf-8-validate@5.0.10)
 
+  examples/taco/react-viem:
+    dependencies:
+      '@nucypher/shared':
+        specifier: workspace:*
+        version: link:../../../packages/shared
+      '@nucypher/taco':
+        specifier: workspace:*
+        version: link:../../../packages/taco
+      '@nucypher/taco-auth':
+        specifier: workspace:*
+        version: link:../../../packages/taco-auth
+      ethers:
+        specifier: ^5.7.2
+        version: 5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+      viem:
+        specifier: ^2.0.0
+        version: 2.33.3(bufferutil@4.0.9)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.24.2)
+    devDependencies:
+      '@types/node':
+        specifier: ^20.17.28
+        version: 20.17.28
+      '@types/react':
+        specifier: ^18.3.20
+        version: 18.3.20
+      '@types/react-dom':
+        specifier: ^18.3.5
+        version: 18.3.5(@types/react@18.3.20)
+      react-scripts:
+        specifier: ^5.0.1
+        version: 5.0.1(@babel/plugin-syntax-flow@7.26.0(@babel/core@7.26.10))(@babel/plugin-transform-react-jsx@7.25.9(@babel/core@7.26.10))(@types/babel__core@7.20.5)(bufferutil@4.0.9)(eslint@8.57.1)(react@18.3.1)(ts-node@10.9.2(@types/node@20.17.28)(typescript@5.8.2))(type-fest@0.21.3)(typescript@5.8.2)(utf-8-validate@5.0.10)
+
   examples/taco/webpack-5:
     dependencies:
       '@nucypher/taco':
@@ -12406,11 +12443,11 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 22.13.14
+      '@types/node': 20.17.28
 
   '@types/conventional-commits-parser@5.0.1':
     dependencies:
-      '@types/node': 22.13.14
+      '@types/node': 20.17.28
     optional: true
 
   '@types/deep-equal@1.0.4': {}
@@ -12514,6 +12551,7 @@ snapshots:
   '@types/node@22.13.14':
     dependencies:
       undici-types: 6.20.0
+    optional: true
 
   '@types/normalize-package-data@2.4.4': {}
 
@@ -12594,7 +12632,7 @@ snapshots:
 
   '@types/ws@7.4.7':
     dependencies:
-      '@types/node': 12.20.55
+      '@types/node': 20.17.28
 
   '@types/ws@8.18.0':
     dependencies:
@@ -17083,7 +17121,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 22.13.14
+      '@types/node': 20.17.28
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -20012,7 +20050,8 @@ snapshots:
 
   undici-types@6.19.8: {}
 
-  undici-types@6.20.0: {}
+  undici-types@6.20.0:
+    optional: true
 
   unicode-canonical-property-names-ecmascript@2.0.1: {}
 

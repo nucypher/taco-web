@@ -11,6 +11,6 @@ export type ProviderLike = ethers.providers.Provider | PublicClient;
 /**
  * Signer-like union for TACo operations.
  *
- * Accepts either ethers Signer or viem Account
+ * Accepts either ethers Signer or viem SignerAccount (LocalAccount or WalletClient)
  */
 export type SignerLike = ethers.Signer | SignerAccount;

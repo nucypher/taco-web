@@ -44,7 +44,7 @@ export function isViemSignerAccount(
     return false;
   }
 
-  // Check for viem Account properties
+  // Check for viem SignerAccount properties
   const hasLocalAccountProperties =
     // Local Account:
     'address' in signer &&

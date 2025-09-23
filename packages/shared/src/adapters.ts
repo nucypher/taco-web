@@ -7,13 +7,13 @@ import { ViemSignerAdapter } from './viem/signer-adapter';
 import { isViemClient, isViemSignerAccount } from './viem/type-guards';
 
 /**
- * Convert viem Account or ethers Signer to TacoSigner.
+ * Convert ethers Signer or viem SignerAccount (LocalAccount or WalletClient) to TacoSigner.
  *
  * This is the main entry point for creating signers for internal TACo use.
  * Unlike toEthersProvider which creates actual ethers objects,
  * this creates minimal adapters implementing only what TACo needs.
  *
- * @param signerLike - Either a viem Account or an ethers Signer
+ * @param signerLike - Either an ethers Signer or a viem SignerAccount (LocalAccount or WalletClient)
  * @returns A TacoSigner interface implementation
  */
 export function toTacoSigner(signerLike: SignerLike): TacoSigner {

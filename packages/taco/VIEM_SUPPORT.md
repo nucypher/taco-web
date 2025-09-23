@@ -69,7 +69,7 @@ const encryptedKit = await encrypt(
   'Hello, secret!',
   condition,
   27, // ritual ID
-  viemAccount, // viem Account
+  viemAccount, // viem Signer Account (`LocalAccount` or `WalletClient`)
 );
 
 // Same decrypt function works with viem

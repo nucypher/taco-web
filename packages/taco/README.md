@@ -100,7 +100,7 @@ const messageKit = await encrypt(
   'my secret message',
   ownsNFT,
   ritualId,
-  viemAccount,       // viem Account
+  viemAccount,       // viem Signer Account (`LocalAccount` or `WalletClient`)
 );
 
 // Decrypt with viem
@@ -133,7 +133,7 @@ const viemEncrypted = await encrypt(
   message,
   condition,
   ritualId,
-  viemAccount        // viem Account
+  viemAccount        // viem Signer Account (`LocalAccount` or `WalletClient`)
 );
 ```
 

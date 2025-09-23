@@ -55,7 +55,7 @@ export async function encrypt(
 ): Promise<ThresholdMessageKit>;
 
 /**
- * Encrypts a message gated by TACo Conditions using a viem `PublicClient` and `Account`.
+ * Encrypts a message gated by TACo Conditions using a viem `PublicClient` and a Signer Account (`LocalAccount` or `WalletClient`).
  *
  * Use this overload when your application uses viem.
  *
@@ -103,7 +103,7 @@ export async function encrypt(
     condition,
     dkgRitual.dkgPublicKey,
     // Casting is needed because with the function definition of encryptWithPublicKey,
-    // this param can be either a Signer or a viem Account. But not a type that is the union of both.
+    // this param can be either a Signer or a viem signer account. But not a type that is the union of both.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     signerLike as any,
   );
@@ -116,7 +116,7 @@ export async function encrypt(
  * @param {Uint8Array | string} message - The message to be encrypted.
  * @param {Condition} condition - Access condition (single or composite) that must be satisfied at decryption time.
  * @param {DkgPublicKey} dkgPublicKey - The public key of an active DKG Ritual to be used for encryption
- * @param {Signer} authSigner - Signer used to identify encryptor and verify authorization. Accepts an ethers `Signer` or a viem `Account`.
+ * @param {Signer} authSigner - Signer used to identify encryptor and verify authorization. Accepts an ethers `Signer` or a viem Signer Account (`LocalAccount` or `WalletClient`).
  *
  * @returns {Promise<ThresholdMessageKit>} Encrypted message kit representing the ciphertext and associated metadata.
  *

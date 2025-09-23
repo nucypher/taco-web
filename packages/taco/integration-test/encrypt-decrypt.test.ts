@@ -6,7 +6,7 @@ import {
   USER_ADDRESS_PARAM_DEFAULT,
 } from '@nucypher/taco-auth';
 import { ethers } from 'ethers';
-import { Account, createPublicClient, http, PublicClient } from 'viem';
+import { createPublicClient, http, LocalAccount, PublicClient } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { polygonAmoy } from 'viem/chains';
 import {
@@ -32,7 +32,7 @@ describe
   .skipIf(!process.env.RUNNING_IN_CI)
   .each<
     | ['ethers', ethers.providers.Provider, ethers.Wallet, ethers.Wallet]
-    | ['viem', PublicClient, Account, Account]
+    | ['viem', PublicClient, LocalAccount, LocalAccount]
   >([
     [
       'ethers',

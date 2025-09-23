@@ -19,7 +19,7 @@ import {
   TEST_SIWE_PARAMS,
 } from '@nucypher/test-utils';
 import { ethers } from 'ethers';
-import type { Account, PublicClient } from 'viem';
+import type { LocalAccount, PublicClient } from 'viem';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import * as taco from '../src';
@@ -52,7 +52,7 @@ describe('TACo SDK', () => {
 
   describe.each<
     | ['ethers', () => ethers.providers.Provider, () => ethers.Signer]
-    | ['viem', () => PublicClient, () => Account]
+    | ['viem', () => PublicClient, () => LocalAccount]
   >([
     [
       'ethers',
@@ -61,7 +61,7 @@ describe('TACo SDK', () => {
     ],
     [
       'viem',
-      () => fakeViemPublicClient(TEST_CHAIN_ID, 'polygon-amoy'),
+      () => fakeViemPublicClient(),
       () => fakeViemAccount(aliceSecretKeyBytes),
     ],
   ])('Provider: %s', (providerType, createProvider, createSigner) => {

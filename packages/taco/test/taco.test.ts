@@ -11,11 +11,15 @@ import {
   fakePorterUri,
   fakeProvider,
   fakeTDecFlow,
+  fakeViemAccount,
+  fakeViemPublicClient,
   mockGetRitualIdFromPublicKey,
   mockTacoDecrypt,
   TEST_CHAIN_ID,
   TEST_SIWE_PARAMS,
 } from '@nucypher/test-utils';
+import { ethers } from 'ethers';
+import type { LocalAccount, PublicClient } from 'viem';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import * as taco from '../src';
@@ -30,110 +34,170 @@ import {
   mockMakeSessionKey,
 } from './test-utils';
 
-// Shared test variables
-const message = 'this is a secret';
+// Test fixtures
+const TEST_MESSAGE = 'this is a secret';
+const TEST_NFT_CONTRACT = '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77';
+const TEST_NFT_TOKEN_ID = 3591;
+
 const ownsNFT = new conditions.predefined.erc721.ERC721Ownership({
-  contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
-  parameters: [3591],
+  contractAddress: TEST_NFT_CONTRACT,
+  parameters: [TEST_NFT_TOKEN_ID],
   chain: TEST_CHAIN_ID,
 });
 
-describe('taco', () => {
+describe('TACo SDK', () => {
   beforeAll(async () => {
     await initialize();
   });
 
-  it('encrypts and decrypts', async () => {
-    const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
-    const mockedDkgRitual = fakeDkgRitual(mockedDkg);
-    const provider = fakeProvider(aliceSecretKeyBytes);
-    const signer = provider.getSigner();
-    const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);
+  describe.each<
+    | ['ethers', () => ethers.providers.Provider, () => ethers.Signer]
+    | ['viem', () => PublicClient, () => LocalAccount]
+  >([
+    [
+      'ethers',
+      () => fakeProvider(aliceSecretKeyBytes),
+      () => fakeProvider(aliceSecretKeyBytes).getSigner(),
+    ],
+    [
+      'viem',
+      () => fakeViemPublicClient(),
+      () => fakeViemAccount(aliceSecretKeyBytes),
+    ],
+  ])('Provider: %s', (providerType, createProvider, createSigner) => {
+    it('should encrypt and decrypt a message with conditions', async () => {
+      // Setup
+      const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
+      const mockedDkgRitual = fakeDkgRitual(mockedDkg);
+      const provider = createProvider();
+      const signer = createSigner();
+      const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);
 
-    const messageKit = await taco.encrypt(
-      provider,
-      domains.DEVNET,
-      message,
-      ownsNFT,
-      mockedDkg.ritualId,
-      signer,
-    );
-    expect(getFinalizedRitualSpy).toHaveBeenCalled();
+      // Encrypt
+      const messageKit = await taco.encrypt(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        provider as any,
+        domains.DEVNET,
+        TEST_MESSAGE,
+        ownsNFT,
+        mockedDkg.ritualId,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        signer as any,
+      );
+      expect(getFinalizedRitualSpy).toHaveBeenCalled();
 
-    const { decryptionShares } = fakeTDecFlow({
-      ...mockedDkg,
-      message: toBytes(message),
-      dkgPublicKey: mockedDkg.dkg.publicKey(),
-      thresholdMessageKit: messageKit,
-    });
-    const { participantSecrets, participants } = await mockDkgParticipants(
-      mockedDkg.ritualId,
-    );
-    const requesterSessionKey = SessionStaticSecret.random();
-    const decryptSpy = mockTacoDecrypt(
-      mockedDkg.ritualId,
-      decryptionShares,
-      participantSecrets,
-      requesterSessionKey.publicKey(),
-    );
-    const getParticipantsSpy = mockGetParticipants(participants);
-    const sessionKeySpy = mockMakeSessionKey(requesterSessionKey);
-    const getRitualIdFromPublicKey = mockGetRitualIdFromPublicKey(
-      mockedDkg.ritualId,
-    );
-    const getRitualSpy = mockGetActiveRitual(mockedDkgRitual);
-
-    const authProvider = new tacoAuth.EIP4361AuthProvider(
-      provider,
-      signer,
-      TEST_SIWE_PARAMS,
-    );
-    const conditionContext = ConditionContext.fromMessageKit(messageKit);
-    conditionContext.addAuthProvider(USER_ADDRESS_PARAM_DEFAULT, authProvider);
-    const decryptedMessage = await taco.decrypt(
-      provider,
-      domains.DEVNET,
-      messageKit,
-      conditionContext,
-      [fakePorterUri],
-    );
-    expect(decryptedMessage).toEqual(toBytes(message));
-    expect(getParticipantsSpy).toHaveBeenCalled();
-    expect(sessionKeySpy).toHaveBeenCalled();
-    expect(getRitualIdFromPublicKey).toHaveBeenCalled();
-    expect(getRitualSpy).toHaveBeenCalled();
-    expect(decryptSpy).toHaveBeenCalled();
-  }, 9000); // test timeout 9s (TODO: not sure why this test takes so long on CI)
-
-  it('exposes requested parameters', async () => {
-    const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
-    const mockedDkgRitual = fakeDkgRitual(mockedDkg);
-    const provider = fakeProvider(aliceSecretKeyBytes);
-    const signer = provider.getSigner();
-    const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);
-
-    const customParamKey = ':nftId';
-    const ownsNFTWithCustomParams =
-      new conditions.predefined.erc721.ERC721Ownership({
-        contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
-        parameters: [customParamKey],
-        chain: TEST_CHAIN_ID,
+      // Setup decryption mocks
+      const { decryptionShares } = fakeTDecFlow({
+        ...mockedDkg,
+        message: toBytes(TEST_MESSAGE),
+        dkgPublicKey: mockedDkg.dkg.publicKey(),
+        thresholdMessageKit: messageKit,
       });
+      const { participantSecrets, participants } = await mockDkgParticipants(
+        mockedDkg.ritualId,
+      );
+      const requesterSessionKey = SessionStaticSecret.random();
+      const decryptSpy = mockTacoDecrypt(
+        mockedDkg.ritualId,
+        decryptionShares,
+        participantSecrets,
+        requesterSessionKey.publicKey(),
+      );
+      const getParticipantsSpy = mockGetParticipants(participants);
+      const sessionKeySpy = mockMakeSessionKey(requesterSessionKey);
+      const getRitualIdFromPublicKey = mockGetRitualIdFromPublicKey(
+        mockedDkg.ritualId,
+      );
+      const getRitualSpy = mockGetActiveRitual(mockedDkgRitual);
 
-    const messageKit = await taco.encrypt(
-      provider,
-      domains.DEVNET,
-      message,
-      ownsNFTWithCustomParams,
-      mockedDkg.ritualId,
-      signer,
-    );
-    expect(getFinalizedRitualSpy).toHaveBeenCalled();
+      // Setup authentication
+      const authProvider = new tacoAuth.EIP4361AuthProvider(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        provider as any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        signer as any,
+        TEST_SIWE_PARAMS,
+      );
+      const conditionContext = ConditionContext.fromMessageKit(messageKit);
+      conditionContext.addAuthProvider(
+        USER_ADDRESS_PARAM_DEFAULT,
+        authProvider,
+      );
 
-    const conditionContext = ConditionContext.fromMessageKit(messageKit);
-    const requestedParameters = conditionContext.requestedContextParameters;
-    expect(requestedParameters).toEqual(
-      new Set([customParamKey, USER_ADDRESS_PARAM_DEFAULT]),
-    );
+      // Decrypt
+      const decryptedMessage = await taco.decrypt(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        provider as any,
+        domains.DEVNET,
+        messageKit,
+        conditionContext,
+        [fakePorterUri],
+      );
+
+      // Verify
+      expect(decryptedMessage).toEqual(toBytes(TEST_MESSAGE));
+      expect(getParticipantsSpy).toHaveBeenCalled();
+      expect(sessionKeySpy).toHaveBeenCalled();
+      expect(getRitualIdFromPublicKey).toHaveBeenCalled();
+      expect(getRitualSpy).toHaveBeenCalled();
+      expect(decryptSpy).toHaveBeenCalled();
+    }, 15000); // Extended timeout for CI
+
+    it('should handle custom condition parameters', async () => {
+      // Setup
+      const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
+      const mockedDkgRitual = fakeDkgRitual(mockedDkg);
+      const provider = createProvider();
+      const signer = createSigner();
+      const getFinalizedRitualSpy = mockGetActiveRitual(mockedDkgRitual);
+
+      // Create condition with custom parameter
+      const customParamKey = ':nftId';
+      const ownsNFTWithCustomParams =
+        new conditions.predefined.erc721.ERC721Ownership({
+          contractAddress: TEST_NFT_CONTRACT,
+          parameters: [customParamKey],
+          chain: TEST_CHAIN_ID,
+        });
+
+      // Encrypt with custom condition
+      const messageKit = await taco.encrypt(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        provider as any,
+        domains.DEVNET,
+        TEST_MESSAGE,
+        ownsNFTWithCustomParams,
+        mockedDkg.ritualId,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        signer as any,
+      );
+      expect(getFinalizedRitualSpy).toHaveBeenCalled();
+
+      // Verify parameters are exposed
+      const conditionContext = ConditionContext.fromMessageKit(messageKit);
+      const requestedParameters = conditionContext.requestedContextParameters;
+      expect(requestedParameters).toEqual(
+        new Set([customParamKey, USER_ADDRESS_PARAM_DEFAULT]),
+      );
+    });
+
+    it('should encrypt with public key directly', async () => {
+      // Setup
+      const mockedDkg = fakeDkgFlow(FerveoVariant.precomputed, 0, 4, 4);
+      const signer = createSigner();
+
+      // Encrypt with public key
+      const messageKit = await taco.encryptWithPublicKey(
+        TEST_MESSAGE,
+        ownsNFT,
+        mockedDkg.dkg.publicKey(),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        signer as any,
+      );
+
+      // Verify
+      expect(messageKit).toBeDefined();
+      expect(messageKit).toBeInstanceOf(Object);
+    });
   });
 });

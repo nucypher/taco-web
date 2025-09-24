@@ -1,0 +1,42 @@
+{
+  "name": "taco-react-example",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "react-scripts build",
+    "check": "pnpm type-check && pnpm build",
+    "eject": "react-scripts eject",
+    "start": "react-scripts start",
+    "test": "react-scripts test",
+    "type-check": "tsc -p tsconfig.build.json"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@nucypher/shared": "workspace:*",
+    "@nucypher/taco": "workspace:*",
+    "@nucypher/taco-auth": "workspace:*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.28",
+    "@types/react": "^18.3.20",
+    "@types/react-dom": "^18.3.5",
+    "react-scripts": "^5.0.1"
+  },
+  "peerDependencies": {
+    "ethers": "^5.7.2",
+    "viem": "^2.0.0"
+  }
+}

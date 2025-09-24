@@ -64,6 +64,81 @@ const decryptedMessage = await decrypt(
 );
 ```
 
+## Viem Support
+
+The TACo SDK supports both [ethers.js](https://docs.ethers.org/) natively, and [viem](https://viem.sh). The same `encrypt` and `decrypt` functions work with both libraries. Here is how to use them with viem:
+
+```bash
+$ yarn add @nucypher/taco viem
+```
+
+```typescript
+import { encrypt, decrypt, conditions, domains, initialize } from '@nucypher/taco';
+import { createPublicClient, http } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import { polygonAmoy } from 'viem/chains';
+
+// Initialize TACo
+await initialize();
+
+const viemClient = createPublicClient({
+  chain: polygonAmoy,
+  transport: http(),
+});
+const viemAccount = privateKeyToAccount('0x...');
+
+const ownsNFT = new conditions.predefined.ERC721Ownership({
+  contractAddress: '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
+  parameters: [3591],
+  chain: 5,
+});
+
+// Same function names work with viem - TypeScript automatically selects the right overload
+const messageKit = await encrypt(
+  viemClient,        // viem PublicClient
+  domains.TESTNET,
+  'my secret message',
+  ownsNFT,
+  ritualId,
+  viemAccount,       // viem Signer Account (`LocalAccount` or `WalletClient`)
+);
+
+// Decrypt with viem
+const decryptedMessage = await decrypt(
+  viemClient,
+  domains.TESTNET,
+  messageKit,
+);
+```
+
+### Automatic Library Detection
+
+TypeScript automatically detects which library objects you're passing and works seamlessly:
+
+```typescript
+// Using ethers.js - automatically uses ethers implementation
+const ethersEncrypted = await encrypt(
+  ethersProvider,    // ethers.providers.Provider
+  domains.TESTNET,
+  message,
+  condition,
+  ritualId,
+  ethersSigner       // ethers.Signer
+);
+
+// Using viem - automatically uses viem implementation  
+const viemEncrypted = await encrypt(
+  publicClient,  // viem PublicClient
+  domains.TESTNET,
+  message,
+  condition,
+  ritualId,
+  viemAccount        // viem Signer Account (`LocalAccount` or `WalletClient`)
+);
+```
+
+For detailed viem documentation, see [VIEM_SUPPORT.md](./VIEM_SUPPORT.md).
+
 ## Learn more
 
 Please find developer documentation for

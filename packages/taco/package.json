@@ -53,7 +53,7 @@
     "@nucypher/test-utils": "workspace:*",
     "@types/semver": "^7.7.0",
     "dotenv": "^16.4.7",
-    "glob": "^11.0.1",
+    "glob": "^11.0.3",
     "modified-zod2md": "0.1.5-modified.4"
   },
   "engines": {

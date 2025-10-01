@@ -53,7 +53,7 @@
     "typedoc": "^0.25.13",
     "typedoc-plugin-coverage": "^2.2.0",
     "typedoc-plugin-missing-exports": "^2.3.0",
-    "typedoc-plugin-zod": "^1.4.0",
+    "typedoc-plugin-zod": "^1.4.2",
     "typescript": "^5.8.2",
     "vitest": "^3.0.9"
   },

@@ -143,7 +143,7 @@ console.assert(
 
 // You can check if an address is allowed with the condition's toObj method
 const addressToCheck = '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77';
-const addresses = addressAllowlistCondition.toObj().addresses;
+const addresses = addressAllowlistCondition.toObj().returnValueTest.value;
 // This would be checked by taco nodes after validating the wallet signature provided by encryptor (the value of the variable `addressToCheck`).
 const isAllowed = addresses.includes(addressToCheck);
 console.assert(

@@ -398,7 +398,7 @@ _Array of at least 1  and  at most 5 [VariableOperation](#variableoperation) ite
 
 ## AddressAllowlistCondition
 
-Address Allowlist Condition for allowing decryption for specific wallet addresses. It is very handy when combined with other conditions.
+Address Allowlist Condition for allowing decryption for specific wallet addresses.
 
 _Object containing the following properties:_
 

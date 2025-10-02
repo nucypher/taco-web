@@ -11,17 +11,12 @@ import {
 describe('JsonCondition', () => {
   describe('validation', () => {
     it.each([
-      [
-        'object',
-        { store: { book: [{ price: 10.5 }] } },
-        '$.store.book[0].price',
-        10.5,
-      ],
-      ['array', [1, 2, 3, 4, 5], '$[2]', 3],
-      ['number', 42, undefined, 42],
-      ['string', 'hello world', undefined, 'hello world'],
-      ['boolean', true, undefined, true],
-    ])('accepts valid schema with %s data', (_, data, query, expectedValue) => {
+      [{ store: { book: [{ price: 10.5 }] } }, '$.store.book[0].price', 10.5],
+      [[1, 2, 3, 4, 5], '$[2]', 3],
+      [42, undefined, 42],
+      ['hello world', undefined, 'hello world'],
+      [true, undefined, true],
+    ])('accepts valid schema with data: %j', (data, query, expectedValue) => {
       const testJsonConditionObj: JsonConditionProps = {
         conditionType: JsonConditionType,
         data,
@@ -39,6 +34,28 @@ describe('JsonCondition', () => {
 
       expect(result.error).toBeUndefined();
       expect(result.data).toEqual(testJsonConditionObj);
+    });
+
+    it('accepts JSON-looking string as string data (not parsed as JSON)', () => {
+      const jsonString = '{ "store": { "book": [{ "price": 10.5 }] } }';
+      const testJsonConditionObj: JsonConditionProps = {
+        conditionType: JsonConditionType,
+        data: jsonString,
+        returnValueTest: {
+          comparator: '==',
+          value: jsonString,
+        },
+      };
+
+      const result = JsonCondition.validate(
+        jsonConditionSchema,
+        testJsonConditionObj,
+      );
+
+      expect(result.error).toBeUndefined();
+      expect(result.data).toEqual(testJsonConditionObj);
+      // Verify it's still a string, not parsed
+      expect(typeof result.data?.data).toBe('string');
     });
 
     describe('query validation', () => {

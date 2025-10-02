@@ -10,20 +10,14 @@ import {
 
 describe('JsonCondition', () => {
   describe('validation', () => {
-    it.each([
-      [{ store: { book: [{ price: 10.5 }] } }, '$.store.book[0].price', 10.5],
-      [[1, 2, 3, 4, 5], '$[2]', 3],
-      [42, undefined, 42],
-      ['hello world', undefined, 'hello world'],
-      [true, undefined, true],
-    ])('accepts valid schema with data: %j', (data, query, expectedValue) => {
+    it('accepts valid schema with context variable data', () => {
       const testJsonConditionObj: JsonConditionProps = {
         conditionType: JsonConditionType,
-        data,
-        query,
+        data: ':jsonData',
+        query: '$.store.book[0].price',
         returnValueTest: {
           comparator: '==',
-          value: expectedValue,
+          value: 10.5,
         },
       };
 
@@ -36,14 +30,13 @@ describe('JsonCondition', () => {
       expect(result.data).toEqual(testJsonConditionObj);
     });
 
-    it('accepts JSON-looking string as string data (not parsed as JSON)', () => {
-      const jsonString = '{ "store": { "book": [{ "price": 10.5 }] } }';
+    it('accepts valid schema without query', () => {
       const testJsonConditionObj: JsonConditionProps = {
         conditionType: JsonConditionType,
-        data: jsonString,
+        data: ':jsonData',
         returnValueTest: {
           comparator: '==',
-          value: jsonString,
+          value: 42,
         },
       };
 
@@ -54,8 +47,24 @@ describe('JsonCondition', () => {
 
       expect(result.error).toBeUndefined();
       expect(result.data).toEqual(testJsonConditionObj);
-      // Verify it's still a string, not parsed
-      expect(typeof result.data?.data).toBe('string');
+    });
+
+    it('rejects non-context variable data', () => {
+      const testJsonConditionObj = {
+        conditionType: JsonConditionType,
+        data: { store: { book: [{ price: 10.5 }] } },
+        returnValueTest: {
+          comparator: '==',
+          value: 10.5,
+        },
+      };
+
+      const result = JsonCondition.validate(
+        jsonConditionSchema,
+        testJsonConditionObj as unknown as JsonConditionProps,
+      );
+
+      expect(result.error).toBeDefined();
     });
 
     describe('query validation', () => {
@@ -68,7 +77,7 @@ describe('JsonCondition', () => {
       ])('accepts valid JSONPath query: %s', (query) => {
         const result = JsonCondition.validate(jsonConditionSchema, {
           conditionType: JsonConditionType,
-          data: { test: 'data' },
+          data: ':jsonData',
           query,
           returnValueTest: { comparator: '==', value: 0 },
         });
@@ -81,7 +90,7 @@ describe('JsonCondition', () => {
         (query) => {
           const result = JsonCondition.validate(jsonConditionSchema, {
             conditionType: JsonConditionType,
-            data: { test: 'data' },
+            data: ':jsonData',
             query,
             returnValueTest: { comparator: '==', value: 0 },
           });
@@ -96,10 +105,10 @@ describe('JsonCondition', () => {
     });
 
     describe('context variables', () => {
-      it('allows context variables in query and return value test', () => {
+      it('allows context variables in data, query and return value test', () => {
         const result = JsonCondition.validate(jsonConditionSchema, {
           conditionType: JsonConditionType,
-          data: { prices: { usd: 100 } },
+          data: ':priceData',
           query: '$.prices.:currency',
           returnValueTest: { comparator: '==', value: ':expectedValue' },
         });

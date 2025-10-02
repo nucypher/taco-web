@@ -282,7 +282,7 @@ export const testTimeConditionObj: TimeConditionProps = {
 
 export const testJsonConditionObj: JsonConditionProps = {
   conditionType: JsonConditionType,
-  data: { store: { book: [{ price: 10.5 }] } },
+  data: ':jsonData',
   query: '$.store.book[0].price',
   returnValueTest: {
     comparator: '==',

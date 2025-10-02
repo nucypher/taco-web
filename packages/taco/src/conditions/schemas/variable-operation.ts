@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { paramOrContextParamSchema } from './context';
 
-const OPERATOR_FUNCTIONS = [
+export const OPERATOR_FUNCTIONS = [
   '+=',
   '-=',
   '*=',
@@ -29,7 +29,7 @@ const OPERATOR_FUNCTIONS = [
   'str',
 ] as const;
 
-const OPERATORS_NOT_REQUIRING_VALUES = [
+export const OPERATORS_NOT_REQUIRING_VALUES = [
   'abs',
   'avg',
   'ceil',
@@ -54,13 +54,32 @@ export const variableOperationSchema = z
   })
   .refine(
     (data) => {
-      if (OPERATORS_NOT_REQUIRING_VALUES.includes(data.operation)) {
-        return data.value === undefined;
+      if (
+        OPERATORS_NOT_REQUIRING_VALUES.includes(data.operation) &&
+        data.value !== undefined
+      ) {
+        return false;
       }
-      return data.value !== undefined;
+      return true;
     },
     {
-      message: 'Invalid value defined for operation',
+      message: 'Value not allowed for this operation',
       path: ['value'],
     },
-  );
+  )
+  .refine(
+    (data) => {
+      if (
+        !OPERATORS_NOT_REQUIRING_VALUES.includes(data.operation) &&
+        data.value === undefined
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Value must be defined for operation',
+      path: ['value'],
+    },
+  )
+  .describe('An operation that can be performed on an obtained variable.');

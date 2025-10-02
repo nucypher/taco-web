@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  OPERATOR_FUNCTIONS,
+  OPERATORS_NOT_REQUIRING_VALUES,
+} from '../../src/conditions/schemas/variable-operation';
+import {
   blockchainReturnValueTestSchema,
   returnValueTestSchema,
 } from '../../src/conditions/shared';
@@ -64,5 +68,51 @@ import {
         });
       },
     );
+    it.each(OPERATOR_FUNCTIONS)('allows valid operations', (operation) => {
+      const result = schema.safeParse({
+        comparator: '==',
+        value: 10,
+        operations: [
+          {
+            operation: operation,
+            value: OPERATORS_NOT_REQUIRING_VALUES.includes(operation)
+              ? undefined
+              : 5,
+          },
+        ],
+      });
+      expect(result.success).toBe(true);
+      expect(result.error).toBeUndefined();
+    });
+    it('requires at least one operation if defined', () => {
+      const result = schema.safeParse({
+        comparator: '==',
+        value: 10,
+        operations: [],
+      });
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error!.format()).toMatchObject({
+        operations: {
+          _errors: ['Array must contain at least 1 element(s)'],
+        },
+      });
+    });
+    it('allows multiple valid operations', () => {
+      const result = schema.safeParse({
+        comparator: '==',
+        value: 10,
+        operations: [
+          { operation: 'index', value: 1 },
+          { operation: '+=', value: 5 },
+          { operation: '*=', value: 2.5 },
+          { operation: '-=', value: 5.5 },
+          { operation: 'abs' },
+          { operation: '^=', value: BigInt('1000000000000000') },
+        ],
+      });
+      expect(result.success).toBe(true);
+      expect(result.error).toBeUndefined();
+    });
   });
 });

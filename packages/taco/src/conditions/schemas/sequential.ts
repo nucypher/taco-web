@@ -7,6 +7,7 @@ import { baseConditionSchema, plainStringSchema } from './common';
 import { CompoundConditionType } from './compound';
 import { IfThenElseConditionType } from './if-then-else';
 import { anyConditionSchema } from './utils';
+import { variableOperationSchema } from './variable-operation';
 
 const getAllNestedConditionVariableNames = (
   condition: ConditionProps,
@@ -53,6 +54,7 @@ export const conditionVariableSchema: z.ZodSchema = z.lazy(() =>
   z.object({
     varName: plainStringSchema,
     condition: anyConditionSchema,
+    operations: z.array(variableOperationSchema).min(1).optional(),
   }),
 );
 export type ConditionVariableProps = z.infer<typeof conditionVariableSchema>;

@@ -175,8 +175,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       await validateConditionExpression(conditionExpr);
     }, 15000);
 
-    test.skip('validate json condition structure', async () => {
-      // TODO: Enable once JsonCondition is deployed to Lynx nodes
+    test('validate json condition structure', async () => {
       const jsonCondition = new conditions.base.json.JsonCondition(
         testJsonConditionObj,
       );

@@ -55,6 +55,10 @@ import {
   ECDSAConditionType,
 } from '../src/conditions/base/ecdsa';
 import {
+  JsonConditionProps,
+  JsonConditionType,
+} from '../src/conditions/base/json';
+import {
   JsonApiConditionProps,
   JsonApiConditionType,
 } from '../src/conditions/base/json-api';
@@ -274,6 +278,16 @@ export const testTimeConditionObj: TimeConditionProps = {
   },
   method: TimeConditionMethod,
   chain: TEST_CHAIN_ID,
+};
+
+export const testJsonConditionObj: JsonConditionProps = {
+  conditionType: JsonConditionType,
+  data: ':jsonData',
+  query: '$.store.book[0].price',
+  returnValueTest: {
+    comparator: '==',
+    value: 10.5,
+  },
 };
 
 export const testJsonApiConditionObj: JsonApiConditionProps = {

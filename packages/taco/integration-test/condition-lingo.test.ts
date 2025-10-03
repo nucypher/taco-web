@@ -18,6 +18,7 @@ import {
   testContextVariableConditionObj,
   testContractConditionObj,
   testJsonApiConditionObj,
+  testJsonConditionObj,
   testJsonRpcConditionObj,
   testJWTConditionObj,
   testRpcConditionObj,
@@ -171,6 +172,14 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
           testContextVariableConditionObj,
         );
       const conditionExpr = new ConditionExpression(contextVariableCondition);
+      await validateConditionExpression(conditionExpr);
+    }, 15000);
+
+    test('validate json condition structure', async () => {
+      const jsonCondition = new conditions.base.json.JsonCondition(
+        testJsonConditionObj,
+      );
+      const conditionExpr = new ConditionExpression(jsonCondition);
       await validateConditionExpression(conditionExpr);
     }, 15000);
   },

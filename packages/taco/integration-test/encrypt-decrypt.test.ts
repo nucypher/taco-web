@@ -285,16 +285,17 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       const message = toBytes(messageString);
 
       // Create a context variable condition that checks if userAddress is in allowlist
-      const contextVariableCondition = new conditions.base.contextVariable.ContextVariableCondition({
-        ...testContextVariableConditionObj,
-        returnValueTest: {
-          comparator: 'in',
-          value: [
-            CONSUMER_ADDRESS.toLowerCase(),
-            '0x0000000000000000000000000000000000000001',
-          ],
-        },
-      });
+      const contextVariableCondition =
+        new conditions.base.contextVariable.ContextVariableCondition({
+          ...testContextVariableConditionObj,
+          returnValueTest: {
+            comparator: 'in',
+            value: [
+              CONSUMER_ADDRESS.toLowerCase(),
+              '0x0000000000000000000000000000000000000001',
+            ],
+          },
+        });
 
       expect(contextVariableCondition.requiresAuthentication()).toBe(true);
 
@@ -342,16 +343,17 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       const message = toBytes(messageString);
 
       // Create a context variable condition with specific allowed addresses
-      const restrictedContextVariableCondition = new conditions.base.contextVariable.ContextVariableCondition({
-        ...testContextVariableConditionObj,
-        returnValueTest: {
-          comparator: 'in',
-          value: [
-            '0x0000000000000000000000000000000000000001', // Not our consumer address
-            '0x0000000000000000000000000000000000000002',
-          ],
-        },
-      });
+      const restrictedContextVariableCondition =
+        new conditions.base.contextVariable.ContextVariableCondition({
+          ...testContextVariableConditionObj,
+          returnValueTest: {
+            comparator: 'in',
+            value: [
+              '0x0000000000000000000000000000000000000001', // Not our consumer address
+              '0x0000000000000000000000000000000000000002',
+            ],
+          },
+        });
 
       const messageKit = await encrypt(
         provider,
@@ -374,6 +376,104 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         USER_ADDRESS_PARAM_DEFAULT,
         authProvider,
       );
+
+      await expect(
+        decrypt(provider, DOMAIN, messageKitFromBytes, conditionContext),
+      ).rejects.toThrow();
+    }, 20000);
+
+    test('should encrypt and decrypt with JsonCondition using context variable', async () => {
+      const messageString = 'This message is protected by JsonCondition 🔐';
+      const message = toBytes(messageString);
+
+      // JSON data that will be provided at decryption time
+      const jsonData = {
+        store: {
+          book: [
+            { price: 10.5, category: 'fiction' },
+            { price: 8.99, category: 'non-fiction' },
+          ],
+        },
+      };
+
+      // Create JsonCondition that checks price of first book
+      const jsonCondition = new conditions.base.json.JsonCondition({
+        conditionType: 'json',
+        data: ':jsonData',
+        query: '$.store.book[0].price',
+        returnValueTest: {
+          comparator: '==',
+          value: 10.5,
+        },
+      });
+
+      const messageKit = await encrypt(
+        provider,
+        DOMAIN,
+        message,
+        jsonCondition,
+        RITUAL_ID,
+        encryptorSigner,
+      );
+
+      const encryptedBytes = messageKit.toBytes();
+      const messageKitFromBytes = ThresholdMessageKit.fromBytes(encryptedBytes);
+      const conditionContext =
+        conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
+
+      expect(
+        conditionContext.requestedContextParameters.has(':jsonData'),
+      ).toBeTruthy();
+
+      // Provide the JSON data as a custom context parameter
+      conditionContext.addCustomContextParameterValues({
+        ':jsonData': jsonData,
+      });
+
+      const decryptedBytes = await decrypt(
+        provider,
+        DOMAIN,
+        messageKitFromBytes,
+        conditionContext,
+      );
+      const decryptedMessageString = fromBytes(decryptedBytes);
+
+      expect(decryptedMessageString).toEqual(messageString);
+    }, 20000);
+
+    test('should fail to decrypt with JsonCondition when JSON data does not match', async () => {
+      const messageString = 'This should fail with wrong JSON data';
+      const message = toBytes(messageString);
+
+      // Create JsonCondition expecting specific price
+      const jsonCondition = new conditions.base.json.JsonCondition({
+        conditionType: 'json',
+        data: ':productData',
+        query: '$.price',
+        returnValueTest: {
+          comparator: '>',
+          value: 100,
+        },
+      });
+
+      const messageKit = await encrypt(
+        provider,
+        DOMAIN,
+        message,
+        jsonCondition,
+        RITUAL_ID,
+        encryptorSigner,
+      );
+
+      const encryptedBytes = messageKit.toBytes();
+      const messageKitFromBytes = ThresholdMessageKit.fromBytes(encryptedBytes);
+      const conditionContext =
+        conditions.context.ConditionContext.fromMessageKit(messageKitFromBytes);
+
+      // Provide JSON data that doesn't meet the condition (price <= 100)
+      conditionContext.addCustomContextParameterValues({
+        ':productData': { price: 50 },
+      });
 
       await expect(
         decrypt(provider, DOMAIN, messageKitFromBytes, conditionContext),

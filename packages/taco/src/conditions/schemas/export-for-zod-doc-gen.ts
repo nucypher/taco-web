@@ -14,6 +14,7 @@ export * from './context-variable';
 export * from './contract';
 export * from './ecdsa';
 export * from './if-then-else';
+export * from './json';
 export * from './json-api';
 export * from './json-rpc';
 export * from './jwt';

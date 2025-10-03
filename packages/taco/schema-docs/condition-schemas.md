@@ -186,6 +186,19 @@ _Object containing the following properties:_
 
 _(\*) Required._
 
+## JsonCondition
+
+_Object containing the following properties:_
+
+| Property                   | Description                                                                                  | Type                                              | Default  |
+| :------------------------- | :------------------------------------------------------------------------------------------- | :------------------------------------------------ | :------- |
+| `conditionType`            |                                                                                              | `'json'`                                          | `'json'` |
+| **`data`** (\*)            | Context variable that resolves to JSON data at decryption time.                              | `string` (_regex: `/^:[a-zA-Z_][a-zA-Z0-9_]*$/`_) |          |
+| `query`                    | Optional JSONPath query to extract a specific value from the data.                           | [JsonPath](#jsonpath)                             |          |
+| **`returnValueTest`** (\*) | Test to perform on a value. Supports comparison operators like ==, >, <, >=, <=, !=, in, !in | [ReturnValueTest](#returnvaluetest)               |          |
+
+_(\*) Required._
+
 ## JsonApiCondition
 
 _Object containing the following properties:_

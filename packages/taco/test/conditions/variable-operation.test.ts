@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   OPERATOR_FUNCTIONS,
-  OPERATORS_NOT_REQUIRING_VALUES,
+  UNARY_OPERATOR_FUNCTIONS,
   variableOperationSchema,
 } from '../../src/conditions/schemas/variable-operation';
 
@@ -10,12 +10,12 @@ describe('validates schema', () => {
   it.each(OPERATOR_FUNCTIONS)('allows valid operation', (operation) => {
     const result = variableOperationSchema.safeParse({
       operation: operation,
-      value: OPERATORS_NOT_REQUIRING_VALUES.includes(operation) ? undefined : 5,
+      value: UNARY_OPERATOR_FUNCTIONS.includes(operation) ? undefined : 5,
     });
     expect(result.success).toBe(true);
     expect(result.error).toBeUndefined();
   });
-  it.each(OPERATORS_NOT_REQUIRING_VALUES)(
+  it.each(UNARY_OPERATOR_FUNCTIONS)(
     'disallows operations when value is missing for operation that requires a value',
     (operation) => {
       const result = variableOperationSchema.safeParse({
@@ -32,9 +32,7 @@ describe('validates schema', () => {
   );
 
   it.each(
-    OPERATOR_FUNCTIONS.filter(
-      (op) => !OPERATORS_NOT_REQUIRING_VALUES.includes(op),
-    ),
+    OPERATOR_FUNCTIONS.filter((op) => !UNARY_OPERATOR_FUNCTIONS.includes(op)),
   )(
     'disallows operations when value is not provided for operation that requires a value',
     (operation) => {

@@ -6,7 +6,7 @@ import { IfThenElseConditionType } from '../../src/conditions/if-then-else-condi
 import {
   MAX_VARIABLE_OPERATIONS,
   OPERATOR_FUNCTIONS,
-  OPERATORS_NOT_REQUIRING_VALUES,
+  UNARY_OPERATOR_FUNCTIONS,
 } from '../../src/conditions/schemas/variable-operation';
 import {
   ConditionVariableProps,
@@ -402,7 +402,7 @@ describe('validation', () => {
           operations: [
             {
               operation: operation,
-              value: OPERATORS_NOT_REQUIRING_VALUES.includes(operation)
+              value: UNARY_OPERATOR_FUNCTIONS.includes(operation)
                 ? undefined
                 : 5,
             },

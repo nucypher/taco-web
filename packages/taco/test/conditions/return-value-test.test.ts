@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   MAX_VARIABLE_OPERATIONS,
   OPERATOR_FUNCTIONS,
-  OPERATORS_NOT_REQUIRING_VALUES,
+  UNARY_OPERATOR_FUNCTIONS,
 } from '../../src/conditions/schemas/variable-operation';
 import {
   blockchainReturnValueTestSchema,
@@ -76,9 +76,7 @@ import {
         operations: [
           {
             operation: operation,
-            value: OPERATORS_NOT_REQUIRING_VALUES.includes(operation)
-              ? undefined
-              : 5,
+            value: UNARY_OPERATOR_FUNCTIONS.includes(operation) ? undefined : 5,
           },
         ],
       });

@@ -29,7 +29,7 @@ export const OPERATOR_FUNCTIONS = [
   'str',
 ] as const;
 
-export const OPERATORS_NOT_REQUIRING_VALUES = [
+export const UNARY_OPERATOR_FUNCTIONS = [
   'abs',
   'avg',
   'ceil',
@@ -55,7 +55,7 @@ export const variableOperationSchema = z
   .refine(
     (data) => {
       if (
-        OPERATORS_NOT_REQUIRING_VALUES.includes(data.operation) &&
+        UNARY_OPERATOR_FUNCTIONS.includes(data.operation) &&
         data.value !== undefined
       ) {
         return false;
@@ -70,7 +70,7 @@ export const variableOperationSchema = z
   .refine(
     (data) => {
       if (
-        !OPERATORS_NOT_REQUIRING_VALUES.includes(data.operation) &&
+        !UNARY_OPERATOR_FUNCTIONS.includes(data.operation) &&
         data.value === undefined
       ) {
         return false;

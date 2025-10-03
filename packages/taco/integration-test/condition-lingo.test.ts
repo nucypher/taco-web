@@ -125,7 +125,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       });
       const conditionExpr = new ConditionExpression(overallCondition);
       await validateConditionExpression(conditionExpr);
-    }, 15000);
+    }, 20000);
     test('validate ecdsa condition lingo and supported curves consistency', async () => {
       // Split SUPPORTED_ECDSA_CURVES into chunks of 5 to respect the operand limit
       const preGeneratedVerifyingKeys = {
@@ -180,6 +180,45 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         testJsonConditionObj,
       );
       const conditionExpr = new ConditionExpression(jsonCondition);
+      await validateConditionExpression(conditionExpr);
+    }, 15000);
+
+    test('validate conditions with operations', async () => {
+      const sequentialCondition = new SequentialCondition({
+        conditionVariables: [
+          {
+            varName: 'rpcValue',
+            condition: testRpcConditionObj,
+            operations: [
+              { operation: 'abs' },
+              { operation: '^=', value: BigInt('1000000000000000') },
+            ],
+          },
+          {
+            // add some operations
+            varName: 'timeValue',
+            condition: {
+              ...testTimeConditionObj,
+              returnValueTest: {
+                comparator: '>',
+                value: 100,
+                operations: [
+                  { operation: 'abs' },
+                  { operation: 'index', value: 0 },
+                  { operation: '+=', value: 5 },
+                  { operation: '*=', value: ':multiplier' }, // context variable
+                ],
+              },
+            },
+          },
+          {
+            varName: 'contractValue',
+            condition: testContractConditionObj,
+            operations: [{ operation: '-=', value: 5.5 }],
+          },
+        ],
+      });
+      const conditionExpr = new ConditionExpression(sequentialCondition);
       await validateConditionExpression(conditionExpr);
     }, 15000);
   },

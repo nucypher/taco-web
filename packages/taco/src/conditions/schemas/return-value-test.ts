@@ -4,18 +4,14 @@ import {
   blockchainParamOrContextParamSchema,
   paramOrContextParamSchema,
 } from './context';
-import { variableOperationSchema } from './variable-operation';
+import { variableOperationsArraySchema } from './variable-operation';
 
 const returnValueTestBaseSchema = z.object({
   index: z.number().int().nonnegative().optional(),
   comparator: z.enum(['==', '>', '<', '>=', '<=', '!=', 'in', '!in']),
-  operations: z
-    .array(variableOperationSchema)
-    .min(1)
-    .optional()
-    .describe(
-      'Optional operations to perform on the obtained result before comparison',
-    ),
+  operations: variableOperationsArraySchema.describe(
+    'Optional operations to perform on the obtained result before comparison',
+  ),
 });
 
 const requireNonEmptyArrayIfComparatorIsIn = (data: {

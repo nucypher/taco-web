@@ -83,3 +83,12 @@ export const variableOperationSchema = z
     },
   )
   .describe('An operation that can be performed on an obtained result.');
+
+export const MAX_VARIABLE_OPERATIONS = 5;
+
+export const variableOperationsArraySchema = z
+  .array(variableOperationSchema)
+  .min(1)
+  .max(MAX_VARIABLE_OPERATIONS)
+  .optional()
+  .describe('Optional operations to perform on the obtained result');

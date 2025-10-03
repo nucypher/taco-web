@@ -7,7 +7,7 @@ import { baseConditionSchema, plainStringSchema } from './common';
 import { CompoundConditionType } from './compound';
 import { IfThenElseConditionType } from './if-then-else';
 import { anyConditionSchema } from './utils';
-import { variableOperationSchema } from './variable-operation';
+import { variableOperationsArraySchema } from './variable-operation';
 
 const getAllNestedConditionVariableNames = (
   condition: ConditionProps,
@@ -55,13 +55,9 @@ export const conditionVariableSchema: z.ZodSchema = z.lazy(() =>
     .object({
       varName: plainStringSchema,
       condition: anyConditionSchema,
-      operations: z
-        .array(variableOperationSchema)
-        .min(1)
-        .optional()
-        .describe(
-          'Optional operations to perform on the obtained condition result before storing it',
-        ),
+      operations: variableOperationsArraySchema.describe(
+        'Optional operations to perform on the obtained condition result before storing it',
+      ),
     })
     .describe(
       'Executes a condition and stores the result as a variable within a sequential condition.',

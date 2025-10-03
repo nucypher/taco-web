@@ -249,12 +249,12 @@ _(\*) Required._
 
 _Object containing the following properties:_
 
-| Property              | Description                                                             | Type                                                               |
-| :-------------------- | :---------------------------------------------------------------------- | :----------------------------------------------------------------- |
-| `index`               |                                                                         | `number` (_int, ≥0_)                                               |
-| **`comparator`** (\*) |                                                                         | `'==' \| '>' \| '<' \| '>=' \| '<=' \| '!=' \| 'in' \| '!in'`      |
-| `operations`          | Optional operations to perform on the obtained result before comparison | _Array of at least 1 [VariableOperation](#variableoperation) item_ |
-| **`value`** (\*)      |                                                                         | [BlockchainParamOrContextParam](#blockchainparamorcontextparam)    |
+| Property              | Description                                                             | Type                                                                                |
+| :-------------------- | :---------------------------------------------------------------------- | :---------------------------------------------------------------------------------- |
+| `index`               |                                                                         | `number` (_int, ≥0_)                                                                |
+| **`comparator`** (\*) |                                                                         | `'==' \| '>' \| '<' \| '>=' \| '<=' \| '!=' \| 'in' \| '!in'`                       |
+| `operations`          | Optional operations to perform on the obtained result before comparison | _Array of at least 1  and  at most 5 [VariableOperation](#variableoperation) items_ |
+| **`value`** (\*)      |                                                                         | [BlockchainParamOrContextParam](#blockchainparamorcontextparam)                     |
 
 _(\*) Required._
 
@@ -264,12 +264,12 @@ Test to perform on a value. Supports comparison operators like ==, >, <, >=, <=,
 
 _Object containing the following properties:_
 
-| Property              | Description                                                             | Type                                                               |
-| :-------------------- | :---------------------------------------------------------------------- | :----------------------------------------------------------------- |
-| `index`               |                                                                         | `number` (_int, ≥0_)                                               |
-| **`comparator`** (\*) |                                                                         | `'==' \| '>' \| '<' \| '>=' \| '<=' \| '!=' \| 'in' \| '!in'`      |
-| `operations`          | Optional operations to perform on the obtained result before comparison | _Array of at least 1 [VariableOperation](#variableoperation) item_ |
-| **`value`** (\*)      |                                                                         | [ParamOrContextParam](#paramorcontextparam)                        |
+| Property              | Description                                                             | Type                                                                                |
+| :-------------------- | :---------------------------------------------------------------------- | :---------------------------------------------------------------------------------- |
+| `index`               |                                                                         | `number` (_int, ≥0_)                                                                |
+| **`comparator`** (\*) |                                                                         | `'==' \| '>' \| '<' \| '>=' \| '<=' \| '!=' \| 'in' \| '!in'`                       |
+| `operations`          | Optional operations to perform on the obtained result before comparison | _Array of at least 1  and  at most 5 [VariableOperation](#variableoperation) items_ |
+| **`value`** (\*)      |                                                                         | [ParamOrContextParam](#paramorcontextparam)                                         |
 
 _(\*) Required._
 
@@ -293,11 +293,11 @@ _(\*) Required._
 
 _Object containing the following properties:_
 
-| Property             | Description                                                                       | Type                                                               |
-| :------------------- | :-------------------------------------------------------------------------------- | :----------------------------------------------------------------- |
-| **`varName`** (\*)   | Any string that is not a Context Parameter i.e. does not start with `:`.          | [PlainString](#plainstring)                                        |
-| **`condition`** (\*) |                                                                                   | [AnyCondition](#anycondition)                                      |
-| `operations`         | Optional operations to perform on the obtained condition result before storing it | _Array of at least 1 [VariableOperation](#variableoperation) item_ |
+| Property             | Description                                                                       | Type                                                                                |
+| :------------------- | :-------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------- |
+| **`varName`** (\*)   | Any string that is not a Context Parameter i.e. does not start with `:`.          | [PlainString](#plainstring)                                                         |
+| **`condition`** (\*) |                                                                                   | [AnyCondition](#anycondition)                                                       |
+| `operations`         | Optional operations to perform on the obtained condition result before storing it | _Array of at least 1  and  at most 5 [VariableOperation](#variableoperation) items_ |
 
 _(\*) Required._
 
@@ -363,6 +363,19 @@ _Object containing the following properties:_
 
 _(\*) Required._
 
+## TimeCondition
+
+_Object containing the following properties:_
+
+| Property                   | Type                                                    | Default       |
+| :------------------------- | :------------------------------------------------------ | :------------ |
+| `conditionType`            | `'time'`                                                | `'time'`      |
+| **`chain`** (\*)           | `number` (_int, ≥0_)                                    |               |
+| `method`                   | `'blocktime'`                                           | `'blocktime'` |
+| **`returnValueTest`** (\*) | [BlockchainReturnValueTest](#blockchainreturnvaluetest) |               |
+
+_(\*) Required._
+
 ## VariableOperation
 
 An operation that can be performed on an obtained result.
@@ -376,18 +389,11 @@ _Object containing the following properties:_
 
 _(\*) Required._
 
-## TimeCondition
+## VariableOperationsArray
 
-_Object containing the following properties:_
+Optional operations to perform on the obtained result
 
-| Property                   | Type                                                    | Default       |
-| :------------------------- | :------------------------------------------------------ | :------------ |
-| `conditionType`            | `'time'`                                                | `'time'`      |
-| **`chain`** (\*)           | `number` (_int, ≥0_)                                    |               |
-| `method`                   | `'blocktime'`                                           | `'blocktime'` |
-| **`returnValueTest`** (\*) | [BlockchainReturnValueTest](#blockchainreturnvaluetest) |               |
-
-_(\*) Required._
+_Array of at least 1  and  at most 5 [VariableOperation](#variableoperation) items._ (_optional_)
 
 ## More resources
 

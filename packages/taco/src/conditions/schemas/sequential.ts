@@ -51,12 +51,23 @@ const noDuplicateVarNames = (condition: ConditionProps): boolean => {
 export const SequentialConditionType = 'sequential';
 
 export const conditionVariableSchema: z.ZodSchema = z.lazy(() =>
-  z.object({
-    varName: plainStringSchema,
-    condition: anyConditionSchema,
-    operations: z.array(variableOperationSchema).min(1).optional(),
-  }),
+  z
+    .object({
+      varName: plainStringSchema,
+      condition: anyConditionSchema,
+      operations: z
+        .array(variableOperationSchema)
+        .min(1)
+        .optional()
+        .describe(
+          'Optional operations to perform on the obtained condition result before storing it',
+        ),
+    })
+    .describe(
+      'Executes a condition and stores the result as a variable within a sequential condition.',
+    ),
 );
+
 export type ConditionVariableProps = z.infer<typeof conditionVariableSchema>;
 
 export const sequentialConditionSchema: z.ZodSchema = baseConditionSchema

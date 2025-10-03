@@ -82,4 +82,4 @@ export const variableOperationSchema = z
       path: ['value'],
     },
   )
-  .describe('An operation that can be performed on an obtained variable.');
+  .describe('An operation that can be performed on an obtained result.');

@@ -249,11 +249,12 @@ _(\*) Required._
 
 _Object containing the following properties:_
 
-| Property              | Type                                                            |
-| :-------------------- | :-------------------------------------------------------------- |
-| `index`               | `number` (_int, ≥0_)                                            |
-| **`comparator`** (\*) | `'==' \| '>' \| '<' \| '>=' \| '<=' \| '!=' \| 'in' \| '!in'`   |
-| **`value`** (\*)      | [BlockchainParamOrContextParam](#blockchainparamorcontextparam) |
+| Property              | Description                                                             | Type                                                               |
+| :-------------------- | :---------------------------------------------------------------------- | :----------------------------------------------------------------- |
+| `index`               |                                                                         | `number` (_int, ≥0_)                                               |
+| **`comparator`** (\*) |                                                                         | `'==' \| '>' \| '<' \| '>=' \| '<=' \| '!=' \| 'in' \| '!in'`      |
+| `operations`          | Optional operations to perform on the obtained result before comparison | _Array of at least 1 [VariableOperation](#variableoperation) item_ |
+| **`value`** (\*)      |                                                                         | [BlockchainParamOrContextParam](#blockchainparamorcontextparam)    |
 
 _(\*) Required._
 
@@ -263,11 +264,12 @@ Test to perform on a value. Supports comparison operators like ==, >, <, >=, <=,
 
 _Object containing the following properties:_
 
-| Property              | Type                                                          |
-| :-------------------- | :------------------------------------------------------------ |
-| `index`               | `number` (_int, ≥0_)                                          |
-| **`comparator`** (\*) | `'==' \| '>' \| '<' \| '>=' \| '<=' \| '!=' \| 'in' \| '!in'` |
-| **`value`** (\*)      | [ParamOrContextParam](#paramorcontextparam)                   |
+| Property              | Description                                                             | Type                                                               |
+| :-------------------- | :---------------------------------------------------------------------- | :----------------------------------------------------------------- |
+| `index`               |                                                                         | `number` (_int, ≥0_)                                               |
+| **`comparator`** (\*) |                                                                         | `'==' \| '>' \| '<' \| '>=' \| '<=' \| '!=' \| 'in' \| '!in'`      |
+| `operations`          | Optional operations to perform on the obtained result before comparison | _Array of at least 1 [VariableOperation](#variableoperation) item_ |
+| **`value`** (\*)      |                                                                         | [ParamOrContextParam](#paramorcontextparam)                        |
 
 _(\*) Required._
 
@@ -291,10 +293,11 @@ _(\*) Required._
 
 _Object containing the following properties:_
 
-| Property             | Type                          |
-| :------------------- | :---------------------------- |
-| **`varName`** (\*)   | [PlainString](#plainstring)   |
-| **`condition`** (\*) | [AnyCondition](#anycondition) |
+| Property             | Description                                                                       | Type                                                               |
+| :------------------- | :-------------------------------------------------------------------------------- | :----------------------------------------------------------------- |
+| **`varName`** (\*)   | Any string that is not a Context Parameter i.e. does not start with `:`.          | [PlainString](#plainstring)                                        |
+| **`condition`** (\*) |                                                                                   | [AnyCondition](#anycondition)                                      |
+| `operations`         | Optional operations to perform on the obtained condition result before storing it | _Array of at least 1 [VariableOperation](#variableoperation) item_ |
 
 _(\*) Required._
 
@@ -357,6 +360,19 @@ _Object containing the following properties:_
 | `signingObjectContextVar`  | The context variable that will be replaced with the signing object at signing | `':signingConditionObject'`                             | `':signingConditionObject'` |
 | **`attributeName`** (\*)   | The name of the attribute to check                                            | `string` (_min length: 1_)                              |                             |
 | **`returnValueTest`** (\*) |                                                                               | [BlockchainReturnValueTest](#blockchainreturnvaluetest) |                             |
+
+_(\*) Required._
+
+## VariableOperation
+
+An operation that can be performed on an obtained result.
+
+_Object containing the following properties:_
+
+| Property             | Type                                                                                                                                                                                                    |
+| :------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **`operation`** (\*) | `'+=' \| '-=' \| '*=' \| '/=' \| '%=' \| '^=' \| 'index' \| 'round' \| 'abs' \| 'avg' \| 'ceil' \| 'ethToWei' \| 'floor' \| 'len' \| 'max' \| 'min' \| 'sum' \| 'weiToEth' \| 'bool' \| 'float' \| ...` |
+| `value`              | [ParamOrContextParam](#paramorcontextparam)                                                                                                                                                             |
 
 _(\*) Required._
 

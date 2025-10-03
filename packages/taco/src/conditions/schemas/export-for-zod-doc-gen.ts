@@ -23,3 +23,4 @@ export * from './rpc';
 export * from './sequential';
 export * from './signing';
 export * from './time';
+export * from './variable-operation';

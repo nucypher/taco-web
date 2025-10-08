@@ -1,17 +1,17 @@
-import { Condition } from '../condition';
+import { Condition } from '../condition.js';
 import {
   ContractConditionProps,
   contractConditionSchema,
   ContractConditionType,
-} from '../schemas/contract';
-import { OmitConditionType } from '../shared';
+} from '../schemas/contract.js';
+import { OmitConditionType } from '../shared.js';
 
 export {
   ContractConditionProps,
   contractConditionSchema,
   ContractConditionType,
   FunctionAbiProps,
-} from '../schemas/contract';
+} from '../schemas/contract.js';
 
 export class ContractCondition extends Condition {
   constructor(value: OmitConditionType<ContractConditionProps>) {

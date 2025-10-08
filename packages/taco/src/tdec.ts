@@ -21,9 +21,9 @@ import {
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
-import { ConditionExpression } from './conditions/condition-expr';
-import { ConditionContext } from './conditions/context';
-import { DkgClient } from './dkg';
+import { ConditionExpression } from './conditions/condition-expr.js';
+import { ConditionContext } from './conditions/context/index.js';
+import { DkgClient } from './dkg.js';
 
 const ERR_DECRYPTION_FAILED = (errors: unknown) =>
   `Threshold of responses not met; TACo decryption failed with errors: ${JSON.stringify(

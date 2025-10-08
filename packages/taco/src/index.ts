@@ -9,13 +9,13 @@ export {
   toHexString,
 } from '@nucypher/shared';
 
-export * as conditions from './conditions';
+export * as conditions from './conditions/index.js';
 
-export { decrypt, encrypt, encryptWithPublicKey } from './taco';
+export { decrypt, encrypt, encryptWithPublicKey } from './taco.js';
 
 export {
   TacoClient,
   type TacoClientConfig,
   type TacoClientEthersConfig,
   type TacoClientViemConfig,
-} from './client';
+} from './client/index.js';

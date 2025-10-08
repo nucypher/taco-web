@@ -6,12 +6,12 @@ import {
 } from '@nucypher/nucypher-core';
 import { BigNumberish, ethers } from 'ethers';
 
-import { Domain } from '../../porter';
-import { ChecksumAddress } from '../../types';
-import { fromHexString } from '../../utils';
-import { DEFAULT_WAIT_N_CONFIRMATIONS } from '../const';
-import { Coordinator__factory } from '../ethers-typechain';
-import { BLS12381, Coordinator } from '../ethers-typechain/Coordinator';
+import { Domain } from '../../porter.js';
+import { ChecksumAddress } from '../../types.js';
+import { fromHexString } from '../../utils.js';
+import { DEFAULT_WAIT_N_CONFIRMATIONS } from '../const.js';
+import { BLS12381, Coordinator } from '../ethers-typechain/Coordinator.js';
+import { Coordinator__factory } from '../ethers-typechain/index.js';
 
 export interface CoordinatorRitual {
   initiator: string;

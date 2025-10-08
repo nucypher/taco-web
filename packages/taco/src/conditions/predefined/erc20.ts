@@ -4,7 +4,7 @@ import {
   ContractCondition,
   ContractConditionProps,
   ContractConditionType,
-} from '../base/contract';
+} from '../base/contract.js';
 
 type ERC20BalanceFields = 'contractAddress' | 'chain' | 'returnValueTest';
 

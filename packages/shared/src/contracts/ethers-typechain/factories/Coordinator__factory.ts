@@ -4,7 +4,7 @@
 
 import type { Provider } from '@ethersproject/providers';
 import { Contract, Signer, utils } from 'ethers';
-import type { Coordinator, CoordinatorInterface } from '../Coordinator';
+import type { Coordinator, CoordinatorInterface } from '../Coordinator.js';
 
 const _abi = [
   {

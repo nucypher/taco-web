@@ -8,16 +8,16 @@ import {
   USER_ADDRESS_PARAM_DEFAULT,
 } from '@nucypher/taco-auth';
 
-import { CoreConditions, CoreContext } from '../../types';
-import { toJSON } from '../../utils';
-import { Condition, ConditionProps } from '../condition';
-import { ConditionExpression } from '../condition-expr';
+import { CoreConditions, CoreContext } from '../../types.js';
+import { toJSON } from '../../utils.js';
+import { ConditionExpression } from '../condition-expr.js';
+import { Condition, ConditionProps } from '../condition.js';
 import {
   CONTEXT_PARAM_FULL_MATCH_REGEXP,
   CONTEXT_PARAM_PREFIX,
   CONTEXT_PARAM_REGEXP,
   USER_ADDRESS_PARAMS,
-} from '../const';
+} from '../const.js';
 
 export type CustomContextParam =
   | string

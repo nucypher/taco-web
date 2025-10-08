@@ -1,6 +1,6 @@
-import { AuthProvider } from '../../auth-provider';
+import { AuthProvider } from '../../auth-provider.js';
 
-import { EIP1271_AUTH_METHOD, EIP1271AuthSignature } from './auth';
+import { EIP1271_AUTH_METHOD, EIP1271AuthSignature } from './auth.js';
 
 /**
  * EIP1271AuthProvider handles EIP-1271 contract-based authentication.

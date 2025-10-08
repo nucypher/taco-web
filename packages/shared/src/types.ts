@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 
-import { PublicClient, SignerAccount } from './viem/types';
+import { PublicClient, SignerAccount } from './viem/types.js';
 
 export type ChecksumAddress = `0x${string}`;
 export type HexEncodedBytes = string;

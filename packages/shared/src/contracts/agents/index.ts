@@ -1,3 +1,3 @@
-export * from './coordinator';
-export * from './global-allow-list';
-export * from './subscription-manager';
+export * from './coordinator.js';
+export * from './global-allow-list.js';
+export * from './subscription-manager.js';

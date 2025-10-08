@@ -1,7 +1,7 @@
 import { Networkish } from '@ethersproject/providers';
 import { ethers } from 'ethers';
 
-import type { Chain, PublicClient } from './types';
+import type { Chain, PublicClient } from './types.js';
 
 /**
  * Create ethers network object from viem chain

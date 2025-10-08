@@ -1,1 +1,1 @@
-export { ConditionContext, type CustomContextParam } from './context';
+export { ConditionContext, type CustomContextParam } from './context.js';

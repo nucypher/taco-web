@@ -1,8 +1,8 @@
 import { ethers } from 'ethers';
 
-import { type TacoSigner } from '../taco-signer';
+import { type TacoSigner } from '../taco-signer.js';
 
-import { type Address, type SignerAccount } from './types';
+import { type Address, type SignerAccount } from './types.js';
 
 /**
  * Viem Signer Adapter

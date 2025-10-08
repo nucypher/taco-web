@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { baseAuthSignatureSchema } from '../../auth-sig';
+import { baseAuthSignatureSchema } from '../../auth-sig.js';
 
 export const EIP1271_AUTH_METHOD = 'EIP1271';
 

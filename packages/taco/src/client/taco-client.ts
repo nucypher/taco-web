@@ -12,16 +12,16 @@ import {
   ThresholdMessageKit,
 } from '@nucypher/nucypher-core';
 
-import { Condition } from '../conditions/condition';
-import { ConditionContext } from '../conditions/context/index';
-import { decrypt, encrypt, encryptWithPublicKey } from '../taco';
+import { Condition } from '../conditions/condition.js';
+import { ConditionContext } from '../conditions/context/index.js';
+import { decrypt, encrypt, encryptWithPublicKey } from '../taco.js';
 
 import {
   type TacoClientConfig,
   type TacoClientEthersConfig,
   type TacoClientViemConfig,
-} from './client-config';
-import { TacoConfigValidator } from './config-validator';
+} from './client-config.js';
+import { TacoConfigValidator } from './config-validator.js';
 
 /**
  * TacoClient provides an object-oriented interface for TACo operations

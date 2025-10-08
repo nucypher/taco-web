@@ -1,8 +1,8 @@
 import { ethers } from 'ethers';
 
-import { ProviderLike, SignerLike } from '../types';
+import { ProviderLike, SignerLike } from '../types.js';
 
-import { PublicClient, SignerAccount } from './types';
+import { PublicClient, SignerAccount } from './types.js';
 
 /**
  * Type guard to determine if the provider-like is a viem PublicClient

@@ -1,4 +1,4 @@
-import { fromHexString } from './utils';
+import { fromHexString } from './utils.js';
 
 export enum ChainId {
   POLYGON = 137,

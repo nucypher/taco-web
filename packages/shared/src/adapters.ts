@@ -1,10 +1,10 @@
 import { ethers } from 'ethers';
 
-import type { TacoSigner } from './taco-signer';
-import { ProviderLike, SignerLike } from './types';
-import { viemClientToProvider } from './viem/ethers-adapter';
-import { ViemSignerAdapter } from './viem/signer-adapter';
-import { isViemClient, isViemSignerAccount } from './viem/type-guards';
+import type { TacoSigner } from './taco-signer.js';
+import { ProviderLike, SignerLike } from './types.js';
+import { viemClientToProvider } from './viem/ethers-adapter.js';
+import { ViemSignerAdapter } from './viem/signer-adapter.js';
+import { isViemClient, isViemSignerAccount } from './viem/type-guards.js';
 
 /**
  * Convert ethers Signer or viem SignerAccount (LocalAccount or WalletClient) to TacoSigner.

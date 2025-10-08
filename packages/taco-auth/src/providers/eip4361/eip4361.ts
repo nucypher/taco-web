@@ -10,14 +10,14 @@ import {
 import { ethers } from 'ethers';
 import { SiweMessage } from 'siwe';
 
-import { AuthProvider } from '../../auth-provider';
-import { LocalStorage } from '../../storage';
+import { AuthProvider } from '../../auth-provider.js';
+import { LocalStorage } from '../../storage.js';
 
 import {
   EIP4361_AUTH_METHOD,
   EIP4361AuthSignature,
   eip4361AuthSignatureSchema,
-} from './auth';
+} from './auth.js';
 
 export type EIP4361AuthProviderParams = {
   domain: string;

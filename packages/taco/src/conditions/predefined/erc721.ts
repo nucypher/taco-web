@@ -4,7 +4,7 @@ import {
   ContractCondition,
   ContractConditionProps,
   ContractConditionType,
-} from '../base/contract';
+} from '../base/contract.js';
 
 type ERC721OwnershipFields = 'contractAddress' | 'chain' | 'parameters';
 

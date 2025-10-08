@@ -24,7 +24,7 @@ import type {
   TypedEvent,
   TypedEventFilter,
   TypedListener,
-} from './common';
+} from './common.js';
 
 export interface GlobalAllowListInterface extends utils.Interface {
   functions: {

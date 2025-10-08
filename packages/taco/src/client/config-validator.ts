@@ -14,7 +14,7 @@ import {
 import { ethers } from 'ethers';
 import type { PublicClient } from 'viem';
 
-import { isEthersConfig, isViemConfig, type TacoClientConfig } from '.';
+import { isEthersConfig, isViemConfig, type TacoClientConfig } from './index.js';
 
 /**
  * Generic validation result interface

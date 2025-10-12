@@ -191,7 +191,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
             condition: testRpcConditionObj,
             operations: [
               { operation: 'abs' },
-              { operation: '^=', value: BigInt('1000000000000000') },
+              { operation: '+=', value: BigInt('1000000000000000') },
             ],
           },
           {

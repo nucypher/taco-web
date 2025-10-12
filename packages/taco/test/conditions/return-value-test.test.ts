@@ -128,7 +128,7 @@ import {
           { operation: '+=', value: 5 },
           { operation: '*=', value: 2.5 },
           { operation: 'abs' },
-          { operation: '^=', value: BigInt('1000000000000000') },
+          { operation: '+=', value: BigInt('1000000000000000') },
         ],
       });
       expect(result.success).toBe(true);

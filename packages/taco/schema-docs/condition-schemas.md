@@ -382,10 +382,10 @@ An operation that can be performed on an obtained result.
 
 _Object containing the following properties:_
 
-| Property             | Type                                                                                                                                                                                                    |
-| :------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **`operation`** (\*) | `'+=' \| '-=' \| '*=' \| '/=' \| '%=' \| '^=' \| 'index' \| 'round' \| 'abs' \| 'avg' \| 'ceil' \| 'ethToWei' \| 'floor' \| 'len' \| 'max' \| 'min' \| 'sum' \| 'weiToEth' \| 'bool' \| 'float' \| ...` |
-| `value`              | [ParamOrContextParam](#paramorcontextparam)                                                                                                                                                             |
+| Property             | Type                                                                                                                                                                                                     |
+| :------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`operation`** (\*) | `'+=' \| '-=' \| '*=' \| '/=' \| '%=' \| 'index' \| 'round' \| 'abs' \| 'avg' \| 'ceil' \| 'ethToWei' \| 'floor' \| 'len' \| 'max' \| 'min' \| 'sum' \| 'weiToEth' \| 'bool' \| 'float' \| 'int' \| ...` |
+| `value`              | [ParamOrContextParam](#paramorcontextparam)                                                                                                                                                              |
 
 _(\*) Required._
 

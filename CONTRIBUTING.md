@@ -129,7 +129,7 @@ Currently, [SIWE](https://docs.login.xyz/) (Sign-In With Ethereum, [EIP-4361](ht
 EIP-712 has previously been supported but is now deprecated.
 
 [The below test](https://github.com/nucypher/taco-web/blob/b689493a37bec0b168f80f43347818095c3dd5ce/packages/taco/test/conditions/context.test.ts#L382C1-L429C6) demonstrates how a SIWE message can be reused for TACo authentication.
-This ensures that users don't have to sign multiple messages when logging into apps and decrypting TACo messages.
+This ensures that users don't have to sign multiple messages when already logged into apps via SIWE and need to decrypt messages via TACo.
 
 ```typescript
   it('supports reusing external eip4361', async () => {

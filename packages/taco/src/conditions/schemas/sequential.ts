@@ -7,6 +7,7 @@ import { baseConditionSchema, plainStringSchema } from './common';
 import { CompoundConditionType } from './compound';
 import { IfThenElseConditionType } from './if-then-else';
 import { anyConditionSchema } from './utils';
+import { variableOperationsArraySchema } from './variable-operation';
 
 const getAllNestedConditionVariableNames = (
   condition: ConditionProps,
@@ -50,11 +51,19 @@ const noDuplicateVarNames = (condition: ConditionProps): boolean => {
 export const SequentialConditionType = 'sequential';
 
 export const conditionVariableSchema: z.ZodSchema = z.lazy(() =>
-  z.object({
-    varName: plainStringSchema,
-    condition: anyConditionSchema,
-  }),
+  z
+    .object({
+      varName: plainStringSchema,
+      condition: anyConditionSchema,
+      operations: variableOperationsArraySchema.describe(
+        'Optional operations to perform on the obtained condition result before storing it',
+      ),
+    })
+    .describe(
+      'Executes a condition and stores the result as a variable within a sequential condition.',
+    ),
 );
+
 export type ConditionVariableProps = z.infer<typeof conditionVariableSchema>;
 
 export const sequentialConditionSchema: z.ZodSchema = baseConditionSchema

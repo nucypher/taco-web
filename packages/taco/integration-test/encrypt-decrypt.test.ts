@@ -69,6 +69,23 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
         },
       });
 
+      const forcedZeroBalanceDueToOperations =
+        new conditions.base.rpc.RpcCondition({
+          chain: CHAIN_ID,
+          method: 'eth_getBalance',
+          parameters: [':userAddress', 'latest'],
+          returnValueTest: {
+            comparator: '==',
+            value: 0,
+            operations: [
+              { operation: '*=', value: 0 },
+              // no-op additional operations
+              { operation: 'abs' },
+              { operation: 'int' },
+            ],
+          },
+        });
+
       const balanceLessThanMaxUintBigInt = new conditions.base.rpc.RpcCondition(
         {
           chain: CHAIN_ID,
@@ -84,6 +101,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       const compoundCondition = CompoundCondition.and([
         hasPositiveBalance,
         balanceLessThanMaxUintBigInt,
+        forcedZeroBalanceDueToOperations,
       ]);
 
       const messageKit = await encrypt(

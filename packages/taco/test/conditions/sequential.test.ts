@@ -4,6 +4,11 @@ import { describe, expect, it } from 'vitest';
 import { CompoundConditionType } from '../../src/conditions/compound-condition';
 import { IfThenElseConditionType } from '../../src/conditions/if-then-else-condition';
 import {
+  MAX_VARIABLE_OPERATIONS,
+  OPERATOR_FUNCTIONS,
+  UNARY_OPERATOR_FUNCTIONS,
+} from '../../src/conditions/schemas/variable-operation';
+import {
   ConditionVariableProps,
   SequentialCondition,
   SequentialConditionProps,
@@ -386,5 +391,133 @@ describe('validation', () => {
       ],
     });
     expect(condition.value.conditionType).toEqual(SequentialConditionType);
+  });
+  it.each(OPERATOR_FUNCTIONS)('allows valid operations', (operation) => {
+    const conditionObj = {
+      conditionType: SequentialConditionType,
+      conditionVariables: [
+        {
+          varName: 'var1',
+          condition: testRpcConditionObj,
+          operations: [
+            {
+              operation: operation,
+              value: UNARY_OPERATOR_FUNCTIONS.includes(operation)
+                ? undefined
+                : 5,
+            },
+          ],
+        },
+        rpcConditionVariable,
+        timeConditionVariable,
+        contractConditionVariable,
+      ],
+    };
+    const result = SequentialCondition.validate(
+      sequentialConditionSchema,
+      conditionObj,
+    );
+    expect(result.error).toBeUndefined();
+    expect(result.data).toEqual(conditionObj);
+  });
+  it('requires at least one operation if defined', () => {
+    const conditionObj = {
+      conditionType: SequentialConditionType,
+      conditionVariables: [
+        {
+          varName: 'var1',
+          condition: testRpcConditionObj,
+          operations: [],
+        },
+        contractConditionVariable,
+      ],
+    };
+    const result = SequentialCondition.validate(
+      sequentialConditionSchema,
+      conditionObj,
+    );
+    expect(result.error).toBeDefined();
+    expect(result.error?.format()).toMatchObject({
+      conditionVariables: {
+        '0': {
+          operations: {
+            _errors: ['Array must contain at least 1 element(s)'],
+          },
+        },
+      },
+    });
+    expect(result.data).toBeUndefined();
+  });
+  it(`allows at most ${MAX_VARIABLE_OPERATIONS} operations`, () => {
+    const conditionObj = {
+      conditionType: SequentialConditionType,
+      conditionVariables: [
+        {
+          varName: 'var1',
+          condition: testRpcConditionObj,
+          operations: Array.from(
+            { length: MAX_VARIABLE_OPERATIONS + 1 },
+            (_, i) => ({
+              operation: '*=',
+              value: i + 1,
+            }),
+          ),
+        },
+        contractConditionVariable,
+      ],
+    };
+    const result = SequentialCondition.validate(
+      sequentialConditionSchema,
+      conditionObj,
+    );
+    expect(result.error).toBeDefined();
+    expect(result.error?.format()).toMatchObject({
+      conditionVariables: {
+        '0': {
+          operations: {
+            _errors: [
+              `Array must contain at most ${MAX_VARIABLE_OPERATIONS} element(s)`,
+            ],
+          },
+        },
+      },
+    });
+    expect(result.data).toBeUndefined();
+  });
+  it('allows multiple operations', () => {
+    const conditionObj = {
+      conditionType: SequentialConditionType,
+      conditionVariables: [
+        {
+          varName: 'var1',
+          condition: testRpcConditionObj,
+          operations: [
+            { operation: 'index', value: 1 },
+            { operation: '*=', value: 2.5 },
+            { operation: '-=', value: 5.5 },
+            { operation: 'int' },
+            { operation: '+=', value: BigInt('1000000000000000') },
+          ],
+        },
+        {
+          varName: 'var2',
+          condition: testTimeConditionObj,
+          operations: [
+            { operation: 'ceil' },
+            { operation: '/=', value: 2.5 },
+            { operation: 'floor' },
+            { operation: 'ethToWei' },
+            { operation: 'weiToEth' },
+          ],
+        },
+        contractConditionVariable,
+      ],
+    };
+    const result = SequentialCondition.validate(
+      sequentialConditionSchema,
+      conditionObj,
+    );
+    expect(result.error).toBeUndefined();
+    expect(result.data).toEqual(conditionObj);
   });
 });

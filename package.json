@@ -21,7 +21,8 @@
     "exports:lint": "pnpm run --parallel --aggregate-output --reporter append-only --filter './packages/**' exports:lint",
     "fix": "pnpm format:fix && pnpm lint:fix && pnpm packages:sort",
     "ci:lint": "run-p lint type-check package:check packages:lint exports:lint",
-    "check-examples": "pnpm run --parallel --aggregate-output --reporter append-only --filter './examples/**' --filter './demos/**' check"
+    "check-examples": "pnpm run --parallel --aggregate-output --reporter append-only --filter './examples/**' --filter './demos/**' check",
+    "publish:dev": "bash scripts/publish-dev.sh"
   },
   "dependencies": {
     "@changesets/cli": "^2.28.1",

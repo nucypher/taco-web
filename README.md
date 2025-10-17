@@ -12,9 +12,37 @@ Full documentation can be found [here](https://docs.taco.build/).
 
 ## Installation
 
-```
+### Stable Release
+
+```bash
 pnpm add @nucypher/taco
 ```
+
+### Development Versions
+
+Development versions are automatically published when code is merged to `epic-*` branches. These versions are useful for testing new features before they are officially released.
+
+#### Installing a dev version
+
+```bash
+# Install the latest dev version
+pnpm add @nucypher/taco@dev
+
+# Or install a specific dev version
+pnpm add @nucypher/taco@1.2.3-dev.epic-new-feature.20231025.42
+```
+
+#### Finding available dev versions
+
+```bash
+# List all available versions including dev tags
+npm view @nucypher/taco versions
+
+# Or view on npm
+# https://www.npmjs.com/package/@nucypher/taco?activeTab=versions
+```
+
+**Note:** Development versions are intended for testing purposes and should not be used in production. They follow the naming convention: `{version}-dev.{branch-name}.{date}.{build-number}`
 
 ## Tutorial
 

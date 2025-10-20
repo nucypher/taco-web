@@ -1,0 +1,83 @@
+name: Publish Dev Packages
+
+on:
+  push:
+    branches:
+      - 'epic-**'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual publish'
+        required: false
+        default: 'Manual trigger by maintainer'
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  publish-dev:
+    name: Publish development versions to npm
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Publish dev packages
+        id: publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: pnpm run publish:dev
+
+      - name: Create release summary
+        if: success()
+        run: |
+          echo "## 🚀 Dev Packages Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** \`${GITHUB_REF#refs/heads/}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Build:** \`${GITHUB_RUN_NUMBER}\`" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "**Trigger:** Manual (by ${{ github.actor }})" >> $GITHUB_STEP_SUMMARY
+            echo "**Reason:** ${{ github.event.inputs.reason }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Published Packages" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -n "${{ steps.publish.outputs.published_packages }}" ]; then
+            echo "${{ steps.publish.outputs.published_packages }}" | while IFS= read -r pkg; do
+              if [ -n "$pkg" ]; then
+                echo "- \`$pkg\`" >> $GITHUB_STEP_SUMMARY
+              fi
+            done
+          else
+            echo "- \`@nucypher/shared@dev\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`@nucypher/taco@dev\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`@nucypher/taco-auth@dev\`" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Installation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo 'pnpm add @nucypher/shared@dev' >> $GITHUB_STEP_SUMMARY
+          echo 'pnpm add @nucypher/taco@dev' >> $GITHUB_STEP_SUMMARY
+          echo 'pnpm add @nucypher/taco-auth@dev' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY

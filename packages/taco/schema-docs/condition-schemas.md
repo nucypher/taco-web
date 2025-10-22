@@ -6,7 +6,6 @@ _Union of the following possible types:_
 
 - [RpcCondition](#rpccondition)
 - [TimeCondition](#timecondition)
-- [AddressAllowlistCondition](#addressallowlistcondition)
 - [ContextVariableCondition](#contextvariablecondition)
 - [ContractCondition](#contractcondition)
 - [EcdsaCondition](#ecdsacondition)
@@ -398,17 +397,9 @@ _Array of at least 1  and  at most 5 [VariableOperation](#variableoperation) ite
 
 ## AddressAllowlistCondition
 
-Address Allowlist Condition for allowing decryption for specific wallet addresses.
+List of allowed wallet addresses. Addresses should be provided in checksummed form.
 
-_Object containing the following properties:_
-
-| Property                 | Description                                                                                                                                     | Type                                |
-| :----------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------- |
-| **`conditionType`** (\*) |                                                                                                                                                 | `'address-allowlist'`               |
-| **`userAddress`** (\*)   | This is a context variable that will be replaced at decryption time. It represents the Ethereum address of the requester attempting decryption. | [UserAddress](#useraddress)         |
-| **`addresses`** (\*)     | List of wallet addresses allowed to decrypt. Addresses should be provided in checksummed form.                                                  | `Array<string>` (_min: 1, max: 25_) |
-
-_(\*) Required._
+_Array of at least 1  and  at most 25 `string` items._
 
 ## More resources
 

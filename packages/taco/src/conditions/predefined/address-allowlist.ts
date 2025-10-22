@@ -1,49 +1,42 @@
+import { USER_ADDRESS_PARAM_DEFAULT } from '@nucypher/taco-auth';
+
 import {
   ContextVariableCondition,
   ContextVariableConditionProps,
   ContextVariableConditionType,
 } from '../base/context-variable';
-import { Condition, ERR_INVALID_CONDITION } from '../condition';
+import { ERR_INVALID_CONDITION } from '../condition';
 import {
   AddressAllowlistConditionProps,
   addressAllowlistConditionSchema,
-  AddressAllowlistConditionType,
 } from '../schemas/address-allowlist';
-import { OmitConditionType } from '../shared';
 
-export {
-  AddressAllowlistConditionProps,
-  AddressAllowlistConditionType,
-} from '../schemas/address-allowlist';
+export { AddressAllowlistConditionProps } from '../schemas/address-allowlist';
 
 /**
- * A predefined condition that checks if a user's address is in an allowlist.
- * This condition uses a ContextVariableCondition internally to check if the
- * specified context variable (e.g., ':userAddress') is in the provided list
- * of allowed addresses.
+ * A Client-side condition that checks if a user's address is in an allowlist and transforms the object into `ContextVariableCondition`.
+ * The nodes process this as a standard context variable that checks if the user's address is in the allowlist.
+ * @remark This condition doesn’t have a unique type of its own; it is simply a wrapper for creating a `ContextVariableCondition`.
  */
 export class AddressAllowlistCondition extends ContextVariableCondition {
-  constructor(value: OmitConditionType<AddressAllowlistConditionProps>) {
-    const { data, error } = Condition.validate(
+  constructor(value: AddressAllowlistConditionProps) {
+    const { data, error } = AddressAllowlistCondition.validate(
       addressAllowlistConditionSchema,
-      {
-        conditionType: AddressAllowlistConditionType,
-        ...value,
-      },
+      value,
     );
     if (error) {
       throw new Error(ERR_INVALID_CONDITION(error));
     }
 
-    const contextVariableCondition: ContextVariableConditionProps = {
+    const contextVariableConditionProps: ContextVariableConditionProps = {
       conditionType: ContextVariableConditionType,
-      contextVariable: data.userAddress,
+      contextVariable: USER_ADDRESS_PARAM_DEFAULT,
       returnValueTest: {
         comparator: 'in',
-        value: data.addresses,
+        value: data,
       },
     };
 
-    super(contextVariableCondition);
+    super(contextVariableConditionProps);
   }
 }

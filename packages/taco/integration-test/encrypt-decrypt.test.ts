@@ -304,14 +304,11 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       // Create a context variable condition that checks if userAddress is in allowlist
 
       const addressAllowlistCondition =
-        new conditions.predefined.addressAllowlist.AddressAllowlistCondition({
-          userAddress: USER_ADDRESS_PARAM_DEFAULT,
-          addresses: [
-            CONSUMER_ADDRESS,
-            '0x742d35Cc6634C0532925a3b844Bc454e4438f44e', // Some other address
-            '0x0000000000000000000000000000000000000001', // Another address
-          ],
-        });
+        new conditions.predefined.addressAllowlist.AddressAllowlistCondition([
+          CONSUMER_ADDRESS,
+          '0x742d35Cc6634C0532925a3b844Bc454e4438f44e', // Some other address
+          '0x0000000000000000000000000000000000000001', // Another address
+        ]);
 
       expect(addressAllowlistCondition.requiresAuthentication()).toBe(true);
 
@@ -360,14 +357,11 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
 
       // Create a context variable condition with specific allowed addresses
       const restrictedAllowlistCondition =
-        new conditions.predefined.addressAllowlist.AddressAllowlistCondition({
-          userAddress: USER_ADDRESS_PARAM_DEFAULT,
-          addresses: [
-            // consumer address is not in the list
-            '0x0000000000000000000000000000000000000001',
-            '0x0000000000000000000000000000000000000002',
-          ],
-        });
+        new conditions.predefined.addressAllowlist.AddressAllowlistCondition([
+          // consumer address is not in the list
+          '0x0000000000000000000000000000000000000001',
+          '0x0000000000000000000000000000000000000002',
+        ]);
 
       const messageKit = await encrypt(
         provider,

@@ -1,25 +1,12 @@
 import { EthAddressSchemaStrict } from '@nucypher/shared';
 import { z } from 'zod';
 
-import { baseConditionSchema, UserAddressSchema } from './common';
-
-export const AddressAllowlistConditionType = 'address-allowlist';
-
-export const addressAllowlistConditionSchema = baseConditionSchema
-  .extend({
-    conditionType: z.literal(AddressAllowlistConditionType),
-    userAddress: UserAddressSchema,
-    addresses: z
-      .array(EthAddressSchemaStrict)
-      .min(1, 'At least one address must be provided')
-      .max(25, 'A maximum of 25 addresses is allowed')
-      .describe(
-        'List of wallet addresses allowed to decrypt. Addresses should be provided in checksummed form.',
-      ),
-  })
-  .strict()
+export const addressAllowlistConditionSchema = z
+  .array(EthAddressSchemaStrict)
+  .min(1, 'At least one address must be provided')
+  .max(25, 'A maximum of 25 addresses is allowed')
   .describe(
-    'Address Allowlist Condition for allowing decryption for specific wallet addresses.',
+    'List of allowed wallet addresses. Addresses should be provided in checksummed form.',
   );
 
 export type AddressAllowlistConditionProps = z.infer<

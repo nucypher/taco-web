@@ -43,7 +43,7 @@
     "@ethersproject/abi": "^5.8.0",
     "@ethersproject/providers": "^5.8.0",
     "@nucypher/nucypher-contracts": "0.26.0-alpha.1",
-    "@nucypher/nucypher-core": "^0.14.5",
+    "@nucypher/nucypher-core": "link:../../../nucypher-core/nucypher-core-wasm-bundler",
     "axios": "^1.8.4",
     "deep-equal": "^2.2.3",
     "ethers": "^5.8.0",

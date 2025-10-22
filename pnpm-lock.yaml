@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@nucypher/nucypher-core': ^0.14.5
+  '@nucypher/nucypher-core': link:../nucypher-core/nucypher-core-wasm-bundler
   glob-parent@<5.1.2: '>=5.1.2'
   node-forge@<1.0.0: '>=1.0.0'
   node-forge@<1.3.0: '>=1.3.0'
@@ -19,8 +19,8 @@ importers:
         specifier: ^2.28.1
         version: 2.29.5
       '@nucypher/nucypher-core':
-        specifier: ^0.14.5
-        version: 0.14.5
+        specifier: link:../nucypher-core/nucypher-core-wasm-bundler
+        version: link:../nucypher-core/nucypher-core-wasm-bundler
       ethers:
         specifier: ^5.8.0
         version: 5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
@@ -491,8 +491,8 @@ importers:
   packages/pre:
     dependencies:
       '@nucypher/nucypher-core':
-        specifier: ^0.14.5
-        version: 0.14.5
+        specifier: link:../../../nucypher-core/nucypher-core-wasm-bundler
+        version: link:../../../nucypher-core/nucypher-core-wasm-bundler
       '@nucypher/shared':
         specifier: workspace:*
         version: link:../shared
@@ -516,8 +516,8 @@ importers:
         specifier: 0.26.0-alpha.1
         version: 0.26.0-alpha.1
       '@nucypher/nucypher-core':
-        specifier: ^0.14.5
-        version: 0.14.5
+        specifier: link:../../../nucypher-core/nucypher-core-wasm-bundler
+        version: link:../../../nucypher-core/nucypher-core-wasm-bundler
       axios:
         specifier: ^1.8.4
         version: 1.10.0
@@ -565,8 +565,8 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@nucypher/nucypher-core':
-        specifier: ^0.14.5
-        version: 0.14.5
+        specifier: link:../../../nucypher-core/nucypher-core-wasm-bundler
+        version: link:../../../nucypher-core/nucypher-core-wasm-bundler
       '@nucypher/shared':
         specifier: workspace:*
         version: link:../shared
@@ -621,11 +621,13 @@ importers:
         specifier: workspace:*
         version: link:../test-utils
 
+  packages/taco-auth/dist/es: {}
+
   packages/test-utils:
     dependencies:
       '@nucypher/nucypher-core':
-        specifier: ^0.14.5
-        version: 0.14.5
+        specifier: link:../../../nucypher-core/nucypher-core-wasm-bundler
+        version: link:../../../nucypher-core/nucypher-core-wasm-bundler
       '@nucypher/shared':
         specifier: workspace:*
         version: link:../shared
@@ -2547,9 +2549,6 @@ packages:
 
   '@nucypher/nucypher-contracts@0.26.0-alpha.1':
     resolution: {integrity: sha512-ISS66SyKbDLXFF88Z6k8Tnc/L6Shx6tq22CjPpovbSD2PGS/UzE3uDxvFTKZfgcIJYsi7GV/ho2Brsx4sHYTLg==}
-
-  '@nucypher/nucypher-core@0.14.5':
-    resolution: {integrity: sha512-Q3kBuJL0qtTtnxrM5DEQauQUvDlXmwubm9u1h7gbyLhs+aZNC9WDyjEUbE43+uahlHu4k1hKEMxD1gjV165ChA==}
 
   '@nucypher/shared@0.5.0':
     resolution: {integrity: sha512-Y+0oEgVtoud4BP/pvj2elPm5igrQ8AAUwYYmUiLpXNqQMRF4zFnYaGbl+xhKk45CYG8S9cDKJEN8nopzVADTNw==}
@@ -12105,14 +12104,12 @@ snapshots:
 
   '@nucypher/nucypher-contracts@0.26.0-alpha.1': {}
 
-  '@nucypher/nucypher-core@0.14.5': {}
-
   '@nucypher/shared@0.5.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
     dependencies:
       '@ethersproject/abi': 5.8.0
       '@ethersproject/providers': 5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       '@nucypher/nucypher-contracts': 0.25.0
-      '@nucypher/nucypher-core': 0.14.5
+      '@nucypher/nucypher-core': link:../nucypher-core/nucypher-core-wasm-bundler
       axios: 1.10.0
       deep-equal: 2.2.3
       ethers: 5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
@@ -12138,7 +12135,7 @@ snapshots:
   '@nucypher/taco@0.6.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
     dependencies:
       '@astronautlabs/jsonpath': 1.1.2
-      '@nucypher/nucypher-core': 0.14.5
+      '@nucypher/nucypher-core': link:../nucypher-core/nucypher-core-wasm-bundler
       '@nucypher/shared': 0.5.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       '@nucypher/taco-auth': 0.3.0(bufferutil@4.0.9)(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
       ethers: 5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
@@ -15214,8 +15211,8 @@ snapshots:
       '@typescript-eslint/parser': 6.21.0(eslint@8.57.0)(typescript@5.8.3)
       eslint: 8.57.0
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.0))(eslint@8.57.0)
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.8.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.0)
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.0)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.0)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.57.0)
       eslint-plugin-react: 7.37.5(eslint@8.57.0)
       eslint-plugin-react-hooks: 5.0.0-canary-7118f5dd7-20230705(eslint@8.57.0)
@@ -15270,21 +15267,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.0))(eslint@8.57.0):
-    dependencies:
-      '@nolyfill/is-core-module': 1.0.39
-      debug: 4.4.1
-      eslint: 8.57.0
-      get-tsconfig: 4.10.1
-      is-bun-module: 2.0.0
-      stable-hash: 0.0.5
-      tinyglobby: 0.2.14
-      unrs-resolver: 1.9.2
-    optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.8.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.0)
-    transitivePeerDependencies:
-      - supports-color
-
   eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.0):
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
@@ -15296,7 +15278,7 @@ snapshots:
       tinyglobby: 0.2.14
       unrs-resolver: 1.9.2
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.2.2))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.0)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -15321,14 +15303,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.1(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.0))(eslint@8.57.0))(eslint@8.57.0):
+  eslint-module-utils@2.12.1(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint@8.57.0):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
-      '@typescript-eslint/parser': 6.21.0(eslint@8.57.0)(typescript@5.8.3)
+      '@typescript-eslint/parser': 6.21.0(eslint@8.57.1)(typescript@5.8.3)
       eslint: 8.57.0
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.0))(eslint@8.57.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -15414,7 +15395,7 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.8.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.0):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.0):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
@@ -15425,7 +15406,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.57.0
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.1(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.0))(eslint@8.57.0))(eslint@8.57.0)
+      eslint-module-utils: 2.12.1(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint@8.57.0)
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3
@@ -15437,7 +15418,7 @@ snapshots:
       string.prototype.trimend: 1.0.9
       tsconfig-paths: 3.15.0
     optionalDependencies:
-      '@typescript-eslint/parser': 6.21.0(eslint@8.57.0)(typescript@5.8.3)
+      '@typescript-eslint/parser': 6.21.0(eslint@8.57.1)(typescript@5.8.3)
     transitivePeerDependencies:
       - eslint-import-resolver-typescript
       - eslint-import-resolver-webpack

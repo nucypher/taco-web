@@ -1,11 +1,18 @@
 import {
-  convertUserOperationToPython,
+  UserOperation,
+  UserOperationSignatureRequest,
+} from '@nucypher/nucypher-core';
+import {
+  fromHexString,
+  initialize,
   PorterClient,
   SigningCoordinatorAgent,
+  toCoreUserOperation,
+  UserOperationToSign,
 } from '@nucypher/shared';
 import { fakePorterUri } from '@nucypher/test-utils';
 import { ethers } from 'ethers';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ContractCondition } from '../src/conditions/base/contract';
 import { RpcCondition } from '../src/conditions/base/rpc';
@@ -13,9 +20,69 @@ import { CompoundCondition } from '../src/conditions/compound-condition';
 import { ConditionExpression } from '../src/conditions/condition-expr';
 import { setSigningCohortConditions, signUserOp } from '../src/sign';
 
+function getNumberValue(value: bigint | number): bigint {
+  return typeof value === 'bigint' ? value : BigInt(value);
+}
+
+function checkUserOpEquality(op1: UserOperationToSign, op2: UserOperation) {
+  expect(op1.sender).toEqual(op2.sender);
+
+  expect(getNumberValue(op1.nonce)).toEqual(getNumberValue(op2.nonce));
+
+  const callData =
+    op1.callData instanceof Uint8Array
+      ? op1.callData
+      : fromHexString(op1.callData);
+  expect(callData).toEqual(callData);
+
+  expect(getNumberValue(op1.callGasLimit)).toEqual(op2.callGasLimit);
+  expect(getNumberValue(op1.verificationGasLimit)).toEqual(
+    op2.verificationGasLimit,
+  );
+  expect(getNumberValue(op1.preVerificationGas)).toEqual(
+    op2.preVerificationGas,
+  );
+  expect(getNumberValue(op1.maxFeePerGas)).toEqual(op2.maxFeePerGas);
+  expect(getNumberValue(op1.maxPriorityFeePerGas)).toEqual(
+    op2.maxPriorityFeePerGas,
+  );
+
+  if (op1.factory === undefined) {
+    expect(op2.factory).toBeUndefined();
+  } else {
+    expect(op1.factory).toEqual(op2.factory);
+    const factoryData =
+      op1.factoryData instanceof Uint8Array
+        ? op1.factoryData
+        : fromHexString(op1.factoryData || '0x');
+    expect(factoryData).toEqual(op2.factoryData);
+  }
+
+  if (op1.paymaster === undefined) {
+    expect(op2.paymaster).toBeUndefined();
+  } else {
+    expect(op1.paymaster).toEqual(op2.paymaster);
+    expect(
+      getNumberValue(op1.paymasterVerificationGasLimit || BigInt(0)),
+    ).toEqual(op2.paymasterVerificationGasLimit);
+    expect(getNumberValue(op1.paymasterPostOpGasLimit || BigInt(0))).toEqual(
+      op2.paymasterPostOpGasLimit,
+    );
+    const paymasterData =
+      op1.paymasterData instanceof Uint8Array
+        ? op1.paymasterData
+        : fromHexString(op1.paymasterData || '0x');
+    expect(paymasterData).toEqual(op2.paymasterData);
+  }
+}
+
 describe('TACo Signing', () => {
   let porterSignUserOpMock: ReturnType<typeof vi.fn>;
   let mockProvider: ethers.providers.Provider;
+
+  beforeAll(async () => {
+    await initialize();
+  });
 
   beforeEach(() => {
     porterSignUserOpMock = vi.fn();
@@ -31,23 +98,94 @@ describe('TACo Signing', () => {
     vi.spyOn(SigningCoordinatorAgent, 'getThreshold').mockResolvedValue(2);
   });
 
-  describe('signUserOp', () => {
-    const userOp = {
+  describe('toCoreUserOperation', () => {
+    const userOpToSign: UserOperationToSign = {
       sender: '0x742D35Cc6634C0532925A3b8D33c9c0E7B66C8E8',
-      nonce: 1,
-      factory: '0x0000000000000000000000000000000000000000',
-      factoryData: '0x',
-      callData: '0xabc',
-      callGasLimit: 131072,
-      verificationGasLimit: 86016,
-      preVerificationGas: 4096,
-      maxFeePerGas: 2748,
-      maxPriorityFeePerGas: 291,
-      paymaster: '0x0000000000000000000000000000000000000000',
-      paymasterVerificationGasLimit: 0,
-      paymasterPostOpGasLimit: 0,
-      paymasterData: '0x',
-      signature: '0x',
+      nonce: BigInt(1),
+      callData: fromHexString('0xabc'),
+      callGasLimit: BigInt(131072),
+      verificationGasLimit: BigInt(86016),
+      preVerificationGas: BigInt(4096),
+      maxFeePerGas: BigInt(2748),
+      maxPriorityFeePerGas: BigInt(291),
+    };
+
+    it('should convert base fields', () => {
+      const coreUserOp = toCoreUserOperation(userOpToSign);
+      checkUserOpEquality(userOpToSign, coreUserOp);
+    });
+    it('should convert factory optional fields', () => {
+      const updatedUserOp: UserOperationToSign = {
+        ...userOpToSign,
+        factory: '0x000000000000000000000000000000000000000A',
+        factoryData: fromHexString('0xdef'),
+      };
+      const coreUserOp = toCoreUserOperation(updatedUserOp);
+      checkUserOpEquality(updatedUserOp, coreUserOp);
+    });
+    it('should convert factory data to default when not specified but factory is', () => {
+      const updatedUserOp: UserOperationToSign = {
+        ...userOpToSign,
+        factory: '0x000000000000000000000000000000000000000A',
+      };
+      const coreUserOp = toCoreUserOperation(updatedUserOp);
+      checkUserOpEquality(updatedUserOp, coreUserOp);
+    });
+    it('should convert paymaster optional fields', () => {
+      const updatedUserOp: UserOperationToSign = {
+        ...userOpToSign,
+        paymaster: '0x000000000000000000000000000000000000000C',
+        paymasterVerificationGasLimit: BigInt(50000),
+        paymasterPostOpGasLimit: BigInt(30000),
+        paymasterData: fromHexString('0xdef'),
+      };
+      const coreUserOp = toCoreUserOperation(updatedUserOp);
+      checkUserOpEquality(updatedUserOp, coreUserOp);
+    });
+    it('should convert paymaster optional fields to defaults when not specified but paymaster is', () => {
+      const updatedUserOp: UserOperationToSign = {
+        ...userOpToSign,
+        paymaster: '0x000000000000000000000000000000000000000C',
+      };
+      const coreUserOp = toCoreUserOperation(updatedUserOp);
+      checkUserOpEquality(updatedUserOp, coreUserOp);
+    });
+    it('should handle alternative types: number and byte fields', () => {
+      const updatedUserOp: UserOperationToSign = {
+        ...userOpToSign,
+        // number instead of bigint
+        nonce: 1,
+        callData: '0xabc', // hex instead of byte array
+        callGasLimit: 131072,
+        verificationGasLimit: 86016,
+        preVerificationGas: 4096,
+        maxFeePerGas: 2748,
+        maxPriorityFeePerGas: 291,
+        // include optional fields
+        factory: '0x000000000000000000000000000000000000000A',
+        factoryData: '0xabc', // hex instead of byte array
+
+        paymaster: '0x000000000000000000000000000000000000000C',
+        // number instead of big int
+        paymasterVerificationGasLimit: 50000,
+        paymasterPostOpGasLimit: 30000,
+        paymasterData: '0xdef', // hex instead of byte array
+      };
+      const coreUserOp = toCoreUserOperation(updatedUserOp);
+      checkUserOpEquality(updatedUserOp, coreUserOp);
+    });
+  });
+
+  describe('signUserOp', () => {
+    const userOp: UserOperationToSign = {
+      sender: '0x742D35Cc6634C0532925A3b8D33c9c0E7B66C8E8',
+      nonce: BigInt(1),
+      callData: fromHexString('0xabc'),
+      callGasLimit: BigInt(131072),
+      verificationGasLimit: BigInt(86016),
+      preVerificationGas: BigInt(4096),
+      maxFeePerGas: BigInt(2748),
+      maxPriorityFeePerGas: BigInt(291),
     };
     const chainId = 1;
     const cohortId = 5;
@@ -88,33 +226,25 @@ describe('TACo Signing', () => {
           porterUris,
         );
 
-        const pythonUserOp = convertUserOperationToPython(userOp);
-
         expect(porterSignUserOpMock).toHaveBeenCalledWith(
           {
-            '0xnode1': btoa(
-              JSON.stringify({
-                user_op: JSON.stringify(pythonUserOp),
-                aa_version: validAAVersion,
-                cohort_id: cohortId,
-                chain_id: chainId,
-                context: {},
-                signature_type: 'userop',
-              }),
-            ),
-            '0xnode2': btoa(
-              JSON.stringify({
-                user_op: JSON.stringify(pythonUserOp),
-                aa_version: validAAVersion,
-                cohort_id: cohortId,
-                chain_id: chainId,
-                context: {},
-                signature_type: 'userop',
-              }),
-            ),
+            '0xnode1': expect.any(UserOperationSignatureRequest),
+            '0xnode2': expect.any(UserOperationSignatureRequest),
           },
           threshold,
         );
+
+        const call = porterSignUserOpMock.mock.calls.at(-1)!;
+        const [op] = call;
+
+        const requests = [op['0xnode1'], op['0xnode2']];
+        requests.forEach((element) => {
+          checkUserOpEquality(userOp, element.userOp);
+          expect(element.aaVersion).toEqual(validAAVersion);
+          expect(element.cohortId).toEqual(cohortId);
+          expect(element.chainId).toEqual(BigInt(chainId));
+          expect(element.context).toBeUndefined();
+        });
 
         expect(result).toEqual({
           messageHash: '0xhash1',
@@ -152,32 +282,24 @@ describe('TACo Signing', () => {
         `Threshold of signatures not met; TACo signing failed with errors: ${JSON.stringify(errors)}`,
       );
 
-      const pythonUserOp = convertUserOperationToPython(userOp);
       expect(porterSignUserOpMock).toHaveBeenCalledWith(
         {
-          '0xnode1': btoa(
-            JSON.stringify({
-              user_op: JSON.stringify(pythonUserOp),
-              aa_version: aaVersion,
-              cohort_id: cohortId,
-              chain_id: chainId,
-              context: {},
-              signature_type: 'userop',
-            }),
-          ),
-          '0xnode2': btoa(
-            JSON.stringify({
-              user_op: JSON.stringify(pythonUserOp),
-              aa_version: aaVersion,
-              cohort_id: cohortId,
-              chain_id: chainId,
-              context: {},
-              signature_type: 'userop',
-            }),
-          ),
+          '0xnode1': expect.any(UserOperationSignatureRequest),
+          '0xnode2': expect.any(UserOperationSignatureRequest),
         },
         threshold,
       );
+      const call = porterSignUserOpMock.mock.calls.at(-1)!;
+      const [op] = call;
+
+      const requests = [op['0xnode1'], op['0xnode2']];
+      requests.forEach((element) => {
+        checkUserOpEquality(userOp, element.userOp);
+        expect(element.aaVersion).toEqual(aaVersion);
+        expect(element.cohortId).toEqual(cohortId);
+        expect(element.chainId).toEqual(BigInt(chainId));
+        expect(element.context).toBeUndefined();
+      });
     });
     it('should handle insufficient signatures in Porter response', async () => {
       const signingResults = {

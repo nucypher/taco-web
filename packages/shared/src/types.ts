@@ -1,82 +1,90 @@
-import { ethers } from 'ethers';
+import { UserOperation } from '@nucypher/nucypher-core';
+
+import { fromHexString } from './utils';
 
 export type ChecksumAddress = `0x${string}`;
 export type HexEncodedBytes = string;
 export type Base64EncodedBytes = string;
 
-export type UserOperation = {
-  sender: string;
-  nonce: number;
-  factory: string;
-  factoryData: string;
-  callData: string;
-  callGasLimit: number;
-  verificationGasLimit: number;
-  preVerificationGas: number;
-  maxFeePerGas: number;
-  maxPriorityFeePerGas: number;
-  paymaster: string;
-  paymasterVerificationGasLimit: number;
-  paymasterPostOpGasLimit: number;
-  paymasterData: string;
-  signature: string;
+export type UserOperationToSign = {
+  sender: `0x${string}`;
+  nonce: bigint | number;
+  callData: `0x${string}` | Uint8Array;
+  callGasLimit: bigint | number;
+  verificationGasLimit: bigint | number;
+  preVerificationGas: bigint | number;
+  maxFeePerGas: bigint | number;
+  maxPriorityFeePerGas: bigint | number;
+  // optional fields
+  factory?: `0x${string}` | undefined;
+  factoryData?: `0x${string}` | Uint8Array | undefined;
+  paymaster?: `0x${string}` | undefined;
+  paymasterVerificationGasLimit?: bigint | number | undefined;
+  paymasterPostOpGasLimit?: bigint | number | undefined;
+  paymasterData?: `0x${string}` | Uint8Array | undefined;
+  signature?: `0x${string}` | Uint8Array | undefined;
 };
 
-export class UserOperationSignatureRequest {
-  constructor(
-    private userOp: ReturnType<typeof convertUserOperationToPython>,
-    private aaVersion: string,
-    private cohortId: number,
-    private chainId: number,
-    private context: unknown = {},
-    private signatureType: string = 'userop',
-  ) {}
+export function toCoreUserOperation(
+  userOperation: UserOperationToSign,
+): UserOperation {
+  const userOp = new UserOperation(
+    userOperation.sender,
+    typeof userOperation.nonce === 'bigint'
+      ? userOperation.nonce
+      : BigInt(userOperation.nonce),
+    userOperation.callData instanceof Uint8Array
+      ? userOperation.callData
+      : fromHexString(userOperation.callData),
+    typeof userOperation.callGasLimit === 'bigint'
+      ? userOperation.callGasLimit
+      : BigInt(userOperation.callGasLimit),
+    typeof userOperation.verificationGasLimit === 'bigint'
+      ? userOperation.verificationGasLimit
+      : BigInt(userOperation.verificationGasLimit),
+    typeof userOperation.preVerificationGas === 'bigint'
+      ? userOperation.preVerificationGas
+      : BigInt(userOperation.preVerificationGas || 0),
+    typeof userOperation.maxFeePerGas === 'bigint'
+      ? userOperation.maxFeePerGas
+      : BigInt(userOperation.maxFeePerGas),
+    typeof userOperation.maxPriorityFeePerGas === 'bigint'
+      ? userOperation.maxPriorityFeePerGas
+      : BigInt(userOperation.maxPriorityFeePerGas),
+  );
 
-  toBytes(): Uint8Array {
-    const data = {
-      user_op: JSON.stringify(this.userOp),
-      aa_version: this.aaVersion,
-      cohort_id: this.cohortId,
-      chain_id: this.chainId,
-      context: this.context,
-      signature_type: this.signatureType,
-    };
-    return new TextEncoder().encode(JSON.stringify(data));
+  // optional factory data
+  if (userOperation.factory) {
+    const factory_data =
+      userOperation.factoryData instanceof Uint8Array
+        ? userOperation.factoryData
+        : fromHexString(userOperation.factoryData || '0x');
+
+    userOp.setFactoryData(userOperation.factory, factory_data);
   }
-}
 
-function normalizeAddress(address: string): string | null {
-  if (!address || address === '0x') {
-    return null;
-  }
+  // optional paymaster data
+  if (userOperation.paymaster) {
+    const paymaster_data =
+      userOperation.paymasterData instanceof Uint8Array
+        ? userOperation.paymasterData
+        : fromHexString(userOperation.paymasterData || '0x');
+    const paymaster_verification_gas_limit =
+      typeof userOperation.paymasterVerificationGasLimit === 'bigint'
+        ? userOperation.paymasterVerificationGasLimit
+        : BigInt(userOperation.paymasterVerificationGasLimit || 0);
+    const paymaster_post_op_gas_limit =
+      typeof userOperation.paymasterPostOpGasLimit === 'bigint'
+        ? userOperation.paymasterPostOpGasLimit
+        : BigInt(userOperation.paymasterPostOpGasLimit || 0);
 
-  try {
-    // Use ethers to get the checksummed address - this will throw on invalid addresses
-    return ethers.utils.getAddress(address);
-  } catch (error) {
-    // Re-throw the error to fail fast on invalid addresses
-    throw new Error(
-      `Invalid address: ${address}. ${error instanceof Error ? error.message : 'Unknown error'}`,
+    userOp.setPaymasterData(
+      userOperation.paymaster,
+      paymaster_verification_gas_limit,
+      paymaster_post_op_gas_limit,
+      paymaster_data,
     );
   }
-}
 
-export function convertUserOperationToPython(userOp: UserOperation) {
-  return {
-    sender: normalizeAddress(userOp.sender),
-    nonce: userOp.nonce,
-    factory: normalizeAddress(userOp.factory),
-    factory_data: userOp.factoryData || '0x',
-    call_data: userOp.callData || '0x',
-    call_gas_limit: userOp.callGasLimit,
-    verification_gas_limit: userOp.verificationGasLimit,
-    pre_verification_gas: userOp.preVerificationGas,
-    max_fee_per_gas: userOp.maxFeePerGas,
-    max_priority_fee_per_gas: userOp.maxPriorityFeePerGas,
-    paymaster: normalizeAddress(userOp.paymaster),
-    paymaster_verification_gas_limit: userOp.paymasterVerificationGasLimit,
-    paymaster_post_op_gas_limit: userOp.paymasterPostOpGasLimit,
-    paymaster_data: userOp.paymasterData || '0x',
-    signature: userOp.signature || '0x',
-  };
+  return userOp;
 }

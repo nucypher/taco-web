@@ -4,7 +4,9 @@ import {
   EncryptedThresholdDecryptionResponse,
   PublicKey,
   RetrievalKit,
+  SignatureResponse,
   TreasureMap,
+  UserOperationSignatureRequest,
 } from '@nucypher/nucypher-core';
 import axios, {
   AxiosRequestConfig,
@@ -148,11 +150,20 @@ type PostTacoDecryptResponse = {
 };
 
 export type TacoDecryptResult = {
-  encryptedResponses: Record<string, EncryptedThresholdDecryptionResponse>;
-  errors: Record<string, string>;
+  encryptedResponses: Record<
+    ChecksumAddress,
+    EncryptedThresholdDecryptionResponse
+  >;
+  errors: Record<ChecksumAddress, string>;
 };
 
 // Signing types
+
+type PostTacoSignRequest = {
+  readonly signing_requests: Record<ChecksumAddress, Base64EncodedBytes>;
+  readonly threshold: number;
+};
+
 type TacoSignResponse = {
   readonly result: {
     readonly signing_results: {
@@ -172,31 +183,9 @@ export type TacoSignature = {
 };
 
 export type TacoSignResult = {
-  signingResults: { [ursulaAddress: string]: TacoSignature };
-  errors: Record<string, string>;
+  signingResults: Record<ChecksumAddress, TacoSignature>;
+  errors: Record<ChecksumAddress, string>;
 };
-
-function decodeSignature(
-  signerAddress: string,
-  signatureB64: string,
-): { result?: TacoSignature; error?: string } {
-  try {
-    const decodedData = JSON.parse(
-      new TextDecoder().decode(fromBase64(signatureB64)),
-    );
-    return {
-      result: {
-        messageHash: decodedData.message_hash,
-        signature: decodedData.signature,
-        signerAddress,
-      },
-    };
-  } catch (error) {
-    return {
-      error: `Failed to decode signature: ${error}`,
-    };
-  }
-}
 
 export class PorterClient {
   readonly porterUrls: URL[];
@@ -345,11 +334,16 @@ export class PorterClient {
   }
 
   public async signUserOp(
-    signingRequests: Record<string, string>,
+    signingRequests: Record<string, UserOperationSignatureRequest>,
     threshold: number,
   ): Promise<TacoSignResult> {
-    const data: Record<string, unknown> = {
-      signing_requests: signingRequests,
+    const data: PostTacoSignRequest = {
+      signing_requests: Object.fromEntries(
+        Object.entries(signingRequests).map(([ursula, signingRequest]) => [
+          ursula,
+          toBase64(signingRequest.toBytes()),
+        ]),
+      ),
       threshold: threshold,
     };
 
@@ -358,27 +352,26 @@ export class PorterClient {
       method: 'post',
       data,
     });
-
     const { signatures, errors } = resp.data.result.signing_results;
-    const allErrors: Record<string, string> = { ...errors };
 
     const signingResults: { [ursulaAddress: string]: TacoSignature } = {};
-    for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(
-      signatures || {},
-    )) {
-      const decoded = decodeSignature(signerAddress, signatureB64);
-      if (decoded.error) {
-        // issue with decoding signature, add to errors
-        allErrors[ursulaAddress] = decoded.error;
-        continue;
-      }
-      // Always include all decoded signatures in signingResults
-      signingResults[ursulaAddress] = decoded.result!;
+    for (const [
+      ursulaAddress,
+      [signerAddress, signatureResponseBase64],
+    ] of Object.entries(signatures || {})) {
+      const signatureResponse = SignatureResponse.fromBytes(
+        fromBase64(signatureResponseBase64),
+      );
+      signingResults[ursulaAddress] = {
+        messageHash: `0x${toHexString(signatureResponse.hash)}`,
+        signature: `0x${toHexString(signatureResponse.signature)}`,
+        signerAddress,
+      };
     }
 
     return {
       signingResults,
-      errors: allErrors,
+      errors,
     };
   }
 }

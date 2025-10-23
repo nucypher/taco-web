@@ -3,6 +3,12 @@ import axios, { HttpStatusCode } from 'axios';
 import { beforeAll, describe, expect, it, MockInstance, vi } from 'vitest';
 
 import {
+  SignatureResponse,
+  UserOperation,
+  UserOperationSignatureRequest,
+} from '@nucypher/nucypher-core';
+
+import {
   domains,
   getPorterUris,
   getPorterUrisFromSource,
@@ -13,6 +19,7 @@ import {
   toHexString,
   Ursula,
 } from '../src';
+import { fromHexString } from '../src/utils';
 
 const fakePorterUris = [
   'https://_this_should_crash.com/',
@@ -57,14 +64,13 @@ const createMockSignResponse = (errorCase?: boolean) => ({
       signatures: errorCase
         ? {
             '0xabcd': [
-              '0xefgh',
+              '0xefff',
               toBase64(
-                new TextEncoder().encode(
-                  JSON.stringify({
-                    message_hash: '0x1234',
-                    signature: '0xbeef',
-                  }),
-                ),
+                new SignatureResponse(
+                  fromHexString('0x1234'),
+                  fromHexString('0xbeef'),
+                  0,
+                ).toBytes(),
               ),
             ],
           }
@@ -72,23 +78,21 @@ const createMockSignResponse = (errorCase?: boolean) => ({
             '0x1234': [
               '0x5678',
               toBase64(
-                new TextEncoder().encode(
-                  JSON.stringify({
-                    message_hash: '0x1234',
-                    signature: '0xdead',
-                  }),
-                ),
+                new SignatureResponse(
+                  fromHexString('0x1234'),
+                  fromHexString('0xdead'),
+                  0,
+                ).toBytes(),
               ),
             ],
             '0xabcd': [
-              '0xefgh',
+              '0xefff',
               toBase64(
-                new TextEncoder().encode(
-                  JSON.stringify({
-                    message_hash: '0x1234',
-                    signature: '0xbeef',
-                  }),
-                ),
+                new SignatureResponse(
+                  fromHexString('0x1234'),
+                  fromHexString('0xbeef'),
+                  0,
+                ).toBytes(),
               ),
             ],
           },
@@ -195,31 +199,34 @@ describe('PorterClient Signing', () => {
   });
 
   describe('signUserOp', () => {
-    const mockPackedUserOp = {
-      sender: '0x1234',
-      nonce: '0x1',
-      factory: '0x0',
-      factoryData: '0x',
-      callData: '0xabc',
-      callGasLimit: '0x20000',
-      verificationGasLimit: '0x15000',
-      preVerificationGas: '0x1000',
-      maxFeePerGas: '0xabc',
-      maxPriorityFeePerGas: '0x123',
-      paymaster: '0x0',
-      paymasterVerificationGasLimit: '0x0',
-      paymasterPostOpGasLimit: '0x0',
-      paymasterData: '0x',
-      signature: '0x',
-    };
+    // since this uses wasm it must be called after initialize (beforeAll()) so we use a factory function
+    const createUserSignatureRequest = () =>
+      new UserOperationSignatureRequest(
+        new UserOperation(
+          '0x000000000000000000000000000000000000000a',
+          BigInt(0), // nonce
+          fromHexString('0xabc'), // callData
+          BigInt(0), // callGasLimit
+          BigInt(0), // verificationGasLimit
+          BigInt(0), // preVerificationGasLimit
+          BigInt(0), // maxFeePerGas
+          BigInt(0), // maxPriorityFeePerGas
+        ),
+        1, // cohort ID
+        BigInt(1), // chain ID
+        '0.8.0',
+        null,
+      );
 
     it('should successfully sign a UserOperation', async () => {
+      const userOpSignatureRequest = createUserSignatureRequest();
+
       mockSignUserOp(true);
       const porterClient = new PorterClient(fakePorterUris[2]);
       const result = await porterClient.signUserOp(
         {
-          '0x1234': JSON.stringify(mockPackedUserOp),
-          '0xabcd': JSON.stringify(mockPackedUserOp),
+          '0x1234': userOpSignatureRequest,
+          '0xabcd': userOpSignatureRequest,
         },
         2,
       );
@@ -234,7 +241,7 @@ describe('PorterClient Signing', () => {
           '0xabcd': {
             messageHash: '0x1234',
             signature: '0xbeef',
-            signerAddress: '0xefgh',
+            signerAddress: '0xefff',
           },
         },
         errors: {},
@@ -242,14 +249,16 @@ describe('PorterClient Signing', () => {
     });
 
     it('should handle UserOperation signing failures', async () => {
+      const userOpSignatureRequest = createUserSignatureRequest();
+
       mockSignUserOp(false);
       const porterClient = new PorterClient(fakePorterUris[2]);
 
       await expect(
         porterClient.signUserOp(
           {
-            '0x1234': JSON.stringify(mockPackedUserOp),
-            '0xabcd': JSON.stringify(mockPackedUserOp),
+            '0x1234': userOpSignatureRequest,
+            '0xabcd': userOpSignatureRequest,
           },
           2,
         ),
@@ -257,13 +266,15 @@ describe('PorterClient Signing', () => {
     });
 
     it('should handle errors from Porter response in UserOperation signing', async () => {
+      const userOpSignatureRequest = createUserSignatureRequest();
+
       // Mock a response with errors from Porter
       mockSignUserOp(true, true);
       const porterClient = new PorterClient(fakePorterUris[2]);
       const result = await porterClient.signUserOp(
         {
-          '0x1234': JSON.stringify(mockPackedUserOp),
-          '0xabcd': JSON.stringify(mockPackedUserOp),
+          '0x1234': userOpSignatureRequest,
+          '0xabcd': userOpSignatureRequest,
         },
         2,
       );
@@ -273,7 +284,7 @@ describe('PorterClient Signing', () => {
           '0xabcd': {
             messageHash: '0x1234',
             signature: '0xbeef',
-            signerAddress: '0xefgh',
+            signerAddress: '0xefff',
           },
         },
         errors: {
@@ -283,6 +294,8 @@ describe('PorterClient Signing', () => {
     });
 
     it('should include error when message hashes do not match', async () => {
+      const userOpSignatureRequest = createUserSignatureRequest();
+
       const createMismatchedResponse = () => ({
         result: {
           signing_results: {
@@ -290,23 +303,21 @@ describe('PorterClient Signing', () => {
               '0x1234': [
                 '0x5678',
                 toBase64(
-                  new TextEncoder().encode(
-                    JSON.stringify({
-                      message_hash: '0x1234',
-                      signature: '0xdead',
-                    }),
-                  ),
+                  new SignatureResponse(
+                    fromHexString('0x1234'),
+                    fromHexString('0xdead'),
+                    0,
+                  ).toBytes(),
                 ),
               ],
               '0xabcd': [
-                '0xefgh',
+                '0xefff',
                 toBase64(
-                  new TextEncoder().encode(
-                    JSON.stringify({
-                      message_hash: '0xdifferent', // Different message hash
-                      signature: '0xbeef',
-                    }),
-                  ),
+                  new SignatureResponse(
+                    fromHexString('0xdddd'), // Different message hash
+                    fromHexString('0xbeef'),
+                    0,
+                  ).toBytes(),
                 ),
               ],
             },
@@ -327,8 +338,8 @@ describe('PorterClient Signing', () => {
       const porterClient = new PorterClient(fakePorterUris[2]);
       const result = await porterClient.signUserOp(
         {
-          '0x1234': JSON.stringify(mockPackedUserOp),
-          '0xabcd': JSON.stringify(mockPackedUserOp),
+          '0x1234': userOpSignatureRequest,
+          '0xabcd': userOpSignatureRequest,
         },
         2,
       );
@@ -341,9 +352,9 @@ describe('PorterClient Signing', () => {
             signerAddress: '0x5678',
           },
           '0xabcd': {
-            messageHash: '0xdifferent', // Different hash
+            messageHash: '0xdddd', // Different hash
             signature: '0xbeef',
-            signerAddress: '0xefgh',
+            signerAddress: '0xefff',
           },
         },
         errors: {}, // No errors - mismatched hashes don't generate errors, just prevent aggregation
@@ -351,6 +362,8 @@ describe('PorterClient Signing', () => {
     });
 
     it('should not return aggregated signature when threshold not met', async () => {
+      const userOpSignatureRequest = createUserSignatureRequest();
+
       const createInsufficientResponse = () => ({
         result: {
           signing_results: {
@@ -358,12 +371,11 @@ describe('PorterClient Signing', () => {
               '0x1234': [
                 '0x5678',
                 toBase64(
-                  new TextEncoder().encode(
-                    JSON.stringify({
-                      message_hash: '0x1234',
-                      signature: '0xdead',
-                    }),
-                  ),
+                  new SignatureResponse(
+                    fromHexString('0x1234'),
+                    fromHexString('0xdead'),
+                    0,
+                  ).toBytes(),
                 ),
               ],
               // Only 1 signature, but threshold is 2
@@ -385,8 +397,8 @@ describe('PorterClient Signing', () => {
       const porterClient = new PorterClient(fakePorterUris[2]);
       const result = await porterClient.signUserOp(
         {
-          '0x1234': JSON.stringify(mockPackedUserOp),
-          '0xabcd': JSON.stringify(mockPackedUserOp),
+          '0x1234': userOpSignatureRequest,
+          '0xabcd': userOpSignatureRequest,
         },
         2, // threshold of 2, but only 1 signature
       );
@@ -404,12 +416,14 @@ describe('PorterClient Signing', () => {
     });
 
     it('should successfully sign', async () => {
+      const userOpSignatureRequest = createUserSignatureRequest();
+
       mockSignUserOp(true);
       const porterClient = new PorterClient(fakePorterUris[2]);
       const result = await porterClient.signUserOp(
         {
-          '0x1234': JSON.stringify(mockPackedUserOp),
-          '0xabcd': JSON.stringify(mockPackedUserOp),
+          '0x1234': userOpSignatureRequest,
+          '0xabcd': userOpSignatureRequest,
         },
         2,
       );
@@ -424,69 +438,16 @@ describe('PorterClient Signing', () => {
           '0xabcd': {
             messageHash: '0x1234',
             signature: '0xbeef',
-            signerAddress: '0xefgh',
+            signerAddress: '0xefff',
           },
         },
         errors: {},
       });
     });
 
-    it('should handle decode errors', async () => {
-      const createOptimisticErrorResponse = () => ({
-        result: {
-          signing_results: {
-            signatures: {
-              '0x1234': [
-                '0x5678',
-                toBase64(
-                  new TextEncoder().encode(
-                    JSON.stringify({
-                      message_hash: '0x1234',
-                      signature: '0xdead',
-                    }),
-                  ),
-                ),
-              ],
-              '0xabcd': ['0xefgh', 'invalid-base64-data!!!'], // Invalid signature data
-            },
-            errors: {},
-          },
-        },
-      });
-
-      vi.spyOn(axios, 'request').mockImplementation(async (config) => {
-        if (config.url === '/sign' && config.baseURL === fakePorterUris[2]) {
-          return Promise.resolve({
-            status: HttpStatusCode.Ok,
-            data: createOptimisticErrorResponse(),
-          });
-        }
-      });
-
-      const porterClient = new PorterClient(fakePorterUris[2]);
-      const result = await porterClient.signUserOp(
-        {
-          '0x1234': JSON.stringify(mockPackedUserOp),
-          '0xabcd': JSON.stringify(mockPackedUserOp),
-        },
-        2,
-      );
-
-      expect(result).toEqual({
-        signingResults: {
-          '0x1234': {
-            messageHash: '0x1234',
-            signature: '0xdead',
-            signerAddress: '0x5678',
-          },
-        },
-        errors: {
-          '0xabcd': expect.stringContaining('Failed to decode signature'), // Decode error
-        },
-      });
-    });
-
     it('should aggregate only threshold-meeting hash', async () => {
+      const userOpSignatureRequest = createUserSignatureRequest();
+
       const createMixedHashResponse = () => ({
         result: {
           signing_results: {
@@ -494,34 +455,31 @@ describe('PorterClient Signing', () => {
               '0x1234': [
                 '0x5678',
                 toBase64(
-                  new TextEncoder().encode(
-                    JSON.stringify({
-                      message_hash: '0xhash1',
-                      signature: '0xdead',
-                    }),
-                  ),
+                  new SignatureResponse(
+                    fromHexString('0x0001'),
+                    fromHexString('0xdead'),
+                    0,
+                  ).toBytes(),
                 ),
               ],
               '0xabcd': [
-                '0xefgh',
+                '0xefff',
                 toBase64(
-                  new TextEncoder().encode(
-                    JSON.stringify({
-                      message_hash: '0xhash1', // Same hash, meets threshold
-                      signature: '0xbeef',
-                    }),
-                  ),
+                  new SignatureResponse(
+                    fromHexString('0x0001'), // Same hash, meets threshold
+                    fromHexString('0xbeef'),
+                    0,
+                  ).toBytes(),
                 ),
               ],
               '0xdef0': [
                 '0xabc1',
                 toBase64(
-                  new TextEncoder().encode(
-                    JSON.stringify({
-                      message_hash: '0xhash2', // Different hash, doesn't meet threshold
-                      signature: '0xcafe',
-                    }),
-                  ),
+                  new SignatureResponse(
+                    fromHexString('0x0002'), // Different hash, doesn't meet threshold
+                    fromHexString('0xcafe'),
+                    0,
+                  ).toBytes(),
                 ),
               ],
             },
@@ -542,9 +500,9 @@ describe('PorterClient Signing', () => {
       const porterClient = new PorterClient(fakePorterUris[2]);
       const result = await porterClient.signUserOp(
         {
-          '0x1234': JSON.stringify(mockPackedUserOp),
-          '0xabcd': JSON.stringify(mockPackedUserOp),
-          '0xdef0': JSON.stringify(mockPackedUserOp),
+          '0x1234': userOpSignatureRequest,
+          '0xabcd': userOpSignatureRequest,
+          '0xdef0': userOpSignatureRequest,
         },
         2, // threshold of 2
       );
@@ -553,17 +511,17 @@ describe('PorterClient Signing', () => {
         // different hashes returned separately
         signingResults: {
           '0x1234': {
-            messageHash: '0xhash1',
+            messageHash: '0x0001',
             signature: '0xdead',
             signerAddress: '0x5678',
           },
           '0xabcd': {
-            messageHash: '0xhash1',
+            messageHash: '0x0001',
             signature: '0xbeef',
-            signerAddress: '0xefgh',
+            signerAddress: '0xefff',
           },
           '0xdef0': {
-            messageHash: '0xhash2',
+            messageHash: '0x0002',
             signature: '0xcafe',
             signerAddress: '0xabc1',
           },

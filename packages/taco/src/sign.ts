@@ -1,5 +1,5 @@
+import { UserOperationSignatureRequest } from '@nucypher/nucypher-core';
 import {
-  convertUserOperationToPython,
   Domain,
   fromHexString,
   getPorterUris,
@@ -7,10 +7,9 @@ import {
   SigningCoordinatorAgent,
   TacoSignature,
   TacoSignResult,
-  toBase64,
+  toCoreUserOperation,
   toHexString,
-  UserOperation,
-  UserOperationSignatureRequest,
+  UserOperationToSign,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
@@ -71,7 +70,7 @@ export async function signUserOp(
   domain: Domain,
   cohortId: number,
   chainId: number,
-  userOp: UserOperation,
+  userOp: UserOperationToSign,
   aaVersion: 'mdt' | '0.8.0' | string,
   context?: ConditionContext,
   porterUris?: string[],
@@ -93,23 +92,20 @@ export async function signUserOp(
     cohortId,
   );
 
-  const pythonUserOp = convertUserOperationToPython(userOp);
-
+  const coreContext = context ? await context.toCoreContext() : null;
+  const coreUserOp = toCoreUserOperation(userOp);
   const signingRequest = new UserOperationSignatureRequest(
-    pythonUserOp,
-    aaVersion,
+    coreUserOp,
     cohortId,
-    chainId,
-    context || {},
-    'userop',
+    BigInt(chainId),
+    aaVersion,
+    coreContext,
   );
 
-  const signingRequests: Record<string, string> = Object.fromEntries(
-    signers.map((signer) => [
-      signer.provider,
-      toBase64(signingRequest.toBytes()),
-    ]),
-  );
+  const signingRequests: Record<string, UserOperationSignatureRequest> =
+    Object.fromEntries(
+      signers.map((signer) => [signer.provider, signingRequest]),
+    );
 
   // Build signing request for the user operation
   const porterSignResult: TacoSignResult = await porter.signUserOp(
@@ -119,7 +115,7 @@ export async function signUserOp(
 
   const hashToSignatures: Map<
     string,
-    { [ursulaAddress: string]: TacoSignature }
+    Record<string, TacoSignature>
   > = new Map();
 
   // Single pass: decode signatures and populate signingResults

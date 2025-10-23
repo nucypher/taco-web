@@ -4,5 +4,5 @@ export {
   Context as CoreContext,
 } from '@nucypher/nucypher-core';
 
-// Re-export UserOperation from shared package to avoid duplication
-export type { UserOperation } from '@nucypher/shared';
+// Re-export UserOperationToSign from shared package to avoid duplication
+export { UserOperationToSign } from '@nucypher/shared';

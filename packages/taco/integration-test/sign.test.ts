@@ -3,7 +3,7 @@ import {
   fromHexString,
   getPorterUris,
   SigningCoordinatorAgent,
-  UserOperation,
+  UserOperationToSign,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
 import { beforeAll, describe, expect, test } from 'vitest';
@@ -43,7 +43,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
 
     test('should sign a user operation', async () => {
       // Create a sample user operation with all required fields
-      const userOp: UserOperation = {
+      const userOp: UserOperationToSign = {
         sender: DUMMY_ADDRESS,
         nonce: 0,
         factory: '0x',

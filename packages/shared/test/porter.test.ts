@@ -64,9 +64,9 @@ const createMockSignResponse = (errorCase?: boolean) => ({
       signatures: errorCase
         ? {
             '0xabcd': [
-              '0xefff',
               toBase64(
                 new SignatureResponse(
+                  '0x0000000000000000000000000000000000000001',
                   fromHexString('0x1234'),
                   fromHexString('0xbeef'),
                   0,
@@ -76,9 +76,9 @@ const createMockSignResponse = (errorCase?: boolean) => ({
           }
         : {
             '0x1234': [
-              '0x5678',
               toBase64(
                 new SignatureResponse(
+                  '0x0000000000000000000000000000000000000002',
                   fromHexString('0x1234'),
                   fromHexString('0xdead'),
                   0,
@@ -86,9 +86,9 @@ const createMockSignResponse = (errorCase?: boolean) => ({
               ),
             ],
             '0xabcd': [
-              '0xefff',
               toBase64(
                 new SignatureResponse(
+                  '0x0000000000000000000000000000000000000001',
                   fromHexString('0x1234'),
                   fromHexString('0xbeef'),
                   0,
@@ -236,12 +236,12 @@ describe('PorterClient Signing', () => {
           '0x1234': {
             messageHash: '0x1234',
             signature: '0xdead',
-            signerAddress: '0x5678',
+            signerAddress: '0x0000000000000000000000000000000000000002',
           },
           '0xabcd': {
             messageHash: '0x1234',
             signature: '0xbeef',
-            signerAddress: '0xefff',
+            signerAddress: '0x0000000000000000000000000000000000000001',
           },
         },
         errors: {},
@@ -284,7 +284,7 @@ describe('PorterClient Signing', () => {
           '0xabcd': {
             messageHash: '0x1234',
             signature: '0xbeef',
-            signerAddress: '0xefff',
+            signerAddress: '0x0000000000000000000000000000000000000001',
           },
         },
         errors: {
@@ -300,26 +300,22 @@ describe('PorterClient Signing', () => {
         result: {
           signing_results: {
             signatures: {
-              '0x1234': [
-                '0x5678',
-                toBase64(
-                  new SignatureResponse(
-                    fromHexString('0x1234'),
-                    fromHexString('0xdead'),
-                    0,
-                  ).toBytes(),
-                ),
-              ],
-              '0xabcd': [
-                '0xefff',
-                toBase64(
-                  new SignatureResponse(
-                    fromHexString('0xdddd'), // Different message hash
-                    fromHexString('0xbeef'),
-                    0,
-                  ).toBytes(),
-                ),
-              ],
+              '0x1234': toBase64(
+                new SignatureResponse(
+                  '0x0000000000000000000000000000000000000002',
+                  fromHexString('0x1234'),
+                  fromHexString('0xdead'),
+                  0,
+                ).toBytes(),
+              ),
+              '0xabcd': toBase64(
+                new SignatureResponse(
+                  '0x0000000000000000000000000000000000000001',
+                  fromHexString('0xdddd'), // Different message hash
+                  fromHexString('0xbeef'),
+                  0,
+                ).toBytes(),
+              ),
             },
             errors: {},
           },
@@ -349,12 +345,12 @@ describe('PorterClient Signing', () => {
           '0x1234': {
             messageHash: '0x1234',
             signature: '0xdead',
-            signerAddress: '0x5678',
+            signerAddress: '0x0000000000000000000000000000000000000002',
           },
           '0xabcd': {
             messageHash: '0xdddd', // Different hash
             signature: '0xbeef',
-            signerAddress: '0xefff',
+            signerAddress: '0x0000000000000000000000000000000000000001',
           },
         },
         errors: {}, // No errors - mismatched hashes don't generate errors, just prevent aggregation
@@ -368,16 +364,14 @@ describe('PorterClient Signing', () => {
         result: {
           signing_results: {
             signatures: {
-              '0x1234': [
-                '0x5678',
-                toBase64(
-                  new SignatureResponse(
-                    fromHexString('0x1234'),
-                    fromHexString('0xdead'),
-                    0,
-                  ).toBytes(),
-                ),
-              ],
+              '0x1234': toBase64(
+                new SignatureResponse(
+                  '0x0000000000000000000000000000000000000002',
+                  fromHexString('0x1234'),
+                  fromHexString('0xdead'),
+                  0,
+                ).toBytes(),
+              ),
               // Only 1 signature, but threshold is 2
             },
             errors: {},
@@ -408,7 +402,7 @@ describe('PorterClient Signing', () => {
           '0x1234': {
             messageHash: '0x1234',
             signature: '0xdead',
-            signerAddress: '0x5678',
+            signerAddress: '0x0000000000000000000000000000000000000002',
           },
         },
         errors: {},
@@ -433,12 +427,12 @@ describe('PorterClient Signing', () => {
           '0x1234': {
             messageHash: '0x1234',
             signature: '0xdead',
-            signerAddress: '0x5678',
+            signerAddress: '0x0000000000000000000000000000000000000002',
           },
           '0xabcd': {
             messageHash: '0x1234',
             signature: '0xbeef',
-            signerAddress: '0xefff',
+            signerAddress: '0x0000000000000000000000000000000000000001',
           },
         },
         errors: {},
@@ -452,36 +446,30 @@ describe('PorterClient Signing', () => {
         result: {
           signing_results: {
             signatures: {
-              '0x1234': [
-                '0x5678',
-                toBase64(
-                  new SignatureResponse(
-                    fromHexString('0x0001'),
-                    fromHexString('0xdead'),
-                    0,
-                  ).toBytes(),
-                ),
-              ],
-              '0xabcd': [
-                '0xefff',
-                toBase64(
-                  new SignatureResponse(
-                    fromHexString('0x0001'), // Same hash, meets threshold
-                    fromHexString('0xbeef'),
-                    0,
-                  ).toBytes(),
-                ),
-              ],
-              '0xdef0': [
-                '0xabc1',
-                toBase64(
-                  new SignatureResponse(
-                    fromHexString('0x0002'), // Different hash, doesn't meet threshold
-                    fromHexString('0xcafe'),
-                    0,
-                  ).toBytes(),
-                ),
-              ],
+              '0x1234': toBase64(
+                new SignatureResponse(
+                  '0x0000000000000000000000000000000000000002',
+                  fromHexString('0x0001'),
+                  fromHexString('0xdead'),
+                  0,
+                ).toBytes(),
+              ),
+              '0xabcd': toBase64(
+                new SignatureResponse(
+                  '0x0000000000000000000000000000000000000001',
+                  fromHexString('0x0001'), // Same hash, meets threshold
+                  fromHexString('0xbeef'),
+                  0,
+                ).toBytes(),
+              ),
+              '0xdef0': toBase64(
+                new SignatureResponse(
+                  '0x0000000000000000000000000000000000000003',
+                  fromHexString('0x0002'), // Different hash, doesn't meet threshold
+                  fromHexString('0xcafe'),
+                  0,
+                ).toBytes(),
+              ),
             },
             errors: {},
           },
@@ -513,17 +501,17 @@ describe('PorterClient Signing', () => {
           '0x1234': {
             messageHash: '0x0001',
             signature: '0xdead',
-            signerAddress: '0x5678',
+            signerAddress: '0x0000000000000000000000000000000000000002',
           },
           '0xabcd': {
             messageHash: '0x0001',
             signature: '0xbeef',
-            signerAddress: '0xefff',
+            signerAddress: '0x0000000000000000000000000000000000000001',
           },
           '0xdef0': {
             messageHash: '0x0002',
             signature: '0xcafe',
-            signerAddress: '0xabc1',
+            signerAddress: '0x0000000000000000000000000000000000000003',
           },
         },
         errors: {},

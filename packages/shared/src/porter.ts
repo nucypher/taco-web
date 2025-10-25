@@ -167,10 +167,7 @@ type PostTacoSignRequest = {
 type TacoSignResponse = {
   readonly result: {
     readonly signing_results: {
-      readonly signatures: Record<
-        ChecksumAddress,
-        [ChecksumAddress, Base64EncodedBytes]
-      >;
+      readonly signatures: Record<ChecksumAddress, Base64EncodedBytes>;
       readonly errors: Record<ChecksumAddress, string>;
     };
   };
@@ -355,17 +352,16 @@ export class PorterClient {
     const { signatures, errors } = resp.data.result.signing_results;
 
     const signingResults: { [ursulaAddress: string]: TacoSignature } = {};
-    for (const [
-      ursulaAddress,
-      [signerAddress, signatureResponseBase64],
-    ] of Object.entries(signatures || {})) {
+    for (const [ursulaAddress, signatureResponseBase64] of Object.entries(
+      signatures || {},
+    )) {
       const signatureResponse = SignatureResponse.fromBytes(
         fromBase64(signatureResponseBase64),
       );
       signingResults[ursulaAddress] = {
         messageHash: `0x${toHexString(signatureResponse.hash)}`,
         signature: `0x${toHexString(signatureResponse.signature)}`,
-        signerAddress,
+        signerAddress: signatureResponse.signer,
       };
     }
 

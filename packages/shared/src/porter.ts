@@ -2,6 +2,7 @@ import {
   CapsuleFrag,
   EncryptedThresholdDecryptionRequest,
   EncryptedThresholdDecryptionResponse,
+  PackedUserOperationSignatureRequest,
   PublicKey,
   RetrievalKit,
   SignatureResponse,
@@ -331,7 +332,10 @@ export class PorterClient {
   }
 
   public async signUserOp(
-    signingRequests: Record<string, UserOperationSignatureRequest>,
+    signingRequests: Record<
+      string,
+      UserOperationSignatureRequest | PackedUserOperationSignatureRequest
+    >,
     threshold: number,
   ): Promise<TacoSignResult> {
     const data: PostTacoSignRequest = {
@@ -356,7 +360,7 @@ export class PorterClient {
       signatures || {},
     )) {
       const signatureResponse = SignatureResponse.fromBytes(
-        fromBase64(signatureResponseBase64),
+        fromBase64(signatureResponseBase64 as string),
       );
       signingResults[ursulaAddress] = {
         messageHash: `0x${toHexString(signatureResponse.hash)}`,

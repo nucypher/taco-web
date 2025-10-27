@@ -5,7 +5,7 @@ import { Domain } from '../../porter';
 import { SigningCoordinator__factory } from '../ethers-typechain';
 import { SigningCoordinator } from '../ethers-typechain/SigningCoordinator';
 
-type SignerInfo = {
+export type SignerInfo = {
   operator: string;
   provider: string;
   signature: string;

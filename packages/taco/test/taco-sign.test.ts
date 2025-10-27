@@ -1,12 +1,17 @@
 import {
+  PackedUserOperation,
+  PackedUserOperationSignatureRequest,
   UserOperation,
   UserOperationSignatureRequest,
 } from '@nucypher/nucypher-core';
 import {
   fromHexString,
   initialize,
+  isPackedUserOperation,
+  PackedUserOperationToSign,
   PorterClient,
   SigningCoordinatorAgent,
+  toCorePackedUserOperation,
   toCoreUserOperation,
   UserOperationToSign,
 } from '@nucypher/shared';
@@ -24,10 +29,52 @@ function getNumberValue(value: bigint | number): bigint {
   return typeof value === 'bigint' ? value : BigInt(value);
 }
 
+function checkPackedUserOpEquality(
+  op1: PackedUserOperationToSign,
+  op2: PackedUserOperation,
+) {
+  expect(op1.sender).toEqual(op2.sender);
+  expect(getNumberValue(op1.nonce)).toEqual(op2.nonce);
+
+  const initCode =
+    op1.initCode instanceof Uint8Array
+      ? op1.initCode
+      : fromHexString(op1.initCode);
+  expect(initCode).toEqual(op2.initCode);
+
+  const callData =
+    op1.callData instanceof Uint8Array
+      ? op1.callData
+      : fromHexString(op1.callData);
+  expect(callData).toEqual(op2.callData);
+
+  const accountGasLimit =
+    op1.accountGasLimit instanceof Uint8Array
+      ? op1.accountGasLimit
+      : fromHexString(op1.accountGasLimit);
+  expect(accountGasLimit).toEqual(op2.accountGasLimits);
+
+  expect(getNumberValue(op1.preVerificationGas)).toEqual(
+    op2.preVerificationGas,
+  );
+
+  const gasFees =
+    op1.gasFees instanceof Uint8Array
+      ? op1.gasFees
+      : fromHexString(op1.gasFees);
+  expect(gasFees).toEqual(op2.gasFees);
+
+  const paymasterAndData =
+    op1.paymasterAndData instanceof Uint8Array
+      ? op1.paymasterAndData
+      : fromHexString(op1.paymasterAndData);
+  expect(paymasterAndData).toEqual(op2.paymasterAndData);
+}
+
 function checkUserOpEquality(op1: UserOperationToSign, op2: UserOperation) {
   expect(op1.sender).toEqual(op2.sender);
 
-  expect(getNumberValue(op1.nonce)).toEqual(getNumberValue(op2.nonce));
+  expect(getNumberValue(op1.nonce)).toEqual(op2.nonce);
 
   const callData =
     op1.callData instanceof Uint8Array
@@ -153,9 +200,9 @@ describe('TACo Signing', () => {
     it('should handle alternative types: number and byte fields', () => {
       const updatedUserOp: UserOperationToSign = {
         ...userOpToSign,
-        // number instead of bigint
+        // number instead of bigint, hex instead of byte array
         nonce: 1,
-        callData: '0xabc', // hex instead of byte array
+        callData: '0xabc',
         callGasLimit: 131072,
         verificationGasLimit: 86016,
         preVerificationGas: 4096,
@@ -163,16 +210,48 @@ describe('TACo Signing', () => {
         maxPriorityFeePerGas: 291,
         // include optional fields
         factory: '0x000000000000000000000000000000000000000A',
-        factoryData: '0xabc', // hex instead of byte array
+        factoryData: '0xabc',
 
         paymaster: '0x000000000000000000000000000000000000000C',
         // number instead of big int
         paymasterVerificationGasLimit: 50000,
         paymasterPostOpGasLimit: 30000,
-        paymasterData: '0xdef', // hex instead of byte array
+        paymasterData: '0xdef',
       };
       const coreUserOp = toCoreUserOperation(updatedUserOp);
       checkUserOpEquality(updatedUserOp, coreUserOp);
+    });
+  });
+  describe('toCorePackedUserOperation', () => {
+    const packedUserOpToSign: PackedUserOperationToSign = {
+      sender: '0x742D35Cc6634C0532925A3b8D33c9c0E7B66C8E8',
+      nonce: BigInt(123),
+      initCode: fromHexString('0xabc'),
+      callData: fromHexString('0xdef'),
+      accountGasLimit: fromHexString('0x01020304'),
+      preVerificationGas: BigInt(101112),
+      gasFees: fromHexString('0x05060708'),
+      paymasterAndData: fromHexString('0x090a0b0c'),
+    };
+
+    it('should convert base fields', () => {
+      const corePackedUserOp = toCorePackedUserOperation(packedUserOpToSign);
+      checkPackedUserOpEquality(packedUserOpToSign, corePackedUserOp);
+    });
+    it('should handle alternative types: number and byte fields', () => {
+      const updatedPackedUserOp: PackedUserOperationToSign = {
+        // number instead of bigint, hex instead of byte array
+        ...packedUserOpToSign,
+        nonce: 1,
+        initCode: '0xabc',
+        callData: '0xdef',
+        accountGasLimit: '0x01020304',
+        preVerificationGas: 4096,
+        gasFees: '0x05060708',
+        paymasterAndData: '0x090a0b0c',
+      };
+      const corePackedUserOp = toCorePackedUserOperation(updatedPackedUserOp);
+      checkPackedUserOpEquality(updatedPackedUserOp, corePackedUserOp);
     });
   });
 
@@ -187,15 +266,34 @@ describe('TACo Signing', () => {
       maxFeePerGas: BigInt(2748),
       maxPriorityFeePerGas: BigInt(291),
     };
+    const packedUserOp: PackedUserOperationToSign = {
+      sender: '0x742D35Cc6634C0532925A3b8D33c9c0E7B66C8E8',
+      nonce: BigInt(1),
+      initCode: fromHexString('0xabc'),
+      callData: fromHexString('0xdef'),
+      accountGasLimit: fromHexString('0x01020304'),
+      preVerificationGas: BigInt(101112),
+      gasFees: fromHexString('0x05060708'),
+      paymasterAndData: fromHexString('0x090a0b0c'),
+    };
+
     const chainId = 1;
     const cohortId = 5;
     const porterUris = [fakePorterUri];
     const aaVersion = '0.8.0';
     const threshold = 2;
 
-    it.each(['0.8.0', 'mdt'])(
-      'should sign a user operation with a valid aa versions',
-      async (validAAVersion) => {
+    it.each([
+      ['0.8.0', userOp],
+      ['0.8.0', packedUserOp],
+      ['mdt', userOp],
+      ['mdt', packedUserOp],
+    ])(
+      'should sign user operation and packed user operations for valid aa versions',
+      async (
+        validAAVersion: string,
+        userOp: UserOperationToSign | PackedUserOperationToSign,
+      ) => {
         const signingResults = {
           '0xnode1': {
             messageHash: '0xhash1',
@@ -226,20 +324,34 @@ describe('TACo Signing', () => {
           porterUris,
         );
 
-        expect(porterSignUserOpMock).toHaveBeenCalledWith(
-          {
-            '0xnode1': expect.any(UserOperationSignatureRequest),
-            '0xnode2': expect.any(UserOperationSignatureRequest),
-          },
-          threshold,
-        );
+        if (isPackedUserOperation(userOp)) {
+          expect(porterSignUserOpMock).toHaveBeenCalledWith(
+            {
+              '0xnode1': expect.any(PackedUserOperationSignatureRequest),
+              '0xnode2': expect.any(PackedUserOperationSignatureRequest),
+            },
+            threshold,
+          );
+        } else {
+          expect(porterSignUserOpMock).toHaveBeenCalledWith(
+            {
+              '0xnode1': expect.any(UserOperationSignatureRequest),
+              '0xnode2': expect.any(UserOperationSignatureRequest),
+            },
+            threshold,
+          );
+        }
 
         const call = porterSignUserOpMock.mock.calls.at(-1)!;
         const [op] = call;
 
         const requests = [op['0xnode1'], op['0xnode2']];
         requests.forEach((element) => {
-          checkUserOpEquality(userOp, element.userOp);
+          if (isPackedUserOperation(userOp)) {
+            checkPackedUserOpEquality(userOp, element.packedUserOp);
+          } else {
+            checkUserOpEquality(userOp, element.userOp);
+          }
           expect(element.aaVersion).toEqual(validAAVersion);
           expect(element.cohortId).toEqual(cohortId);
           expect(element.chainId).toEqual(BigInt(chainId));

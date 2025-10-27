@@ -1,4 +1,4 @@
-import { UserOperation } from '@nucypher/nucypher-core';
+import { PackedUserOperation, UserOperation } from '@nucypher/nucypher-core';
 
 import { fromHexString } from './utils';
 
@@ -25,59 +25,57 @@ export type UserOperationToSign = {
   signature?: `0x${string}` | Uint8Array | undefined;
 };
 
+export type PackedUserOperationToSign = {
+  sender: `0x${string}`;
+  nonce: bigint | number;
+  initCode: `0x${string}` | Uint8Array;
+  callData: `0x${string}` | Uint8Array;
+  accountGasLimit: `0x${string}` | Uint8Array;
+  preVerificationGas: bigint | number;
+  gasFees: `0x${string}` | Uint8Array;
+  paymasterAndData: `0x${string}` | Uint8Array;
+};
+
+function getBigIntValue(value: bigint | number): bigint {
+  return typeof value === 'bigint' ? value : BigInt(value);
+}
+
+function getUint8ArrayValue(value: `0x${string}` | Uint8Array): Uint8Array {
+  return value instanceof Uint8Array ? value : fromHexString(value);
+}
+
 export function toCoreUserOperation(
   userOperation: UserOperationToSign,
 ): UserOperation {
   const userOp = new UserOperation(
     userOperation.sender,
-    typeof userOperation.nonce === 'bigint'
-      ? userOperation.nonce
-      : BigInt(userOperation.nonce),
-    userOperation.callData instanceof Uint8Array
-      ? userOperation.callData
-      : fromHexString(userOperation.callData),
-    typeof userOperation.callGasLimit === 'bigint'
-      ? userOperation.callGasLimit
-      : BigInt(userOperation.callGasLimit),
-    typeof userOperation.verificationGasLimit === 'bigint'
-      ? userOperation.verificationGasLimit
-      : BigInt(userOperation.verificationGasLimit),
-    typeof userOperation.preVerificationGas === 'bigint'
-      ? userOperation.preVerificationGas
-      : BigInt(userOperation.preVerificationGas || 0),
-    typeof userOperation.maxFeePerGas === 'bigint'
-      ? userOperation.maxFeePerGas
-      : BigInt(userOperation.maxFeePerGas),
-    typeof userOperation.maxPriorityFeePerGas === 'bigint'
-      ? userOperation.maxPriorityFeePerGas
-      : BigInt(userOperation.maxPriorityFeePerGas),
+    getBigIntValue(userOperation.nonce),
+    getUint8ArrayValue(userOperation.callData),
+    getBigIntValue(userOperation.callGasLimit),
+    getBigIntValue(userOperation.verificationGasLimit),
+    getBigIntValue(userOperation.preVerificationGas),
+    getBigIntValue(userOperation.maxFeePerGas),
+    getBigIntValue(userOperation.maxPriorityFeePerGas),
   );
 
   // optional factory data
   if (userOperation.factory) {
-    const factory_data =
-      userOperation.factoryData instanceof Uint8Array
-        ? userOperation.factoryData
-        : fromHexString(userOperation.factoryData || '0x');
+    const factory_data = getUint8ArrayValue(userOperation.factoryData || '0x');
 
     userOp.setFactoryData(userOperation.factory, factory_data);
   }
 
   // optional paymaster data
   if (userOperation.paymaster) {
-    const paymaster_data =
-      userOperation.paymasterData instanceof Uint8Array
-        ? userOperation.paymasterData
-        : fromHexString(userOperation.paymasterData || '0x');
-    const paymaster_verification_gas_limit =
-      typeof userOperation.paymasterVerificationGasLimit === 'bigint'
-        ? userOperation.paymasterVerificationGasLimit
-        : BigInt(userOperation.paymasterVerificationGasLimit || 0);
-    const paymaster_post_op_gas_limit =
-      typeof userOperation.paymasterPostOpGasLimit === 'bigint'
-        ? userOperation.paymasterPostOpGasLimit
-        : BigInt(userOperation.paymasterPostOpGasLimit || 0);
-
+    const paymaster_verification_gas_limit = getBigIntValue(
+      userOperation.paymasterVerificationGasLimit || 0,
+    );
+    const paymaster_post_op_gas_limit = getBigIntValue(
+      userOperation.paymasterPostOpGasLimit || 0,
+    );
+    const paymaster_data = getUint8ArrayValue(
+      userOperation.paymasterData || '0x',
+    );
     userOp.setPaymasterData(
       userOperation.paymaster,
       paymaster_verification_gas_limit,
@@ -87,4 +85,27 @@ export function toCoreUserOperation(
   }
 
   return userOp;
+}
+
+export function toCorePackedUserOperation(
+  packedUserOperation: PackedUserOperationToSign,
+): PackedUserOperation {
+  const packedUserOp = new PackedUserOperation(
+    packedUserOperation.sender,
+    getBigIntValue(packedUserOperation.nonce),
+    getUint8ArrayValue(packedUserOperation.initCode),
+    getUint8ArrayValue(packedUserOperation.callData),
+    getUint8ArrayValue(packedUserOperation.accountGasLimit),
+    getBigIntValue(packedUserOperation.preVerificationGas),
+    getUint8ArrayValue(packedUserOperation.gasFees),
+    getUint8ArrayValue(packedUserOperation.paymasterAndData),
+  );
+
+  return packedUserOp;
+}
+
+export function isPackedUserOperation(
+  op: UserOperationToSign | PackedUserOperationToSign,
+): op is PackedUserOperationToSign {
+  return 'initCode' in op && 'gasFees' in op;
 }

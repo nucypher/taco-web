@@ -1,12 +1,19 @@
-import { UserOperationSignatureRequest } from '@nucypher/nucypher-core';
+import {
+  PackedUserOperationSignatureRequest,
+  UserOperationSignatureRequest,
+} from '@nucypher/nucypher-core';
 import {
   Domain,
   fromHexString,
   getPorterUris,
+  isPackedUserOperation,
+  PackedUserOperationToSign,
   PorterClient,
+  SignerInfo,
   SigningCoordinatorAgent,
   TacoSignature,
   TacoSignResult,
+  toCorePackedUserOperation,
   toCoreUserOperation,
   toHexString,
   UserOperationToSign,
@@ -52,6 +59,53 @@ function aggregateSignatures(
   return `0x${toHexString(new Uint8Array(allBytes))}`;
 }
 
+async function makeSigningRequests(
+  signers: SignerInfo[],
+  cohortId: number,
+  chainId: number,
+  userOp: UserOperationToSign | PackedUserOperationToSign,
+  aaVersion: string,
+  context?: ConditionContext,
+): Promise<
+  Record<
+    string,
+    PackedUserOperationSignatureRequest | UserOperationSignatureRequest
+  >
+> {
+  const coreContext = context ? await context.toCoreContext() : null;
+
+  let signingRequest:
+    | PackedUserOperationSignatureRequest
+    | UserOperationSignatureRequest;
+  if (isPackedUserOperation(userOp)) {
+    const corePackedUserOp = toCorePackedUserOperation(userOp);
+    signingRequest = new PackedUserOperationSignatureRequest(
+      corePackedUserOp,
+      cohortId,
+      BigInt(chainId),
+      aaVersion,
+      coreContext,
+    );
+  } else {
+    const coreUserOp = toCoreUserOperation(userOp);
+    signingRequest = new UserOperationSignatureRequest(
+      coreUserOp,
+      cohortId,
+      BigInt(chainId),
+      aaVersion,
+      coreContext,
+    );
+  }
+
+  const signingRequests: Record<
+    string,
+    PackedUserOperationSignatureRequest | UserOperationSignatureRequest
+  > = Object.fromEntries(
+    signers.map((signer) => [signer.provider, signingRequest]),
+  );
+  return signingRequests;
+}
+
 /**
  * Signs a UserOperation.
  * @param provider - The Ethereum provider to use for signing.
@@ -70,7 +124,7 @@ export async function signUserOp(
   domain: Domain,
   cohortId: number,
   chainId: number,
-  userOp: UserOperationToSign,
+  userOp: UserOperationToSign | PackedUserOperationToSign,
   aaVersion: 'mdt' | '0.8.0' | string,
   context?: ConditionContext,
   porterUris?: string[],
@@ -92,20 +146,14 @@ export async function signUserOp(
     cohortId,
   );
 
-  const coreContext = context ? await context.toCoreContext() : null;
-  const coreUserOp = toCoreUserOperation(userOp);
-  const signingRequest = new UserOperationSignatureRequest(
-    coreUserOp,
+  const signingRequests = await makeSigningRequests(
+    signers,
     cohortId,
-    BigInt(chainId),
+    chainId,
+    userOp,
     aaVersion,
-    coreContext,
+    context,
   );
-
-  const signingRequests: Record<string, UserOperationSignatureRequest> =
-    Object.fromEntries(
-      signers.map((signer) => [signer.provider, signingRequest]),
-    );
 
   // Build signing request for the user operation
   const porterSignResult: TacoSignResult = await porter.signUserOp(

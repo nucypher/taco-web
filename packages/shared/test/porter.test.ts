@@ -3,6 +3,8 @@ import axios, { HttpStatusCode } from 'axios';
 import { beforeAll, describe, expect, it, MockInstance, vi } from 'vitest';
 
 import {
+  PackedUserOperation,
+  PackedUserOperationSignatureRequest,
   SignatureResponse,
   UserOperation,
   UserOperationSignatureRequest,
@@ -204,13 +206,13 @@ describe('PorterClient Signing', () => {
       new UserOperationSignatureRequest(
         new UserOperation(
           '0x000000000000000000000000000000000000000a',
-          BigInt(0), // nonce
+          BigInt(123), // nonce
           fromHexString('0xabc'), // callData
-          BigInt(0), // callGasLimit
-          BigInt(0), // verificationGasLimit
-          BigInt(0), // preVerificationGasLimit
-          BigInt(0), // maxFeePerGas
-          BigInt(0), // maxPriorityFeePerGas
+          BigInt(456), // callGasLimit
+          BigInt(789), // verificationGasLimit
+          BigInt(101112), // preVerificationGasLimit
+          BigInt(131415), // maxFeePerGas
+          BigInt(161718), // maxPriorityFeePerGas
         ),
         1, // cohort ID
         BigInt(1), // chain ID
@@ -227,6 +229,52 @@ describe('PorterClient Signing', () => {
         {
           '0x1234': userOpSignatureRequest,
           '0xabcd': userOpSignatureRequest,
+        },
+        2,
+      );
+
+      expect(result).toEqual({
+        signingResults: {
+          '0x1234': {
+            messageHash: '0x1234',
+            signature: '0xdead',
+            signerAddress: '0x0000000000000000000000000000000000000002',
+          },
+          '0xabcd': {
+            messageHash: '0x1234',
+            signature: '0xbeef',
+            signerAddress: '0x0000000000000000000000000000000000000001',
+          },
+        },
+        errors: {},
+      });
+    });
+
+    it('should successfully sign a PackedUserOperation', async () => {
+      const packedUserOperationSignatureRequest =
+        new PackedUserOperationSignatureRequest(
+          new PackedUserOperation(
+            '0x000000000000000000000000000000000000000a',
+            BigInt(123), // nonce
+            fromHexString('0xabc'), // initCode
+            fromHexString('0xdef'), // callData
+            fromHexString('0x01020304'), // accountGasLimit
+            BigInt(101112), // preVerificationGas
+            fromHexString('0x05060708'), // gasFees
+            fromHexString('0x090a0b0c'), // paymasterAndData
+          ),
+          1, // cohort ID
+          BigInt(1), // chain ID
+          'mdt',
+          null,
+        );
+
+      mockSignUserOp(true);
+      const porterClient = new PorterClient(fakePorterUris[2]);
+      const result = await porterClient.signUserOp(
+        {
+          '0x1234': packedUserOperationSignatureRequest,
+          '0xabcd': packedUserOperationSignatureRequest,
         },
         2,
       );

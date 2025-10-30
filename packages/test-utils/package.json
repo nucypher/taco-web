@@ -29,7 +29,7 @@
     "lint:fix": "pnpm lint --fix"
   },
   "dependencies": {
-    "@nucypher/nucypher-core": "^0.14.5",
+    "@nucypher/nucypher-core": "^0.15.1-dev.1",
     "@nucypher/shared": "workspace:*",
     "@nucypher/taco-auth": "workspace:*",
     "axios": "^1.8.4",

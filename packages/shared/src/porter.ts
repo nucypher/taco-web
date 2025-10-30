@@ -345,7 +345,7 @@ export class PorterClient {
           toBase64(signingRequest.toBytes()),
         ]),
       ),
-      threshold: threshold,
+      threshold,
     };
 
     const resp: AxiosResponse<TacoSignResponse> = await this.tryAndCall({

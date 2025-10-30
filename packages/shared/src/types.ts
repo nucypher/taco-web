@@ -60,27 +60,33 @@ export function toCoreUserOperation(
 
   // optional factory data
   if (userOperation.factory) {
-    const factory_data = getUint8ArrayValue(userOperation.factoryData || '0x');
+    let factory_data = undefined;
+    if (userOperation.factoryData) {
+      factory_data = getUint8ArrayValue(userOperation.factoryData);
+    }
 
     userOp.setFactoryData(userOperation.factory, factory_data);
   }
 
   // optional paymaster data
   if (userOperation.paymaster) {
-    const paymaster_verification_gas_limit = getBigIntValue(
-      userOperation.paymasterVerificationGasLimit || 0,
-    );
-    const paymaster_post_op_gas_limit = getBigIntValue(
-      userOperation.paymasterPostOpGasLimit || 0,
-    );
-    const paymaster_data = getUint8ArrayValue(
-      userOperation.paymasterData || '0x',
-    );
+    if (!userOperation.paymasterVerificationGasLimit) {
+      throw new Error(
+        'paymasterVerificationGasLimit is required when paymaster is set',
+      );
+    } else if (!userOperation.paymasterPostOpGasLimit) {
+      throw new Error(
+        'paymasterPostOpGasLimit is required when paymaster is set',
+      );
+    }
+
     userOp.setPaymasterData(
       userOperation.paymaster,
-      paymaster_verification_gas_limit,
-      paymaster_post_op_gas_limit,
-      paymaster_data,
+      getBigIntValue(userOperation.paymasterVerificationGasLimit),
+      getBigIntValue(userOperation.paymasterPostOpGasLimit),
+      userOperation.paymasterData
+        ? getUint8ArrayValue(userOperation.paymasterData)
+        : undefined,
     );
   }
 

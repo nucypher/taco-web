@@ -80,7 +80,7 @@ function checkUserOpEquality(op1: UserOperationToSign, op2: UserOperation) {
     op1.callData instanceof Uint8Array
       ? op1.callData
       : fromHexString(op1.callData);
-  expect(callData).toEqual(callData);
+  expect(callData).toEqual(op2.callData);
 
   expect(getNumberValue(op1.callGasLimit)).toEqual(op2.callGasLimit);
   expect(getNumberValue(op1.verificationGasLimit)).toEqual(
@@ -98,10 +98,15 @@ function checkUserOpEquality(op1: UserOperationToSign, op2: UserOperation) {
     expect(op2.factory).toBeUndefined();
   } else {
     expect(op1.factory).toEqual(op2.factory);
+  }
+
+  if (op1.factoryData === undefined) {
+    expect(op2.factoryData).toBeUndefined();
+  } else {
     const factoryData =
       op1.factoryData instanceof Uint8Array
         ? op1.factoryData
-        : fromHexString(op1.factoryData || '0x');
+        : fromHexString(op1.factoryData);
     expect(factoryData).toEqual(op2.factoryData);
   }
 
@@ -109,16 +114,31 @@ function checkUserOpEquality(op1: UserOperationToSign, op2: UserOperation) {
     expect(op2.paymaster).toBeUndefined();
   } else {
     expect(op1.paymaster).toEqual(op2.paymaster);
-    expect(
-      getNumberValue(op1.paymasterVerificationGasLimit || BigInt(0)),
-    ).toEqual(op2.paymasterVerificationGasLimit);
-    expect(getNumberValue(op1.paymasterPostOpGasLimit || BigInt(0))).toEqual(
+  }
+
+  if (op1.paymasterVerificationGasLimit === undefined) {
+    expect(op2.paymasterVerificationGasLimit).toBeUndefined();
+  } else {
+    expect(getNumberValue(op1.paymasterVerificationGasLimit)).toEqual(
+      op2.paymasterVerificationGasLimit,
+    );
+  }
+
+  if (op1.paymasterPostOpGasLimit === undefined) {
+    expect(op2.paymasterPostOpGasLimit).toBeUndefined();
+  } else {
+    expect(getNumberValue(op1.paymasterPostOpGasLimit)).toEqual(
       op2.paymasterPostOpGasLimit,
     );
+  }
+
+  if (op1.paymasterData === undefined) {
+    expect(op2.paymasterData).toBeUndefined();
+  } else {
     const paymasterData =
       op1.paymasterData instanceof Uint8Array
         ? op1.paymasterData
-        : fromHexString(op1.paymasterData || '0x');
+        : fromHexString(op1.paymasterData);
     expect(paymasterData).toEqual(op2.paymasterData);
   }
 }
@@ -161,7 +181,7 @@ describe('TACo Signing', () => {
       const coreUserOp = toCoreUserOperation(userOpToSign);
       checkUserOpEquality(userOpToSign, coreUserOp);
     });
-    it('should convert factory optional fields', () => {
+    it('should allow factory optional fields', () => {
       const updatedUserOp: UserOperationToSign = {
         ...userOpToSign,
         factory: '0x000000000000000000000000000000000000000A',
@@ -170,7 +190,7 @@ describe('TACo Signing', () => {
       const coreUserOp = toCoreUserOperation(updatedUserOp);
       checkUserOpEquality(updatedUserOp, coreUserOp);
     });
-    it('should convert factory data to default when not specified but factory is', () => {
+    it('should allow factory and no factory data', () => {
       const updatedUserOp: UserOperationToSign = {
         ...userOpToSign,
         factory: '0x000000000000000000000000000000000000000A',
@@ -178,7 +198,7 @@ describe('TACo Signing', () => {
       const coreUserOp = toCoreUserOperation(updatedUserOp);
       checkUserOpEquality(updatedUserOp, coreUserOp);
     });
-    it('should convert paymaster optional fields', () => {
+    it('should allow paymaster optional fields with paymasterData', () => {
       const updatedUserOp: UserOperationToSign = {
         ...userOpToSign,
         paymaster: '0x000000000000000000000000000000000000000C',
@@ -189,13 +209,34 @@ describe('TACo Signing', () => {
       const coreUserOp = toCoreUserOperation(updatedUserOp);
       checkUserOpEquality(updatedUserOp, coreUserOp);
     });
-    it('should convert paymaster optional fields to defaults when not specified but paymaster is', () => {
+    it('should allow paymaster optional fields with no paymasterData', () => {
       const updatedUserOp: UserOperationToSign = {
         ...userOpToSign,
         paymaster: '0x000000000000000000000000000000000000000C',
+        paymasterVerificationGasLimit: BigInt(50000),
+        paymasterPostOpGasLimit: BigInt(30000),
       };
       const coreUserOp = toCoreUserOperation(updatedUserOp);
       checkUserOpEquality(updatedUserOp, coreUserOp);
+    });
+    it('should raise when paymaster specified but other required fields are not present', () => {
+      let updatedUserOp: UserOperationToSign = {
+        ...userOpToSign,
+        paymaster: '0x000000000000000000000000000000000000000C',
+        // missing required paymasterVerificationGasLimit and paymasterPostOpGasLimit
+      };
+      expect(() => toCoreUserOperation(updatedUserOp)).toThrow(
+        'paymasterVerificationGasLimit is required when paymaster is set',
+      );
+
+      updatedUserOp = {
+        ...updatedUserOp,
+        paymasterVerificationGasLimit: BigInt(50000),
+        // missing required paymasterPostOpGasLimit
+      };
+      expect(() => toCoreUserOperation(updatedUserOp)).toThrow(
+        'paymasterPostOpGasLimit is required when paymaster is set',
+      );
     });
     it('should handle alternative types: number and byte fields', () => {
       const updatedUserOp: UserOperationToSign = {

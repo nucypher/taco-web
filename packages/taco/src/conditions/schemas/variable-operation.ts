@@ -26,6 +26,14 @@ export const OPERATOR_FUNCTIONS = [
   'float',
   'int',
   'str',
+  // JSON conversion
+  'fromJson',
+  'toJson',
+  // hex conversion
+  'fromHex',
+  'toHex',
+  // hashing
+  'keccak',
 ] as const;
 
 export const UNARY_OPERATOR_FUNCTIONS = [
@@ -44,6 +52,14 @@ export const UNARY_OPERATOR_FUNCTIONS = [
   'float',
   'int',
   'str',
+  // JSON conversion
+  'fromJson',
+  'toJson',
+  // hex conversion
+  'fromHex',
+  'toHex',
+  // hashing
+  'keccak',
 ];
 
 export const variableOperationSchema = z

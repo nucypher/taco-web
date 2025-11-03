@@ -88,6 +88,7 @@ import {
   CompoundConditionType,
 } from '../src/conditions/compound-condition';
 import { ConditionExpression } from '../src/conditions/condition-expr';
+import { AddressAllowlistConditionProps } from '../src/conditions/predefined/address-allowlist';
 import { ERC721Balance } from '../src/conditions/predefined/erc721';
 import {
   JsonRpcConditionProps,
@@ -279,6 +280,13 @@ export const testTimeConditionObj: TimeConditionProps = {
   method: TimeConditionMethod,
   chain: TEST_CHAIN_ID,
 };
+
+export const testAddressAllowlistConditionObj: AddressAllowlistConditionProps =
+  [
+    '0x1e988ba4692e52Bc50b375bcC8585b95c48AaD77',
+    '0x0000000000000000000000000000000000000001',
+    '0x0000000000000000000000000000000000000002',
+  ];
 
 export const testJsonConditionObj: JsonConditionProps = {
   conditionType: JsonConditionType,

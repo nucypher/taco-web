@@ -24,3 +24,5 @@ export * from './sequential';
 export * from './signing';
 export * from './time';
 export * from './variable-operation';
+// ts-unused-exports:disable-next-line - this comment line is added to prevent lint from changing or objecting the export order.
+export * from './address-allowlist';

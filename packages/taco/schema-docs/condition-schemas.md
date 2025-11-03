@@ -395,6 +395,12 @@ Optional operations to perform on the obtained result
 
 _Array of at least 1  and  at most 5 [VariableOperation](#variableoperation) items._ (_optional_)
 
+## AddressAllowlistCondition
+
+List of allowed wallet addresses. Addresses should be provided in checksummed form.
+
+_Array of at least 1  and  at most 25 `string` items._
+
 ## More resources
 
 For more information, please refer to the TACo documentation:

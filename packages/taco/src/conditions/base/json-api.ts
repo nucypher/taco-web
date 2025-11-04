@@ -1,16 +1,16 @@
-import { Condition } from '../condition';
+import { Condition } from '../condition.js';
 import {
   JsonApiConditionProps,
   jsonApiConditionSchema,
   JsonApiConditionType,
-} from '../schemas/json-api';
-import { OmitConditionType } from '../shared';
+} from '../schemas/json-api.js';
+import { OmitConditionType } from '../shared.js';
 
 export {
   JsonApiConditionProps,
   jsonApiConditionSchema,
   JsonApiConditionType,
-} from '../schemas/json-api';
+} from '../schemas/json-api.js';
 
 export class JsonApiCondition extends Condition {
   constructor(value: OmitConditionType<JsonApiConditionProps>) {

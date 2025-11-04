@@ -1,7 +1,7 @@
-import { CompoundConditionType } from './compound-condition';
-import { ConditionProps } from './condition';
-import { IfThenElseConditionType } from './if-then-else-condition';
-import { ConditionVariableProps, SequentialConditionType } from './sequential';
+import { CompoundConditionType } from './compound-condition.js';
+import { ConditionProps } from './condition.js';
+import { IfThenElseConditionType } from './if-then-else-condition.js';
+import { ConditionVariableProps, SequentialConditionType } from './sequential.js';
 
 export const maxNestedDepth =
   (maxDepth: number) =>

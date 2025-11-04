@@ -25,7 +25,7 @@ import type {
   TypedEvent,
   TypedEventFilter,
   TypedListener,
-} from './common';
+} from './common.js';
 
 export declare namespace SubscriptionManager {
   export type PolicyStruct = {

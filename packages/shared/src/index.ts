@@ -1,9 +1,13 @@
-export * from './contracts';
-export * from './porter';
-export * from './schemas';
-export type * from './types';
-export * from './utils';
-export * from './web3';
+export * from './adapters.js';
+export * from './contracts/index.js';
+export * from './domain.js';
+export * from './porter.js';
+export * from './schemas.js';
+export * from './taco-signer.js';
+export type * from './types.js';
+export * from './utils.js';
+export * from './viem/index.js';
+export * from './web3.js';
 
 // Re-exports
 export {

@@ -15,6 +15,7 @@
   "author": "NuCypher <dev@nucypher.com>",
   "exports": {
     ".": {
+      "types": "./dist/cjs/index.d.ts",
       "import": "./dist/es/index.js",
       "require": "./dist/cjs/index.js"
     }
@@ -26,11 +27,14 @@
     "dist"
   ],
   "scripts": {
-    "prebuild": "pnpm clean",
-    "build": "pnpm build:module && pnpm build:cjs",
+    "prebuild": "pnpm clean && pnpm ensure-es-compatible-imports",
+    "build": "pnpm build:es && pnpm build:cjs",
+    "postbuild": "pnpm ensure-es-package-type",
     "build:cjs": "tsc --build ./tsconfig.cjs.json --verbose",
-    "build:module": "tsc --build ./tsconfig.es.json --verbose",
+    "build:es": "tsc --build ./tsconfig.es.json --verbose",
     "clean": "rm -rf dist",
+    "ensure-es-compatible-imports": "pnpm tsx ../../scripts/ensure-es-compatible-imports.ts",
+    "ensure-es-package-type": "pnpm tsx ../../scripts/ensure-es-package-type.ts",
     "exports:lint": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
     "lint": "eslint --ext .ts src test",
     "lint:fix": "pnpm lint --fix",

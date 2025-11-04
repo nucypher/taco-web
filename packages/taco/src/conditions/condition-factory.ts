@@ -2,40 +2,40 @@ import {
   ContractCondition,
   ContractConditionProps,
   ContractConditionType,
-} from './base/contract';
+} from './base/contract.js';
 import {
   JsonApiCondition,
   JsonApiConditionProps,
   JsonApiConditionType,
-} from './base/json-api';
+} from './base/json-api.js';
 import {
   JsonRpcCondition,
   JsonRpcConditionProps,
   JsonRpcConditionType,
-} from './base/json-rpc';
-import { JWTCondition, JWTConditionProps, JWTConditionType } from './base/jwt';
-import { RpcCondition, RpcConditionProps, RpcConditionType } from './base/rpc';
+} from './base/json-rpc.js';
+import { JWTCondition, JWTConditionProps, JWTConditionType } from './base/jwt.js';
+import { RpcCondition, RpcConditionProps, RpcConditionType } from './base/rpc.js';
 import {
   TimeCondition,
   TimeConditionProps,
   TimeConditionType,
-} from './base/time';
+} from './base/time.js';
 import {
   CompoundCondition,
   CompoundConditionProps,
   CompoundConditionType,
-} from './compound-condition';
-import { Condition, ConditionProps } from './condition';
+} from './compound-condition.js';
+import { Condition, ConditionProps } from './condition.js';
 import {
   IfThenElseCondition,
   IfThenElseConditionProps,
   IfThenElseConditionType,
-} from './if-then-else-condition';
+} from './if-then-else-condition.js';
 import {
   SequentialCondition,
   SequentialConditionProps,
   SequentialConditionType,
-} from './sequential';
+} from './sequential.js';
 
 const ERR_INVALID_CONDITION_TYPE = (type: string) =>
   `Invalid condition type: ${type}`;

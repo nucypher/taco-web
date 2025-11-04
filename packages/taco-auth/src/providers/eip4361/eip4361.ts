@@ -1,14 +1,23 @@
+import {
+  ProviderLike,
+  PublicClient,
+  SignerAccount,
+  SignerLike,
+  TacoSigner,
+  toEthersProvider,
+  toTacoSigner,
+} from '@nucypher/shared';
 import { ethers } from 'ethers';
 import { SiweMessage } from 'siwe';
 
-import { AuthProvider } from '../../auth-provider';
-import { LocalStorage } from '../../storage';
+import { AuthProvider } from '../../auth-provider.js';
+import { LocalStorage } from '../../storage.js';
 
 import {
   EIP4361_AUTH_METHOD,
   EIP4361AuthSignature,
   eip4361AuthSignatureSchema,
-} from './auth';
+} from './auth.js';
 
 export type EIP4361AuthProviderParams = {
   domain: string;
@@ -31,14 +40,32 @@ const TACO_DEFAULT_URI = 'https://taco.build';
  *
  * Messages are valid for 2 hours from creation and stored locally keyed by the signer's address.
  *
+ * Supports both ethers.js and viem.
+ *
  * @implements {AuthProvider}
+ *
+ * @example Ethers.js usage
+ * ```typescript
+ * const provider = new ethers.providers.JsonRpcProvider();
+ * const signer = new ethers.Wallet(privateKey, provider);
+ * const authProvider = new EIP4361AuthProvider(provider, signer);
+ * ```
+ *
+ * @example Viem usage
+ * ```typescript
+ * const publicClient = createPublicClient({ chain: polygon, transport: http() });
+ * const account = privateKeyToAccount('0x...');
+ * const authProvider = new EIP4361AuthProvider(publicClient, account);
+ * ```
  */
 export class EIP4361AuthProvider implements AuthProvider {
   private readonly storage: LocalStorage<EIP4361AuthSignature>;
   private readonly providerParams: EIP4361AuthProviderParams;
+  private readonly provider: ethers.providers.Provider;
+  private readonly signer: TacoSigner;
 
   /**
-   * Creates a new EIP4361AuthProvider instance.
+   * Creates a new EIP4361AuthProvider instance with ethers.js objects.
    *
    * @param provider - Ethers provider used to fetch the current chainId
    * @param signer - Ethers signer used to sign SIWE messages
@@ -56,11 +83,43 @@ export class EIP4361AuthProvider implements AuthProvider {
    * - Nonce: Auto-generated
    */
   constructor(
-    private readonly provider: ethers.providers.Provider,
-    private readonly signer: ethers.Signer,
+    provider: ethers.providers.Provider,
+    signer: ethers.Signer,
+    providerParams?: EIP4361AuthProviderParams,
+  );
+
+  /**
+   * Creates a new EIP4361AuthProvider instance with viem objects.
+   *
+   * @param publicClient - Viem public client used to fetch the current chainId
+   * @param account - Viem account used to sign SIWE messages
+   * @param providerParams - Optional SIWE message configuration
+   * @param providerParams.domain - Domain name for the signing request (e.g. 'app.example.com').
+   *                               Defaults to current website domain or 'taco.build'
+   * @param providerParams.uri - Full URI of signing request origin (e.g. 'https://app.example.com').
+   *                            Defaults to current website URL or 'https://taco.build'
+   *
+   * The SIWE message will include:
+   * - A human-readable statement: "{domain} wants you to sign in with your Ethereum account: {address}"
+   * - Version: "1"
+   * - 2 hour expiration from creation time
+   * - Chain ID from the provided provider
+   * - Nonce: Auto-generated
+   */
+  constructor(
+    publicClient: PublicClient,
+    account: SignerAccount,
+    providerParams?: EIP4361AuthProviderParams,
+  );
+
+  constructor(
+    providerLike: ProviderLike,
+    signerLike: SignerLike,
     providerParams?: EIP4361AuthProviderParams,
   ) {
     this.storage = new LocalStorage(eip4361AuthSignatureSchema);
+    this.provider = toEthersProvider(providerLike);
+    this.signer = toTacoSigner(signerLike);
     if (providerParams) {
       this.providerParams = providerParams;
     } else {

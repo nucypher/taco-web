@@ -9,6 +9,13 @@ export {
   toHexString,
 } from '@nucypher/shared';
 
-export * as conditions from './conditions';
+export * as conditions from './conditions/index.js';
 
-export { decrypt, encrypt, encryptWithPublicKey } from './taco';
+export { decrypt, encrypt, encryptWithPublicKey } from './taco.js';
+
+export {
+  AccessClient,
+  type AccessClientConfig,
+  type AccessClientEthersConfig,
+  type AccessClientViemConfig,
+} from './access-client/index.js';

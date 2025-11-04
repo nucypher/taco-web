@@ -1,17 +1,17 @@
-import { Condition } from '../condition';
+import { Condition } from '../condition.js';
 import {
   TimeConditionProps,
   timeConditionSchema,
   TimeConditionType,
-} from '../schemas/time';
-import { OmitConditionType } from '../shared';
+} from '../schemas/time.js';
+import { OmitConditionType } from '../shared.js';
 
 export {
   TimeConditionMethod,
   TimeConditionProps,
   timeConditionSchema,
   TimeConditionType,
-} from '../schemas/time';
+} from '../schemas/time.js';
 
 export class TimeCondition extends Condition {
   constructor(value: OmitConditionType<TimeConditionProps>) {

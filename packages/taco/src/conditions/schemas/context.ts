@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-import { CONTEXT_PARAM_FULL_MATCH_REGEXP } from '../const';
+import { CONTEXT_PARAM_FULL_MATCH_REGEXP } from '../const.js';
 
-import { plainStringSchema } from './common';
+import { plainStringSchema } from './common.js';
 
 const UINT256_MAX = BigInt(
   '115792089237316195423570985008687907853269984665640564039457584007913129639935',

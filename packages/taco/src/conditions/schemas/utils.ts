@@ -1,15 +1,15 @@
 import { z } from 'zod';
 
-import { compoundConditionSchema } from '../compound-condition';
+import { compoundConditionSchema } from '../compound-condition.js';
 
-import { contractConditionSchema } from './contract';
-import { ifThenElseConditionSchema } from './if-then-else';
-import { jsonApiConditionSchema } from './json-api';
-import { jsonRpcConditionSchema } from './json-rpc';
-import { jwtConditionSchema } from './jwt';
-import { rpcConditionSchema } from './rpc';
-import { sequentialConditionSchema } from './sequential';
-import { timeConditionSchema } from './time';
+import { contractConditionSchema } from './contract.js';
+import { ifThenElseConditionSchema } from './if-then-else.js';
+import { jsonApiConditionSchema } from './json-api.js';
+import { jsonRpcConditionSchema } from './json-rpc.js';
+import { jwtConditionSchema } from './jwt.js';
+import { rpcConditionSchema } from './rpc.js';
+import { sequentialConditionSchema } from './sequential.js';
+import { timeConditionSchema } from './time.js';
 
 export const anyConditionSchema: z.ZodSchema = z.lazy(() =>
   z.union([

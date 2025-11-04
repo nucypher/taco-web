@@ -14,6 +14,7 @@
   "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
   "exports": {
     ".": {
+      "types": "./dist/cjs/index.d.ts",
       "import": "./dist/es/index.js",
       "require": "./dist/cjs/index.js"
     }
@@ -26,9 +27,9 @@
   ],
   "scripts": {
     "prebuild": "pnpm clean",
-    "build": "pnpm build:module && pnpm build:cjs",
+    "build": "pnpm build:es && pnpm build:cjs",
     "build:cjs": "tsc --build ./tsconfig.cjs.json --verbose",
-    "build:module": "tsc --build ./tsconfig.es.json --verbose",
+    "build:es": "tsc --build ./tsconfig.es.json --verbose",
     "clean": "rm -rf dist",
     "exports:lint": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",
     "lint": "eslint --ext .ts src test",

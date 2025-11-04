@@ -45,6 +45,9 @@ import {
   SingleSignOnEIP4361AuthProvider,
 } from '@nucypher/taco-auth';
 import { ethers, providers, Wallet } from 'ethers';
+import { createPublicClient, custom, PublicClient } from 'viem';
+import { LocalAccount, privateKeyToAccount } from 'viem/accounts';
+import { polygonAmoy } from 'viem/chains';
 import { expect, MockInstance, vi } from 'vitest';
 
 import { TEST_CONTRACT_ADDR, TEST_SIWE_PARAMS } from './variables';
@@ -73,7 +76,7 @@ const makeFakeProvider = (
     getBlockNumber: () => Promise.resolve(blockNumber),
     getBlock: () => Promise.resolve(block),
     _isProvider: true,
-    getNetwork: () => Promise.resolve({ name: 'mockNetwork', chainId: 1234 }),
+    getNetwork: () => Promise.resolve({ name: 'mockNetwork', chainId: 80_002 }),
   };
 };
 
@@ -97,6 +100,32 @@ export const fakeProvider = (
     ...provider,
     getSigner: () => fakeSigner,
   } as unknown as ethers.providers.Web3Provider;
+};
+
+// Viem test utilities
+export const fakeViemPublicClient = (): PublicClient => {
+  // Create public client for reading data
+  const publicClient = createPublicClient({
+    transport: custom({
+      request: vi.fn().mockImplementation(async ({ method }) => {
+        // Network detection calls
+        if (method === 'eth_chainId') {
+          return `0x${polygonAmoy.id.toString(16)}`;
+        }
+        // Default response for other calls
+        return null;
+      }),
+    }),
+  });
+  return publicClient;
+};
+
+export const fakeViemAccount = (
+  secretKeyBytes = ethers.utils.randomBytes(32),
+): LocalAccount => {
+  // Convert bytes to hex string for viem
+  const privateKey = `0x${Buffer.from(secretKeyBytes).toString('hex')}`;
+  return privateKeyToAccount(privateKey as `0x${string}`);
 };
 
 export const fakeAuthProviders = async (

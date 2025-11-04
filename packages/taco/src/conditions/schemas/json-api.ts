@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-import { baseConditionSchema, httpsURLSchema, jsonPathSchema } from './common';
-import { contextParamSchema } from './context';
-import { returnValueTestSchema } from './return-value-test';
+import { baseConditionSchema, httpsURLSchema, jsonPathSchema } from './common.js';
+import { contextParamSchema } from './context.js';
+import { returnValueTestSchema } from './return-value-test.js';
 
 export const JsonApiConditionType = 'json-api';
 

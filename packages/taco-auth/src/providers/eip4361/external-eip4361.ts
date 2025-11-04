@@ -1,9 +1,9 @@
 import { SiweMessage } from 'siwe';
 
-import { AuthProvider } from '../../auth-provider';
+import { AuthProvider } from '../../auth-provider.js';
 
-import { EIP4361_AUTH_METHOD, EIP4361AuthSignature } from './auth';
-import { FRESHNESS_IN_MILLISECONDS } from './eip4361';
+import { EIP4361_AUTH_METHOD, EIP4361AuthSignature } from './auth.js';
+import { FRESHNESS_IN_MILLISECONDS } from './eip4361.js';
 
 async function generateAndVerifySiweMessage(
   message: string,

@@ -27,7 +27,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
 
       // Currently ethersProvider.network.ensAddress on mainnet is "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e".
       expect(ethersProvider.network.ensAddress).toBeTruthy();
-    }, 60000);
+    }, 15000);
 
     test('ENS operations should fail when viem chain lacks ENS registry address', async () => {
       const chainWithEns = {
@@ -59,7 +59,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       const resolvedAddress = await ethersProvider.resolveName('vitalik.eth');
       expect(resolvedAddress).toBeTruthy();
       expect(ethers.utils.isAddress(resolvedAddress)).toBe(true); // Valid Ethereum address format
-    }, 60000);
+    }, 15000);
 
     test('expected to fail when viem chain does not contain the ENS registry contract address', async () => {
       // mainnet from viem/chains does NOT include ensRegistry, only ensUniversalResolver

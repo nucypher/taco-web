@@ -46,18 +46,12 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       const userOp: UserOperationToSign = {
         sender: DUMMY_ADDRESS,
         nonce: 0,
-        factory: '0x',
-        factoryData: '0x',
         callData: '0x',
         callGasLimit: 0,
         verificationGasLimit: 0,
         preVerificationGas: 0,
         maxFeePerGas: 0,
         maxPriorityFeePerGas: 0,
-        paymaster: '0x',
-        paymasterVerificationGasLimit: 0,
-        paymasterPostOpGasLimit: 0,
-        paymasterData: '0x',
         signature: '0x',
       };
 

@@ -1,3 +1,4 @@
+import { SessionStaticKey } from '@nucypher/nucypher-core';
 import {
   convertUserOperationToPython,
   PorterClient,
@@ -24,9 +25,20 @@ describe('TACo Signing', () => {
     vi.spyOn(PorterClient.prototype, 'signUserOp').mockImplementation(
       porterSignUserOpMock,
     );
+    const mockKey = SessionStaticKey.fromBytes(new Uint8Array(32).fill(0));
     vi.spyOn(SigningCoordinatorAgent, 'getParticipants').mockResolvedValue([
-      { operator: '0xsnr1', provider: '0xnode1', signature: '0xa' },
-      { operator: '0xsnr2', provider: '0xnode2', signature: '0xb' },
+      {
+        operator: '0xsnr1',
+        provider: '0xnode1',
+        signature: '0xa',
+        signingRequestStaticKey: mockKey,
+      },
+      {
+        operator: '0xsnr2',
+        provider: '0xnode2',
+        signature: '0xb',
+        signingRequestStaticKey: mockKey,
+      },
     ]);
     vi.spyOn(SigningCoordinatorAgent, 'getThreshold').mockResolvedValue(2);
   });
@@ -214,10 +226,26 @@ describe('TACo Signing', () => {
 
     it('should handle insufficient matched hashes in Porter response', async () => {
       // set up 3 signers - it matters based on how mismatched hashes are handled
+      const mockKey = SessionStaticKey.fromBytes(new Uint8Array(32).fill(0));
       vi.spyOn(SigningCoordinatorAgent, 'getParticipants').mockResolvedValue([
-        { operator: '0xsnr1', provider: '0xnode1', signature: '0xa' },
-        { operator: '0xsnr2', provider: '0xnode2', signature: '0xb' },
-        { operator: '0xsnr3', provider: '0xnode3', signature: '0xc' },
+        {
+          operator: '0xsnr1',
+          provider: '0xnode1',
+          signature: '0xa',
+          signingRequestStaticKey: mockKey,
+        },
+        {
+          operator: '0xsnr2',
+          provider: '0xnode2',
+          signature: '0xb',
+          signingRequestStaticKey: mockKey,
+        },
+        {
+          operator: '0xsnr3',
+          provider: '0xnode3',
+          signature: '0xc',
+          signingRequestStaticKey: mockKey,
+        },
       ]);
 
       const signingResults = {

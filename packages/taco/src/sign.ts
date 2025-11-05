@@ -1,4 +1,12 @@
 import {
+  EncryptedThresholdSigningRequest,
+  EncryptedThresholdSigningResponse,
+  SessionSharedSecret,
+  SessionStaticSecret,
+  ThresholdSigningRequest,
+  ThresholdSigningResponse,
+} from '@nucypher/nucypher-core';
+import {
   convertUserOperationToPython,
   Domain,
   fromHexString,
@@ -6,14 +14,12 @@ import {
   PorterClient,
   SigningCoordinatorAgent,
   TacoSignature,
-  TacoSignResult,
-  toBase64,
   toHexString,
   UserOperation,
-  UserOperationSignatureRequest,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
+import { CompoundCondition } from './conditions/compound-condition';
 import { Condition } from './conditions/condition';
 import { ConditionExpression } from './conditions/condition-expr';
 import { ConditionContext } from './conditions/context';
@@ -28,12 +34,121 @@ const ERR_MISMATCHED_HASHES = (
   `Threshold of signatures not met; multiple mismatched hashes found: ${JSON.stringify(
     Object.fromEntries(hashToSignatures.entries()),
   )}`;
+const ERR_COHORT_ID_MISMATCH = (
+  expectedCohortId: number,
+  cohortIds: number[],
+) => `Cohort id mismatch. Expected ${expectedCohortId}, got ${cohortIds}`;
 
 export type SignResult = {
   messageHash: string;
   aggregatedSignature: string;
   signingResults: { [ursulaAddress: string]: TacoSignature };
 };
+
+/**
+ * Creates encrypted signing requests for each signer in the cohort.
+ * Mirrors the pattern from makeDecryptionRequests in tdec.ts
+ *
+ * @param cohortId - The signing cohort ID
+ * @param chainId - The blockchain chain ID
+ * @param conditionContext - The condition context for evaluation
+ * @param signers - Array of signers with their static keys
+ * @param userOp - The user operation to sign
+ * @param aaVersion - The account abstraction version
+ * @returns Shared secrets and encrypted requests for each signer
+ */
+const makeSigningRequests = async (
+  cohortId: number,
+  chainId: number,
+  conditionContext: ConditionContext,
+  signers: Awaited<ReturnType<typeof SigningCoordinatorAgent.getParticipants>>,
+  userOp: UserOperation,
+  aaVersion: string,
+): Promise<{
+  sharedSecrets: Record<string, SessionSharedSecret>;
+  encryptedRequests: Record<string, EncryptedThresholdSigningRequest>;
+}> => {
+  const coreContext = await conditionContext.toCoreContext();
+  const pythonUserOp = convertUserOperationToPython(userOp);
+
+  const signingRequest = new ThresholdSigningRequest(
+    cohortId,
+    chainId,
+    pythonUserOp,
+    aaVersion,
+    coreContext,
+    'userop',
+  );
+
+  // Generate ephemeral session key for this request
+  const ephemeralSessionKey = makeSessionKey();
+
+  // Compute shared secrets for each signer using ECDH
+  const sharedSecrets: Record<string, SessionSharedSecret> = Object.fromEntries(
+    signers.map(({ provider, signingRequestStaticKey }) => {
+      const sharedSecret = ephemeralSessionKey.deriveSharedSecret(
+        signingRequestStaticKey,
+      );
+      return [provider, sharedSecret];
+    }),
+  );
+
+  // Create encrypted requests for each signer
+  const encryptedRequests: Record<string, EncryptedThresholdSigningRequest> =
+    Object.fromEntries(
+      Object.entries(sharedSecrets).map(([provider, sessionSharedSecret]) => {
+        const encryptedRequest = signingRequest.encrypt(
+          sessionSharedSecret,
+          ephemeralSessionKey.publicKey(),
+        );
+        return [provider, encryptedRequest];
+      }),
+    );
+
+  return { sharedSecrets, encryptedRequests };
+};
+
+/**
+ * Decrypts signing responses from signers.
+ * Mirrors the pattern from makeDecryptionShares in tdec.ts
+ *
+ * @param encryptedResponses - Encrypted responses from signers
+ * @param sessionSharedSecrets - Shared secrets for decryption
+ * @param expectedCohortId - Expected cohort ID for validation
+ * @returns Decrypted signatures by provider address
+ */
+const decryptSigningResponses = (
+  encryptedResponses: Record<string, EncryptedThresholdSigningResponse>,
+  sessionSharedSecrets: Record<string, SessionSharedSecret>,
+  expectedCohortId: number,
+): Record<string, TacoSignature> => {
+  const decryptedResponses: Array<[string, ThresholdSigningResponse]> =
+    Object.entries(encryptedResponses).map(([provider, response]) => {
+      const decrypted = response.decrypt(sessionSharedSecrets[provider]);
+      return [provider, decrypted];
+    });
+
+  // Validate cohort IDs match
+  const cohortIds = decryptedResponses.map(([_, resp]) => resp.cohortId);
+  if (cohortIds.some((cohortId) => cohortId !== expectedCohortId)) {
+    throw new Error(ERR_COHORT_ID_MISMATCH(expectedCohortId, cohortIds));
+  }
+
+  // Convert to TacoSignature format
+  return Object.fromEntries(
+    decryptedResponses.map(([provider, resp]) => [
+      provider,
+      {
+        messageHash: resp.messageHash,
+        signature: resp.signature,
+        signerAddress: resp.signerAddress,
+      },
+    ]),
+  );
+};
+
+// Moving to a separate function to make it easier to mock
+const makeSessionKey = () => SessionStaticSecret.random();
 
 function aggregateSignatures(
   signaturesByAddress: {
@@ -54,7 +169,11 @@ function aggregateSignatures(
 }
 
 /**
- * Signs a UserOperation.
+ * Signs a UserOperation using encrypted signing requests.
+ *
+ * This function implements end-to-end encryption for signing requests,
+ * mirroring the pattern used for decryption requests in tdec.ts.
+ *
  * @param provider - The Ethereum provider to use for signing.
  * @param domain - The TACo domain being used.
  * @param cohortId - The cohort ID that identifies the signing cohort.
@@ -93,29 +212,41 @@ export async function signUserOp(
     cohortId,
   );
 
-  const pythonUserOp = convertUserOperationToPython(userOp);
+  // Create condition context if not provided
+  const conditionContext =
+    context || new ConditionContext(new CompoundCondition({}));
 
-  const signingRequest = new UserOperationSignatureRequest(
-    pythonUserOp,
-    aaVersion,
+  // Encrypt signing requests
+  const { sharedSecrets, encryptedRequests } = await makeSigningRequests(
     cohortId,
     chainId,
-    context || {},
-    'userop',
+    conditionContext,
+    signers,
+    userOp,
+    aaVersion,
   );
 
-  const signingRequests: Record<string, string> = Object.fromEntries(
-    signers.map((signer) => [
-      signer.provider,
-      toBase64(signingRequest.toBytes()),
-    ]),
-  );
-
-  // Build signing request for the user operation
-  const porterSignResult: TacoSignResult = await porter.signUserOp(
-    signingRequests,
+  // Send encrypted requests to Porter
+  const { encryptedResponses, errors } = await porter.signUserOp(
+    encryptedRequests,
     threshold,
   );
+
+  if (Object.keys(encryptedResponses).length < threshold) {
+    throw new Error(ERR_INSUFFICIENT_SIGNATURES(errors));
+  }
+
+  // Decrypt responses
+  const decryptedSignatures = decryptSigningResponses(
+    encryptedResponses,
+    sharedSecrets,
+    cohortId,
+  );
+
+  const porterSignResult = {
+    signingResults: decryptedSignatures,
+    errors,
+  };
 
   const hashToSignatures: Map<
     string,
@@ -123,7 +254,7 @@ export async function signUserOp(
   > = new Map();
 
   // Single pass: decode signatures and populate signingResults
-  for (const [ursulaAddress, signature] of Object.entries(
+  for (const [ursulaAddress, signature] of Object.entries<TacoSignature>(
     porterSignResult.signingResults,
   )) {
     // For non-optimistic: track hashes and group signatures for aggregation

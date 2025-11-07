@@ -1,8 +1,10 @@
 import {
+  EncryptedThresholdSignatureRequest,
   PackedUserOperation,
-  PackedUserOperationSignatureRequest,
+  SessionStaticKey,
+  SessionStaticSecret,
+  SignatureResponse,
   UserOperation,
-  UserOperationSignatureRequest,
 } from '@nucypher/nucypher-core';
 import {
   fromHexString,
@@ -10,6 +12,7 @@ import {
   isPackedUserOperation,
   PackedUserOperationToSign,
   PorterClient,
+  SignerInfo,
   SigningCoordinatorAgent,
   toCorePackedUserOperation,
   toCoreUserOperation,
@@ -24,6 +27,8 @@ import { RpcCondition } from '../src/conditions/base/rpc';
 import { CompoundCondition } from '../src/conditions/compound-condition';
 import { ConditionExpression } from '../src/conditions/condition-expr';
 import { setSigningCohortConditions, signUserOp } from '../src/sign';
+
+import { mockMakeSessionKey } from './test-utils';
 
 function getNumberValue(value: bigint | number): bigint {
   return typeof value === 'bigint' ? value : BigInt(value);
@@ -151,6 +156,10 @@ describe('TACo Signing', () => {
     await initialize();
   });
 
+  let signersInfo: Record<string, SignerInfo>;
+  let requesterSk: SessionStaticSecret;
+  let signerStaticKeys: Record<string, SessionStaticKey>;
+
   beforeEach(() => {
     porterSignUserOpMock = vi.fn();
     mockProvider = {} as ethers.providers.Provider;
@@ -158,10 +167,30 @@ describe('TACo Signing', () => {
     vi.spyOn(PorterClient.prototype, 'signUserOp').mockImplementation(
       porterSignUserOpMock,
     );
-    vi.spyOn(SigningCoordinatorAgent, 'getParticipants').mockResolvedValue([
-      { operator: '0xsnr1', provider: '0xnode1', signature: '0xa' },
-      { operator: '0xsnr2', provider: '0xnode2', signature: '0xb' },
-    ]);
+    signerStaticKeys = {
+      '0xnode1': SessionStaticSecret.random().publicKey(),
+      '0xnode2': SessionStaticSecret.random().publicKey(),
+    };
+
+    requesterSk = SessionStaticSecret.random();
+    mockMakeSessionKey(requesterSk);
+
+    signersInfo = {
+      '0xnode1': {
+        signerAddress: '0x0000000000000000000000000000000000000001',
+        provider: '0xnode1',
+        signingRequestStaticKey: signerStaticKeys['0xnode1'],
+      },
+      '0xnode2': {
+        signerAddress: '0x0000000000000000000000000000000000000002',
+        provider: '0xnode2',
+        signingRequestStaticKey: signerStaticKeys['0xnode2'],
+      },
+    };
+
+    vi.spyOn(SigningCoordinatorAgent, 'getParticipants').mockResolvedValue(
+      Object.values(signersInfo),
+    );
     vi.spyOn(SigningCoordinatorAgent, 'getThreshold').mockResolvedValue(2);
   });
 
@@ -335,22 +364,32 @@ describe('TACo Signing', () => {
         validAAVersion: string,
         userOp: UserOperationToSign | PackedUserOperationToSign,
       ) => {
-        const signingResults = {
-          '0xnode1': {
-            messageHash: '0xhash1',
-            signature: '0xdead',
-            signerAddress: '0xsnr1',
-          },
-          '0xnode2': {
-            messageHash: '0xhash1',
-            signature: '0xbeef',
-            signerAddress: '0xsnr2',
-          },
+        const encryptedResponses = {
+          '0xnode1': new SignatureResponse(
+            signersInfo['0xnode1'].signerAddress,
+            fromHexString('0xa1'),
+            fromHexString('0xdead'),
+            0,
+          ).encrypt(
+            requesterSk.deriveSharedSecret(
+              signersInfo['0xnode1'].signingRequestStaticKey,
+            ),
+          ),
+          '0xnode2': new SignatureResponse(
+            signersInfo['0xnode2'].signerAddress,
+            fromHexString('0xa1'),
+            fromHexString('0xbeef'),
+            0,
+          ).encrypt(
+            requesterSk.deriveSharedSecret(
+              signersInfo['0xnode2'].signingRequestStaticKey,
+            ),
+          ),
         };
         const errors = {};
 
         porterSignUserOpMock.mockResolvedValue({
-          signingResults,
+          encryptedResponses,
           errors,
         });
 
@@ -365,58 +404,66 @@ describe('TACo Signing', () => {
           porterUris,
         );
 
-        if (isPackedUserOperation(userOp)) {
-          expect(porterSignUserOpMock).toHaveBeenCalledWith(
-            {
-              '0xnode1': expect.any(PackedUserOperationSignatureRequest),
-              '0xnode2': expect.any(PackedUserOperationSignatureRequest),
-            },
-            threshold,
-          );
-        } else {
-          expect(porterSignUserOpMock).toHaveBeenCalledWith(
-            {
-              '0xnode1': expect.any(UserOperationSignatureRequest),
-              '0xnode2': expect.any(UserOperationSignatureRequest),
-            },
-            threshold,
-          );
-        }
+        expect(porterSignUserOpMock).toHaveBeenCalledWith(
+          {
+            '0xnode1': expect.any(EncryptedThresholdSignatureRequest),
+            '0xnode2': expect.any(EncryptedThresholdSignatureRequest),
+          },
+          threshold,
+        );
 
         const call = porterSignUserOpMock.mock.calls.at(-1)!;
         const [op] = call;
 
-        const requests = [op['0xnode1'], op['0xnode2']];
-        requests.forEach((element) => {
+        const nodes = ['0xnode1', '0xnode2'];
+        nodes.forEach((node) => {
+          const element = op[node];
+          const decryptedRequest = element.decrypt(
+            requesterSk.deriveSharedSecret(
+              signersInfo[node].signingRequestStaticKey,
+            ),
+          );
+
           if (isPackedUserOperation(userOp)) {
-            checkPackedUserOpEquality(userOp, element.packedUserOp);
+            checkPackedUserOpEquality(userOp, decryptedRequest.packedUserOp);
           } else {
-            checkUserOpEquality(userOp, element.userOp);
+            checkUserOpEquality(userOp, decryptedRequest.userOp);
           }
-          expect(element.aaVersion).toEqual(validAAVersion);
-          expect(element.cohortId).toEqual(cohortId);
-          expect(element.chainId).toEqual(BigInt(chainId));
-          expect(element.context).toBeUndefined();
+          expect(decryptedRequest.aaVersion).toEqual(validAAVersion);
+          expect(decryptedRequest.cohortId).toEqual(cohortId);
+          expect(decryptedRequest.chainId).toEqual(BigInt(chainId));
+          expect(decryptedRequest.context).toBeUndefined();
         });
 
         expect(result).toEqual({
-          messageHash: '0xhash1',
+          messageHash: '0xa1',
           aggregatedSignature: '0xdeadbeef',
-          signingResults,
+          signingResults: {
+            '0xnode1': {
+              messageHash: '0xa1',
+              signature: '0xdead',
+              signerAddress: signersInfo['0xnode1'].signerAddress,
+            },
+            '0xnode2': {
+              messageHash: '0xa1',
+              signature: '0xbeef',
+              signerAddress: signersInfo['0xnode2'].signerAddress,
+            },
+          },
         });
       },
     );
 
     it('should handle only errors in Porter response', async () => {
       // Mock a response with errors from Porter
-      const signingResults = {};
+      const encryptedResponses = {};
       const errors = {
         '0xnode1': 'Failed to sign',
         '0xnode2': 'Failed to sign',
       };
 
       porterSignUserOpMock.mockResolvedValue({
-        signingResults,
+        encryptedResponses,
         errors,
       });
 
@@ -437,37 +484,49 @@ describe('TACo Signing', () => {
 
       expect(porterSignUserOpMock).toHaveBeenCalledWith(
         {
-          '0xnode1': expect.any(UserOperationSignatureRequest),
-          '0xnode2': expect.any(UserOperationSignatureRequest),
+          '0xnode1': expect.any(EncryptedThresholdSignatureRequest),
+          '0xnode2': expect.any(EncryptedThresholdSignatureRequest),
         },
         threshold,
       );
       const call = porterSignUserOpMock.mock.calls.at(-1)!;
       const [op] = call;
 
-      const requests = [op['0xnode1'], op['0xnode2']];
-      requests.forEach((element) => {
-        checkUserOpEquality(userOp, element.userOp);
-        expect(element.aaVersion).toEqual(aaVersion);
-        expect(element.cohortId).toEqual(cohortId);
-        expect(element.chainId).toEqual(BigInt(chainId));
-        expect(element.context).toBeUndefined();
+      const nodes = ['0xnode1', '0xnode2'];
+      nodes.forEach((node) => {
+        const element = op[node];
+        const decryptedRequest = element.decrypt(
+          requesterSk.deriveSharedSecret(
+            signersInfo[node].signingRequestStaticKey,
+          ),
+        );
+        checkUserOpEquality(userOp, decryptedRequest.userOp);
+        expect(decryptedRequest.aaVersion).toEqual(aaVersion);
+        expect(decryptedRequest.cohortId).toEqual(cohortId);
+        expect(decryptedRequest.chainId).toEqual(BigInt(chainId));
+        expect(decryptedRequest.context).toBeUndefined();
       });
     });
     it('should handle insufficient signatures in Porter response', async () => {
-      const signingResults = {
-        '0xnode1': {
-          messageHash: '0xhash1',
-          signature: '0xdead',
-          signerAddress: '0xsnr1',
-        },
+      const encryptedResponses = {
+        '0xnode1': new SignatureResponse(
+          signersInfo['0xnode1'].signerAddress,
+          fromHexString('0xa1'),
+          fromHexString('0xdead'),
+          0,
+        ).encrypt(
+          requesterSk.deriveSharedSecret(
+            signersInfo['0xnode1'].signingRequestStaticKey,
+          ),
+        ),
       };
+
       const errors = {
         '0xnode2': 'Failed to sign',
       };
 
       porterSignUserOpMock.mockResolvedValue({
-        signingResults,
+        encryptedResponses,
         errors,
       });
 
@@ -488,34 +547,49 @@ describe('TACo Signing', () => {
     });
 
     it('should handle insufficient matched hashes in Porter response', async () => {
-      // set up 3 signers - it matters based on how mismatched hashes are handled
+      // use 3 signers - it matters based on how mismatched hashes are handled
+      const node3SecretKey = SessionStaticSecret.random();
       vi.spyOn(SigningCoordinatorAgent, 'getParticipants').mockResolvedValue([
-        { operator: '0xsnr1', provider: '0xnode1', signature: '0xa' },
-        { operator: '0xsnr2', provider: '0xnode2', signature: '0xb' },
-        { operator: '0xsnr3', provider: '0xnode3', signature: '0xc' },
+        ...Object.values(signersInfo),
+        {
+          signerAddress: '0x0000000000000000000000000000000000000003',
+          provider: '0xnode3',
+          signingRequestStaticKey: node3SecretKey.publicKey(),
+        },
       ]);
 
-      const signingResults = {
-        '0xnode1': {
-          messageHash: '0xhash1',
-          signature: '0xdead',
-          signerAddress: '0xsnr1',
-        },
-        '0xnode2': {
-          messageHash: '0xhash2',
-          signature: '0xbeef',
-          signerAddress: '0xsnr2',
-        },
-        '0xnode3': {
-          messageHash: '0xhash3',
-          signature: '0xcafe',
-          signerAddress: '0xsnr3',
-        },
+      const encryptedResponses = {
+        '0xnode1': new SignatureResponse(
+          signersInfo['0xnode1'].signerAddress,
+          fromHexString('0xa1'),
+          fromHexString('0xdead'),
+          0,
+        ).encrypt(
+          requesterSk.deriveSharedSecret(
+            signersInfo['0xnode1'].signingRequestStaticKey,
+          ),
+        ),
+        '0xnode2': new SignatureResponse(
+          signersInfo['0xnode2'].signerAddress,
+          fromHexString('0xa2'),
+          fromHexString('0xbeef'),
+          0,
+        ).encrypt(
+          requesterSk.deriveSharedSecret(
+            signersInfo['0xnode2'].signingRequestStaticKey,
+          ),
+        ),
+        '0xnode3': new SignatureResponse(
+          '0x0000000000000000000000000000000000000003',
+          fromHexString('0xa3'),
+          fromHexString('0xcafe'),
+          0,
+        ).encrypt(requesterSk.deriveSharedSecret(node3SecretKey.publicKey())),
       };
       const errors = {};
 
       porterSignUserOpMock.mockResolvedValue({
-        signingResults,
+        encryptedResponses,
         errors,
       });
 
@@ -536,19 +610,24 @@ describe('TACo Signing', () => {
     it('properly handles threshold of 1 signature from Porter', async () => {
       vi.spyOn(SigningCoordinatorAgent, 'getThreshold').mockResolvedValue(1);
 
-      const signingResults = {
-        '0xnode1': {
-          messageHash: '0xhash1',
-          signature: '0xdead',
-          signerAddress: '0xsnr1',
-        },
+      const encryptedResponses = {
+        '0xnode1': new SignatureResponse(
+          signersInfo['0xnode1'].signerAddress,
+          fromHexString('0xa1'),
+          fromHexString('0xdead'),
+          0,
+        ).encrypt(
+          requesterSk.deriveSharedSecret(
+            signersInfo['0xnode1'].signingRequestStaticKey,
+          ),
+        ),
       };
       const errors = {
         '0xnode2': 'Failed to sign',
       };
 
       porterSignUserOpMock.mockResolvedValue({
-        signingResults,
+        encryptedResponses,
         errors,
       });
 
@@ -564,41 +643,75 @@ describe('TACo Signing', () => {
       );
 
       expect(result).toEqual({
-        messageHash: '0xhash1',
+        messageHash: '0xa1',
         aggregatedSignature: '0xdead',
-        signingResults,
+        signingResults: {
+          '0xnode1': {
+            messageHash: '0xa1',
+            signature: '0xdead',
+            signerAddress: signersInfo['0xnode1'].signerAddress,
+          },
+        },
       });
     });
 
     it('ignore errors/mismatched hashes if threshold of matching hashes and signatures from Porter', async () => {
-      const signingResults = {
-        '0xnode1': {
-          messageHash: '0xhash1',
-          signature: '0xdead',
-          signerAddress: '0xsnr1',
+      const node3SecretKey = SessionStaticSecret.random();
+      const node4SecretKey = SessionStaticSecret.random();
+      vi.spyOn(SigningCoordinatorAgent, 'getParticipants').mockResolvedValue([
+        ...Object.values(signersInfo),
+        {
+          signerAddress: '0x0000000000000000000000000000000000000003',
+          provider: '0xnode3',
+          signingRequestStaticKey: node3SecretKey.publicKey(),
         },
-        '0xnode2': {
-          messageHash: '0xhash2',
-          signature: '0xcafe',
-          signerAddress: '0xsnr2',
+        {
+          signerAddress: '0x000000000000000000000000000000000000004',
+          provider: '0xnode4',
+          signingRequestStaticKey: node4SecretKey.publicKey(),
         },
-        '0xnode3': {
-          messageHash: '0xhash3',
-          signature: '0xbabe',
-          signerAddress: '0xsnr3',
-        },
-        '0xnode4': {
-          messageHash: '0xhash1',
-          signature: '0xbeef',
-          signerAddress: '0xsnr4',
-        },
+      ]);
+
+      const encryptedResponses = {
+        '0xnode1': new SignatureResponse(
+          signersInfo['0xnode1'].signerAddress,
+          fromHexString('0xa1'), // matching hash
+          fromHexString('0xdead'),
+          0,
+        ).encrypt(
+          requesterSk.deriveSharedSecret(
+            signersInfo['0xnode1'].signingRequestStaticKey,
+          ),
+        ),
+        '0xnode2': new SignatureResponse(
+          signersInfo['0xnode2'].signerAddress,
+          fromHexString('0xa2'),
+          fromHexString('0xbeef'),
+          0,
+        ).encrypt(
+          requesterSk.deriveSharedSecret(
+            signersInfo['0xnode2'].signingRequestStaticKey,
+          ),
+        ),
+        '0xnode3': new SignatureResponse(
+          '0x0000000000000000000000000000000000000003',
+          fromHexString('0xa3'),
+          fromHexString('0xcafe'),
+          0,
+        ).encrypt(requesterSk.deriveSharedSecret(node3SecretKey.publicKey())),
+        '0xnode4': new SignatureResponse(
+          '0x0000000000000000000000000000000000000004',
+          fromHexString('0xa1'), // matching hash
+          fromHexString('0xcafe'),
+          0,
+        ).encrypt(requesterSk.deriveSharedSecret(node4SecretKey.publicKey())),
       };
       const errors = {
         '0x7890': 'Failed to sign',
       };
 
       porterSignUserOpMock.mockResolvedValue({
-        signingResults,
+        encryptedResponses,
         errors,
       });
 
@@ -614,9 +727,20 @@ describe('TACo Signing', () => {
       );
 
       expect(result).toEqual({
-        messageHash: '0xhash1',
-        aggregatedSignature: '0xdeadbeef',
-        signingResults,
+        messageHash: '0xa1',
+        aggregatedSignature: '0xdeadcafe', // from node1 and node4
+        signingResults: {
+          '0xnode1': {
+            messageHash: '0xa1',
+            signature: '0xdead',
+            signerAddress: signersInfo['0xnode1'].signerAddress,
+          },
+          '0xnode4': {
+            messageHash: '0xa1',
+            signature: '0xcafe',
+            signerAddress: '0x0000000000000000000000000000000000000004',
+          },
+        },
       });
     });
   });

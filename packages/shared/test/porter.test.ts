@@ -5,6 +5,7 @@ import { beforeAll, describe, expect, it, MockInstance, vi } from 'vitest';
 import {
   PackedUserOperation,
   PackedUserOperationSignatureRequest,
+  SessionStaticSecret,
   SignatureResponse,
   UserOperation,
   UserOperationSignatureRequest,
@@ -60,52 +61,77 @@ const mockGetUrsulas = (ursulas: Ursula[] = fakeUrsulas()): MockInstance => {
   });
 };
 
-const createMockSignResponse = (errorCase?: boolean) => ({
-  result: {
-    signing_results: {
-      signatures: errorCase
-        ? {
-            '0xabcd': [
-              toBase64(
-                new SignatureResponse(
-                  '0x0000000000000000000000000000000000000001',
-                  fromHexString('0x1234'),
-                  fromHexString('0xbeef'),
-                  0,
-                ).toBytes(),
-              ),
-            ],
-          }
-        : {
-            '0x1234': [
-              toBase64(
-                new SignatureResponse(
-                  '0x0000000000000000000000000000000000000002',
-                  fromHexString('0x1234'),
-                  fromHexString('0xdead'),
-                  0,
-                ).toBytes(),
-              ),
-            ],
-            '0xabcd': [
-              toBase64(
-                new SignatureResponse(
-                  '0x0000000000000000000000000000000000000001',
-                  fromHexString('0x1234'),
-                  fromHexString('0xbeef'),
-                  0,
-                ).toBytes(),
-              ),
-            ],
-          },
-      errors: errorCase
-        ? {
-            '0x1234': 'Failed to sign',
-          }
-        : {},
+const createMockSignResponse = (errorCase?: boolean) => {
+  // mimic requester public key obtained from original encrypted request
+  const requesterPk = SessionStaticSecret.random().publicKey();
+
+  const response = {
+    result: {
+      signing_results: {
+        encrypted_signature_responses: errorCase
+          ? {
+              '0xabcd': [
+                toBase64(
+                  new SignatureResponse(
+                    '0x0000000000000000000000000000000000000001',
+                    fromHexString('0x1234'),
+                    fromHexString('0xbeef'),
+                    0,
+                  )
+                    .encrypt(
+                      SessionStaticSecret.random().deriveSharedSecret(
+                        requesterPk,
+                      ),
+                    )
+                    .toBytes(),
+                ),
+              ],
+            }
+          : {
+              '0x1234': [
+                toBase64(
+                  new SignatureResponse(
+                    '0x0000000000000000000000000000000000000002',
+                    fromHexString('0x1234'),
+                    fromHexString('0xdead'),
+                    0,
+                  )
+                    .encrypt(
+                      SessionStaticSecret.random().deriveSharedSecret(
+                        requesterPk,
+                      ),
+                    )
+                    .toBytes(),
+                ),
+              ],
+              '0xabcd': [
+                toBase64(
+                  new SignatureResponse(
+                    '0x0000000000000000000000000000000000000001',
+                    fromHexString('0x1234'),
+                    fromHexString('0xbeef'),
+                    0,
+                  )
+                    .encrypt(
+                      SessionStaticSecret.random().deriveSharedSecret(
+                        requesterPk,
+                      ),
+                    )
+                    .toBytes(),
+                ),
+              ],
+            },
+        errors: errorCase
+          ? {
+              '0x1234': 'Failed to sign',
+            }
+          : {},
+      },
     },
-  },
-});
+  };
+
+  return response;
+};
 
 const createMockSignImplementation =
   (endpoint: string) =>
@@ -202,7 +228,15 @@ describe('PorterClient Signing', () => {
 
   describe('signUserOp', () => {
     // since this uses wasm it must be called after initialize (beforeAll()) so we use a factory function
-    const createUserSignatureRequest = () =>
+    let requesterSk: SessionStaticSecret;
+    let requesterPk: any;
+
+    beforeAll(async () => {
+      requesterSk = SessionStaticSecret.random();
+      requesterPk = requesterSk.publicKey();
+    });
+
+    const createUserOpSignatureRequest = () =>
       new UserOperationSignatureRequest(
         new UserOperation(
           '0x000000000000000000000000000000000000000a',
@@ -221,33 +255,30 @@ describe('PorterClient Signing', () => {
       );
 
     it('should successfully sign a UserOperation', async () => {
-      const userOpSignatureRequest = createUserSignatureRequest();
+      const userOpSignatureRequest = createUserOpSignatureRequest();
 
       mockSignUserOp(true);
       const porterClient = new PorterClient(fakePorterUris[2]);
       const result = await porterClient.signUserOp(
         {
-          '0x1234': userOpSignatureRequest,
-          '0xabcd': userOpSignatureRequest,
+          '0x1234': userOpSignatureRequest.encrypt(
+            requesterSk.deriveSharedSecret(
+              SessionStaticSecret.random().publicKey(),
+            ),
+            requesterPk,
+          ),
+          '0xabcd': userOpSignatureRequest.encrypt(
+            requesterSk.deriveSharedSecret(
+              SessionStaticSecret.random().publicKey(),
+            ),
+            requesterPk,
+          ),
         },
         2,
       );
 
-      expect(result).toEqual({
-        signingResults: {
-          '0x1234': {
-            messageHash: '0x1234',
-            signature: '0xdead',
-            signerAddress: '0x0000000000000000000000000000000000000002',
-          },
-          '0xabcd': {
-            messageHash: '0x1234',
-            signature: '0xbeef',
-            signerAddress: '0x0000000000000000000000000000000000000001',
-          },
-        },
-        errors: {},
-      });
+      expect(Object.keys(result.errors).length).toBe(0);
+      expect(Object.keys(result.encryptedResponses).length).toBe(2);
     });
 
     it('should successfully sign a PackedUserOperation', async () => {
@@ -273,31 +304,28 @@ describe('PorterClient Signing', () => {
       const porterClient = new PorterClient(fakePorterUris[2]);
       const result = await porterClient.signUserOp(
         {
-          '0x1234': packedUserOperationSignatureRequest,
-          '0xabcd': packedUserOperationSignatureRequest,
+          '0x1234': packedUserOperationSignatureRequest.encrypt(
+            requesterSk.deriveSharedSecret(
+              SessionStaticSecret.random().publicKey(),
+            ),
+            requesterPk,
+          ),
+          '0xabcd': packedUserOperationSignatureRequest.encrypt(
+            requesterSk.deriveSharedSecret(
+              SessionStaticSecret.random().publicKey(),
+            ),
+            requesterPk,
+          ),
         },
         2,
       );
 
-      expect(result).toEqual({
-        signingResults: {
-          '0x1234': {
-            messageHash: '0x1234',
-            signature: '0xdead',
-            signerAddress: '0x0000000000000000000000000000000000000002',
-          },
-          '0xabcd': {
-            messageHash: '0x1234',
-            signature: '0xbeef',
-            signerAddress: '0x0000000000000000000000000000000000000001',
-          },
-        },
-        errors: {},
-      });
+      expect(Object.keys(result.errors).length).toBe(0);
+      expect(Object.keys(result.encryptedResponses).length).toBe(2);
     });
 
     it('should handle UserOperation signing failures', async () => {
-      const userOpSignatureRequest = createUserSignatureRequest();
+      const userOpSignatureRequest = createUserOpSignatureRequest();
 
       mockSignUserOp(false);
       const porterClient = new PorterClient(fakePorterUris[2]);
@@ -305,8 +333,18 @@ describe('PorterClient Signing', () => {
       await expect(
         porterClient.signUserOp(
           {
-            '0x1234': userOpSignatureRequest,
-            '0xabcd': userOpSignatureRequest,
+            '0x1234': userOpSignatureRequest.encrypt(
+              requesterSk.deriveSharedSecret(
+                SessionStaticSecret.random().publicKey(),
+              ),
+              requesterPk,
+            ),
+            '0xabcd': userOpSignatureRequest.encrypt(
+              requesterSk.deriveSharedSecret(
+                SessionStaticSecret.random().publicKey(),
+              ),
+              requesterPk,
+            ),
           },
           2,
         ),
@@ -314,256 +352,60 @@ describe('PorterClient Signing', () => {
     });
 
     it('should handle errors from Porter response in UserOperation signing', async () => {
-      const userOpSignatureRequest = createUserSignatureRequest();
+      const userOpSignatureRequest = createUserOpSignatureRequest();
 
       // Mock a response with errors from Porter
       mockSignUserOp(true, true);
       const porterClient = new PorterClient(fakePorterUris[2]);
       const result = await porterClient.signUserOp(
         {
-          '0x1234': userOpSignatureRequest,
-          '0xabcd': userOpSignatureRequest,
+          '0x1234': userOpSignatureRequest.encrypt(
+            requesterSk.deriveSharedSecret(
+              SessionStaticSecret.random().publicKey(),
+            ),
+            requesterPk,
+          ),
+          '0xabcd': userOpSignatureRequest.encrypt(
+            requesterSk.deriveSharedSecret(
+              SessionStaticSecret.random().publicKey(),
+            ),
+            requesterPk,
+          ),
         },
         2,
       );
 
-      expect(result).toEqual({
-        signingResults: {
-          '0xabcd': {
-            messageHash: '0x1234',
-            signature: '0xbeef',
-            signerAddress: '0x0000000000000000000000000000000000000001',
-          },
-        },
-        errors: {
-          '0x1234': 'Failed to sign',
-        },
-      });
-    });
-
-    it('should include error when message hashes do not match', async () => {
-      const userOpSignatureRequest = createUserSignatureRequest();
-
-      const createMismatchedResponse = () => ({
-        result: {
-          signing_results: {
-            signatures: {
-              '0x1234': toBase64(
-                new SignatureResponse(
-                  '0x0000000000000000000000000000000000000002',
-                  fromHexString('0x1234'),
-                  fromHexString('0xdead'),
-                  0,
-                ).toBytes(),
-              ),
-              '0xabcd': toBase64(
-                new SignatureResponse(
-                  '0x0000000000000000000000000000000000000001',
-                  fromHexString('0xdddd'), // Different message hash
-                  fromHexString('0xbeef'),
-                  0,
-                ).toBytes(),
-              ),
-            },
-            errors: {},
-          },
-        },
-      });
-
-      vi.spyOn(axios, 'request').mockImplementation(async (config) => {
-        if (config.url === '/sign' && config.baseURL === fakePorterUris[2]) {
-          return Promise.resolve({
-            status: HttpStatusCode.Ok,
-            data: createMismatchedResponse(),
-          });
-        }
-      });
-
-      const porterClient = new PorterClient(fakePorterUris[2]);
-      const result = await porterClient.signUserOp(
-        {
-          '0x1234': userOpSignatureRequest,
-          '0xabcd': userOpSignatureRequest,
-        },
-        2,
-      );
-
-      expect(result).toEqual({
-        signingResults: {
-          '0x1234': {
-            messageHash: '0x1234',
-            signature: '0xdead',
-            signerAddress: '0x0000000000000000000000000000000000000002',
-          },
-          '0xabcd': {
-            messageHash: '0xdddd', // Different hash
-            signature: '0xbeef',
-            signerAddress: '0x0000000000000000000000000000000000000001',
-          },
-        },
-        errors: {}, // No errors - mismatched hashes don't generate errors, just prevent aggregation
-      });
-    });
-
-    it('should not return aggregated signature when threshold not met', async () => {
-      const userOpSignatureRequest = createUserSignatureRequest();
-
-      const createInsufficientResponse = () => ({
-        result: {
-          signing_results: {
-            signatures: {
-              '0x1234': toBase64(
-                new SignatureResponse(
-                  '0x0000000000000000000000000000000000000002',
-                  fromHexString('0x1234'),
-                  fromHexString('0xdead'),
-                  0,
-                ).toBytes(),
-              ),
-              // Only 1 signature, but threshold is 2
-            },
-            errors: {},
-          },
-        },
-      });
-
-      vi.spyOn(axios, 'request').mockImplementation(async (config) => {
-        if (config.url === '/sign' && config.baseURL === fakePorterUris[2]) {
-          return Promise.resolve({
-            status: HttpStatusCode.Ok,
-            data: createInsufficientResponse(),
-          });
-        }
-      });
-
-      const porterClient = new PorterClient(fakePorterUris[2]);
-      const result = await porterClient.signUserOp(
-        {
-          '0x1234': userOpSignatureRequest,
-          '0xabcd': userOpSignatureRequest,
-        },
-        2, // threshold of 2, but only 1 signature
-      );
-
-      expect(result).toEqual({
-        signingResults: {
-          '0x1234': {
-            messageHash: '0x1234',
-            signature: '0xdead',
-            signerAddress: '0x0000000000000000000000000000000000000002',
-          },
-        },
-        errors: {},
+      expect(Object.keys(result.encryptedResponses).length).toBe(1);
+      expect(result.errors).toEqual({
+        '0x1234': 'Failed to sign',
       });
     });
 
     it('should successfully sign', async () => {
-      const userOpSignatureRequest = createUserSignatureRequest();
+      const userOpSignatureRequest = createUserOpSignatureRequest();
 
       mockSignUserOp(true);
       const porterClient = new PorterClient(fakePorterUris[2]);
       const result = await porterClient.signUserOp(
         {
-          '0x1234': userOpSignatureRequest,
-          '0xabcd': userOpSignatureRequest,
+          '0x1234': userOpSignatureRequest.encrypt(
+            requesterSk.deriveSharedSecret(
+              SessionStaticSecret.random().publicKey(),
+            ),
+            requesterPk,
+          ),
+          '0xabcd': userOpSignatureRequest.encrypt(
+            requesterSk.deriveSharedSecret(
+              SessionStaticSecret.random().publicKey(),
+            ),
+            requesterPk,
+          ),
         },
         2,
       );
 
-      expect(result).toEqual({
-        signingResults: {
-          '0x1234': {
-            messageHash: '0x1234',
-            signature: '0xdead',
-            signerAddress: '0x0000000000000000000000000000000000000002',
-          },
-          '0xabcd': {
-            messageHash: '0x1234',
-            signature: '0xbeef',
-            signerAddress: '0x0000000000000000000000000000000000000001',
-          },
-        },
-        errors: {},
-      });
-    });
-
-    it('should aggregate only threshold-meeting hash', async () => {
-      const userOpSignatureRequest = createUserSignatureRequest();
-
-      const createMixedHashResponse = () => ({
-        result: {
-          signing_results: {
-            signatures: {
-              '0x1234': toBase64(
-                new SignatureResponse(
-                  '0x0000000000000000000000000000000000000002',
-                  fromHexString('0x0001'),
-                  fromHexString('0xdead'),
-                  0,
-                ).toBytes(),
-              ),
-              '0xabcd': toBase64(
-                new SignatureResponse(
-                  '0x0000000000000000000000000000000000000001',
-                  fromHexString('0x0001'), // Same hash, meets threshold
-                  fromHexString('0xbeef'),
-                  0,
-                ).toBytes(),
-              ),
-              '0xdef0': toBase64(
-                new SignatureResponse(
-                  '0x0000000000000000000000000000000000000003',
-                  fromHexString('0x0002'), // Different hash, doesn't meet threshold
-                  fromHexString('0xcafe'),
-                  0,
-                ).toBytes(),
-              ),
-            },
-            errors: {},
-          },
-        },
-      });
-
-      vi.spyOn(axios, 'request').mockImplementation(async (config) => {
-        if (config.url === '/sign' && config.baseURL === fakePorterUris[2]) {
-          return Promise.resolve({
-            status: HttpStatusCode.Ok,
-            data: createMixedHashResponse(),
-          });
-        }
-      });
-
-      const porterClient = new PorterClient(fakePorterUris[2]);
-      const result = await porterClient.signUserOp(
-        {
-          '0x1234': userOpSignatureRequest,
-          '0xabcd': userOpSignatureRequest,
-          '0xdef0': userOpSignatureRequest,
-        },
-        2, // threshold of 2
-      );
-
-      expect(result).toEqual({
-        // different hashes returned separately
-        signingResults: {
-          '0x1234': {
-            messageHash: '0x0001',
-            signature: '0xdead',
-            signerAddress: '0x0000000000000000000000000000000000000002',
-          },
-          '0xabcd': {
-            messageHash: '0x0001',
-            signature: '0xbeef',
-            signerAddress: '0x0000000000000000000000000000000000000001',
-          },
-          '0xdef0': {
-            messageHash: '0x0002',
-            signature: '0xcafe',
-            signerAddress: '0x0000000000000000000000000000000000000003',
-          },
-        },
-        errors: {},
-      });
+      expect(Object.keys(result.errors).length).toBe(0);
+      expect(Object.keys(result.encryptedResponses).length).toBe(2);
     });
   });
 });

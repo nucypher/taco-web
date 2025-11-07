@@ -2,12 +2,11 @@ import {
   CapsuleFrag,
   EncryptedThresholdDecryptionRequest,
   EncryptedThresholdDecryptionResponse,
-  PackedUserOperationSignatureRequest,
+  EncryptedThresholdSignatureRequest,
+  EncryptedThresholdSignatureResponse,
   PublicKey,
   RetrievalKit,
-  SignatureResponse,
   TreasureMap,
-  UserOperationSignatureRequest,
 } from '@nucypher/nucypher-core';
 import axios, {
   AxiosRequestConfig,
@@ -161,14 +160,20 @@ export type TacoDecryptResult = {
 // Signing types
 
 type PostTacoSignRequest = {
-  readonly signing_requests: Record<ChecksumAddress, Base64EncodedBytes>;
+  readonly encrypted_signing_requests: Record<
+    ChecksumAddress,
+    Base64EncodedBytes
+  >;
   readonly threshold: number;
 };
 
 type TacoSignResponse = {
   readonly result: {
     readonly signing_results: {
-      readonly signatures: Record<ChecksumAddress, Base64EncodedBytes>;
+      readonly encrypted_signature_responses: Record<
+        ChecksumAddress,
+        Base64EncodedBytes
+      >;
       readonly errors: Record<ChecksumAddress, string>;
     };
   };
@@ -181,7 +186,10 @@ export type TacoSignature = {
 };
 
 export type TacoSignResult = {
-  signingResults: Record<ChecksumAddress, TacoSignature>;
+  encryptedResponses: Record<
+    ChecksumAddress,
+    EncryptedThresholdSignatureResponse
+  >;
   errors: Record<ChecksumAddress, string>;
 };
 
@@ -332,18 +340,20 @@ export class PorterClient {
   }
 
   public async signUserOp(
-    signingRequests: Record<
+    encryptedSigningRequests: Record<
       string,
-      UserOperationSignatureRequest | PackedUserOperationSignatureRequest
+      EncryptedThresholdSignatureRequest
     >,
     threshold: number,
   ): Promise<TacoSignResult> {
     const data: PostTacoSignRequest = {
-      signing_requests: Object.fromEntries(
-        Object.entries(signingRequests).map(([ursula, signingRequest]) => [
-          ursula,
-          toBase64(signingRequest.toBytes()),
-        ]),
+      encrypted_signing_requests: Object.fromEntries(
+        Object.entries(encryptedSigningRequests).map(
+          ([ursula, encryptedSigningRequest]) => [
+            ursula,
+            toBase64(encryptedSigningRequest.toBytes()),
+          ],
+        ),
       ),
       threshold,
     };
@@ -353,25 +363,22 @@ export class PorterClient {
       method: 'post',
       data,
     });
-    const { signatures, errors } = resp.data.result.signing_results;
+    const { encrypted_signature_responses, errors } =
+      resp.data.result.signing_results;
 
-    const signingResults: { [ursulaAddress: string]: TacoSignature } = {};
-    for (const [ursulaAddress, signatureResponseBase64] of Object.entries(
-      signatures || {},
+    const encryptedResponses: {
+      [ursulaAddress: string]: EncryptedThresholdSignatureResponse;
+    } = {};
+    for (const [ursulaAddress, encryptedResponseBase64] of Object.entries(
+      encrypted_signature_responses || {},
     )) {
-      const signatureResponse = SignatureResponse.fromBytes(
-        fromBase64(signatureResponseBase64 as string),
-      );
-      signingResults[ursulaAddress] = {
-        messageHash: `0x${toHexString(signatureResponse.hash)}`,
-        signature: `0x${toHexString(signatureResponse.signature)}`,
-        signerAddress: signatureResponse.signer,
-      };
+      const encryptedSignatureResponse =
+        EncryptedThresholdSignatureResponse.fromBytes(
+          fromBase64(encryptedResponseBase64),
+        );
+      encryptedResponses[ursulaAddress] = encryptedSignatureResponse;
     }
 
-    return {
-      signingResults,
-      errors,
-    };
+    return { encryptedResponses, errors };
   }
 }

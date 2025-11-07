@@ -1,5 +1,10 @@
 import {
+  EncryptedThresholdSignatureRequest,
+  EncryptedThresholdSignatureResponse,
   PackedUserOperationSignatureRequest,
+  SessionSharedSecret,
+  SessionStaticSecret,
+  SignatureResponse,
   UserOperationSignatureRequest,
 } from '@nucypher/nucypher-core';
 import {
@@ -12,7 +17,6 @@ import {
   SignerInfo,
   SigningCoordinatorAgent,
   TacoSignature,
-  TacoSignResult,
   toCorePackedUserOperation,
   toCoreUserOperation,
   toHexString,
@@ -60,19 +64,19 @@ function aggregateSignatures(
 }
 
 async function makeSigningRequests(
-  signers: SignerInfo[],
   cohortId: number,
   chainId: number,
+  signers: Array<SignerInfo>,
   userOp: UserOperationToSign | PackedUserOperationToSign,
   aaVersion: string,
-  context?: ConditionContext,
-): Promise<
-  Record<
-    string,
-    PackedUserOperationSignatureRequest | UserOperationSignatureRequest
-  >
-> {
-  const coreContext = context ? await context.toCoreContext() : null;
+  conditionContext?: ConditionContext,
+): Promise<{
+  sharedSecrets: Record<string, SessionSharedSecret>;
+  encryptedRequests: Record<string, EncryptedThresholdSignatureRequest>;
+}> {
+  const coreContext = conditionContext
+    ? await conditionContext.toCoreContext()
+    : null;
 
   let signingRequest:
     | PackedUserOperationSignatureRequest
@@ -97,13 +101,29 @@ async function makeSigningRequests(
     );
   }
 
-  const signingRequests: Record<
-    string,
-    PackedUserOperationSignatureRequest | UserOperationSignatureRequest
-  > = Object.fromEntries(
-    signers.map((signer) => [signer.provider, signingRequest]),
+  const ephemeralSessionKey = SessionStaticSecret.random();
+
+  const sharedSecrets: Record<string, SessionSharedSecret> = Object.fromEntries(
+    signers.map(({ provider, signingRequestStaticKey }) => {
+      const sharedSecret = ephemeralSessionKey.deriveSharedSecret(
+        signingRequestStaticKey,
+      );
+      return [provider, sharedSecret];
+    }),
   );
-  return signingRequests;
+
+  const encryptedRequests: Record<string, EncryptedThresholdSignatureRequest> =
+    Object.fromEntries(
+      Object.entries(sharedSecrets).map(([provider, sessionSharedSecret]) => {
+        const encryptedRequest = signingRequest.encrypt(
+          sessionSharedSecret,
+          ephemeralSessionKey.publicKey(),
+        );
+        return [provider, encryptedRequest];
+      }),
+    );
+
+  return { sharedSecrets, encryptedRequests };
 }
 
 /**
@@ -146,67 +166,30 @@ export async function signUserOp(
     cohortId,
   );
 
-  const signingRequests = await makeSigningRequests(
-    signers,
+  const { sharedSecrets, encryptedRequests } = await makeSigningRequests(
     cohortId,
     chainId,
+    signers,
     userOp,
     aaVersion,
     context,
   );
 
   // Build signing request for the user operation
-  const porterSignResult: TacoSignResult = await porter.signUserOp(
-    signingRequests,
+  const { encryptedResponses, errors } = await porter.signUserOp(
+    encryptedRequests,
     threshold,
   );
-
-  const hashToSignatures: Map<
-    string,
-    Record<string, TacoSignature>
-  > = new Map();
-
-  // Single pass: decode signatures and populate signingResults
-  for (const [ursulaAddress, signature] of Object.entries(
-    porterSignResult.signingResults,
-  )) {
-    // For non-optimistic: track hashes and group signatures for aggregation
-    const hash = signature.messageHash;
-    if (!hashToSignatures.has(hash)) {
-      hashToSignatures.set(hash, {});
-    }
-    hashToSignatures.get(hash)![ursulaAddress] = signature;
+  if (Object.keys(encryptedResponses).length < threshold) {
+    // not enough signatures returned
+    throw new Error(ERR_INSUFFICIENT_SIGNATURES(errors));
   }
 
-  let messageHash = undefined;
-  let signaturesToAggregate = undefined;
-  for (const [hash, signatures] of hashToSignatures.entries()) {
-    if (Object.keys(signatures).length >= threshold) {
-      signaturesToAggregate = signatures;
-      messageHash = hash;
-      break;
-    }
-  }
-
-  // Insufficient signatures for a message hash to meet the threshold
-  if (!messageHash || !signaturesToAggregate) {
-    if (
-      hashToSignatures.size > 1 &&
-      Object.keys(porterSignResult.errors).length < signers.length - threshold
-    ) {
-      // Two things are true:
-      // 1. we have multiple hashes, which means we have mismatched hashes from different nodes
-      //    we don't really expect this to happen (other than some malicious nodes)
-      // 2. number of errors still could have allowed for a threshold of signatures
-      console.error(
-        'Porter returned mismatched message hashes:',
-        hashToSignatures,
-      );
-      throw new Error(ERR_MISMATCHED_HASHES(hashToSignatures));
-    } else {
-      throw new Error(ERR_INSUFFICIENT_SIGNATURES(porterSignResult.errors));
-    }
-  }
+  const signaturesToAggregate = collectSignatures(
+    encryptedResponses,
+    sharedSecrets,
+    threshold,
+  );
 
   const aggregatedSignature = aggregateSignatures(
     signaturesToAggregate,
@@ -214,9 +197,9 @@ export async function signUserOp(
   );
 
   return {
-    messageHash,
+    messageHash: Object.values(signaturesToAggregate)[0].messageHash,
     aggregatedSignature,
-    signingResults: porterSignResult.signingResults,
+    signingResults: signaturesToAggregate,
   };
 }
 
@@ -242,4 +225,84 @@ export async function setSigningCohortConditions(
     conditionsBytes,
     signer,
   );
+}
+
+function decryptSignatureResponses(
+  encryptedResponses: Record<string, EncryptedThresholdSignatureResponse>,
+  sharedSecrets: Record<string, SessionSharedSecret>,
+): Record<string, TacoSignature> {
+  const decryptedResponses: Record<string, SignatureResponse> =
+    Object.fromEntries(
+      Object.entries(encryptedResponses).map(
+        ([ursulaAddress, encryptedResponse]) => [
+          ursulaAddress,
+          encryptedResponse.decrypt(sharedSecrets[ursulaAddress]),
+        ],
+      ),
+    );
+
+  const tacoSignatures: Record<string, TacoSignature> = Object.fromEntries(
+    Object.entries(decryptedResponses).map(
+      ([ursulaAddress, signatureResponse]) => [
+        ursulaAddress,
+        {
+          messageHash: `0x${toHexString(signatureResponse.hash)}`,
+          signature: `0x${toHexString(signatureResponse.signature)}`,
+          signerAddress: signatureResponse.signer,
+        },
+      ],
+    ),
+  );
+
+  return tacoSignatures;
+}
+
+function collectSignatures(
+  encryptedResponses: Record<string, EncryptedThresholdSignatureResponse>,
+  sharedSecrets: Record<string, SessionSharedSecret>,
+  threshold: number,
+): Record<string, TacoSignature> {
+  const decryptedSignatures = decryptSignatureResponses(
+    encryptedResponses,
+    sharedSecrets,
+  );
+
+  const hashToSignatures: Map<
+    string,
+    Record<string, TacoSignature>
+  > = new Map();
+
+  // Single pass: decode signatures and populate signingResults
+  for (const [ursulaAddress, signature] of Object.entries(
+    decryptedSignatures,
+  )) {
+    // For non-optimistic: track hashes and group signatures for aggregation
+    const hash = signature.messageHash;
+    if (!hashToSignatures.has(hash)) {
+      hashToSignatures.set(hash, {});
+    }
+    hashToSignatures.get(hash)![ursulaAddress] = signature;
+  }
+
+  // Find a hash that meets the threshold
+  let signaturesToAggregate = undefined;
+  for (const signatures of hashToSignatures.values()) {
+    if (Object.keys(signatures).length >= threshold) {
+      signaturesToAggregate = signatures;
+      break;
+    }
+  }
+
+  // Insufficient signatures for a message hash to meet the threshold
+  if (!signaturesToAggregate) {
+    //we have multiple hashes, which means we have mismatched hashes from different nodes
+    //    we don't really expect this to happen (other than some malicious nodes)
+    console.error(
+      'Porter returned mismatched message hashes:',
+      hashToSignatures,
+    );
+    throw new Error(ERR_MISMATCHED_HASHES(hashToSignatures));
+  }
+
+  return signaturesToAggregate;
 }

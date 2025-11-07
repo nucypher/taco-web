@@ -1,4 +1,5 @@
 import { getContract } from '@nucypher/nucypher-contracts';
+import { SessionStaticKey, SessionStaticSecret } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
 import { Domain } from '../../porter';
@@ -6,9 +7,9 @@ import { SigningCoordinator__factory } from '../ethers-typechain';
 import { SigningCoordinator } from '../ethers-typechain/SigningCoordinator';
 
 export type SignerInfo = {
-  operator: string;
   provider: string;
-  signature: string;
+  signerAddress: string;
+  signingRequestStaticKey: SessionStaticKey;
 };
 
 export class SigningCoordinatorAgent {
@@ -25,9 +26,10 @@ export class SigningCoordinatorAgent {
         participant: SigningCoordinator.SigningCohortParticipantStructOutput,
       ) => {
         return {
-          operator: participant.operator,
           provider: participant.provider,
-          signature: participant.signature,
+          signerAddress: participant.operator,
+          // TODO fix once available via nucypher-contract dependency
+          signingRequestStaticKey: SessionStaticSecret.random().publicKey(),
         };
       },
     );

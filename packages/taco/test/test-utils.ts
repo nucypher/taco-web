@@ -244,16 +244,6 @@ export const mockGetActiveRitual = (dkgRitual: DkgRitual): MockInstance => {
   });
 };
 
-export const mockIsEncryptionAuthorized = (
-  isAuthorized = true,
-): MockInstance => {
-  return vi
-    .spyOn(DkgCoordinatorAgent, 'isEncryptionAuthorized')
-    .mockImplementation(async () => {
-      return Promise.resolve(isAuthorized);
-    });
-};
-
 export const mockMakeSessionKey = (secret: SessionStaticSecret) => {
   return vi
     .spyOn(SessionStaticSecret, 'random')

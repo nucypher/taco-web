@@ -1,8 +1,9 @@
 import { getContract } from '@nucypher/nucypher-contracts';
-import { SessionStaticKey, SessionStaticSecret } from '@nucypher/nucypher-core';
+import { SessionStaticKey } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
 import { Domain } from '../../porter';
+import { fromHexString } from '../../utils';
 import { SigningCoordinator__factory } from '../ethers-typechain';
 import { SigningCoordinator } from '../ethers-typechain/SigningCoordinator';
 
@@ -27,9 +28,11 @@ export class SigningCoordinatorAgent {
       ) => {
         return {
           provider: participant.provider,
-          signerAddress: participant.operator,
+          signerAddress: participant.signerAddress,
           // TODO fix once available via nucypher-contract dependency
-          signingRequestStaticKey: SessionStaticSecret.random().publicKey(),
+          signingRequestStaticKey: SessionStaticKey.fromBytes(
+            fromHexString(participant.signingRequestStaticKey),
+          ),
         };
       },
     );

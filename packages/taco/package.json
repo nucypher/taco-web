@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@astronautlabs/jsonpath": "^1.1.2",
-    "@nucypher/nucypher-core": "link:../../../nucypher-core/nucypher-core-wasm-bundler",
+    "@nucypher/nucypher-core": "^0.15.1-dev.2",
     "@nucypher/shared": "workspace:*",
     "@nucypher/taco-auth": "workspace:*",
     "ethers": "^5.8.0",

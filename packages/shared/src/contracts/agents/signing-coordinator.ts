@@ -29,7 +29,6 @@ export class SigningCoordinatorAgent {
         return {
           provider: participant.provider,
           signerAddress: participant.signerAddress,
-          // TODO fix once available via nucypher-contract dependency
           signingRequestStaticKey: SessionStaticKey.fromBytes(
             fromHexString(participant.signingRequestStaticKey),
           ),

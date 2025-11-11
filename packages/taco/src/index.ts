@@ -11,5 +11,10 @@ export {
 
 export * as conditions from './conditions';
 
-export { setSigningCohortConditions, signUserOp } from './sign';
+export {
+  SignResult,
+  TacoSignature,
+  setSigningCohortConditions,
+  signUserOp,
+} from './sign';
 export { decrypt, encrypt, encryptWithPublicKey } from './taco';

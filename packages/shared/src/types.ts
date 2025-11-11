@@ -1,82 +1,117 @@
-import { ethers } from 'ethers';
+import { PackedUserOperation, UserOperation } from '@nucypher/nucypher-core';
+
+import { fromHexString } from './utils';
 
 export type ChecksumAddress = `0x${string}`;
 export type HexEncodedBytes = string;
 export type Base64EncodedBytes = string;
 
-export type UserOperation = {
-  sender: string;
-  nonce: number;
-  factory: string;
-  factoryData: string;
-  callData: string;
-  callGasLimit: number;
-  verificationGasLimit: number;
-  preVerificationGas: number;
-  maxFeePerGas: number;
-  maxPriorityFeePerGas: number;
-  paymaster: string;
-  paymasterVerificationGasLimit: number;
-  paymasterPostOpGasLimit: number;
-  paymasterData: string;
-  signature: string;
+export type UserOperationToSign = {
+  sender: `0x${string}`;
+  nonce: bigint | number;
+  callData: `0x${string}` | Uint8Array;
+  callGasLimit: bigint | number;
+  verificationGasLimit: bigint | number;
+  preVerificationGas: bigint | number;
+  maxFeePerGas: bigint | number;
+  maxPriorityFeePerGas: bigint | number;
+  // optional fields
+  factory?: `0x${string}` | undefined;
+  factoryData?: `0x${string}` | Uint8Array | undefined;
+  paymaster?: `0x${string}` | undefined;
+  paymasterVerificationGasLimit?: bigint | number | undefined;
+  paymasterPostOpGasLimit?: bigint | number | undefined;
+  paymasterData?: `0x${string}` | Uint8Array | undefined;
+  signature?: `0x${string}` | Uint8Array | undefined;
 };
 
-export class UserOperationSignatureRequest {
-  constructor(
-    private userOp: ReturnType<typeof convertUserOperationToPython>,
-    private aaVersion: string,
-    private cohortId: number,
-    private chainId: number,
-    private context: unknown = {},
-    private signatureType: string = 'userop',
-  ) {}
+export type PackedUserOperationToSign = {
+  sender: `0x${string}`;
+  nonce: bigint | number;
+  initCode: `0x${string}` | Uint8Array;
+  callData: `0x${string}` | Uint8Array;
+  accountGasLimit: `0x${string}` | Uint8Array;
+  preVerificationGas: bigint | number;
+  gasFees: `0x${string}` | Uint8Array;
+  paymasterAndData: `0x${string}` | Uint8Array;
+};
 
-  toBytes(): Uint8Array {
-    const data = {
-      user_op: JSON.stringify(this.userOp),
-      aa_version: this.aaVersion,
-      cohort_id: this.cohortId,
-      chain_id: this.chainId,
-      context: this.context,
-      signature_type: this.signatureType,
-    };
-    return new TextEncoder().encode(JSON.stringify(data));
-  }
+function getBigIntValue(value: bigint | number): bigint {
+  return typeof value === 'bigint' ? value : BigInt(value);
 }
 
-function normalizeAddress(address: string): string | null {
-  if (!address || address === '0x') {
-    return null;
+function getUint8ArrayValue(value: `0x${string}` | Uint8Array): Uint8Array {
+  return value instanceof Uint8Array ? value : fromHexString(value);
+}
+
+export function toCoreUserOperation(
+  userOperation: UserOperationToSign,
+): UserOperation {
+  const userOp = new UserOperation(
+    userOperation.sender,
+    getBigIntValue(userOperation.nonce),
+    getUint8ArrayValue(userOperation.callData),
+    getBigIntValue(userOperation.callGasLimit),
+    getBigIntValue(userOperation.verificationGasLimit),
+    getBigIntValue(userOperation.preVerificationGas),
+    getBigIntValue(userOperation.maxFeePerGas),
+    getBigIntValue(userOperation.maxPriorityFeePerGas),
+  );
+
+  // optional factory data
+  if (userOperation.factory) {
+    let factory_data = undefined;
+    if (userOperation.factoryData) {
+      factory_data = getUint8ArrayValue(userOperation.factoryData);
+    }
+
+    userOp.setFactoryData(userOperation.factory, factory_data);
   }
 
-  try {
-    // Use ethers to get the checksummed address - this will throw on invalid addresses
-    return ethers.utils.getAddress(address);
-  } catch (error) {
-    // Re-throw the error to fail fast on invalid addresses
-    throw new Error(
-      `Invalid address: ${address}. ${error instanceof Error ? error.message : 'Unknown error'}`,
+  // optional paymaster data
+  if (userOperation.paymaster) {
+    if (!userOperation.paymasterVerificationGasLimit) {
+      throw new Error(
+        'paymasterVerificationGasLimit is required when paymaster is set',
+      );
+    } else if (!userOperation.paymasterPostOpGasLimit) {
+      throw new Error(
+        'paymasterPostOpGasLimit is required when paymaster is set',
+      );
+    }
+
+    userOp.setPaymasterData(
+      userOperation.paymaster,
+      getBigIntValue(userOperation.paymasterVerificationGasLimit),
+      getBigIntValue(userOperation.paymasterPostOpGasLimit),
+      userOperation.paymasterData
+        ? getUint8ArrayValue(userOperation.paymasterData)
+        : undefined,
     );
   }
+
+  return userOp;
 }
 
-export function convertUserOperationToPython(userOp: UserOperation) {
-  return {
-    sender: normalizeAddress(userOp.sender),
-    nonce: userOp.nonce,
-    factory: normalizeAddress(userOp.factory),
-    factory_data: userOp.factoryData || '0x',
-    call_data: userOp.callData || '0x',
-    call_gas_limit: userOp.callGasLimit,
-    verification_gas_limit: userOp.verificationGasLimit,
-    pre_verification_gas: userOp.preVerificationGas,
-    max_fee_per_gas: userOp.maxFeePerGas,
-    max_priority_fee_per_gas: userOp.maxPriorityFeePerGas,
-    paymaster: normalizeAddress(userOp.paymaster),
-    paymaster_verification_gas_limit: userOp.paymasterVerificationGasLimit,
-    paymaster_post_op_gas_limit: userOp.paymasterPostOpGasLimit,
-    paymaster_data: userOp.paymasterData || '0x',
-    signature: userOp.signature || '0x',
-  };
+export function toCorePackedUserOperation(
+  packedUserOperation: PackedUserOperationToSign,
+): PackedUserOperation {
+  const packedUserOp = new PackedUserOperation(
+    packedUserOperation.sender,
+    getBigIntValue(packedUserOperation.nonce),
+    getUint8ArrayValue(packedUserOperation.initCode),
+    getUint8ArrayValue(packedUserOperation.callData),
+    getUint8ArrayValue(packedUserOperation.accountGasLimit),
+    getBigIntValue(packedUserOperation.preVerificationGas),
+    getUint8ArrayValue(packedUserOperation.gasFees),
+    getUint8ArrayValue(packedUserOperation.paymasterAndData),
+  );
+
+  return packedUserOp;
+}
+
+export function isPackedUserOperation(
+  op: UserOperationToSign | PackedUserOperationToSign,
+): op is PackedUserOperationToSign {
+  return 'initCode' in op && 'gasFees' in op;
 }

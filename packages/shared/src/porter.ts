@@ -2,6 +2,8 @@ import {
   CapsuleFrag,
   EncryptedThresholdDecryptionRequest,
   EncryptedThresholdDecryptionResponse,
+  EncryptedThresholdSignatureRequest,
+  EncryptedThresholdSignatureResponse,
   PublicKey,
   RetrievalKit,
   TreasureMap,
@@ -148,55 +150,42 @@ type PostTacoDecryptResponse = {
 };
 
 export type TacoDecryptResult = {
-  encryptedResponses: Record<string, EncryptedThresholdDecryptionResponse>;
-  errors: Record<string, string>;
+  encryptedResponses: Record<
+    ChecksumAddress,
+    EncryptedThresholdDecryptionResponse
+  >;
+  errors: Record<ChecksumAddress, string>;
 };
 
 // Signing types
+
+type PostTacoSignRequest = {
+  readonly encrypted_signing_requests: Record<
+    ChecksumAddress,
+    Base64EncodedBytes
+  >;
+  readonly threshold: number;
+};
+
 type TacoSignResponse = {
   readonly result: {
     readonly signing_results: {
-      readonly signatures: Record<
+      readonly encrypted_signature_responses: Record<
         ChecksumAddress,
-        [ChecksumAddress, Base64EncodedBytes]
+        Base64EncodedBytes
       >;
       readonly errors: Record<ChecksumAddress, string>;
     };
   };
 };
 
-export type TacoSignature = {
-  messageHash: string;
-  signature: string;
-  signerAddress: string;
-};
-
 export type TacoSignResult = {
-  signingResults: { [ursulaAddress: string]: TacoSignature };
-  errors: Record<string, string>;
+  encryptedResponses: Record<
+    ChecksumAddress,
+    EncryptedThresholdSignatureResponse
+  >;
+  errors: Record<ChecksumAddress, string>;
 };
-
-function decodeSignature(
-  signerAddress: string,
-  signatureB64: string,
-): { result?: TacoSignature; error?: string } {
-  try {
-    const decodedData = JSON.parse(
-      new TextDecoder().decode(fromBase64(signatureB64)),
-    );
-    return {
-      result: {
-        messageHash: decodedData.message_hash,
-        signature: decodedData.signature,
-        signerAddress,
-      },
-    };
-  } catch (error) {
-    return {
-      error: `Failed to decode signature: ${error}`,
-    };
-  }
-}
 
 export class PorterClient {
   readonly porterUrls: URL[];
@@ -345,12 +334,22 @@ export class PorterClient {
   }
 
   public async signUserOp(
-    signingRequests: Record<string, string>,
+    encryptedSigningRequests: Record<
+      string,
+      EncryptedThresholdSignatureRequest
+    >,
     threshold: number,
   ): Promise<TacoSignResult> {
-    const data: Record<string, unknown> = {
-      signing_requests: signingRequests,
-      threshold: threshold,
+    const data: PostTacoSignRequest = {
+      encrypted_signing_requests: Object.fromEntries(
+        Object.entries(encryptedSigningRequests).map(
+          ([ursula, encryptedSigningRequest]) => [
+            ursula,
+            toBase64(encryptedSigningRequest.toBytes()),
+          ],
+        ),
+      ),
+      threshold,
     };
 
     const resp: AxiosResponse<TacoSignResponse> = await this.tryAndCall({
@@ -358,27 +357,22 @@ export class PorterClient {
       method: 'post',
       data,
     });
+    const { encrypted_signature_responses, errors } =
+      resp.data.result.signing_results;
 
-    const { signatures, errors } = resp.data.result.signing_results;
-    const allErrors: Record<string, string> = { ...errors };
-
-    const signingResults: { [ursulaAddress: string]: TacoSignature } = {};
-    for (const [ursulaAddress, [signerAddress, signatureB64]] of Object.entries(
-      signatures || {},
+    const encryptedResponses: {
+      [ursulaAddress: string]: EncryptedThresholdSignatureResponse;
+    } = {};
+    for (const [ursulaAddress, encryptedResponseBase64] of Object.entries(
+      encrypted_signature_responses || {},
     )) {
-      const decoded = decodeSignature(signerAddress, signatureB64);
-      if (decoded.error) {
-        // issue with decoding signature, add to errors
-        allErrors[ursulaAddress] = decoded.error;
-        continue;
-      }
-      // Always include all decoded signatures in signingResults
-      signingResults[ursulaAddress] = decoded.result!;
+      const encryptedSignatureResponse =
+        EncryptedThresholdSignatureResponse.fromBytes(
+          fromBase64(encryptedResponseBase64),
+        );
+      encryptedResponses[ursulaAddress] = encryptedSignatureResponse;
     }
 
-    return {
-      signingResults,
-      errors: allErrors,
-    };
+    return { encryptedResponses, errors };
   }
 }

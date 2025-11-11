@@ -1,14 +1,16 @@
 import { getContract } from '@nucypher/nucypher-contracts';
+import { SessionStaticKey } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
 import { Domain } from '../../porter';
+import { fromHexString } from '../../utils';
 import { SigningCoordinator__factory } from '../ethers-typechain';
 import { SigningCoordinator } from '../ethers-typechain/SigningCoordinator';
 
-type SignerInfo = {
-  operator: string;
+export type SignerInfo = {
   provider: string;
-  signature: string;
+  signerAddress: string;
+  signingRequestStaticKey: SessionStaticKey;
 };
 
 export class SigningCoordinatorAgent {
@@ -25,9 +27,11 @@ export class SigningCoordinatorAgent {
         participant: SigningCoordinator.SigningCohortParticipantStructOutput,
       ) => {
         return {
-          operator: participant.operator,
           provider: participant.provider,
-          signature: participant.signature,
+          signerAddress: participant.signerAddress,
+          signingRequestStaticKey: SessionStaticKey.fromBytes(
+            fromHexString(participant.signingRequestStaticKey),
+          ),
         };
       },
     );

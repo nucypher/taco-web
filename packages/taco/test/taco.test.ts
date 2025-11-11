@@ -63,7 +63,7 @@ describe('taco', () => {
     const { decryptionShares } = fakeTDecFlow({
       ...mockedDkg,
       message: toBytes(message),
-      dkgPublicKey: mockedDkg.dkg.publicKey(),
+      dkgPublicKey: mockedDkg.serverAggregate.publicKey,
       thresholdMessageKit: messageKit,
     });
     const { participantSecrets, participants } = await mockDkgParticipants(

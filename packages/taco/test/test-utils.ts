@@ -134,7 +134,7 @@ export const fakeDkgTDecFlowE2E: (
   threshold = 4,
 ) => {
   const ritual = fakeDkgFlow(variant, ritualId, sharesNum, threshold);
-  const dkgPublicKey = ritual.dkg.publicKey();
+  const dkgPublicKey = ritual.serverAggregate.publicKey;
   const provider = fakeProvider();
   const thresholdMessageKit = await encryptMessage(
     message,
@@ -160,7 +160,7 @@ export const fakeDkgTDecFlowE2E: (
 
 export const fakeCoordinatorRitual = async (): Promise<CoordinatorRitual> => {
   const ritual = await fakeDkgTDecFlowE2E();
-  const dkgPkBytes = ritual.dkg.publicKey().toBytes();
+  const dkgPkBytes = ritual.serverAggregate.publicKey.toBytes();
   return {
     initiator: ritual.validators[0].address.toString(),
     dkgSize: ritual.sharesNum,
@@ -221,10 +221,11 @@ export const fakeDkgRitual = (ritual: {
   dkg: Dkg;
   sharesNum: number;
   threshold: number;
+  serverAggregate: AggregatedTranscript;
 }) => {
   return new DkgRitual(
     fakeRitualId,
-    ritual.dkg.publicKey(),
+    ritual.serverAggregate.publicKey,
     ritual.sharesNum,
     ritual.threshold,
     DkgRitualState.ACTIVE,
@@ -241,16 +242,6 @@ export const mockGetActiveRitual = (dkgRitual: DkgRitual): MockInstance => {
   return vi.spyOn(DkgClient, 'getActiveRitual').mockImplementation(() => {
     return Promise.resolve(dkgRitual);
   });
-};
-
-export const mockIsEncryptionAuthorized = (
-  isAuthorized = true,
-): MockInstance => {
-  return vi
-    .spyOn(DkgCoordinatorAgent, 'isEncryptionAuthorized')
-    .mockImplementation(async () => {
-      return Promise.resolve(isAuthorized);
-    });
 };
 
 export const mockMakeSessionKey = (secret: SessionStaticSecret) => {

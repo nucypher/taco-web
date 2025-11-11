@@ -390,6 +390,12 @@ const _abi = [
         indexed: true,
       },
       {
+        name: 'signer',
+        type: 'address',
+        internalType: 'address',
+        indexed: true,
+      },
+      {
         name: 'signature',
         type: 'bytes',
         internalType: 'bytes',
@@ -440,6 +446,19 @@ const _abi = [
         name: '',
         type: 'bytes32',
         internalType: 'bytes32',
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'SIGNING_REQUEST_KEY_LENGTH',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+        internalType: 'uint256',
       },
     ],
   },
@@ -555,6 +574,24 @@ const _abi = [
   },
   {
     type: 'function',
+    name: 'extendSigningCohortDuration',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
+        name: 'cohortId',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
+      {
+        name: 'additionalDuration',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
+    ],
+    outputs: [],
+  },
+  {
+    type: 'function',
     name: 'getChains',
     stateMutability: 'view',
     inputs: [
@@ -569,30 +606,6 @@ const _abi = [
         name: '',
         type: 'uint256[]',
         internalType: 'uint256[]',
-      },
-    ],
-  },
-  {
-    type: 'function',
-    name: 'getCondition',
-    stateMutability: 'view',
-    inputs: [
-      {
-        name: 'cohortId',
-        type: 'uint32',
-        internalType: 'uint32',
-      },
-      {
-        name: 'chainId',
-        type: 'uint256',
-        internalType: 'uint256',
-      },
-    ],
-    outputs: [
-      {
-        name: '',
-        type: 'bytes',
-        internalType: 'bytes',
       },
     ],
   },
@@ -642,14 +655,19 @@ const _abi = [
             internalType: 'address',
           },
           {
-            name: 'operator',
+            name: 'signerAddress',
             type: 'address',
             internalType: 'address',
           },
           {
-            name: 'signature',
+            name: 'signingRequestStaticKey',
             type: 'bytes',
             internalType: 'bytes',
+          },
+          {
+            name: 'gap',
+            type: 'uint256[20]',
+            internalType: 'uint256[20]',
           },
         ],
         internalType: 'struct SigningCoordinator.SigningCohortParticipant',
@@ -678,14 +696,19 @@ const _abi = [
             internalType: 'address',
           },
           {
-            name: 'operator',
+            name: 'signerAddress',
             type: 'address',
             internalType: 'address',
           },
           {
-            name: 'signature',
+            name: 'signingRequestStaticKey',
             type: 'bytes',
             internalType: 'bytes',
+          },
+          {
+            name: 'gap',
+            type: 'uint256[20]',
+            internalType: 'uint256[20]',
           },
         ],
         internalType: 'struct SigningCoordinator.SigningCohortParticipant[]',
@@ -725,6 +748,11 @@ const _abi = [
         name: 'cohortId',
         type: 'uint32',
         internalType: 'uint32',
+      },
+      {
+        name: 'operator',
+        type: 'address',
+        internalType: 'address',
       },
     ],
     outputs: [
@@ -770,6 +798,25 @@ const _abi = [
         name: '',
         type: 'address',
         internalType: 'address',
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'getThreshold',
+    stateMutability: 'view',
+    inputs: [
+      {
+        name: 'cohortId',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'uint16',
+        internalType: 'uint16',
       },
     ],
   },
@@ -1002,7 +1049,7 @@ const _abi = [
   },
   {
     type: 'function',
-    name: 'postSigningCohortSignature',
+    name: 'postSigningCohortData',
     stateMutability: 'nonpayable',
     inputs: [
       {
@@ -1012,6 +1059,11 @@ const _abi = [
       },
       {
         name: 'signature',
+        type: 'bytes',
+        internalType: 'bytes',
+      },
+      {
+        name: 'signingRequestStaticKey',
         type: 'bytes',
         internalType: 'bytes',
       },

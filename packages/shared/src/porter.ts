@@ -179,12 +179,6 @@ type TacoSignResponse = {
   };
 };
 
-export type TacoSignature = {
-  messageHash: string;
-  signature: string;
-  signerAddress: string;
-};
-
 export type TacoSignResult = {
   encryptedResponses: Record<
     ChecksumAddress,

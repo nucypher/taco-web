@@ -16,7 +16,6 @@ import {
   PorterClient,
   SignerInfo,
   SigningCoordinatorAgent,
-  TacoSignature,
   toCorePackedUserOperation,
   toCoreUserOperation,
   toHexString,
@@ -38,6 +37,12 @@ const ERR_MISMATCHED_HASHES = (
   `Threshold of signatures not met; multiple mismatched hashes found: ${JSON.stringify(
     Object.fromEntries(hashToSignatures.entries()),
   )}`;
+
+export type TacoSignature = {
+  messageHash: string;
+  signature: string;
+  signerAddress: string;
+};
 
 export type SignResult = {
   messageHash: string;

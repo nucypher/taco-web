@@ -30,7 +30,7 @@ import { setSigningCohortConditions, signUserOp } from '../src/sign';
 
 import { mockMakeSessionKey } from './test-utils';
 
-function getNumberValue(value: bigint | number): bigint {
+function toBigInt(value: bigint | number): bigint {
   return typeof value === 'bigint' ? value : BigInt(value);
 }
 
@@ -39,7 +39,7 @@ function checkPackedUserOpEquality(
   op2: PackedUserOperation,
 ) {
   expect(op1.sender).toEqual(op2.sender);
-  expect(getNumberValue(op1.nonce)).toEqual(op2.nonce);
+  expect(toBigInt(op1.nonce)).toEqual(op2.nonce);
 
   const initCode =
     op1.initCode instanceof Uint8Array
@@ -59,9 +59,7 @@ function checkPackedUserOpEquality(
       : fromHexString(op1.accountGasLimit);
   expect(accountGasLimit).toEqual(op2.accountGasLimits);
 
-  expect(getNumberValue(op1.preVerificationGas)).toEqual(
-    op2.preVerificationGas,
-  );
+  expect(toBigInt(op1.preVerificationGas)).toEqual(op2.preVerificationGas);
 
   const gasFees =
     op1.gasFees instanceof Uint8Array
@@ -79,7 +77,7 @@ function checkPackedUserOpEquality(
 function checkUserOpEquality(op1: UserOperationToSign, op2: UserOperation) {
   expect(op1.sender).toEqual(op2.sender);
 
-  expect(getNumberValue(op1.nonce)).toEqual(op2.nonce);
+  expect(toBigInt(op1.nonce)).toEqual(op2.nonce);
 
   const callData =
     op1.callData instanceof Uint8Array
@@ -87,17 +85,11 @@ function checkUserOpEquality(op1: UserOperationToSign, op2: UserOperation) {
       : fromHexString(op1.callData);
   expect(callData).toEqual(op2.callData);
 
-  expect(getNumberValue(op1.callGasLimit)).toEqual(op2.callGasLimit);
-  expect(getNumberValue(op1.verificationGasLimit)).toEqual(
-    op2.verificationGasLimit,
-  );
-  expect(getNumberValue(op1.preVerificationGas)).toEqual(
-    op2.preVerificationGas,
-  );
-  expect(getNumberValue(op1.maxFeePerGas)).toEqual(op2.maxFeePerGas);
-  expect(getNumberValue(op1.maxPriorityFeePerGas)).toEqual(
-    op2.maxPriorityFeePerGas,
-  );
+  expect(toBigInt(op1.callGasLimit)).toEqual(op2.callGasLimit);
+  expect(toBigInt(op1.verificationGasLimit)).toEqual(op2.verificationGasLimit);
+  expect(toBigInt(op1.preVerificationGas)).toEqual(op2.preVerificationGas);
+  expect(toBigInt(op1.maxFeePerGas)).toEqual(op2.maxFeePerGas);
+  expect(toBigInt(op1.maxPriorityFeePerGas)).toEqual(op2.maxPriorityFeePerGas);
 
   if (op1.factory === undefined) {
     expect(op2.factory).toBeUndefined();
@@ -124,7 +116,7 @@ function checkUserOpEquality(op1: UserOperationToSign, op2: UserOperation) {
   if (op1.paymasterVerificationGasLimit === undefined) {
     expect(op2.paymasterVerificationGasLimit).toBeUndefined();
   } else {
-    expect(getNumberValue(op1.paymasterVerificationGasLimit)).toEqual(
+    expect(toBigInt(op1.paymasterVerificationGasLimit)).toEqual(
       op2.paymasterVerificationGasLimit,
     );
   }
@@ -132,7 +124,7 @@ function checkUserOpEquality(op1: UserOperationToSign, op2: UserOperation) {
   if (op1.paymasterPostOpGasLimit === undefined) {
     expect(op2.paymasterPostOpGasLimit).toBeUndefined();
   } else {
-    expect(getNumberValue(op1.paymasterPostOpGasLimit)).toEqual(
+    expect(toBigInt(op1.paymasterPostOpGasLimit)).toEqual(
       op2.paymasterPostOpGasLimit,
     );
   }

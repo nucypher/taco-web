@@ -50,7 +50,7 @@ async function createTacoSmartAccount(
     TACO_DOMAIN,
     COHORT_ID,
   );
-  const signers = participants.map((p) => p.operator as Address).sort();
+  const signers = participants.map((p) => p.signerAddress as Address).sort();
 
   // Get the cohort's actual multisig contract address
   const cohortMultisigAddress =

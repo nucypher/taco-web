@@ -63,10 +63,12 @@ const EXPECTED_AUTH_PROVIDER_TYPES: Record<string, AuthProviderType[]> = {
 export const AUTOMATICALLY_INJECTED_CONTEXT_PARAMS = [
   // These context parameters are automatically injected on the node side.
   SIGNING_CONDITION_OBJECT_CONTEXT_VAR,
+  ':nullAddress',
 ];
 export const RESERVED_CONTEXT_PARAMS = [
   USER_ADDRESS_PARAM_DEFAULT,
   SIGNING_CONDITION_OBJECT_CONTEXT_VAR,
+  ':nullAddress',
 ];
 
 export class ConditionContext {

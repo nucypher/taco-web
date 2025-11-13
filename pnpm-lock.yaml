@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@nucypher/nucypher-core': ^0.15.1-dev.2
+  '@nucypher/nucypher-core': ^0.15.1-dev.3
   glob-parent@<5.1.2: '>=5.1.2'
   node-forge@<1.0.0: '>=1.0.0'
   node-forge@<1.3.0: '>=1.3.0'
@@ -19,7 +19,7 @@ importers:
         specifier: ^2.28.1
         version: 2.30.0(@types/node@24.3.0)
       '@nucypher/nucypher-core':
-        specifier: ^0.15.1-dev.2
+        specifier: ^0.15.1-dev.3
         version: 0.15.1-dev.3
       ethers:
         specifier: ^5.8.0
@@ -491,7 +491,7 @@ importers:
   packages/pre:
     dependencies:
       '@nucypher/nucypher-core':
-        specifier: ^0.15.1-dev.2
+        specifier: ^0.15.1-dev.3
         version: 0.15.1-dev.3
       '@nucypher/shared':
         specifier: workspace:*
@@ -516,7 +516,7 @@ importers:
         specifier: ^0.26.0-alpha.2
         version: 0.26.0-alpha.2
       '@nucypher/nucypher-core':
-        specifier: ^0.15.1-dev.2
+        specifier: ^0.15.1-dev.3
         version: 0.15.1-dev.3
       axios:
         specifier: ^1.8.4
@@ -565,7 +565,7 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@nucypher/nucypher-core':
-        specifier: ^0.15.1-dev.2
+        specifier: ^0.15.1-dev.3
         version: 0.15.1-dev.3
       '@nucypher/shared':
         specifier: workspace:*
@@ -624,7 +624,7 @@ importers:
   packages/test-utils:
     dependencies:
       '@nucypher/nucypher-core':
-        specifier: ^0.15.1-dev.2
+        specifier: ^0.15.1-dev.3
         version: 0.15.1-dev.3
       '@nucypher/shared':
         specifier: workspace:*

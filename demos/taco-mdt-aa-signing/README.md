@@ -15,14 +15,14 @@ Shows how to create smart accounts with TACo's distributed threshold signatures 
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Configure environment
 cp .env.example .env
 # Edit .env with your values
 
 # Run the demo
-npm start
+pnpm run dev
 ```
 
 ## Configuration

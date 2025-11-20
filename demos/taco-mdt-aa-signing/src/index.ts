@@ -5,11 +5,9 @@ import {
   toMetaMaskSmartAccount,
 } from '@metamask/delegation-toolkit';
 import {
-  Domain,
   SigningCoordinatorAgent,
-  UserOperation,
 } from '@nucypher/shared';
-import { conditions, domains, initialize, signUserOp } from '@nucypher/taco';
+import { conditions, domains, initialize, signUserOp, UserOperationToSign } from '@nucypher/taco';
 import * as dotenv from 'dotenv';
 import { ethers } from 'ethers';
 import {
@@ -31,8 +29,9 @@ import { createViemTacoAccount } from './taco-account';
 dotenv.config();
 
 const SEPOLIA_CHAIN_ID = 11155111;
-const TACO_DOMAIN: Domain = domains.DEVNET;
+const TACO_DOMAIN = domains.DEVNET;
 const COHORT_ID = 1;
+const COHORT_MULTISIG_ADDRESS = '0xDdBb4c470C7BFFC97345A403aC7FcA77844681D9';
 const AA_VERSION = 'mdt';
 
 async function createTacoSmartAccount(
@@ -40,6 +39,7 @@ async function createTacoSmartAccount(
   provider: ethers.providers.JsonRpcProvider,
 ) {
   await initialize();
+  
   const participants = await SigningCoordinatorAgent.getParticipants(
     provider,
     TACO_DOMAIN,
@@ -50,21 +50,12 @@ async function createTacoSmartAccount(
     TACO_DOMAIN,
     COHORT_ID,
   );
-  const signers = participants.map((p) => p.signerAddress as Address).sort();
-
-  // Get the cohort's actual multisig contract address
-  const cohortMultisigAddress =
-    await SigningCoordinatorAgent.getCohortMultisigAddress(
-      provider,
-      TACO_DOMAIN,
-      COHORT_ID,
-      SEPOLIA_CHAIN_ID,
-    );
+  const signers = participants.map((p) => p.signerAddress as Address);
 
   // Create a TACo account using the cohort's multisig address
   // This satisfies MetaMask's signatory requirement and uses the proper cohort multisig
-  const tacoAccount = createViemTacoAccount(cohortMultisigAddress as Address);
-  console.log(`🎯 Using cohort multisig: ${cohortMultisigAddress}`);
+  const tacoAccount = createViemTacoAccount(COHORT_MULTISIG_ADDRESS as Address);
+  console.log(`🎯 Using cohort multisig: ${COHORT_MULTISIG_ADDRESS}`);
 
   const smartAccount = await toMetaMaskSmartAccount({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -90,32 +81,12 @@ async function signUserOpWithTaco(
       SEPOLIA_CHAIN_ID,
     );
 
-  const tacoUserOp: UserOperation = {
-    sender: userOp.sender,
-    nonce: Number(userOp.nonce),
-    factory: userOp.factory || '0x',
-    factoryData: userOp.factoryData || '0x',
-    callData: userOp.callData,
-    callGasLimit: Number(userOp.callGasLimit),
-    verificationGasLimit: Number(userOp.verificationGasLimit),
-    preVerificationGas: Number(userOp.preVerificationGas),
-    maxFeePerGas: Number(userOp.maxFeePerGas),
-    maxPriorityFeePerGas: Number(userOp.maxPriorityFeePerGas),
-    paymaster: userOp.paymaster || '0x',
-    paymasterVerificationGasLimit: Number(
-      userOp.paymasterVerificationGasLimit || 0,
-    ),
-    paymasterPostOpGasLimit: Number(userOp.paymasterPostOpGasLimit || 0),
-    paymasterData: userOp.paymasterData || '0x',
-    signature: '0x',
-  };
-
   return await signUserOp(
     provider,
     TACO_DOMAIN,
     COHORT_ID,
     SEPOLIA_CHAIN_ID,
-    tacoUserOp,
+    userOp as UserOperationToSign,
     AA_VERSION,
     signingContext,
   );
@@ -210,10 +181,9 @@ async function main() {
     );
 
     console.log('🔏 Signing with TACo...');
+    // since the provider for this demo is already for sepolia, we can reuse it here
     const signature = await signUserOpWithTaco(userOp, provider);
-    console.log(
-      `✅ Signature collected (${signature.aggregatedSignature.length / 2 - 1} bytes)\n`,
-    );
+    console.log(`✅ Signature collected: ${signature.aggregatedSignature}\n`);
 
     console.log('🚀 Executing transaction...');
     const userOpHash = await bundlerClient.sendUserOperation({

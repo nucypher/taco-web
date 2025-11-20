@@ -77,32 +77,6 @@ export class SigningCoordinatorAgent {
     );
   }
 
-  public static async getCohortMultisigAddress(
-    provider: ethers.providers.Provider,
-    domain: Domain,
-    cohortId: number,
-    chainId: number,
-  ): Promise<string> {
-    const coordinator = await this.connectReadOnly(provider, domain);
-
-    // Get the SigningCoordinatorChild contract address for this chain
-    const childAddress = await coordinator.getSigningCoordinatorChild(chainId);
-
-    // Create a contract instance for the child (using generic Contract interface)
-    const childContract = new ethers.Contract(
-      childAddress,
-      [
-        // ABI for the cohortMultisigs function
-        'function cohortMultisigs(uint32) view returns (address)',
-      ],
-      provider,
-    );
-
-    // Get the multisig address for this cohort
-    const multisigAddress = await childContract.cohortMultisigs(cohortId);
-    return multisigAddress;
-  }
-
   private static async connectReadOnly(
     provider: ethers.providers.Provider,
     domain: Domain,

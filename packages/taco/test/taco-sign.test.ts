@@ -357,16 +357,7 @@ describe('TACo Signing', () => {
         userOp: UserOperationToSign | PackedUserOperationToSign,
       ) => {
         const encryptedResponses = {
-          '0xnode1': new SignatureResponse(
-            signersInfo['0xnode1'].signerAddress,
-            fromHexString('0xa1'),
-            fromHexString('0xdead'),
-            0,
-          ).encrypt(
-            requesterSk.deriveSharedSecret(
-              signersInfo['0xnode1'].signingRequestStaticKey,
-            ),
-          ),
+          // return out of order to ensure sorting works correctly
           '0xnode2': new SignatureResponse(
             signersInfo['0xnode2'].signerAddress,
             fromHexString('0xa1'),
@@ -375,6 +366,16 @@ describe('TACo Signing', () => {
           ).encrypt(
             requesterSk.deriveSharedSecret(
               signersInfo['0xnode2'].signingRequestStaticKey,
+            ),
+          ),
+          '0xnode1': new SignatureResponse(
+            signersInfo['0xnode1'].signerAddress,
+            fromHexString('0xa1'),
+            fromHexString('0xdead'),
+            0,
+          ).encrypt(
+            requesterSk.deriveSharedSecret(
+              signersInfo['0xnode1'].signingRequestStaticKey,
             ),
           ),
         };

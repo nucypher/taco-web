@@ -53,11 +53,11 @@ function checkPackedUserOpEquality(
       : fromHexString(op1.callData);
   expect(callData).toEqual(op2.callData);
 
-  const accountGasLimit =
-    op1.accountGasLimit instanceof Uint8Array
-      ? op1.accountGasLimit
-      : fromHexString(op1.accountGasLimit);
-  expect(accountGasLimit).toEqual(op2.accountGasLimits);
+  const accountGasLimits =
+    op1.accountGasLimits instanceof Uint8Array
+      ? op1.accountGasLimits
+      : fromHexString(op1.accountGasLimits);
+  expect(accountGasLimits).toEqual(op2.accountGasLimits);
 
   expect(toBigInt(op1.preVerificationGas)).toEqual(op2.preVerificationGas);
 
@@ -290,7 +290,7 @@ describe('TACo Signing', () => {
       nonce: BigInt(123),
       initCode: fromHexString('0xabc'),
       callData: fromHexString('0xdef'),
-      accountGasLimit: fromHexString('0x01020304'),
+      accountGasLimits: fromHexString('0x01020304'),
       preVerificationGas: BigInt(101112),
       gasFees: fromHexString('0x05060708'),
       paymasterAndData: fromHexString('0x090a0b0c'),
@@ -307,7 +307,7 @@ describe('TACo Signing', () => {
         nonce: 1,
         initCode: '0xabc',
         callData: '0xdef',
-        accountGasLimit: '0x01020304',
+        accountGasLimits: '0x01020304',
         preVerificationGas: 4096,
         gasFees: '0x05060708',
         paymasterAndData: '0x090a0b0c',
@@ -333,7 +333,7 @@ describe('TACo Signing', () => {
       nonce: BigInt(1),
       initCode: fromHexString('0xabc'),
       callData: fromHexString('0xdef'),
-      accountGasLimit: fromHexString('0x01020304'),
+      accountGasLimits: fromHexString('0x01020304'),
       preVerificationGas: BigInt(101112),
       gasFees: fromHexString('0x05060708'),
       paymasterAndData: fromHexString('0x090a0b0c'),

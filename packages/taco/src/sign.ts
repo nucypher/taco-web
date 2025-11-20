@@ -58,13 +58,12 @@ function aggregateSignatures(
   //  and remove the '0x' prefix from each signature except the first one.
 
   // sort by signer address
-  const sortedSignatures = signatures
-    .slice()
-    .sort((a, b) =>{
-      const addrA = BigInt(a.signerAddress);
-      const addrB = BigInt(b.signerAddress);
-      return addrA < addrB ? -1 : addrA > addrB ? 1 : 0;
-    })
+  const sortedSignatures = [...signatures]
+    .sort((a, b) =>
+      a.signerAddress
+        .toLowerCase()
+        .localeCompare(b.signerAddress.toLowerCase()),
+    )
     .map((sig) => sig.signature);
 
   const thresholdSignatures = sortedSignatures.slice(0, threshold);

@@ -30,10 +30,11 @@ export type PackedUserOperationToSign = {
   nonce: bigint | number;
   initCode: `0x${string}` | Uint8Array;
   callData: `0x${string}` | Uint8Array;
-  accountGasLimit: `0x${string}` | Uint8Array;
+  accountGasLimits: `0x${string}` | Uint8Array;
   preVerificationGas: bigint | number;
   gasFees: `0x${string}` | Uint8Array;
   paymasterAndData: `0x${string}` | Uint8Array;
+  signature?: `0x${string}` | Uint8Array | undefined;
 };
 
 function getBigIntValue(value: bigint | number): bigint {
@@ -101,7 +102,7 @@ export function toCorePackedUserOperation(
     getBigIntValue(packedUserOperation.nonce),
     getUint8ArrayValue(packedUserOperation.initCode),
     getUint8ArrayValue(packedUserOperation.callData),
-    getUint8ArrayValue(packedUserOperation.accountGasLimit),
+    getUint8ArrayValue(packedUserOperation.accountGasLimits),
     getBigIntValue(packedUserOperation.preVerificationGas),
     getUint8ArrayValue(packedUserOperation.gasFees),
     getUint8ArrayValue(packedUserOperation.paymasterAndData),

@@ -51,20 +51,30 @@ export type SignResult = {
 };
 
 function aggregateSignatures(
-  signaturesByAddress: {
-    [checksumAddress: string]: TacoSignature;
-  },
+  signatures: TacoSignature[],
   threshold: number,
 ): string {
-  // Aggregate hex signatures by concatenating them; being careful to remove the '0x' prefix from each signature except the first one.
-  const signatures = Object.values(signaturesByAddress)
-    .map((sig) => sig.signature)
-    .slice(0, threshold);
-  if (signatures.length === 1) {
-    return signatures[0];
+  // Aggregate hex signatures by concatenating them; being careful to sort
+  //  and remove the '0x' prefix from each signature except the first one.
+
+  // sort by signer address
+  const sortedSignatures = [...signatures]
+    .sort((a, b) =>
+      a.signerAddress
+        .toLowerCase()
+        .localeCompare(b.signerAddress.toLowerCase()),
+    )
+    .map((sig) => sig.signature);
+
+  const thresholdSignatures = sortedSignatures.slice(0, threshold);
+  if (thresholdSignatures.length === 1) {
+    return thresholdSignatures[0];
   }
+
   // Concatenate signatures
-  const allBytes = signatures.flatMap((hex) => Array.from(fromHexString(hex)));
+  const allBytes = thresholdSignatures.flatMap((sig) =>
+    Array.from(fromHexString(sig)),
+  );
   return `0x${toHexString(new Uint8Array(allBytes))}`;
 }
 
@@ -197,7 +207,7 @@ export async function signUserOp(
   );
 
   const aggregatedSignature = aggregateSignatures(
-    signaturesToAggregate,
+    Object.values(signaturesToAggregate),
     threshold,
   );
 
@@ -300,7 +310,7 @@ function collectSignatures(
 
   // Insufficient signatures for a message hash to meet the threshold
   if (!signaturesToAggregate) {
-    //we have multiple hashes, which means we have mismatched hashes from different nodes
+    // we have multiple hashes, which means we have mismatched hashes from different nodes
     //    we don't really expect this to happen (other than some malicious nodes)
     console.error(
       'Porter returned mismatched message hashes:',

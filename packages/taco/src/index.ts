@@ -1,6 +1,8 @@
 export { DkgPublicKey, ThresholdMessageKit } from '@nucypher/nucypher-core';
 export {
   Domain,
+  PackedUserOperationToSign,
+  UserOperationToSign,
   domains,
   fromBytes,
   getPorterUris,

@@ -289,7 +289,7 @@ describe('PorterClient Signing', () => {
             BigInt(123), // nonce
             fromHexString('0xabc'), // initCode
             fromHexString('0xdef'), // callData
-            fromHexString('0x01020304'), // accountGasLimit
+            fromHexString('0x01020304'), // accountGasLimits
             BigInt(101112), // preVerificationGas
             fromHexString('0x05060708'), // gasFees
             fromHexString('0x090a0b0c'), // paymasterAndData

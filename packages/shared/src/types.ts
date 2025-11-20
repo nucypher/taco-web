@@ -41,6 +41,10 @@ function getBigIntValue(value: bigint | number): bigint {
   return typeof value === 'bigint' ? value : BigInt(value);
 }
 
+function getUint256String(value: bigint | number): string {
+  return getBigIntValue(value).toString();
+}
+
 function getUint8ArrayValue(value: `0x${string}` | Uint8Array): Uint8Array {
   return value instanceof Uint8Array ? value : fromHexString(value);
 }
@@ -50,7 +54,7 @@ export function toCoreUserOperation(
 ): UserOperation {
   const userOp = new UserOperation(
     userOperation.sender,
-    getBigIntValue(userOperation.nonce),
+    getUint256String(userOperation.nonce), // nonce as string to support big numbers
     getUint8ArrayValue(userOperation.callData),
     getBigIntValue(userOperation.callGasLimit),
     getBigIntValue(userOperation.verificationGasLimit),
@@ -99,7 +103,7 @@ export function toCorePackedUserOperation(
 ): PackedUserOperation {
   const packedUserOp = new PackedUserOperation(
     packedUserOperation.sender,
-    getBigIntValue(packedUserOperation.nonce),
+    getUint256String(packedUserOperation.nonce), // nonce as string to support big numbers
     getUint8ArrayValue(packedUserOperation.initCode),
     getUint8ArrayValue(packedUserOperation.callData),
     getUint8ArrayValue(packedUserOperation.accountGasLimits),

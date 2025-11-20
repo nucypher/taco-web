@@ -39,7 +39,8 @@ function checkPackedUserOpEquality(
   op2: PackedUserOperation,
 ) {
   expect(op1.sender).toEqual(op2.sender);
-  expect(toBigInt(op1.nonce)).toEqual(op2.nonce);
+
+  expect(toBigInt(op1.nonce).toString()).toEqual(`${op2.nonce}`); // nonce as string internally to support big numbers
 
   const initCode =
     op1.initCode instanceof Uint8Array
@@ -77,7 +78,7 @@ function checkPackedUserOpEquality(
 function checkUserOpEquality(op1: UserOperationToSign, op2: UserOperation) {
   expect(op1.sender).toEqual(op2.sender);
 
-  expect(toBigInt(op1.nonce)).toEqual(op2.nonce);
+  expect(toBigInt(op1.nonce).toString()).toEqual(`${op2.nonce}`); // nonce as string internally to support big numbers
 
   const callData =
     op1.callData instanceof Uint8Array

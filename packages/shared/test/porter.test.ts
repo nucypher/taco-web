@@ -3,11 +3,9 @@ import axios, { HttpStatusCode } from 'axios';
 import { beforeAll, describe, expect, it, MockInstance, vi } from 'vitest';
 
 import {
-  PackedUserOperation,
   PackedUserOperationSignatureRequest,
   SessionStaticSecret,
   SignatureResponse,
-  UserOperation,
   UserOperationSignatureRequest,
 } from '@nucypher/nucypher-core';
 
@@ -19,6 +17,8 @@ import {
   initialize,
   PorterClient,
   toBase64,
+  toCorePackedUserOperation,
+  toCoreUserOperation,
   toHexString,
   Ursula,
 } from '../src';
@@ -238,16 +238,16 @@ describe('PorterClient Signing', () => {
 
     const createUserOpSignatureRequest = () =>
       new UserOperationSignatureRequest(
-        new UserOperation(
-          '0x000000000000000000000000000000000000000a',
-          BigInt(123), // nonce
-          fromHexString('0xabc'), // callData
-          BigInt(456), // callGasLimit
-          BigInt(789), // verificationGasLimit
-          BigInt(101112), // preVerificationGasLimit
-          BigInt(131415), // maxFeePerGas
-          BigInt(161718), // maxPriorityFeePerGas
-        ),
+        toCoreUserOperation({
+          sender: '0x000000000000000000000000000000000000000a',
+          nonce: BigInt(123),
+          callData: fromHexString('0xabc'),
+          callGasLimit: BigInt(456),
+          verificationGasLimit: BigInt(789),
+          preVerificationGas: BigInt(101112),
+          maxFeePerGas: BigInt(131415),
+          maxPriorityFeePerGas: BigInt(161718),
+        }),
         1, // cohort ID
         BigInt(1), // chain ID
         '0.8.0',
@@ -284,16 +284,16 @@ describe('PorterClient Signing', () => {
     it('should successfully sign a PackedUserOperation', async () => {
       const packedUserOperationSignatureRequest =
         new PackedUserOperationSignatureRequest(
-          new PackedUserOperation(
-            '0x000000000000000000000000000000000000000a',
-            BigInt(123), // nonce
-            fromHexString('0xabc'), // initCode
-            fromHexString('0xdef'), // callData
-            fromHexString('0x01020304'), // accountGasLimits
-            BigInt(101112), // preVerificationGas
-            fromHexString('0x05060708'), // gasFees
-            fromHexString('0x090a0b0c'), // paymasterAndData
-          ),
+          toCorePackedUserOperation({
+            sender: '0x000000000000000000000000000000000000000a',
+            nonce: BigInt(123),
+            initCode: fromHexString('0xabc'),
+            callData: fromHexString('0xdef'),
+            accountGasLimits: fromHexString('0x01020304'),
+            preVerificationGas: BigInt(101112),
+            gasFees: fromHexString('0x05060708'),
+            paymasterAndData: fromHexString('0x090a0b0c'),
+          }),
           1, // cohort ID
           BigInt(1), // chain ID
           'mdt',

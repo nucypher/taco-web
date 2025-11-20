@@ -34,6 +34,7 @@ export type PackedUserOperationToSign = {
   preVerificationGas: bigint | number;
   gasFees: `0x${string}` | Uint8Array;
   paymasterAndData: `0x${string}` | Uint8Array;
+  signature?: `0x${string}` | Uint8Array | undefined;
 };
 
 function getBigIntValue(value: bigint | number): bigint {

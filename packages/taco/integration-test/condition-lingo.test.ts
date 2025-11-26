@@ -233,7 +233,11 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
                 comparator: '==',
                 value:
                   '0x7b226b6579223a2276616c7565222c226e756d626572223a3432ffffffffffffff',
-                operations: [{ operation: 'toJson' }, { operation: 'toHex' }],
+                operations: [
+                  { operation: 'fromJson' },
+                  { operation: 'toJson' },
+                  { operation: 'toHex' },
+                ],
               },
             },
           },

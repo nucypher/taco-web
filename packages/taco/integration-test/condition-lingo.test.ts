@@ -221,5 +221,57 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       const conditionExpr = new ConditionExpression(sequentialCondition);
       await validateConditionExpression(conditionExpr);
     }, 15000);
+
+    test('validate conditions with JSON, hex, and keccak operations', async () => {
+      const sequentialCondition = new SequentialCondition({
+        conditionVariables: [
+          {
+            varName: 'jsonValue',
+            condition: {
+              ...testJsonApiConditionObj,
+              returnValueTest: {
+                comparator: '==',
+                value:
+                  '0x7b226b6579223a2276616c7565222c226e756d626572223a3432ffffffffffffff',
+                operations: [
+                  { operation: 'fromJson' },
+                  { operation: 'toJson' },
+                  { operation: 'toHex' },
+                ],
+              },
+            },
+          },
+          {
+            varName: 'hexValue',
+            condition: {
+              ...testRpcConditionObj,
+              returnValueTest: {
+                comparator: '==',
+                value: '"test string"',
+                operations: [{ operation: 'toHex' }, { operation: 'fromHex' }],
+              },
+            },
+          },
+          {
+            varName: 'keccakValue',
+            condition: {
+              ...testTimeConditionObj,
+              returnValueTest: {
+                comparator: '==',
+                value:
+                  '0x9c22ff5f21f0b81b113e633f7db6da94fededef11b2119b40888b89664fb9a3cb658',
+                operations: [
+                  { operation: 'str' },
+                  { operation: 'keccak' },
+                  { operation: 'toHex' },
+                ],
+              },
+            },
+          },
+        ],
+      });
+      const conditionExpr = new ConditionExpression(sequentialCondition);
+      await validateConditionExpression(conditionExpr);
+    }, 15000);
   },
 );

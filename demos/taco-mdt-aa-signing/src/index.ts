@@ -4,10 +4,14 @@ import {
   Implementation,
   toMetaMaskSmartAccount,
 } from '@metamask/delegation-toolkit';
+import { SigningCoordinatorAgent } from '@nucypher/shared';
 import {
-  SigningCoordinatorAgent,
-} from '@nucypher/shared';
-import { conditions, domains, initialize, signUserOp, UserOperationToSign } from '@nucypher/taco';
+  conditions,
+  domains,
+  initialize,
+  signUserOp,
+  UserOperationToSign,
+} from '@nucypher/taco';
 import * as dotenv from 'dotenv';
 import { ethers } from 'ethers';
 import {
@@ -39,7 +43,7 @@ async function createTacoSmartAccount(
   provider: ethers.providers.JsonRpcProvider,
 ) {
   await initialize();
-  
+
   const participants = await SigningCoordinatorAgent.getParticipants(
     provider,
     TACO_DOMAIN,

@@ -243,7 +243,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
               ...testRpcConditionObj,
               returnValueTest: {
                 comparator: '==',
-                value: 'test string',
+                value: '"test string"',
                 operations: [{ operation: 'toHex' }, { operation: 'fromHex' }],
               },
             },

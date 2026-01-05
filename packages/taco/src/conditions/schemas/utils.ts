@@ -6,6 +6,7 @@ import { contextVariableConditionSchema } from './context-variable';
 import { contractConditionSchema } from './contract';
 import { ecdsaConditionSchema } from './ecdsa';
 import { ifThenElseConditionSchema } from './if-then-else';
+import { jsonConditionSchema } from './json';
 import { jsonApiConditionSchema } from './json-api';
 import { jsonRpcConditionSchema } from './json-rpc';
 import { jwtConditionSchema } from './jwt';
@@ -24,6 +25,7 @@ export const anyConditionSchema: z.ZodSchema = z.lazy(() =>
     contextVariableConditionSchema,
     contractConditionSchema,
     ecdsaConditionSchema,
+    jsonConditionSchema,
     jsonApiConditionSchema,
     jsonRpcConditionSchema,
     jwtConditionSchema,

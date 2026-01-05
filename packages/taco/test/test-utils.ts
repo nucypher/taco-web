@@ -88,6 +88,10 @@ import {
   CompoundConditionType,
 } from '../src/conditions/compound-condition';
 import { ConditionExpression } from '../src/conditions/condition-expr';
+import {
+  IfThenElseConditionProps,
+  IfThenElseConditionType,
+} from '../src/conditions/if-then-else-condition';
 import { AddressAllowlistConditionProps } from '../src/conditions/predefined/address-allowlist';
 import { ERC721Balance } from '../src/conditions/predefined/erc721';
 import {
@@ -431,6 +435,13 @@ export const testSequentialConditionObj: SequentialConditionProps = {
       condition: testContractConditionObj,
     },
   ],
+};
+
+export const testIfThenElseConditionObj: IfThenElseConditionProps = {
+  conditionType: IfThenElseConditionType,
+  ifCondition: testRpcConditionObj,
+  thenCondition: testTimeConditionObj,
+  elseCondition: testContractConditionObj,
 };
 
 export const testSigningObjectAttributeConditionObj: SigningObjectAttributeConditionProps =

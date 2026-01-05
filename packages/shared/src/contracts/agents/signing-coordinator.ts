@@ -77,6 +77,15 @@ export class SigningCoordinatorAgent {
     );
   }
 
+  public static async getSigningCoordinatorChild(
+    provider: ethers.providers.Provider,
+    domain: Domain,
+    chainId: number,
+  ): Promise<string> {
+    const coordinator = await this.connectReadOnly(provider, domain);
+    return await coordinator.getSigningCoordinatorChild(chainId);
+  }
+
   private static async connectReadOnly(
     provider: ethers.providers.Provider,
     domain: Domain,

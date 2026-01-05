@@ -9,6 +9,7 @@ _Union of the following possible types:_
 - [ContextVariableCondition](#contextvariablecondition)
 - [ContractCondition](#contractcondition)
 - [EcdsaCondition](#ecdsacondition)
+- [JsonCondition](#jsoncondition)
 - [JsonApiCondition](#jsonapicondition)
 - [JsonRpcCondition](#jsonrpccondition)
 - [JwtCondition](#jwtcondition)

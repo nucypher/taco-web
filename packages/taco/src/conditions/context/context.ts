@@ -20,6 +20,7 @@ import {
   CONTEXT_PARAM_REGEXP,
   USER_ADDRESS_PARAMS,
 } from '../const';
+import { getAllNestedConditionVariableNames } from '../schemas/sequential';
 import { SIGNING_CONDITION_OBJECT_CONTEXT_VAR } from '../schemas/signing';
 
 export type CustomContextParam =
@@ -210,6 +211,12 @@ export class ConditionContext {
   }
 
   private static findContextParameters(condition: ConditionProps) {
+    // Collect internally-defined variable names from sequential conditions
+    // These are scoped within the condition and should not be required as external context
+    const internalVarNames = new Set(
+      getAllNestedConditionVariableNames(condition).map((name) => `:${name}`),
+    );
+
     // find all the context variables we need
     const requestedParameters = new Set<string>();
 
@@ -217,7 +224,10 @@ export class ConditionContext {
     const properties = Object.keys(condition) as (keyof typeof condition)[];
     properties.forEach((prop) => {
       this.findContextParameter(condition[prop]).forEach((contextVar) => {
-        if (!AUTOMATICALLY_INJECTED_CONTEXT_PARAMS.includes(contextVar)) {
+        if (
+          !AUTOMATICALLY_INJECTED_CONTEXT_PARAMS.includes(contextVar) &&
+          !internalVarNames.has(contextVar)
+        ) {
           requestedParameters.add(contextVar);
         }
       });

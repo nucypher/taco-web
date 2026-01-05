@@ -9,7 +9,7 @@ import { IfThenElseConditionType } from './if-then-else';
 import { anyConditionSchema } from './utils';
 import { variableOperationsArraySchema } from './variable-operation';
 
-const getAllNestedConditionVariableNames = (
+export const getAllNestedConditionVariableNames = (
   condition: ConditionProps,
 ): string[] => {
   const conditionVariables: string[] = [];

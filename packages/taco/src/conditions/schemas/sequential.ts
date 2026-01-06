@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { ConditionProps } from '../condition';
+import { findAllContextParams } from '../const';
 import { maxNestedDepth } from '../multi-condition';
 
 import { baseConditionSchema, plainStringSchema } from './common';
@@ -48,6 +49,26 @@ const noDuplicateVarNames = (condition: ConditionProps): boolean => {
   return duplicates.length === 0;
 };
 
+/**
+ * Validates that no varName collides with an external context parameter.
+ * If a varName 'foo' is defined, ':foo' cannot also be used as a context param.
+ */
+const noVarNameContextParamCollisions = (
+  condition: ConditionProps,
+): boolean => {
+  const allVarNames = getAllNestedConditionVariableNames(condition);
+  const allContextParams = findAllContextParams(condition);
+
+  // Check if any varName (with : prefix) appears in context params
+  for (const varName of allVarNames) {
+    if (allContextParams.has(`:${varName}`)) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 export const SequentialConditionType = 'sequential';
 
 export const conditionVariableSchema: z.ZodSchema = z.lazy(() =>
@@ -86,6 +107,16 @@ export const sequentialConditionSchema: z.ZodSchema = baseConditionSchema
     },
     {
       message: 'Duplicate variable names are not allowed',
+      path: ['conditionVariables'],
+    },
+  )
+  .refine(
+    (condition) => {
+      return noVarNameContextParamCollisions(condition);
+    },
+    {
+      message:
+        'Variable name cannot be the same as a context parameter name used in the condition',
       path: ['conditionVariables'],
     },
   );

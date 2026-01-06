@@ -15,9 +15,9 @@ import { toJSON } from '../../utils';
 import { Condition, ConditionProps } from '../condition';
 import { ConditionExpression } from '../condition-expr';
 import {
-  CONTEXT_PARAM_FULL_MATCH_REGEXP,
   CONTEXT_PARAM_PREFIX,
-  CONTEXT_PARAM_REGEXP,
+  findAllContextParams,
+  isContextParameter,
   USER_ADDRESS_PARAMS,
 } from '../const';
 import { getAllNestedConditionVariableNames } from '../schemas/sequential';
@@ -144,7 +144,7 @@ export class ConditionContext {
   }
 
   private validateCustomContextParameter(customParam: string): void {
-    if (!ConditionContext.isContextParameter(customParam)) {
+    if (!isContextParameter(customParam)) {
       throw new Error(ERR_INVALID_CUSTOM_PARAM(customParam));
     }
 
@@ -161,55 +161,6 @@ export class ConditionContext {
     }
   }
 
-  private static isContextParameter(param: unknown): boolean {
-    return !!String(param).match(CONTEXT_PARAM_FULL_MATCH_REGEXP);
-  }
-
-  private static findContextParameter(value: unknown): Set<string> {
-    const includedContextVars = new Set<string>();
-
-    // value not set
-    if (!value) {
-      return includedContextVars;
-    }
-
-    if (typeof value === 'string') {
-      if (this.isContextParameter(value)) {
-        // entire string is context parameter
-        includedContextVars.add(String(value));
-      } else {
-        // context var could be substring; find all matches
-        const contextVarMatches = value.match(
-          // RegExp with 'g' is stateful, so new instance needed every time
-          new RegExp(CONTEXT_PARAM_REGEXP.source, 'g'),
-        );
-        if (contextVarMatches) {
-          for (const match of contextVarMatches) {
-            includedContextVars.add(match);
-          }
-        }
-      }
-    } else if (Array.isArray(value)) {
-      // array
-      value.forEach((subValue) => {
-        const contextVarsForValue = this.findContextParameter(subValue);
-        contextVarsForValue.forEach((contextVar) => {
-          includedContextVars.add(contextVar);
-        });
-      });
-    } else if (typeof value === 'object') {
-      // dictionary (Record<string, T> - complex object eg. Condition, ConditionVariable, ReturnValueTest etc.)
-      for (const [, entry] of Object.entries(value)) {
-        const contextVarsForValue = this.findContextParameter(entry);
-        contextVarsForValue.forEach((contextVar) => {
-          includedContextVars.add(contextVar);
-        });
-      }
-    }
-
-    return includedContextVars;
-  }
-
   private static findContextParameters(condition: ConditionProps) {
     // Collect internally-defined variable names from sequential conditions
     // These are scoped within the condition and should not be required as external context
@@ -223,7 +174,7 @@ export class ConditionContext {
     // iterate through all properties in ConditionProps
     const properties = Object.keys(condition) as (keyof typeof condition)[];
     properties.forEach((prop) => {
-      this.findContextParameter(condition[prop]).forEach((contextVar) => {
+      findAllContextParams(condition[prop]).forEach((contextVar) => {
         if (
           !AUTOMATICALLY_INJECTED_CONTEXT_PARAMS.includes(contextVar) &&
           !internalVarNames.has(contextVar)

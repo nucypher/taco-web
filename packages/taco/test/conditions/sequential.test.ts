@@ -520,4 +520,228 @@ describe('validation', () => {
     expect(result.error).toBeUndefined();
     expect(result.data).toEqual(conditionObj);
   });
+
+  describe('varName and context param collision', () => {
+    it('rejects when varName collides with context param in returnValueTest', () => {
+      const conditionObj = {
+        conditionType: SequentialConditionType,
+        conditionVariables: [
+          {
+            varName: 'myValue',
+            condition: testRpcConditionObj,
+          },
+          {
+            varName: 'result',
+            condition: {
+              ...testTimeConditionObj,
+              returnValueTest: {
+                comparator: '>',
+                value: ':myValue', // This collides with varName 'myValue'
+              },
+            },
+          },
+        ],
+      };
+      const result = SequentialCondition.validate(
+        sequentialConditionSchema,
+        conditionObj,
+      );
+      expect(result.error).toBeDefined();
+      expect(result.data).toBeUndefined();
+      expect(result.error?.format()).toMatchObject({
+        conditionVariables: {
+          _errors: [
+            'Variable name cannot be the same as a context parameter name used in the condition',
+          ],
+        },
+      });
+    });
+
+    it('rejects when varName collides with context param in operations', () => {
+      const conditionObj = {
+        conditionType: SequentialConditionType,
+        conditionVariables: [
+          {
+            varName: 'multiplier',
+            condition: testRpcConditionObj,
+          },
+          {
+            varName: 'result',
+            condition: {
+              ...testTimeConditionObj,
+              returnValueTest: {
+                comparator: '>',
+                value: 100,
+                operations: [
+                  { operation: '*=', value: ':multiplier' }, // Collides with varName
+                ],
+              },
+            },
+          },
+        ],
+      };
+      const result = SequentialCondition.validate(
+        sequentialConditionSchema,
+        conditionObj,
+      );
+      expect(result.error).toBeDefined();
+      expect(result.data).toBeUndefined();
+      expect(result.error?.format()).toMatchObject({
+        conditionVariables: {
+          _errors: [
+            'Variable name cannot be the same as a context parameter name used in the condition',
+          ],
+        },
+      });
+    });
+
+    it('rejects when nested sequential varName collides with context param in outer condition', () => {
+      const conditionObj = {
+        conditionType: SequentialConditionType,
+        conditionVariables: [
+          {
+            varName: 'outer',
+            condition: {
+              ...testRpcConditionObj,
+              returnValueTest: {
+                comparator: '>',
+                value: ':innerVar', // References a varName defined in nested sequential
+              },
+            },
+          },
+          {
+            varName: 'nested',
+            condition: {
+              conditionType: SequentialConditionType,
+              conditionVariables: [
+                {
+                  varName: 'innerVar', // This varName collides with :innerVar above
+                  condition: testRpcConditionObj,
+                },
+                {
+                  varName: 'innerResult',
+                  condition: testTimeConditionObj,
+                },
+              ],
+            },
+          },
+        ],
+      };
+      const result = SequentialCondition.validate(
+        sequentialConditionSchema,
+        conditionObj,
+      );
+      expect(result.error).toBeDefined();
+      expect(result.data).toBeUndefined();
+      expect(result.error?.format()).toMatchObject({
+        conditionVariables: {
+          _errors: [
+            'Variable name cannot be the same as a context parameter name used in the condition',
+          ],
+        },
+      });
+    });
+
+    it('rejects when varName collides with context param in compound condition', () => {
+      const conditionObj = {
+        conditionType: SequentialConditionType,
+        conditionVariables: [
+          {
+            varName: 'threshold',
+            condition: testRpcConditionObj,
+          },
+          {
+            varName: 'compound',
+            condition: {
+              conditionType: CompoundConditionType,
+              operator: 'and',
+              operands: [
+                {
+                  ...testTimeConditionObj,
+                  returnValueTest: {
+                    comparator: '>',
+                    value: ':threshold', // Collides with varName
+                  },
+                },
+                testRpcConditionObj,
+              ],
+            },
+          },
+        ],
+      };
+      const result = SequentialCondition.validate(
+        sequentialConditionSchema,
+        conditionObj,
+      );
+      expect(result.error).toBeDefined();
+      expect(result.data).toBeUndefined();
+      expect(result.error?.format()).toMatchObject({
+        conditionVariables: {
+          _errors: [
+            'Variable name cannot be the same as a context parameter name used in the condition',
+          ],
+        },
+      });
+    });
+
+    it('allows different names for varName and context params', () => {
+      const conditionObj = {
+        conditionType: SequentialConditionType,
+        conditionVariables: [
+          {
+            varName: 'rpcResult',
+            condition: testRpcConditionObj,
+          },
+          {
+            varName: 'timeResult',
+            condition: {
+              ...testTimeConditionObj,
+              returnValueTest: {
+                comparator: '>',
+                value: ':externalThreshold', // Different name, no collision
+              },
+            },
+          },
+        ],
+      };
+      const result = SequentialCondition.validate(
+        sequentialConditionSchema,
+        conditionObj,
+      );
+      expect(result.error).toBeUndefined();
+      expect(result.data).toBeDefined();
+    });
+
+    it('rejects when varName collides with context param as substring', () => {
+      const conditionObj = {
+        conditionType: SequentialConditionType,
+        conditionVariables: [
+          {
+            varName: 'amount',
+            condition: testRpcConditionObj,
+          },
+          {
+            varName: 'result',
+            condition: {
+              ...testJsonApiConditionObj,
+              query: '$.data[:amount].value', // :amount appears as substring
+            },
+          },
+        ],
+      };
+      const result = SequentialCondition.validate(
+        sequentialConditionSchema,
+        conditionObj,
+      );
+      expect(result.error).toBeDefined();
+      expect(result.data).toBeUndefined();
+      expect(result.error?.format()).toMatchObject({
+        conditionVariables: {
+          _errors: [
+            'Variable name cannot be the same as a context parameter name used in the condition',
+          ],
+        },
+      });
+    });
+  });
 });

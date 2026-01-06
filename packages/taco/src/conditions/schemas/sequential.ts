@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { ConditionProps } from '../condition';
-import { CONTEXT_PARAM_REGEXP } from '../const';
+import { findAllContextParams } from '../const';
 import { maxNestedDepth } from '../multi-condition';
 
 import { baseConditionSchema, plainStringSchema } from './common';
@@ -47,35 +47,6 @@ const noDuplicateVarNames = (condition: ConditionProps): boolean => {
     (item, index) => allVarNames.indexOf(item) !== index,
   );
   return duplicates.length === 0;
-};
-
-/**
- * Recursively finds all context parameters (`:paramName`) in a condition tree.
- */
-const findAllContextParams = (value: unknown): Set<string> => {
-  const contextParams = new Set<string>();
-
-  if (!value) {
-    return contextParams;
-  }
-
-  if (typeof value === 'string') {
-    // Find all context param matches in the string
-    const matches = value.match(new RegExp(CONTEXT_PARAM_REGEXP.source, 'g'));
-    if (matches) {
-      matches.forEach((match) => contextParams.add(match));
-    }
-  } else if (Array.isArray(value)) {
-    value.forEach((item) => {
-      findAllContextParams(item).forEach((param) => contextParams.add(param));
-    });
-  } else if (typeof value === 'object') {
-    Object.values(value).forEach((entry) => {
-      findAllContextParams(entry).forEach((param) => contextParams.add(param));
-    });
-  }
-
-  return contextParams;
 };
 
 /**

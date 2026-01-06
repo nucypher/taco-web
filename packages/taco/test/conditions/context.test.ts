@@ -1468,6 +1468,7 @@ describe('sequential condition varName scoping', () => {
     const conditionContext = new ConditionContext(condition);
 
     // :rpcValue should NOT be in requestedContextParameters since it's internally defined
+    expect(conditionContext.requestedContextParameters.size).toBe(0);
     expect(conditionContext.requestedContextParameters).not.toContain(
       ':rpcValue',
     );
@@ -1528,6 +1529,7 @@ describe('sequential condition varName scoping', () => {
     );
 
     // External context params SHOULD be in requestedContextParameters
+    expect(conditionContext.requestedContextParameters.size).toBe(2);
     expect(conditionContext.requestedContextParameters).toContain(
       ':externalThreshold',
     );
@@ -1654,6 +1656,7 @@ describe('sequential condition varName scoping', () => {
     );
 
     // External context param SHOULD be in requestedContextParameters
+    expect(conditionContext.requestedContextParameters.size).toBe(1);
     expect(conditionContext.requestedContextParameters).toContain(
       ':externalParam',
     );
@@ -1719,6 +1722,7 @@ describe('sequential condition varName scoping', () => {
     );
 
     // External context param SHOULD be in requestedContextParameters
+    expect(conditionContext.requestedContextParameters.size).toBe(2);
     expect(conditionContext.requestedContextParameters).toContain(
       ':externalContextVar1',
     );

@@ -22,6 +22,10 @@ import {
 } from '../const';
 import { getAllNestedConditionVariableNames } from '../schemas/sequential';
 import { SIGNING_CONDITION_OBJECT_CONTEXT_VAR } from '../schemas/signing';
+import {
+  SequentialConditionProps,
+  SequentialConditionType,
+} from '../sequential';
 
 export type CustomContextParam =
   | string
@@ -199,10 +203,28 @@ export class ConditionContext {
       });
     } else if (typeof value === 'object') {
       // dictionary (Record<string, T> - complex object eg. Condition, ConditionVariable, ReturnValueTest etc.)
+
+      // Collect internally-defined variable names from sequential conditions
+      // These are scoped within the condition and should not be required as external context
+      const internalContextVariablesFromConditionVariables = new Set<string>();
+      if (
+        'conditionType' in value &&
+        value.conditionType === SequentialConditionType
+      ) {
+        getAllNestedConditionVariableNames(
+          value as SequentialConditionProps,
+        ).forEach((varName) => {
+          internalContextVariablesFromConditionVariables.add(`:${varName}`);
+        });
+      }
+
+      // iterate through all entries
       for (const [, entry] of Object.entries(value)) {
         const contextVarsForValue = this.findContextParameter(entry);
         contextVarsForValue.forEach((contextVar) => {
-          includedContextVars.add(contextVar);
+          if (!internalContextVariablesFromConditionVariables.has(contextVar)) {
+            includedContextVars.add(contextVar);
+          }
         });
       }
     }
@@ -211,14 +233,22 @@ export class ConditionContext {
   }
 
   private static findContextParameters(condition: ConditionProps) {
-    // Collect internally-defined variable names from sequential conditions
-    // These are scoped within the condition and should not be required as external context
-    const internalVarNames = new Set(
-      getAllNestedConditionVariableNames(condition).map((name) => `:${name}`),
-    );
-
     // find all the context variables we need
     const requestedParameters = new Set<string>();
+
+    // Collect internally-defined variable names from sequential conditions
+    // These are scoped within the condition and should not be required as external context
+    const internalContextVariablesFromConditionVariables = new Set<string>();
+    if (
+      'conditionType' in condition &&
+      condition.conditionType === SequentialConditionType
+    ) {
+      getAllNestedConditionVariableNames(
+        condition as SequentialConditionProps,
+      ).forEach((varName) => {
+        internalContextVariablesFromConditionVariables.add(`:${varName}`);
+      });
+    }
 
     // iterate through all properties in ConditionProps
     const properties = Object.keys(condition) as (keyof typeof condition)[];
@@ -226,7 +256,7 @@ export class ConditionContext {
       this.findContextParameter(condition[prop]).forEach((contextVar) => {
         if (
           !AUTOMATICALLY_INJECTED_CONTEXT_PARAMS.includes(contextVar) &&
-          !internalVarNames.has(contextVar)
+          !internalContextVariablesFromConditionVariables.has(contextVar)
         ) {
           requestedParameters.add(contextVar);
         }

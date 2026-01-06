@@ -1658,4 +1658,72 @@ describe('sequential condition varName scoping', () => {
       ':externalParam',
     );
   });
+  it('handles external context variable within sequential', () => {
+    const compoundWithSequential = {
+      conditionType: CompoundConditionType,
+      operator: 'or',
+      operands: [
+        {
+          conditionType: SequentialConditionType,
+          conditionVariables: [
+            {
+              varName: 'seqVar1',
+              condition: testRpcConditionObj,
+            },
+            {
+              varName: 'seqVar2',
+              condition: {
+                ...testTimeConditionObj,
+                returnValueTest: {
+                  comparator: '>',
+                  value: ':externalContextVar1', // External context param
+                },
+              },
+            },
+            {
+              varName: 'seqVar3',
+              condition: {
+                ...testContractConditionObj,
+                returnValueTest: {
+                  comparator: '<=',
+                  value: ':seqVar1', // Internal reference
+                },
+              },
+            },
+          ],
+        },
+        {
+          ...testContractConditionObj,
+          returnValueTest: {
+            comparator: '>=',
+            value: ':externalContextVar2', // External context param
+          },
+        },
+      ],
+    };
+
+    const condition = ConditionFactory.conditionFromProps(
+      compoundWithSequential,
+    );
+    const conditionContext = new ConditionContext(condition);
+
+    // Internal varNames should NOT be in requestedContextParameters
+    expect(conditionContext.requestedContextParameters).not.toContain(
+      ':seqVar1',
+    );
+    expect(conditionContext.requestedContextParameters).not.toContain(
+      ':seqVar2',
+    );
+    expect(conditionContext.requestedContextParameters).not.toContain(
+      ':seqVar3',
+    );
+
+    // External context param SHOULD be in requestedContextParameters
+    expect(conditionContext.requestedContextParameters).toContain(
+      ':externalContextVar1',
+    );
+    expect(conditionContext.requestedContextParameters).toContain(
+      ':externalContextVar2',
+    );
+  });
 });

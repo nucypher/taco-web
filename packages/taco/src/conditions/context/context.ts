@@ -20,7 +20,7 @@ import {
   CONTEXT_PARAM_REGEXP,
   USER_ADDRESS_PARAMS,
 } from '../const';
-import { getAllNestedConditionVariableNames } from '../schemas/sequential';
+import { ConditionVariableProps } from '../schemas/sequential';
 import { SIGNING_CONDITION_OBJECT_CONTEXT_VAR } from '../schemas/signing';
 import {
   SequentialConditionProps,
@@ -211,11 +211,13 @@ export class ConditionContext {
         'conditionType' in value &&
         value.conditionType === SequentialConditionType
       ) {
-        getAllNestedConditionVariableNames(
-          value as SequentialConditionProps,
-        ).forEach((varName) => {
-          internalContextVariablesFromConditionVariables.add(`:${varName}`);
-        });
+        (value as SequentialConditionProps).conditionVariables.forEach(
+          (variable: ConditionVariableProps) => {
+            internalContextVariablesFromConditionVariables.add(
+              `:${variable.varName}`,
+            );
+          },
+        );
       }
 
       // iterate through all entries
@@ -243,11 +245,13 @@ export class ConditionContext {
       'conditionType' in condition &&
       condition.conditionType === SequentialConditionType
     ) {
-      getAllNestedConditionVariableNames(
-        condition as SequentialConditionProps,
-      ).forEach((varName) => {
-        internalContextVariablesFromConditionVariables.add(`:${varName}`);
-      });
+      (condition as SequentialConditionProps).conditionVariables.forEach(
+        (variable: ConditionVariableProps) => {
+          internalContextVariablesFromConditionVariables.add(
+            `:${variable.varName}`,
+          );
+        },
+      );
     }
 
     // iterate through all properties in ConditionProps

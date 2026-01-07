@@ -9,7 +9,7 @@ import { IfThenElseConditionType } from './if-then-else';
 import { anyConditionSchema } from './utils';
 import { variableOperationsArraySchema } from './variable-operation';
 
-const getAllNestedConditionVariableNames = (
+export const getAllNestedConditionVariableNames = (
   condition: ConditionProps,
 ): string[] => {
   const conditionVariables: string[] = [];
@@ -71,7 +71,7 @@ export const sequentialConditionSchema: z.ZodSchema = baseConditionSchema
     conditionType: z
       .literal(SequentialConditionType)
       .default(SequentialConditionType),
-    conditionVariables: z.array(conditionVariableSchema).min(2).max(5),
+    conditionVariables: z.array(conditionVariableSchema).min(2).max(10),
   })
   .refine(
     (condition) => maxNestedDepth(2)(condition),

@@ -1438,3 +1438,296 @@ describe('forSigningCohort', () => {
     getSigningCohortConditionsSpy.mockRestore();
   });
 });
+
+describe('sequential condition varName scoping', () => {
+  it('excludes internal varName references from required context parameters', () => {
+    // This sequential condition defines varNames 'rpcValue' and 'timeValue'
+    // and references ':rpcValue' in a subsequent returnValueTest
+    // The ':rpcValue' should NOT be treated as an external context parameter
+    const sequentialCondition = {
+      conditionType: SequentialConditionType,
+      conditionVariables: [
+        {
+          varName: 'rpcValue',
+          condition: testRpcConditionObj,
+        },
+        {
+          varName: 'timeValue',
+          condition: {
+            ...testTimeConditionObj,
+            returnValueTest: {
+              comparator: '>',
+              value: ':rpcValue', // References internal varName
+            },
+          },
+        },
+      ],
+    };
+
+    const condition = ConditionFactory.conditionFromProps(sequentialCondition);
+    const conditionContext = new ConditionContext(condition);
+
+    // :rpcValue should NOT be in requestedContextParameters since it's internally defined
+    expect(conditionContext.requestedContextParameters.size).toBe(0);
+    expect(conditionContext.requestedContextParameters).not.toContain(
+      ':rpcValue',
+    );
+    expect(conditionContext.requestedContextParameters).not.toContain(
+      ':timeValue',
+    );
+  });
+
+  it('correctly identifies external context params while excluding internal varNames', () => {
+    // This sequential condition has both:
+    // - Internal varNames: 'rpcValue', 'contractValue'
+    // - External context params: ':externalMultiplier', ':externalThreshold'
+    const sequentialCondition = {
+      conditionType: SequentialConditionType,
+      conditionVariables: [
+        {
+          varName: 'rpcValue',
+          condition: testRpcConditionObj,
+        },
+        {
+          varName: 'contractValue',
+          condition: {
+            ...testContractConditionObj,
+            returnValueTest: {
+              comparator: '>',
+              value: ':rpcValue', // Internal reference
+            },
+          },
+        },
+        {
+          varName: 'finalValue',
+          condition: {
+            ...testTimeConditionObj,
+            returnValueTest: {
+              comparator: '>=',
+              value: ':externalThreshold', // External context param
+              operations: [
+                { operation: '*=', value: ':externalMultiplier' }, // External context param
+              ],
+            },
+          },
+        },
+      ],
+    };
+
+    const condition = ConditionFactory.conditionFromProps(sequentialCondition);
+    const conditionContext = new ConditionContext(condition);
+
+    // Internal varNames should NOT be in requestedContextParameters
+    expect(conditionContext.requestedContextParameters).not.toContain(
+      ':rpcValue',
+    );
+    expect(conditionContext.requestedContextParameters).not.toContain(
+      ':contractValue',
+    );
+    expect(conditionContext.requestedContextParameters).not.toContain(
+      ':finalValue',
+    );
+
+    // External context params SHOULD be in requestedContextParameters
+    expect(conditionContext.requestedContextParameters.size).toBe(2);
+    expect(conditionContext.requestedContextParameters).toContain(
+      ':externalThreshold',
+    );
+    expect(conditionContext.requestedContextParameters).toContain(
+      ':externalMultiplier',
+    );
+  });
+
+  it('handles nested sequential conditions with varName scoping', () => {
+    // Nested sequential conditions should have their varNames properly scoped
+    const nestedSequentialCondition = {
+      conditionType: SequentialConditionType,
+      conditionVariables: [
+        {
+          varName: 'outerRpc',
+          condition: testRpcConditionObj,
+        },
+        {
+          varName: 'nestedSequential',
+          condition: {
+            conditionType: SequentialConditionType,
+            conditionVariables: [
+              {
+                varName: 'innerRpc',
+                condition: testRpcConditionObj,
+              },
+              {
+                varName: 'innerTime',
+                condition: {
+                  ...testTimeConditionObj,
+                  returnValueTest: {
+                    comparator: '>',
+                    value: ':innerRpc', // References inner varName
+                  },
+                },
+              },
+            ],
+          },
+        },
+        {
+          varName: 'outerFinal',
+          condition: {
+            ...testTimeConditionObj,
+            returnValueTest: {
+              comparator: '>=',
+              value: ':outerRpc', // References outer varName
+            },
+          },
+        },
+      ],
+    };
+
+    const condition = ConditionFactory.conditionFromProps(
+      nestedSequentialCondition,
+    );
+    const conditionContext = new ConditionContext(condition);
+
+    // All internal varNames (outer and inner) should NOT be in requestedContextParameters
+    expect(conditionContext.requestedContextParameters).not.toContain(
+      ':outerRpc',
+    );
+    expect(conditionContext.requestedContextParameters).not.toContain(
+      ':nestedSequential',
+    );
+    expect(conditionContext.requestedContextParameters).not.toContain(
+      ':innerRpc',
+    );
+    expect(conditionContext.requestedContextParameters).not.toContain(
+      ':innerTime',
+    );
+    expect(conditionContext.requestedContextParameters).not.toContain(
+      ':outerFinal',
+    );
+
+    // Should have no external context parameters in this case
+    expect(conditionContext.requestedContextParameters.size).toBe(0);
+  });
+
+  it('handles compound conditions containing sequential conditions with varName scoping', () => {
+    const compoundWithSequential = {
+      conditionType: CompoundConditionType,
+      operator: 'or',
+      operands: [
+        {
+          conditionType: SequentialConditionType,
+          conditionVariables: [
+            {
+              varName: 'seqVar1',
+              condition: testRpcConditionObj,
+            },
+            {
+              varName: 'seqVar2',
+              condition: {
+                ...testTimeConditionObj,
+                returnValueTest: {
+                  comparator: '>',
+                  value: ':seqVar1', // Internal reference
+                },
+              },
+            },
+          ],
+        },
+        {
+          ...testContractConditionObj,
+          returnValueTest: {
+            comparator: '>=',
+            value: ':externalParam', // External context param
+          },
+        },
+      ],
+    };
+
+    const condition = ConditionFactory.conditionFromProps(
+      compoundWithSequential,
+    );
+    const conditionContext = new ConditionContext(condition);
+
+    // Internal varNames should NOT be in requestedContextParameters
+    expect(conditionContext.requestedContextParameters).not.toContain(
+      ':seqVar1',
+    );
+    expect(conditionContext.requestedContextParameters).not.toContain(
+      ':seqVar2',
+    );
+
+    // External context param SHOULD be in requestedContextParameters
+    expect(conditionContext.requestedContextParameters.size).toBe(1);
+    expect(conditionContext.requestedContextParameters).toContain(
+      ':externalParam',
+    );
+  });
+  it('handles external context variable within sequential', () => {
+    const compoundWithSequential = {
+      conditionType: CompoundConditionType,
+      operator: 'or',
+      operands: [
+        {
+          conditionType: SequentialConditionType,
+          conditionVariables: [
+            {
+              varName: 'seqVar1',
+              condition: testRpcConditionObj,
+            },
+            {
+              varName: 'seqVar2',
+              condition: {
+                ...testTimeConditionObj,
+                returnValueTest: {
+                  comparator: '>',
+                  value: ':externalContextVar1', // External context param
+                },
+              },
+            },
+            {
+              varName: 'seqVar3',
+              condition: {
+                ...testContractConditionObj,
+                returnValueTest: {
+                  comparator: '<=',
+                  value: ':seqVar1', // Internal reference
+                },
+              },
+            },
+          ],
+        },
+        {
+          ...testContractConditionObj,
+          returnValueTest: {
+            comparator: '>=',
+            value: ':externalContextVar2', // External context param
+          },
+        },
+      ],
+    };
+
+    const condition = ConditionFactory.conditionFromProps(
+      compoundWithSequential,
+    );
+    const conditionContext = new ConditionContext(condition);
+
+    // Internal varNames should NOT be in requestedContextParameters
+    expect(conditionContext.requestedContextParameters).not.toContain(
+      ':seqVar1',
+    );
+    expect(conditionContext.requestedContextParameters).not.toContain(
+      ':seqVar2',
+    );
+    expect(conditionContext.requestedContextParameters).not.toContain(
+      ':seqVar3',
+    );
+
+    // External context param SHOULD be in requestedContextParameters
+    expect(conditionContext.requestedContextParameters.size).toBe(2);
+    expect(conditionContext.requestedContextParameters).toContain(
+      ':externalContextVar1',
+    );
+    expect(conditionContext.requestedContextParameters).toContain(
+      ':externalContextVar2',
+    );
+  });
+});

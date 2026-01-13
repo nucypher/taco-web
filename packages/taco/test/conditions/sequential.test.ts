@@ -112,7 +112,7 @@ describe('validation', () => {
   });
 
   it('rejects > max number of condition variables', () => {
-    const tooManyConditionVariables = new Array(11);
+    const tooManyConditionVariables = new Array(21);
     for (let i = 0; i < tooManyConditionVariables.length; i++) {
       tooManyConditionVariables[i] = {
         varName: `var${i}`,
@@ -127,7 +127,7 @@ describe('validation', () => {
     expect(result.data).toBeUndefined();
     expect(result.error?.format()).toMatchObject({
       conditionVariables: {
-        _errors: ['Array must contain at most 10 element(s)'],
+        _errors: ['Array must contain at most 20 element(s)'],
       },
     });
   });

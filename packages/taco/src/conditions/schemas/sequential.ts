@@ -71,7 +71,7 @@ export const sequentialConditionSchema: z.ZodSchema = baseConditionSchema
     conditionType: z
       .literal(SequentialConditionType)
       .default(SequentialConditionType),
-    conditionVariables: z.array(conditionVariableSchema).min(2).max(10),
+    conditionVariables: z.array(conditionVariableSchema).min(2).max(20),
   })
   .refine(
     (condition) => maxNestedDepth(4)(condition),

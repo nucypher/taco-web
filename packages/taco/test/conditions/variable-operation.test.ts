@@ -49,3 +49,41 @@ describe('validates schema', () => {
     },
   );
 });
+
+describe('exponent operator', () => {
+  it('validates **= operator with numeric value', () => {
+    const result = variableOperationSchema.safeParse({
+      operation: '**=',
+      value: 18,
+    });
+    expect(result.success).toBe(true);
+    expect(result.data).toEqual({
+      operation: '**=',
+      value: 18,
+    });
+  });
+
+  it('validates **= operator with context parameter', () => {
+    const result = variableOperationSchema.safeParse({
+      operation: '**=',
+      value: ':tokenDecimals',
+    });
+    expect(result.success).toBe(true);
+    expect(result.data).toEqual({
+      operation: '**=',
+      value: ':tokenDecimals',
+    });
+  });
+
+  it('rejects **= operator without value', () => {
+    const result = variableOperationSchema.safeParse({
+      operation: '**=',
+    });
+    expect(result.success).toBe(false);
+    expect(result.error!.format()).toMatchObject({
+      value: {
+        _errors: ['Value must be defined for operation'],
+      },
+    });
+  });
+});

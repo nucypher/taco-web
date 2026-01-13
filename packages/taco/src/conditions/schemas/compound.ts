@@ -37,11 +37,11 @@ export const compoundConditionSchema: z.ZodSchema = z.lazy(() =>
       }),
     )
     .refine(
-      (condition) => maxNestedDepth(2)(condition),
+      (condition) => maxNestedDepth(4)(condition),
       {
-        message: 'Exceeded max nested depth of 2 for multi-condition type',
+        message: 'Exceeded max nested depth of 4 for multi-condition type',
         path: ['operands'],
-      }, // Max nested depth of 2
+      }, // Max nested depth of 4
     ),
 );
 

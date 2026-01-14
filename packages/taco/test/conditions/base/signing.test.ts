@@ -365,6 +365,207 @@ describe('SigningObjectAbiAttributeCondition', () => {
     });
   });
 
+  it('accepts valid indexWithinArray in abiCallValidation', () => {
+    const validSigningObjectAbiAttributeConditionObj = {
+      ...testSigningObjectAbiAttributeConditionObj,
+      abiValidation: {
+        allowedAbiCalls: {
+          'batchTransfer(address[],uint256[])': [
+            {
+              parameterIndex: 0,
+              indexWithinArray: 0,
+              returnValueTest: {
+                comparator: '==',
+                value: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+              },
+            },
+          ],
+        },
+      },
+    };
+    const result = SigningObjectAbiAttributeCondition.validate(
+      signingObjectAbiAttributeConditionSchema,
+      validSigningObjectAbiAttributeConditionObj,
+    );
+    expect(result.error).toBeUndefined();
+    expect(result.data).toBeDefined();
+  });
+
+  it('rejects indexWithinArray for non-array type in abiCallValidation', () => {
+    const badSigningObjectAbiAttributeConditionObj = {
+      ...testSigningObjectAbiAttributeConditionObj,
+      abiValidation: {
+        allowedAbiCalls: {
+          'execute(address,uint256,bytes)': [
+            {
+              parameterIndex: 0,
+              indexWithinArray: 0,
+              returnValueTest: {
+                comparator: '==',
+                value: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+              },
+            },
+          ],
+        },
+      },
+    };
+    const result = SigningObjectAbiAttributeCondition.validate(
+      signingObjectAbiAttributeConditionSchema,
+      badSigningObjectAbiAttributeConditionObj,
+    );
+    expect(result.error).toBeDefined();
+    expect(result.data).toBeUndefined();
+    expect(result.error!.format()).toMatchObject({
+      abiValidation: {
+        allowedAbiCalls: {
+          'execute(address,uint256,bytes)': {
+            '0': {
+              parameterIndex: {
+                _errors: [
+                  'Type at parameter index, "0", is not an array. indexWithinArray can only be used with array types.',
+                ],
+              },
+            },
+          },
+        },
+      },
+    });
+  });
+
+  it('accepts indexWithinArray and indexWithinTuple for array of tuples', () => {
+    const validSigningObjectAbiAttributeConditionObj = {
+      ...testSigningObjectAbiAttributeConditionObj,
+      abiValidation: {
+        allowedAbiCalls: {
+          'executeBatch((address,uint256,bytes)[])': [
+            {
+              parameterIndex: 0,
+              indexWithinArray: 0,
+              indexWithinTuple: 0,
+              returnValueTest: {
+                comparator: '==',
+                value: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+              },
+            },
+          ],
+        },
+      },
+    };
+    const result = SigningObjectAbiAttributeCondition.validate(
+      signingObjectAbiAttributeConditionSchema,
+      validSigningObjectAbiAttributeConditionObj,
+    );
+    expect(result.error).toBeUndefined();
+    expect(result.data).toBeDefined();
+  });
+
+  it('rejects indexWithinTuple for array of non-tuples', () => {
+    const badSigningObjectAbiAttributeConditionObj = {
+      ...testSigningObjectAbiAttributeConditionObj,
+      abiValidation: {
+        allowedAbiCalls: {
+          'batchTransfer(address[],uint256[])': [
+            {
+              parameterIndex: 0,
+              indexWithinArray: 0,
+              indexWithinTuple: 0,
+              returnValueTest: {
+                comparator: '==',
+                value: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+              },
+            },
+          ],
+        },
+      },
+    };
+    const result = SigningObjectAbiAttributeCondition.validate(
+      signingObjectAbiAttributeConditionSchema,
+      badSigningObjectAbiAttributeConditionObj,
+    );
+    expect(result.error).toBeDefined();
+    expect(result.data).toBeUndefined();
+    expect(result.error!.format()).toMatchObject({
+      abiValidation: {
+        allowedAbiCalls: {
+          'batchTransfer(address[],uint256[])': {
+            '0': {
+              parameterIndex: {
+                _errors: ['Type at parameter index, "0", is not a tuple'],
+              },
+            },
+          },
+        },
+      },
+    });
+  });
+
+  it('accepts nested ABI validation with indexWithinArray', () => {
+    const validSigningObjectAbiAttributeConditionObj = {
+      ...testSigningObjectAbiAttributeConditionObj,
+      abiValidation: {
+        allowedAbiCalls: {
+          'executeBatch(bytes[])': [
+            {
+              parameterIndex: 0,
+              indexWithinArray: 0,
+              nestedAbiValidation: {
+                allowedAbiCalls: {
+                  'transfer(address,uint256)': [],
+                },
+              },
+            },
+          ],
+        },
+      },
+    };
+    const result = SigningObjectAbiAttributeCondition.validate(
+      signingObjectAbiAttributeConditionSchema,
+      validSigningObjectAbiAttributeConditionObj,
+    );
+    expect(result.error).toBeUndefined();
+    expect(result.data).toBeDefined();
+  });
+
+  it('rejects nested ABI validation for array of non-bytes', () => {
+    const badSigningObjectAbiAttributeConditionObj = {
+      ...testSigningObjectAbiAttributeConditionObj,
+      abiValidation: {
+        allowedAbiCalls: {
+          'batchTransfer(address[],uint256[])': [
+            {
+              parameterIndex: 0,
+              indexWithinArray: 0,
+              nestedAbiValidation: {
+                allowedAbiCalls: {
+                  'transfer(address,uint256)': [],
+                },
+              },
+            },
+          ],
+        },
+      },
+    };
+    const result = SigningObjectAbiAttributeCondition.validate(
+      signingObjectAbiAttributeConditionSchema,
+      badSigningObjectAbiAttributeConditionObj,
+    );
+    expect(result.error).toBeDefined();
+    expect(result.data).toBeUndefined();
+    expect(result.error!.format()).toMatchObject({
+      abiValidation: {
+        allowedAbiCalls: {
+          'batchTransfer(address[],uint256[])': {
+            '0': {
+              _errors: [
+                'Invalid type for nested ABI validation, "address"; expected bytes',
+              ],
+            },
+          },
+        },
+      },
+    });
+  });
+
   it('rejects invalid tuple type at parameterIndex in abiCallValidation', () => {
     const badSigningObjectAbiAttributeConditionObj = {
       ...testSigningObjectAbiAttributeConditionObj,

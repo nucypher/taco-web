@@ -45,6 +45,12 @@ export const abiParameterValidationSchema: z.ZodSchema = z
       .int()
       .nonnegative()
       .describe('Index of parameter to check within abi calldata.'),
+    indexWithinArray: z
+      .number()
+      .int()
+      .nonnegative()
+      .optional()
+      .describe('Index within array at parameter index to check'),
     indexWithinTuple: z
       .number()
       .int()
@@ -177,8 +183,31 @@ function validateAllowedAbiCall(
         });
       }
 
-      if (validation.indexWithinTuple !== undefined) {
+      // Validate indexWithinArray if present
+      if (validation.indexWithinArray !== undefined) {
         const paramType = fragment.inputs[validation.parameterIndex];
+        if (paramType.baseType !== 'array') {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Type at parameter index, "${validation.parameterIndex}", is not an array. indexWithinArray can only be used with array types.`,
+            path: ['allowedAbiCalls', signature, index, 'parameterIndex'],
+          });
+        }
+        // Note: Cannot validate array index bounds at schema validation time
+      }
+
+      // Validate indexWithinTuple if present
+      if (validation.indexWithinTuple !== undefined) {
+        let paramType = fragment.inputs[validation.parameterIndex];
+
+        // If indexWithinArray is present, get the array element type
+        if (
+          validation.indexWithinArray !== undefined &&
+          paramType.baseType === 'array'
+        ) {
+          paramType = paramType.arrayChildren;
+        }
+
         if (paramType.baseType !== 'tuple') {
           // type at parameter index is not a tuple
           ctx.addIssue({
@@ -199,6 +228,16 @@ function validateAllowedAbiCall(
       if (validation.nestedAbiValidation) {
         // if there is nested ABI validation, the type must be bytes
         let paramType = fragment.inputs[validation.parameterIndex];
+
+        // Handle array indexing
+        if (
+          validation.indexWithinArray !== undefined &&
+          paramType.baseType === 'array'
+        ) {
+          paramType = paramType.arrayChildren;
+        }
+
+        // Handle tuple indexing
         if (validation.indexWithinTuple !== undefined) {
           // if there is an index within tuple, get the type of the component at that index
           paramType = paramType.components[validation.indexWithinTuple];

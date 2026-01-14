@@ -50,34 +50,34 @@ describe('validates schema', () => {
   );
 });
 
-describe('exponent operator', () => {
-  it('validates **= operator with numeric value', () => {
+describe('pow operator', () => {
+  it('validates pow operator with array value', () => {
     const result = variableOperationSchema.safeParse({
-      operation: '**=',
-      value: 18,
+      operation: 'pow',
+      value: [10, 18],
     });
     expect(result.success).toBe(true);
     expect(result.data).toEqual({
-      operation: '**=',
-      value: 18,
+      operation: 'pow',
+      value: [10, 18],
     });
   });
 
-  it('validates **= operator with context parameter', () => {
+  it('validates pow operator with context parameter in array', () => {
     const result = variableOperationSchema.safeParse({
-      operation: '**=',
-      value: ':tokenDecimals',
+      operation: 'pow',
+      value: [10, ':tokenDecimals'],
     });
     expect(result.success).toBe(true);
     expect(result.data).toEqual({
-      operation: '**=',
-      value: ':tokenDecimals',
+      operation: 'pow',
+      value: [10, ':tokenDecimals'],
     });
   });
 
-  it('rejects **= operator without value', () => {
+  it('rejects pow operator without value', () => {
     const result = variableOperationSchema.safeParse({
-      operation: '**=',
+      operation: 'pow',
     });
     expect(result.success).toBe(false);
     expect(result.error!.format()).toMatchObject({

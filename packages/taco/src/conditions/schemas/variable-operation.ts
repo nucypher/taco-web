@@ -8,7 +8,7 @@ export const OPERATOR_FUNCTIONS = [
   '*=',
   '/=',
   '%=',
-  'pow',
+  '*pow=',
   'index',
   'round',
   // operations that don't require 2nd value

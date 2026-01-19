@@ -50,34 +50,34 @@ describe('validates schema', () => {
   );
 });
 
-describe('*pow= operator', () => {
-  it('validates *pow= operator with array value', () => {
+describe('toTokenBaseUnits operator', () => {
+  it('validates toTokenBaseUnits operator with decimals value', () => {
     const result = variableOperationSchema.safeParse({
-      operation: '*pow=',
-      value: [10, 18],
+      operation: 'toTokenBaseUnits',
+      value: 18,
     });
     expect(result.success).toBe(true);
     expect(result.data).toEqual({
-      operation: '*pow=',
-      value: [10, 18],
+      operation: 'toTokenBaseUnits',
+      value: 18,
     });
   });
 
-  it('validates *pow= operator with context parameter in array', () => {
+  it('validates toTokenBaseUnits operator with context parameter', () => {
     const result = variableOperationSchema.safeParse({
-      operation: '*pow=',
-      value: [10, ':tokenDecimals'],
+      operation: 'toTokenBaseUnits',
+      value: ':tokenDecimals',
     });
     expect(result.success).toBe(true);
     expect(result.data).toEqual({
-      operation: '*pow=',
-      value: [10, ':tokenDecimals'],
+      operation: 'toTokenBaseUnits',
+      value: ':tokenDecimals',
     });
   });
 
-  it('rejects *pow= operator without value', () => {
+  it('rejects toTokenBaseUnits operator without value', () => {
     const result = variableOperationSchema.safeParse({
-      operation: '*pow=',
+      operation: 'toTokenBaseUnits',
     });
     expect(result.success).toBe(false);
     expect(result.error!.format()).toMatchObject({

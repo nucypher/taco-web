@@ -144,9 +144,11 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
           '975fda96fa12226a378f52a423e2d12d4fed717162ec7e5838169ed57e3357f2410dce2ce1b6bce3bb46ee97d90e542d9895c7d5b0224da05209eaaf0e484acd',
       };
 
-      // chunkSize ensures we don't exceed max 5 operands in a compound condition
-      // and that "and" compound conditions have at least 2 operands
-      const chunkSize = 5;
+      // Value used for chunkSize is to ensure:
+      // 1. we don't exceed the max 5 operands in a compound condition
+      // 2. we adhere to the fact that "and" compound conditions must have at least 2 operands
+      // 3. SUPPORTED_ECDSA_CURVES.length is currently 6, so we can split it into chunks of 3
+      const chunkSize = 3;
       for (let i = 0; i < SUPPORTED_ECDSA_CURVES.length; i += chunkSize) {
         const chunk = SUPPORTED_ECDSA_CURVES.slice(i, i + chunkSize);
         const operands: ECDSAConditionProps[] = chunk.map((curve) => ({

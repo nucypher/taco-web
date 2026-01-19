@@ -306,10 +306,10 @@ _(\*) Required._
 
 _Object containing the following properties:_
 
-| Property                      | Type                                                                                | Default        |
-| :---------------------------- | :---------------------------------------------------------------------------------- | :------------- |
-| `conditionType`               | `'sequential'`                                                                      | `'sequential'` |
-| **`conditionVariables`** (\*) | _Array of at least 2  and  at most 5 [ConditionVariable](#conditionvariable) items_ |                |
+| Property                      | Type                                                                                 | Default        |
+| :---------------------------- | :----------------------------------------------------------------------------------- | :------------- |
+| `conditionType`               | `'sequential'`                                                                       | `'sequential'` |
+| **`conditionVariables`** (\*) | _Array of at least 2  and  at most 20 [ConditionVariable](#conditionvariable) items_ |                |
 
 _(\*) Required._
 
@@ -383,10 +383,10 @@ An operation that can be performed on an obtained result.
 
 _Object containing the following properties:_
 
-| Property             | Type                                                                                                                                                                                                     |
-| :------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`operation`** (\*) | `'+=' \| '-=' \| '*=' \| '/=' \| '%=' \| 'index' \| 'round' \| 'abs' \| 'avg' \| 'ceil' \| 'ethToWei' \| 'floor' \| 'len' \| 'max' \| 'min' \| 'sum' \| 'weiToEth' \| 'bool' \| 'float' \| 'int' \| ...` |
-| `value`              | [ParamOrContextParam](#paramorcontextparam)                                                                                                                                                              |
+| Property             | Type                                                                                                                                                                                                                  |
+| :------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`operation`** (\*) | `'+=' \| '-=' \| '*=' \| '/=' \| '%=' \| 'toTokenBaseUnits' \| 'index' \| 'round' \| 'abs' \| 'avg' \| 'ceil' \| 'ethToWei' \| 'floor' \| 'len' \| 'max' \| 'min' \| 'sum' \| 'weiToEth' \| 'bool' \| 'float' \| ...` |
+| `value`              | [ParamOrContextParam](#paramorcontextparam)                                                                                                                                                                           |
 
 _(\*) Required._
 

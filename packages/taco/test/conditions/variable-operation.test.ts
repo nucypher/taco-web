@@ -49,3 +49,41 @@ describe('validates schema', () => {
     },
   );
 });
+
+describe('toTokenBaseUnits operator', () => {
+  it('validates toTokenBaseUnits operator with decimals value', () => {
+    const result = variableOperationSchema.safeParse({
+      operation: 'toTokenBaseUnits',
+      value: 18,
+    });
+    expect(result.success).toBe(true);
+    expect(result.data).toEqual({
+      operation: 'toTokenBaseUnits',
+      value: 18,
+    });
+  });
+
+  it('validates toTokenBaseUnits operator with context parameter', () => {
+    const result = variableOperationSchema.safeParse({
+      operation: 'toTokenBaseUnits',
+      value: ':tokenDecimals',
+    });
+    expect(result.success).toBe(true);
+    expect(result.data).toEqual({
+      operation: 'toTokenBaseUnits',
+      value: ':tokenDecimals',
+    });
+  });
+
+  it('rejects toTokenBaseUnits operator without value', () => {
+    const result = variableOperationSchema.safeParse({
+      operation: 'toTokenBaseUnits',
+    });
+    expect(result.success).toBe(false);
+    expect(result.error!.format()).toMatchObject({
+      value: {
+        _errors: ['Value must be defined for operation'],
+      },
+    });
+  });
+});

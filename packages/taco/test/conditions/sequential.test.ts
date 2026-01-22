@@ -112,7 +112,7 @@ describe('validation', () => {
   });
 
   it('rejects > max number of condition variables', () => {
-    const tooManyConditionVariables = new Array(11);
+    const tooManyConditionVariables = new Array(21);
     for (let i = 0; i < tooManyConditionVariables.length; i++) {
       tooManyConditionVariables[i] = {
         varName: `var${i}`,
@@ -127,7 +127,7 @@ describe('validation', () => {
     expect(result.data).toBeUndefined();
     expect(result.error?.format()).toMatchObject({
       conditionVariables: {
-        _errors: ['Array must contain at most 10 element(s)'],
+        _errors: ['Array must contain at most 20 element(s)'],
       },
     });
   });
@@ -264,6 +264,8 @@ describe('validation', () => {
   });
 
   it('limits max depth of nested compound condition', () => {
+    // Need 5 levels of nesting to exceed max depth of 4
+    // sequential(1) -> compound(2) -> compound(3) -> compound(4) -> compound(5)
     const result = SequentialCondition.validate(sequentialConditionSchema, {
       conditionVariables: [
         rpcConditionVariable,
@@ -277,7 +279,21 @@ describe('validation', () => {
               {
                 conditionType: CompoundConditionType,
                 operator: 'and',
-                operands: [testTimeConditionObj, testRpcConditionObj],
+                operands: [
+                  {
+                    conditionType: CompoundConditionType,
+                    operator: 'or',
+                    operands: [
+                      {
+                        conditionType: CompoundConditionType,
+                        operator: 'not',
+                        operands: [testTimeConditionObj],
+                      },
+                      testRpcConditionObj,
+                    ],
+                  },
+                  testTimeConditionObj,
+                ],
               },
             ],
           },
@@ -288,23 +304,64 @@ describe('validation', () => {
     expect(result.data).toBeUndefined();
     expect(result.error?.format()).toMatchObject({
       conditionVariables: {
-        _errors: [`Exceeded max nested depth of 2 for multi-condition type`],
+        _errors: [`Exceeded max nested depth of 4 for multi-condition type`],
       },
     });
   });
 
   it('limits max depth of nested sequential condition', () => {
+    // Need 5 levels of nesting to exceed max depth of 4
+    // sequential(1) -> sequential(2) -> sequential(3) -> sequential(4) -> sequential(5)
     const result = SequentialCondition.validate(sequentialConditionSchema, {
       conditionVariables: [
         rpcConditionVariable,
         contractConditionVariable,
         {
-          varName: 'sequentialNested',
+          varName: 'level2',
           condition: {
             conditionType: SequentialConditionType,
             conditionVariables: [
               timeConditionVariable,
-              nestedSequentialConditionVariable,
+              {
+                varName: 'level3',
+                condition: {
+                  conditionType: SequentialConditionType,
+                  conditionVariables: [
+                    {
+                      varName: 'level4a',
+                      condition: testRpcConditionObj,
+                    },
+                    {
+                      varName: 'level4',
+                      condition: {
+                        conditionType: SequentialConditionType,
+                        conditionVariables: [
+                          {
+                            varName: 'level5a',
+                            condition: testTimeConditionObj,
+                          },
+                          {
+                            varName: 'level5',
+                            condition: {
+                              conditionType: SequentialConditionType,
+                              conditionVariables: [
+                                {
+                                  varName: 'level6a',
+                                  condition: testTimeConditionObj,
+                                },
+                                {
+                                  varName: 'level6b',
+                                  condition: testContractConditionObj,
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
             ],
           },
         },
@@ -314,7 +371,7 @@ describe('validation', () => {
     expect(result.data).toBeUndefined();
     expect(result.error?.format()).toMatchObject({
       conditionVariables: {
-        _errors: ['Exceeded max nested depth of 2 for multi-condition type'],
+        _errors: ['Exceeded max nested depth of 4 for multi-condition type'],
       },
     });
   });

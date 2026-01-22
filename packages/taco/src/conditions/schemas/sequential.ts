@@ -71,14 +71,14 @@ export const sequentialConditionSchema: z.ZodSchema = baseConditionSchema
     conditionType: z
       .literal(SequentialConditionType)
       .default(SequentialConditionType),
-    conditionVariables: z.array(conditionVariableSchema).min(2).max(10),
+    conditionVariables: z.array(conditionVariableSchema).min(2).max(20),
   })
   .refine(
-    (condition) => maxNestedDepth(2)(condition),
+    (condition) => maxNestedDepth(4)(condition),
     {
-      message: 'Exceeded max nested depth of 2 for multi-condition type',
+      message: 'Exceeded max nested depth of 4 for multi-condition type',
       path: ['conditionVariables'],
-    }, // Max nested depth of 2
+    }, // Max nested depth of 4
   )
   .refine(
     (condition) => {

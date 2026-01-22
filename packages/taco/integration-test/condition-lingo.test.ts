@@ -65,8 +65,9 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
   () => {
     test('validate condition lingo with lynx node to confirm consistency', async () => {
       // Note: there are limits to conditions
-      // - max 5 operands in a multi-condition (compound, sequential)
-      // - max 2 nested levels of multi-conditions (compound, sequential, if-then-else)
+      // - max 5 operands in a compound condition
+      // - max 20 condition variables in a sequential condition
+      // - max 4 nested levels of multi-conditions (compound, sequential, if-then-else)
       const overallCondition = new SequentialCondition({
         conditionVariables: [
           {
@@ -144,7 +145,7 @@ describe.skipIf(!process.env.RUNNING_IN_CI)(
       };
 
       // Value used for chunkSize is to ensure:
-      // 1. we don't exceed the max 5 operands in a multi-condition
+      // 1. we don't exceed the max 5 operands in a compound condition
       // 2. we adhere to the fact that "and" compound conditions must have at least 2 operands
       // 3. SUPPORTED_ECDSA_CURVES.length is currently 6, so we can split it into chunks of 3
       const chunkSize = 3;

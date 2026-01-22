@@ -8,6 +8,7 @@ export const OPERATOR_FUNCTIONS = [
   '*=',
   '/=',
   '%=',
+  'toTokenBaseUnits',
   'index',
   'round',
   // operations that don't require 2nd value

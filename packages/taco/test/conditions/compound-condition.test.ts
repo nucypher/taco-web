@@ -204,11 +204,11 @@ describe('validation', () => {
   });
 
   it('limits max depth of nested compound condition', () => {
+    // Create 5 levels of nesting to exceed max depth of 4
     const result = CompoundCondition.validate(compoundConditionSchema, {
       operator: 'or',
       operands: [
         testRpcConditionObj,
-        testContractConditionObj,
         {
           conditionType: CompoundConditionType,
           operator: 'and',
@@ -217,7 +217,21 @@ describe('validation', () => {
             {
               conditionType: CompoundConditionType,
               operator: 'or',
-              operands: [testTimeConditionObj, testRpcConditionObj],
+              operands: [
+                testRpcConditionObj,
+                {
+                  conditionType: CompoundConditionType,
+                  operator: 'and',
+                  operands: [
+                    testTimeConditionObj,
+                    {
+                      conditionType: CompoundConditionType,
+                      operator: 'or',
+                      operands: [testTimeConditionObj, testRpcConditionObj],
+                    },
+                  ],
+                },
+              ],
             },
           ],
         },
@@ -227,20 +241,34 @@ describe('validation', () => {
     expect(result.data).toBeUndefined();
     expect(result.error?.format()).toMatchObject({
       operands: {
-        _errors: [`Exceeded max nested depth of 2 for multi-condition type`],
+        _errors: [`Exceeded max nested depth of 4 for multi-condition type`],
       },
     });
   });
   it('limits max depth of nested sequential condition', () => {
+    // Create 5 levels of nesting to exceed max depth of 4
     const result = CompoundCondition.validate(compoundConditionSchema, {
       operator: 'or',
       operands: [
         testRpcConditionObj,
-        testContractConditionObj,
         {
           conditionType: CompoundConditionType,
-          operator: 'not',
-          operands: [testSequentialConditionObj],
+          operator: 'and',
+          operands: [
+            testTimeConditionObj,
+            {
+              conditionType: CompoundConditionType,
+              operator: 'or',
+              operands: [
+                testRpcConditionObj,
+                {
+                  conditionType: CompoundConditionType,
+                  operator: 'not',
+                  operands: [testSequentialConditionObj],
+                },
+              ],
+            },
+          ],
         },
       ],
     });
@@ -248,7 +276,7 @@ describe('validation', () => {
     expect(result.data).toBeUndefined();
     expect(result.error?.format()).toMatchObject({
       operands: {
-        _errors: ['Exceeded max nested depth of 2 for multi-condition type'],
+        _errors: ['Exceeded max nested depth of 4 for multi-condition type'],
       },
     });
   });

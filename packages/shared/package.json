@@ -42,7 +42,7 @@
   "dependencies": {
     "@ethersproject/abi": "^5.8.0",
     "@ethersproject/providers": "^5.8.0",
-    "@nucypher/nucypher-contracts": "^0.26.0-alpha.2",
+    "@nucypher/nucypher-contracts": "^0.26.0-alpha.3",
     "@nucypher/nucypher-core": "^0.15.1-dev.3",
     "axios": "^1.8.4",
     "deep-equal": "^2.2.3",

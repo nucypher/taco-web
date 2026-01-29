@@ -289,7 +289,7 @@ describe('SigningObjectAbiAttributeCondition', () => {
           'execute((address,uint256,bytes))': [
             {
               parameterIndex: 0,
-              indexWithinTuple: 0,
+              subIndices: [0],
               returnValueTest: {
                 comparator: '==',
                 value: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
@@ -365,7 +365,7 @@ describe('SigningObjectAbiAttributeCondition', () => {
     });
   });
 
-  it('accepts valid indexWithinArray in abiCallValidation', () => {
+  it('accepts valid subIndices for array type in abiCallValidation', () => {
     const validSigningObjectAbiAttributeConditionObj = {
       ...testSigningObjectAbiAttributeConditionObj,
       abiValidation: {
@@ -373,7 +373,7 @@ describe('SigningObjectAbiAttributeCondition', () => {
           'batchTransfer(address[],uint256[])': [
             {
               parameterIndex: 0,
-              indexWithinArray: 0,
+              subIndices: [0],
               returnValueTest: {
                 comparator: '==',
                 value: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
@@ -391,7 +391,7 @@ describe('SigningObjectAbiAttributeCondition', () => {
     expect(result.data).toBeDefined();
   });
 
-  it('rejects indexWithinArray for non-array type in abiCallValidation', () => {
+  it('rejects subIndices for non-indexable type in abiCallValidation', () => {
     const badSigningObjectAbiAttributeConditionObj = {
       ...testSigningObjectAbiAttributeConditionObj,
       abiValidation: {
@@ -399,7 +399,7 @@ describe('SigningObjectAbiAttributeCondition', () => {
           'execute(address,uint256,bytes)': [
             {
               parameterIndex: 0,
-              indexWithinArray: 0,
+              subIndices: [0],
               returnValueTest: {
                 comparator: '==',
                 value: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
@@ -420,9 +420,9 @@ describe('SigningObjectAbiAttributeCondition', () => {
         allowedAbiCalls: {
           'execute(address,uint256,bytes)': {
             '0': {
-              parameterIndex: {
+              subIndices: {
                 _errors: [
-                  'Type at parameter index, "0", is not an array. indexWithinArray can only be used with array types.',
+                  'Cannot apply index at subIndices position 0: type "address" is not indexable (not an array or tuple)',
                 ],
               },
             },
@@ -432,7 +432,7 @@ describe('SigningObjectAbiAttributeCondition', () => {
     });
   });
 
-  it('accepts indexWithinArray and indexWithinTuple for array of tuples', () => {
+  it('accepts subIndices for array of tuples', () => {
     const validSigningObjectAbiAttributeConditionObj = {
       ...testSigningObjectAbiAttributeConditionObj,
       abiValidation: {
@@ -440,8 +440,7 @@ describe('SigningObjectAbiAttributeCondition', () => {
           'executeBatch((address,uint256,bytes)[])': [
             {
               parameterIndex: 0,
-              indexWithinArray: 0,
-              indexWithinTuple: 0,
+              subIndices: [0, 0], // array[0] -> tuple[0]
               returnValueTest: {
                 comparator: '==',
                 value: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
@@ -459,16 +458,41 @@ describe('SigningObjectAbiAttributeCondition', () => {
     expect(result.data).toBeDefined();
   });
 
-  it('rejects indexWithinTuple for array of non-tuples', () => {
+  it('accepts subIndices for tuple of arrays', () => {
+    const validSigningObjectAbiAttributeConditionObj = {
+      ...testSigningObjectAbiAttributeConditionObj,
+      abiValidation: {
+        allowedAbiCalls: {
+          'multiTransfer((address[],uint256[],bytes))': [
+            {
+              parameterIndex: 0,
+              subIndices: [0, 0], // tuple[0] -> array[0]
+              returnValueTest: {
+                comparator: '==',
+                value: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+              },
+            },
+          ],
+        },
+      },
+    };
+    const result = SigningObjectAbiAttributeCondition.validate(
+      signingObjectAbiAttributeConditionSchema,
+      validSigningObjectAbiAttributeConditionObj,
+    );
+    expect(result.error).toBeUndefined();
+    expect(result.data).toBeDefined();
+  });
+
+  it('rejects subIndices with out of range tuple index', () => {
     const badSigningObjectAbiAttributeConditionObj = {
       ...testSigningObjectAbiAttributeConditionObj,
       abiValidation: {
         allowedAbiCalls: {
-          'batchTransfer(address[],uint256[])': [
+          'execute((address,uint256,bytes))': [
             {
               parameterIndex: 0,
-              indexWithinArray: 0,
-              indexWithinTuple: 0,
+              subIndices: [5], // tuple only has 3 fields
               returnValueTest: {
                 comparator: '==',
                 value: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
@@ -487,10 +511,12 @@ describe('SigningObjectAbiAttributeCondition', () => {
     expect(result.error!.format()).toMatchObject({
       abiValidation: {
         allowedAbiCalls: {
-          'batchTransfer(address[],uint256[])': {
+          'execute((address,uint256,bytes))': {
             '0': {
-              parameterIndex: {
-                _errors: ['Type at parameter index, "0", is not a tuple'],
+              subIndices: {
+                _errors: [
+                  'Index 5 at subIndices position 0 is out of range for tuple with 3 fields',
+                ],
               },
             },
           },
@@ -499,7 +525,7 @@ describe('SigningObjectAbiAttributeCondition', () => {
     });
   });
 
-  it('accepts nested ABI validation with indexWithinArray', () => {
+  it('accepts nested ABI validation with subIndices', () => {
     const validSigningObjectAbiAttributeConditionObj = {
       ...testSigningObjectAbiAttributeConditionObj,
       abiValidation: {
@@ -507,7 +533,7 @@ describe('SigningObjectAbiAttributeCondition', () => {
           'executeBatch(bytes[])': [
             {
               parameterIndex: 0,
-              indexWithinArray: 0,
+              subIndices: [0],
               nestedAbiValidation: {
                 allowedAbiCalls: {
                   'transfer(address,uint256)': [],
@@ -526,7 +552,7 @@ describe('SigningObjectAbiAttributeCondition', () => {
     expect(result.data).toBeDefined();
   });
 
-  it('rejects nested ABI validation for array of non-bytes', () => {
+  it('rejects nested ABI validation when subIndices resolves to non-bytes', () => {
     const badSigningObjectAbiAttributeConditionObj = {
       ...testSigningObjectAbiAttributeConditionObj,
       abiValidation: {
@@ -534,7 +560,7 @@ describe('SigningObjectAbiAttributeCondition', () => {
           'batchTransfer(address[],uint256[])': [
             {
               parameterIndex: 0,
-              indexWithinArray: 0,
+              subIndices: [0],
               nestedAbiValidation: {
                 allowedAbiCalls: {
                   'transfer(address,uint256)': [],
@@ -566,7 +592,7 @@ describe('SigningObjectAbiAttributeCondition', () => {
     });
   });
 
-  it('rejects invalid tuple type at parameterIndex in abiCallValidation', () => {
+  it('rejects subIndices on non-tuple type at parameterIndex', () => {
     const badSigningObjectAbiAttributeConditionObj = {
       ...testSigningObjectAbiAttributeConditionObj,
       abiValidation: {
@@ -574,7 +600,7 @@ describe('SigningObjectAbiAttributeCondition', () => {
           'execute(address,uint256,bytes)': [
             {
               parameterIndex: 0,
-              indexWithinTuple: 0,
+              subIndices: [0],
               returnValueTest: {
                 comparator: '==',
                 value: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
@@ -595,8 +621,10 @@ describe('SigningObjectAbiAttributeCondition', () => {
         allowedAbiCalls: {
           'execute(address,uint256,bytes)': {
             '0': {
-              parameterIndex: {
-                _errors: ['Type at parameter index, "0", is not a tuple'],
+              subIndices: {
+                _errors: [
+                  'Cannot apply index at subIndices position 0: type "address" is not indexable (not an array or tuple)',
+                ],
               },
             },
           },
@@ -604,44 +632,7 @@ describe('SigningObjectAbiAttributeCondition', () => {
       },
     });
   });
-  it('rejects invalid tuple index in abiCallValidation', () => {
-    const badSigningObjectAbiAttributeConditionObj = {
-      ...testSigningObjectAbiAttributeConditionObj,
-      abiValidation: {
-        allowedAbiCalls: {
-          'execute((address,uint256,bytes))': [
-            {
-              parameterIndex: 0,
-              indexWithinTuple: 3,
-              returnValueTest: {
-                comparator: '==',
-                value: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
-              },
-            },
-          ],
-        },
-      },
-    };
-    const result = SigningObjectAbiAttributeCondition.validate(
-      signingObjectAbiAttributeConditionSchema,
-      badSigningObjectAbiAttributeConditionObj,
-    );
-    expect(result.error).toBeDefined();
-    expect(result.data).toBeUndefined();
-    expect(result.error!.format()).toMatchObject({
-      abiValidation: {
-        allowedAbiCalls: {
-          'execute((address,uint256,bytes))': {
-            '0': {
-              indexWithinTuple: {
-                _errors: [`Index within tuple, "3", is out of range`],
-              },
-            },
-          },
-        },
-      },
-    });
-  });
+
   it('rejects invalid nested parameter index in abiCallValidation', () => {
     const badSigningObjectAbiAttributeConditionObj = {
       ...testSigningObjectAbiAttributeConditionObj,
@@ -650,7 +641,7 @@ describe('SigningObjectAbiAttributeCondition', () => {
           'execute((address,uint256,bytes))': [
             {
               parameterIndex: 0,
-              indexWithinTuple: 2,
+              subIndices: [2],
               nestedAbiValidation: {
                 allowedAbiCalls: {
                   'execute(address,uint256,bytes)': [
@@ -705,7 +696,7 @@ describe('SigningObjectAbiAttributeCondition', () => {
           'execute((address,uint256,bytes))': [
             {
               parameterIndex: 0,
-              indexWithinTuple: 1, // index of uint256
+              subIndices: [1], // index of uint256
               nestedAbiValidation: {
                 allowedAbiCalls: {
                   'execute(address,uint256,bytes)': [
@@ -768,7 +759,7 @@ describe('SigningObjectAbiAttributeCondition', () => {
       'execute((address,uint256,bytes))': [
         {
           parameterIndex: 0,
-          indexWithinTuple: 0,
+          subIndices: [0],
           returnValueTest: {
             comparator: '==',
             value: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
@@ -776,7 +767,7 @@ describe('SigningObjectAbiAttributeCondition', () => {
         },
         {
           parameterIndex: 0,
-          indexWithinTuple: 2,
+          subIndices: [2],
           nestedAbiValidation: {
             allowedAbiCalls: {
               'execute(address,uint256,bytes)': [

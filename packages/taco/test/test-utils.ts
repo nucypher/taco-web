@@ -466,7 +466,7 @@ export const testSigningObjectAbiAttributeConditionObj: SigningObjectAbiAttribut
         'execute((address,uint256,bytes))': [
           {
             parameterIndex: 0,
-            indexWithinTuple: 0,
+            subIndices: [0],
             returnValueTest: {
               comparator: '==',
               value: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
@@ -474,7 +474,7 @@ export const testSigningObjectAbiAttributeConditionObj: SigningObjectAbiAttribut
           },
           {
             parameterIndex: 0,
-            indexWithinTuple: 2,
+            subIndices: [2],
             nestedAbiValidation: {
               allowedAbiCalls: {
                 'execute(address,uint256,bytes)': [

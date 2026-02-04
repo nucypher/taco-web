@@ -151,6 +151,7 @@ async function makeSigningRequests(
  * @param aaVersion - The AA version of the account abstraction to use for signing.
  * @param context - Optional condition context for the context variable resolution.
  * @param porterUris - Optional URIs for the Porter service. If not provided, will fetch the default URIs from the domain.
+ * @param timeout - Optional timeout in seconds for the Porter signing request.
  * @returns A promise that resolves to a SignResult containing the message hash, aggregated signature, and signing results from the Porter service.
  * @throws An error if the signing process fails due to insufficient signatures or mismatched hashes.
  */
@@ -163,6 +164,7 @@ export async function signUserOp(
   aaVersion: 'mdt' | '0.8.0' | string,
   context?: ConditionContext,
   porterUris?: string[],
+  timeout?: number,
 ): Promise<SignResult> {
   const porterUrisFull: string[] = porterUris
     ? porterUris
@@ -194,6 +196,7 @@ export async function signUserOp(
   const { encryptedResponses, errors } = await porter.signUserOp(
     encryptedRequests,
     threshold,
+    timeout,
   );
   if (Object.keys(encryptedResponses).length < threshold) {
     // not enough signatures returned

@@ -404,6 +404,7 @@ describe('TACo Signing', () => {
             '0xnode2': expect.any(EncryptedThresholdSignatureRequest),
           },
           threshold,
+          undefined,
         );
 
         const call = porterSignUserOpMock.mock.calls.at(-1)!;
@@ -482,6 +483,7 @@ describe('TACo Signing', () => {
           '0xnode2': expect.any(EncryptedThresholdSignatureRequest),
         },
         threshold,
+        undefined,
       );
       const call = porterSignUserOpMock.mock.calls.at(-1)!;
       const [op] = call;

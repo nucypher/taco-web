@@ -165,6 +165,7 @@ type PostTacoSignRequest = {
     Base64EncodedBytes
   >;
   readonly threshold: number;
+  readonly timeout?: number;
 };
 
 type TacoSignResponse = {
@@ -339,6 +340,7 @@ export class PorterClient {
       EncryptedThresholdSignatureRequest
     >,
     threshold: number,
+    timeout?: number,
   ): Promise<TacoSignResult> {
     const data: PostTacoSignRequest = {
       encrypted_signing_requests: Object.fromEntries(
@@ -350,6 +352,7 @@ export class PorterClient {
         ),
       ),
       threshold,
+      ...(timeout !== undefined && { timeout }),
     };
 
     const resp: AxiosResponse<TacoSignResponse> = await this.tryAndCall({

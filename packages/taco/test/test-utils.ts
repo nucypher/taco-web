@@ -98,6 +98,7 @@ import {
   JsonRpcConditionProps,
   JsonRpcConditionType,
 } from '../src/conditions/schemas/json-rpc';
+import { UNARY_OPERATOR_FUNCTIONS } from '../src/conditions/schemas/variable-operation';
 import {
   SequentialConditionProps,
   SequentialConditionType,
@@ -108,6 +109,24 @@ import {
 } from '../src/conditions/shared';
 import { DkgClient, DkgRitual } from '../src/dkg';
 import { encryptMessage } from '../src/tdec';
+
+/**
+ * Returns a valid test value for the given operation type.
+ * Used in parameterized tests that iterate over OPERATOR_FUNCTIONS.
+ */
+export const getTestValueForOperation = (operation: string) => {
+  if (UNARY_OPERATOR_FUNCTIONS.includes(operation)) {
+    return undefined;
+  }
+  if (operation === 'create2') {
+    return {
+      deployerAddress: '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f',
+      bytecodeHash:
+        '0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f',
+    };
+  }
+  return 5;
+};
 
 export const fakeDkgTDecFlowE2E: (
   ritualId?: number,

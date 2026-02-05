@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { paramOrContextParamSchema } from './context';
+import { create2ValueSchema, paramOrContextParamSchema } from './context';
 
 export const OPERATOR_FUNCTIONS = [
   '+=',
@@ -35,6 +35,8 @@ export const OPERATOR_FUNCTIONS = [
   'toHex',
   // hashing
   'keccak',
+  // address computation
+  'create2',
 ] as const;
 
 export const UNARY_OPERATOR_FUNCTIONS = [
@@ -95,6 +97,19 @@ export const variableOperationSchema = z
     },
     {
       message: 'Value must be defined for operation',
+      path: ['value'],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.operation === 'create2') {
+        return create2ValueSchema.safeParse(data.value).success;
+      }
+      return true;
+    },
+    {
+      message:
+        'create2 operation requires an object with deployerAddress and bytecodeHash',
       path: ['value'],
     },
   )

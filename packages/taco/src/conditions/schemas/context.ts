@@ -25,16 +25,6 @@ const paramSchema = z.union([
   z.bigint(),
 ]);
 
-// Schema for CREATE2 operation value - supports both literal addresses/hashes and context parameters
-export const create2ValueSchema = z
-  .object({
-    deployerAddress: z.union([plainStringSchema, contextParamSchema]),
-    bytecodeHash: z.union([plainStringSchema, contextParamSchema]),
-  })
-  .describe(
-    'Value for create2 operation containing deployerAddress and bytecodeHash for computing CREATE2 addresses locally.',
-  );
-
 const blockchainParamSchema = z
   .union([
     plainStringSchema,
@@ -50,7 +40,6 @@ export const paramOrContextParamSchema: z.ZodSchema = z.union([
   paramSchema,
   contextParamSchema,
   z.lazy(() => z.array(paramOrContextParamSchema)),
-  create2ValueSchema,
 ]);
 
 export const blockchainParamOrContextParamSchema: z.ZodSchema = z.union([

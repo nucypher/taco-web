@@ -1,6 +1,19 @@
 import { z } from 'zod';
 
-import { create2ValueSchema, paramOrContextParamSchema } from './context';
+import { contextParamSchema, paramOrContextParamSchema } from './context';
+
+const hexPrefixedStringSchema = z
+  .string()
+  .regex(/^0x[0-9a-fA-F]+$/, 'Must be a 0x-prefixed hex string');
+
+const create2ValueSchema = z
+  .object({
+    deployerAddress: z.union([hexPrefixedStringSchema, contextParamSchema]),
+    bytecodeHash: z.union([hexPrefixedStringSchema, contextParamSchema]),
+  })
+  .describe(
+    'Value for create2 operation containing deployerAddress and bytecodeHash for computing CREATE2 addresses locally.',
+  );
 
 export const OPERATOR_FUNCTIONS = [
   '+=',
@@ -68,7 +81,7 @@ export const UNARY_OPERATOR_FUNCTIONS = [
 export const variableOperationSchema = z
   .object({
     operation: z.enum(OPERATOR_FUNCTIONS),
-    value: paramOrContextParamSchema.optional(),
+    value: z.union([paramOrContextParamSchema, create2ValueSchema]).optional(),
   })
   .refine(
     (data) => {
@@ -110,6 +123,21 @@ export const variableOperationSchema = z
     {
       message:
         'create2 operation requires an object with deployerAddress and bytecodeHash',
+      path: ['value'],
+    },
+  )
+  .refine(
+    (data) => {
+      if (
+        data.operation !== 'create2' &&
+        create2ValueSchema.safeParse(data.value).success
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'create2-shaped values are only valid for the create2 operation',
       path: ['value'],
     },
   )

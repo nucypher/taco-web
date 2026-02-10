@@ -42,9 +42,11 @@ describe('validates schema', () => {
         // value is missing for these operations
       });
       expect(result.success).toBe(false);
-      expect(result.error!.format().value?._errors).toContain(
-        'Value must be defined for operation',
-      );
+      expect(result.error!.format()).toMatchObject({
+        value: {
+          _errors: ['Value must be defined for operation'],
+        },
+      });
     },
   );
 });

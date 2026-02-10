@@ -7,9 +7,6 @@ import {
 } from '../../src/conditions/schemas/variable-operation';
 import { getTestValueForOperation } from '../test-utils';
 
-// Operations that require a specific value type (not a simple primitive)
-const OBJECT_VALUE_OPERATIONS = ['create2'];
-
 describe('validates schema', () => {
   it.each(OPERATOR_FUNCTIONS)('allows valid operation', (operation) => {
     const result = variableOperationSchema.safeParse({
@@ -36,11 +33,7 @@ describe('validates schema', () => {
   );
 
   it.each(
-    OPERATOR_FUNCTIONS.filter(
-      (op) =>
-        !UNARY_OPERATOR_FUNCTIONS.includes(op) &&
-        !OBJECT_VALUE_OPERATIONS.includes(op),
-    ),
+    OPERATOR_FUNCTIONS.filter((op) => !UNARY_OPERATOR_FUNCTIONS.includes(op)),
   )(
     'disallows operations when value is not provided for operation that requires a value',
     (operation) => {
@@ -49,11 +42,9 @@ describe('validates schema', () => {
         // value is missing for these operations
       });
       expect(result.success).toBe(false);
-      expect(result.error!.format()).toMatchObject({
-        value: {
-          _errors: ['Value must be defined for operation'],
-        },
-      });
+      expect(result.error!.format().value?._errors).toContain(
+        'Value must be defined for operation',
+      );
     },
   );
 });

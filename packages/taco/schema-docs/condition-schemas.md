@@ -383,10 +383,10 @@ An operation that can be performed on an obtained result.
 
 _Object containing the following properties:_
 
-| Property             | Type                                                                                                                                                                                                                  |
-| :------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`operation`** (\*) | `'+=' \| '-=' \| '*=' \| '/=' \| '%=' \| 'toTokenBaseUnits' \| 'index' \| 'round' \| 'abs' \| 'avg' \| 'ceil' \| 'ethToWei' \| 'floor' \| 'len' \| 'max' \| 'min' \| 'sum' \| 'weiToEth' \| 'bool' \| 'float' \| ...` |
-| `value`              | [ParamOrContextParam](#paramorcontextparam)                                                                                                                                                                           |
+| Property             | Type                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| :------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`operation`** (\*) | `'+=' \| '-=' \| '*=' \| '/=' \| '%=' \| 'toTokenBaseUnits' \| 'index' \| 'round' \| 'abs' \| 'avg' \| 'ceil' \| 'ethToWei' \| 'floor' \| 'len' \| 'max' \| 'min' \| 'sum' \| 'weiToEth' \| 'bool' \| 'float' \| ...`                                                                                                                                                                                                                     |
+| `value`              | [ParamOrContextParam](#paramorcontextparam) _or_ _Object with properties:_<ul><li>`deployerAddress`: `string` (_regex: `/^0x[0-9a-fA-F]+$/`_) _or_ [ContextParam](#contextparam)</li><li>`bytecodeHash`: `string` (_regex: `/^0x[0-9a-fA-F]+$/`_) _or_ [ContextParam](#contextparam)</li></ul> Description: Value for create2 operation containing deployerAddress and bytecodeHash for computing CREATE2 addresses locally.<br /> <br /> |
 
 _(\*) Required._
 

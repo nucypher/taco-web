@@ -177,4 +177,23 @@ describe('create2 operator', () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it.each(
+    OPERATOR_FUNCTIONS.filter(
+      (op) => !UNARY_OPERATOR_FUNCTIONS.includes(op) && op !== 'create2',
+    ),
+  )(
+    'rejects create2-shaped value for non-create2 operation %s',
+    (operation) => {
+      const result = variableOperationSchema.safeParse({
+        operation,
+        value: {
+          deployerAddress: '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f',
+          bytecodeHash:
+            '0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f',
+        },
+      });
+      expect(result.success).toBe(false);
+    },
+  );
 });

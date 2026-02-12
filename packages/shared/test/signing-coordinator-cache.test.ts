@@ -92,10 +92,10 @@ describe('SigningCoordinatorAgent cache', () => {
     expect(mockContract.signingCohorts).toHaveBeenCalledTimes(1);
   });
 
-  it('expires cache after 10 seconds', async () => {
+  it('expires cache after 60 seconds', async () => {
     await SigningCoordinatorAgent.getThreshold(mockProvider, domain, cohortId);
 
-    vi.advanceTimersByTime(10_001);
+    vi.advanceTimersByTime(60_001);
 
     await SigningCoordinatorAgent.getThreshold(mockProvider, domain, cohortId);
 

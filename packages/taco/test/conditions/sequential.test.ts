@@ -6,7 +6,6 @@ import { IfThenElseConditionType } from '../../src/conditions/if-then-else-condi
 import {
   MAX_VARIABLE_OPERATIONS,
   OPERATOR_FUNCTIONS,
-  UNARY_OPERATOR_FUNCTIONS,
 } from '../../src/conditions/schemas/variable-operation';
 import {
   ConditionVariableProps,
@@ -16,6 +15,7 @@ import {
   SequentialConditionType,
 } from '../../src/conditions/sequential';
 import {
+  getTestValueForOperation,
   testCompoundConditionObj,
   testContractConditionObj,
   testJsonApiConditionObj,
@@ -449,6 +449,7 @@ describe('validation', () => {
     });
     expect(condition.value.conditionType).toEqual(SequentialConditionType);
   });
+
   it.each(OPERATOR_FUNCTIONS)('allows valid operations', (operation) => {
     const conditionObj = {
       conditionType: SequentialConditionType,
@@ -459,9 +460,7 @@ describe('validation', () => {
           operations: [
             {
               operation: operation,
-              value: UNARY_OPERATOR_FUNCTIONS.includes(operation)
-                ? undefined
-                : 5,
+              value: getTestValueForOperation(operation),
             },
           ],
         },

@@ -1,6 +1,26 @@
 import { z } from 'zod';
 
-import { paramOrContextParamSchema } from './context';
+import { contextParamSchema, paramOrContextParamSchema } from './context';
+
+const hexPrefixedStringSchema = z
+  .string()
+  .regex(/^0x[0-9a-fA-F]+$/, 'Must be a 0x-prefixed hex string');
+
+const create2ValueSchema = z
+  .object(
+    {
+      deployerAddress: z.union([hexPrefixedStringSchema, contextParamSchema]),
+      bytecodeHash: z.union([hexPrefixedStringSchema, contextParamSchema]),
+    },
+    {
+      required_error: 'Value must be defined for operation',
+      invalid_type_error:
+        'create2 operation requires an object with deployerAddress and bytecodeHash',
+    },
+  )
+  .describe(
+    'Value for create2 operation containing deployerAddress and bytecodeHash for computing CREATE2 addresses locally.',
+  );
 
 export const OPERATOR_FUNCTIONS = [
   '+=',
@@ -35,6 +55,8 @@ export const OPERATOR_FUNCTIONS = [
   'toHex',
   // hashing
   'keccak',
+  // address computation
+  'create2',
 ] as const;
 
 export const UNARY_OPERATOR_FUNCTIONS = [
@@ -63,9 +85,19 @@ export const UNARY_OPERATOR_FUNCTIONS = [
   'keccak',
 ];
 
-export const variableOperationSchema = z
-  .object({
-    operation: z.enum(OPERATOR_FUNCTIONS),
+const baseVariableOperationSchema = z.object({
+  operation: z.enum(OPERATOR_FUNCTIONS),
+  value: z.any().optional(),
+});
+
+const commonVariableOperationSchema = baseVariableOperationSchema
+  .extend({
+    operation: z.enum(
+      OPERATOR_FUNCTIONS.filter((op) => op !== 'create2') as [
+        string,
+        ...string[],
+      ],
+    ),
     value: paramOrContextParamSchema.optional(),
   })
   .refine(
@@ -97,7 +129,15 @@ export const variableOperationSchema = z
       message: 'Value must be defined for operation',
       path: ['value'],
     },
-  )
+  );
+
+const create2VariableOperationSchema = baseVariableOperationSchema.extend({
+  operation: z.literal('create2'),
+  value: create2ValueSchema,
+});
+
+export const variableOperationSchema = z
+  .union([commonVariableOperationSchema, create2VariableOperationSchema])
   .describe('An operation that can be performed on an obtained result.');
 
 export const MAX_VARIABLE_OPERATIONS = 5;

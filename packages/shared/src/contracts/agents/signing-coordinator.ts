@@ -17,6 +17,14 @@ export type SignerInfo = {
 export class SigningCoordinatorAgent {
   private static cache = new TtlCache(60_000);
 
+  private static cacheKey(
+    domain: Domain,
+    cohortId: number,
+    field: string,
+  ): string {
+    return `${domain}:${cohortId}:${field}`;
+  }
+
   public static clearCache(): void {
     this.cache.clear();
   }
@@ -26,8 +34,8 @@ export class SigningCoordinatorAgent {
     domain: Domain,
     cohortId: number,
   ): Promise<SignerInfo[]> {
-    const cacheKey = `participants:${domain}:${cohortId}`;
-    const cached = this.cache.get<SignerInfo[]>(cacheKey);
+    const key = this.cacheKey(domain, cohortId, 'participants');
+    const cached = this.cache.get<SignerInfo[]>(key);
     if (cached !== undefined) return cached;
 
     const coordinator = await this.connectReadOnly(provider, domain);
@@ -47,7 +55,7 @@ export class SigningCoordinatorAgent {
       },
     );
 
-    this.cache.set(cacheKey, result);
+    this.cache.set(key, result);
     return result;
   }
 
@@ -56,15 +64,15 @@ export class SigningCoordinatorAgent {
     domain: Domain,
     cohortId: number,
   ): Promise<number> {
-    const cacheKey = `threshold:${domain}:${cohortId}`;
-    const cached = this.cache.get<number>(cacheKey);
+    const key = this.cacheKey(domain, cohortId, 'threshold');
+    const cached = this.cache.get<number>(key);
     if (cached !== undefined) return cached;
 
     const coordinator = await this.connectReadOnly(provider, domain);
     const cohort = await coordinator.signingCohorts(cohortId);
     const result = cohort.threshold;
 
-    this.cache.set(cacheKey, result);
+    this.cache.set(key, result);
     return result;
   }
 

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { blockchainIntegerReturnValueTestSchema } from './return-value-test';
 import { rpcConditionSchema } from './rpc';
 
 // TimeCondition is an RpcCondition with the method set to 'blocktime' and no parameters
@@ -11,6 +12,7 @@ export const TimeConditionMethod = 'blocktime';
 const { parameters: _, ...restShape } = rpcConditionSchema.shape;
 export const timeConditionSchema = z.object({
   ...restShape,
+  returnValueTest: blockchainIntegerReturnValueTestSchema,
   conditionType: z.literal(TimeConditionType).default(TimeConditionType),
   method: z.literal(TimeConditionMethod).default(TimeConditionMethod),
 });

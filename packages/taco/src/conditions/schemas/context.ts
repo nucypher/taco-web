@@ -25,8 +25,22 @@ const paramSchema = z.union([
   z.bigint(),
 ]);
 
+// Coerce string values that represent integers to number so serialized output is accepted by backends that require integer types
+const integerStringSchema = z
+  .string()
+  .regex(/^-?\d+$/, 'String value must represent an integer to be coerced')
+  .refine(
+    (s) => {
+      const n = Number(s);
+      return Number.isSafeInteger(n) && String(n) === s;
+    },
+    { message: 'Value is outside safe integer range' },
+  )
+  .transform((s) => parseInt(s, 10));
+
 const blockchainParamSchema = z
   .union([
+    integerStringSchema,
     plainStringSchema,
     z.boolean(),
     z.number().int().safe(),

@@ -136,3 +136,18 @@ import { getTestValueForOperation } from '../test-utils';
     });
   });
 });
+
+describe('blockchainReturnValueTestSchema coerces integer strings to number', () => {
+  it('accepts string value that represents an integer and coerces to number', () => {
+    const result = blockchainReturnValueTestSchema.safeParse({
+      comparator: '>=',
+      value: '1701428400',
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.value).toBe(1701428400);
+      expect(typeof result.data.value).toBe('number');
+    }
+  });
+
+});

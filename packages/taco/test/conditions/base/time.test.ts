@@ -55,4 +55,18 @@ describe('validation', () => {
       },
     });
   });
+
+  it('accepts string value that can be cast to integer and coerces to number', () => {
+    const condition = new TimeCondition({
+      chain: TEST_CHAIN_ID,
+      returnValueTest: {
+        comparator: '>=',
+        value: '1701428400',
+      },
+    });
+    const obj = condition.toObj();
+    expect(obj.returnValueTest).toBeDefined();
+    expect(obj.returnValueTest!.value).toBe(1701428400);
+    expect(typeof obj.returnValueTest!.value).toBe('number');
+  });
 });

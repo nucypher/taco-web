@@ -6,8 +6,10 @@ export {
 } from './schemas/context';
 
 export {
+  BlockchainIntegerReturnValueTestProps,
   BlockchainReturnValueTestProps,
   ReturnValueTestProps,
+  blockchainIntegerReturnValueTestSchema,
   blockchainReturnValueTestSchema,
   returnValueTestSchema,
 } from './schemas/return-value-test';

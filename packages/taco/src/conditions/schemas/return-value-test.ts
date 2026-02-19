@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import {
   blockchainParamOrContextParamSchema,
+  integerBlockchainParamOrContextParamSchema,
   paramOrContextParamSchema,
 } from './context';
 import { variableOperationsArraySchema } from './variable-operation';
@@ -45,8 +46,19 @@ export const blockchainReturnValueTestSchema = returnValueTestBaseSchema
   })
   .refine(requireNonEmptyArrayIfComparatorIsIn, inComparatorErrorConfig);
 
+export const blockchainIntegerReturnValueTestSchema =
+  returnValueTestBaseSchema
+    .extend({
+      value: integerBlockchainParamOrContextParamSchema,
+    })
+    .refine(requireNonEmptyArrayIfComparatorIsIn, inComparatorErrorConfig);
+
 export type ReturnValueTestProps = z.infer<typeof returnValueTestSchema>;
 
 export type BlockchainReturnValueTestProps = z.infer<
   typeof blockchainReturnValueTestSchema
+>;
+
+export type BlockchainIntegerReturnValueTestProps = z.infer<
+  typeof blockchainIntegerReturnValueTestSchema
 >;

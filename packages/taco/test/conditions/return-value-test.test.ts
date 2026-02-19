@@ -5,6 +5,7 @@ import {
   OPERATOR_FUNCTIONS,
 } from '../../src/conditions/schemas/variable-operation';
 import {
+  blockchainIntegerReturnValueTestSchema,
   blockchainReturnValueTestSchema,
   returnValueTestSchema,
 } from '../../src/conditions/shared';
@@ -137,9 +138,9 @@ import { getTestValueForOperation } from '../test-utils';
   });
 });
 
-describe('blockchainReturnValueTestSchema coerces integer strings to number', () => {
+describe('blockchainIntegerReturnValueTestSchema coerces integer strings to number', () => {
   it('accepts string value that represents an integer and coerces to number', () => {
-    const result = blockchainReturnValueTestSchema.safeParse({
+    const result = blockchainIntegerReturnValueTestSchema.safeParse({
       comparator: '>=',
       value: '1701428400',
     });
@@ -149,5 +150,18 @@ describe('blockchainReturnValueTestSchema coerces integer strings to number', ()
       expect(typeof result.data.value).toBe('number');
     }
   });
+});
 
+describe('blockchainReturnValueTestSchema does not coerce integer strings', () => {
+  it('accepts integer string as plain string (value remains string)', () => {
+    const result = blockchainReturnValueTestSchema.safeParse({
+      comparator: '>=',
+      value: '1701428400',
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.value).toBe('1701428400');
+      expect(typeof result.data.value).toBe('string');
+    }
+  });
 });

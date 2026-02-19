@@ -138,8 +138,8 @@ import { getTestValueForOperation } from '../test-utils';
   });
 });
 
-describe('blockchainIntegerReturnValueTestSchema coerces integer strings to number', () => {
-  it('accepts string value that represents an integer and coerces to number', () => {
+describe('blockchainIntegerReturnValueTestSchema', () => {
+  it('coerces string value that represents an integer to number', () => {
     const result = blockchainIntegerReturnValueTestSchema.safeParse({
       comparator: '>=',
       value: '1701428400',
@@ -148,6 +148,42 @@ describe('blockchainIntegerReturnValueTestSchema coerces integer strings to numb
     if (result.success) {
       expect(result.data.value).toBe(1701428400);
       expect(typeof result.data.value).toBe('number');
+    }
+  });
+
+  it('accepts context param value unchanged (no coercion)', () => {
+    const result = blockchainIntegerReturnValueTestSchema.safeParse({
+      comparator: '>=',
+      value: ':expectedBlocktime',
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.value).toBe(':expectedBlocktime');
+      expect(typeof result.data.value).toBe('string');
+    }
+  });
+
+  it('accepts number value unchanged', () => {
+    const result = blockchainIntegerReturnValueTestSchema.safeParse({
+      comparator: '>=',
+      value: 1701428400,
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.value).toBe(1701428400);
+      expect(typeof result.data.value).toBe('number');
+    }
+  });
+
+  it('accepts bigint value unchanged', () => {
+    const result = blockchainIntegerReturnValueTestSchema.safeParse({
+      comparator: '>=',
+      value: 1701428400n,
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.value).toBe(1701428400n);
+      expect(typeof result.data.value).toBe('bigint');
     }
   });
 });

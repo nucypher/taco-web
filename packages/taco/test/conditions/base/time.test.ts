@@ -69,4 +69,18 @@ describe('validation', () => {
     expect(obj.returnValueTest!.value).toBe(1701428400);
     expect(typeof obj.returnValueTest!.value).toBe('number');
   });
+
+  it('leaves number value unchanged in serialization', () => {
+    const condition = new TimeCondition({
+      chain: TEST_CHAIN_ID,
+      returnValueTest: {
+        comparator: '>=',
+        value: 1701428400,
+      },
+    });
+    const obj = condition.toObj();
+    expect(obj.returnValueTest).toBeDefined();
+    expect(obj.returnValueTest!.value).toBe(1701428400);
+    expect(typeof obj.returnValueTest!.value).toBe('number');
+  });
 });

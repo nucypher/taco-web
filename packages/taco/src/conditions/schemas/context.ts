@@ -25,8 +25,8 @@ const paramSchema = z.union([
   z.bigint(),
 ]);
 
-// Coerce string values that represent integers to number so serialized output is accepted by backends that require integer types
-const integerStringSchema = z
+// Coerce string values that represent integers to number; exported for use in integer return-value-test variant only
+export const integerStringSchema = z
   .string()
   .regex(/^-?\d+$/, 'String value must represent an integer to be coerced')
   .refine(
@@ -40,7 +40,6 @@ const integerStringSchema = z
 
 const blockchainParamSchema = z
   .union([
-    integerStringSchema,
     plainStringSchema,
     z.boolean(),
     z.number().int().safe(),
@@ -61,3 +60,12 @@ export const blockchainParamOrContextParamSchema: z.ZodSchema = z.union([
   contextParamSchema,
   z.lazy(() => z.array(blockchainParamOrContextParamSchema)),
 ]);
+
+// Like blockchainParamOrContextParamSchema but coerces integer-shaped strings to number; for return-value tests known to compare against integers (e.g. blocktime)
+export const integerBlockchainParamOrContextParamSchema: z.ZodSchema =
+  z.union([
+    integerStringSchema,
+    blockchainParamSchema,
+    contextParamSchema,
+    z.lazy(() => z.array(integerBlockchainParamOrContextParamSchema)),
+  ]);

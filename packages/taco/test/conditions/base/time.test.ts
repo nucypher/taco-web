@@ -59,6 +59,7 @@ describe('validation', () => {
   it('accepts string value that can be cast to integer and coerces to number', () => {
     const condition = new TimeCondition({
       chain: TEST_CHAIN_ID,
+      method: TimeConditionMethod,
       returnValueTest: {
         comparator: '>=',
         value: '1701428400',
@@ -73,6 +74,7 @@ describe('validation', () => {
   it('leaves number value unchanged in serialization', () => {
     const condition = new TimeCondition({
       chain: TEST_CHAIN_ID,
+      method: TimeConditionMethod,
       returnValueTest: {
         comparator: '>=',
         value: 1701428400,

@@ -176,13 +176,14 @@ describe('blockchainIntegerReturnValueTestSchema', () => {
   });
 
   it('accepts bigint value unchanged', () => {
+    const value = BigInt(1701428400);
     const result = blockchainIntegerReturnValueTestSchema.safeParse({
       comparator: '>=',
-      value: 1701428400n,
+      value,
     });
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.value).toBe(1701428400n);
+      expect(result.data.value).toBe(value);
       expect(typeof result.data.value).toBe('bigint');
     }
   });

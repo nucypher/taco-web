@@ -18,6 +18,7 @@ import {
   CONTEXT_PARAM_FULL_MATCH_REGEXP,
   CONTEXT_PARAM_PREFIX,
   CONTEXT_PARAM_REGEXP,
+  NULL_ADDRESS_CONTEXT_VAR,
   USER_ADDRESS_PARAMS,
 } from '../const';
 import { ConditionVariableProps } from '../schemas/sequential';
@@ -68,10 +69,12 @@ const EXPECTED_AUTH_PROVIDER_TYPES: Record<string, AuthProviderType[]> = {
 export const AUTOMATICALLY_INJECTED_CONTEXT_PARAMS = [
   // These context parameters are automatically injected on the node side.
   SIGNING_CONDITION_OBJECT_CONTEXT_VAR,
+  NULL_ADDRESS_CONTEXT_VAR,
 ];
 export const RESERVED_CONTEXT_PARAMS = [
   USER_ADDRESS_PARAM_DEFAULT,
   SIGNING_CONDITION_OBJECT_CONTEXT_VAR,
+  NULL_ADDRESS_CONTEXT_VAR,
 ];
 
 export class ConditionContext {

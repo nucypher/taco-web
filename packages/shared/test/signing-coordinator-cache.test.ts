@@ -11,6 +11,7 @@ import {
 } from 'vitest';
 
 import { SigningCoordinatorAgent } from '../src/contracts/agents/signing-coordinator';
+import { toHexString } from '../src/utils';
 
 // We need to mock the private connectReadOnly method's dependencies
 // Mock getContract from nucypher-contracts and the factory
@@ -51,7 +52,7 @@ describe('SigningCoordinatorAgent cache', () => {
         {
           provider: '0xnode1',
           signerAddress: '0x0000000000000000000000000000000000000001',
-          signingRequestStaticKey: `0x${Buffer.from(signerKey.publicKey().toBytes()).toString('hex')}`,
+          signingRequestStaticKey: `0x${toHexString(signerKey.publicKey().toBytes())}`,
         },
       ]),
       signingCohorts: vi.fn().mockResolvedValue({ threshold: 2 }),

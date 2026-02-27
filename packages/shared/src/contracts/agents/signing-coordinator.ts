@@ -2,6 +2,7 @@ import { getContract } from '@nucypher/nucypher-contracts';
 import { SessionStaticKey } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
+import { TtlCache } from '../../cache';
 import { Domain } from '../../porter';
 import { fromHexString } from '../../utils';
 import { SigningCoordinator__factory } from '../ethers-typechain';
@@ -14,15 +15,33 @@ export type SignerInfo = {
 };
 
 export class SigningCoordinatorAgent {
+  private static cache = new TtlCache(60_000);
+
+  private static cacheKey(
+    domain: Domain,
+    cohortId: number,
+    field: string,
+  ): string {
+    return `${domain}:${cohortId}:${field}`;
+  }
+
+  public static clearCache(): void {
+    this.cache.clear();
+  }
+
   public static async getParticipants(
     provider: ethers.providers.Provider,
     domain: Domain,
     cohortId: number,
   ): Promise<SignerInfo[]> {
+    const key = this.cacheKey(domain, cohortId, 'participants');
+    const cached = this.cache.get<SignerInfo[]>(key);
+    if (cached !== undefined) return cached;
+
     const coordinator = await this.connectReadOnly(provider, domain);
     const participants = await coordinator.getSigners(cohortId);
 
-    return participants.map(
+    const result = participants.map(
       (
         participant: SigningCoordinator.SigningCohortParticipantStructOutput,
       ) => {
@@ -35,6 +54,9 @@ export class SigningCoordinatorAgent {
         };
       },
     );
+
+    this.cache.set(key, result);
+    return result;
   }
 
   public static async getThreshold(
@@ -42,9 +64,16 @@ export class SigningCoordinatorAgent {
     domain: Domain,
     cohortId: number,
   ): Promise<number> {
+    const key = this.cacheKey(domain, cohortId, 'threshold');
+    const cached = this.cache.get<number>(key);
+    if (cached !== undefined) return cached;
+
     const coordinator = await this.connectReadOnly(provider, domain);
     const cohort = await coordinator.signingCohorts(cohortId);
-    return cohort.threshold;
+    const result = cohort.threshold;
+
+    this.cache.set(key, result);
+    return result;
   }
 
   public static async getSigningCohortConditions(

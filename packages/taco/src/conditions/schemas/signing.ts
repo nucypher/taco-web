@@ -154,14 +154,14 @@ const humanAbiCallSignatureSchema = z
 
 /**
  * Resolves the final ParamType after applying subIndices navigation.
- * Returns the resolved type or null if navigation fails (with errors added to ctx).
+ * Returns the resolved type or undefined if navigation fails (with errors added to ctx).
  *
  * @param ctx - The Zod refinement context.
  * @param paramType - The starting ParamType to navigate from.
  * @param subIndices - The array of indices to navigate through.
  * @param signature - The ABI signature (for error messages).
  * @param validationIndex - The index of the validation (for error paths).
- * @returns The resolved ParamType or null if validation failed.
+ * @returns The resolved ParamType or undefined if validation failed.
  */
 function resolveTypeWithSubIndices(
   ctx: z.RefinementCtx,
@@ -169,7 +169,7 @@ function resolveTypeWithSubIndices(
   subIndices: number[],
   signature: string,
   validationIndex: number,
-): ParamType | null {
+): ParamType | undefined {
   let currentType = paramType;
 
   for (let i = 0; i < subIndices.length; i++) {
@@ -186,7 +186,7 @@ function resolveTypeWithSubIndices(
           message: `Index ${idx} at subIndices position ${i} is out of range for tuple with ${currentType.components.length} fields`,
           path: ['allowedAbiCalls', signature, validationIndex, 'subIndices'],
         });
-        return null;
+        return undefined;
       }
       currentType = currentType.components[idx];
     } else {
@@ -196,7 +196,7 @@ function resolveTypeWithSubIndices(
         message: `Cannot apply index at subIndices position ${i}: type "${currentType.baseType}" is not indexable (not an array or tuple)`,
         path: ['allowedAbiCalls', signature, validationIndex, 'subIndices'],
       });
-      return null;
+      return undefined;
     }
   }
 
@@ -240,7 +240,7 @@ function validateAllowedAbiCall(
           signature,
           index,
         );
-        if (resolvedType === null) {
+        if (resolvedType === undefined) {
           continue; // Validation failed, errors already added
         }
         finalType = resolvedType;

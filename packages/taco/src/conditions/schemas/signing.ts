@@ -45,13 +45,13 @@ export const abiParameterValidationSchema: z.ZodSchema = z
       .int()
       .nonnegative()
       .describe('Index of parameter to check within abi calldata.'),
-    indexWithinTuple: z
-      .number()
-      .int()
-      .nonnegative()
+    subIndices: z
+      .array(z.number().int().nonnegative())
       .optional()
       .describe(
-        'Index of value within tuple value at parameter index to check',
+        'Sequential indices for navigating nested structures (arrays and tuples). ' +
+          'The ABI type determines interpretation at each step: array types consume an index ' +
+          'and access that element, tuple types consume an index and access that field.',
       ),
     returnValueTest: blockchainReturnValueTestSchema
       .optional()
@@ -153,6 +153,57 @@ const humanAbiCallSignatureSchema = z
   .describe('A human readable ABI signature, e.g. "transfer(address,uint256)"');
 
 /**
+ * Resolves the final ParamType after applying subIndices navigation.
+ * Returns the resolved type or undefined if navigation fails (with errors added to ctx).
+ *
+ * @param ctx - The Zod refinement context.
+ * @param paramType - The starting ParamType to navigate from.
+ * @param subIndices - The array of indices to navigate through.
+ * @param signature - The ABI signature (for error messages).
+ * @param validationIndex - The index of the validation (for error paths).
+ * @returns The resolved ParamType or undefined if validation failed.
+ */
+function resolveTypeWithSubIndices(
+  ctx: z.RefinementCtx,
+  paramType: ParamType,
+  subIndices: number[],
+  signature: string,
+  validationIndex: number,
+): ParamType | undefined {
+  let currentType = paramType;
+
+  for (let i = 0; i < subIndices.length; i++) {
+    const idx = subIndices[i];
+
+    if (currentType.baseType === 'array') {
+      // Array type - navigate to element type (cannot validate bounds at schema time)
+      currentType = currentType.arrayChildren;
+    } else if (currentType.baseType === 'tuple') {
+      // Tuple type - navigate to component at index
+      if (idx >= currentType.components.length) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Index ${idx} at subIndices position ${i} is out of range for tuple with ${currentType.components.length} fields`,
+          path: ['allowedAbiCalls', signature, validationIndex, 'subIndices'],
+        });
+        return undefined;
+      }
+      currentType = currentType.components[idx];
+    } else {
+      // Not an indexable type
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Cannot apply index at subIndices position ${i}: type "${currentType.baseType}" is not indexable (not an array or tuple)`,
+        path: ['allowedAbiCalls', signature, validationIndex, 'subIndices'],
+      });
+      return undefined;
+    }
+  }
+
+  return currentType;
+}
+
+/**
  * Validates the allowed ABI calls against the provided signature and validations.
  * This function is used in the superRefine method of the abiCallValidationSchema.
  *
@@ -175,46 +226,39 @@ function validateAllowedAbiCall(
           message: `Parameter index, "${validation.parameterIndex}", is out of range`,
           path: ['allowedAbiCalls', signature, index, 'parameterIndex'],
         });
+        continue;
       }
 
-      if (validation.indexWithinTuple !== undefined) {
-        const paramType = fragment.inputs[validation.parameterIndex];
-        if (paramType.baseType !== 'tuple') {
-          // type at parameter index is not a tuple
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: `Type at parameter index, "${validation.parameterIndex}", is not a tuple`,
-            path: ['allowedAbiCalls', signature, index, 'parameterIndex'],
-          });
-        } else if (validation.indexWithinTuple >= paramType.components.length) {
-          // invalid index within tuple
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: `Index within tuple, "${validation.indexWithinTuple}", is out of range`,
-            path: ['allowedAbiCalls', signature, index, 'indexWithinTuple'],
-          });
+      let finalType = fragment.inputs[validation.parameterIndex];
+
+      // Validate and resolve subIndices if present
+      if (validation.subIndices && validation.subIndices.length > 0) {
+        const resolvedType = resolveTypeWithSubIndices(
+          ctx,
+          finalType,
+          validation.subIndices,
+          signature,
+          index,
+        );
+        if (resolvedType === undefined) {
+          continue; // Validation failed, errors already added
         }
+        finalType = resolvedType;
       }
 
       if (validation.nestedAbiValidation) {
-        // if there is nested ABI validation, the type must be bytes
-        let paramType = fragment.inputs[validation.parameterIndex];
-        if (validation.indexWithinTuple !== undefined) {
-          // if there is an index within tuple, get the type of the component at that index
-          paramType = paramType.components[validation.indexWithinTuple];
-        }
-
-        if (paramType.baseType !== 'bytes') {
+        // if there is nested ABI validation, the final type must be bytes
+        if (finalType.baseType !== 'bytes') {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: `Invalid type for nested ABI validation, "${paramType.baseType}"; expected bytes`,
+            message: `Invalid type for nested ABI validation, "${finalType.baseType}"; expected bytes`,
             path: ['allowedAbiCalls', signature, index],
           });
         }
       }
     }
   } catch {
-    // even though abi signatures are already validated by nested schema - zod uses “greedy” (continuable) validation so all validations are run
+    // even though abi signatures are already validated by nested schema - zod uses "greedy" (continuable) validation so all validations are run
     // ignore invalid ABI signature
   }
 }

@@ -60,21 +60,63 @@ export const abiParameterValidationSchema: z.ZodSchema = z
       .lazy(() => abiCallValidationSchema)
       .optional()
       .describe('Additional checks for nested abi calldata'),
+    nestedAbiDecode: z
+      .lazy(() => abiDecodeValidationSchema)
+      .optional()
+      .describe(
+        'Decode raw ABI-encoded bytes (no function selector) and validate. ' +
+          'Used for ERC-7579 batch execution payloads.',
+      ),
   })
   .refine(
-    // An XOR check to see if either 'returnValueTest' or 'nestedAbiValidation' is set
-    (parameterValidation) =>
-      Boolean(parameterValidation.returnValueTest) !==
-      Boolean(parameterValidation.nestedAbiValidation),
+    (parameterValidation) => {
+      const count = [
+        parameterValidation.returnValueTest,
+        parameterValidation.nestedAbiValidation,
+        parameterValidation.nestedAbiDecode,
+      ].filter(Boolean).length;
+      return count === 1;
+    },
     {
       message:
-        "At most one of the fields 'returnValueTest' and 'nestedAbiValidation' must be defined",
+        "Exactly one of 'returnValueTest', 'nestedAbiValidation', or 'nestedAbiDecode' must be defined",
       path: ['returnValueTest'],
     },
   );
 
 export type AbiParameterValidationProps = z.infer<
   typeof abiParameterValidationSchema
+>;
+
+const solidityTypeStringSchema = z
+  .string()
+  .refine(
+    (typeStr) => {
+      try {
+        ParamType.from(typeStr);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    { message: 'Invalid Solidity type string' },
+  )
+  .describe('A Solidity type string, e.g. "(address,uint256,bytes)[]"');
+
+export const abiDecodeValidationSchema: z.ZodSchema = z.lazy(() =>
+  z
+    .object({
+      type: solidityTypeStringSchema,
+      validations: z.array(abiParameterValidationSchema),
+    })
+    .describe(
+      'Decode raw ABI-encoded bytes (no function selector) and validate inner values. ' +
+        'Used for ERC-7579 batch execution data.',
+    ),
+);
+
+export type AbiDecodeValidationProps = z.infer<
+  typeof abiDecodeValidationSchema
 >;
 
 // TODO: is there something already built out there to validate Solidity types?
@@ -252,6 +294,16 @@ function validateAllowedAbiCall(
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: `Invalid type for nested ABI validation, "${finalType.baseType}"; expected bytes`,
+            path: ['allowedAbiCalls', signature, index],
+          });
+        }
+      }
+
+      if (validation.nestedAbiDecode) {
+        if (finalType.baseType !== 'bytes') {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Invalid type for nested ABI decode, "${finalType.baseType}"; expected bytes`,
             path: ['allowedAbiCalls', signature, index],
           });
         }

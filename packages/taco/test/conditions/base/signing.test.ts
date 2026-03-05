@@ -318,7 +318,7 @@ describe('SigningObjectAbiAttributeCondition', () => {
             '0': {
               returnValueTest: {
                 _errors: [
-                  "At most one of the fields 'returnValueTest' and 'nestedAbiValidation' must be defined",
+                  "Exactly one of 'returnValueTest', 'nestedAbiValidation', or 'nestedAbiDecode' must be defined",
                 ],
               },
             },
@@ -734,6 +734,100 @@ describe('SigningObjectAbiAttributeCondition', () => {
         },
       },
     });
+  });
+
+  it('accepts nestedAbiDecode for selectorless ABI data', () => {
+    const condition = {
+      ...testSigningObjectAbiAttributeConditionObj,
+      abiValidation: {
+        allowedAbiCalls: {
+          'execute(bytes32,bytes)': [
+            {
+              parameterIndex: 1,
+              nestedAbiDecode: {
+                type: '(address,uint256,bytes)[]',
+                validations: [
+                  {
+                    parameterIndex: 0,
+                    subIndices: [0, 0],
+                    returnValueTest: {
+                      comparator: '==',
+                      value: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+                    },
+                  },
+                  {
+                    parameterIndex: 0,
+                    subIndices: [0, 2],
+                    nestedAbiValidation: {
+                      allowedAbiCalls: {
+                        'transfer(address,uint256)': [],
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    };
+    const result = SigningObjectAbiAttributeCondition.validate(
+      signingObjectAbiAttributeConditionSchema,
+      condition,
+    );
+    expect(result.error).toBeUndefined();
+    expect(result.data).toBeDefined();
+  });
+
+  it('rejects nestedAbiDecode on non-bytes type', () => {
+    const condition = {
+      ...testSigningObjectAbiAttributeConditionObj,
+      abiValidation: {
+        allowedAbiCalls: {
+          'execute(bytes32,bytes)': [
+            {
+              parameterIndex: 0,  // bytes32, not bytes
+              nestedAbiDecode: {
+                type: '(address,uint256)[]',
+                validations: [],
+              },
+            },
+          ],
+        },
+      },
+    };
+    const result = SigningObjectAbiAttributeCondition.validate(
+      signingObjectAbiAttributeConditionSchema,
+      condition,
+    );
+    expect(result.error).toBeDefined();
+  });
+
+  it('rejects having both nestedAbiValidation and nestedAbiDecode', () => {
+    const condition = {
+      ...testSigningObjectAbiAttributeConditionObj,
+      abiValidation: {
+        allowedAbiCalls: {
+          'execute(bytes32,bytes)': [
+            {
+              parameterIndex: 1,
+              nestedAbiValidation: {
+                allowedAbiCalls: { 'transfer(address,uint256)': [] },
+              },
+              nestedAbiDecode: {
+                type: '(address,uint256)[]',
+                validations: [],
+              },
+            },
+          ],
+        },
+      },
+    };
+    const result = SigningObjectAbiAttributeCondition.validate(
+      signingObjectAbiAttributeConditionSchema,
+      condition,
+    );
+    expect(result.error).toBeDefined();
   });
 
   it('infers condition type from constructor', () => {

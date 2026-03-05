@@ -12,6 +12,8 @@ import { OmitConditionType } from '../shared';
 export {
   AbiCallValidationProps,
   abiCallValidationSchema,
+  AbiDecodeValidationProps,
+  abiDecodeValidationSchema,
   AbiParameterValidationProps,
   abiParameterValidationSchema,
   SIGNING_CONDITION_OBJECT_CONTEXT_VAR,

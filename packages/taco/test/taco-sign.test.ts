@@ -406,7 +406,7 @@ describe('TACo Signing', () => {
           threshold,
         );
 
-        const call = porterSignUserOpMock.mock.calls.at(-1)!;
+        const call = porterSignUserOpMock.mock.calls[porterSignUserOpMock.mock.calls.length - 1]!;
         const [op] = call;
 
         const nodes = ['0xnode1', '0xnode2'];
@@ -483,7 +483,7 @@ describe('TACo Signing', () => {
         },
         threshold,
       );
-      const call = porterSignUserOpMock.mock.calls.at(-1)!;
+      const call = porterSignUserOpMock.mock.calls[porterSignUserOpMock.mock.calls.length - 1]!;
       const [op] = call;
 
       const nodes = ['0xnode1', '0xnode2'];

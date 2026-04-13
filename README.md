@@ -37,6 +37,14 @@ These examples showcase integration with web applications utilizing an end-to-en
 
 Learn more about the available condition schemas and their properties. You may check the [condition schema documentation](./packages/taco/schema-docs/condition-schemas.md) for detailed information on each schema type.
 
+## LLM Condition Authoring Skill
+
+For LLM-assisted TACo condition authoring, use [`./taco-condition-authoring-skill.md`](./taco-condition-authoring-skill.md). It contains a reusable prompt template, constraint rules, examples, and a validation workflow for producing valid condition JSON.
+
+Humans can open the file and follow the "Quick Start" section.
+
+LLM or agent users should explicitly reference the file and ask the model to use it, for example: "Use `taco-condition-authoring-skill.md` to author a TACo condition for <policy description>, then follow the validation loop in that skill."
+
 # Contributing
 
 If you would like to contribute to the development of `taco-web`, please see our [Contributing Guide](CONTRIBUTING.md).

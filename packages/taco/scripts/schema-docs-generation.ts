@@ -13,6 +13,10 @@ import { mkdir, writeFile } from 'fs/promises';
 
 import { glob } from 'glob';
 import * as path from 'path';
+import { z } from 'zod';
+import { zodToJsonSchema } from 'zod-to-json-schema';
+
+import { anyConditionSchema } from '../src/conditions/schemas/utils';
 
 // Because of an issue with the bundleRequire that is used within zod2md, the importModules function has been modified to work and the files that calls it needed to be copied.
 
@@ -80,6 +84,7 @@ const schemaSource = './src/conditions/schemas/export-for-zod-doc-gen.ts';
 
 const schemaOutputDirectory = './schema-docs/'; // The directory where Markdown will be saved
 const schemaOutputFile = 'condition-schemas.md'; // File name where the Markdown will be saved
+const jsonSchemaOutputFile = 'condition-schema.json'; // JSON Schema for editor / LLM consumption
 
 const appendedText = `
 ## More resources
@@ -118,4 +123,64 @@ async function generateMdFiles() {
   );
 }
 
-generateMdFiles();
+// Generates a standard JSON Schema document describing the full
+// ConditionExpression envelope ({version, condition}). Editors that
+// understand $schema (VS Code, JetBrains, etc.) and LLMs both consume
+// this format directly, giving inline validation and structured output
+// without depending on @nucypher/taco at runtime.
+async function generateJsonSchema() {
+  try {
+    const conditionExpressionSchema = z.object({
+      version: z.literal('1.0.0'),
+      condition: anyConditionSchema,
+    });
+
+    const jsonSchema = zodToJsonSchema(conditionExpressionSchema, {
+      name: 'ConditionExpression',
+      $refStrategy: 'root',
+    });
+
+    await mkdir(schemaOutputDirectory, { recursive: true });
+    // BigInt bounds (e.g. uint256 ranges) are not representable in
+    // standard JSON Schema, which requires numeric bounds. Walk the
+    // tree and drop any minimum/maximum whose value is a BigInt — the
+    // type constraint (`integer`) still applies.
+    const stripBigIntBounds = (node: unknown): void => {
+      if (Array.isArray(node)) {
+        node.forEach(stripBigIntBounds);
+        return;
+      }
+      if (node && typeof node === 'object') {
+        const obj = node as Record<string, unknown>;
+        for (const key of ['minimum', 'maximum']) {
+          if (typeof obj[key] === 'bigint') {
+            delete obj[key];
+          }
+        }
+        for (const v of Object.values(obj)) {
+          stripBigIntBounds(v);
+        }
+      }
+    };
+    stripBigIntBounds(jsonSchema);
+
+    await writeFile(
+      schemaOutputDirectory + jsonSchemaOutputFile,
+      JSON.stringify(jsonSchema, null, 2) + '\n',
+    );
+
+    console.info(
+      'Condition JSON Schema generated successfully at:',
+      schemaOutputDirectory + jsonSchemaOutputFile,
+    );
+  } catch (error) {
+    console.error('Failed to generate JSON Schema:', error);
+  }
+}
+
+async function main() {
+  await generateMdFiles();
+  await generateJsonSchema();
+}
+
+main();

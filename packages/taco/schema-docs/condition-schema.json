@@ -1,0 +1,1087 @@
+{
+  "$ref": "#/definitions/ConditionExpression",
+  "definitions": {
+    "ConditionExpression": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "const": "1.0.0"
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "conditionType": {
+                  "type": "string",
+                  "const": "rpc",
+                  "default": "rpc"
+                },
+                "chain": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "method": {
+                  "type": "string",
+                  "enum": [
+                    "eth_getBalance"
+                  ],
+                  "description": "Only 'eth_getBalance' method is supported"
+                },
+                "parameters": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": [
+                        {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "string",
+                              "const": ":userAddress",
+                              "description": "This is a context variable that will be replaced at decryption time. It represents the Ethereum address of the requester attempting decryption."
+                            },
+                            {
+                              "type": "string",
+                              "pattern": "^:[a-zA-Z_][a-zA-Z0-9_]*$",
+                              "description": "A Context Parameter i.e. a placeholder used within conditions and specified at the encryption time, whose value is provided at decryption time."
+                            }
+                          ]
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "anyOf": [
+                                {
+                                  "type": "integer",
+                                  "minimum": 0
+                                },
+                                {
+                                  "type": "string",
+                                  "pattern": "^0x[a-fA-F0-9]{64}$"
+                                },
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "earliest",
+                                    "finalized",
+                                    "safe",
+                                    "latest",
+                                    "pending"
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/parameters/anyOf/0/items/0/anyOf/2"
+                            }
+                          ],
+                          "description": "A block identifier or a context variable that will be replaced with a block identifier at execution time."
+                        }
+                      ],
+                      "description": "Spec requires 2 parameters - an address and a block identifier"
+                    },
+                    {
+                      "type": "array",
+                      "minItems": 1,
+                      "maxItems": 1,
+                      "items": [
+                        {
+                          "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/parameters/anyOf/0/items/0"
+                        }
+                      ],
+                      "description": "Block identifier, which defaults to 'latest' if not specified"
+                    }
+                  ]
+                },
+                "returnValueTest": {
+                  "type": "object",
+                  "properties": {
+                    "index": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "comparator": {
+                      "type": "string",
+                      "enum": [
+                        "==",
+                        ">",
+                        "<",
+                        ">=",
+                        "<=",
+                        "!=",
+                        "in",
+                        "!in"
+                      ]
+                    },
+                    "operations": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "operation": {
+                                "type": "string",
+                                "enum": [
+                                  "+=",
+                                  "-=",
+                                  "*=",
+                                  "/=",
+                                  "%=",
+                                  "toTokenBaseUnits",
+                                  "index",
+                                  "round",
+                                  "abs",
+                                  "avg",
+                                  "ceil",
+                                  "ethToWei",
+                                  "floor",
+                                  "len",
+                                  "max",
+                                  "min",
+                                  "sum",
+                                  "weiToEth",
+                                  "bool",
+                                  "float",
+                                  "int",
+                                  "str",
+                                  "fromJson",
+                                  "toJson",
+                                  "fromHex",
+                                  "toHex",
+                                  "keccak"
+                                ]
+                              },
+                              "value": {
+                                "anyOf": [
+                                  {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "description": "Any string that is not a Context Parameter i.e. does not start with `:`."
+                                      },
+                                      {
+                                        "type": "boolean"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "integer",
+                                        "format": "int64"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/parameters/anyOf/0/items/0/anyOf/2"
+                                  },
+                                  {
+                                    "type": "array",
+                                    "items": {
+                                      "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/returnValueTest/properties/operations/items/anyOf/0/properties/value"
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "operation"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "operation": {
+                                "type": "string",
+                                "const": "create2"
+                              },
+                              "value": {
+                                "type": "object",
+                                "properties": {
+                                  "deployerAddress": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "pattern": "^0x[0-9a-fA-F]+$"
+                                      },
+                                      {
+                                        "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/parameters/anyOf/0/items/0/anyOf/2"
+                                      }
+                                    ]
+                                  },
+                                  "bytecodeHash": {
+                                    "anyOf": [
+                                      {
+                                        "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/returnValueTest/properties/operations/items/anyOf/1/properties/value/properties/deployerAddress/anyOf/0"
+                                      },
+                                      {
+                                        "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/parameters/anyOf/0/items/0/anyOf/2"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "deployerAddress",
+                                  "bytecodeHash"
+                                ],
+                                "additionalProperties": false,
+                                "description": "Value for create2 operation containing deployerAddress and bytecodeHash for computing CREATE2 addresses locally."
+                              }
+                            },
+                            "required": [
+                              "operation",
+                              "value"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ],
+                        "description": "An operation that can be performed on an obtained result."
+                      },
+                      "minItems": 1,
+                      "maxItems": 5,
+                      "description": "Optional operations to perform on the obtained result before comparison"
+                    },
+                    "value": {
+                      "anyOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/returnValueTest/properties/operations/items/anyOf/0/properties/value/anyOf/0/anyOf/0"
+                            },
+                            {
+                              "type": "boolean"
+                            },
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "integer",
+                              "format": "int64"
+                            }
+                          ],
+                          "description": "Blockchain-compatible parameter values for blockchain RPC API calls and Smart Contracts functions; numbers must be in safe range and bigints must be in the range [-2^255, 2^256-1])."
+                        },
+                        {
+                          "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/parameters/anyOf/0/items/0/anyOf/2"
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/returnValueTest/properties/value"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "comparator",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "chain",
+                "method",
+                "parameters",
+                "returnValueTest"
+              ],
+              "additionalProperties": false,
+              "description": "RPC Condition for calling [Ethereum JSON RPC APIs](https://ethereum.github.io/execution-apis/api-documentation/)"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "conditionType": {
+                  "type": "string",
+                  "const": "time",
+                  "default": "time"
+                },
+                "chain": {
+                  "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/chain"
+                },
+                "method": {
+                  "type": "string",
+                  "const": "blocktime",
+                  "default": "blocktime"
+                },
+                "returnValueTest": {
+                  "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/returnValueTest"
+                }
+              },
+              "required": [
+                "chain",
+                "returnValueTest"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "conditionType": {
+                  "type": "string",
+                  "const": "context-variable"
+                },
+                "contextVariable": {
+                  "type": "string",
+                  "pattern": "^:[a-zA-Z_][a-zA-Z0-9_]*$",
+                  "description": "The context variable to check (e.g., \":userAddress\", \":customParam\")"
+                },
+                "returnValueTest": {
+                  "type": "object",
+                  "properties": {
+                    "index": {
+                      "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/returnValueTest/properties/index"
+                    },
+                    "comparator": {
+                      "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/returnValueTest/properties/comparator"
+                    },
+                    "operations": {
+                      "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/returnValueTest/properties/operations"
+                    },
+                    "value": {
+                      "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/returnValueTest/properties/operations/items/anyOf/0/properties/value"
+                    }
+                  },
+                  "required": [
+                    "comparator",
+                    "value"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Test to perform on a value. Supports comparison operators like ==, >, <, >=, <=, !=, in, !in"
+                }
+              },
+              "required": [
+                "conditionType",
+                "contextVariable",
+                "returnValueTest"
+              ],
+              "additionalProperties": false,
+              "description": "Context Variable Condition for performing comparison operations on context variable values."
+            },
+            {
+              "type": "object",
+              "properties": {
+                "conditionType": {
+                  "type": "string",
+                  "const": "contract",
+                  "default": "contract"
+                },
+                "chain": {
+                  "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/chain"
+                },
+                "method": {
+                  "type": "string"
+                },
+                "parameters": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/returnValueTest/properties/value"
+                  }
+                },
+                "returnValueTest": {
+                  "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/returnValueTest"
+                },
+                "contractAddress": {
+                  "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/parameters/anyOf/0/items/0/anyOf/0"
+                },
+                "standardContractType": {
+                  "type": "string",
+                  "enum": [
+                    "ERC20",
+                    "ERC721"
+                  ]
+                },
+                "functionAbi": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "function"
+                    },
+                    "inputs": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "bool",
+                              "string",
+                              "address",
+                              "address payable",
+                              "bytes1",
+                              "bytes2",
+                              "bytes3",
+                              "bytes4",
+                              "bytes5",
+                              "bytes6",
+                              "bytes7",
+                              "bytes8",
+                              "bytes9",
+                              "bytes10",
+                              "bytes11",
+                              "bytes12",
+                              "bytes13",
+                              "bytes14",
+                              "bytes15",
+                              "bytes16",
+                              "bytes17",
+                              "bytes18",
+                              "bytes19",
+                              "bytes20",
+                              "bytes21",
+                              "bytes22",
+                              "bytes23",
+                              "bytes24",
+                              "bytes25",
+                              "bytes26",
+                              "bytes27",
+                              "bytes28",
+                              "bytes29",
+                              "bytes30",
+                              "bytes31",
+                              "bytes32",
+                              "bytes",
+                              "uint8",
+                              "uint16",
+                              "uint24",
+                              "uint32",
+                              "uint40",
+                              "uint48",
+                              "uint56",
+                              "uint64",
+                              "uint72",
+                              "uint80",
+                              "uint88",
+                              "uint96",
+                              "uint104",
+                              "uint112",
+                              "uint120",
+                              "uint128",
+                              "uint136",
+                              "uint144",
+                              "uint152",
+                              "uint160",
+                              "uint168",
+                              "uint176",
+                              "uint184",
+                              "uint192",
+                              "uint200",
+                              "uint208",
+                              "uint216",
+                              "uint224",
+                              "uint232",
+                              "uint240",
+                              "uint248",
+                              "uint256",
+                              "int8",
+                              "int16",
+                              "int24",
+                              "int32",
+                              "int40",
+                              "int48",
+                              "int56",
+                              "int64",
+                              "int72",
+                              "int80",
+                              "int88",
+                              "int96",
+                              "int104",
+                              "int112",
+                              "int120",
+                              "int128",
+                              "int136",
+                              "int144",
+                              "int152",
+                              "int160",
+                              "int168",
+                              "int176",
+                              "int184",
+                              "int192",
+                              "int200",
+                              "int208",
+                              "int216",
+                              "int224",
+                              "int232",
+                              "int240",
+                              "int248",
+                              "int256"
+                            ]
+                          },
+                          "internalType": {
+                            "type": "string",
+                            "enum": [
+                              "bool",
+                              "string",
+                              "address",
+                              "address payable",
+                              "bytes1",
+                              "bytes2",
+                              "bytes3",
+                              "bytes4",
+                              "bytes5",
+                              "bytes6",
+                              "bytes7",
+                              "bytes8",
+                              "bytes9",
+                              "bytes10",
+                              "bytes11",
+                              "bytes12",
+                              "bytes13",
+                              "bytes14",
+                              "bytes15",
+                              "bytes16",
+                              "bytes17",
+                              "bytes18",
+                              "bytes19",
+                              "bytes20",
+                              "bytes21",
+                              "bytes22",
+                              "bytes23",
+                              "bytes24",
+                              "bytes25",
+                              "bytes26",
+                              "bytes27",
+                              "bytes28",
+                              "bytes29",
+                              "bytes30",
+                              "bytes31",
+                              "bytes32",
+                              "bytes",
+                              "uint8",
+                              "uint16",
+                              "uint24",
+                              "uint32",
+                              "uint40",
+                              "uint48",
+                              "uint56",
+                              "uint64",
+                              "uint72",
+                              "uint80",
+                              "uint88",
+                              "uint96",
+                              "uint104",
+                              "uint112",
+                              "uint120",
+                              "uint128",
+                              "uint136",
+                              "uint144",
+                              "uint152",
+                              "uint160",
+                              "uint168",
+                              "uint176",
+                              "uint184",
+                              "uint192",
+                              "uint200",
+                              "uint208",
+                              "uint216",
+                              "uint224",
+                              "uint232",
+                              "uint240",
+                              "uint248",
+                              "uint256",
+                              "int8",
+                              "int16",
+                              "int24",
+                              "int32",
+                              "int40",
+                              "int48",
+                              "int56",
+                              "int64",
+                              "int72",
+                              "int80",
+                              "int88",
+                              "int96",
+                              "int104",
+                              "int112",
+                              "int120",
+                              "int128",
+                              "int136",
+                              "int144",
+                              "int152",
+                              "int160",
+                              "int168",
+                              "int176",
+                              "int184",
+                              "int192",
+                              "int200",
+                              "int208",
+                              "int216",
+                              "int224",
+                              "int232",
+                              "int240",
+                              "int248",
+                              "int256"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "type",
+                          "internalType"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "minItems": 0
+                    },
+                    "outputs": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/3/properties/functionAbi/properties/inputs/items"
+                      },
+                      "minItems": 1
+                    },
+                    "stateMutability": {
+                      "type": "string",
+                      "enum": [
+                        "view",
+                        "pure"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "type",
+                    "inputs",
+                    "outputs",
+                    "stateMutability"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "chain",
+                "method",
+                "parameters",
+                "returnValueTest",
+                "contractAddress"
+              ],
+              "additionalProperties": false,
+              "description": "RPC Condition for calling [Ethereum JSON RPC APIs](https://ethereum.github.io/execution-apis/api-documentation/)"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "conditionType": {
+                  "type": "string",
+                  "const": "ecdsa",
+                  "default": "ecdsa"
+                },
+                "message": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/parameters/anyOf/0/items/0/anyOf/2"
+                    }
+                  ],
+                  "default": ":message"
+                },
+                "signature": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[0-9a-fA-F]+$",
+                      "description": "A string containing only hexadecimal characters (0-9, a-f, A-F)"
+                    },
+                    {
+                      "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/parameters/anyOf/0/items/0/anyOf/2"
+                    }
+                  ],
+                  "default": ":signature"
+                },
+                "verifyingKey": {
+                  "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/4/properties/signature/anyOf/0"
+                },
+                "curve": {
+                  "type": "string",
+                  "enum": [
+                    "SECP256k1",
+                    "NIST256p",
+                    "NIST384p",
+                    "NIST521p",
+                    "Ed25519",
+                    "BRAINPOOLP256r1"
+                  ]
+                }
+              },
+              "required": [
+                "verifyingKey",
+                "curve"
+              ],
+              "additionalProperties": false,
+              "description": "ECDSA Condition for verifying the authenticity of a message using ECDSA signatures."
+            },
+            {
+              "type": "object",
+              "properties": {
+                "conditionType": {
+                  "type": "string",
+                  "const": "json",
+                  "default": "json"
+                },
+                "data": {
+                  "type": "string",
+                  "pattern": "^:[a-zA-Z_][a-zA-Z0-9_]*$",
+                  "description": "Context variable that resolves to JSON data at decryption time."
+                },
+                "query": {
+                  "type": "string",
+                  "description": "Optional JSONPath query to extract a specific value from the data."
+                },
+                "returnValueTest": {
+                  "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/2/properties/returnValueTest"
+                }
+              },
+              "required": [
+                "data",
+                "returnValueTest"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "conditionType": {
+                  "type": "string",
+                  "const": "json-api",
+                  "default": "json-api"
+                },
+                "endpoint": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "parameters": {
+                  "type": "object",
+                  "additionalProperties": {}
+                },
+                "query": {
+                  "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/5/properties/query",
+                  "description": "A string containing either a valid JSON Path Expression, or a Context Parameter."
+                },
+                "authorizationToken": {
+                  "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/parameters/anyOf/0/items/0/anyOf/2",
+                  "description": "A Context Parameter i.e. a placeholder used within conditions and specified at the encryption time, whose value is provided at decryption time."
+                },
+                "authorizationType": {
+                  "type": "string",
+                  "enum": [
+                    "Bearer",
+                    "Basic",
+                    "X-API-Key"
+                  ],
+                  "description": "The type of authorization to use when making the request."
+                },
+                "returnValueTest": {
+                  "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/2/properties/returnValueTest"
+                }
+              },
+              "required": [
+                "endpoint",
+                "returnValueTest"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "conditionType": {
+                  "type": "string",
+                  "const": "json-rpc",
+                  "default": "json-rpc"
+                },
+                "endpoint": {
+                  "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/6/properties/endpoint"
+                },
+                "method": {
+                  "type": "string"
+                },
+                "params": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {}
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": {}
+                    }
+                  ]
+                },
+                "query": {
+                  "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/5/properties/query",
+                  "description": "A string containing either a valid JSON Path Expression, or a Context Parameter."
+                },
+                "authorizationToken": {
+                  "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/parameters/anyOf/0/items/0/anyOf/2",
+                  "description": "A Context Parameter i.e. a placeholder used within conditions and specified at the encryption time, whose value is provided at decryption time."
+                },
+                "authorizationType": {
+                  "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/6/properties/authorizationType",
+                  "description": "The type of authorization to use when making the request."
+                },
+                "returnValueTest": {
+                  "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/2/properties/returnValueTest"
+                }
+              },
+              "required": [
+                "endpoint",
+                "method",
+                "returnValueTest"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "conditionType": {
+                  "type": "string",
+                  "const": "jwt",
+                  "default": "jwt"
+                },
+                "publicKey": {
+                  "type": "string"
+                },
+                "expectedIssuer": {
+                  "type": "string"
+                },
+                "jwtToken": {
+                  "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/parameters/anyOf/0/items/0/anyOf/2",
+                  "default": ":jwtToken",
+                  "description": "A Context Parameter i.e. a placeholder used within conditions and specified at the encryption time, whose value is provided at decryption time."
+                }
+              },
+              "required": [
+                "publicKey"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "conditionType": {
+                  "type": "string",
+                  "const": "signing-attribute",
+                  "default": "signing-attribute"
+                },
+                "signingObjectContextVar": {
+                  "type": "string",
+                  "const": ":signingConditionObject",
+                  "default": ":signingConditionObject",
+                  "description": "The context variable that will be replaced with the signing object at signing"
+                },
+                "attributeName": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The name of the attribute to check"
+                },
+                "returnValueTest": {
+                  "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/returnValueTest"
+                }
+              },
+              "required": [
+                "attributeName",
+                "returnValueTest"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "conditionType": {
+                  "type": "string",
+                  "const": "signing-abi-attribute",
+                  "default": "signing-abi-attribute"
+                },
+                "signingObjectContextVar": {
+                  "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/9/properties/signingObjectContextVar"
+                },
+                "attributeName": {
+                  "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/9/properties/attributeName"
+                },
+                "abiValidation": {
+                  "type": "object",
+                  "properties": {
+                    "allowedAbiCalls": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "parameterIndex": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "description": "Index of parameter to check within abi calldata."
+                            },
+                            "subIndices": {
+                              "type": "array",
+                              "items": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "description": "Sequential indices for navigating nested structures (arrays and tuples). The ABI type determines interpretation at each step: array types consume an index and access that element, tuple types consume an index and access that field."
+                            },
+                            "returnValueTest": {
+                              "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/returnValueTest",
+                              "description": "Comparison check for value within calldata"
+                            },
+                            "nestedAbiValidation": {
+                              "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/10/properties/abiValidation",
+                              "description": "Additional checks for nested abi calldata"
+                            }
+                          },
+                          "required": [
+                            "parameterIndex"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "allowedAbiCalls"
+                  ],
+                  "additionalProperties": false,
+                  "description": "A map of allowed ABI calls with their respective parameter validations."
+                }
+              },
+              "required": [
+                "attributeName",
+                "abiValidation"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "conditionType": {
+                  "type": "string",
+                  "const": "compound",
+                  "default": "compound"
+                },
+                "operator": {
+                  "type": "string",
+                  "enum": [
+                    "and",
+                    "or",
+                    "not"
+                  ]
+                },
+                "operands": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/ConditionExpression/properties/condition"
+                  },
+                  "minItems": 1,
+                  "maxItems": 5
+                }
+              },
+              "required": [
+                "operator",
+                "operands"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "conditionType": {
+                  "type": "string",
+                  "const": "sequential",
+                  "default": "sequential"
+                },
+                "conditionVariables": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "varName": {
+                        "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/returnValueTest/properties/operations/items/anyOf/0/properties/value/anyOf/0/anyOf/0"
+                      },
+                      "condition": {
+                        "$ref": "#/definitions/ConditionExpression/properties/condition"
+                      },
+                      "operations": {
+                        "$ref": "#/definitions/ConditionExpression/properties/condition/anyOf/0/properties/returnValueTest/properties/operations",
+                        "description": "Optional operations to perform on the obtained condition result before storing it"
+                      }
+                    },
+                    "required": [
+                      "varName",
+                      "condition"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Executes a condition and stores the result as a variable within a sequential condition."
+                  },
+                  "minItems": 2,
+                  "maxItems": 20
+                }
+              },
+              "required": [
+                "conditionVariables"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "conditionType": {
+                  "type": "string",
+                  "const": "if-then-else",
+                  "default": "if-then-else"
+                },
+                "ifCondition": {
+                  "$ref": "#/definitions/ConditionExpression/properties/condition"
+                },
+                "thenCondition": {
+                  "$ref": "#/definitions/ConditionExpression/properties/condition"
+                },
+                "elseCondition": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/definitions/ConditionExpression/properties/condition"
+                    },
+                    {
+                      "type": "boolean"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "ifCondition",
+                "thenCondition",
+                "elseCondition"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "required": [
+        "version",
+        "condition"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

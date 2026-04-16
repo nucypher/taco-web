@@ -160,7 +160,7 @@ export async function signUserOp(
   cohortId: number,
   chainId: number,
   userOp: UserOperationToSign | PackedUserOperationToSign,
-  aaVersion: 'mdt' | '0.8.0' | string,
+  aaVersion: 'mdt' | '0.7.0' | '0.8.0' | string,
   context?: ConditionContext,
   porterUris?: string[],
 ): Promise<SignResult> {

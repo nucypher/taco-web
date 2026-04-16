@@ -347,6 +347,8 @@ describe('TACo Signing', () => {
     const threshold = 2;
 
     it.each([
+      ['0.7.0', userOp],
+      ['0.7.0', packedUserOp],
       ['0.8.0', userOp],
       ['0.8.0', packedUserOp],
       ['mdt', userOp],
@@ -406,7 +408,10 @@ describe('TACo Signing', () => {
           threshold,
         );
 
-        const call = porterSignUserOpMock.mock.calls[porterSignUserOpMock.mock.calls.length - 1]!;
+        const call =
+          porterSignUserOpMock.mock.calls[
+            porterSignUserOpMock.mock.calls.length - 1
+          ]!;
         const [op] = call;
 
         const nodes = ['0xnode1', '0xnode2'];
@@ -483,7 +488,10 @@ describe('TACo Signing', () => {
         },
         threshold,
       );
-      const call = porterSignUserOpMock.mock.calls[porterSignUserOpMock.mock.calls.length - 1]!;
+      const call =
+        porterSignUserOpMock.mock.calls[
+          porterSignUserOpMock.mock.calls.length - 1
+        ]!;
       const [op] = call;
 
       const nodes = ['0xnode1', '0xnode2'];

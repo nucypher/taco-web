@@ -2,7 +2,7 @@
   "name": "monorepo",
   "private": true,
   "license": "GPL-3.0-only",
-  "author": "Piotr Roslaniec <p.roslaniec@gmail.com>",
+  "author": "NuCypher <dev@nucypher.com>",
   "scripts": {
     "postinstall": "pnpm build",
     "typedoc": "typedoc",

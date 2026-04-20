@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { contextParamSchema, paramOrContextParamSchema } from './context';
+import { contextParamSchema, paramOrContextParamSchema } from './context.js';
 
 const hexPrefixedStringSchema = z
   .string()

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { BlockIdentifierSchema, EthAddressSchema } from '../src';
+import { BlockIdentifierSchema, EthAddressSchema } from '../src/index.js';
 
 describe('ethereum address schema', () => {
   it('should accept valid ethereum address', () => {

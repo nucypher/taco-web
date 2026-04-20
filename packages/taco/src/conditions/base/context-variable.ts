@@ -1,10 +1,10 @@
-import { Condition } from '../condition';
+import { Condition } from '../condition.js';
 import {
   ContextVariableConditionProps,
   contextVariableConditionSchema,
   ContextVariableConditionType,
-} from '../schemas/context-variable';
-import { OmitConditionType } from '../shared';
+} from '../schemas/context-variable.js';
+import { OmitConditionType } from '../shared.js';
 
 export { ContextVariableConditionProps, ContextVariableConditionType };
 

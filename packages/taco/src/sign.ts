@@ -23,9 +23,9 @@ import {
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
-import { Condition } from './conditions/condition';
-import { ConditionExpression } from './conditions/condition-expr';
-import { ConditionContext } from './conditions/context';
+import { ConditionExpression } from './conditions/condition-expr.js';
+import { Condition } from './conditions/condition.js';
+import { ConditionContext } from './conditions/context/index.js';
 
 const ERR_INSUFFICIENT_SIGNATURES = (errors: unknown) =>
   `Threshold of signatures not met; TACo signing failed with errors: ${JSON.stringify(

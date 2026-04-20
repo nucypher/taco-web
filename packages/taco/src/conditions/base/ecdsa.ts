@@ -1,10 +1,10 @@
-import { Condition } from '../condition';
+import { Condition } from '../condition.js';
 import {
   ECDSAConditionProps,
   ecdsaConditionSchema,
   ECDSAConditionType,
-} from '../schemas/ecdsa';
-import { OmitConditionType } from '../shared';
+} from '../schemas/ecdsa.js';
+import { OmitConditionType } from '../shared.js';
 
 export {
   ECDSA_MESSAGE_PARAM_DEFAULT,
@@ -14,7 +14,7 @@ export {
   ECDSAConditionType,
   ECDSACurve,
   SUPPORTED_ECDSA_CURVES,
-} from '../schemas/ecdsa';
+} from '../schemas/ecdsa.js';
 
 export class ECDSACondition extends Condition {
   constructor(value: OmitConditionType<ECDSAConditionProps>) {

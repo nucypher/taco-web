@@ -5,8 +5,8 @@ import {
   ecdsaConditionSchema,
   ECDSAConditionType,
   SUPPORTED_ECDSA_CURVES,
-} from '../../../src/conditions/base/ecdsa';
-import { testECDSAConditionObj } from '../../test-utils';
+} from '../../../src/conditions/base/ecdsa.js';
+import { testECDSAConditionObj } from '../../test-utils.js';
 
 describe('ECDSACondition', () => {
   describe('validation', () => {

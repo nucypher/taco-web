@@ -17,7 +17,7 @@ import {
 } from '@nucypher/test-utils';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { EnactedPolicy, Enrico, toBytes } from '../../src';
+import { EnactedPolicy, Enrico, toBytes } from '../../src/index.js';
 import {
   fakeAlice,
   fakeBob,
@@ -27,7 +27,7 @@ import {
   mockMakeTreasureMap,
   mockPublishToBlockchain,
   reencryptKFrags,
-} from '../utils';
+} from '../utils.js';
 
 describe('story: alice shares message with bob through policy', () => {
   const message = 'secret-message-from-alice';

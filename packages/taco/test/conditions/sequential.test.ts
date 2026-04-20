@@ -1,19 +1,19 @@
 import { ChainId } from '@nucypher/shared';
 import { describe, expect, it } from 'vitest';
 
-import { CompoundConditionType } from '../../src/conditions/compound-condition';
-import { IfThenElseConditionType } from '../../src/conditions/if-then-else-condition';
+import { CompoundConditionType } from '../../src/conditions/compound-condition.js';
+import { IfThenElseConditionType } from '../../src/conditions/if-then-else-condition.js';
 import {
   MAX_VARIABLE_OPERATIONS,
   OPERATOR_FUNCTIONS,
-} from '../../src/conditions/schemas/variable-operation';
+} from '../../src/conditions/schemas/variable-operation.js';
 import {
   ConditionVariableProps,
   SequentialCondition,
   SequentialConditionProps,
   sequentialConditionSchema,
   SequentialConditionType,
-} from '../../src/conditions/sequential';
+} from '../../src/conditions/sequential.js';
 import {
   getTestValueForOperation,
   testCompoundConditionObj,
@@ -21,7 +21,7 @@ import {
   testJsonApiConditionObj,
   testRpcConditionObj,
   testTimeConditionObj,
-} from '../test-utils';
+} from '../test-utils.js';
 
 describe('validation', () => {
   const rpcConditionVariable: ConditionVariableProps = {

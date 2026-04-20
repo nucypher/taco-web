@@ -3,10 +3,10 @@
 import { bytesEqual, fromBytes } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { Enrico, initialize, toBytes } from '../src';
-import { PolicyMessageKit, RetrievalResult } from '../src/kits';
+import { Enrico, initialize, toBytes } from '../src/index.js';
+import { PolicyMessageKit, RetrievalResult } from '../src/kits/index.js';
 
-import { fakeAlice, fakeBob, reencryptKFrags } from './utils';
+import { fakeAlice, fakeBob, reencryptKFrags } from './utils.js';
 
 describe('enrico', () => {
   beforeAll(async () => {

@@ -4,14 +4,14 @@ import {
   ContextVariableCondition,
   ContextVariableConditionProps,
   ContextVariableConditionType,
-} from '../base/context-variable';
-import { ERR_INVALID_CONDITION } from '../condition';
+} from '../base/context-variable.js';
+import { ERR_INVALID_CONDITION } from '../condition.js';
 import {
   AddressAllowlistConditionProps,
   addressAllowlistConditionSchema,
-} from '../schemas/address-allowlist';
+} from '../schemas/address-allowlist.js';
 
-export { AddressAllowlistConditionProps } from '../schemas/address-allowlist';
+export { AddressAllowlistConditionProps } from '../schemas/address-allowlist.js';
 
 /**
  * A Client-side condition that checks if a user's address is in an allowlist and transforms the object into `ContextVariableCondition`.

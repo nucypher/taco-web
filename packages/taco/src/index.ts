@@ -11,12 +11,12 @@ export {
   toHexString,
 } from '@nucypher/shared';
 
-export * as conditions from './conditions';
+export * as conditions from './conditions/index.js';
 
 export {
   SignResult,
   TacoSignature,
   setSigningCohortConditions,
   signUserOp,
-} from './sign';
-export { decrypt, encrypt, encryptWithPublicKey } from './taco';
+} from './sign.js';
+export { decrypt, encrypt, encryptWithPublicKey } from './taco.js';

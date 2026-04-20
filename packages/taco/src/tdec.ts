@@ -20,11 +20,10 @@ import {
   toBytes,
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
-import { arrayify, keccak256 } from 'ethers/lib/utils';
 
-import { ConditionExpression } from './conditions/condition-expr';
-import { ConditionContext } from './conditions/context';
-import { DkgClient } from './dkg';
+import { ConditionExpression } from './conditions/condition-expr.js';
+import { ConditionContext } from './conditions/context/index.js';
+import { DkgClient } from './dkg.js';
 
 const ERR_DECRYPTION_FAILED = (errors: unknown) =>
   `Threshold of responses not met; TACo decryption failed with errors: ${JSON.stringify(
@@ -47,8 +46,10 @@ export const encryptMessage = async (
     conditions.toCoreCondition(),
   );
 
-  const headerHash = keccak256(ciphertext.header.toBytes());
-  const authorization = await authSigner.signMessage(arrayify(headerHash));
+  const headerHash = ethers.utils.keccak256(ciphertext.header.toBytes());
+  const authorization = await authSigner.signMessage(
+    ethers.utils.arrayify(headerHash),
+  );
   const acp = new AccessControlPolicy(
     authenticatedData,
     toBytes(authorization),

@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-import { baseConditionSchema } from './common';
-import { contextParamSchema } from './context';
-import { returnValueTestSchema } from './return-value-test';
+import { baseConditionSchema } from './common.js';
+import { contextParamSchema } from './context.js';
+import { returnValueTestSchema } from './return-value-test.js';
 
 export const ContextVariableConditionType = 'context-variable';
 

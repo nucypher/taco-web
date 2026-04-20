@@ -8,18 +8,21 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import {
   ContractCondition,
   ContractConditionProps,
-} from '../../src/conditions/base/contract';
-import { JsonApiCondition } from '../../src/conditions/base/json-api';
-import { JsonRpcCondition } from '../../src/conditions/base/json-rpc';
-import { RpcCondition, RpcConditionType } from '../../src/conditions/base/rpc';
+} from '../../src/conditions/base/contract.js';
+import { JsonApiCondition } from '../../src/conditions/base/json-api.js';
+import { JsonRpcCondition } from '../../src/conditions/base/json-rpc.js';
+import {
+  RpcCondition,
+  RpcConditionType,
+} from '../../src/conditions/base/rpc.js';
 import {
   TimeCondition,
   TimeConditionProps,
-} from '../../src/conditions/base/time';
-import { CompoundCondition } from '../../src/conditions/compound-condition';
-import { ConditionExpression } from '../../src/conditions/condition-expr';
-import { ERC721Balance } from '../../src/conditions/predefined/erc721';
-import { toJSON } from '../../src/utils';
+} from '../../src/conditions/base/time.js';
+import { CompoundCondition } from '../../src/conditions/compound-condition.js';
+import { ConditionExpression } from '../../src/conditions/condition-expr.js';
+import { ERC721Balance } from '../../src/conditions/predefined/erc721.js';
+import { toJSON } from '../../src/utils.js';
 import {
   testContractConditionObj,
   testFunctionAbi,
@@ -28,7 +31,7 @@ import {
   testRpcConditionObj,
   testRpcReturnValueTest,
   testTimeConditionObj,
-} from '../test-utils';
+} from '../test-utils.js';
 
 describe('condition set', () => {
   const erc721Balance = new ERC721Balance({

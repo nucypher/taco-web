@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-import { baseConditionSchema } from './common';
-import { contextParamSchema } from './context';
+import { baseConditionSchema } from './common.js';
+import { contextParamSchema } from './context.js';
 
 export const JWT_PARAM_DEFAULT = ':jwtToken';
 

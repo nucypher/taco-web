@@ -7,14 +7,14 @@ import {
 } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { domains, initialize } from '../../src';
+import { domains, initialize } from '../../src/index.js';
 import {
   fakeAlice,
   fakeRemoteBob,
   mockEncryptTreasureMap,
   mockGenerateKFrags,
   mockPublishToBlockchain,
-} from '../utils';
+} from '../utils.js';
 
 describe('story: alice creates a policy but someone else enacts it', () => {
   const threshold = 2;

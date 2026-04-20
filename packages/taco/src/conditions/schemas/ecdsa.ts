@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-import { baseConditionSchema, hexStringSchema } from './common';
-import { contextParamSchema } from './context';
+import { baseConditionSchema, hexStringSchema } from './common.js';
+import { contextParamSchema } from './context.js';
 
 export const ECDSA_MESSAGE_PARAM_DEFAULT = ':message';
 export const ECDSA_SIGNATURE_PARAM_DEFAULT = ':signature';

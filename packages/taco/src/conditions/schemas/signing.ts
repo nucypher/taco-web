@@ -1,8 +1,8 @@
-import { FunctionFragment, ParamType } from 'ethers/lib/utils';
+import { ethers } from 'ethers';
 import { z } from 'zod';
 
-import { baseConditionSchema } from './common';
-import { blockchainReturnValueTestSchema } from './return-value-test';
+import { baseConditionSchema } from './common.js';
+import { blockchainReturnValueTestSchema } from './return-value-test.js';
 
 export const SIGNING_CONDITION_OBJECT_CONTEXT_VAR = ':signingConditionObject';
 
@@ -105,7 +105,7 @@ function generateSolidityBaseTypeRegExp(): RegExp {
 // YIKES!
 const solidityBaseTypePattern = generateSolidityBaseTypeRegExp();
 
-const isValidSolidityType = (param: ParamType): boolean => {
+const isValidSolidityType = (param: ethers.utils.ParamType): boolean => {
   // Recursive check for valid Solidity types
   if (!param.baseType || !param.baseType.trim()) {
     return false; // empty type is not valid
@@ -131,7 +131,7 @@ const isValidSolidityType = (param: ParamType): boolean => {
 const isValidHumanAbiCallSignature = (signature: string): boolean => {
   try {
     // TODO: verify this works properly
-    const fragment = FunctionFragment.from(signature);
+    const fragment = ethers.utils.FunctionFragment.from(signature);
     for (const parameter of fragment.inputs) {
       if (!isValidSolidityType(parameter)) {
         return false; // invalid Solidity type
@@ -165,11 +165,11 @@ const humanAbiCallSignatureSchema = z
  */
 function resolveTypeWithSubIndices(
   ctx: z.RefinementCtx,
-  paramType: ParamType,
+  paramType: ethers.utils.ParamType,
   subIndices: number[],
   signature: string,
   validationIndex: number,
-): ParamType | undefined {
+): ethers.utils.ParamType | undefined {
   let currentType = paramType;
 
   for (let i = 0; i < subIndices.length; i++) {
@@ -217,7 +217,7 @@ function validateAllowedAbiCall(
   validations: AbiParameterValidationProps[],
 ) {
   try {
-    const fragment = FunctionFragment.from(signature);
+    const fragment = ethers.utils.FunctionFragment.from(signature);
     for (const [index, validation] of validations.entries()) {
       if (validation.parameterIndex >= fragment.inputs.length) {
         // invalid parameter index

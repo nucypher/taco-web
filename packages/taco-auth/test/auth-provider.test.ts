@@ -6,13 +6,13 @@ import {
 import { SiweMessage } from 'siwe';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { EIP4361TypedDataSchema } from '../src/providers/eip4361/auth.js';
 import {
   EIP1271AuthProvider,
   EIP4361AuthProvider,
   FRESHNESS_IN_MILLISECONDS,
   SingleSignOnEIP4361AuthProvider,
-} from '../src/providers';
-import { EIP4361TypedDataSchema } from '../src/providers/eip4361/auth';
+} from '../src/providers/index.js';
 
 describe('eip4361 auth provider', () => {
   const provider = fakeProvider(bobSecretKeyBytes);

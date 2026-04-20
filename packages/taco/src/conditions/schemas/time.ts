@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { rpcConditionSchema } from './rpc';
+import { rpcConditionSchema } from './rpc.js';
 
 // TimeCondition is an RpcCondition with the method set to 'blocktime' and no parameters
 

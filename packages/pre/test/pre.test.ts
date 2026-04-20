@@ -3,10 +3,10 @@ import { zip } from '@nucypher/shared';
 import { fakeUrsulas } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { Alice, Bob, Enrico, MessageKit, toBytes } from '../src';
-import { PolicyMessageKit, RetrievalResult } from '../src/kits';
+import { Alice, Bob, Enrico, MessageKit, toBytes } from '../src/index.js';
+import { PolicyMessageKit, RetrievalResult } from '../src/kits/index.js';
 
-import { fakeAlice, fakeBob, reencryptKFrags } from './utils';
+import { fakeAlice, fakeBob, reencryptKFrags } from './utils.js';
 
 describe('proxy reencryption', () => {
   let alice: Alice;

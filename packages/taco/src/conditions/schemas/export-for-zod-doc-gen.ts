@@ -4,25 +4,25 @@
  * NOTE: The order of the exported Zod objects in this file dictates the order of the generated markdown.
  */
 
-export * from './utils';
+export * from './utils.js';
 // ts-unused-exports:disable-next-line - this comment line is added to prevent lint from changing or objecting the export order.
-export * from './common';
-export * from './context';
+export * from './common.js';
+export * from './context.js';
 // ts-unused-exports:disable-next-line - this comment line is added to prevent lint from changing or objecting the export order.
-export * from './compound';
-export * from './context-variable';
-export * from './contract';
-export * from './ecdsa';
-export * from './if-then-else';
-export * from './json';
-export * from './json-api';
-export * from './json-rpc';
-export * from './jwt';
-export * from './return-value-test';
-export * from './rpc';
-export * from './sequential';
-export * from './signing';
-export * from './time';
-export * from './variable-operation';
+export * from './compound.js';
+export * from './context-variable.js';
+export * from './contract.js';
+export * from './ecdsa.js';
+export * from './if-then-else.js';
+export * from './json-api.js';
+export * from './json-rpc.js';
+export * from './json.js';
+export * from './jwt.js';
+export * from './return-value-test.js';
+export * from './rpc.js';
+export * from './sequential.js';
+export * from './signing.js';
+export * from './time.js';
+export * from './variable-operation.js';
 // ts-unused-exports:disable-next-line - this comment line is added to prevent lint from changing or objecting the export order.
-export * from './address-allowlist';
+export * from './address-allowlist.js';

@@ -6,8 +6,8 @@ import {
   JsonRpcConditionProps,
   jsonRpcConditionSchema,
   JsonRpcConditionType,
-} from '../../../src/conditions/base/json-rpc';
-import { testJsonRpcConditionObj } from '../../test-utils';
+} from '../../../src/conditions/base/json-rpc.js';
+import { testJsonRpcConditionObj } from '../../test-utils.js';
 
 describe('JsonRpcCondition', () => {
   describe('validation', () => {

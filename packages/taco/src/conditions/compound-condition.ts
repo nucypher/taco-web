@@ -1,16 +1,16 @@
-import { Condition, ConditionProps } from './condition';
+import { Condition, ConditionProps } from './condition.js';
 import {
   CompoundConditionProps,
   compoundConditionSchema,
   CompoundConditionType,
-} from './schemas/compound';
-import { OmitConditionType } from './shared';
+} from './schemas/compound.js';
+import { OmitConditionType } from './shared.js';
 
 export {
   CompoundConditionProps,
   compoundConditionSchema,
   CompoundConditionType,
-} from './schemas/compound';
+} from './schemas/compound.js';
 
 export type ConditionOrProps = Condition | ConditionProps;
 

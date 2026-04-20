@@ -1,21 +1,21 @@
 import { ChainId } from '@nucypher/shared';
 import { describe, expect, it } from 'vitest';
 
-import { ContractCondition } from '../../src/conditions/base/contract';
-import { TimeCondition } from '../../src/conditions/base/time';
+import { ContractCondition } from '../../src/conditions/base/contract.js';
+import { TimeCondition } from '../../src/conditions/base/time.js';
 import {
   CompoundCondition,
   CompoundConditionProps,
   compoundConditionSchema,
   CompoundConditionType,
-} from '../../src/conditions/compound-condition';
+} from '../../src/conditions/compound-condition.js';
 import {
   testContractConditionObj,
   testJWTConditionObj,
   testRpcConditionObj,
   testSequentialConditionObj,
   testTimeConditionObj,
-} from '../test-utils';
+} from '../test-utils.js';
 
 describe('validation', () => {
   it.each([

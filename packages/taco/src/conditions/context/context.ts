@@ -10,23 +10,23 @@ import {
 } from '@nucypher/taco-auth';
 import { ethers } from 'ethers';
 
-import { CoreConditions, CoreContext } from '../../types';
-import { toJSON } from '../../utils';
-import { Condition, ConditionProps } from '../condition';
-import { ConditionExpression } from '../condition-expr';
+import { CoreConditions, CoreContext } from '../../types.js';
+import { toJSON } from '../../utils.js';
+import { ConditionExpression } from '../condition-expr.js';
+import { Condition, ConditionProps } from '../condition.js';
 import {
   CONTEXT_PARAM_FULL_MATCH_REGEXP,
   CONTEXT_PARAM_PREFIX,
   CONTEXT_PARAM_REGEXP,
   NULL_ADDRESS_CONTEXT_VAR,
   USER_ADDRESS_PARAMS,
-} from '../const';
-import { ConditionVariableProps } from '../schemas/sequential';
-import { SIGNING_CONDITION_OBJECT_CONTEXT_VAR } from '../schemas/signing';
+} from '../const.js';
+import { ConditionVariableProps } from '../schemas/sequential.js';
+import { SIGNING_CONDITION_OBJECT_CONTEXT_VAR } from '../schemas/signing.js';
 import {
   SequentialConditionProps,
   SequentialConditionType,
-} from '../sequential';
+} from '../sequential.js';
 
 export type CustomContextParam =
   | string

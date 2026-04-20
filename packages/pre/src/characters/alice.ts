@@ -7,15 +7,15 @@ import {
 import { ChecksumAddress, Domain, PorterClient } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
-import { Keyring } from '../keyring';
+import { Keyring } from '../keyring.js';
 import {
   BlockchainPolicy,
   BlockchainPolicyParameters,
   EnactedPolicy,
   PreEnactedPolicy,
-} from '../policy';
+} from '../policy.js';
 
-import { RemoteBob } from './bob';
+import { RemoteBob } from './bob.js';
 
 export class Alice {
   private readonly keyring: Keyring;

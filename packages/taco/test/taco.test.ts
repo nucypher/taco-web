@@ -18,9 +18,9 @@ import {
 } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import * as taco from '../src';
-import { conditions, domains, toBytes } from '../src';
-import { ConditionContext } from '../src/conditions/context';
+import { ConditionContext } from '../src/conditions/context/index.js';
+import * as taco from '../src/index.js';
+import { conditions, domains, toBytes } from '../src/index.js';
 
 import {
   fakeDkgRitual,
@@ -28,7 +28,7 @@ import {
   mockGetActiveRitual,
   mockGetParticipants,
   mockMakeSessionKey,
-} from './test-utils';
+} from './test-utils.js';
 
 // Shared test variables
 const message = 'this is a secret';

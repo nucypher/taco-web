@@ -6,7 +6,7 @@ import {
   JsonConditionProps,
   jsonConditionSchema,
   JsonConditionType,
-} from '../../../src/conditions/base/json';
+} from '../../../src/conditions/base/json.js';
 
 describe('JsonCondition', () => {
   describe('validation', () => {

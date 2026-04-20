@@ -12,7 +12,7 @@
     "lint": "pnpm run --parallel --aggregate-output --reporter append-only lint",
     "lint:fix": "pnpm --parallel --aggregate-output --reporter append-only lint:fix",
     "type-check": "pnpm --parallel --aggregate-output --reporter append-only type-check",
-    "build": "tsc --build --verbose ./tsconfig.prod.json",
+    "build": "tsc --build --verbose ./tsconfig.prod.json && node scripts/fix-dist-markers.cjs",
     "watch": "tsc --build --verbose --watch ./tsconfig.prod.json",
     "test": "pnpm build && vitest run",
     "package:check": "pnpm run --parallel --aggregate-output --reporter append-only --filter './packages/**' package-check",

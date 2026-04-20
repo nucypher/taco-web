@@ -28,7 +28,7 @@
   ],
   "scripts": {
     "build": "pnpm build:module && pnpm build:cjs && pnpm postbuild",
-    "postbuild": "echo '{\"type\":\"module\"}' > dist/es/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
+    "postbuild": "node ../../scripts/fix-dist-markers.cjs .",
     "build:cjs": "tsc --build ./tsconfig.cjs.json --verbose",
     "build:module": "tsc --build ./tsconfig.es.json --verbose",
     "exports:lint": "ts-unused-exports tsconfig.json --ignoreFiles src/index.ts",

@@ -34,7 +34,7 @@
   "scripts": {
     "prebuild": "pnpm clean",
     "build": "pnpm build:module && pnpm build:cjs && pnpm postbuild",
-    "postbuild": "echo '{\"type\":\"module\"}' > dist/es/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
+    "postbuild": "node ../../scripts/fix-dist-markers.cjs .",
     "build:cjs": "tsc --build ./tsconfig.cjs.json --verbose",
     "build:module": "tsc --build ./tsconfig.es.json --verbose",
     "clean": "rm -rf dist",

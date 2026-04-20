@@ -2,9 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { Coordinator } from './Coordinator.js';
-export * as factories from './factories/index.js';
 export { Coordinator__factory } from './factories/Coordinator__factory.js';
 export { GlobalAllowList__factory } from './factories/GlobalAllowList__factory.js';
+export * as factories from './factories/index.js';
 export { SigningCoordinator__factory } from './factories/SigningCoordinator__factory.js';
 export { SubscriptionManager__factory } from './factories/SubscriptionManager__factory.js';
 export type { GlobalAllowList } from './GlobalAllowList.js';

@@ -174,25 +174,6 @@ const _abi = [
   },
   {
     type: 'event',
-    name: 'DispatcherChanged',
-    inputs: [
-      {
-        name: 'oldDispatcher',
-        type: 'address',
-        internalType: 'address',
-        indexed: false,
-      },
-      {
-        name: 'newDispatcher',
-        type: 'address',
-        internalType: 'address',
-        indexed: false,
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
     name: 'Initialized',
     inputs: [
       {
@@ -1111,19 +1092,6 @@ const _abi = [
     name: 'rollbackDefaultAdminDelay',
     stateMutability: 'nonpayable',
     inputs: [],
-    outputs: [],
-  },
-  {
-    type: 'function',
-    name: 'setDispatcher',
-    stateMutability: 'nonpayable',
-    inputs: [
-      {
-        name: 'dispatcher',
-        type: 'address',
-        internalType: 'contract SigningCoordinatorDispatcher',
-      },
-    ],
     outputs: [],
   },
   {

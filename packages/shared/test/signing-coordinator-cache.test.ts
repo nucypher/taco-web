@@ -19,7 +19,7 @@ vi.mock('@nucypher/nucypher-contracts', () => ({
   getContract: vi.fn().mockReturnValue('0xMockContractAddress'),
 }));
 
-vi.mock('../src/contracts/ethers-typechain', () => ({
+vi.mock('../src/contracts/ethers-typechain/index.js', () => ({
   SigningCoordinator__factory: {
     connect: vi.fn(),
   },

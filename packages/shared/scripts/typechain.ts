@@ -11,6 +11,11 @@ import {
 import * as tmp from 'tmp';
 import { glob, runTypeChain } from 'typechain';
 
+const typechainOutDir = path.resolve(
+  process.cwd(),
+  './src/contracts/ethers-typechain',
+);
+
 const parseContractRegistry = (registry: ContractRegistry): Contract[] =>
   Object.keys(registry)
     .map((chainId) => {
@@ -59,6 +64,55 @@ selectedContracts.forEach(writeAbi);
 const cwd = process.cwd();
 const abiFilesGlob = glob(cwd, [`${tmpDir.name}/*.json`]);
 
+const addJsExtensionsToRelativeSpecifiers = (filePath: string) => {
+  const fileDir = path.dirname(filePath);
+  const content = fs.readFileSync(filePath, 'utf8');
+  const updated = content.replace(
+    /(from\s+['"])(\.[^'"]+)(['"])/g,
+    (fullMatch, prefix: string, specifier: string, suffix: string) => {
+      if (specifier.endsWith('.js')) {
+        return fullMatch;
+      }
+
+      const resolvedFile = path.resolve(fileDir, `${specifier}.ts`);
+      const resolvedIndex = path.resolve(fileDir, specifier, 'index.ts');
+
+      if (fs.existsSync(resolvedFile)) {
+        return `${prefix}${specifier}.js${suffix}`;
+      }
+
+      if (fs.existsSync(resolvedIndex)) {
+        return `${prefix}${specifier}/index.js${suffix}`;
+      }
+
+      return fullMatch;
+    },
+  );
+
+  if (updated !== content) {
+    fs.writeFileSync(filePath, updated);
+  }
+};
+
+const fixGeneratedTypechainImports = () => {
+  const walk = (dirPath: string) => {
+    for (const entry of fs.readdirSync(dirPath, { withFileTypes: true })) {
+      const entryPath = path.join(dirPath, entry.name);
+
+      if (entry.isDirectory()) {
+        walk(entryPath);
+        continue;
+      }
+
+      if (entry.isFile() && entryPath.endsWith('.ts')) {
+        addJsExtensionsToRelativeSpecifiers(entryPath);
+      }
+    }
+  };
+
+  walk(typechainOutDir);
+};
+
 // Running typechain
 async function main() {
   const cwd = process.cwd();
@@ -70,6 +124,8 @@ async function main() {
     outDir: `./src/contracts/ethers-typechain`,
     target: 'ethers-v5',
   });
+
+  fixGeneratedTypechainImports();
 
   console.log(`typechain: Generated ${result.filesGenerated} files`);
 }

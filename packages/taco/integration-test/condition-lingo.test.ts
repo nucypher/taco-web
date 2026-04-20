@@ -1,19 +1,19 @@
 import axios from 'axios';
 import * as https from 'https';
 import { describe, test } from 'vitest';
-import { conditions } from '../src';
 import {
   CompoundCondition,
   CompoundConditionType,
-} from '../src/conditions/compound-condition';
-import { ConditionExpression } from '../src/conditions/condition-expr';
-import { IfThenElseConditionType } from '../src/conditions/if-then-else-condition';
+} from '../src/conditions/compound-condition.js';
+import { ConditionExpression } from '../src/conditions/condition-expr.js';
+import { IfThenElseConditionType } from '../src/conditions/if-then-else-condition.js';
 import {
   ECDSAConditionProps,
   ECDSAConditionType,
   SUPPORTED_ECDSA_CURVES,
-} from '../src/conditions/schemas/ecdsa';
-import { SequentialCondition } from '../src/conditions/sequential';
+} from '../src/conditions/schemas/ecdsa.js';
+import { SequentialCondition } from '../src/conditions/sequential.js';
+import { conditions } from '../src/index.js';
 import {
   testContextVariableConditionObj,
   testContractConditionObj,
@@ -25,7 +25,7 @@ import {
   testSigningObjectAbiAttributeConditionObj,
   testSigningObjectAttributeConditionObj,
   testTimeConditionObj,
-} from '../test/test-utils';
+} from '../test/test-utils.js';
 
 const LYNX_NODES = [
   'https://lynx-1.nucypher.network',

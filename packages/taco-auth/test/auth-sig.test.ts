@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { eip1271AuthSignatureSchema } from '../src/providers/eip1271/auth';
-import { eip4361AuthSignatureSchema } from '../src/providers/eip4361/auth';
+import { eip1271AuthSignatureSchema } from '../src/providers/eip1271/auth.js';
+import { eip4361AuthSignatureSchema } from '../src/providers/eip4361/auth.js';
 
 const eip4361AuthSignature = {
   signature: 'fake-signature',

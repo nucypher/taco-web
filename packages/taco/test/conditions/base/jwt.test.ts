@@ -5,8 +5,8 @@ import { describe, expect, it } from 'vitest';
 import {
   JWTCondition,
   jwtConditionSchema,
-} from '../../../src/conditions/base/jwt';
-import { testJWTConditionObj } from '../../test-utils';
+} from '../../../src/conditions/base/jwt.js';
+import { testJWTConditionObj } from '../../test-utils.js';
 
 describe('JWTCondition', () => {
   describe('validation', () => {

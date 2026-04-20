@@ -1,8 +1,8 @@
 import { TEST_CHAIN_ID } from '@nucypher/test-utils';
 import { describe, expect, it } from 'vitest';
 
-import { ContractCondition } from '../../src/conditions/base/contract';
-import { ConditionExpression } from '../../src/conditions/condition-expr';
+import { ContractCondition } from '../../src/conditions/base/contract.js';
+import { ConditionExpression } from '../../src/conditions/condition-expr.js';
 import {
   INT256_MIN,
   testECDSAConditionObj,
@@ -12,7 +12,7 @@ import {
   testRpcConditionObj,
   testTimeConditionObj,
   UINT256_MAX,
-} from '../test-utils';
+} from '../test-utils.js';
 
 describe('check that valid lingo in python is valid in typescript', () => {
   const contractConditionProps = {

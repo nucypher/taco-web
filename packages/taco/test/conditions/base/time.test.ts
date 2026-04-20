@@ -8,8 +8,8 @@ import {
   TimeConditionProps,
   timeConditionSchema,
   TimeConditionType,
-} from '../../../src/conditions/base/time';
-import { ReturnValueTestProps } from '../../../src/conditions/shared';
+} from '../../../src/conditions/base/time.js';
+import { ReturnValueTestProps } from '../../../src/conditions/shared.js';
 
 describe('validation', () => {
   const returnValueTest: ReturnValueTestProps = {

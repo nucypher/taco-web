@@ -2,8 +2,8 @@ import { EthAddressSchema } from '@nucypher/shared';
 import { ethers } from 'ethers';
 import { z } from 'zod';
 
-import { blockchainParamOrContextParamSchema } from './context';
-import { rpcConditionSchema } from './rpc';
+import { blockchainParamOrContextParamSchema } from './context.js';
+import { rpcConditionSchema } from './rpc.js';
 
 // TODO: Consider replacing with `z.unknown`:
 //    Since Solidity types are tied to Solidity version, we may not be able to accurately represent them in Zod.

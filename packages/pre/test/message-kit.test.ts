@@ -1,8 +1,8 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { initialize, MessageKit, toBytes } from '../src';
+import { initialize, MessageKit, toBytes } from '../src/index.js';
 
-import { fakeBob } from './utils';
+import { fakeBob } from './utils.js';
 
 describe('message kit', () => {
   beforeAll(async () => {

@@ -7,7 +7,7 @@ import { Contract, Signer, utils } from 'ethers';
 import type {
   SigningCoordinator,
   SigningCoordinatorInterface,
-} from '../SigningCoordinator';
+} from '../SigningCoordinator.js';
 
 const _abi = [
   {

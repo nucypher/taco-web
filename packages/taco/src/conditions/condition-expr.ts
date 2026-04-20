@@ -1,10 +1,10 @@
 import { Conditions as CoreConditions } from '@nucypher/nucypher-core';
 import { SemVer } from 'semver';
 
-import { fromJSON, toJSON } from '../utils';
+import { fromJSON, toJSON } from '../utils.js';
 
-import { Condition } from './condition';
-import { ConditionFactory } from './condition-factory';
+import { ConditionFactory } from './condition-factory.js';
+import { Condition } from './condition.js';
 
 const ERR_VERSION = (provided: string, current: string) =>
   `Version provided, ${provided}, is incompatible with current version, ${current}`;

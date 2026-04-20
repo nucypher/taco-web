@@ -7,7 +7,7 @@ import { Contract, Signer, utils } from 'ethers';
 import type {
   GlobalAllowList,
   GlobalAllowListInterface,
-} from '../GlobalAllowList';
+} from '../GlobalAllowList.js';
 
 const _abi = [
   {

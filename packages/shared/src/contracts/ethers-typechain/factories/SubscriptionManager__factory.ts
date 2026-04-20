@@ -7,7 +7,7 @@ import { Contract, Signer, utils } from 'ethers';
 import type {
   SubscriptionManager,
   SubscriptionManagerInterface,
-} from '../SubscriptionManager';
+} from '../SubscriptionManager.js';
 
 const _abi = [
   {

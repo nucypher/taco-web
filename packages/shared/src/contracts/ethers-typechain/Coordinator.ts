@@ -24,7 +24,7 @@ import type {
   TypedEvent,
   TypedEventFilter,
   TypedListener,
-} from './common';
+} from './common.js';
 
 export declare namespace BLS12381 {
   export type G2PointStruct = {

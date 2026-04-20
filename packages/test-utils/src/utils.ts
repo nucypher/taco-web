@@ -47,7 +47,7 @@ import {
 import { ethers, providers, Wallet } from 'ethers';
 import { expect, MockInstance, vi } from 'vitest';
 
-import { TEST_CONTRACT_ADDR, TEST_SIWE_PARAMS } from './variables';
+import { TEST_CONTRACT_ADDR, TEST_SIWE_PARAMS } from './variables.js';
 
 export const EIP4361 = 'EIP4361';
 export const SSO_EIP4361 = 'SSO4361';

@@ -1,13 +1,13 @@
 import { z } from 'zod';
 
-import { ConditionProps } from '../condition';
-import { maxNestedDepth } from '../multi-condition';
+import { ConditionProps } from '../condition.js';
+import { maxNestedDepth } from '../multi-condition.js';
 
-import { baseConditionSchema, plainStringSchema } from './common';
-import { CompoundConditionType } from './compound';
-import { IfThenElseConditionType } from './if-then-else';
-import { anyConditionSchema } from './utils';
-import { variableOperationsArraySchema } from './variable-operation';
+import { baseConditionSchema, plainStringSchema } from './common.js';
+import { CompoundConditionType } from './compound.js';
+import { IfThenElseConditionType } from './if-then-else.js';
+import { anyConditionSchema } from './utils.js';
+import { variableOperationsArraySchema } from './variable-operation.js';
 
 export const getAllNestedConditionVariableNames = (
   condition: ConditionProps,

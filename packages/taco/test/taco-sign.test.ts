@@ -22,13 +22,13 @@ import { fakePorterUri } from '@nucypher/test-utils';
 import { ethers } from 'ethers';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ContractCondition } from '../src/conditions/base/contract';
-import { RpcCondition } from '../src/conditions/base/rpc';
-import { CompoundCondition } from '../src/conditions/compound-condition';
-import { ConditionExpression } from '../src/conditions/condition-expr';
-import { AAVersion, setSigningCohortConditions, signUserOp } from '../src/sign';
+import { ContractCondition } from '../src/conditions/base/contract.js';
+import { RpcCondition } from '../src/conditions/base/rpc.js';
+import { CompoundCondition } from '../src/conditions/compound-condition.js';
+import { ConditionExpression } from '../src/conditions/condition-expr.js';
+import { AAVersion, setSigningCohortConditions, signUserOp } from '../src/sign.js';
 
-import { mockMakeSessionKey } from './test-utils';
+import { mockMakeSessionKey } from './test-utils.js';
 
 function toBigInt(value: bigint | number): bigint {
   return typeof value === 'bigint' ? value : BigInt(value);

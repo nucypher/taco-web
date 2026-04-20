@@ -17,6 +17,6 @@ export {
   toHexString,
 } from '@nucypher/shared';
 
-export { Alice, Bob, Enrico } from './characters';
-export { Cohort } from './cohort';
-export { EnactedPolicy } from './policy';
+export { Alice, Bob, Enrico } from './characters/index.js';
+export { Cohort } from './cohort.js';
+export { EnactedPolicy } from './policy.js';

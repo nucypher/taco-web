@@ -8,11 +8,11 @@ import {
 import { ethers } from 'ethers';
 import { beforeAll, describe, expect, test } from 'vitest';
 
-import { initialize } from '../src';
-import { context } from '../src/conditions';
-import { ConditionExpression } from '../src/conditions/condition-expr';
-import { signUserOp } from '../src/sign';
-import { CoreConditions } from '../src/types';
+import { ConditionExpression } from '../src/conditions/condition-expr.js';
+import { context } from '../src/conditions/index.js';
+import { initialize } from '../src/index.js';
+import { signUserOp } from '../src/sign.js';
+import { CoreConditions } from '../src/types.js';
 
 const RPC_PROVIDER_URL = 'https://ethereum-sepolia-rpc.publicnode.com';
 const DUMMY_ADDRESS = '0x742D35Cc6634C0532925A3b8D33c9c0E7B66C8E8';

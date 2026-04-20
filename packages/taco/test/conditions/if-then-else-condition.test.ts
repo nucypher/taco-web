@@ -4,15 +4,15 @@ import {
   IfThenElseCondition,
   ifThenElseConditionSchema,
   IfThenElseConditionType,
-} from '../../src/conditions/if-then-else-condition';
-import { TimeConditionType } from '../../src/conditions/schemas/time';
+} from '../../src/conditions/if-then-else-condition.js';
+import { TimeConditionType } from '../../src/conditions/schemas/time.js';
 import {
   testCompoundConditionObj,
   testContractConditionObj,
   testRpcConditionObj,
   testSequentialConditionObj,
   testTimeConditionObj,
-} from '../test-utils';
+} from '../test-utils.js';
 
 describe('validation', () => {
   it('infers default condition type from constructor', () => {

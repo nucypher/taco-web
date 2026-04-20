@@ -6,13 +6,13 @@ import {
   utils as ethersUtils,
 } from 'ethers';
 
-import { Domain } from '../../porter';
-import { ChecksumAddress } from '../../types';
-import { DEFAULT_WAIT_N_CONFIRMATIONS } from '../const';
+import { Domain } from '../../porter.js';
+import { ChecksumAddress } from '../../types.js';
+import { DEFAULT_WAIT_N_CONFIRMATIONS } from '../const.js';
 import {
   SubscriptionManager,
   SubscriptionManager__factory,
-} from '../ethers-typechain';
+} from '../ethers-typechain/index.js';
 
 export class PreSubscriptionManagerAgent {
   public static async createPolicy(

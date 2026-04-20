@@ -8,11 +8,11 @@ import {
   SigningObjectAttributeCondition,
   signingObjectAttributeConditionSchema,
   SigningObjectAttributeConditionType,
-} from '../../../src/conditions/base/signing';
+} from '../../../src/conditions/base/signing.js';
 import {
   testSigningObjectAbiAttributeConditionObj,
   testSigningObjectAttributeConditionObj,
-} from '../../test-utils';
+} from '../../test-utils.js';
 
 describe('SigningObjectAttributeCondition', () => {
   describe('validation', () => {

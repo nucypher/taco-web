@@ -1,16 +1,16 @@
-import { Condition } from '../condition';
+import { Condition } from '../condition.js';
 import {
   JsonRpcConditionProps,
   jsonRpcConditionSchema,
   JsonRpcConditionType,
-} from '../schemas/json-rpc';
-import { OmitConditionType } from '../shared';
+} from '../schemas/json-rpc.js';
+import { OmitConditionType } from '../shared.js';
 
 export {
   JsonRpcConditionProps,
   jsonRpcConditionSchema,
   JsonRpcConditionType,
-} from '../schemas/json-rpc';
+} from '../schemas/json-rpc.js';
 
 export class JsonRpcCondition extends Condition {
   constructor(value: OmitConditionType<JsonRpcConditionProps>) {

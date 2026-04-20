@@ -1,9 +1,9 @@
-export * from './contracts';
-export * from './porter';
-export * from './schemas';
-export * from './types';
-export * from './utils';
-export * from './web3';
+export * from './contracts/index.js';
+export * from './porter.js';
+export * from './schemas.js';
+export * from './types.js';
+export * from './utils.js';
+export * from './web3.js';
 
 // Re-exports
 export {

@@ -9,7 +9,7 @@ import {
 } from '@nucypher/nucypher-core';
 import { toBytes } from '@nucypher/shared';
 
-import { PolicyMessageKit } from './kits';
+import { PolicyMessageKit } from './kits/index.js';
 
 export class Keyring {
   constructor(public readonly secretKey: SecretKey) {}

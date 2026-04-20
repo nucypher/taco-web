@@ -5,9 +5,9 @@ import {
   httpsURLSchema,
   jsonAuthorizationTypeSchema,
   jsonPathSchema,
-} from './common';
-import { contextParamSchema } from './context';
-import { returnValueTestSchema } from './return-value-test';
+} from './common.js';
+import { contextParamSchema } from './context.js';
+import { returnValueTestSchema } from './return-value-test.js';
 
 export const JsonRpcConditionType = 'json-rpc';
 

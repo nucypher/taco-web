@@ -1,7 +1,7 @@
 import { SiweMessage } from 'siwe';
 import { z } from 'zod';
 
-import { baseAuthSignatureSchema } from '../../auth-sig';
+import { baseAuthSignatureSchema } from '../../auth-sig.js';
 
 export const EIP4361_AUTH_METHOD = 'EIP4361';
 

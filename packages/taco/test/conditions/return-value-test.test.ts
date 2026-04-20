@@ -3,12 +3,12 @@ import { describe, expect, it } from 'vitest';
 import {
   MAX_VARIABLE_OPERATIONS,
   OPERATOR_FUNCTIONS,
-} from '../../src/conditions/schemas/variable-operation';
+} from '../../src/conditions/schemas/variable-operation.js';
 import {
   blockchainReturnValueTestSchema,
   returnValueTestSchema,
-} from '../../src/conditions/shared';
-import { getTestValueForOperation } from '../test-utils';
+} from '../../src/conditions/shared.js';
+import { getTestValueForOperation } from '../test-utils.js';
 
 [blockchainReturnValueTestSchema, returnValueTestSchema].forEach((schema) => {
   describe('validates schema', () => {

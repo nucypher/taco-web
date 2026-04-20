@@ -16,9 +16,9 @@ import { Ursula } from '@nucypher/shared';
 import { fakeUrsulas, mockGetUrsulas } from '@nucypher/test-utils';
 import { expect, MockInstance, vi } from 'vitest';
 
-import { Alice, Bob, Cohort, toBytes } from '../src';
-import { RemoteBob } from '../src/characters';
-import { BlockchainPolicy, PreEnactedPolicy } from '../src/policy';
+import { RemoteBob } from '../src/characters/index.js';
+import { Alice, Bob, Cohort, toBytes } from '../src/index.js';
+import { BlockchainPolicy, PreEnactedPolicy } from '../src/policy.js';
 
 export const fakeBob = (): Bob => {
   const secretKey = SecretKey.fromBEBytes(

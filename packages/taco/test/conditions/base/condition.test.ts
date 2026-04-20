@@ -1,10 +1,10 @@
 import { TEST_CONTRACT_ADDR } from '@nucypher/test-utils';
 import { describe, expect, it } from 'vitest';
 
-import { ContractCondition } from '../../../src/conditions/base/contract';
-import { Condition } from '../../../src/conditions/condition';
-import { ERC721Ownership } from '../../../src/conditions/predefined/erc721';
-import { fakeCondition, testContractConditionObj } from '../../test-utils';
+import { ContractCondition } from '../../../src/conditions/base/contract.js';
+import { Condition } from '../../../src/conditions/condition.js';
+import { ERC721Ownership } from '../../../src/conditions/predefined/erc721.js';
+import { fakeCondition, testContractConditionObj } from '../../test-utils.js';
 
 describe('validation', () => {
   const condition = fakeCondition();

@@ -1,7 +1,7 @@
 import { toBytes } from '@nucypher/shared';
 import { describe, expect, it } from 'vitest';
 
-import { fromJSON, toJSON } from '../src/utils';
+import { fromJSON, toJSON } from '../src/utils.js';
 
 describe('custom parameters', () => {
   it('serializes/deserializes bytes to/from hex strings', () => {

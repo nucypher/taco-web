@@ -2,11 +2,11 @@ import { getContract } from '@nucypher/nucypher-contracts';
 import { SessionStaticKey } from '@nucypher/nucypher-core';
 import { ethers } from 'ethers';
 
-import { TtlCache } from '../../cache';
-import { Domain } from '../../porter';
-import { fromHexString } from '../../utils';
-import { SigningCoordinator__factory } from '../ethers-typechain';
-import { SigningCoordinator } from '../ethers-typechain/SigningCoordinator';
+import { TtlCache } from '../../cache.js';
+import { Domain } from '../../porter.js';
+import { fromHexString } from '../../utils.js';
+import { SigningCoordinator } from '../ethers-typechain/SigningCoordinator.js';
+import { SigningCoordinator__factory } from '../ethers-typechain/index.js';
 
 export type SignerInfo = {
   provider: string;

@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-import { baseConditionSchema, jsonPathSchema } from './common';
-import { contextParamSchema } from './context';
-import { returnValueTestSchema } from './return-value-test';
+import { baseConditionSchema, jsonPathSchema } from './common.js';
+import { contextParamSchema } from './context.js';
+import { returnValueTestSchema } from './return-value-test.js';
 
 export const JsonConditionType = 'json';
 

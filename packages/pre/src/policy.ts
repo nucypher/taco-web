@@ -18,7 +18,7 @@ import {
 } from '@nucypher/shared';
 import { ethers } from 'ethers';
 
-import { Alice, RemoteBob } from './characters';
+import { Alice, RemoteBob } from './characters/index.js';
 
 export type EnactedPolicy = {
   readonly id: HRAC;

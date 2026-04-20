@@ -10,13 +10,13 @@ import {
   contractConditionSchema,
   ContractConditionType,
   FunctionAbiProps,
-} from '../../../src/conditions/base/contract';
-import { USER_ADDRESS_PARAMS } from '../../../src/conditions/const';
+} from '../../../src/conditions/base/contract.js';
+import { USER_ADDRESS_PARAMS } from '../../../src/conditions/const.js';
 import {
   ConditionContext,
   CustomContextParam,
-} from '../../../src/conditions/context';
-import { testContractConditionObj, testFunctionAbi } from '../../test-utils';
+} from '../../../src/conditions/context/index.js';
+import { testContractConditionObj, testFunctionAbi } from '../../test-utils.js';
 
 describe('validation', () => {
   it('accepts on a valid schema', () => {

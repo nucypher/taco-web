@@ -519,8 +519,8 @@ importers:
         specifier: ^0.15.1-dev.3
         version: 0.15.1-dev.3
       axios:
-        specifier: ^1.8.4
-        version: 1.10.0
+        specifier: ^1.13.5
+        version: 1.15.0
       deep-equal:
         specifier: ^2.2.3
         version: 2.2.3
@@ -636,7 +636,7 @@ importers:
         specifier: workspace:*
         version: link:../taco-auth
       axios:
-        specifier: ^1.11.0
+        specifier: ^1.13.5
         version: 1.15.0
       ethers:
         specifier: ^5.8.0
@@ -16512,7 +16512,7 @@ snapshots:
   http-proxy@1.18.1:
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.15.9
+      follow-redirects: 1.16.0
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug

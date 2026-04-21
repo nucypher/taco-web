@@ -26,7 +26,7 @@ import { ContractCondition } from '../src/conditions/base/contract';
 import { RpcCondition } from '../src/conditions/base/rpc';
 import { CompoundCondition } from '../src/conditions/compound-condition';
 import { ConditionExpression } from '../src/conditions/condition-expr';
-import { setSigningCohortConditions, signUserOp } from '../src/sign';
+import { AAVersion, setSigningCohortConditions, signUserOp } from '../src/sign';
 
 import { mockMakeSessionKey } from './test-utils';
 
@@ -346,15 +346,20 @@ describe('TACo Signing', () => {
     const aaVersion = '0.8.0';
     const threshold = 2;
 
-    it.each([
+    const validAAVersionCases: Array<
+      [AAVersion, UserOperationToSign | PackedUserOperationToSign]
+    > = [
+      ['0.7.0', userOp],
+      ['0.7.0', packedUserOp],
       ['0.8.0', userOp],
       ['0.8.0', packedUserOp],
       ['mdt', userOp],
       ['mdt', packedUserOp],
-    ])(
+    ];
+    it.each(validAAVersionCases)(
       'should sign user operation and packed user operations for valid aa versions',
       async (
-        validAAVersion: string,
+        validAAVersion: AAVersion,
         userOp: UserOperationToSign | PackedUserOperationToSign,
       ) => {
         const encryptedResponses = {
@@ -406,7 +411,10 @@ describe('TACo Signing', () => {
           threshold,
         );
 
-        const call = porterSignUserOpMock.mock.calls[porterSignUserOpMock.mock.calls.length - 1]!;
+        const call =
+          porterSignUserOpMock.mock.calls[
+            porterSignUserOpMock.mock.calls.length - 1
+          ]!;
         const [op] = call;
 
         const nodes = ['0xnode1', '0xnode2'];
@@ -483,7 +491,10 @@ describe('TACo Signing', () => {
         },
         threshold,
       );
-      const call = porterSignUserOpMock.mock.calls[porterSignUserOpMock.mock.calls.length - 1]!;
+      const call =
+        porterSignUserOpMock.mock.calls[
+          porterSignUserOpMock.mock.calls.length - 1
+        ]!;
       const [op] = call;
 
       const nodes = ['0xnode1', '0xnode2'];

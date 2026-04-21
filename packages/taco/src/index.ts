@@ -14,6 +14,7 @@ export {
 export * as conditions from './conditions';
 
 export {
+  AAVersion,
   SignResult,
   TacoSignature,
   setSigningCohortConditions,

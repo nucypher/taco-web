@@ -50,6 +50,8 @@ export type SignResult = {
   signingResults: { [ursulaAddress: string]: TacoSignature };
 };
 
+export type AAVersion = '0.8.0' | 'mdt' | '0.7.0';
+
 function aggregateSignatures(
   signatures: TacoSignature[],
   threshold: number,
@@ -83,7 +85,7 @@ async function makeSigningRequests(
   chainId: number,
   signers: Array<SignerInfo>,
   userOp: UserOperationToSign | PackedUserOperationToSign,
-  aaVersion: string,
+  aaVersion: AAVersion,
   conditionContext?: ConditionContext,
 ): Promise<{
   sharedSecrets: Record<string, SessionSharedSecret>;
@@ -160,7 +162,7 @@ export async function signUserOp(
   cohortId: number,
   chainId: number,
   userOp: UserOperationToSign | PackedUserOperationToSign,
-  aaVersion: 'mdt' | '0.8.0' | string,
+  aaVersion: AAVersion,
   context?: ConditionContext,
   porterUris?: string[],
 ): Promise<SignResult> {

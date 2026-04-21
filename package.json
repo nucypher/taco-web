@@ -15,6 +15,8 @@
     "build": "tsc --build --verbose ./tsconfig.prod.json && node scripts/fix-dist-markers.cjs",
     "watch": "tsc --build --verbose --watch ./tsconfig.prod.json",
     "test": "pnpm build && vitest run",
+    "test:esm-consumer": "node scripts/test-consumer.cjs esm",
+    "test:cjs-consumer": "node scripts/test-consumer.cjs cjs",
     "package:check": "pnpm run --parallel --aggregate-output --reporter append-only --filter './packages/**' package-check",
     "packages:lint": "pnpm packages:sort --check",
     "packages:sort": "sort-package-json \"package.json\" \"examples/*/package.json\" \"packages/*/package.json\"",

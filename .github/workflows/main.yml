@@ -35,6 +35,9 @@ jobs:
           RUNNING_IN_CI: true
         run: pnpm test
 
+      - name: Test ESM and CJS consumers
+        run: pnpm test:esm-consumer && pnpm test:cjs-consumer
+
       - name: Check examples & demos
         run: pnpm check-examples
 

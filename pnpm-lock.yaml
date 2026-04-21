@@ -92,13 +92,13 @@ importers:
         specifier: ^0.25.13
         version: 0.25.13(typescript@5.8.3)
       typedoc-plugin-coverage:
-        specifier: ^2.2.0
-        version: 2.2.0(typedoc@0.25.13(typescript@5.8.3))
+        specifier: ^3.4.1
+        version: 3.4.1(typedoc@0.25.13(typescript@5.8.3))
       typedoc-plugin-missing-exports:
         specifier: ^2.3.0
         version: 2.3.0(typedoc@0.25.13(typescript@5.8.3))
       typedoc-plugin-zod:
-        specifier: ^1.4.0
+        specifier: ^1.4.2
         version: 1.4.2(typedoc@0.25.13(typescript@5.8.3))
       typescript:
         specifier: ^5.8.2
@@ -9169,11 +9169,11 @@ packages:
   typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
 
-  typedoc-plugin-coverage@2.2.0:
-    resolution: {integrity: sha512-/hq9nwSNBz2p7+VYfljT/zFSmaxN8tlfcIp6CCAaQN6VIxXCciYFIqR+pcckRhjmfHIeSJ5uy2OpCt5F683npA==}
-    engines: {node: '>= 16'}
+  typedoc-plugin-coverage@3.4.1:
+    resolution: {integrity: sha512-V23DAwinAMpGMGcL1R1s8Snr26hrjfIdwGf+4jR/65ZdmeAN+yRX0onfx5JlembTQhR6AePQ/parfQNS0AZ64A==}
+    engines: {node: '>= 18'}
     peerDependencies:
-      typedoc: ^0.22.12 || 0.23.x || 0.24.x || 0.25.x
+      typedoc: 0.25.x || 0.26.x || 0.27.x
 
   typedoc-plugin-missing-exports@2.3.0:
     resolution: {integrity: sha512-iI9ITNNLlbsLCBBeYDyu0Qqp3GN/9AGyWNKg8bctRXuZEPT7G1L+0+MNWG9MsHcf/BFmNbXL0nQ8mC/tXRicog==}
@@ -20217,7 +20217,7 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typedoc-plugin-coverage@2.2.0(typedoc@0.25.13(typescript@5.8.3)):
+  typedoc-plugin-coverage@3.4.1(typedoc@0.25.13(typescript@5.8.3)):
     dependencies:
       typedoc: 0.25.13(typescript@5.8.3)
 

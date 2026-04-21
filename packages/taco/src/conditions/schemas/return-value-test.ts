@@ -4,21 +4,46 @@ import {
   blockchainParamOrContextParamSchema,
   paramOrContextParamSchema,
 } from './context';
+import { variableOperationsArraySchema } from './variable-operation';
 
 const returnValueTestBaseSchema = z.object({
   index: z.number().int().nonnegative().optional(),
-  comparator: z.enum(['==', '>', '<', '>=', '<=', '!=']),
+  comparator: z.enum(['==', '>', '<', '>=', '<=', '!=', 'in', '!in']),
+  operations: variableOperationsArraySchema.describe(
+    'Optional operations to perform on the obtained result before comparison',
+  ),
 });
 
-export const returnValueTestSchema = returnValueTestBaseSchema.extend({
-  value: paramOrContextParamSchema,
-});
+const requireNonEmptyArrayIfComparatorIsIn = (data: {
+  comparator: '==' | '>' | '<' | '>=' | '<=' | '!=' | 'in' | '!in';
+  value?: unknown;
+  index?: number | undefined;
+}): boolean => {
+  if (data.comparator === 'in' || data.comparator === '!in') {
+    return Array.isArray(data.value) && data.value.length > 0;
+  }
+  return true;
+};
 
-export const blockchainReturnValueTestSchema = returnValueTestBaseSchema.extend(
-  {
+const inComparatorErrorConfig = {
+  message: `"value" must be a non-empty array when comparator is "in"/"!in"`,
+  path: ['value'],
+};
+
+export const returnValueTestSchema = returnValueTestBaseSchema
+  .extend({
+    value: paramOrContextParamSchema,
+  })
+  .refine(requireNonEmptyArrayIfComparatorIsIn, inComparatorErrorConfig)
+  .describe(
+    'Test to perform on a value. Supports comparison operators like ==, >, <, >=, <=, !=, in, !in',
+  );
+
+export const blockchainReturnValueTestSchema = returnValueTestBaseSchema
+  .extend({
     value: blockchainParamOrContextParamSchema,
-  },
-);
+  })
+  .refine(requireNonEmptyArrayIfComparatorIsIn, inComparatorErrorConfig);
 
 export type ReturnValueTestProps = z.infer<typeof returnValueTestSchema>;
 

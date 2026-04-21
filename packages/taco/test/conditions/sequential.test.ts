@@ -2,6 +2,11 @@ import { ChainId } from '@nucypher/shared';
 import { describe, expect, it } from 'vitest';
 
 import { CompoundConditionType } from '../../src/conditions/compound-condition';
+import { IfThenElseConditionType } from '../../src/conditions/if-then-else-condition';
+import {
+  MAX_VARIABLE_OPERATIONS,
+  OPERATOR_FUNCTIONS,
+} from '../../src/conditions/schemas/variable-operation';
 import {
   ConditionVariableProps,
   SequentialCondition,
@@ -10,10 +15,11 @@ import {
   SequentialConditionType,
 } from '../../src/conditions/sequential';
 import {
+  getTestValueForOperation,
   testCompoundConditionObj,
   testContractConditionObj,
+  testJsonApiConditionObj,
   testRpcConditionObj,
-  testSequentialConditionObj,
   testTimeConditionObj,
 } from '../test-utils';
 
@@ -34,9 +40,25 @@ describe('validation', () => {
     varName: 'compound',
     condition: testCompoundConditionObj,
   };
-  const sequentialConditionVariable: ConditionVariableProps = {
+  const nestedSequentialConditionVariable: ConditionVariableProps = {
     varName: 'nestedSequential',
-    condition: testSequentialConditionObj,
+    condition: {
+      conditionType: SequentialConditionType,
+      conditionVariables: [
+        {
+          varName: 'nestedRpc',
+          condition: testRpcConditionObj,
+        },
+        {
+          varName: 'nestedTime',
+          condition: testTimeConditionObj,
+        },
+        {
+          varName: 'nestedContract',
+          condition: testContractConditionObj,
+        },
+      ],
+    },
   };
 
   it('rejects no varName', () => {
@@ -90,7 +112,7 @@ describe('validation', () => {
   });
 
   it('rejects > max number of condition variables', () => {
-    const tooManyConditionVariables = new Array(6);
+    const tooManyConditionVariables = new Array(21);
     for (let i = 0; i < tooManyConditionVariables.length; i++) {
       tooManyConditionVariables[i] = {
         varName: `var${i}`,
@@ -105,7 +127,7 @@ describe('validation', () => {
     expect(result.data).toBeUndefined();
     expect(result.error?.format()).toMatchObject({
       conditionVariables: {
-        _errors: ['Array must contain at most 5 element(s)'],
+        _errors: ['Array must contain at most 20 element(s)'],
       },
     });
   });
@@ -135,7 +157,84 @@ describe('validation', () => {
       ],
     });
   });
-
+  it('rejects nested sequential with duplicate varname', () => {
+    const conditionObj = {
+      conditionType: SequentialConditionType,
+      conditionVariables: [
+        rpcConditionVariable,
+        timeConditionVariable,
+        contractConditionVariable,
+        {
+          varName: 'nestedSequential',
+          condition: {
+            conditionType: SequentialConditionType,
+            conditionVariables: [
+              contractConditionVariable,
+              {
+                varName: 'nestedTime',
+                condition: testTimeConditionObj,
+              },
+            ],
+          },
+        },
+      ],
+    };
+    const result = SequentialCondition.validate(
+      sequentialConditionSchema,
+      conditionObj,
+    );
+    expect(result.error).toBeDefined();
+    expect(result.data).toBeUndefined();
+    expect(result.error?.format()).toMatchObject({
+      conditionVariables: {
+        _errors: ['Duplicate variable names are not allowed'],
+      },
+    });
+  });
+  it.each([true, false, testJsonApiConditionObj])(
+    'rejects nested sequential with duplicate varname within nested if-then-else',
+    (variedElseCondition) => {
+      const conditionObj = {
+        conditionType: SequentialConditionType,
+        conditionVariables: [
+          {
+            varName: 'ifThenElse',
+            condition: {
+              conditionType: IfThenElseConditionType,
+              ifCondition: testRpcConditionObj,
+              thenCondition: testTimeConditionObj,
+              elseCondition: variedElseCondition,
+            },
+          },
+          contractConditionVariable,
+          {
+            varName: 'nestedSequential',
+            condition: {
+              conditionType: SequentialConditionType,
+              conditionVariables: [
+                contractConditionVariable,
+                {
+                  varName: 'nestedTime',
+                  condition: testTimeConditionObj,
+                },
+              ],
+            },
+          },
+        ],
+      };
+      const result = SequentialCondition.validate(
+        sequentialConditionSchema,
+        conditionObj,
+      );
+      expect(result.error).toBeDefined();
+      expect(result.data).toBeUndefined();
+      expect(result.error?.format()).toMatchObject({
+        conditionVariables: {
+          _errors: ['Duplicate variable names are not allowed'],
+        },
+      });
+    },
+  );
   it('accepts nested sequential and compound conditions', () => {
     const conditionObj = {
       conditionType: SequentialConditionType,
@@ -144,7 +243,7 @@ describe('validation', () => {
         timeConditionVariable,
         contractConditionVariable,
         compoundConditionVariable,
-        sequentialConditionVariable,
+        nestedSequentialConditionVariable,
       ],
     };
     const result = SequentialCondition.validate(
@@ -159,12 +258,14 @@ describe('validation', () => {
         timeConditionVariable,
         contractConditionVariable,
         compoundConditionVariable,
-        sequentialConditionVariable,
+        nestedSequentialConditionVariable,
       ],
     });
   });
 
   it('limits max depth of nested compound condition', () => {
+    // Need 5 levels of nesting to exceed max depth of 4
+    // sequential(1) -> compound(2) -> compound(3) -> compound(4) -> compound(5)
     const result = SequentialCondition.validate(sequentialConditionSchema, {
       conditionVariables: [
         rpcConditionVariable,
@@ -178,7 +279,21 @@ describe('validation', () => {
               {
                 conditionType: CompoundConditionType,
                 operator: 'and',
-                operands: [testTimeConditionObj, testRpcConditionObj],
+                operands: [
+                  {
+                    conditionType: CompoundConditionType,
+                    operator: 'or',
+                    operands: [
+                      {
+                        conditionType: CompoundConditionType,
+                        operator: 'not',
+                        operands: [testTimeConditionObj],
+                      },
+                      testRpcConditionObj,
+                    ],
+                  },
+                  testTimeConditionObj,
+                ],
               },
             ],
           },
@@ -189,23 +304,64 @@ describe('validation', () => {
     expect(result.data).toBeUndefined();
     expect(result.error?.format()).toMatchObject({
       conditionVariables: {
-        _errors: [`Exceeded max nested depth of 2 for multi-condition type`],
+        _errors: [`Exceeded max nested depth of 4 for multi-condition type`],
       },
     });
   });
 
   it('limits max depth of nested sequential condition', () => {
+    // Need 5 levels of nesting to exceed max depth of 4
+    // sequential(1) -> sequential(2) -> sequential(3) -> sequential(4) -> sequential(5)
     const result = SequentialCondition.validate(sequentialConditionSchema, {
       conditionVariables: [
         rpcConditionVariable,
         contractConditionVariable,
         {
-          varName: 'sequentialNested',
+          varName: 'level2',
           condition: {
             conditionType: SequentialConditionType,
             conditionVariables: [
               timeConditionVariable,
-              sequentialConditionVariable,
+              {
+                varName: 'level3',
+                condition: {
+                  conditionType: SequentialConditionType,
+                  conditionVariables: [
+                    {
+                      varName: 'level4a',
+                      condition: testRpcConditionObj,
+                    },
+                    {
+                      varName: 'level4',
+                      condition: {
+                        conditionType: SequentialConditionType,
+                        conditionVariables: [
+                          {
+                            varName: 'level5a',
+                            condition: testTimeConditionObj,
+                          },
+                          {
+                            varName: 'level5',
+                            condition: {
+                              conditionType: SequentialConditionType,
+                              conditionVariables: [
+                                {
+                                  varName: 'level6a',
+                                  condition: testTimeConditionObj,
+                                },
+                                {
+                                  varName: 'level6b',
+                                  condition: testContractConditionObj,
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
             ],
           },
         },
@@ -215,7 +371,7 @@ describe('validation', () => {
     expect(result.data).toBeUndefined();
     expect(result.error?.format()).toMatchObject({
       conditionVariables: {
-        _errors: ['Exceeded max nested depth of 2 for multi-condition type'],
+        _errors: ['Exceeded max nested depth of 4 for multi-condition type'],
       },
     });
   });
@@ -292,5 +448,132 @@ describe('validation', () => {
       ],
     });
     expect(condition.value.conditionType).toEqual(SequentialConditionType);
+  });
+
+  it.each(OPERATOR_FUNCTIONS)('allows valid operations', (operation) => {
+    const conditionObj = {
+      conditionType: SequentialConditionType,
+      conditionVariables: [
+        {
+          varName: 'var1',
+          condition: testRpcConditionObj,
+          operations: [
+            {
+              operation: operation,
+              value: getTestValueForOperation(operation),
+            },
+          ],
+        },
+        rpcConditionVariable,
+        timeConditionVariable,
+        contractConditionVariable,
+      ],
+    };
+    const result = SequentialCondition.validate(
+      sequentialConditionSchema,
+      conditionObj,
+    );
+    expect(result.error).toBeUndefined();
+    expect(result.data).toEqual(conditionObj);
+  });
+  it('requires at least one operation if defined', () => {
+    const conditionObj = {
+      conditionType: SequentialConditionType,
+      conditionVariables: [
+        {
+          varName: 'var1',
+          condition: testRpcConditionObj,
+          operations: [],
+        },
+        contractConditionVariable,
+      ],
+    };
+    const result = SequentialCondition.validate(
+      sequentialConditionSchema,
+      conditionObj,
+    );
+    expect(result.error).toBeDefined();
+    expect(result.error?.format()).toMatchObject({
+      conditionVariables: {
+        '0': {
+          operations: {
+            _errors: ['Array must contain at least 1 element(s)'],
+          },
+        },
+      },
+    });
+    expect(result.data).toBeUndefined();
+  });
+  it(`allows at most ${MAX_VARIABLE_OPERATIONS} operations`, () => {
+    const conditionObj = {
+      conditionType: SequentialConditionType,
+      conditionVariables: [
+        {
+          varName: 'var1',
+          condition: testRpcConditionObj,
+          operations: Array.from(
+            { length: MAX_VARIABLE_OPERATIONS + 1 },
+            (_, i) => ({
+              operation: '*=',
+              value: i + 1,
+            }),
+          ),
+        },
+        contractConditionVariable,
+      ],
+    };
+    const result = SequentialCondition.validate(
+      sequentialConditionSchema,
+      conditionObj,
+    );
+    expect(result.error).toBeDefined();
+    expect(result.error?.format()).toMatchObject({
+      conditionVariables: {
+        '0': {
+          operations: {
+            _errors: [
+              `Array must contain at most ${MAX_VARIABLE_OPERATIONS} element(s)`,
+            ],
+          },
+        },
+      },
+    });
+    expect(result.data).toBeUndefined();
+  });
+  it('allows multiple operations', () => {
+    const conditionObj = {
+      conditionType: SequentialConditionType,
+      conditionVariables: [
+        {
+          varName: 'var1',
+          condition: testRpcConditionObj,
+          operations: [
+            { operation: 'index', value: 1 },
+            { operation: '*=', value: 2.5 },
+            { operation: '-=', value: 5.5 },
+            { operation: 'int' },
+            { operation: '+=', value: BigInt('1000000000000000') },
+          ],
+        },
+        {
+          varName: 'var2',
+          condition: testTimeConditionObj,
+          operations: [
+            { operation: 'ceil' },
+            { operation: '/=', value: 2.5 },
+            { operation: 'floor' },
+            { operation: 'ethToWei' },
+            { operation: 'weiToEth' },
+          ],
+        },
+        contractConditionVariable,
+      ],
+    };
+    const result = SequentialCondition.validate(
+      sequentialConditionSchema,
+      conditionObj,
+    );
+    expect(result.error).toBeUndefined();
+    expect(result.data).toEqual(conditionObj);
   });
 });

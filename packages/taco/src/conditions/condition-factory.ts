@@ -1,8 +1,23 @@
 import {
+  ContextVariableCondition,
+  ContextVariableConditionProps,
+  ContextVariableConditionType,
+} from './base/context-variable';
+import {
   ContractCondition,
   ContractConditionProps,
   ContractConditionType,
 } from './base/contract';
+import {
+  ECDSACondition,
+  ECDSAConditionProps,
+  ECDSAConditionType,
+} from './base/ecdsa';
+import {
+  JsonCondition,
+  JsonConditionProps,
+  JsonConditionType,
+} from './base/json';
 import {
   JsonApiCondition,
   JsonApiConditionProps,
@@ -15,6 +30,14 @@ import {
 } from './base/json-rpc';
 import { JWTCondition, JWTConditionProps, JWTConditionType } from './base/jwt';
 import { RpcCondition, RpcConditionProps, RpcConditionType } from './base/rpc';
+import {
+  SigningObjectAbiAttributeCondition,
+  SigningObjectAbiAttributeConditionProps,
+  SigningObjectAbiAttributeConditionType,
+  SigningObjectAttributeCondition,
+  SigningObjectAttributeConditionProps,
+  SigningObjectAttributeConditionType,
+} from './base/signing';
 import {
   TimeCondition,
   TimeConditionProps,
@@ -50,12 +73,28 @@ export class ConditionFactory {
         return new TimeCondition(props as TimeConditionProps);
       case ContractConditionType:
         return new ContractCondition(props as ContractConditionProps);
+      case ECDSAConditionType:
+        return new ECDSACondition(props as ECDSAConditionProps);
+      case JsonConditionType:
+        return new JsonCondition(props as JsonConditionProps);
       case JsonApiConditionType:
         return new JsonApiCondition(props as JsonApiConditionProps);
       case JsonRpcConditionType:
         return new JsonRpcCondition(props as JsonRpcConditionProps);
       case JWTConditionType:
         return new JWTCondition(props as JWTConditionProps);
+      case SigningObjectAttributeConditionType:
+        return new SigningObjectAttributeCondition(
+          props as SigningObjectAttributeConditionProps,
+        );
+      case SigningObjectAbiAttributeConditionType:
+        return new SigningObjectAbiAttributeCondition(
+          props as SigningObjectAbiAttributeConditionProps,
+        );
+      case ContextVariableConditionType:
+        return new ContextVariableCondition(
+          props as ContextVariableConditionProps,
+        );
       // Logical Conditions
       case CompoundConditionType:
         return new CompoundCondition(props as CompoundConditionProps);

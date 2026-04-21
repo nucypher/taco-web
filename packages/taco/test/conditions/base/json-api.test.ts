@@ -76,6 +76,59 @@ describe('JsonApiCondition', () => {
       });
     });
 
+    describe('authorizationType', () => {
+      it.each(['Bearer', 'Basic', 'X-API-Key'])(
+        'accepts valid authorization types',
+        (authType) => {
+          const result = JsonApiCondition.validate(jsonApiConditionSchema, {
+            ...testJsonApiConditionObj,
+            authorizationToken: ':authToken',
+            authorizationType: authType,
+          });
+          expect(result.error).toBeUndefined();
+          expect(result.data).toEqual({
+            ...testJsonApiConditionObj,
+            authorizationToken: ':authToken',
+            authorizationType: authType,
+          });
+        },
+      );
+      it('authorizationToken must be set if authorizationType is provided', () => {
+        const result = JsonApiCondition.validate(jsonApiConditionSchema, {
+          ...testJsonApiConditionObj,
+          authorizationType: 'Bearer',
+        });
+        expect(result.error).toBeDefined();
+        expect(result.data).toBeUndefined();
+        expect(result.error?.format()).toMatchObject({
+          authorizationType: {
+            _errors: [
+              'authorizationToken must be provided if authorizationType is set',
+            ],
+          },
+        });
+      });
+      it.each(['InvalidType', 'Bearer ', 'Basic123', 'Y-API-Key'])(
+        'rejects invalid authorization types',
+        (authType) => {
+          const result = JsonApiCondition.validate(jsonApiConditionSchema, {
+            ...testJsonApiConditionObj,
+            authorizationToken: ':authToken',
+            authorizationType: authType,
+          });
+          expect(result.error).toBeDefined();
+          expect(result.data).toBeUndefined();
+          expect(result.error?.format()).toMatchObject({
+            authorizationType: {
+              _errors: [
+                `Invalid enum value. Expected 'Bearer' | 'Basic' | 'X-API-Key', received '${authType}'`,
+              ],
+            },
+          });
+        },
+      );
+    });
+
     describe('parameters', () => {
       it('accepts conditions without query path', () => {
         const { query, ...noQueryObj } = testJsonApiConditionObj;

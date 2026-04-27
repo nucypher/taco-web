@@ -113,7 +113,10 @@ const writeFixtureFiles = (tarballs) => {
 };
 
 try {
-  run('pnpm', ['build'], repoRoot);
+  if (!process.env.RUNNING_IN_CI) {
+    // only run the build step locally since CI will have already built the packages
+    run('pnpm', ['build'], repoRoot);
+  }
 
   const tarballs = Object.fromEntries(
     packageNames.map((packageName) => [packageName, packPackage(packageName)]),

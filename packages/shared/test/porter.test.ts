@@ -21,8 +21,8 @@ import {
   toCoreUserOperation,
   toHexString,
   Ursula,
-} from '../src';
-import { fromHexString } from '../src/utils';
+} from '../src/index.js';
+import { fromHexString } from '../src/utils.js';
 
 const fakePorterUris = [
   'https://_this_should_crash.com/',

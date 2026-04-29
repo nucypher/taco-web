@@ -3,12 +3,12 @@ import { describe, expect, it } from 'vitest';
 import {
   ContextVariableCondition,
   ContextVariableConditionProps,
-} from '../../../src/conditions/base/context-variable';
+} from '../../../src/conditions/base/context-variable.js';
 import {
   contextVariableConditionSchema,
   ContextVariableConditionType,
-} from '../../../src/conditions/schemas/context-variable';
-import { testContextVariableConditionObj } from '../../test-utils';
+} from '../../../src/conditions/schemas/context-variable.js';
+import { testContextVariableConditionObj } from '../../test-utils.js';
 
 describe('ContextVariableCondition', () => {
   describe('validate', () => {

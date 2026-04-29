@@ -4,8 +4,8 @@ import {
   OPERATOR_FUNCTIONS,
   UNARY_OPERATOR_FUNCTIONS,
   variableOperationSchema,
-} from '../../src/conditions/schemas/variable-operation';
-import { getTestValueForOperation } from '../test-utils';
+} from '../../src/conditions/schemas/variable-operation.js';
+import { getTestValueForOperation } from '../test-utils.js';
 
 describe('validates schema', () => {
   it.each(OPERATOR_FUNCTIONS)('allows valid operation', (operation) => {

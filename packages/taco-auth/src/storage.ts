@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { AuthSignature } from './index';
+import { AuthSignature } from './index.js';
 
 interface IStorage {
   getItem(key: string): string | null;

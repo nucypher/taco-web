@@ -7,7 +7,7 @@ import { Contract, Signer, utils } from 'ethers';
 import type {
   SigningCoordinator,
   SigningCoordinatorInterface,
-} from '../SigningCoordinator';
+} from '../SigningCoordinator.js';
 
 const _abi = [
   {
@@ -167,25 +167,6 @@ const _abi = [
         name: 'acceptSchedule',
         type: 'uint48',
         internalType: 'uint48',
-        indexed: false,
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'DispatcherChanged',
-    inputs: [
-      {
-        name: 'oldDispatcher',
-        type: 'address',
-        internalType: 'address',
-        indexed: false,
-      },
-      {
-        name: 'newDispatcher',
-        type: 'address',
-        internalType: 'address',
         indexed: false,
       },
     ],
@@ -1111,19 +1092,6 @@ const _abi = [
     name: 'rollbackDefaultAdminDelay',
     stateMutability: 'nonpayable',
     inputs: [],
-    outputs: [],
-  },
-  {
-    type: 'function',
-    name: 'setDispatcher',
-    stateMutability: 'nonpayable',
-    inputs: [
-      {
-        name: 'dispatcher',
-        type: 'address',
-        internalType: 'contract SigningCoordinatorDispatcher',
-      },
-    ],
     outputs: [],
   },
   {

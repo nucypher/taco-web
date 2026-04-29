@@ -1,3 +1,3 @@
-export * from './auth-provider';
-export * from './auth-sig';
-export * from './providers';
+export * from './auth-provider.js';
+export * from './auth-sig.js';
+export * from './providers/index.js';

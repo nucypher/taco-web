@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
-import { maxNestedDepth } from '../multi-condition';
+import { maxNestedDepth } from '../multi-condition.js';
 
-import { baseConditionSchema } from './common';
-import { anyConditionSchema } from './utils';
+import { baseConditionSchema } from './common.js';
+import { anyConditionSchema } from './utils.js';
 
 export const CompoundConditionType = 'compound';
 

@@ -24,7 +24,7 @@ import type {
   TypedEvent,
   TypedEventFilter,
   TypedListener,
-} from './common';
+} from './common.js';
 
 export declare namespace BLS12381 {
   export type G2PointStruct = {
@@ -68,7 +68,6 @@ export interface CoordinatorInterface extends utils.Interface {
     'DEFAULT_ADMIN_ROLE()': FunctionFragment;
     'FEE_MODEL_MANAGER_ROLE()': FunctionFragment;
     'HANDOVER_SUPERVISOR_ROLE()': FunctionFragment;
-    'TREASURY_ROLE()': FunctionFragment;
     'acceptDefaultAdminTransfer()': FunctionFragment;
     'application()': FunctionFragment;
     'approveFeeModel(address)': FunctionFragment;
@@ -77,12 +76,10 @@ export interface CoordinatorInterface extends utils.Interface {
     'cancelDefaultAdminTransfer()': FunctionFragment;
     'cancelHandover(uint32,address)': FunctionFragment;
     'changeDefaultAdminDelay(uint48)': FunctionFragment;
-    'cohortFingerprint(address[])': FunctionFragment;
     'defaultAdmin()': FunctionFragment;
     'defaultAdminDelay()': FunctionFragment;
     'defaultAdminDelayIncreaseWait()': FunctionFragment;
     'dkgTimeout()': FunctionFragment;
-    'dkgTimeoutStub()': FunctionFragment;
     'expectedTranscriptSize(uint16,uint16)': FunctionFragment;
     'extendRitual(uint32,uint32)': FunctionFragment;
     'feeModelsRegistry(address)': FunctionFragment;
@@ -114,7 +111,6 @@ export interface CoordinatorInterface extends utils.Interface {
     'initiateRitual(address,address[],address,uint32,address)': FunctionFragment;
     'isParticipant(uint32,address)': FunctionFragment;
     'isProviderKeySet(address)': FunctionFragment;
-    'isProviderPublicKeySet(address)': FunctionFragment;
     'isRitualActive(uint32)': FunctionFragment;
     'maxDkgSize()': FunctionFragment;
     'numberOfRituals()': FunctionFragment;
@@ -142,7 +138,6 @@ export interface CoordinatorInterface extends utils.Interface {
       | 'DEFAULT_ADMIN_ROLE'
       | 'FEE_MODEL_MANAGER_ROLE'
       | 'HANDOVER_SUPERVISOR_ROLE'
-      | 'TREASURY_ROLE'
       | 'acceptDefaultAdminTransfer'
       | 'application'
       | 'approveFeeModel'
@@ -151,12 +146,10 @@ export interface CoordinatorInterface extends utils.Interface {
       | 'cancelDefaultAdminTransfer'
       | 'cancelHandover'
       | 'changeDefaultAdminDelay'
-      | 'cohortFingerprint'
       | 'defaultAdmin'
       | 'defaultAdminDelay'
       | 'defaultAdminDelayIncreaseWait'
       | 'dkgTimeout'
-      | 'dkgTimeoutStub'
       | 'expectedTranscriptSize'
       | 'extendRitual'
       | 'feeModelsRegistry'
@@ -188,7 +181,6 @@ export interface CoordinatorInterface extends utils.Interface {
       | 'initiateRitual'
       | 'isParticipant'
       | 'isProviderKeySet'
-      | 'isProviderPublicKeySet'
       | 'isRitualActive'
       | 'maxDkgSize'
       | 'numberOfRituals'
@@ -224,10 +216,6 @@ export interface CoordinatorInterface extends utils.Interface {
     values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: 'TREASURY_ROLE',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
     functionFragment: 'acceptDefaultAdminTransfer',
     values?: undefined,
   ): string;
@@ -260,10 +248,6 @@ export interface CoordinatorInterface extends utils.Interface {
     values: [BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: 'cohortFingerprint',
-    values: [string[]],
-  ): string;
-  encodeFunctionData(
     functionFragment: 'defaultAdmin',
     values?: undefined,
   ): string;
@@ -277,10 +261,6 @@ export interface CoordinatorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: 'dkgTimeout',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'dkgTimeoutStub',
     values?: undefined,
   ): string;
   encodeFunctionData(
@@ -408,10 +388,6 @@ export interface CoordinatorInterface extends utils.Interface {
     values: [string],
   ): string;
   encodeFunctionData(
-    functionFragment: 'isProviderPublicKeySet',
-    values: [string],
-  ): string;
-  encodeFunctionData(
     functionFragment: 'isRitualActive',
     values: [BigNumberish],
   ): string;
@@ -499,10 +475,6 @@ export interface CoordinatorInterface extends utils.Interface {
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'TREASURY_ROLE',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
     functionFragment: 'acceptDefaultAdminTransfer',
     data: BytesLike,
   ): Result;
@@ -535,10 +507,6 @@ export interface CoordinatorInterface extends utils.Interface {
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'cohortFingerprint',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
     functionFragment: 'defaultAdmin',
     data: BytesLike,
   ): Result;
@@ -551,10 +519,6 @@ export interface CoordinatorInterface extends utils.Interface {
     data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: 'dkgTimeout', data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: 'dkgTimeoutStub',
-    data: BytesLike,
-  ): Result;
   decodeFunctionResult(
     functionFragment: 'expectedTranscriptSize',
     data: BytesLike,
@@ -665,10 +629,6 @@ export interface CoordinatorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: 'isProviderKeySet',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'isProviderPublicKeySet',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
@@ -1111,8 +1071,6 @@ export interface Coordinator extends BaseContract {
 
     HANDOVER_SUPERVISOR_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
-    TREASURY_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
     acceptDefaultAdminTransfer(
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
@@ -1150,11 +1108,6 @@ export interface Coordinator extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
-    cohortFingerprint(
-      nodes: string[],
-      overrides?: CallOverrides,
-    ): Promise<[string]>;
-
     defaultAdmin(overrides?: CallOverrides): Promise<[string]>;
 
     defaultAdminDelay(overrides?: CallOverrides): Promise<[number]>;
@@ -1162,8 +1115,6 @@ export interface Coordinator extends BaseContract {
     defaultAdminDelayIncreaseWait(overrides?: CallOverrides): Promise<[number]>;
 
     dkgTimeout(overrides?: CallOverrides): Promise<[number]>;
-
-    dkgTimeoutStub(overrides?: CallOverrides): Promise<[number]>;
 
     expectedTranscriptSize(
       dkgSize: BigNumberish,
@@ -1248,7 +1199,7 @@ export interface Coordinator extends BaseContract {
 
     getProviderPublicKey(
       provider: string,
-      ritualId: BigNumberish,
+      arg1: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<[BLS12381.G2PointStructOutput]>;
 
@@ -1343,11 +1294,6 @@ export interface Coordinator extends BaseContract {
 
     isProviderKeySet(
       provider: string,
-      overrides?: CallOverrides,
-    ): Promise<[boolean]>;
-
-    isProviderPublicKeySet(
-      arg0: string,
       overrides?: CallOverrides,
     ): Promise<[boolean]>;
 
@@ -1484,8 +1430,6 @@ export interface Coordinator extends BaseContract {
 
   HANDOVER_SUPERVISOR_ROLE(overrides?: CallOverrides): Promise<string>;
 
-  TREASURY_ROLE(overrides?: CallOverrides): Promise<string>;
-
   acceptDefaultAdminTransfer(
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
@@ -1523,11 +1467,6 @@ export interface Coordinator extends BaseContract {
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
-  cohortFingerprint(
-    nodes: string[],
-    overrides?: CallOverrides,
-  ): Promise<string>;
-
   defaultAdmin(overrides?: CallOverrides): Promise<string>;
 
   defaultAdminDelay(overrides?: CallOverrides): Promise<number>;
@@ -1535,8 +1474,6 @@ export interface Coordinator extends BaseContract {
   defaultAdminDelayIncreaseWait(overrides?: CallOverrides): Promise<number>;
 
   dkgTimeout(overrides?: CallOverrides): Promise<number>;
-
-  dkgTimeoutStub(overrides?: CallOverrides): Promise<number>;
 
   expectedTranscriptSize(
     dkgSize: BigNumberish,
@@ -1618,7 +1555,7 @@ export interface Coordinator extends BaseContract {
 
   getProviderPublicKey(
     provider: string,
-    ritualId: BigNumberish,
+    arg1: BigNumberish,
     overrides?: CallOverrides,
   ): Promise<BLS12381.G2PointStructOutput>;
 
@@ -1713,11 +1650,6 @@ export interface Coordinator extends BaseContract {
 
   isProviderKeySet(
     provider: string,
-    overrides?: CallOverrides,
-  ): Promise<boolean>;
-
-  isProviderPublicKeySet(
-    arg0: string,
     overrides?: CallOverrides,
   ): Promise<boolean>;
 
@@ -1854,8 +1786,6 @@ export interface Coordinator extends BaseContract {
 
     HANDOVER_SUPERVISOR_ROLE(overrides?: CallOverrides): Promise<string>;
 
-    TREASURY_ROLE(overrides?: CallOverrides): Promise<string>;
-
     acceptDefaultAdminTransfer(overrides?: CallOverrides): Promise<void>;
 
     application(overrides?: CallOverrides): Promise<string>;
@@ -1886,11 +1816,6 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<void>;
 
-    cohortFingerprint(
-      nodes: string[],
-      overrides?: CallOverrides,
-    ): Promise<string>;
-
     defaultAdmin(overrides?: CallOverrides): Promise<string>;
 
     defaultAdminDelay(overrides?: CallOverrides): Promise<number>;
@@ -1898,8 +1823,6 @@ export interface Coordinator extends BaseContract {
     defaultAdminDelayIncreaseWait(overrides?: CallOverrides): Promise<number>;
 
     dkgTimeout(overrides?: CallOverrides): Promise<number>;
-
-    dkgTimeoutStub(overrides?: CallOverrides): Promise<number>;
 
     expectedTranscriptSize(
       dkgSize: BigNumberish,
@@ -1984,7 +1907,7 @@ export interface Coordinator extends BaseContract {
 
     getProviderPublicKey(
       provider: string,
-      ritualId: BigNumberish,
+      arg1: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<BLS12381.G2PointStructOutput>;
 
@@ -2079,11 +2002,6 @@ export interface Coordinator extends BaseContract {
 
     isProviderKeySet(
       provider: string,
-      overrides?: CallOverrides,
-    ): Promise<boolean>;
-
-    isProviderPublicKeySet(
-      arg0: string,
       overrides?: CallOverrides,
     ): Promise<boolean>;
 
@@ -2431,8 +2349,6 @@ export interface Coordinator extends BaseContract {
 
     HANDOVER_SUPERVISOR_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    TREASURY_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
-
     acceptDefaultAdminTransfer(
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
@@ -2470,11 +2386,6 @@ export interface Coordinator extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
-    cohortFingerprint(
-      nodes: string[],
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
     defaultAdmin(overrides?: CallOverrides): Promise<BigNumber>;
 
     defaultAdminDelay(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2484,8 +2395,6 @@ export interface Coordinator extends BaseContract {
     ): Promise<BigNumber>;
 
     dkgTimeout(overrides?: CallOverrides): Promise<BigNumber>;
-
-    dkgTimeoutStub(overrides?: CallOverrides): Promise<BigNumber>;
 
     expectedTranscriptSize(
       dkgSize: BigNumberish,
@@ -2570,7 +2479,7 @@ export interface Coordinator extends BaseContract {
 
     getProviderPublicKey(
       provider: string,
-      ritualId: BigNumberish,
+      arg1: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
@@ -2658,11 +2567,6 @@ export interface Coordinator extends BaseContract {
 
     isProviderKeySet(
       provider: string,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    isProviderPublicKeySet(
-      arg0: string,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
@@ -2769,8 +2673,6 @@ export interface Coordinator extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
-    TREASURY_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     acceptDefaultAdminTransfer(
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
@@ -2808,11 +2710,6 @@ export interface Coordinator extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
-    cohortFingerprint(
-      nodes: string[],
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
     defaultAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     defaultAdminDelay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -2822,8 +2719,6 @@ export interface Coordinator extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     dkgTimeout(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    dkgTimeoutStub(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     expectedTranscriptSize(
       dkgSize: BigNumberish,
@@ -2908,7 +2803,7 @@ export interface Coordinator extends BaseContract {
 
     getProviderPublicKey(
       provider: string,
-      ritualId: BigNumberish,
+      arg1: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
@@ -2996,11 +2891,6 @@ export interface Coordinator extends BaseContract {
 
     isProviderKeySet(
       provider: string,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    isProviderPublicKeySet(
-      arg0: string,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 

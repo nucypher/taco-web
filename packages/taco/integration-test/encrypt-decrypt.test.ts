@@ -7,19 +7,19 @@ import {
 } from '@nucypher/taco-auth';
 import { randomBytes } from 'crypto';
 import { ethers } from 'ethers';
+import { CompoundCondition } from '../src/conditions/compound-condition.js';
 import {
   conditions,
   decrypt,
   encrypt,
   initialize,
   ThresholdMessageKit,
-} from '../src';
-import { CompoundCondition } from '../src/conditions/compound-condition';
+} from '../src/index.js';
 import {
   createSignatureForTestSecp256k1ECDSACondition,
   createTestSecp256k1ECDSACondition,
   UINT256_MAX,
-} from '../test/test-utils';
+} from '../test/test-utils.js';
 
 const RPC_PROVIDER_URL = 'https://rpc-amoy.polygon.technology';
 const ENCRYPTOR_PRIVATE_KEY =

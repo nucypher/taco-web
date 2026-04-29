@@ -1,11 +1,11 @@
 import { objectEquals } from '@nucypher/shared';
 import { z } from 'zod';
 
-import { toJSON } from '../utils';
+import { toJSON } from '../utils.js';
 
-import { USER_ADDRESS_PARAMS } from './const';
+import { USER_ADDRESS_PARAMS } from './const.js';
 
-export { baseConditionSchema } from './schemas/common';
+export { baseConditionSchema } from './schemas/common.js';
 
 type ConditionSchema = z.ZodSchema;
 export type ConditionProps = z.infer<ConditionSchema>;

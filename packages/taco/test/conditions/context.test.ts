@@ -19,29 +19,29 @@ import {
 import { ethers } from 'ethers';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
-import { toBytes, toHexString } from '../../src';
-import { ConditionFactory } from '../../src/conditions';
 import {
   ContractCondition,
   ContractConditionProps,
   ContractConditionType,
-} from '../../src/conditions/base/contract';
-import { RpcCondition } from '../../src/conditions/base/rpc';
-import { SIGNING_CONDITION_OBJECT_CONTEXT_VAR } from '../../src/conditions/base/signing';
-import { CompoundConditionType } from '../../src/conditions/compound-condition';
-import {
-  ConditionContext,
-  CustomContextParam,
-} from '../../src/conditions/context';
+} from '../../src/conditions/base/contract.js';
+import { RpcCondition } from '../../src/conditions/base/rpc.js';
+import { SIGNING_CONDITION_OBJECT_CONTEXT_VAR } from '../../src/conditions/base/signing.js';
+import { CompoundConditionType } from '../../src/conditions/compound-condition.js';
 import {
   AUTOMATICALLY_INJECTED_CONTEXT_PARAMS,
   RESERVED_CONTEXT_PARAMS,
-} from '../../src/conditions/context/context';
-import { IfThenElseConditionType } from '../../src/conditions/if-then-else-condition';
-import { blockchainParamOrContextParamSchema } from '../../src/conditions/schemas/context';
-import { SequentialConditionType } from '../../src/conditions/sequential';
-import { paramOrContextParamSchema } from '../../src/conditions/shared';
-import { fromJSON, toJSON } from '../../src/utils';
+} from '../../src/conditions/context/context.js';
+import {
+  ConditionContext,
+  CustomContextParam,
+} from '../../src/conditions/context/index.js';
+import { IfThenElseConditionType } from '../../src/conditions/if-then-else-condition.js';
+import { ConditionFactory } from '../../src/conditions/index.js';
+import { blockchainParamOrContextParamSchema } from '../../src/conditions/schemas/context.js';
+import { SequentialConditionType } from '../../src/conditions/sequential.js';
+import { paramOrContextParamSchema } from '../../src/conditions/shared.js';
+import { toBytes, toHexString } from '../../src/index.js';
+import { fromJSON, toJSON } from '../../src/utils.js';
 import {
   INT256_MIN,
   testContractConditionObj,
@@ -54,7 +54,7 @@ import {
   testSigningObjectAttributeConditionObj,
   testTimeConditionObj,
   UINT256_MAX,
-} from '../test-utils';
+} from '../test-utils.js';
 
 describe('context', () => {
   let authProviders: Record<string, AuthProvider>;

@@ -10,8 +10,8 @@ import {
   vi,
 } from 'vitest';
 
-import { SigningCoordinatorAgent } from '../src/contracts/agents/signing-coordinator';
-import { toHexString } from '../src/utils';
+import { SigningCoordinatorAgent } from '../src/contracts/agents/signing-coordinator.js';
+import { toHexString } from '../src/utils.js';
 
 // We need to mock the private connectReadOnly method's dependencies
 // Mock getContract from nucypher-contracts and the factory
@@ -19,13 +19,13 @@ vi.mock('@nucypher/nucypher-contracts', () => ({
   getContract: vi.fn().mockReturnValue('0xMockContractAddress'),
 }));
 
-vi.mock('../src/contracts/ethers-typechain', () => ({
+vi.mock('../src/contracts/ethers-typechain/index.js', () => ({
   SigningCoordinator__factory: {
     connect: vi.fn(),
   },
 }));
 
-import { SigningCoordinator__factory } from '../src/contracts/ethers-typechain';
+import { SigningCoordinator__factory } from '../src/contracts/ethers-typechain/index.js';
 
 describe('SigningCoordinatorAgent cache', () => {
   const mockProvider = {

@@ -1,8 +1,8 @@
 import { TEST_CHAIN_ID, TEST_CONTRACT_ADDR } from '@nucypher/test-utils';
 import { describe, expect, it } from 'vitest';
 
-import { ContractConditionProps } from '../../../src/conditions/base/contract';
-import { ERC20Balance } from '../../../src/conditions/predefined/erc20';
+import { ContractConditionProps } from '../../../src/conditions/base/contract.js';
+import { ERC20Balance } from '../../../src/conditions/predefined/erc20.js';
 
 describe('ERC20Balance', () => {
   it('should create a valid ERC20Balance instance', () => {

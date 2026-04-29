@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { ContextVariableConditionType } from '../../../src/conditions/base/context-variable';
+import { ContextVariableConditionType } from '../../../src/conditions/base/context-variable.js';
 import {
   AddressAllowlistCondition,
   AddressAllowlistConditionProps,
-} from '../../../src/conditions/predefined/address-allowlist';
-import { addressAllowlistConditionSchema } from '../../../src/conditions/schemas/address-allowlist';
-import { testAddressAllowlistConditionObj } from '../../test-utils';
+} from '../../../src/conditions/predefined/address-allowlist.js';
+import { addressAllowlistConditionSchema } from '../../../src/conditions/schemas/address-allowlist.js';
+import { testAddressAllowlistConditionObj } from '../../test-utils.js';
 
 describe('AddressAllowlistCondition', () => {
   describe('validate', () => {

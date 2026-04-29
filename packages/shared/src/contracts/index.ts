@@ -1,2 +1,2 @@
-export * from './agents';
-export * from './ethers-typechain';
+export * from './agents/index.js';
+export * from './ethers-typechain/index.js';

@@ -1,16 +1,16 @@
-import { Condition } from './condition';
+import { Condition } from './condition.js';
 import {
   IfThenElseConditionProps,
   ifThenElseConditionSchema,
   IfThenElseConditionType,
-} from './schemas/if-then-else';
-import { OmitConditionType } from './shared';
+} from './schemas/if-then-else.js';
+import { OmitConditionType } from './shared.js';
 
 export {
   IfThenElseConditionProps,
   ifThenElseConditionSchema,
   IfThenElseConditionType,
-} from './schemas/if-then-else';
+} from './schemas/if-then-else.js';
 
 export class IfThenElseCondition extends Condition {
   constructor(value: OmitConditionType<IfThenElseConditionProps>) {

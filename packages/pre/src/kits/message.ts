@@ -7,7 +7,7 @@ import {
 } from '@nucypher/nucypher-core';
 import { ChecksumAddress } from '@nucypher/shared';
 
-import { RetrievalResult } from './retrieval';
+import { RetrievalResult } from './retrieval.js';
 
 export class PolicyMessageKit {
   constructor(

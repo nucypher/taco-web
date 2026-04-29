@@ -2,9 +2,9 @@ import { initialize } from '@nucypher/shared';
 import { fakeUrsulas } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { Cohort } from '../src';
+import { Cohort } from '../src/index.js';
 
-import { makeCohort } from './utils';
+import { makeCohort } from './utils.js';
 
 describe('Cohort', () => {
   beforeAll(async () => {

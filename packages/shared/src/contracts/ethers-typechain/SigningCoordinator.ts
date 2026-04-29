@@ -24,7 +24,7 @@ import type {
   TypedEvent,
   TypedEventFilter,
   TypedListener,
-} from './common';
+} from './common.js';
 
 export declare namespace SigningCoordinator {
   export type SigningCohortParticipantStruct = {
@@ -86,7 +86,6 @@ export interface SigningCoordinatorInterface extends utils.Interface {
     'renounceRole(bytes32,address)': FunctionFragment;
     'revokeRole(bytes32,address)': FunctionFragment;
     'rollbackDefaultAdminDelay()': FunctionFragment;
-    'setDispatcher(address)': FunctionFragment;
     'setMaxDkgSize(uint16)': FunctionFragment;
     'setSigningCohortConditions(uint32,uint256,bytes)': FunctionFragment;
     'setTimeout(uint32)': FunctionFragment;
@@ -135,7 +134,6 @@ export interface SigningCoordinatorInterface extends utils.Interface {
       | 'renounceRole'
       | 'revokeRole'
       | 'rollbackDefaultAdminDelay'
-      | 'setDispatcher'
       | 'setMaxDkgSize'
       | 'setSigningCohortConditions'
       | 'setTimeout'
@@ -291,10 +289,6 @@ export interface SigningCoordinatorInterface extends utils.Interface {
     values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: 'setDispatcher',
-    values: [string],
-  ): string;
-  encodeFunctionData(
     functionFragment: 'setMaxDkgSize',
     values: [BigNumberish],
   ): string;
@@ -442,10 +436,6 @@ export interface SigningCoordinatorInterface extends utils.Interface {
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'setDispatcher',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
     functionFragment: 'setMaxDkgSize',
     data: BytesLike,
   ): Result;
@@ -473,7 +463,6 @@ export interface SigningCoordinatorInterface extends utils.Interface {
     'DefaultAdminDelayChangeScheduled(uint48,uint48)': EventFragment;
     'DefaultAdminTransferCanceled()': EventFragment;
     'DefaultAdminTransferScheduled(address,uint48)': EventFragment;
-    'DispatcherChanged(address,address)': EventFragment;
     'Initialized(uint64)': EventFragment;
     'InitiateSigningCohort(uint32,uint256,address,address[])': EventFragment;
     'MaxCohortSizeChanged(uint16,uint16)': EventFragment;
@@ -498,7 +487,6 @@ export interface SigningCoordinatorInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: 'DefaultAdminTransferScheduled',
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'DispatcherChanged'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'Initialized'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'InitiateSigningCohort'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'MaxCohortSizeChanged'): EventFragment;
@@ -554,18 +542,6 @@ export type DefaultAdminTransferScheduledEvent = TypedEvent<
 
 export type DefaultAdminTransferScheduledEventFilter =
   TypedEventFilter<DefaultAdminTransferScheduledEvent>;
-
-export interface DispatcherChangedEventObject {
-  oldDispatcher: string;
-  newDispatcher: string;
-}
-export type DispatcherChangedEvent = TypedEvent<
-  [string, string],
-  DispatcherChangedEventObject
->;
-
-export type DispatcherChangedEventFilter =
-  TypedEventFilter<DispatcherChangedEvent>;
 
 export interface InitializedEventObject {
   version: BigNumber;
@@ -880,11 +856,6 @@ export interface SigningCoordinator extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
-    setDispatcher(
-      dispatcher: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
-
     setMaxDkgSize(
       newSize: BigNumberish,
       overrides?: Overrides & { from?: string },
@@ -1093,11 +1064,6 @@ export interface SigningCoordinator extends BaseContract {
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
-  setDispatcher(
-    dispatcher: string,
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
   setMaxDkgSize(
     newSize: BigNumberish,
     overrides?: Overrides & { from?: string },
@@ -1300,8 +1266,6 @@ export interface SigningCoordinator extends BaseContract {
 
     rollbackDefaultAdminDelay(overrides?: CallOverrides): Promise<void>;
 
-    setDispatcher(dispatcher: string, overrides?: CallOverrides): Promise<void>;
-
     setMaxDkgSize(
       newSize: BigNumberish,
       overrides?: CallOverrides,
@@ -1368,15 +1332,6 @@ export interface SigningCoordinator extends BaseContract {
       newAdmin?: string | null,
       acceptSchedule?: null,
     ): DefaultAdminTransferScheduledEventFilter;
-
-    'DispatcherChanged(address,address)'(
-      oldDispatcher?: null,
-      newDispatcher?: null,
-    ): DispatcherChangedEventFilter;
-    DispatcherChanged(
-      oldDispatcher?: null,
-      newDispatcher?: null,
-    ): DispatcherChangedEventFilter;
 
     'Initialized(uint64)'(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
@@ -1647,11 +1602,6 @@ export interface SigningCoordinator extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
-    setDispatcher(
-      dispatcher: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
-
     setMaxDkgSize(
       newSize: BigNumberish,
       overrides?: Overrides & { from?: string },
@@ -1859,11 +1809,6 @@ export interface SigningCoordinator extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     rollbackDefaultAdminDelay(
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
-    setDispatcher(
-      dispatcher: string,
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 

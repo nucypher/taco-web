@@ -3,9 +3,9 @@ import { AuthProvider, USER_ADDRESS_PARAM_DEFAULT } from '@nucypher/taco-auth';
 import { EIP4361, fakeAuthProviders } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { initialize } from '../../src';
-import { CompoundCondition } from '../../src/conditions/compound-condition';
-import { ConditionContext } from '../../src/conditions/context';
+import { CompoundCondition } from '../../src/conditions/compound-condition.js';
+import { ConditionContext } from '../../src/conditions/context/index.js';
+import { initialize } from '../../src/index.js';
 
 describe('conditions', () => {
   let authProviders: Record<string, AuthProvider>;

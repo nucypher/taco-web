@@ -1,7 +1,7 @@
 import { MessageKit, PublicKey, SecretKey } from '@nucypher/nucypher-core';
 import { toBytes } from '@nucypher/shared';
 
-import { Keyring } from '../keyring';
+import { Keyring } from '../keyring.js';
 
 export class Enrico {
   public readonly encryptingKey: PublicKey;

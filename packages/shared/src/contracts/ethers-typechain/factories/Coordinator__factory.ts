@@ -4,7 +4,7 @@
 
 import type { Provider } from '@ethersproject/providers';
 import { Contract, Signer, utils } from 'ethers';
-import type { Coordinator, CoordinatorInterface } from '../Coordinator';
+import type { Coordinator, CoordinatorInterface } from '../Coordinator.js';
 
 const _abi = [
   {
@@ -638,19 +638,6 @@ const _abi = [
   },
   {
     type: 'function',
-    name: 'TREASURY_ROLE',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [
-      {
-        name: '',
-        type: 'bytes32',
-        internalType: 'bytes32',
-      },
-    ],
-  },
-  {
-    type: 'function',
     name: 'acceptDefaultAdminTransfer',
     stateMutability: 'nonpayable',
     inputs: [],
@@ -759,25 +746,6 @@ const _abi = [
   },
   {
     type: 'function',
-    name: 'cohortFingerprint',
-    stateMutability: 'pure',
-    inputs: [
-      {
-        name: 'nodes',
-        type: 'address[]',
-        internalType: 'address[]',
-      },
-    ],
-    outputs: [
-      {
-        name: '',
-        type: 'bytes32',
-        internalType: 'bytes32',
-      },
-    ],
-  },
-  {
-    type: 'function',
     name: 'defaultAdmin',
     stateMutability: 'view',
     inputs: [],
@@ -818,19 +786,6 @@ const _abi = [
   {
     type: 'function',
     name: 'dkgTimeout',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [
-      {
-        name: '',
-        type: 'uint32',
-        internalType: 'uint32',
-      },
-    ],
-  },
-  {
-    type: 'function',
-    name: 'dkgTimeoutStub',
     stateMutability: 'view',
     inputs: [],
     outputs: [
@@ -1249,7 +1204,7 @@ const _abi = [
         internalType: 'address',
       },
       {
-        name: 'ritualId',
+        name: '',
         type: 'uint256',
         internalType: 'uint256',
       },
@@ -1646,25 +1601,6 @@ const _abi = [
     inputs: [
       {
         name: 'provider',
-        type: 'address',
-        internalType: 'address',
-      },
-    ],
-    outputs: [
-      {
-        name: '',
-        type: 'bool',
-        internalType: 'bool',
-      },
-    ],
-  },
-  {
-    type: 'function',
-    name: 'isProviderPublicKeySet',
-    stateMutability: 'view',
-    inputs: [
-      {
-        name: '',
         type: 'address',
         internalType: 'address',
       },

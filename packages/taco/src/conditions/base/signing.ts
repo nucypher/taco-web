@@ -1,4 +1,4 @@
-import { Condition } from '../condition';
+import { Condition } from '../condition.js';
 import {
   SigningObjectAbiAttributeConditionProps,
   signingObjectAbiAttributeConditionSchema,
@@ -6,8 +6,8 @@ import {
   SigningObjectAttributeConditionProps,
   signingObjectAttributeConditionSchema,
   SigningObjectAttributeConditionType,
-} from '../schemas/signing';
-import { OmitConditionType } from '../shared';
+} from '../schemas/signing.js';
+import { OmitConditionType } from '../shared.js';
 
 export {
   AbiCallValidationProps,
@@ -21,7 +21,7 @@ export {
   SigningObjectAttributeConditionProps,
   signingObjectAttributeConditionSchema,
   SigningObjectAttributeConditionType,
-} from '../schemas/signing';
+} from '../schemas/signing.js';
 
 export class SigningObjectAttributeCondition extends Condition {
   constructor(value: OmitConditionType<SigningObjectAttributeConditionProps>) {

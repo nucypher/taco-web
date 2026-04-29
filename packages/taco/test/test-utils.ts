@@ -41,74 +41,74 @@ import { MockInstance, vi } from 'vitest';
 import {
   ContextVariableConditionProps,
   ContextVariableConditionType,
-} from '../src/conditions/base/context-variable';
+} from '../src/conditions/base/context-variable.js';
 import {
   ContractConditionProps,
   ContractConditionType,
   FunctionAbiProps,
-} from '../src/conditions/base/contract';
+} from '../src/conditions/base/contract.js';
 import {
   ECDSA_MESSAGE_PARAM_DEFAULT,
   ECDSA_SIGNATURE_PARAM_DEFAULT,
   ECDSACondition,
   ECDSAConditionProps,
   ECDSAConditionType,
-} from '../src/conditions/base/ecdsa';
-import {
-  JsonConditionProps,
-  JsonConditionType,
-} from '../src/conditions/base/json';
+} from '../src/conditions/base/ecdsa.js';
 import {
   JsonApiConditionProps,
   JsonApiConditionType,
-} from '../src/conditions/base/json-api';
+} from '../src/conditions/base/json-api.js';
+import {
+  JsonConditionProps,
+  JsonConditionType,
+} from '../src/conditions/base/json.js';
 import {
   JWT_PARAM_DEFAULT,
   JWTConditionProps,
   JWTConditionType,
-} from '../src/conditions/base/jwt';
+} from '../src/conditions/base/jwt.js';
 import {
   RpcConditionProps,
   RpcConditionType,
-} from '../src/conditions/base/rpc';
+} from '../src/conditions/base/rpc.js';
 import {
   SIGNING_CONDITION_OBJECT_CONTEXT_VAR,
   SigningObjectAbiAttributeConditionProps,
   SigningObjectAbiAttributeConditionType,
   SigningObjectAttributeConditionProps,
   SigningObjectAttributeConditionType,
-} from '../src/conditions/base/signing';
+} from '../src/conditions/base/signing.js';
 import {
   TimeConditionMethod,
   TimeConditionProps,
   TimeConditionType,
-} from '../src/conditions/base/time';
+} from '../src/conditions/base/time.js';
 import {
   CompoundConditionProps,
   CompoundConditionType,
-} from '../src/conditions/compound-condition';
-import { ConditionExpression } from '../src/conditions/condition-expr';
+} from '../src/conditions/compound-condition.js';
+import { ConditionExpression } from '../src/conditions/condition-expr.js';
 import {
   IfThenElseConditionProps,
   IfThenElseConditionType,
-} from '../src/conditions/if-then-else-condition';
-import { AddressAllowlistConditionProps } from '../src/conditions/predefined/address-allowlist';
-import { ERC721Balance } from '../src/conditions/predefined/erc721';
+} from '../src/conditions/if-then-else-condition.js';
+import { AddressAllowlistConditionProps } from '../src/conditions/predefined/address-allowlist.js';
+import { ERC721Balance } from '../src/conditions/predefined/erc721.js';
 import {
   JsonRpcConditionProps,
   JsonRpcConditionType,
-} from '../src/conditions/schemas/json-rpc';
-import { UNARY_OPERATOR_FUNCTIONS } from '../src/conditions/schemas/variable-operation';
+} from '../src/conditions/schemas/json-rpc.js';
+import { UNARY_OPERATOR_FUNCTIONS } from '../src/conditions/schemas/variable-operation.js';
 import {
   SequentialConditionProps,
   SequentialConditionType,
-} from '../src/conditions/sequential';
+} from '../src/conditions/sequential.js';
 import {
   BlockchainReturnValueTestProps,
   ReturnValueTestProps,
-} from '../src/conditions/shared';
-import { DkgClient, DkgRitual } from '../src/dkg';
-import { encryptMessage } from '../src/tdec';
+} from '../src/conditions/shared.js';
+import { DkgClient, DkgRitual } from '../src/dkg.js';
+import { encryptMessage } from '../src/tdec.js';
 
 /**
  * Returns a valid test value for the given operation type.

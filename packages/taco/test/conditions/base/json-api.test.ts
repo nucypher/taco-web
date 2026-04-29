@@ -6,8 +6,8 @@ import {
   JsonApiConditionProps,
   jsonApiConditionSchema,
   JsonApiConditionType,
-} from '../../../src/conditions/base/json-api';
-import { testJsonApiConditionObj } from '../../test-utils';
+} from '../../../src/conditions/base/json-api.js';
+import { testJsonApiConditionObj } from '../../test-utils.js';
 
 describe('JsonApiCondition', () => {
   describe('validation', () => {

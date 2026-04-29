@@ -5,8 +5,8 @@ import {
   RpcCondition,
   rpcConditionSchema,
   RpcConditionType,
-} from '../../../src/conditions/base/rpc';
-import { testRpcConditionObj } from '../../test-utils';
+} from '../../../src/conditions/base/rpc.js';
+import { testRpcConditionObj } from '../../test-utils.js';
 
 describe('validation', () => {
   it('accepts on a valid schema', () => {

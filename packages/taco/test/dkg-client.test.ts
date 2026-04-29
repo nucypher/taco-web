@@ -2,14 +2,14 @@ import { DkgCoordinatorAgent } from '@nucypher/shared';
 import { fakeProvider } from '@nucypher/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { domains, initialize } from '../src';
+import { domains, initialize } from '../src/index.js';
 
 import {
   fakeRitualId,
   mockDkgParticipants,
   mockGetParticipants,
   mockGetRitual,
-} from './test-utils';
+} from './test-utils.js';
 
 describe('DkgCoordinatorAgent', () => {
   beforeAll(async () => {

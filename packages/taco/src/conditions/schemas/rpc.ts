@@ -1,9 +1,9 @@
 import { BlockIdentifierSchema, EthAddressSchema } from '@nucypher/shared';
 import { z } from 'zod';
 
-import { baseConditionSchema, UserAddressSchema } from './common';
-import { contextParamSchema } from './context';
-import { blockchainReturnValueTestSchema } from './return-value-test';
+import { baseConditionSchema, UserAddressSchema } from './common.js';
+import { contextParamSchema } from './context.js';
+import { blockchainReturnValueTestSchema } from './return-value-test.js';
 
 export const RpcConditionType = 'rpc';
 

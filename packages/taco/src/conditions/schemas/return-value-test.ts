@@ -3,8 +3,8 @@ import { z } from 'zod';
 import {
   blockchainParamOrContextParamSchema,
   paramOrContextParamSchema,
-} from './context';
-import { variableOperationsArraySchema } from './variable-operation';
+} from './context.js';
+import { variableOperationsArraySchema } from './variable-operation.js';
 
 const returnValueTestBaseSchema = z.object({
   index: z.number().int().nonnegative().optional(),

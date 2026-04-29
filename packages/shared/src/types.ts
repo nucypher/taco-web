@@ -1,6 +1,6 @@
 import { PackedUserOperation, UserOperation } from '@nucypher/nucypher-core';
 
-import { fromHexString } from './utils';
+import { fromHexString } from './utils.js';
 
 export type ChecksumAddress = `0x${string}`;
 export type HexEncodedBytes = string;

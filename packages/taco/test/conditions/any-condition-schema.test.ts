@@ -4,7 +4,7 @@ import {
   CompoundCondition,
   compoundConditionSchema,
   CompoundConditionType,
-} from '../../src/conditions/compound-condition';
+} from '../../src/conditions/compound-condition.js';
 import {
   testCompoundConditionObj,
   testContextVariableConditionObj,
@@ -20,7 +20,7 @@ import {
   testSigningObjectAbiAttributeConditionObj,
   testSigningObjectAttributeConditionObj,
   testTimeConditionObj,
-} from '../test-utils';
+} from '../test-utils.js';
 
 /**
  * This test ensures that all condition types are included in anyConditionSchema.

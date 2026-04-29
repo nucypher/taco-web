@@ -7,8 +7,8 @@ import {
 } from '@nucypher/nucypher-core';
 import { ChecksumAddress, PorterClient, zip } from '@nucypher/shared';
 
-import { Keyring } from '../keyring';
-import { PolicyMessageKit, RetrievalResult } from '../kits';
+import { Keyring } from '../keyring.js';
+import { PolicyMessageKit, RetrievalResult } from '../kits/index.js';
 
 export class RemoteBob {
   private constructor(

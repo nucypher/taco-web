@@ -16,6 +16,47 @@ Full documentation can be found [here](https://docs.taco.build/).
 pnpm add @nucypher/taco
 ```
 
+### Development Versions
+
+Development versions are available for testing features before official releases. They can be installed using npm tags:
+
+```bash
+# Latest auto-published dev version
+pnpm add @nucypher/taco@dev
+pnpm add @nucypher/taco-auth@dev
+pnpm add @nucypher/shared@dev
+
+# Specific manually-published version with custom tag
+pnpm add @nucypher/taco@dev-access-client
+pnpm add @nucypher/taco-auth@dev-access-client
+pnpm add @nucypher/shared@dev-access-client
+```
+
+**Development version formats:**
+
+*Auto-published (from epic versions branches):*
+```
+{version}-dev.{commit-hash}
+Example: 0.5.1-dev.a1b2c3d4
+```
+
+*Manually published (custom suffix):*
+```
+{version}-dev.{suffix}.{commit-hash}
+Example: 0.5.1-dev.access-client.a1b2c3d4
+```
+
+**When to use dev versions:**
+- ✅ Testing new features
+- ✅ Providing feedback on unreleased features
+- ✅ Testing specific feature branches via custom tags (e.g., `@dev-access-client`)
+
+**When NOT to use dev versions:**
+- ❌ Production environments
+- ❌ Stable development work
+
+**Note:** Dev versions are automatically published when code is merged to `epic-v*.*.x` branches and can be manually published with custom tags. These versions are unstable and may contain breaking changes or even sometimes broken code..
+
 ## Tutorial
 
 To learn more, follow the tutorial at Threshold

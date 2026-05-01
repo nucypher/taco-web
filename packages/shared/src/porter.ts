@@ -20,7 +20,6 @@ import { fromBase64, fromHexString, toBase64, toHexString } from './utils';
 
 const defaultPorterUri: Record<string, string> = {
   mainnet: 'https://porter.nucypher.io',
-  tapir: 'https://porter-tapir.nucypher.io',
   lynx: 'https://porter-lynx.nucypher.io',
 };
 
@@ -32,7 +31,6 @@ export type PorterURISourceResponse = Record<string, string[]>;
 
 export const domains: Record<string, Domain> = {
   DEVNET: 'lynx',
-  TESTNET: 'tapir',
   MAINNET: 'mainnet',
 };
 

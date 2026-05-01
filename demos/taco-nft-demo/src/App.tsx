@@ -22,7 +22,6 @@ import { Spinner } from './Spinner';
 
 const chainIdForDomain = {
   [domains.DEVNET]: 80002,
-  [domains.TESTNET]: 80002,
   [domains.MAINNET]: 137,
 };
 

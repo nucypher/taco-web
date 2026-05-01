@@ -20,8 +20,8 @@ declare const window: any;
 const runExample = async () => {
   await initialize();
 
-  const ritualId = 6; // Replace with your own ritual ID
-  const domain = domains.TESTNET;
+  const ritualId = 27; // Replace with your own ritual ID
+  const domain = domains.DEVNET;
 
   const provider = new ethers.providers.Web3Provider(window.ethereum!, 'any');
   await provider.send('eth_requestAccounts', []);

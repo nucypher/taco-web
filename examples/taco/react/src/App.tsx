@@ -9,8 +9,8 @@ import useTaco from './hooks/useTaco';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const window: any;
 
-const ritualId = 6; // Replace with your own ritual ID
-const domain = domains.TESTNET;
+const ritualId = 27; // Replace with your own ritual ID
+const domain = domains.DEVNET;
 
 function App() {
   const [provider, setProvider] = useState<

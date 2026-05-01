@@ -15,7 +15,7 @@ import {
   toBytes,
 } from '../src';
 
-const ritualId = 1;
+const ritualId = 27;
 
 const run = async () => {
   // The data encryptor runs this part
@@ -32,7 +32,7 @@ const run = async () => {
     });
     const messageKit = await encrypt(
       web3Provider,
-      domains.TESTNET,
+      domains.DEVNET,
       message,
       ownsNFT,
       ritualId,
@@ -57,7 +57,7 @@ const run = async () => {
     conditionContext.addAuthProvider(USER_ADDRESS_PARAM_DEFAULT, authProvider);
     const decryptedMessage = await decrypt(
       web3Provider,
-      domains.TESTNET,
+      domains.DEVNET,
       messageKit,
       conditionContext,
     );

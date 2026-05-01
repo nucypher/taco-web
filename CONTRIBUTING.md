@@ -69,7 +69,6 @@ View resulting published versions:
 4. Tag latest release of `@nucypher/taco` for various domains where appropriate:
 ```bash
 npm dist-tag add @nucypher/taco@<new_version> devnet
-npm dist-tag add @nucypher/taco@<new_version> testnet
 npm dist-tag add @nucypher/taco@<new_version> mainnet
 ```
 

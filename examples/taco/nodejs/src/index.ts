@@ -35,12 +35,11 @@ if (!consumerPrivateKey) {
   throw new Error('CONSUMER_PRIVATE_KEY is not set.');
 }
 
-const domain = process.env.DOMAIN || domains.TESTNET;
-const ritualId = parseInt(process.env.RITUAL_ID || '6');
+const domain = process.env.DOMAIN || domains.DEVNET;
+const ritualId = parseInt(process.env.RITUAL_ID || '27');
 const provider = new ethers.providers.JsonRpcProvider(rpcProviderUrl);
 const CHAIN_ID_FOR_DOMAIN = {
   [domains.MAINNET]: 137,
-  [domains.TESTNET]: 80002,
   [domains.DEVNET]: 80002,
 };
 const chainId = CHAIN_ID_FOR_DOMAIN[domain];

@@ -4,7 +4,7 @@
 
 ## Supported `taco` versions
 
-To use `taco`, you need to connect with a proper network: `mainnet`, `testnet`, or `devnet`. You can find a proper version for each network in the [npmjs.com package tags](https://www.npmjs.com/package/@nucypher/taco?activeTab=versions).
+To use `taco`, you need to connect with a proper network: `mainnet` or `devnet`. You can find a proper version for each network in the [npmjs.com package tags](https://www.npmjs.com/package/@nucypher/taco?activeTab=versions).
 
 Visit [our documentation](https://docs.taco.build/taco-integration/) to learn more.
 
@@ -37,7 +37,7 @@ const message = 'my secret message';
 
 const messageKit = await encrypt(
   web3Provider,
-  domains.TESTNET,
+  domains.DEVNET,
   message,
   ownsNFT,
   ritualId,
@@ -58,7 +58,7 @@ const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
 
 const decryptedMessage = await decrypt(
   web3Provider,
-  domains.TESTNET,
+  domains.DEVNET,
   messageKit,
   web3Provider.getSigner(),
 );

@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         node: ['18.x']
-        version: ['latest', 'mainnet', 'devnet', 'testnet']
+        version: ['latest', 'mainnet', 'devnet']
 
     steps:
       - uses: pnpm/action-setup@v4

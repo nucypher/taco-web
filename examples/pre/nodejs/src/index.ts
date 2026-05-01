@@ -72,8 +72,8 @@ const runExample = async () => {
   const policy = await alice.grant(
     provider,
     signer,
-    domains.TESTNET,
-    await getPorterUri(domains.TESTNET),
+    domains.DEVNET,
+    await getPorterUri(domains.DEVNET),
     policyParams,
   );
 

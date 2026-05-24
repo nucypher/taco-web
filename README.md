@@ -1,14 +1,15 @@
+# ⚠️ Inactive Project
+
+The NuCypher organization is no longer active and will not continue development or maintenance of this code base. The code remains available for reference and historical purposes, but no updates, fixes, or support should be expected.
+
+_The original TACo project is expected to be forked and relaunched by the World Ethical Data Forum (WEDF) in the latter half of 2026, supported by a coalition of node operators drawn from organizations with deep experience in privacy advocacy, anti-surveillance technologies, human rights, encryption, whistleblower protection, and academic research._
+
+
 # taco-web
 
 A TypeScript library for interacting with access control functionality in the browser.
 
 Full documentation can be found [here](https://docs.taco.build/).
-
-> **Warning**
->
-> `taco-web` is under [active development](https://github.com/nucypher/taco-web/pulls):
->
-> - We expect breaking changes.
 
 ## Installation
 

@@ -42,3 +42,17 @@ Learn more about the available condition schemas and their properties. You may c
 
 If you would like to contribute to the development of `taco-web`, please see our [Contributing Guide](CONTRIBUTING.md).
 You can also join our [Discord](https://discord.gg/threshold) and say hello!
+
+# Cryptography Notice
+
+This distribution includes cryptographic software. The country in which you currently reside may have restrictions on the import, possession, use, and/or re-export to another country of encryption software. BEFORE using any encryption software, please check your country's laws, regulations and policies concerning the import, possession, or use, and re-export of encryption software, to see if this is permitted. See http://www.wassenaar.org/ for more information.
+
+This software may be subject to the U.S. Export Administration Regulations
+(EAR), including ECCN 5D002, which covers information security software using or performing cryptographic functions with asymmetric algorithms. The source code is publicly available and is
+intended to qualify for treatment under EAR §742.15 and §734.3(b)(3).
+
+The project maintainers have submitted notification of this source code to:
+- crypt@bis.doc.gov
+- enc@nsa.gov
+
+The maintainers make no representation regarding your ability to import, export, or use this software in compliance with the laws of your jurisdiction. Users are responsible for complying with all applicable laws and regulations.

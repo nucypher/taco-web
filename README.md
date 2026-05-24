@@ -20,7 +20,7 @@ pnpm add @nucypher/taco
 ## Tutorial
 
 To learn more, follow the tutorial at Threshold
-Network's [docs](https://docs.taco.build/taco-integration/).
+To learn more, follow the tutorial at TACo's [docs](https://docs.taco.build/taco-integration/).
 
 ## Examples
 

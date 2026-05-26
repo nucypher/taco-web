@@ -414,9 +414,7 @@ describe('condition set', () => {
       const conditionExprJson = conditionExpr.toJson();
       expect(conditionExprJson).toBeDefined();
       expect(conditionExprJson).toContain('endpoint');
-      expect(conditionExprJson).toContain(
-        'https://_this_would_totally_fail.com',
-      );
+      expect(conditionExprJson).toContain('https://api.example.com/data');
       expect(conditionExprJson).toContain('parameters');
       expect(conditionExprJson).toContain('query');
       expect(conditionExprJson).toContain('$.ethereum.usd');

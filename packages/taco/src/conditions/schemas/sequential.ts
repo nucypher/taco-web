@@ -1,18 +1,69 @@
 import { z } from 'zod';
 
+import { ConditionProps } from '../condition';
 import { maxNestedDepth } from '../multi-condition';
 
 import { baseConditionSchema, plainStringSchema } from './common';
+import { CompoundConditionType } from './compound';
+import { IfThenElseConditionType } from './if-then-else';
 import { anyConditionSchema } from './utils';
+import { variableOperationsArraySchema } from './variable-operation';
+
+export const getAllNestedConditionVariableNames = (
+  condition: ConditionProps,
+): string[] => {
+  const conditionVariables: string[] = [];
+  if (condition.conditionType === SequentialConditionType) {
+    for (const variable of condition.conditionVariables) {
+      conditionVariables.push(variable.varName);
+      conditionVariables.push(
+        ...getAllNestedConditionVariableNames(variable.condition),
+      );
+    }
+  } else if (condition.conditionType === IfThenElseConditionType) {
+    conditionVariables.push(
+      ...getAllNestedConditionVariableNames(condition.ifCondition),
+    );
+    conditionVariables.push(
+      ...getAllNestedConditionVariableNames(condition.thenCondition),
+    );
+    if (typeof condition.elseCondition !== 'boolean') {
+      conditionVariables.push(
+        ...getAllNestedConditionVariableNames(condition.elseCondition),
+      );
+    }
+  } else if (condition.conditionType === CompoundConditionType) {
+    for (const operand of condition.operands) {
+      conditionVariables.push(...getAllNestedConditionVariableNames(operand));
+    }
+  }
+  return conditionVariables;
+};
+
+const noDuplicateVarNames = (condition: ConditionProps): boolean => {
+  const allVarNames = getAllNestedConditionVariableNames(condition);
+  const duplicates = allVarNames.filter(
+    (item, index) => allVarNames.indexOf(item) !== index,
+  );
+  return duplicates.length === 0;
+};
 
 export const SequentialConditionType = 'sequential';
 
 export const conditionVariableSchema: z.ZodSchema = z.lazy(() =>
-  z.object({
-    varName: plainStringSchema,
-    condition: anyConditionSchema,
-  }),
+  z
+    .object({
+      varName: plainStringSchema,
+      condition: anyConditionSchema,
+      operations: variableOperationsArraySchema.describe(
+        'Optional operations to perform on the obtained condition result before storing it',
+      ),
+    })
+    .describe(
+      'Executes a condition and stores the result as a variable within a sequential condition.',
+    ),
 );
+
 export type ConditionVariableProps = z.infer<typeof conditionVariableSchema>;
 
 export const sequentialConditionSchema: z.ZodSchema = baseConditionSchema
@@ -20,28 +71,18 @@ export const sequentialConditionSchema: z.ZodSchema = baseConditionSchema
     conditionType: z
       .literal(SequentialConditionType)
       .default(SequentialConditionType),
-    conditionVariables: z.array(conditionVariableSchema).min(2).max(5),
+    conditionVariables: z.array(conditionVariableSchema).min(2).max(20),
   })
   .refine(
-    (condition) => maxNestedDepth(2)(condition),
+    (condition) => maxNestedDepth(4)(condition),
     {
-      message: 'Exceeded max nested depth of 2 for multi-condition type',
+      message: 'Exceeded max nested depth of 4 for multi-condition type',
       path: ['conditionVariables'],
-    }, // Max nested depth of 2
+    }, // Max nested depth of 4
   )
   .refine(
-    // check for duplicate var names
     (condition) => {
-      const seen = new Set();
-      return condition.conditionVariables.every(
-        (child: ConditionVariableProps) => {
-          if (seen.has(child.varName)) {
-            return false;
-          }
-          seen.add(child.varName);
-          return true;
-        },
-      );
+      return noDuplicateVarNames(condition);
     },
     {
       message: 'Duplicate variable names are not allowed',

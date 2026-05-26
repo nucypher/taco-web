@@ -16,6 +16,16 @@ const _abi = [
         type: 'address',
         internalType: 'contract ITACoChildApplication',
       },
+      {
+        name: '_dkgTimeout',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
+      {
+        name: '_handoverTimeout',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
     ],
   },
   {
@@ -68,33 +78,6 @@ const _abi = [
   },
   {
     type: 'error',
-    name: 'AddressEmptyCode',
-    inputs: [
-      {
-        name: 'target',
-        type: 'address',
-        internalType: 'address',
-      },
-    ],
-  },
-  {
-    type: 'error',
-    name: 'AddressInsufficientBalance',
-    inputs: [
-      {
-        name: 'account',
-        type: 'address',
-        internalType: 'address',
-      },
-    ],
-  },
-  {
-    type: 'error',
-    name: 'FailedInnerCall',
-    inputs: [],
-  },
-  {
-    type: 'error',
     name: 'InvalidInitialization',
     inputs: [],
   },
@@ -120,17 +103,6 @@ const _abi = [
     ],
   },
   {
-    type: 'error',
-    name: 'SafeERC20FailedOperation',
-    inputs: [
-      {
-        name: 'token',
-        type: 'address',
-        internalType: 'address',
-      },
-    ],
-  },
-  {
     type: 'event',
     name: 'AggregationPosted',
     inputs: [
@@ -151,6 +123,25 @@ const _abi = [
         type: 'bytes32',
         internalType: 'bytes32',
         indexed: false,
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'BlindedSharePosted',
+    inputs: [
+      {
+        name: 'ritualId',
+        type: 'uint32',
+        internalType: 'uint32',
+        indexed: true,
+      },
+      {
+        name: 'departingParticipant',
+        type: 'address',
+        internalType: 'address',
+        indexed: true,
       },
     ],
     anonymous: false,
@@ -233,6 +224,106 @@ const _abi = [
         type: 'address',
         internalType: 'contract IFeeModel',
         indexed: false,
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'HandoverCanceled',
+    inputs: [
+      {
+        name: 'ritualId',
+        type: 'uint32',
+        internalType: 'uint32',
+        indexed: true,
+      },
+      {
+        name: 'departingParticipant',
+        type: 'address',
+        internalType: 'address',
+        indexed: true,
+      },
+      {
+        name: 'incomingParticipant',
+        type: 'address',
+        internalType: 'address',
+        indexed: true,
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'HandoverFinalized',
+    inputs: [
+      {
+        name: 'ritualId',
+        type: 'uint32',
+        internalType: 'uint32',
+        indexed: true,
+      },
+      {
+        name: 'departingParticipant',
+        type: 'address',
+        internalType: 'address',
+        indexed: true,
+      },
+      {
+        name: 'incomingParticipant',
+        type: 'address',
+        internalType: 'address',
+        indexed: true,
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'HandoverRequest',
+    inputs: [
+      {
+        name: 'ritualId',
+        type: 'uint32',
+        internalType: 'uint32',
+        indexed: true,
+      },
+      {
+        name: 'departingParticipant',
+        type: 'address',
+        internalType: 'address',
+        indexed: true,
+      },
+      {
+        name: 'incomingParticipant',
+        type: 'address',
+        internalType: 'address',
+        indexed: true,
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'HandoverTranscriptPosted',
+    inputs: [
+      {
+        name: 'ritualId',
+        type: 'uint32',
+        internalType: 'uint32',
+        indexed: true,
+      },
+      {
+        name: 'departingParticipant',
+        type: 'address',
+        internalType: 'address',
+        indexed: true,
+      },
+      {
+        name: 'incomingParticipant',
+        type: 'address',
+        internalType: 'address',
+        indexed: true,
       },
     ],
     anonymous: false,
@@ -483,25 +574,6 @@ const _abi = [
   },
   {
     type: 'event',
-    name: 'TimeoutChanged',
-    inputs: [
-      {
-        name: 'oldTimeout',
-        type: 'uint32',
-        internalType: 'uint32',
-        indexed: false,
-      },
-      {
-        name: 'newTimeout',
-        type: 'uint32',
-        internalType: 'uint32',
-        indexed: false,
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
     name: 'TranscriptPosted',
     inputs: [
       {
@@ -541,6 +613,19 @@ const _abi = [
   {
     type: 'function',
     name: 'FEE_MODEL_MANAGER_ROLE',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'bytes32',
+        internalType: 'bytes32',
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'HANDOVER_SUPERVISOR_ROLE',
     stateMutability: 'view',
     inputs: [],
     outputs: [
@@ -612,9 +697,51 @@ const _abi = [
   },
   {
     type: 'function',
+    name: 'blindedSharePosition',
+    stateMutability: 'pure',
+    inputs: [
+      {
+        name: 'index',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: 'threshold',
+        type: 'uint16',
+        internalType: 'uint16',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+  },
+  {
+    type: 'function',
     name: 'cancelDefaultAdminTransfer',
     stateMutability: 'nonpayable',
     inputs: [],
+    outputs: [],
+  },
+  {
+    type: 'function',
+    name: 'cancelHandover',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
+        name: 'ritualId',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
+      {
+        name: 'departingParticipant',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
     outputs: [],
   },
   {
@@ -690,6 +817,32 @@ const _abi = [
   },
   {
     type: 'function',
+    name: 'dkgTimeout',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'dkgTimeoutStub',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
+    ],
+  },
+  {
+    type: 'function',
     name: 'expectedTranscriptSize',
     stateMutability: 'pure',
     inputs: [
@@ -751,6 +904,24 @@ const _abi = [
   },
   {
     type: 'function',
+    name: 'finalizeHandover',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
+        name: 'ritualId',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
+      {
+        name: 'departingParticipant',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    outputs: [],
+  },
+  {
+    type: 'function',
     name: 'getAccessController',
     stateMutability: 'view',
     inputs: [
@@ -803,6 +974,54 @@ const _abi = [
         name: '',
         type: 'address',
         internalType: 'contract IFeeModel',
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'getHandoverKey',
+    stateMutability: 'view',
+    inputs: [
+      {
+        name: 'ritualId',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
+      {
+        name: 'departingProvider',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'bytes32',
+        internalType: 'bytes32',
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'getHandoverState',
+    stateMutability: 'view',
+    inputs: [
+      {
+        name: 'ritualId',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
+      {
+        name: 'departingParticipant',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'uint8',
+        internalType: 'enum Coordinator.HandoverState',
       },
     ],
   },
@@ -1242,6 +1461,81 @@ const _abi = [
   },
   {
     type: 'function',
+    name: 'handoverRequest',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
+        name: 'ritualId',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
+      {
+        name: 'departingParticipant',
+        type: 'address',
+        internalType: 'address',
+      },
+      {
+        name: 'incomingParticipant',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    outputs: [],
+  },
+  {
+    type: 'function',
+    name: 'handoverTimeout',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'handovers',
+    stateMutability: 'view',
+    inputs: [
+      {
+        name: 'handoverKey',
+        type: 'bytes32',
+        internalType: 'bytes32',
+      },
+    ],
+    outputs: [
+      {
+        name: 'requestTimestamp',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
+      {
+        name: 'incomingProvider',
+        type: 'address',
+        internalType: 'address',
+      },
+      {
+        name: 'transcript',
+        type: 'bytes',
+        internalType: 'bytes',
+      },
+      {
+        name: 'decryptionRequestStaticKey',
+        type: 'bytes',
+        internalType: 'bytes',
+      },
+      {
+        name: 'blindedShare',
+        type: 'bytes',
+        internalType: 'bytes',
+      },
+    ],
+  },
+  {
+    type: 'function',
     name: 'hasRole',
     stateMutability: 'view',
     inputs: [
@@ -1270,11 +1564,6 @@ const _abi = [
     stateMutability: 'nonpayable',
     inputs: [
       {
-        name: '_timeout',
-        type: 'uint32',
-        internalType: 'uint32',
-      },
-      {
         name: '_maxDkgSize',
         type: 'uint16',
         internalType: 'uint16',
@@ -1285,13 +1574,6 @@ const _abi = [
         internalType: 'address',
       },
     ],
-    outputs: [],
-  },
-  {
-    type: 'function',
-    name: 'initializeNumberOfRituals',
-    stateMutability: 'nonpayable',
-    inputs: [],
     outputs: [],
   },
   {
@@ -1330,35 +1612,6 @@ const _abi = [
         name: '',
         type: 'uint32',
         internalType: 'uint32',
-      },
-    ],
-  },
-  {
-    type: 'function',
-    name: 'isEncryptionAuthorized',
-    stateMutability: 'view',
-    inputs: [
-      {
-        name: '',
-        type: 'uint32',
-        internalType: 'uint32',
-      },
-      {
-        name: '',
-        type: 'bytes',
-        internalType: 'bytes',
-      },
-      {
-        name: '',
-        type: 'bytes',
-        internalType: 'bytes',
-      },
-    ],
-    outputs: [
-      {
-        name: '',
-        type: 'bool',
-        internalType: 'bool',
       },
     ],
   },
@@ -1560,16 +1813,44 @@ const _abi = [
   },
   {
     type: 'function',
-    name: 'postTranscript',
+    name: 'postBlindedShare',
     stateMutability: 'nonpayable',
     inputs: [
       {
-        name: '',
+        name: 'ritualId',
         type: 'uint32',
         internalType: 'uint32',
       },
       {
-        name: '',
+        name: 'blindedShare',
+        type: 'bytes',
+        internalType: 'bytes',
+      },
+    ],
+    outputs: [],
+  },
+  {
+    type: 'function',
+    name: 'postHandoverTranscript',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
+        name: 'ritualId',
+        type: 'uint32',
+        internalType: 'uint32',
+      },
+      {
+        name: 'departingParticipant',
+        type: 'address',
+        internalType: 'address',
+      },
+      {
+        name: 'transcript',
+        type: 'bytes',
+        internalType: 'bytes',
+      },
+      {
+        name: 'decryptionRequestStaticKey',
         type: 'bytes',
         internalType: 'bytes',
       },
@@ -1590,19 +1871,6 @@ const _abi = [
         name: 'transcript',
         type: 'bytes',
         internalType: 'bytes',
-      },
-    ],
-    outputs: [],
-  },
-  {
-    type: 'function',
-    name: 'reinitializeDefaultAdmin',
-    stateMutability: 'nonpayable',
-    inputs: [
-      {
-        name: 'newDefaultAdmin',
-        type: 'address',
-        internalType: 'address',
       },
     ],
     outputs: [],
@@ -1649,7 +1917,7 @@ const _abi = [
     stateMutability: 'view',
     inputs: [
       {
-        name: 'ritualId',
+        name: 'index',
         type: 'uint256',
         internalType: 'uint256',
       },
@@ -1799,19 +2067,6 @@ const _abi = [
   },
   {
     type: 'function',
-    name: 'setTimeout',
-    stateMutability: 'nonpayable',
-    inputs: [
-      {
-        name: 'newTimeout',
-        type: 'uint32',
-        internalType: 'uint32',
-      },
-    ],
-    outputs: [],
-  },
-  {
-    type: 'function',
     name: 'supportsInterface',
     stateMutability: 'view',
     inputs: [
@@ -1856,19 +2111,6 @@ const _abi = [
         name: 'newAuthority',
         type: 'address',
         internalType: 'address',
-      },
-    ],
-    outputs: [],
-  },
-  {
-    type: 'function',
-    name: 'withdrawAllTokens',
-    stateMutability: 'nonpayable',
-    inputs: [
-      {
-        name: 'token',
-        type: 'address',
-        internalType: 'contract IERC20',
       },
     ],
     outputs: [],

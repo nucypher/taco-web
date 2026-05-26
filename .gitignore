@@ -16,3 +16,4 @@ docs-json
 .next
 packages/docs
 docs
+.claude/

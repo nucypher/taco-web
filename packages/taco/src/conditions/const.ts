@@ -12,6 +12,8 @@ export const CONTEXT_PARAM_FULL_MATCH_REGEXP = new RegExp(
 
 export const CONTEXT_PARAM_PREFIX = ':';
 
+export const NULL_ADDRESS_CONTEXT_VAR = ':nullAddress';
+
 export const USER_ADDRESS_PARAMS = [
   // Ordering matters, this should always be last
   USER_ADDRESS_PARAM_DEFAULT,

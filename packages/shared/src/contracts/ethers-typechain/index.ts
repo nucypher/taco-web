@@ -5,6 +5,8 @@ export type { Coordinator } from './Coordinator';
 export * as factories from './factories';
 export { Coordinator__factory } from './factories/Coordinator__factory';
 export { GlobalAllowList__factory } from './factories/GlobalAllowList__factory';
+export { SigningCoordinator__factory } from './factories/SigningCoordinator__factory';
 export { SubscriptionManager__factory } from './factories/SubscriptionManager__factory';
 export type { GlobalAllowList } from './GlobalAllowList';
+export type { SigningCoordinator } from './SigningCoordinator';
 export type { SubscriptionManager } from './SubscriptionManager';

@@ -27,7 +27,11 @@ export const UserAddressSchema = z
   );
 
 export const baseConditionSchema = z.object({
-  conditionType: z.string(),
+  conditionType: z
+    .string()
+    .describe(
+      'A unique identifier that indicates the condition variant in its serialized form. It is set automatically at every sub-class constructor when a new object is being created.',
+    ),
 });
 
 // Source: https://github.com/colinhacks/zod/issues/831#issuecomment-1063481764
@@ -85,8 +89,19 @@ export const jsonPathSchema = z
   );
 
 const validateHttpsURL = (url: string): boolean => {
-  return URL.canParse(url) && url.startsWith('https://');
+  try {
+    const parsedUrl = new URL(url);
+    // Check if the URL is valid and uses HTTPS
+    return parsedUrl.protocol === 'https:';
+  } catch (e) {
+    // If URL constructor throws, the URL is invalid
+    return false;
+  }
 };
+
+export const jsonAuthorizationTypeSchema = z
+  .enum(['Bearer', 'Basic', 'X-API-Key'])
+  .describe('The type of authorization to use when making the request.');
 
 // Use our own URL refinement check due to https://github.com/colinhacks/zod/issues/2236
 export const httpsURLSchema = z
@@ -95,3 +110,8 @@ export const httpsURLSchema = z
   .refine((url) => validateHttpsURL(url), {
     message: 'Invalid URL',
   });
+
+export const hexStringSchema = z
+  .string()
+  .regex(/^[0-9a-fA-F]+$/, 'Invalid hex string')
+  .describe('A string containing only hexadecimal characters (0-9, a-f, A-F)');

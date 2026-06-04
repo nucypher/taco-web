@@ -1,9 +1,5 @@
 import { getContract } from '@nucypher/nucypher-contracts';
-import {
-  DkgPublicKey,
-  SessionStaticKey,
-  ThresholdMessageKit,
-} from '@nucypher/nucypher-core';
+import { DkgPublicKey, SessionStaticKey } from '@nucypher/nucypher-core';
 import { BigNumberish, ethers } from 'ethers';
 
 import { Domain } from '../../porter';
@@ -138,20 +134,6 @@ export class DkgCoordinatorAgent {
       word1: dkgPublicKeyBytes.slice(32, 48),
     };
     return await coordinator.getRitualIdFromPublicKey(pointStruct);
-  }
-
-  public static async isEncryptionAuthorized(
-    provider: ethers.providers.Provider,
-    domain: Domain,
-    ritualId: number,
-    thresholdMessageKit: ThresholdMessageKit,
-  ): Promise<boolean> {
-    const coordinator = await this.connectReadOnly(provider, domain);
-    return await coordinator.isEncryptionAuthorized(
-      ritualId,
-      thresholdMessageKit.acp.authorization,
-      thresholdMessageKit.ciphertextHeader.toBytes(),
-    );
   }
 
   private static async connectReadOnly(

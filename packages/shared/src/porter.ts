@@ -2,6 +2,8 @@ import {
   CapsuleFrag,
   EncryptedThresholdDecryptionRequest,
   EncryptedThresholdDecryptionResponse,
+  EncryptedThresholdSignatureRequest,
+  EncryptedThresholdSignatureResponse,
   PublicKey,
   RetrievalKit,
   TreasureMap,
@@ -148,8 +150,41 @@ type PostTacoDecryptResponse = {
 };
 
 export type TacoDecryptResult = {
-  encryptedResponses: Record<string, EncryptedThresholdDecryptionResponse>;
-  errors: Record<string, string>;
+  encryptedResponses: Record<
+    ChecksumAddress,
+    EncryptedThresholdDecryptionResponse
+  >;
+  errors: Record<ChecksumAddress, string>;
+};
+
+// Signing types
+
+type PostTacoSignRequest = {
+  readonly encrypted_signing_requests: Record<
+    ChecksumAddress,
+    Base64EncodedBytes
+  >;
+  readonly threshold: number;
+};
+
+type TacoSignResponse = {
+  readonly result: {
+    readonly signing_results: {
+      readonly encrypted_signature_responses: Record<
+        ChecksumAddress,
+        Base64EncodedBytes
+      >;
+      readonly errors: Record<ChecksumAddress, string>;
+    };
+  };
+};
+
+export type TacoSignResult = {
+  encryptedResponses: Record<
+    ChecksumAddress,
+    EncryptedThresholdSignatureResponse
+  >;
+  errors: Record<ChecksumAddress, string>;
 };
 
 export class PorterClient {
@@ -175,7 +210,20 @@ export class PorterClient {
         if (resp.status === HttpStatusCode.Ok) {
           return resp;
         }
-      } catch (e) {
+      } catch (e: unknown) {
+        const errorDetails: Record<string, unknown> = {
+          url: porterUrl.toString(),
+          method: config.method,
+          requestData: config.data,
+        };
+
+        if (axios.isAxiosError(e)) {
+          errorDetails.status = e.response?.status;
+          errorDetails.statusText = e.response?.statusText;
+          errorDetails.data = e.response?.data;
+        }
+
+        console.error('Porter request failed:', errorDetails);
         lastError = e;
         continue;
       }
@@ -282,6 +330,49 @@ export class PorterClient {
       string,
       EncryptedThresholdDecryptionResponse
     > = Object.fromEntries(decryptionResponses);
+    return { encryptedResponses, errors };
+  }
+
+  public async signUserOp(
+    encryptedSigningRequests: Record<
+      string,
+      EncryptedThresholdSignatureRequest
+    >,
+    threshold: number,
+  ): Promise<TacoSignResult> {
+    const data: PostTacoSignRequest = {
+      encrypted_signing_requests: Object.fromEntries(
+        Object.entries(encryptedSigningRequests).map(
+          ([ursula, encryptedSigningRequest]) => [
+            ursula,
+            toBase64(encryptedSigningRequest.toBytes()),
+          ],
+        ),
+      ),
+      threshold,
+    };
+
+    const resp: AxiosResponse<TacoSignResponse> = await this.tryAndCall({
+      url: '/sign',
+      method: 'post',
+      data,
+    });
+    const { encrypted_signature_responses, errors } =
+      resp.data.result.signing_results;
+
+    const encryptedResponses: {
+      [ursulaAddress: string]: EncryptedThresholdSignatureResponse;
+    } = {};
+    for (const [ursulaAddress, encryptedResponseBase64] of Object.entries(
+      encrypted_signature_responses || {},
+    )) {
+      const encryptedSignatureResponse =
+        EncryptedThresholdSignatureResponse.fromBytes(
+          fromBase64(encryptedResponseBase64),
+        );
+      encryptedResponses[ursulaAddress] = encryptedSignatureResponse;
+    }
+
     return { encryptedResponses, errors };
   }
 }

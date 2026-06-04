@@ -6,11 +6,16 @@ _Union of the following possible types:_
 
 - [RpcCondition](#rpccondition)
 - [TimeCondition](#timecondition)
+- [ContextVariableCondition](#contextvariablecondition)
 - [ContractCondition](#contractcondition)
-- [CompoundCondition](#compoundcondition)
+- [EcdsaCondition](#ecdsacondition)
+- [JsonCondition](#jsoncondition)
 - [JsonApiCondition](#jsonapicondition)
 - [JsonRpcCondition](#jsonrpccondition)
 - [JwtCondition](#jwtcondition)
+- [SigningObjectAttributeCondition](#signingobjectattributecondition)
+- [SigningObjectAbiAttributeCondition](#signingobjectabiattributecondition)
+- [CompoundCondition](#compoundcondition)
 - [SequentialCondition](#sequentialcondition)
 - [IfThenElseCondition](#ifthenelsecondition)
 
@@ -24,15 +29,31 @@ _Literal `':userAddress'` value._
 
 _Object containing the following properties:_
 
-| Property                 | Type     |
-| :----------------------- | :------- |
-| **`conditionType`** (\*) | `string` |
+| Property                 | Description                                                                                                                                                                 | Type     |
+| :----------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------- |
+| **`conditionType`** (\*) | A unique identifier that indicates the condition variant in its serialized form. It is set automatically at every sub-class constructor when a new object is being created. | `string` |
 
 _(\*) Required._
+
+## HexString
+
+A string containing only hexadecimal characters (0-9, a-f, A-F)
+
+_String which matches the regular expression `/^[0-9a-fA-F]+$/`._
 
 ## HttpsURL
 
 _String which is a valid URL._
+
+## JsonAuthorizationType
+
+The type of authorization to use when making the request.
+
+_Enum string, one of the following possible values:_
+
+- `'Bearer'`
+- `'Basic'`
+- `'X-API-Key'`
 
 ## JsonPath
 
@@ -80,6 +101,20 @@ _Object containing the following properties:_
 
 _(\*) Required._
 
+## ContextVariableCondition
+
+Context Variable Condition for performing comparison operations on context variable values.
+
+_Object containing the following properties:_
+
+| Property                   | Description                                                                                  | Type                                              |
+| :------------------------- | :------------------------------------------------------------------------------------------- | :------------------------------------------------ |
+| **`conditionType`** (\*)   |                                                                                              | `'context-variable'`                              |
+| **`contextVariable`** (\*) | The context variable to check (e.g., ":userAddress", ":customParam")                         | `string` (_regex: `/^:[a-zA-Z_][a-zA-Z0-9_]*$/`_) |
+| **`returnValueTest`** (\*) | Test to perform on a value. Supports comparison operators like ==, >, <, >=, <=, !=, in, !in | [ReturnValueTest](#returnvaluetest)               |
+
+_(\*) Required._
+
 ## ContractCondition
 
 _Object containing the following properties:_
@@ -123,6 +158,22 @@ _Object containing the following properties:_
 
 _(\*) Required._
 
+## EcdsaCondition
+
+ECDSA Condition for verifying the authenticity of a message using ECDSA signatures.
+
+_Object containing the following properties:_
+
+| Property                | Type                                                                                      | Default        |
+| :---------------------- | :---------------------------------------------------------------------------------------- | :------------- |
+| `conditionType`         | `'ecdsa'`                                                                                 | `'ecdsa'`      |
+| `message`               | `string` _or_ [ContextParam](#contextparam)                                               | `':message'`   |
+| `signature`             | [HexString](#hexstring) _or_ [ContextParam](#contextparam)                                | `':signature'` |
+| **`verifyingKey`** (\*) | [HexString](#hexstring)                                                                   |                |
+| **`curve`** (\*)        | `'SECP256k1' \| 'NIST256p' \| 'NIST384p' \| 'NIST521p' \| 'Ed25519' \| 'BRAINPOOLP256r1'` |                |
+
+_(\*) Required._
+
 ## IfThenElseCondition
 
 _Object containing the following properties:_
@@ -133,6 +184,19 @@ _Object containing the following properties:_
 | **`ifCondition`** (\*)   | [AnyCondition](#anycondition)                |                  |
 | **`thenCondition`** (\*) | [AnyCondition](#anycondition)                |                  |
 | **`elseCondition`** (\*) | [AnyCondition](#anycondition) _or_ `boolean` |                  |
+
+_(\*) Required._
+
+## JsonCondition
+
+_Object containing the following properties:_
+
+| Property                   | Description                                                                                  | Type                                              | Default  |
+| :------------------------- | :------------------------------------------------------------------------------------------- | :------------------------------------------------ | :------- |
+| `conditionType`            |                                                                                              | `'json'`                                          | `'json'` |
+| **`data`** (\*)            | Context variable that resolves to JSON data at decryption time.                              | `string` (_regex: `/^:[a-zA-Z_][a-zA-Z0-9_]*$/`_) |          |
+| `query`                    | Optional JSONPath query to extract a specific value from the data.                           | [JsonPath](#jsonpath)                             |          |
+| **`returnValueTest`** (\*) | Test to perform on a value. Supports comparison operators like ==, >, <, >=, <=, !=, in, !in | [ReturnValueTest](#returnvaluetest)               |          |
 
 _(\*) Required._
 
@@ -147,6 +211,7 @@ _Object containing the following properties:_
 | `parameters`               | _Object with dynamic keys of type_ `string` _and values of type_ `unknown` (_optional & nullable_) |              |
 | `query`                    | [JsonPath](#jsonpath)                                                                              |              |
 | `authorizationToken`       | [ContextParam](#contextparam)                                                                      |              |
+| `authorizationType`        | [JsonAuthorizationType](#jsonauthorizationtype)                                                    |              |
 | **`returnValueTest`** (\*) | [ReturnValueTest](#returnvaluetest)                                                                |              |
 
 _(\*) Required._
@@ -163,6 +228,7 @@ _Object containing the following properties:_
 | `params`                   | `Array<unknown>` _or_ _Object with dynamic keys of type_ `string` _and values of type_ `unknown` (_optional & nullable_) |              |
 | `query`                    | [JsonPath](#jsonpath)                                                                                                    |              |
 | `authorizationToken`       | [ContextParam](#contextparam)                                                                                            |              |
+| `authorizationType`        | [JsonAuthorizationType](#jsonauthorizationtype)                                                                          |              |
 | **`returnValueTest`** (\*) | [ReturnValueTest](#returnvaluetest)                                                                                      |              |
 
 _(\*) Required._
@@ -184,23 +250,27 @@ _(\*) Required._
 
 _Object containing the following properties:_
 
-| Property              | Type                                                            |
-| :-------------------- | :-------------------------------------------------------------- |
-| `index`               | `number` (_int, ≥0_)                                            |
-| **`comparator`** (\*) | `'==' \| '>' \| '<' \| '>=' \| '<=' \| '!='`                    |
-| **`value`** (\*)      | [BlockchainParamOrContextParam](#blockchainparamorcontextparam) |
+| Property              | Description                                                             | Type                                                                                |
+| :-------------------- | :---------------------------------------------------------------------- | :---------------------------------------------------------------------------------- |
+| `index`               |                                                                         | `number` (_int, ≥0_)                                                                |
+| **`comparator`** (\*) |                                                                         | `'==' \| '>' \| '<' \| '>=' \| '<=' \| '!=' \| 'in' \| '!in'`                       |
+| `operations`          | Optional operations to perform on the obtained result before comparison | _Array of at least 1  and  at most 5 [VariableOperation](#variableoperation) items_ |
+| **`value`** (\*)      |                                                                         | [BlockchainParamOrContextParam](#blockchainparamorcontextparam)                     |
 
 _(\*) Required._
 
 ## ReturnValueTest
 
+Test to perform on a value. Supports comparison operators like ==, >, <, >=, <=, !=, in, !in
+
 _Object containing the following properties:_
 
-| Property              | Type                                         |
-| :-------------------- | :------------------------------------------- |
-| `index`               | `number` (_int, ≥0_)                         |
-| **`comparator`** (\*) | `'==' \| '>' \| '<' \| '>=' \| '<=' \| '!='` |
-| **`value`** (\*)      | [ParamOrContextParam](#paramorcontextparam)  |
+| Property              | Description                                                             | Type                                                                                |
+| :-------------------- | :---------------------------------------------------------------------- | :---------------------------------------------------------------------------------- |
+| `index`               |                                                                         | `number` (_int, ≥0_)                                                                |
+| **`comparator`** (\*) |                                                                         | `'==' \| '>' \| '<' \| '>=' \| '<=' \| '!=' \| 'in' \| '!in'`                       |
+| `operations`          | Optional operations to perform on the obtained result before comparison | _Array of at least 1  and  at most 5 [VariableOperation](#variableoperation) items_ |
+| **`value`** (\*)      |                                                                         | [ParamOrContextParam](#paramorcontextparam)                                         |
 
 _(\*) Required._
 
@@ -224,10 +294,11 @@ _(\*) Required._
 
 _Object containing the following properties:_
 
-| Property             | Type                          |
-| :------------------- | :---------------------------- |
-| **`varName`** (\*)   | [PlainString](#plainstring)   |
-| **`condition`** (\*) | [AnyCondition](#anycondition) |
+| Property             | Description                                                                       | Type                                                                                |
+| :------------------- | :-------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------- |
+| **`varName`** (\*)   | Any string that is not a Context Parameter i.e. does not start with `:`.          | [PlainString](#plainstring)                                                         |
+| **`condition`** (\*) |                                                                                   | [AnyCondition](#anycondition)                                                       |
+| `operations`         | Optional operations to perform on the obtained condition result before storing it | _Array of at least 1  and  at most 5 [VariableOperation](#variableoperation) items_ |
 
 _(\*) Required._
 
@@ -235,10 +306,61 @@ _(\*) Required._
 
 _Object containing the following properties:_
 
-| Property                      | Type                                                                                | Default        |
-| :---------------------------- | :---------------------------------------------------------------------------------- | :------------- |
-| `conditionType`               | `'sequential'`                                                                      | `'sequential'` |
-| **`conditionVariables`** (\*) | _Array of at least 2  and  at most 5 [ConditionVariable](#conditionvariable) items_ |                |
+| Property                      | Type                                                                                 | Default        |
+| :---------------------------- | :----------------------------------------------------------------------------------- | :------------- |
+| `conditionType`               | `'sequential'`                                                                       | `'sequential'` |
+| **`conditionVariables`** (\*) | _Array of at least 2  and  at most 20 [ConditionVariable](#conditionvariable) items_ |                |
+
+_(\*) Required._
+
+## AbiCallValidation
+
+A map of allowed ABI calls with their respective parameter validations.
+
+_Object containing the following properties:_
+
+| Property                   | Type                                                                                                                                |
+| :------------------------- | :---------------------------------------------------------------------------------------------------------------------------------- |
+| **`allowedAbiCalls`** (\*) | _Object with dynamic keys of type_ `string` _and values of type_ _Array of [AbiParameterValidation](#abiparametervalidation) items_ |
+
+_(\*) Required._
+
+## AbiParameterValidation
+
+_Object containing the following properties:_
+
+| Property                  | Description                                                                                                                                                                                    | Type                                                                                                                                                                                              |
+| :------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **`parameterIndex`** (\*) | Index of parameter to check within abi calldata.                                                                                                                                               | `number` (_int, ≥0_)                                                                                                                                                                              |
+| `subIndices`              | Sequential indices for navigating nested structures (arrays and tuples). The ABI type determines interpretation at each step: array types access elements, tuple types access fields by index. | _Array of `number` (_int, ≥0_) items_                                                                                                                                                             |
+| `returnValueTest`         | Comparison check for value within calldata                                                                                                                                                     | [BlockchainReturnValueTest](#blockchainreturnvaluetest)                                                                                                                                           |
+| `nestedAbiValidation`     | Additional checks for nested abi calldata                                                                                                                                                      | _Object with properties:_<ul><li>`allowedAbiCalls`: _Object with dynamic keys of type_ `string` _and values of type_ _Array of [AbiParameterValidation](#abiparametervalidation) items_</li></ul> |
+
+_(\*) Required._
+
+## SigningObjectAbiAttributeCondition
+
+_Object containing the following properties:_
+
+| Property                  | Description                                                                   | Type                                    | Default                     |
+| :------------------------ | :---------------------------------------------------------------------------- | :-------------------------------------- | :-------------------------- |
+| `conditionType`           |                                                                               | `'signing-abi-attribute'`               | `'signing-abi-attribute'`   |
+| `signingObjectContextVar` | The context variable that will be replaced with the signing object at signing | `':signingConditionObject'`             | `':signingConditionObject'` |
+| **`attributeName`** (\*)  | The name of the attribute to check                                            | `string` (_min length: 1_)              |                             |
+| **`abiValidation`** (\*)  | A map of allowed ABI calls with their respective parameter validations.       | [AbiCallValidation](#abicallvalidation) |                             |
+
+_(\*) Required._
+
+## SigningObjectAttributeCondition
+
+_Object containing the following properties:_
+
+| Property                   | Description                                                                   | Type                                                    | Default                     |
+| :------------------------- | :---------------------------------------------------------------------------- | :------------------------------------------------------ | :-------------------------- |
+| `conditionType`            |                                                                               | `'signing-attribute'`                                   | `'signing-attribute'`       |
+| `signingObjectContextVar`  | The context variable that will be replaced with the signing object at signing | `':signingConditionObject'`                             | `':signingConditionObject'` |
+| **`attributeName`** (\*)   | The name of the attribute to check                                            | `string` (_min length: 1_)                              |                             |
+| **`returnValueTest`** (\*) |                                                                               | [BlockchainReturnValueTest](#blockchainreturnvaluetest) |                             |
 
 _(\*) Required._
 
@@ -254,6 +376,27 @@ _Object containing the following properties:_
 | **`returnValueTest`** (\*) | [BlockchainReturnValueTest](#blockchainreturnvaluetest) |               |
 
 _(\*) Required._
+
+## VariableOperation
+
+An operation that can be performed on an obtained result.
+
+_Union of the following possible types:_
+
+- _Object with properties:_<ul><li>`operation`: `'+=' | '-=' | '*=' | '/=' | '%=' | 'toTokenBaseUnits' | 'index' | 'round' | 'abs' | 'avg' | 'ceil' | 'ethToWei' | 'floor' | 'len' | 'max' | 'min' | 'sum' | 'weiToEth' | 'bool' | 'float' | ...`</li><li>`value`: [ParamOrContextParam](#paramorcontextparam)</li></ul>
+- _Object with properties:_<ul><li>`operation`: `'create2'`</li><li>`value`: _Object with properties:_<ul><li>`deployerAddress`: `string` (_regex: `/^0x[0-9a-fA-F]+$/`_) _or_ [ContextParam](#contextparam)</li><li>`bytecodeHash`: `string` (_regex: `/^0x[0-9a-fA-F]+$/`_) _or_ [ContextParam](#contextparam)</li></ul> - Value for create2 operation containing deployerAddress and bytecodeHash for computing CREATE2 addresses locally.</li></ul>
+
+## VariableOperationsArray
+
+Optional operations to perform on the obtained result
+
+_Array of at least 1  and  at most 5 [VariableOperation](#variableoperation) items._ (_optional_)
+
+## AddressAllowlistCondition
+
+List of allowed wallet addresses. Addresses should be provided in checksummed form.
+
+_Array of at least 1  and  at most 25 `string` items._
 
 ## More resources
 

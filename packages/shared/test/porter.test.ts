@@ -1,16 +1,28 @@
 import { fakeUrsulas } from '@nucypher/test-utils';
 import axios, { HttpStatusCode } from 'axios';
-import { MockInstance, beforeAll, describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it, MockInstance, vi } from 'vitest';
+
 import {
-  GetUrsulasResult,
-  PorterClient,
-  Ursula,
+  PackedUserOperationSignatureRequest,
+  SessionStaticSecret,
+  SignatureResponse,
+  UserOperationSignatureRequest,
+} from '@nucypher/nucypher-core';
+
+import {
   domains,
   getPorterUris,
   getPorterUrisFromSource,
+  GetUrsulasResult,
   initialize,
+  PorterClient,
+  toBase64,
+  toCorePackedUserOperation,
+  toCoreUserOperation,
   toHexString,
+  Ursula,
 } from '../src';
+import { fromHexString } from '../src/utils';
 
 const fakePorterUris = [
   'https://_this_should_crash.com/',
@@ -48,6 +60,97 @@ const mockGetUrsulas = (ursulas: Ursula[] = fakeUrsulas()): MockInstance => {
     }
   });
 };
+
+const createMockSignResponse = (errorCase?: boolean) => {
+  // mimic requester public key obtained from original encrypted request
+  const requesterPk = SessionStaticSecret.random().publicKey();
+
+  const response = {
+    result: {
+      signing_results: {
+        encrypted_signature_responses: errorCase
+          ? {
+              '0xabcd': [
+                toBase64(
+                  new SignatureResponse(
+                    '0x0000000000000000000000000000000000000001',
+                    fromHexString('0x1234'),
+                    fromHexString('0xbeef'),
+                    0,
+                  )
+                    .encrypt(
+                      SessionStaticSecret.random().deriveSharedSecret(
+                        requesterPk,
+                      ),
+                    )
+                    .toBytes(),
+                ),
+              ],
+            }
+          : {
+              '0x1234': [
+                toBase64(
+                  new SignatureResponse(
+                    '0x0000000000000000000000000000000000000002',
+                    fromHexString('0x1234'),
+                    fromHexString('0xdead'),
+                    0,
+                  )
+                    .encrypt(
+                      SessionStaticSecret.random().deriveSharedSecret(
+                        requesterPk,
+                      ),
+                    )
+                    .toBytes(),
+                ),
+              ],
+              '0xabcd': [
+                toBase64(
+                  new SignatureResponse(
+                    '0x0000000000000000000000000000000000000001',
+                    fromHexString('0x1234'),
+                    fromHexString('0xbeef'),
+                    0,
+                  )
+                    .encrypt(
+                      SessionStaticSecret.random().deriveSharedSecret(
+                        requesterPk,
+                      ),
+                    )
+                    .toBytes(),
+                ),
+              ],
+            },
+        errors: errorCase
+          ? {
+              '0x1234': 'Failed to sign',
+            }
+          : {},
+      },
+    },
+  };
+
+  return response;
+};
+
+const createMockSignImplementation =
+  (endpoint: string) =>
+  (success: boolean = true, errorCase?: boolean): MockInstance => {
+    return vi.spyOn(axios, 'request').mockImplementation(async (config) => {
+      // Handle sign requests
+      if (config.url === endpoint && config.baseURL === fakePorterUris[2]) {
+        if (success) {
+          return Promise.resolve({
+            status: HttpStatusCode.Ok,
+            data: createMockSignResponse(errorCase),
+          });
+        }
+        return Promise.resolve({ status: HttpStatusCode.BadRequest, data: '' });
+      }
+    });
+  };
+
+const mockSignUserOp = createMockSignImplementation('/sign');
 
 describe('getPorterUris', () => {
   beforeAll(async () => {
@@ -115,5 +218,194 @@ describe('PorterClient', () => {
     await expect(porterClient.getUrsulas(ursulas.length)).rejects.toThrowError(
       Error(`Test error`),
     );
+  });
+});
+
+describe('PorterClient Signing', () => {
+  beforeAll(async () => {
+    await initialize();
+  });
+
+  describe('signUserOp', () => {
+    // since this uses wasm it must be called after initialize (beforeAll()) so we use a factory function
+    let requesterSk: SessionStaticSecret;
+    let requesterPk: any;
+
+    beforeAll(async () => {
+      requesterSk = SessionStaticSecret.random();
+      requesterPk = requesterSk.publicKey();
+    });
+
+    const createUserOpSignatureRequest = () =>
+      new UserOperationSignatureRequest(
+        toCoreUserOperation({
+          sender: '0x000000000000000000000000000000000000000a',
+          nonce: BigInt(123),
+          callData: fromHexString('0xabc'),
+          callGasLimit: BigInt(456),
+          verificationGasLimit: BigInt(789),
+          preVerificationGas: BigInt(101112),
+          maxFeePerGas: BigInt(131415),
+          maxPriorityFeePerGas: BigInt(161718),
+        }),
+        1, // cohort ID
+        BigInt(1), // chain ID
+        '0.8.0',
+        null,
+      );
+
+    it('should successfully sign a UserOperation', async () => {
+      const userOpSignatureRequest = createUserOpSignatureRequest();
+
+      mockSignUserOp(true);
+      const porterClient = new PorterClient(fakePorterUris[2]);
+      const result = await porterClient.signUserOp(
+        {
+          '0x1234': userOpSignatureRequest.encrypt(
+            requesterSk.deriveSharedSecret(
+              SessionStaticSecret.random().publicKey(),
+            ),
+            requesterPk,
+          ),
+          '0xabcd': userOpSignatureRequest.encrypt(
+            requesterSk.deriveSharedSecret(
+              SessionStaticSecret.random().publicKey(),
+            ),
+            requesterPk,
+          ),
+        },
+        2,
+      );
+
+      expect(Object.keys(result.errors).length).toBe(0);
+      expect(Object.keys(result.encryptedResponses).length).toBe(2);
+    });
+
+    it('should successfully sign a PackedUserOperation', async () => {
+      const packedUserOperationSignatureRequest =
+        new PackedUserOperationSignatureRequest(
+          toCorePackedUserOperation({
+            sender: '0x000000000000000000000000000000000000000a',
+            nonce: BigInt(123),
+            initCode: fromHexString('0xabc'),
+            callData: fromHexString('0xdef'),
+            accountGasLimits: fromHexString('0x01020304'),
+            preVerificationGas: BigInt(101112),
+            gasFees: fromHexString('0x05060708'),
+            paymasterAndData: fromHexString('0x090a0b0c'),
+          }),
+          1, // cohort ID
+          BigInt(1), // chain ID
+          'mdt',
+          null,
+        );
+
+      mockSignUserOp(true);
+      const porterClient = new PorterClient(fakePorterUris[2]);
+      const result = await porterClient.signUserOp(
+        {
+          '0x1234': packedUserOperationSignatureRequest.encrypt(
+            requesterSk.deriveSharedSecret(
+              SessionStaticSecret.random().publicKey(),
+            ),
+            requesterPk,
+          ),
+          '0xabcd': packedUserOperationSignatureRequest.encrypt(
+            requesterSk.deriveSharedSecret(
+              SessionStaticSecret.random().publicKey(),
+            ),
+            requesterPk,
+          ),
+        },
+        2,
+      );
+
+      expect(Object.keys(result.errors).length).toBe(0);
+      expect(Object.keys(result.encryptedResponses).length).toBe(2);
+    });
+
+    it('should handle UserOperation signing failures', async () => {
+      const userOpSignatureRequest = createUserOpSignatureRequest();
+
+      mockSignUserOp(false);
+      const porterClient = new PorterClient(fakePorterUris[2]);
+
+      await expect(
+        porterClient.signUserOp(
+          {
+            '0x1234': userOpSignatureRequest.encrypt(
+              requesterSk.deriveSharedSecret(
+                SessionStaticSecret.random().publicKey(),
+              ),
+              requesterPk,
+            ),
+            '0xabcd': userOpSignatureRequest.encrypt(
+              requesterSk.deriveSharedSecret(
+                SessionStaticSecret.random().publicKey(),
+              ),
+              requesterPk,
+            ),
+          },
+          2,
+        ),
+      ).rejects.toThrow('Porter returned bad response: 400 - ');
+    });
+
+    it('should handle errors from Porter response in UserOperation signing', async () => {
+      const userOpSignatureRequest = createUserOpSignatureRequest();
+
+      // Mock a response with errors from Porter
+      mockSignUserOp(true, true);
+      const porterClient = new PorterClient(fakePorterUris[2]);
+      const result = await porterClient.signUserOp(
+        {
+          '0x1234': userOpSignatureRequest.encrypt(
+            requesterSk.deriveSharedSecret(
+              SessionStaticSecret.random().publicKey(),
+            ),
+            requesterPk,
+          ),
+          '0xabcd': userOpSignatureRequest.encrypt(
+            requesterSk.deriveSharedSecret(
+              SessionStaticSecret.random().publicKey(),
+            ),
+            requesterPk,
+          ),
+        },
+        2,
+      );
+
+      expect(Object.keys(result.encryptedResponses).length).toBe(1);
+      expect(result.errors).toEqual({
+        '0x1234': 'Failed to sign',
+      });
+    });
+
+    it('should successfully sign', async () => {
+      const userOpSignatureRequest = createUserOpSignatureRequest();
+
+      mockSignUserOp(true);
+      const porterClient = new PorterClient(fakePorterUris[2]);
+      const result = await porterClient.signUserOp(
+        {
+          '0x1234': userOpSignatureRequest.encrypt(
+            requesterSk.deriveSharedSecret(
+              SessionStaticSecret.random().publicKey(),
+            ),
+            requesterPk,
+          ),
+          '0xabcd': userOpSignatureRequest.encrypt(
+            requesterSk.deriveSharedSecret(
+              SessionStaticSecret.random().publicKey(),
+            ),
+            requesterPk,
+          ),
+        },
+        2,
+      );
+
+      expect(Object.keys(result.errors).length).toBe(0);
+      expect(Object.keys(result.encryptedResponses).length).toBe(2);
+    });
   });
 });

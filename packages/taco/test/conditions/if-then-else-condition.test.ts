@@ -115,11 +115,23 @@ describe('validation', () => {
   );
 
   it('limits max depth of nested if condition', () => {
+    // Need 5 levels of nesting to exceed max depth of 4
+    // ifThenElse(1) -> ifThenElse(2) -> ifThenElse(3) -> ifThenElse(4) -> compound(5)
     const result = IfThenElseCondition.validate(ifThenElseConditionSchema, {
       ifCondition: {
         conditionType: IfThenElseConditionType,
-        ifCondition: testRpcConditionObj,
-        thenCondition: testCompoundConditionObj,
+        ifCondition: {
+          conditionType: IfThenElseConditionType,
+          ifCondition: {
+            conditionType: IfThenElseConditionType,
+            ifCondition: testRpcConditionObj,
+            thenCondition: testCompoundConditionObj,
+            elseCondition: testTimeConditionObj,
+          },
+          thenCondition: testTimeConditionObj,
+          elseCondition: true,
+        },
+        thenCondition: testTimeConditionObj,
         elseCondition: testTimeConditionObj,
       },
       thenCondition: testRpcConditionObj,
@@ -129,18 +141,30 @@ describe('validation', () => {
     expect(result.data).toBeUndefined();
     expect(result.error?.format()).toMatchObject({
       ifCondition: {
-        _errors: [`Exceeded max nested depth of 2 for multi-condition type`],
+        _errors: [`Exceeded max nested depth of 4 for multi-condition type`],
       },
     });
   });
 
   it('limits max depth of nested then condition', () => {
+    // Need 5 levels of nesting to exceed max depth of 4
+    // ifThenElse(1) -> ifThenElse(2) -> ifThenElse(3) -> ifThenElse(4) -> compound(5)
     const result = IfThenElseCondition.validate(ifThenElseConditionSchema, {
       ifCondition: testRpcConditionObj,
       thenCondition: {
         conditionType: IfThenElseConditionType,
         ifCondition: testRpcConditionObj,
-        thenCondition: testCompoundConditionObj,
+        thenCondition: {
+          conditionType: IfThenElseConditionType,
+          ifCondition: testRpcConditionObj,
+          thenCondition: {
+            conditionType: IfThenElseConditionType,
+            ifCondition: testRpcConditionObj,
+            thenCondition: testCompoundConditionObj,
+            elseCondition: true,
+          },
+          elseCondition: true,
+        },
         elseCondition: true,
       },
       elseCondition: testTimeConditionObj,
@@ -149,27 +173,39 @@ describe('validation', () => {
     expect(result.data).toBeUndefined();
     expect(result.error?.format()).toMatchObject({
       thenCondition: {
-        _errors: [`Exceeded max nested depth of 2 for multi-condition type`],
+        _errors: [`Exceeded max nested depth of 4 for multi-condition type`],
       },
     });
   });
 
   it('limits max depth of nested else condition', () => {
+    // Need 5 levels of nesting to exceed max depth of 4
+    // ifThenElse(1) -> ifThenElse(2) -> ifThenElse(3) -> ifThenElse(4) -> sequential(5)
     const result = IfThenElseCondition.validate(ifThenElseConditionSchema, {
       ifCondition: testRpcConditionObj,
       thenCondition: testTimeConditionObj,
       elseCondition: {
         conditionType: IfThenElseConditionType,
         ifCondition: testRpcConditionObj,
-        thenCondition: testSequentialConditionObj,
-        elseCondition: testTimeConditionObj,
+        thenCondition: testTimeConditionObj,
+        elseCondition: {
+          conditionType: IfThenElseConditionType,
+          ifCondition: testRpcConditionObj,
+          thenCondition: testTimeConditionObj,
+          elseCondition: {
+            conditionType: IfThenElseConditionType,
+            ifCondition: testRpcConditionObj,
+            thenCondition: testSequentialConditionObj,
+            elseCondition: testTimeConditionObj,
+          },
+        },
       },
     });
     expect(result.error).toBeDefined();
     expect(result.data).toBeUndefined();
     expect(result.error?.format()).toMatchObject({
       elseCondition: {
-        _errors: [`Exceeded max nested depth of 2 for multi-condition type`],
+        _errors: [`Exceeded max nested depth of 4 for multi-condition type`],
       },
     });
   });

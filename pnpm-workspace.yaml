@@ -3,4 +3,6 @@ packages:
   - 'demos/**/*'
   - 'examples/**/*'
   - 'packages/**/*'
+  - '!packages/*/dist/**'
+  - '!packages/*/node_modules/**'
   - 'scripts/**/*'

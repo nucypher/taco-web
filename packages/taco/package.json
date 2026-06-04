@@ -1,6 +1,6 @@
 {
   "name": "@nucypher/taco",
-  "version": "0.6.0",
+  "version": "0.7.0-alpha.12",
   "keywords": [
     "taco",
     "threshold",
@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@astronautlabs/jsonpath": "^1.1.2",
-    "@nucypher/nucypher-core": "^0.14.5",
+    "@nucypher/nucypher-core": "^0.15.1-dev.3",
     "@nucypher/shared": "workspace:*",
     "@nucypher/taco-auth": "workspace:*",
     "ethers": "^5.8.0",
@@ -52,7 +52,8 @@
   "devDependencies": {
     "@nucypher/test-utils": "workspace:*",
     "@types/semver": "^7.7.0",
-    "dotenv": "^16.4.7",
+    "axios": "^1.8.4",
+    "dotenv": "^16.5.0",
     "glob": "^11.0.1",
     "modified-zod2md": "0.1.5-modified.4"
   },
